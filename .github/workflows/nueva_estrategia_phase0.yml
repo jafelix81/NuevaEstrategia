@@ -1,0 +1,32 @@
+name: Nueva Estrategia - Fase 0 Descubrimiento
+
+on:
+  workflow_dispatch:
+
+jobs:
+  phase0:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy pandas scipy yfinance
+
+      - name: Run Phase 0
+        run: |
+          python Nueva_Estrategia_Fase0_Descubrimiento.py
+
+      - name: Upload Phase 0 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nueva_estrategia_phase0
+          path: cere_phase0_discovery/
