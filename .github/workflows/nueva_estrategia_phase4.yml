@@ -1,0 +1,35 @@
+name: Nueva Estrategia - Fase 4 Stress R120
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '20 19 * * 1-5'
+
+jobs:
+  phase4:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy pandas yfinance scipy
+
+      - name: Run Phase 4
+        run: |
+          python Nueva_Estrategia_Fase4_Stress_R120.py
+
+      - name: Upload Phase 4 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nueva-estrategia-phase4-${{ github.run_id }}
+          path: nueva_estrategia_phase4_stress_r120/
+          if-no-files-found: error
