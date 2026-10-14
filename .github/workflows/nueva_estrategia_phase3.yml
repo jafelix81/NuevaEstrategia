@@ -1,0 +1,26 @@
+name: Nueva Estrategia - Fase 3 Incremental
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '20 19 * * 1-5'
+
+jobs:
+  phase3:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install --upgrade pip pandas numpy scipy yfinance
+      - name: Run Phase 3
+        run: python Nueva_Estrategia_Fase3_Incremental.py
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nueva-estrategia-phase3
+          path: nueva_estrategia_phase3_incremental/
