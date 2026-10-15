@@ -1,0 +1,37 @@
+name: Fase 8 - Portfolio Construction LTM
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  phase8:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy pandas scipy yfinance openpyxl
+
+      - name: Run Phase 8
+        run: |
+          python Nueva_Estrategia_Fase8_Portfolio_LTM.py
+
+      - name: Upload Phase 8 artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fase8-portfolio-ltm-results
+          path: nueva_estrategia_phase8_portfolio/**
+          if-no-files-found: warn
+          retention-days: 14
