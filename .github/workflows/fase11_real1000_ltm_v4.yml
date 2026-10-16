@@ -1,0 +1,30 @@
+name: Fase 11 - Real $1,000 Implementability LTM v3
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  phase11:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy pandas scipy yfinance openpyxl
+      - name: Run Phase 11 v3
+        run: python -u Nueva_Estrategia_Fase11_Real1000_LTM_v4.py
+      - name: Upload Phase 11 v3 artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fase11-real1000-ltm-v3-results
+          path: nueva_estrategia_phase11_real1000_ltm/**
+          if-no-files-found: warn
+          retention-days: 14
