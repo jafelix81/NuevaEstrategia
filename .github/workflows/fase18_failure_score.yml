@@ -1,0 +1,48 @@
+name: Fase 18 - Failure Score
+
+on:
+  workflow_dispatch:
+
+jobs:
+  phase18:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install pandas numpy yfinance scipy
+
+      - name: Run Phase 15B exact engine and export C20 ledger
+        run: python 'Nueva_Estrategia_Fase15B_Drawdown_Audit_LTM.py'
+
+      - name: Run Phase 16B exact momentum failure anatomy
+        env:
+          PHASE15B_TRADES_PATH: phase15b_c20_trades.csv
+        run: python 'Nueva_Estrategia_Fase16B_Momentum_Failure_Anatomy.py'
+
+      - name: Run Phase 17 exact ex-ante predictability
+        run: python 'Nueva_Estrategia_Fase17_Momentum_Failure_Predictability.py'
+
+      - name: Verify Phase 17 dataset
+        run: test -f 'nueva_estrategia_phase17_failure_predictability/phase17_entry_factor_dataset.csv'
+
+      - name: Run Phase 18 Failure Score
+        env:
+          PHASE17_DATASET_PATH: nueva_estrategia_phase17_failure_predictability/phase17_entry_factor_dataset.csv
+        run: python 'Nueva_Estrategia_Fase18_Failure_Score.py'
+
+      - name: Upload Phase 18 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: fase18_failure_score
+          path: |
+            nueva_estrategia_phase18_failure_score/
+            nueva_estrategia_phase17_failure_predictability/
+            phase15b_c20_trades.csv
+            fase16B_momentum_failure_anatomy.csv
