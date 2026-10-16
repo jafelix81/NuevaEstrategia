@@ -1,0 +1,39 @@
+name: Fase 13B - Corrective OOS Stability Audit LTM
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  phase13b:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy pandas scipy yfinance openpyxl
+
+      - name: Run Phase 13B
+        run: |
+          python -u Nueva_Estrategia_Fase13B_CorrectiveAudit_LTM.py
+
+      - name: Upload Phase 13B artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fase13b-corrective-oos-stability-ltm-results
+          path: nueva_estrategia_phase13b_oos_stability_ltm/**
+          if-no-files-found: warn
+          retention-days: 30
