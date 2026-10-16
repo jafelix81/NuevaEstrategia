@@ -1,0 +1,52 @@
+name: Fase17 - Momentum Failure Predictability
+
+on:
+  workflow_dispatch:
+
+jobs:
+  phase17:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install pandas numpy yfinance scipy
+
+      - name: Verify Phase15B and Phase16B inputs
+        run: |
+          test -f Nueva_Estrategia_Fase15B_Drawdown_Audit_LTM.py
+          test -f Nueva_Estrategia_Fase16B_Momentum_Failure_Anatomy.py
+
+      - name: Run exact Phase15B baseline C20
+        run: python -u Nueva_Estrategia_Fase15B_Drawdown_Audit_LTM.py
+
+      - name: Verify Phase15B handoff
+        run: test -s phase15b_c20_trades.csv
+
+      - name: Run Phase16B exact transaction anatomy
+        env:
+          PHASE15B_TRADES_PATH: phase15b_c20_trades.csv
+        run: python -u Nueva_Estrategia_Fase16B_Momentum_Failure_Anatomy.py
+
+      - name: Verify Phase16B output
+        run: test -s fase16B_momentum_failure_anatomy.csv
+
+      - name: Run Phase17
+        run: python -u Nueva_Estrategia_Fase17_Momentum_Failure_Predictability.py
+
+      - name: Upload Phase17 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: fase17-momentum-failure-predictability
+          path: |
+            phase15b_c20_trades.csv
+            fase16B_momentum_failure_anatomy.csv
+            nueva_estrategia_phase15_drawdown_audit_ltm/**
+            nueva_estrategia_phase17_failure_predictability/**
