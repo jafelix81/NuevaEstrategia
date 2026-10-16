@@ -1,0 +1,29 @@
+name: Fase 15B - Drawdown Audit LTM
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install -q numpy pandas scipy yfinance openpyxl
+      - name: Run Phase 15B
+        run: python -u Nueva_Estrategia_Fase15B_Drawdown_Audit_LTM.py
+      - name: Upload Phase 15B artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fase15B-drawdown-audit-ltm
+          path: |
+            resultados_fase15/*.csv
+            resultados_fase15/*.json
+          if-no-files-found: warn
