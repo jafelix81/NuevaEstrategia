@@ -1,0 +1,39 @@
+name: Fase 13 - OOS Stability + Drawdown Audit LTM
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  phase13:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy pandas scipy yfinance openpyxl
+
+      - name: Run Phase 13
+        run: |
+          python -u Nueva_Estrategia_Fase13_OOS_Stability_LTM.py
+
+      - name: Upload Phase 13 artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fase13-oos-stability-drawdown-ltm-results
+          path: nueva_estrategia_phase13_oos_stability_ltm/**
+          if-no-files-found: warn
+          retention-days: 30
