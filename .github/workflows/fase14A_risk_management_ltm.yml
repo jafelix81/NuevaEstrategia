@@ -1,0 +1,33 @@
+name: Phase 14A - Risk Management LTM
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run-phase14a:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy pandas scipy yfinance openpyxl
+
+      - name: Run Phase 14A
+        run: python -u Nueva_Estrategia_Fase14_RiskManagement_LTM.py
+
+      - name: Upload Phase 14A artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase14A-risk-management-ltm
+          path: nueva_estrategia_phase14_risk_management_ltm/
+          if-no-files-found: warn
