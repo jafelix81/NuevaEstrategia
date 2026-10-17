@@ -6,31 +6,62 @@ on:
 jobs:
   diagnostic:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
 
     steps:
 
+      # ======================================================
+      # CHECKOUT
+      # ======================================================
+
       - name: Checkout
         uses: actions/checkout@v4
+
+
+      # ======================================================
+      # PYTHON
+      # ======================================================
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
+
+      # ======================================================
+      # DEPENDENCIAS
+      # ======================================================
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install pandas numpy scipy yfinance openpyxl
+          python -m pip install numpy pandas scipy yfinance openpyxl
+
+          python -c "import numpy; print('numpy OK:', numpy.__version__)"
+          python -c "import pandas; print('pandas OK:', pandas.__version__)"
+          python -c "import scipy; print('scipy OK:', scipy.__version__)"
           python -c "import yfinance; print('yfinance OK:', yfinance.__version__)"
+          python -c "import openpyxl; print('openpyxl OK:', openpyxl.__version__)"
+
+
+      # ======================================================
+      # PHASE 15B
+      # ======================================================
 
       - name: Run exact Phase 15B baseline C20
         run: |
           python -u 'Nueva_Estrategia_Fase15B_Drawdown_Audit_LTM.py'
 
+
       - name: Verify Phase 15B ledger
         run: |
           test -f 'phase15b_c20_trades.csv'
+          echo "Phase15B ledger OK"
+
+
+      # ======================================================
+      # PHASE 16B
+      # ======================================================
 
       - name: Run exact Phase 16B
         env:
@@ -38,17 +69,31 @@ jobs:
         run: |
           python -u 'Nueva_Estrategia_Fase16B_Momentum_Failure_Anatomy.py'
 
+
       - name: Verify Phase 16B output
         run: |
           test -f 'fase16B_momentum_failure_anatomy.csv'
+          echo "Phase16B output OK"
+
+
+      # ======================================================
+      # PHASE 17
+      # ======================================================
 
       - name: Run exact Phase 17
         run: |
           python -u 'Nueva_Estrategia_Fase17_Momentum_Failure_Predictability.py'
 
+
       - name: Verify Phase 17 dataset
         run: |
           test -f 'nueva_estrategia_phase17_failure_predictability/phase17_entry_factor_dataset.csv'
+          echo "Phase17 dataset OK"
+
+
+      # ======================================================
+      # PHASE 18
+      # ======================================================
 
       - name: Run exact Phase 18
         env:
@@ -56,24 +101,74 @@ jobs:
         run: |
           python -u 'Nueva_Estrategia_Fase18_Failure_Score.py'
 
+
       - name: Verify Phase 18 dataset
         run: |
           test -f 'nueva_estrategia_phase18_failure_score/phase18_entry_score_dataset.csv'
+          echo "Phase18 dataset OK"
+
+
+      # ======================================================
+      # PHASE 19A — DIAGNÓSTICO
+      # ======================================================
 
       - name: Run Phase 19A source diagnostic
         env:
           PHASE15B_TRADES_PATH: phase15b_c20_trades.csv
+
           PHASE16B_PATH: fase16B_momentum_failure_anatomy.csv
+
           PHASE17_DATASET_PATH: nueva_estrategia_phase17_failure_predictability/phase17_entry_factor_dataset.csv
+
           PHASE18_DATASET_PATH: nueva_estrategia_phase18_failure_score/phase18_entry_score_dataset.csv
+
         run: |
           python -u 'Nueva_Estrategia_Fase19A_Diagnostico_Origen_Phase18.py'
 
+
+      # ======================================================
+      # VERIFICACIÓN DE RESULTADOS
+      # ======================================================
+
+      - name: Verify diagnostic artifacts
+        run: |
+
+          test -f 'fase19a_origen_phase18/phase19a_missing_15_to_16.csv'
+
+          test -f 'fase19a_origen_phase18/phase19a_missing_16_to_17.csv'
+
+          test -f 'fase19a_origen_phase18/phase19a_missing_17_to_18.csv'
+
+          test -f 'fase19a_origen_phase18/phase19a_missing_15_to_18.csv'
+
+          test -f 'fase19a_origen_phase18/phase19a_phase18_nan_cases.csv'
+
+          test -f 'fase19a_origen_phase18/phase19a_missing_phase18_trace.csv'
+
+          test -f 'fase19a_origen_phase18/phase19a_origen_phase18_diagnostic.json'
+
+          echo "Todos los artefactos de diagnóstico existen."
+
+
+      # ======================================================
+      # SUBIR RESULTADOS
+      # ======================================================
+
       - name: Upload diagnostic artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: fase19a_origen_phase18
           path: |
-            fase19a_phase18_nan_diagnostic/phase19a_phase18_nan_cases.csv
-            fase19a_phase18_nan_diagnostic/phase19a_three_no_score_key_cases.csv
-            fase19a_phase18_nan_diagnostic/phase19a_phase18_nan_diagnostic.json
+            fase19a_origen_phase18/phase19a_missing_15_to_16.csv
+            fase19a_origen_phase18/phase19a_missing_16_to_17.csv
+            fase19a_origen_phase18/phase19a_missing_17_to_18.csv
+            fase19a_origen_phase18/phase19a_missing_15_to_18.csv
+            fase19a_origen_phase18/phase19a_phase18_nan_cases.csv
+            fase19a_origen_phase18/phase19a_missing_phase18_trace.csv
+            fase19a_origen_phase18/phase19a_duplicates_phase15b.csv
+            fase19a_origen_phase18/phase19a_duplicates_phase16b.csv
+            fase19a_origen_phase18/phase19a_duplicates_phase17.csv
+            fase19a_origen_phase18/phase19a_duplicates_phase18.csv
+            fase19a_origen_phase18/phase19a_origen_phase18_diagnostic.json
+          if-no-files-found: warn
