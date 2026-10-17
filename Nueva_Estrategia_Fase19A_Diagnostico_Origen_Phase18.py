@@ -1,742 +1,745 @@
-"""
-FASE 19A — DIAGNÓSTICO DE ORIGEN DE NaN EN PHASE18
-Y DE LOS 3 NO_SCORE_KEY
-
-Diagnóstico solamente.
-NO modifica Phase18, Phase19A, ningún gate ni la estrategia congelada.
-
-Objetivos:
-1) Para los BUY con S_WEAK = NaN y key exacta en Phase18:
-   - mostrar R60, VOL252 y DIST_200D provenientes de Phase17;
-   - identificar exactamente qué componente(s) son NaN;
-   - comprobar si el patrón es consistente con la regla de Phase17:
-     historial < 253 cierres.
-
-2) Para los BUY sin key en Phase18:
-   - comprobar presencia en Phase16B;
-   - comprobar presencia en Phase17;
-   - determinar en qué etapa desaparecen.
-
-3) No rellenar NaN.
-4) No imputar valores.
-5) No modificar scores.
-6) No modificar la estrategia ni ningún gate.
-"""
-
-from __future__ import annotations
-
-import json
 import os
+import json
 from pathlib import Path
-from datetime import datetime, timezone
 
 import numpy as np
 import pandas as pd
 
 
-RUN_ID = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+# ============================================================
+# FASE 19A — DIAGNÓSTICO ORIGEN NaN / PÉRDIDAS PHASE18
+# ============================================================
+# DIAGNÓSTICO SOLAMENTE
+#
+# NO modifica:
+#   - estrategia
+#   - política
+#   - selección
+#   - gates
+#   - riesgo
+#   - portfolio
+#
+# Objetivo:
+#   1. Auditar cobertura exacta 15B -> 16B -> 17 -> 18.
+#   2. Identificar las filas que desaparecen entre fases.
+#   3. Identificar el origen de S_WEAK = NaN.
+#   4. Auditar específicamente R60, VOL252 y DIST_200D.
+#   5. Trazar los BUY que no llegan a Phase18.
+#
+# ============================================================
 
-POLICY_ID = "F80_TOP20_PARTIAL50_BASELINE_C20"
 
-TRADES = Path(
-    os.getenv(
-        "PHASE15B_TRADES_PATH",
-        "phase15b_c20_trades.csv"
-    )
+POLICY = "F80_TOP20_PARTIAL50_BASELINE_C20"
+
+TRADES_PATH = os.environ.get(
+    "PHASE15B_TRADES_PATH",
+    "phase15b_c20_trades.csv"
 )
 
-PHASE16 = Path(
-    os.getenv(
-        "PHASE16B_PATH",
-        "fase16B_momentum_failure_anatomy.csv"
-    )
+PHASE16_PATH = os.environ.get(
+    "PHASE16B_PATH",
+    "fase16B_momentum_failure_anatomy.csv"
 )
 
-PHASE17 = Path(
-    os.getenv(
-        "PHASE17_DATASET_PATH",
-        "nueva_estrategia_phase17_failure_predictability/"
-        "phase17_entry_factor_dataset.csv"
-    )
+PHASE17_PATH = os.environ.get(
+    "PHASE17_DATASET_PATH",
+    "nueva_estrategia_phase17_failure_predictability/phase17_entry_factor_dataset.csv"
 )
 
-PHASE18 = Path(
-    os.getenv(
-        "PHASE18_DATASET_PATH",
-        "nueva_estrategia_phase18_failure_score/"
-        "phase18_entry_score_dataset.csv"
-    )
+PHASE18_PATH = os.environ.get(
+    "PHASE18_DATASET_PATH",
+    "nueva_estrategia_phase18_failure_score/phase18_entry_score_dataset.csv"
 )
 
-OUTDIR = Path("fase19a_phase18_nan_diagnostic")
-OUTDIR.mkdir(parents=True, exist_ok=True)
+OUT_DIR = Path("fase19a_origen_phase18")
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+RUN_ID = pd.Timestamp.utcnow().strftime("%Y%m%d_%H%M%S")
 
 
-def normalize_dates(df: pd.DataFrame, columns):
-    out = df.copy()
+# ============================================================
+# UTILIDADES
+# ============================================================
 
-    for col in columns:
-        if col in out.columns:
-            out[col] = (
-                pd.to_datetime(out[col], errors="coerce")
-                .dt.normalize()
-            )
+def load_csv(path):
+    path = Path(path)
 
-    if "Ticker" in out.columns:
-        out["Ticker"] = (
-            out["Ticker"]
+    if not path.exists():
+        raise FileNotFoundError(f"No existe: {path}")
+
+    df = pd.read_csv(path)
+
+    print(f"Cargado: {path}")
+    print(f"  rows = {len(df)}")
+    print(f"  cols = {len(df.columns)}")
+
+    return df
+
+
+def normalize_date(df, column):
+    if column in df.columns:
+        df[column] = pd.to_datetime(
+            df[column],
+            errors="coerce"
+        ).dt.normalize()
+
+    return df
+
+
+def normalize_ticker(df, column="Ticker"):
+    if column in df.columns:
+        df[column] = (
+            df[column]
             .astype(str)
             .str.strip()
             .str.upper()
         )
 
-    return out
+    return df
 
 
-def numeric(series):
-    return pd.to_numeric(series, errors="coerce")
-
-
-def prepare_key(df: pd.DataFrame):
-    out = df.copy()
-
-    out["ExecutionDate"] = (
-        pd.to_datetime(
-            out["ExecutionDate"],
+def normalize_notional(df, column="Notional"):
+    if column in df.columns:
+        df[column] = pd.to_numeric(
+            df[column],
             errors="coerce"
         )
-        .dt.normalize()
-    )
 
-    out["Ticker"] = (
-        out["Ticker"]
-        .astype(str)
-        .str.strip()
-        .str.upper()
-    )
+        df["NotionalKey"] = df[column].round(8)
 
-    out["Notional"] = numeric(out["Notional"])
-    out["NotionalKey"] = out["Notional"].round(8)
-
-    return out
+    return df
 
 
-def exact_merge(left: pd.DataFrame, right: pd.DataFrame):
-    keys = [
+def normalize(df):
+    df = df.copy()
+
+    for c in [
         "ExecutionDate",
-        "Ticker",
-        "NotionalKey",
-    ]
-
-    return left.merge(
-        right,
-        on=keys,
-        how="left",
-        indicator=True,
-        suffixes=("", "_RIGHT"),
-    )
-
-
-def main():
-
-    print("=" * 80)
-    print("FASE 19A — DIAGNÓSTICO ORIGEN NaN PHASE18")
-    print("=" * 80)
-
-    print(f"RUN_ID: {RUN_ID}")
-    print(f"Policy congelada: {POLICY_ID}")
-    print("DIAGNÓSTICO SOLAMENTE")
-    print()
-
-    # ---------------------------------------------------------------
-    # Verificar archivos
-    # ---------------------------------------------------------------
-
-    required_files = [
-        TRADES,
-        PHASE16,
-        PHASE17,
-        PHASE18,
-    ]
-
-    for path in required_files:
-        if not path.exists():
-            raise FileNotFoundError(
-                f"No existe el archivo requerido: {path}"
-            )
-
-    # ---------------------------------------------------------------
-    # Cargar
-    # ---------------------------------------------------------------
-
-    trades = pd.read_csv(TRADES)
-    phase16 = pd.read_csv(PHASE16)
-    phase17 = pd.read_csv(PHASE17)
-    phase18 = pd.read_csv(PHASE18)
-
-    trades = normalize_dates(
-        trades,
-        ["ExecutionDate"]
-    )
-
-    phase16 = normalize_dates(
-        phase16,
-        ["ExecutionDate"]
-    )
-
-    phase17 = normalize_dates(
-        phase17,
-        ["ExecutionDate", "DateSignal"]
-    )
-
-    phase18 = normalize_dates(
-        phase18,
-        ["ExecutionDate", "DateSignal"]
-    )
-
-    # ---------------------------------------------------------------
-    # Filtrar política exacta + BUY
-    # ---------------------------------------------------------------
-
-    trades = trades[
-        (
-            trades["PolicyID"].astype(str)
-            == POLICY_ID
-        )
-        &
-        (
-            trades["Side"].astype(str)
-            .str.upper()
-            == "BUY"
-        )
-    ].copy()
-
-    trades = prepare_key(trades)
-    phase16 = prepare_key(phase16)
-    phase17 = prepare_key(phase17)
-    phase18 = prepare_key(phase18)
-
-    print(
-        f"Phase15B BUY política congelada: {len(trades)}"
-    )
-    print(
-        f"Phase16B rows:                    {len(phase16)}"
-    )
-    print(
-        f"Phase17 rows:                     {len(phase17)}"
-    )
-    print(
-        f"Phase18 rows:                     {len(phase18)}"
-    )
-    print()
-
-    # ===============================================================
-    # 1. MATCH EXACTO CONTRA PHASE18
-    # ===============================================================
-
-    phase18_columns = [
-        "ExecutionDate",
-        "Ticker",
-        "NotionalKey",
-        "S_WEAK",
-        "R60",
-        "VOL252",
-        "DIST_200D",
+        "Date",
         "DateSignal",
-        "Split",
-    ]
-
-    phase18_columns = [
-        c for c in phase18_columns
-        if c in phase18.columns
-    ]
-
-    phase18_small = phase18[
-        phase18_columns
-    ].copy()
-
-    merged18 = exact_merge(
-        trades,
-        phase18_small
-    )
-
-    exact18 = (
-        merged18["_merge"]
-        == "both"
-    )
-
-    # ===============================================================
-    # 2. LOS CASOS S_WEAK = NaN
-    # ===============================================================
-
-    merged18["S_WEAK_NUM"] = numeric(
-        merged18["S_WEAK"]
-    )
-
-    nan_cases = merged18[
-        exact18
-        &
-        merged18["S_WEAK_NUM"].isna()
-    ].copy()
-
-    # ---------------------------------------------------------------
-    # Incorporar factores desde Phase17
-    # ---------------------------------------------------------------
-
-    phase17_columns = [
-        "ExecutionDate",
-        "Ticker",
-        "NotionalKey",
-        "DateSignal",
-        "R60",
-        "VOL252",
-        "DIST_200D",
-        "Split",
-    ]
-
-    phase17_columns = [
-        c for c in phase17_columns
-        if c in phase17.columns
-    ]
-
-    phase17_small = phase17[
-        phase17_columns
-    ].copy()
-
-    nan_diag = exact_merge(
-        nan_cases,
-        phase17_small
-    )
-
-    # ---------------------------------------------------------------
-    # Determinar presencia de cada factor
-    # ---------------------------------------------------------------
-
-    for factor in [
-        "R60",
-        "VOL252",
-        "DIST_200D",
+        "EntryDate"
     ]:
+        if c in df.columns:
+            df = normalize_date(df, c)
 
-        right_col = f"{factor}_RIGHT"
+    if "Ticker" in df.columns:
+        df = normalize_ticker(df)
 
-        if right_col not in nan_diag.columns:
+    if "Notional" in df.columns:
+        df = normalize_notional(df)
 
-            # Si no hubo conflicto de nombre, merge conserva
-            # directamente el nombre original.
-            if factor in nan_diag.columns:
-                right_col = factor
-            else:
-                nan_diag[right_col] = np.nan
+    return df
 
-        nan_diag[f"{factor}_P17"] = numeric(
-            nan_diag[right_col]
-        )
 
-        nan_diag[f"{factor}_missing"] = (
-            nan_diag[f"{factor}_P17"].isna()
-        )
+def get_key_columns(df):
+    """
+    La llave principal de esta auditoría es:
 
-    missing_flags = [
-        "R60_missing",
-        "VOL252_missing",
-        "DIST_200D_missing",
+        ExecutionDate + Ticker + NotionalKey
+    """
+
+    required = [
+        "ExecutionDate",
+        "Ticker",
+        "NotionalKey"
     ]
 
-    nan_diag["AllThreeFactorsNaN"] = (
-        nan_diag[missing_flags]
-        .all(axis=1)
-    )
+    missing = [
+        c for c in required
+        if c not in df.columns
+    ]
 
-    nan_diag["AnyFactorNaN"] = (
-        nan_diag[missing_flags]
-        .any(axis=1)
-    )
-
-    # ---------------------------------------------------------------
-    # Diagnóstico causal
-    # ---------------------------------------------------------------
-
-    def classify(row):
-
-        if row["AllThreeFactorsNaN"]:
-            return (
-                "ALL_THREE_FACTORS_NAN__"
-                "CONSISTENT_WITH_PHASE17_LT253_CLOSES"
-            )
-
-        if row["AnyFactorNaN"]:
-            return (
-                "PARTIAL_FACTOR_NAN__"
-                "REQUIRES_SOURCE_LEVEL_REVIEW"
-            )
-
-        return (
-            "NO_COMPONENT_NAN__"
-            "INCONSISTENT_WITH_SWEAK_NAN"
+    if missing:
+        raise RuntimeError(
+            f"Faltan columnas para llave: {missing}"
         )
 
-    nan_diag["Diagnosis"] = (
-        nan_diag.apply(
-            classify,
-            axis=1
-        )
+    return required
+
+
+def add_unique_indicator(df_left, df_right, key_cols, name):
+    """
+    Merge left-only / both / right-only evitando conflictos
+    con columnas _merge existentes.
+    """
+
+    left = df_left.copy()
+    right = df_right.copy()
+
+    # Eliminar indicadores previos para evitar:
+    # ValueError: Cannot use name of an existing column...
+    for df in [left, right]:
+        for col in list(df.columns):
+            if col.startswith("_merge"):
+                df.drop(columns=[col], inplace=True)
+
+    # Reducir right a llaves únicas para cobertura.
+    right_keys = right[key_cols].drop_duplicates().copy()
+    right_keys[name] = "both"
+
+    result = left.merge(
+        right_keys,
+        on=key_cols,
+        how="left",
+        validate="many_to_one"
     )
 
-    # ===============================================================
-    # 3. LOS 3 NO_SCORE_KEY
-    # ===============================================================
+    result[name] = result[name].fillna("left_only")
 
-    no_score = merged18[
-        ~exact18
+    return result
+
+
+def duplicate_audit(df, key_cols):
+    dup = (
+        df.groupby(key_cols, dropna=False)
+        .size()
+        .reset_index(name="Count")
+    )
+
+    return dup[dup["Count"] > 1].copy()
+
+
+def safe_bool(x):
+    if pd.isna(x):
+        return False
+
+    return bool(x)
+
+
+# ============================================================
+# CARGA
+# ============================================================
+
+print("=" * 80)
+print("FASE 19A — DIAGNÓSTICO ORIGEN PHASE18")
+print("=" * 80)
+print(f"RUN_ID: {RUN_ID}")
+print(f"Policy congelada: {POLICY}")
+print("DIAGNÓSTICO SOLAMENTE")
+print()
+
+
+trades = normalize(load_csv(TRADES_PATH))
+phase16 = normalize(load_csv(PHASE16_PATH))
+phase17 = normalize(load_csv(PHASE17_PATH))
+phase18 = normalize(load_csv(PHASE18_PATH))
+
+
+# ============================================================
+# VALIDACIÓN DE COLUMNAS
+# ============================================================
+
+key_cols = get_key_columns(trades)
+
+for name, df in [
+    ("Phase16B", phase16),
+    ("Phase17", phase17),
+    ("Phase18", phase18),
+]:
+    missing = [
+        c for c in key_cols
+        if c not in df.columns
+    ]
+
+    if missing:
+        raise RuntimeError(
+            f"{name}: faltan columnas de llave: {missing}"
+        )
+
+
+# ============================================================
+# FILTRO DE POLÍTICA
+# ============================================================
+
+if "PolicyID" in trades.columns:
+    trades_policy = trades[
+        trades["PolicyID"].astype(str).str.strip()
+        == POLICY
     ].copy()
+else:
+    raise RuntimeError(
+        "Phase15B no contiene columna PolicyID."
+    )
 
-    # ---------------------------------------------------------------
-    # Key sets
-    # ---------------------------------------------------------------
 
-    phase16_exact_keys = set(
-        zip(
-            phase16["ExecutionDate"],
-            phase16["Ticker"],
-            phase16["NotionalKey"],
+if "Side" in trades_policy.columns:
+    buys = trades_policy[
+        trades_policy["Side"].astype(str).str.upper()
+        == "BUY"
+    ].copy()
+else:
+    raise RuntimeError(
+        "Phase15B no contiene columna Side."
+    )
+
+
+print("BUY rows política congelada:", len(buys))
+print()
+
+
+# ============================================================
+# DUPLICADOS
+# ============================================================
+
+duplicate_reports = {}
+
+duplicate_reports["phase15b"] = duplicate_audit(
+    buys,
+    key_cols
+)
+
+duplicate_reports["phase16b"] = duplicate_audit(
+    phase16,
+    key_cols
+)
+
+duplicate_reports["phase17"] = duplicate_audit(
+    phase17,
+    key_cols
+)
+
+duplicate_reports["phase18"] = duplicate_audit(
+    phase18,
+    key_cols
+)
+
+
+# ============================================================
+# COBERTURA 15B -> 16B
+# ============================================================
+
+coverage_15_16 = add_unique_indicator(
+    buys,
+    phase16,
+    key_cols,
+    "_coverage_15_16"
+)
+
+missing_15_16 = coverage_15_16[
+    coverage_15_16["_coverage_15_16"] != "both"
+].copy()
+
+
+# ============================================================
+# COBERTURA 16B -> 17
+# ============================================================
+
+coverage_16_17 = add_unique_indicator(
+    phase16,
+    phase17,
+    key_cols,
+    "_coverage_16_17"
+)
+
+missing_16_17 = coverage_16_17[
+    coverage_16_17["_coverage_16_17"] != "both"
+].copy()
+
+
+# ============================================================
+# COBERTURA 17 -> 18
+# ============================================================
+
+coverage_17_18 = add_unique_indicator(
+    phase17,
+    phase18,
+    key_cols,
+    "_coverage_17_18"
+)
+
+missing_17_18 = coverage_17_18[
+    coverage_17_18["_coverage_17_18"] != "both"
+].copy()
+
+
+# ============================================================
+# COBERTURA 15B -> 18
+# ============================================================
+
+coverage_15_18 = add_unique_indicator(
+    buys,
+    phase18,
+    key_cols,
+    "_coverage_15_18"
+)
+
+missing_15_18 = coverage_15_18[
+    coverage_15_18["_coverage_15_18"] != "both"
+].copy()
+
+
+# ============================================================
+# RESUMEN DE COBERTURA
+# ============================================================
+
+coverage_summary = {
+    "run_id": RUN_ID,
+    "policy": POLICY,
+
+    "phase15b_buy_rows": int(len(buys)),
+    "phase16b_rows": int(len(phase16)),
+    "phase17_rows": int(len(phase17)),
+    "phase18_rows": int(len(phase18)),
+
+    "missing_15_to_16": int(len(missing_15_16)),
+    "missing_16_to_17": int(len(missing_16_17)),
+    "missing_17_to_18": int(len(missing_17_18)),
+    "missing_15_to_18": int(len(missing_15_18)),
+
+    "duplicate_phase15b_keys": int(
+        len(duplicate_reports["phase15b"])
+    ),
+    "duplicate_phase16b_keys": int(
+        len(duplicate_reports["phase16b"])
+    ),
+    "duplicate_phase17_keys": int(
+        len(duplicate_reports["phase17"])
+    ),
+    "duplicate_phase18_keys": int(
+        len(duplicate_reports["phase18"])
+    ),
+}
+
+
+# ============================================================
+# GUARDAR PÉRDIDAS ENTRE FASES
+# ============================================================
+
+missing_15_16.to_csv(
+    OUT_DIR / "phase19a_missing_15_to_16.csv",
+    index=False
+)
+
+missing_16_17.to_csv(
+    OUT_DIR / "phase19a_missing_16_to_17.csv",
+    index=False
+)
+
+missing_17_18.to_csv(
+    OUT_DIR / "phase19a_missing_17_to_18.csv",
+    index=False
+)
+
+missing_15_18.to_csv(
+    OUT_DIR / "phase19a_missing_15_to_18.csv",
+    index=False
+)
+
+
+# ============================================================
+# AUDIT DE S_WEAK
+# ============================================================
+
+if "S_WEAK" not in phase18.columns:
+    raise RuntimeError(
+        "Phase18 no contiene columna S_WEAK."
+    )
+
+
+phase18_weak_nan = phase18[
+    phase18["S_WEAK"].isna()
+].copy()
+
+
+# ============================================================
+# MERGE CON PHASE17 PARA RECUPERAR FACTORES
+# ============================================================
+
+factor_cols = [
+    "R60",
+    "VOL252",
+    "DIST_200D"
+]
+
+factor_cols_present = [
+    c for c in factor_cols
+    if c in phase17.columns
+]
+
+
+phase17_factor_subset = phase17[
+    key_cols + factor_cols_present
+].drop_duplicates(
+    subset=key_cols
+)
+
+
+weak_diag = phase18_weak_nan.merge(
+    phase17_factor_subset,
+    on=key_cols,
+    how="left",
+    suffixes=("", "_P17"),
+    indicator="_weak_factor_merge"
+)
+
+
+# ============================================================
+# NORMALIZAR NOMBRES DE FACTORES
+# ============================================================
+
+for factor in factor_cols:
+    if factor not in weak_diag.columns:
+        right_name = factor + "_P17"
+
+        if right_name in weak_diag.columns:
+            weak_diag[factor] = weak_diag[right_name]
+
+
+# ============================================================
+# FLAGS DE FACTORES
+# ============================================================
+
+for factor in factor_cols:
+    if factor in weak_diag.columns:
+        weak_diag[f"{factor}_missing"] = (
+            weak_diag[factor].isna()
         )
-    )
-
-    phase17_exact_keys = set(
-        zip(
-            phase17["ExecutionDate"],
-            phase17["Ticker"],
-            phase17["NotionalKey"],
-        )
-    )
-
-    phase18_exact_keys = set(
-        zip(
-            phase18["ExecutionDate"],
-            phase18["Ticker"],
-            phase18["NotionalKey"],
-        )
-    )
-
-    phase16_date_ticker = set(
-        zip(
-            phase16["ExecutionDate"],
-            phase16["Ticker"],
-        )
-    )
-
-    phase17_date_ticker = set(
-        zip(
-            phase17["ExecutionDate"],
-            phase17["Ticker"],
-        )
-    )
-
-    phase18_date_ticker = set(
-        zip(
-            phase18["ExecutionDate"],
-            phase18["Ticker"],
-        )
-    )
-
-    # ---------------------------------------------------------------
-    # Trace
-    # ---------------------------------------------------------------
-
-    no_score["Phase16ExactKey"] = [
-        (
-            row.ExecutionDate,
-            row.Ticker,
-            row.NotionalKey,
-        )
-        in phase16_exact_keys
-        for row in no_score.itertuples()
-    ]
-
-    no_score["Phase17ExactKey"] = [
-        (
-            row.ExecutionDate,
-            row.Ticker,
-            row.NotionalKey,
-        )
-        in phase17_exact_keys
-        for row in no_score.itertuples()
-    ]
-
-    no_score["Phase18ExactKey"] = [
-        (
-            row.ExecutionDate,
-            row.Ticker,
-            row.NotionalKey,
-        )
-        in phase18_exact_keys
-        for row in no_score.itertuples()
-    ]
-
-    no_score["Phase16DateTicker"] = [
-        (
-            row.ExecutionDate,
-            row.Ticker,
-        )
-        in phase16_date_ticker
-        for row in no_score.itertuples()
-    ]
-
-    no_score["Phase17DateTicker"] = [
-        (
-            row.ExecutionDate,
-            row.Ticker,
-        )
-        in phase17_date_ticker
-        for row in no_score.itertuples()
-    ]
-
-    no_score["Phase18DateTicker"] = [
-        (
-            row.ExecutionDate,
-            row.Ticker,
-        )
-        in phase18_date_ticker
-        for row in no_score.itertuples()
-    ]
-
-    def trace(row):
-
-        if not row["Phase16ExactKey"]:
-            return (
-                "MISSING_BEFORE_OR_IN_PHASE16_EXACT_KEY"
-            )
-
-        if not row["Phase17ExactKey"]:
-            return (
-                "PRESENT_PHASE16_BUT_DROPPED_BEFORE_PHASE17"
-            )
-
-        if not row["Phase18DateTicker"]:
-            return (
-                "PRESENT_PHASE17_BUT_NO_DATE_TICKER_IN_PHASE18"
-            )
-
-        return "UNEXPECTED"
-
-    no_score["TraceDiagnosis"] = (
-        no_score.apply(
-            trace,
-            axis=1
-        )
-    )
-
-    # ===============================================================
-    # 4. EXPORTAR
-    # ===============================================================
-
-    nan_csv = (
-        OUTDIR
-        / "phase19a_phase18_nan_cases.csv"
-    )
-
-    nomatch_csv = (
-        OUTDIR
-        / "phase19a_three_no_score_key_cases.csv"
-    )
-
-    json_path = (
-        OUTDIR
-        / "phase19a_phase18_nan_diagnostic.json"
-    )
-
-    nan_diag.to_csv(
-        nan_csv,
-        index=False
-    )
-
-    no_score.to_csv(
-        nomatch_csv,
-        index=False
-    )
-
-    summary = {
-
-        "RUN_ID": RUN_ID,
-
-        "PolicyID": POLICY_ID,
-
-        "STATUS": "DIAGNOSTIC_ONLY",
-
-        "StrategyChanged": False,
-
-        "GatesChanged": False,
-
-        "BuyRows": int(len(trades)),
-
-        "Phase16Rows": int(len(phase16)),
-
-        "Phase17Rows": int(len(phase17)),
-
-        "Phase18Rows": int(len(phase18)),
-
-        "Phase18ExactKeyMatched": int(
-            exact18.sum()
-        ),
-
-        "Phase18NoScoreKey": int(
-            (~exact18).sum()
-        ),
-
-        "Phase18ExactKeyWithSWeakNaN": int(
-            len(nan_diag)
-        ),
-
-        "NaN_AllThreeComponents": int(
-            nan_diag[
-                "AllThreeFactorsNaN"
-            ].sum()
-        ),
-
-        "NaN_PartialComponents": int(
-            (
-                (~nan_diag["AllThreeFactorsNaN"])
-                &
-                nan_diag["AnyFactorNaN"]
-            ).sum()
-        ),
-
-        "NoScore_Phase16ExactKey": int(
-            no_score["Phase16ExactKey"].sum()
-        ),
-
-        "NoScore_Phase17ExactKey": int(
-            no_score["Phase17ExactKey"].sum()
-        ),
-
-        "NoScore_Phase18DateTicker": int(
-            no_score["Phase18DateTicker"].sum()
-        ),
-
-        "Outputs": {
-            "NaNCases": str(nan_csv),
-            "NoScoreKeyCases": str(nomatch_csv),
-        },
-    }
-
-    json_path.write_text(
-        json.dumps(
-            summary,
-            indent=2,
-            ensure_ascii=False
-        ),
-        encoding="utf-8",
-    )
-
-    # ===============================================================
-    # 5. CONSOLA
-    # ===============================================================
-
-    print("=" * 80)
-    print("RESULTADO")
-    print("=" * 80)
-
-    print(
-        f"BUY:                              {len(trades)}"
-    )
-
-    print(
-        f"Phase18 exact key:                "
-        f"{int(exact18.sum())}"
-    )
-
-    print(
-        f"NO_SCORE_KEY:                     "
-        f"{int((~exact18).sum())}"
-    )
-
-    print(
-        f"Exact key + S_WEAK NaN:           "
-        f"{len(nan_diag)}"
-    )
-
-    print(
-        f"NaN en los 3 componentes:         "
-        f"{int(nan_diag['AllThreeFactorsNaN'].sum())}"
-    )
-
-    print(
-        f"NaN parcial de componentes:       "
-        f"{int((~nan_diag['AllThreeFactorsNaN'] & nan_diag['AnyFactorNaN']).sum())}"
-    )
-
-    print()
-
-    if len(nan_diag):
-
-        print("=" * 80)
-        print("CASOS S_WEAK = NaN")
-        print("=" * 80)
-
-        display_columns = [
-            "ExecutionDate",
-            "Ticker",
-            "Notional",
-            "DateSignal_RIGHT",
-            "R60_P17",
-            "VOL252_P17",
-            "DIST_200D_P17",
-            "R60_missing",
-            "VOL252_missing",
-            "DIST_200D_missing",
-            "Diagnosis",
-        ]
-
-        display_columns = [
-            c for c in display_columns
-            if c in nan_diag.columns
-        ]
-
-        print(
-            nan_diag[
-                display_columns
-            ].to_string(index=False)
-        )
-
-    print()
-
-    print("=" * 80)
-    print("3 NO_SCORE_KEY")
-    print("=" * 80)
-
-    if len(no_score):
-
-        display_columns = [
-            "ExecutionDate",
-            "Ticker",
-            "Notional",
-            "Phase16ExactKey",
-            "Phase17ExactKey",
-            "Phase18ExactKey",
-            "Phase16DateTicker",
-            "Phase17DateTicker",
-            "Phase18DateTicker",
-            "TraceDiagnosis",
-        ]
-
-        print(
-            no_score[
-                display_columns
-            ].to_string(index=False)
-        )
-
     else:
-
-        print("Ninguno.")
-
-    print()
-    print(f"CSV NaN:     {nan_csv}")
-    print(f"CSV NoMatch: {nomatch_csv}")
-    print(f"JSON:        {json_path}")
-    print()
-    print("STATUS: DIAGNOSTIC_ONLY")
+        weak_diag[f"{factor}_missing"] = True
 
 
-if __name__ == "__main__":
-    main()
+weak_diag["AllThreeFactorsNaN"] = (
+    weak_diag["R60_missing"]
+    & weak_diag["VOL252_missing"]
+    & weak_diag["DIST_200D_missing"]
+)
+
+weak_diag["AnyFactorNaN"] = (
+    weak_diag["R60_missing"]
+    | weak_diag["VOL252_missing"]
+    | weak_diag["DIST_200D_missing"]
+)
+
+weak_diag["AllComponentsPresent"] = (
+    ~weak_diag["AnyFactorNaN"]
+)
+
+
+def classify_nan_origin(row):
+
+    if row["_weak_factor_merge"] != "both":
+        return "NO_PHASE17_MATCH"
+
+    if row["AllThreeFactorsNaN"]:
+        return "ALL_THREE_COMPONENTS_NAN"
+
+    if row["AnyFactorNaN"]:
+        return "PARTIAL_COMPONENT_NAN"
+
+    return "ALL_COMPONENTS_PRESENT_BUT_SCORE_NAN"
+
+
+weak_diag["NaNOrigin"] = weak_diag.apply(
+    classify_nan_origin,
+    axis=1
+)
+
+
+weak_diag.to_csv(
+    OUT_DIR / "phase19a_phase18_nan_cases.csv",
+    index=False
+)
+
+
+# ============================================================
+# TRAZAR LOS BUY QUE NO LLEGAN A PHASE18
+# ============================================================
+
+missing_phase18 = missing_15_18.copy()
+
+
+# Información de Phase17
+phase17_keys = phase17[
+    key_cols
+].drop_duplicates().copy()
+
+phase17_keys["HasPhase17"] = True
+
+
+missing_phase18 = missing_phase18.merge(
+    phase17_keys,
+    on=key_cols,
+    how="left"
+)
+
+missing_phase18["HasPhase17"] = (
+    missing_phase18["HasPhase17"]
+    .fillna(False)
+)
+
+
+# Información de Phase16
+phase16_keys = phase16[
+    key_cols
+].drop_duplicates().copy()
+
+phase16_keys["HasPhase16"] = True
+
+
+missing_phase18 = missing_phase18.merge(
+    phase16_keys,
+    on=key_cols,
+    how="left"
+)
+
+missing_phase18["HasPhase16"] = (
+    missing_phase18["HasPhase16"]
+    .fillna(False)
+)
+
+
+missing_phase18["TraceResult"] = np.select(
+    [
+        (~missing_phase18["HasPhase16"])
+        & (~missing_phase18["HasPhase17"]),
+
+        missing_phase18["HasPhase16"]
+        & (~missing_phase18["HasPhase17"]),
+
+        missing_phase18["HasPhase17"]
+    ],
+    [
+        "MISSING_ALREADY_PHASE16",
+        "DISAPPEARS_16_TO_17",
+        "PRESENT_PHASE17_BUT_MISSING_PHASE18"
+    ],
+    default="UNKNOWN"
+)
+
+
+missing_phase18.to_csv(
+    OUT_DIR / "phase19a_missing_phase18_trace.csv",
+    index=False
+)
+
+
+# ============================================================
+# DUPLICADOS
+# ============================================================
+
+for name, df in duplicate_reports.items():
+
+    df.to_csv(
+        OUT_DIR / f"phase19a_duplicates_{name}.csv",
+        index=False
+    )
+
+
+# ============================================================
+# RESUMEN S_WEAK
+# ============================================================
+
+nan_origin_summary = (
+    weak_diag["NaNOrigin"]
+    .value_counts(dropna=False)
+    .to_dict()
+)
+
+coverage_summary["s_weak_nan_rows"] = int(
+    len(phase18_weak_nan)
+)
+
+coverage_summary["s_weak_nan_origin"] = {
+    str(k): int(v)
+    for k, v in nan_origin_summary.items()
+}
+
+
+# ============================================================
+# JSON FINAL
+# ============================================================
+
+coverage_summary["files"] = {
+    "missing_15_to_16":
+        str(OUT_DIR / "phase19a_missing_15_to_16.csv"),
+
+    "missing_16_to_17":
+        str(OUT_DIR / "phase19a_missing_16_to_17.csv"),
+
+    "missing_17_to_18":
+        str(OUT_DIR / "phase19a_missing_17_to_18.csv"),
+
+    "missing_15_to_18":
+        str(OUT_DIR / "phase19a_missing_15_to_18.csv"),
+
+    "phase18_nan_cases":
+        str(OUT_DIR / "phase19a_phase18_nan_cases.csv"),
+
+    "missing_phase18_trace":
+        str(OUT_DIR / "phase19a_missing_phase18_trace.csv"),
+}
+
+
+with open(
+    OUT_DIR / "phase19a_origen_phase18_diagnostic.json",
+    "w",
+    encoding="utf-8"
+) as f:
+    json.dump(
+        coverage_summary,
+        f,
+        indent=2,
+        ensure_ascii=False,
+        default=str
+    )
+
+
+# ============================================================
+# CONSOLA
+# ============================================================
+
+print()
+print("=" * 80)
+print("RESULTADO DEL DIAGNÓSTICO")
+print("=" * 80)
+
+print(f"15B BUY:       {len(buys)}")
+print(f"16B rows:      {len(phase16)}")
+print(f"17 rows:       {len(phase17)}")
+print(f"18 rows:       {len(phase18)}")
+print()
+
+print(
+    f"15B -> 16B faltantes: {len(missing_15_16)}"
+)
+
+print(
+    f"16B -> 17 faltantes:  {len(missing_16_17)}"
+)
+
+print(
+    f"17 -> 18 faltantes:  {len(missing_17_18)}"
+)
+
+print(
+    f"15B -> 18 faltantes:  {len(missing_15_18)}"
+)
+
+print()
+
+print(
+    f"S_WEAK NaN:           {len(phase18_weak_nan)}"
+)
+
+print()
+print("ORIGEN S_WEAK NaN:")
+
+for k, v in nan_origin_summary.items():
+    print(f"  {k}: {v}")
+
+print()
+
+print("ARCHIVOS GENERADOS:")
+
+for key, path in coverage_summary["files"].items():
+    print(f"  {key}: {path}")
+
+print(
+    f"  diagnostic_json: "
+    f"{OUT_DIR / 'phase19a_origen_phase18_diagnostic.json'}"
+)
+
+print()
+print("=" * 80)
+print("STATUS: DIAGNOSTIC_ONLY")
+print("=" * 80)
