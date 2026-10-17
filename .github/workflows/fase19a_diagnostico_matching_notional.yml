@@ -6,7 +6,7 @@ on:
 jobs:
   diagnostic:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     steps:
 
@@ -35,11 +35,49 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install pandas numpy
+          python -m pip install numpy pandas scipy yfinance openpyxl
+
+          python -c "import numpy; print('numpy OK:', numpy.__version__)"
+          python -c "import pandas; print('pandas OK:', pandas.__version__)"
+          python -c "import scipy; print('scipy OK:', scipy.__version__)"
+          python -c "import yfinance; print('yfinance OK:', yfinance.__version__)"
+          python -c "import openpyxl; print('openpyxl OK:', openpyxl.__version__)"
 
 
       # ======================================================
-      # EJECUTAR DIAGNÓSTICO
+      # PHASE 15B
+      # ======================================================
+
+      - name: Run exact Phase 15B baseline C20
+        run: |
+          python -u 'Nueva_Estrategia_Fase15B_Drawdown_Audit_LTM.py'
+
+
+      - name: Verify Phase 15B ledger
+        run: |
+          test -f 'phase15b_c20_trades.csv'
+          echo "Phase15B ledger OK"
+
+
+      # ======================================================
+      # PHASE 16B
+      # ======================================================
+
+      - name: Run exact Phase 16B
+        env:
+          PHASE15B_TRADES_PATH: phase15b_c20_trades.csv
+        run: |
+          python -u 'Nueva_Estrategia_Fase16B_Momentum_Failure_Anatomy.py'
+
+
+      - name: Verify Phase 16B output
+        run: |
+          test -f 'fase16B_momentum_failure_anatomy.csv'
+          echo "Phase16B output OK"
+
+
+      # ======================================================
+      # DIAGNÓSTICO MATCHING NOTIONAL
       # ======================================================
 
       - name: Run Notional matching diagnostic
@@ -63,6 +101,8 @@ jobs:
           test -f 'fase19a_notional_matching/phase19a_notional_duplicates_16b.csv'
 
           test -f 'fase19a_notional_matching/phase19a_notional_matching_diagnostic.json'
+
+          echo "Todos los artefactos existen."
 
 
       # ======================================================
