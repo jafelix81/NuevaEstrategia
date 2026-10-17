@@ -1,0 +1,77 @@
+name: Fase 19A - Diagnostico Origen Phase18
+
+on:
+  workflow_dispatch:
+
+jobs:
+  diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install pandas numpy
+
+      - name: Run exact Phase 15B baseline C20
+        run: |
+          python -u 'Nueva_Estrategia_Fase15B_Drawdown_Audit_LTM.py'
+
+      - name: Verify Phase 15B ledger
+        run: |
+          test -f 'phase15b_c20_trades.csv'
+
+      - name: Run exact Phase 16B
+        env:
+          PHASE15B_TRADES_PATH: phase15b_c20_trades.csv
+        run: |
+          python -u 'Nueva_Estrategia_Fase16B_Momentum_Failure_Anatomy.py'
+
+      - name: Verify Phase 16B output
+        run: |
+          test -f 'fase16B_momentum_failure_anatomy.csv'
+
+      - name: Run exact Phase 17
+        run: |
+          python -u 'Nueva_Estrategia_Fase17_Momentum_Failure_Predictability.py'
+
+      - name: Verify Phase 17 dataset
+        run: |
+          test -f 'nueva_estrategia_phase17_failure_predictability/phase17_entry_factor_dataset.csv'
+
+      - name: Run exact Phase 18
+        env:
+          PHASE17_DATASET_PATH: nueva_estrategia_phase17_failure_predictability/phase17_entry_factor_dataset.csv
+        run: |
+          python -u 'Nueva_Estrategia_Fase18_Failure_Score.py'
+
+      - name: Verify Phase 18 dataset
+        run: |
+          test -f 'nueva_estrategia_phase18_failure_score/phase18_entry_score_dataset.csv'
+
+      - name: Run Phase 19A source diagnostic
+        env:
+          PHASE15B_TRADES_PATH: phase15b_c20_trades.csv
+          PHASE16B_PATH: fase16B_momentum_failure_anatomy.csv
+          PHASE17_DATASET_PATH: nueva_estrategia_phase17_failure_predictability/phase17_entry_factor_dataset.csv
+          PHASE18_DATASET_PATH: nueva_estrategia_phase18_failure_score/phase18_entry_score_dataset.csv
+        run: |
+          python -u 'Nueva_Estrategia_Fase19A_Diagnostico_Origen_Phase18.py'
+
+      - name: Upload diagnostic artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: fase19a_origen_phase18
+          path: |
+            fase19a_phase18_nan_diagnostic/phase19a_phase18_nan_cases.csv
+            fase19a_phase18_nan_diagnostic/phase19a_three_no_score_key_cases.csv
+            fase19a_phase18_nan_diagnostic/phase19a_phase18_nan_diagnostic.json
