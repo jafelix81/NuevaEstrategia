@@ -1,0 +1,61 @@
+name: Fase 19A - Diagnostico 19 No Match
+
+on:
+  workflow_dispatch:
+
+jobs:
+  diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install pandas numpy yfinance scipy
+
+      - name: Run exact Phase 15B baseline C20
+        run: python -u 'Nueva_Estrategia_Fase15B_Drawdown_Audit_LTM.py'
+
+      - name: Verify exact C20 ledger
+        run: test -f 'phase15b_c20_trades.csv'
+
+      - name: Run Phase 16B exact outcomes
+        env:
+          PHASE15B_TRADES_PATH: phase15b_c20_trades.csv
+        run: python -u 'Nueva_Estrategia_Fase16B_Momentum_Failure_Anatomy.py'
+
+      - name: Run Phase 17 exact ex-ante predictability
+        run: python -u 'Nueva_Estrategia_Fase17_Momentum_Failure_Predictability.py'
+
+      - name: Verify Phase 17 dataset
+        run: test -f 'nueva_estrategia_phase17_failure_predictability/phase17_entry_factor_dataset.csv'
+
+      - name: Run Phase 18 exact pre-specified scores
+        env:
+          PHASE17_DATASET_PATH: nueva_estrategia_phase17_failure_predictability/phase17_entry_factor_dataset.csv
+        run: python -u 'Nueva_Estrategia_Fase18_Failure_Score.py'
+
+      - name: Verify Phase 18 score dataset
+        run: test -f 'nueva_estrategia_phase18_failure_score/phase18_entry_score_dataset.csv'
+
+      - name: Run 19 No Match diagnostic
+        env:
+          PHASE15B_TRADES_PATH: phase15b_c20_trades.csv
+          PHASE18_DATASET_PATH: nueva_estrategia_phase18_failure_score/phase18_entry_score_dataset.csv
+          PHASE17_DATASET_PATH: nueva_estrategia_phase17_failure_predictability/phase17_entry_factor_dataset.csv
+        run: python -u 'Nueva_Estrategia_Fase19A_Diagnostico_19_NoMatch.py'
+
+      - name: Upload diagnostic artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: fase19A_diagnostico_19_nomatch
+          path: |
+            phase19_unmatched_full_diagnostic.csv
+            phase19_unmatched_full_diagnostic.json
