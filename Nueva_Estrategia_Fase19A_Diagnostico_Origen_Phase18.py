@@ -588,15 +588,35 @@ missing_phase18["HasPhase16"] = (
 )
 
 
+# ============================================================
+# TRACE RESULT
+# ============================================================
+# Forzamos explícitamente las columnas a boolean.
+# El merge puede dejarlas como dtype=object y np.select()
+# requiere arrays booleanos reales.
+# ============================================================
+
+has_phase16 = (
+    missing_phase18["HasPhase16"]
+    .fillna(False)
+    .astype(bool)
+    .to_numpy()
+)
+
+has_phase17 = (
+    missing_phase18["HasPhase17"]
+    .fillna(False)
+    .astype(bool)
+    .to_numpy()
+)
+
 missing_phase18["TraceResult"] = np.select(
     [
-        (~missing_phase18["HasPhase16"])
-        & (~missing_phase18["HasPhase17"]),
+        (~has_phase16) & (~has_phase17),
 
-        missing_phase18["HasPhase16"]
-        & (~missing_phase18["HasPhase17"]),
+        has_phase16 & (~has_phase17),
 
-        missing_phase18["HasPhase17"]
+        has_phase17
     ],
     [
         "MISSING_ALREADY_PHASE16",
