@@ -1,0 +1,83 @@
+name: Fase 19A - Diagnostico Matching Notional
+
+on:
+  workflow_dispatch:
+
+jobs:
+  diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+
+      # ======================================================
+      # CHECKOUT
+      # ======================================================
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+
+      # ======================================================
+      # PYTHON
+      # ======================================================
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+
+      # ======================================================
+      # DEPENDENCIAS
+      # ======================================================
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pandas numpy
+
+
+      # ======================================================
+      # EJECUTAR DIAGNÓSTICO
+      # ======================================================
+
+      - name: Run Notional matching diagnostic
+        run: |
+          python -u 'Nueva_Estrategia_Fase19A_Diagnostico_Matching_Notional.py'
+
+
+      # ======================================================
+      # VERIFICAR RESULTADOS
+      # ======================================================
+
+      - name: Verify diagnostic artifacts
+        run: |
+
+          test -f 'fase19a_notional_matching/phase19a_notional_missing_exact.csv'
+
+          test -f 'fase19a_notional_matching/phase19a_notional_robust_matches.csv'
+
+          test -f 'fase19a_notional_matching/phase19a_notional_duplicates_15b.csv'
+
+          test -f 'fase19a_notional_matching/phase19a_notional_duplicates_16b.csv'
+
+          test -f 'fase19a_notional_matching/phase19a_notional_matching_diagnostic.json'
+
+
+      # ======================================================
+      # SUBIR RESULTADOS
+      # ======================================================
+
+      - name: Upload diagnostic artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fase19a_notional_matching
+          path: |
+            fase19a_notional_matching/phase19a_notional_missing_exact.csv
+            fase19a_notional_matching/phase19a_notional_robust_matches.csv
+            fase19a_notional_matching/phase19a_notional_duplicates_15b.csv
+            fase19a_notional_matching/phase19a_notional_duplicates_16b.csv
+            fase19a_notional_matching/phase19a_notional_matching_diagnostic.json
+          if-no-files-found: warn
