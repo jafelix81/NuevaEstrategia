@@ -1,47 +1,56 @@
 """
+================================================================================
 FASE 17 — MOMENTUM FAILURE PREDICTABILITY
+================================================================================
 
-Purpose
+OBJETIVO
+--------
+Determinar si los resultados futuros observados en Phase 16B pueden ser
+explicados/predichos EX ANTE utilizando únicamente información disponible
+hasta el cierre de DateSignal.
+
+ESTADO
+------
+- Investigación / diagnóstico solamente.
+- NO modifica la estrategia.
+- NO modifica la selección de activos.
+- NO modifica Kelly.
+- NO modifica stops.
+- NO modifica ejecución.
+- NO modifica Phase 12.
+- NO modifica Phase 15B.
+- NO modifica Phase 16B.
+
+FUENTES
 -------
-Test whether future momentum-failure outcomes observed in Phase 16B can be
-predicted EX ANTE using only information available at the signal close.
+1. Phase 15B:
+   phase15b_c20_trades.csv
 
-Frozen strategy / no production change
----------------------------------------
-- Source trades: exact Phase 15B BASELINE C20 ledger.
-- Outcome labels: exact Phase 16B transaction-level labels.
-- No re-selection of the strategy.
-- No risk overlay, Kelly, stops, or execution changes.
-- Factors are calculated only from OHLCV data available on DateSignal.
-- Chronological discovery/validation split is used. Validation is never used
-  to choose factor direction.
+2. Phase 16B:
+   fase16B_momentum_failure_anatomy.csv
 
-Important
----------
-This is a research diagnostic. A factor that predicts failure here is NOT a
-new trading rule. Any production modification requires a separate validation
-phase and must preserve the official Phase 12 OOS result.
+POLICY
+------
+F80_TOP20_PARTIAL50_BASELINE_C20
 
-Technical correction in this version
--------------------------------------
-Phase15B and Phase16B may contain economically identical Notional values
-represented by slightly different binary floating-point values after CSV
-serialization/deserialization.
+CORRECCIÓN DE INTEGRIDAD
+------------------------
+Phase15B y Phase16B pueden contener el mismo Notional económico
+representado por valores float ligeramente diferentes después de
+serialización/deserialización CSV.
 
-Example:
+Por ello NO se utiliza el float Notional directamente como llave.
 
-    Phase15B: 30.242025
-    Phase16B: 30.242025000000004
-
-An exact float merge can therefore lose valid transaction rows.
-
-The transaction key is therefore:
+La llave interna de matching es:
 
     ExecutionDate + Ticker + round(Notional, 8)
 
-This is ONLY a data-integrity/matching correction.
-It does NOT modify the strategy, allocation, execution, factors, labels,
-or research methodology.
+El Notional original NO se modifica.
+
+Esta corrección únicamente evita pérdida de filas por precisión
+de punto flotante.
+
+================================================================================
 """
 
 from __future__ import annotations
@@ -57,9 +66,9 @@ import yfinance as yf
 from scipy.stats import spearmanr, skew, kurtosis
 
 
-# ============================================================
+# =============================================================================
 # CONFIGURATION
-# ============================================================
+# =============================================================================
 
 RUN_ID = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
 
@@ -93,9 +102,9 @@ Q = 5
 ANN = np.sqrt(252.0)
 
 
-# ============================================================
+# =============================================================================
 # FACTOR FAMILY
-# ============================================================
+# =============================================================================
 
 FACTOR_NAMES = [
     "R1",
@@ -116,9 +125,9 @@ FACTOR_NAMES = [
 ]
 
 
-# ============================================================
+# =============================================================================
 # FACTOR CALCULATIONS
-# ============================================================
+# =============================================================================
 
 def simple_return(
     close: pd.Series,
@@ -166,16 +175,21 @@ def calc_factors(
     hist: pd.DataFrame
 ) -> dict:
 
-    # hist must end at DateSignal close;
-    # no later observation is used.
+    """
+    Calculate all factors using ONLY the supplied history.
+
+    hist MUST contain observations strictly before ExecutionDate.
+    The final observation therefore represents the information available
+    at the signal close.
+    """
 
     c = pd.to_numeric(
         hist["Close"],
         errors="coerce"
     ).dropna()
 
+    # Preserve the original Phase 17 minimum-history rule.
     if len(c) < 253:
-
         return {
             k: np.nan
             for k in FACTOR_NAMES
@@ -249,92 +263,61 @@ def calc_factors(
     )
 
     return {
+        "R1": simple_return(c, 1),
 
-        "R1":
-            simple_return(
-                c,
-                1
-            ),
+        "R5": simple_return(c, 5),
 
-        "R5":
-            simple_return(
-                c,
-                5
-            ),
+        "R20": simple_return(c, 20),
 
-        "R20":
-            simple_return(
-                c,
-                20
-            ),
+        "R60": simple_return(c, 60),
 
-        "R60":
-            simple_return(
-                c,
-                60
-            ),
+        "R120": simple_return(c, 120),
 
-        "R120":
-            simple_return(
-                c,
-                120
-            ),
+        "VOL5": v5,
 
-        "VOL5":
-            v5,
+        "VOL20": v20,
 
-        "VOL20":
-            v20,
+        "VOL60": v60,
 
-        "VOL60":
-            v60,
+        "VOL252": v252,
 
-        "VOL252":
-            v252,
+        "VOL_RATIO_20_252": (
+            v20 / v252
+            if (
+                np.isfinite(v20)
+                and np.isfinite(v252)
+                and v252 > 0
+            )
+            else np.nan
+        ),
 
-        "VOL_RATIO_20_252":
-            (
-                v20 / v252
-                if (
-                    np.isfinite(v20)
-                    and np.isfinite(v252)
-                    and v252 > 0
-                )
-                else np.nan
-            ),
+        "VOL_RATIO_60_252": (
+            v60 / v252
+            if (
+                np.isfinite(v60)
+                and np.isfinite(v252)
+                and v252 > 0
+            )
+            else np.nan
+        ),
 
-        "VOL_RATIO_60_252":
-            (
-                v60 / v252
-                if (
-                    np.isfinite(v60)
-                    and np.isfinite(v252)
-                    and v252 > 0
-                )
-                else np.nan
-            ),
+        "SKEW20": skew20,
 
-        "SKEW20":
-            skew20,
+        "KURT20": kurt20,
 
-        "KURT20":
-            kurt20,
+        "AC1": ac1,
 
-        "AC1":
-            ac1,
-
-        "DIST_200D":
-            (
-                last / sma200 - 1.0
-                if sma200 > 0
-                else np.nan
-            ),
+        "DIST_200D": (
+            last / sma200 - 1.0
+            if sma200 > 0
+            else np.nan
+        ),
     }
 
 
-# ============================================================
+# =============================================================================
 # DATA NORMALIZATION
-# ============================================================
+# =============================================================================
 
 def normalize_df(
     df: pd.DataFrame
@@ -371,9 +354,9 @@ def normalize_df(
     return out
 
 
-# ============================================================
+# =============================================================================
 # PRICE HISTORY
-# ============================================================
+# =============================================================================
 
 def download_history(
     ticker: str,
@@ -381,9 +364,7 @@ def download_history(
     end: pd.Timestamp
 ) -> pd.DataFrame:
 
-    # Small safety buffer before earliest signal
-    # so 252 sessions are available.
-
+    # Safety buffer to ensure sufficient pre-signal history.
     y0 = (
         start - pd.Timedelta(days=450)
     ).strftime("%Y-%m-%d")
@@ -402,7 +383,6 @@ def download_history(
     )
 
     if d is None or d.empty:
-
         return pd.DataFrame()
 
     if isinstance(
@@ -433,9 +413,9 @@ def download_history(
     return d.sort_index()
 
 
-# ============================================================
+# =============================================================================
 # AUC
-# ============================================================
+# =============================================================================
 
 def auc_rank(
     x: pd.Series,
@@ -453,7 +433,6 @@ def auc_rank(
         len(z) == 0
         or z.y.nunique() < 2
     ):
-
         return np.nan
 
     pos = z[
@@ -468,11 +447,7 @@ def auc_rank(
         len(pos) == 0
         or len(neg) == 0
     ):
-
         return np.nan
-
-    # Probability a randomly selected positive
-    # has larger factor value.
 
     ranks = z["x"].rank(
         method="average"
@@ -489,15 +464,14 @@ def auc_rank(
         )
         /
         (
-            len(pos)
-            * len(neg)
+            len(pos) * len(neg)
         )
     )
 
 
-# ============================================================
+# =============================================================================
 # QUINTILE LIFT
-# ============================================================
+# =============================================================================
 
 def quintile_lift(
     x: pd.Series,
@@ -515,7 +489,6 @@ def quintile_lift(
         len(z) < Q * MIN_GROUP
         or z.y.nunique() < 2
     ):
-
         return (
             np.nan,
             np.nan,
@@ -555,7 +528,6 @@ def quintile_lift(
     )
 
     if len(g) < 5:
-
         return (
             np.nan,
             np.nan,
@@ -572,9 +544,9 @@ def quintile_lift(
     )
 
 
-# ============================================================
+# =============================================================================
 # FACTOR DIAGNOSTIC
-# ============================================================
+# =============================================================================
 
 def analyze_factor(
     df: pd.DataFrame,
@@ -608,71 +580,56 @@ def analyze_factor(
     )
 
     return {
+        "Split": subset,
 
-        "Split":
-            subset,
+        "Label": label,
 
-        "Label":
-            label,
+        "Factor": factor,
 
-        "Factor":
-            factor,
+        "N": int(
+            pd.DataFrame(
+                {
+                    "x": x,
+                    "y": y
+                }
+            )
+            .dropna()
+            .shape[0]
+        ),
 
-        "N":
-            int(
-                pd.DataFrame(
-                    {
-                        "x": x,
-                        "y": y
-                    }
-                )
-                .dropna()
-                .shape[0]
-            ),
+        "SpearmanR": (
+            float(rho)
+            if np.isfinite(rho)
+            else np.nan
+        ),
 
-        "SpearmanR":
-            (
-                float(rho)
-                if np.isfinite(rho)
-                else np.nan
-            ),
+        "SpearmanP": (
+            float(p)
+            if np.isfinite(p)
+            else np.nan
+        ),
 
-        "SpearmanP":
-            (
-                float(p)
-                if np.isfinite(p)
-                else np.nan
-            ),
+        "AUC": auc,
 
-        "AUC":
-            auc,
+        "BottomQ_FailureRate": q1,
 
-        "BottomQ_FailureRate":
-            q1,
+        "TopQ_FailureRate": q5,
 
-        "TopQ_FailureRate":
-            q5,
-
-        "TopMinusBottom":
-            lift,
+        "TopMinusBottom": lift,
     }
 
 
-# ============================================================
+# =============================================================================
 # MAIN
-# ============================================================
+# =============================================================================
 
 def main():
 
     t0 = time.time()
 
-    print(
-        "FASE 17 — MOMENTUM FAILURE PREDICTABILITY"
-    )
-
-    print(
-        "=" * 78
-    )
+    print("=" * 78)
+    print("FASE 17 — MOMENTUM FAILURE PREDICTABILITY")
+    print("=" * 78)
 
     print(
         f"RUN_ID: {RUN_ID}"
@@ -699,27 +656,23 @@ def main():
 
     print()
 
-
-    # ========================================================
+    # =========================================================================
     # INPUT FILES
-    # ========================================================
+    # =========================================================================
 
     if not LEDGER.exists():
-
         raise FileNotFoundError(
             f"Missing {LEDGER}"
         )
 
     if not OUTCOME.exists():
-
         raise FileNotFoundError(
             f"Missing {OUTCOME}"
         )
 
-
-    # ========================================================
+    # =========================================================================
     # LOAD
-    # ========================================================
+    # =========================================================================
 
     trades = normalize_df(
         pd.read_csv(LEDGER)
@@ -729,10 +682,9 @@ def main():
         pd.read_csv(OUTCOME)
     )
 
-
-    # ========================================================
+    # =========================================================================
     # POLICY FILTER
-    # ========================================================
+    # =========================================================================
 
     trades = trades[
         trades["PolicyID"]
@@ -746,90 +698,64 @@ def main():
         == "BUY"
     ].copy()
 
+    expected_buy_rows = len(trades)
 
-    # ========================================================
-    # REQUIRED OUTCOME COLUMNS
-    # ========================================================
+    print(
+        f"Phase15B BUY rows: {expected_buy_rows}"
+    )
+
+    # =========================================================================
+    # REQUIRED COLUMNS
+    # =========================================================================
+
+    required_trade = [
+        "ExecutionDate",
+        "Ticker",
+        "Notional",
+        "PolicyID",
+        "Side",
+    ]
+
+    missing_trade = [
+        c
+        for c in required_trade
+        if c not in trades.columns
+    ]
+
+    if missing_trade:
+        raise RuntimeError(
+            "Phase15B ledger missing columns: "
+            f"{missing_trade}"
+        )
 
     required_out = [
-
         "ExecutionDate",
-
         "Ticker",
-
+        "Notional",
         "FailureClass",
-
         "Return_5D",
-
         "Return_10D",
-
         "Return_20D",
-
         "MAE_20D",
-
         "MFE_20D",
-
         "GapMin_20D",
     ]
 
-    missing = [
+    missing_out = [
         c
         for c in required_out
         if c not in outcomes.columns
     ]
 
-    if missing:
-
+    if missing_out:
         raise RuntimeError(
             "Phase16B output missing columns: "
-            f"{missing}"
+            f"{missing_out}"
         )
 
-
-    # ========================================================
-    # ROBUST TRANSACTION-LEVEL MERGE
-    # ========================================================
-    #
-    # IMPORTANT:
-    #
-    # The old implementation used:
-    #
-    #     ExecutionDate + Ticker + Notional
-    #
-    # directly as a float key.
-    #
-    # This caused 3 legitimate transactions to disappear
-    # because the same economic Notional was represented by
-    # slightly different binary floating-point values.
-    #
-    # Diagnostic result:
-    #
-    #     exact match      = 535 / 538
-    #     round(8) match   = 538 / 538
-    #     real differences = 0
-    #
-    # Therefore NotionalKey is now used exclusively for
-    # transaction matching.
-    #
-    # This does NOT modify the original Notional value.
-    # ========================================================
-
-    for c in [
-        "ExecutionDate",
-        "Ticker",
-        "Notional"
-    ]:
-
-        if (
-            c not in trades.columns
-            or c not in outcomes.columns
-        ):
-
-            raise RuntimeError(
-                "Cannot perform transaction merge; "
-                f"missing {c}"
-            )
-
+    # =========================================================================
+    # NUMERICAL NORMALIZATION FOR MATCHING
+    # =========================================================================
 
     trades["Notional"] = pd.to_numeric(
         trades["Notional"],
@@ -841,30 +767,73 @@ def main():
         errors="coerce"
     )
 
+    if trades["Notional"].isna().any():
+        raise RuntimeError(
+            "Phase15B contains NaN/invalid Notional values."
+        )
 
-    # Stable numerical key.
+    if outcomes["Notional"].isna().any():
+        raise RuntimeError(
+            "Phase16B contains NaN/invalid Notional values."
+        )
 
     trades["NotionalKey"] = (
-        trades["Notional"]
-        .round(8)
+        trades["Notional"].round(8)
     )
 
     outcomes["NotionalKey"] = (
-        outcomes["Notional"]
-        .round(8)
+        outcomes["Notional"].round(8)
     )
-
 
     key = [
         "ExecutionDate",
         "Ticker",
-        "NotionalKey"
+        "NotionalKey",
     ]
 
+    # =========================================================================
+    # DUPLICATE KEY AUDIT — PHASE15B
+    # =========================================================================
 
-    # ========================================================
-    # DUPLICATE OUTCOME KEY AUDIT
-    # ========================================================
+    trade_key_counts = (
+        trades
+        .groupby(
+            key,
+            dropna=False
+        )
+        .size()
+        .reset_index(
+            name="Count"
+        )
+    )
+
+    duplicate_trade_keys = (
+        trade_key_counts[
+            trade_key_counts["Count"] > 1
+        ]
+        .copy()
+    )
+
+    if not duplicate_trade_keys.empty:
+
+        print(
+            "\nDUPLICATE PHASE15B KEYS:"
+        )
+
+        print(
+            duplicate_trade_keys.to_string(
+                index=False
+            )
+        )
+
+        raise RuntimeError(
+            "Duplicate Phase15B transaction keys "
+            "after Notional normalization."
+        )
+
+    # =========================================================================
+    # DUPLICATE KEY AUDIT — PHASE16B
+    # =========================================================================
 
     outcome_key_counts = (
         outcomes
@@ -885,12 +854,10 @@ def main():
         .copy()
     )
 
-
     if not duplicate_outcome_keys.empty:
 
         print(
-            "\nDUPLICATE PHASE16B KEYS AFTER "
-            "NOTIONAL NORMALIZATION:"
+            "\nDUPLICATE PHASE16B KEYS:"
         )
 
         print(
@@ -900,74 +867,70 @@ def main():
         )
 
         raise RuntimeError(
-            "Duplicate Phase16B outcome keys after "
-            "NotionalKey normalization."
+            "Duplicate Phase16B outcome keys "
+            "after Notional normalization."
         )
 
-
-    # ========================================================
-    # OUTCOME COLUMNS FOR MERGE
-    # ========================================================
+    # =========================================================================
+    # OUTCOME COLUMNS
+    # =========================================================================
 
     outcome_cols = [
-
         "ExecutionDate",
-
         "Ticker",
-
         "NotionalKey",
-
         "FailureClass",
-
         "Return_5D",
-
         "Return_10D",
-
         "Return_20D",
-
         "MAE_20D",
-
         "MFE_20D",
-
         "GapMin_20D",
     ]
 
+    outcomes_for_merge = (
+        outcomes[
+            outcome_cols
+        ]
+        .copy()
+    )
 
-    outcome_cols = [
-        c
-        for c in outcome_cols
-        if c in outcomes.columns
-    ]
-
-
-    outcomes_for_merge = outcomes[
-        outcome_cols
-    ].copy()
-
-
-    # ========================================================
-    # MERGE
-    # ========================================================
-
-    expected_rows = len(trades)
-
+    # =========================================================================
+    # ROBUST TRANSACTION MATCH
+    # =========================================================================
 
     merged = trades.merge(
         outcomes_for_merge,
         on=key,
         how="inner",
-        validate="one_to_one"
+        validate="one_to_one",
     )
-
 
     matched_rows = len(merged)
 
+    print()
+    print("=" * 78)
+    print("ROBUST TRANSACTION MATCH")
+    print("=" * 78)
 
-    # ========================================================
-    # ROW CONSERVATION CHECK
-    # ========================================================
+    print(
+        f"Expected BUY rows: {expected_buy_rows}"
+    )
 
-    if matched_rows != expected_rows:
+    print(
+        f"Matched rows:      {matched_rows}"
+    )
+
+    print(
+        f"Missing rows:      "
+        f"{expected_buy_rows - matched_rows}"
+    )
+
+    # =========================================================================
+    # ROW CONSERVATION — CRITICAL
+    # =========================================================================
+
+    if matched_rows != expected_buy_rows:
 
         matched_keys = (
             merged[key]
@@ -986,41 +949,22 @@ def main():
             == "left_only"
         ].copy()
 
-
         print()
-
         print(
             "=" * 78
         )
-
         print(
             "ERROR — ROBUST TRANSACTION MATCH INCOMPLETE"
         )
-
         print(
             "=" * 78
         )
-
-        print(
-            f"Expected BUY rows: {expected_rows}"
-        )
-
-        print(
-            f"Matched rows:      {matched_rows}"
-        )
-
-        print(
-            f"Missing rows:      {len(missing_rows)}"
-        )
-
-        print()
-
 
         display_cols = [
             "ExecutionDate",
             "Ticker",
             "Notional",
-            "NotionalKey"
+            "NotionalKey",
         ]
 
         display_cols = [
@@ -1039,89 +983,54 @@ def main():
             "Phase17 transaction matching incomplete."
         )
 
-
     print(
         f"ROBUST TRANSACTION MATCH PASS: "
-        f"{matched_rows}/{expected_rows}"
+        f"{matched_rows}/{expected_buy_rows}"
     )
 
+    # =========================================================================
+    # SORT
+    # =========================================================================
 
     merged = (
         merged
         .sort_values(
             [
                 "ExecutionDate",
-                "Ticker"
+                "Ticker",
             ]
         )
         .reset_index(drop=True)
     )
 
-
-    # ========================================================
-    # PHASE 15B DOES NOT PERSIST DateSignal
-    # ========================================================
-
-    # The frozen strategy executes at the next trading day's
-    # open after the signal close, so reconstruct the signal
-    # date as the last available trading session strictly
-    # BEFORE ExecutionDate.
-
-    if "DateSignal" not in merged.columns:
-
-        merged["ExecutionDate"] = pd.to_datetime(
-            merged["ExecutionDate"],
-            errors="coerce"
-        ).dt.normalize()
-
-        merged["DateSignal"] = (
-            merged["ExecutionDate"]
-            - pd.Timedelta(days=1)
-        )
-
-        merged[
-            "DateSignalReconstructed"
-        ] = True
-
-    else:
-
-        merged[
-            "DateSignalReconstructed"
-        ] = False
-
-
-    # ========================================================
-    # FAILURE LABELS
-    # ========================================================
+    # =========================================================================
+    # INITIAL OUTCOME LABELS
+    # =========================================================================
 
     merged["Y_QUICK"] = (
         merged["FailureClass"]
         == "QUICK_FAILURE"
     ).astype(int)
 
-
     merged["Y_WEAK"] = (
         merged["FailureClass"]
         == "WEAK_FAILURE"
     ).astype(int)
-
 
     merged["Y_SUCCESS"] = (
         merged["FailureClass"]
         == "MOMENTUM_SUCCESS"
     ).astype(int)
 
-
     merged["Y_ADVERSE"] = (
         ~merged["FailureClass"].isin(
             [
                 "MOMENTUM_SUCCESS",
                 "LATER_REVERSAL",
-                "OTHER"
+                "OTHER",
             ]
         )
     ).astype(int)
-
 
     merged["Y_MAE10"] = (
         pd.to_numeric(
@@ -1131,85 +1040,35 @@ def main():
         <= -0.10
     ).astype(int)
 
-
-    # ========================================================
-    # INITIAL CHRONOLOGICAL SPLIT
-    # ========================================================
-
-    dates = np.sort(
-        merged[
-            "DateSignal"
-        ]
-        .dropna()
-        .unique()
-    )
-
-
-    if len(dates) < 2:
-
-        raise RuntimeError(
-            "Insufficient dates for chronological split."
-        )
-
-
-    cut = dates[
-        max(
-            1,
-            int(
-                len(dates)
-                * DISCOVERY_FRAC
-            )
-        ) - 1
-    ]
-
-
-    merged["Split"] = np.where(
-        merged["DateSignal"] <= cut,
-        "DISCOVERY",
-        "VALIDATION"
-    )
-
-
-    print(
-        f"Entries matched: {len(merged)} "
-        f"| discovery through {pd.Timestamp(cut).date()} "
-        f"| validation after"
-    )
-
-
-    # ========================================================
-    # DOWNLOAD PRICE HISTORIES
-    # ========================================================
+    # =========================================================================
+    # PRICE HISTORY
+    # =========================================================================
 
     tickers = sorted(
-        merged[
-            "Ticker"
-        ]
+        merged["Ticker"]
         .dropna()
         .unique()
     )
-
 
     histories = {}
 
     failures = []
 
+    start = (
+        merged["ExecutionDate"]
+        .min()
+    )
 
-    start = merged[
-        "DateSignal"
-    ].min()
+    end = (
+        merged["ExecutionDate"]
+        .max()
+    )
 
-
-    end = merged[
-        "DateSignal"
-    ].max()
-
-
+    print()
     print(
         f"Downloading price histories for "
         f"{len(tickers)} tickers..."
     )
-
 
     for i, ticker in enumerate(
         tickers,
@@ -1221,7 +1080,7 @@ def main():
             d = download_history(
                 ticker,
                 start,
-                end
+                end,
             )
 
             if (
@@ -1232,7 +1091,7 @@ def main():
                 failures.append(
                     (
                         ticker,
-                        "empty_or_no_close"
+                        "empty_or_no_close",
                     )
                 )
 
@@ -1240,16 +1099,14 @@ def main():
 
                 histories[ticker] = d
 
-
         except Exception as exc:
 
             failures.append(
                 (
                     ticker,
-                    f"{type(exc).__name__}: {exc}"
+                    f"{type(exc).__name__}: {exc}",
                 )
             )
-
 
         if (
             i % 25 == 0
@@ -1260,50 +1117,45 @@ def main():
                 f"PRICE DATA "
                 f"{i}/{len(tickers)} "
                 f"| OK={len(histories)} "
-                f"FAIL={len(failures)}",
-                flush=True
+                f"| FAIL={len(failures)}",
+                flush=True,
             )
 
-
-    # ========================================================
+    # =========================================================================
     # FACTOR CONSTRUCTION
-    # ========================================================
+    #
+    # IMPORTANT:
+    # For each transaction, use only price observations strictly before
+    # ExecutionDate. The last available observation becomes the exact
+    # DateSignal.
+    # =========================================================================
 
     rows = []
 
-
-    for i, r in merged.iterrows():
+    for _, r in merged.iterrows():
 
         ticker = r["Ticker"]
 
-        ds = r["DateSignal"]
+        ex = pd.Timestamp(
+            r["ExecutionDate"]
+        ).normalize()
 
         hist = histories.get(
             ticker
         )
-
 
         vals = {
             k: np.nan
             for k in FACTOR_NAMES
         }
 
+        exact_signal = pd.NaT
 
         if hist is not None:
-
-            # Strict ex-ante cutoff:
-            # use only observations strictly
-            # before ExecutionDate.
-
-            ex = pd.Timestamp(
-                r["ExecutionDate"]
-            ).normalize()
-
 
             h = hist.loc[
                 hist.index < ex
             ]
-
 
             if not h.empty:
 
@@ -1313,20 +1165,17 @@ def main():
                     h
                 )
 
-                ds = exact_signal
-
-
         row = {
-
             "ExecutionDate":
                 r["ExecutionDate"],
 
             "DateSignal":
-                ds,
+                exact_signal,
 
             "Ticker":
                 ticker,
 
+            # Preserve the ORIGINAL economic Notional.
             "Notional":
                 r["Notional"],
 
@@ -1365,25 +1214,19 @@ def main():
 
             "Y_MAE10":
                 r["Y_MAE10"],
-
-            "Split":
-                r["Split"],
         }
-
 
         row.update(vals)
 
         rows.append(row)
 
-
     df = pd.DataFrame(
         rows
     )
 
-
-    # ========================================================
-    # SECOND ROW CONSERVATION CHECK
-    # ========================================================
+    # =========================================================================
+    # FACTOR ROW CONSERVATION
+    # =========================================================================
 
     if len(df) != len(merged):
 
@@ -1393,129 +1236,164 @@ def main():
             f"final_factor_rows={len(df)}"
         )
 
-
     print(
         f"ROW CONSERVATION PASS: "
         f"{len(df)}/{len(merged)}"
     )
 
+    # =========================================================================
+    # EXACT SIGNAL DATE VALIDATION
+    # =========================================================================
 
-    # ========================================================
-    # RECOMPUTE CHRONOLOGICAL SPLIT
-    # ========================================================
+    missing_signal = (
+        df["DateSignal"]
+        .isna()
+        .sum()
+    )
+
+    if missing_signal > 0:
+
+        raise RuntimeError(
+            "Unable to reconstruct DateSignal for "
+            f"{missing_signal} transaction rows."
+        )
+
+    # =========================================================================
+    # STRICT EX-ANTE TIMING CHECK
+    # =========================================================================
+
+    timing_ok = (
+        pd.to_datetime(
+            df["DateSignal"],
+            errors="coerce",
+        )
+        <
+        pd.to_datetime(
+            df["ExecutionDate"],
+            errors="coerce",
+        )
+    )
+
+    if not timing_ok.all():
+
+        bad_timing = df[
+            ~timing_ok
+        ].copy()
+
+        print(
+            bad_timing[
+                [
+                    "ExecutionDate",
+                    "DateSignal",
+                    "Ticker",
+                ]
+            ].to_string(
+                index=False
+            )
+        )
+
+        raise RuntimeError(
+            "Timing integrity failed: "
+            "DateSignal is not strictly before "
+            "ExecutionDate."
+        )
+
+    print(
+        f"EX-ANTE TIMING PASS: "
+        f"{int(timing_ok.sum())}/{len(df)} entries"
+    )
+
+    # =========================================================================
+    # CHRONOLOGICAL DISCOVERY / VALIDATION SPLIT
+    #
+    # Split is deliberately performed AFTER exact DateSignal reconstruction.
+    # =========================================================================
 
     valid_dates = np.sort(
         pd.to_datetime(
             df["DateSignal"],
-            errors="coerce"
+            errors="coerce",
         )
         .dropna()
         .unique()
     )
 
-
     if len(valid_dates) < 2:
 
         raise RuntimeError(
-            "Insufficient reconstructed signal "
-            "dates for chronological split"
+            "Insufficient reconstructed signal dates "
+            "for chronological split."
         )
 
+    cut_index = max(
+        1,
+        int(
+            len(valid_dates)
+            * DISCOVERY_FRAC
+        )
+    ) - 1
 
     cut = valid_dates[
-        max(
-            1,
-            int(
-                len(valid_dates)
-                * DISCOVERY_FRAC
-            )
-        ) - 1
+        cut_index
     ]
-
 
     df["Split"] = np.where(
         pd.to_datetime(
             df["DateSignal"]
         ) <= cut,
         "DISCOVERY",
-        "VALIDATION"
+        "VALIDATION",
     )
-
-
-    # ========================================================
-    # REMOVE INTERNAL MATCHING KEY
-    # ========================================================
-    #
-    # NotionalKey was used only to join Phase15B and Phase16B.
-    # It is NOT a research factor and is not exported.
-    #
-    # ========================================================
-
-    # NotionalKey normally exists only in merged.
-    # The factor dataframe does not copy it into row explicitly.
-    #
-    # This defensive block ensures it cannot leak into output.
-
-    if "NotionalKey" in df.columns:
-
-        df = df.drop(
-            columns=["NotionalKey"]
-        )
-
-
-    # ========================================================
-    # EXPORT FACTOR DATASET
-    # ========================================================
-
-    df.to_csv(
-        OUTDIR
-        / "phase17_entry_factor_dataset.csv",
-        index=False
-    )
-
-
-    # ========================================================
-    # STRICT TIMING INTEGRITY
-    # ========================================================
-
-    if not (
-        pd.to_datetime(
-            df["DateSignal"]
-        )
-        <
-        pd.to_datetime(
-            df["ExecutionDate"]
-        )
-    ).all():
-
-        raise RuntimeError(
-            "Timing integrity failed: "
-            "factor date is not strictly before "
-            "execution date"
-        )
-
 
     print(
-        f"EX-ANTE TIMING PASS: "
-        f"{int((pd.to_datetime(df['DateSignal']) < pd.to_datetime(df['ExecutionDate'])).sum())}"
-        f"/{len(df)} entries"
+        f"Entries matched: {len(df)} "
+        f"| discovery through "
+        f"{pd.Timestamp(cut).date()} "
+        f"| validation after"
     )
 
+    # =========================================================================
+    # SORT FINAL DATASET
+    # =========================================================================
 
-    # ========================================================
+    df = (
+        df
+        .sort_values(
+            [
+                "DateSignal",
+                "ExecutionDate",
+                "Ticker",
+            ]
+        )
+        .reset_index(drop=True)
+    )
+
+    # =========================================================================
+    # FACTOR DATASET EXPORT
+    # =========================================================================
+
+    factor_path = (
+        OUTDIR
+        / "phase17_entry_factor_dataset.csv"
+    )
+
+    df.to_csv(
+        factor_path,
+        index=False,
+    )
+
+    # =========================================================================
     # FACTOR DIAGNOSTICS
-    # ========================================================
+    # =========================================================================
 
     labels = [
         "Y_QUICK",
         "Y_WEAK",
         "Y_ADVERSE",
-        "Y_MAE10"
+        "Y_MAE10",
     ]
 
-
     results = []
-
 
     for label in labels:
 
@@ -1526,7 +1404,7 @@ def main():
                     df,
                     factor,
                     label,
-                    "DISCOVERY"
+                    "DISCOVERY",
                 )
             )
 
@@ -1535,51 +1413,47 @@ def main():
                     df,
                     factor,
                     label,
-                    "VALIDATION"
+                    "VALIDATION",
                 )
             )
-
 
     rdf = pd.DataFrame(
         results
     )
 
-
-    # ========================================================
+    # =========================================================================
     # DIRECTIONAL OOS DIAGNOSTICS
-    # ========================================================
+    #
+    # Direction is learned ONLY from DISCOVERY.
+    # Validation merely evaluates that frozen direction.
+    # =========================================================================
 
     directions = []
-
 
     for label in labels:
 
         for factor in FACTOR_NAMES:
 
             d = rdf[
-                (rdf.Label == label)
+                (rdf["Label"] == label)
                 &
-                (rdf.Factor == factor)
+                (rdf["Factor"] == factor)
                 &
-                (rdf.Split == "DISCOVERY")
+                (rdf["Split"] == "DISCOVERY")
             ].iloc[0]
-
 
             v = rdf[
-                (rdf.Label == label)
+                (rdf["Label"] == label)
                 &
-                (rdf.Factor == factor)
+                (rdf["Factor"] == factor)
                 &
-                (rdf.Split == "VALIDATION")
+                (rdf["Split"] == "VALIDATION")
             ].iloc[0]
-
 
             if not np.isfinite(
                 d["TopMinusBottom"]
             ):
-
                 continue
-
 
             direction = (
                 "HIGHER"
@@ -1587,13 +1461,11 @@ def main():
                 else "LOWER"
             )
 
-
             vdelta = (
                 v["TopMinusBottom"]
                 if direction == "HIGHER"
                 else -v["TopMinusBottom"]
             )
-
 
             if direction == "HIGHER":
 
@@ -1607,183 +1479,186 @@ def main():
                     else np.nan
                 )
 
+            directions.append(
+                {
+                    "Label":
+                        label,
 
-            directions.append({
+                    "Factor":
+                        factor,
 
-                "Label":
-                    label,
+                    "DiscoveryDirection":
+                        direction,
 
-                "Factor":
-                    factor,
-
-                "DiscoveryDirection":
-                    direction,
-
-                "DiscoveryLift":
-                    (
-                        float(
-                            abs(
+                    "DiscoveryLift":
+                        (
+                            float(
+                                abs(
+                                    d["TopMinusBottom"]
+                                )
+                            )
+                            if np.isfinite(
                                 d["TopMinusBottom"]
                             )
-                        )
-                        if np.isfinite(
-                            d["TopMinusBottom"]
-                        )
-                        else np.nan
-                    ),
+                            else np.nan
+                        ),
 
-                "ValidationDirectionalLift":
-                    (
-                        float(vdelta)
-                        if np.isfinite(vdelta)
-                        else np.nan
-                    ),
+                    "ValidationDirectionalLift":
+                        (
+                            float(vdelta)
+                            if np.isfinite(vdelta)
+                            else np.nan
+                        ),
 
-                "ValidationDirectionalAUC":
-                    (
-                        float(auc_dir)
-                        if np.isfinite(auc_dir)
-                        else np.nan
-                    ),
+                    "ValidationDirectionalAUC":
+                        (
+                            float(auc_dir)
+                            if np.isfinite(auc_dir)
+                            else np.nan
+                        ),
 
-                "DiscoveryN":
-                    int(d["N"]),
+                    "DiscoveryN":
+                        int(d["N"]),
 
-                "ValidationN":
-                    int(v["N"]),
+                    "ValidationN":
+                        int(v["N"]),
 
-                "ValidationP":
-                    (
-                        float(
-                            v["SpearmanP"]
-                        )
-                        if np.isfinite(
-                            v["SpearmanP"]
-                        )
-                        else np.nan
-                    ),
-            })
+                    "ValidationP":
+                        (
+                            float(
+                                v["SpearmanP"]
+                            )
+                            if np.isfinite(
+                                v["SpearmanP"]
+                            )
+                            else np.nan
+                        ),
+                }
+            )
 
-
-    ddf = (
-        pd.DataFrame(
-            directions
-        )
-        .sort_values(
-            [
-                "Label",
-                "ValidationDirectionalAUC"
-            ],
-            ascending=[
-                True,
-                False
-            ]
-        )
+    ddf = pd.DataFrame(
+        directions
     )
 
+    if not ddf.empty:
+
+        ddf = (
+            ddf
+            .sort_values(
+                [
+                    "Label",
+                    "ValidationDirectionalAUC",
+                ],
+                ascending=[
+                    True,
+                    False,
+                ],
+            )
+        )
 
     ddf.to_csv(
         OUTDIR
         / "phase17_directional_oos_diagnostics.csv",
-        index=False
+        index=False,
     )
-
 
     rdf.to_csv(
         OUTDIR
         / "phase17_all_factor_diagnostics.csv",
-        index=False
+        index=False,
     )
 
-
-    # ========================================================
+    # =========================================================================
     # VALIDATION TOP 3
-    # ========================================================
+    # =========================================================================
 
     summary = []
 
-
     for label in labels:
 
-        v = df[
-            df.Split == "VALIDATION"
-        ][label].mean()
-
+        validation_base_rate = (
+            df.loc[
+                df["Split"] == "VALIDATION",
+                label,
+            ]
+            .mean()
+        )
 
         x = ddf[
-            ddf.Label == label
+            ddf["Label"] == label
         ].copy()
-
 
         x = (
             x
             .replace(
                 [
                     np.inf,
-                    -np.inf
+                    -np.inf,
                 ],
-                np.nan
+                np.nan,
             )
             .dropna(
                 subset=[
-                    "ValidationDirectionalAUC"
+                    "ValidationDirectionalAUC",
                 ]
             )
         )
-
 
         best = (
             x
             .sort_values(
                 "ValidationDirectionalAUC",
-                ascending=False
+                ascending=False,
             )
             .head(3)
         )
 
-
         for _, b in best.iterrows():
 
-            summary.append({
+            summary.append(
+                {
+                    "Label":
+                        label,
 
-                "Label":
-                    label,
+                    "ValidationBaseRate":
+                        float(
+                            validation_base_rate
+                        ),
 
-                "ValidationBaseRate":
-                    float(v),
+                    "Factor":
+                        b["Factor"],
 
-                "Factor":
-                    b.Factor,
+                    "DiscoveryDirection":
+                        b["DiscoveryDirection"],
 
-                "DiscoveryDirection":
-                    b.DiscoveryDirection,
+                    "ValidationDirectionalAUC":
+                        b[
+                            "ValidationDirectionalAUC"
+                        ],
 
-                "ValidationDirectionalAUC":
-                    b.ValidationDirectionalAUC,
+                    "ValidationDirectionalLift":
+                        b[
+                            "ValidationDirectionalLift"
+                        ],
 
-                "ValidationDirectionalLift":
-                    b.ValidationDirectionalLift,
-
-                "ValidationN":
-                    b.ValidationN,
-            })
-
+                    "ValidationN":
+                        b["ValidationN"],
+                }
+            )
 
     sdf = pd.DataFrame(
         summary
     )
 
-
     sdf.to_csv(
         OUTDIR
         / "phase17_validation_top3_diagnostics.csv",
-        index=False
+        index=False,
     )
 
-
-    # ========================================================
+    # =========================================================================
     # INTEGRITY CHECKS
-    # ========================================================
+    # =========================================================================
 
     checks = {
 
@@ -1809,7 +1684,7 @@ def main():
 
         "ExpectedBuyRows":
             int(
-                len(trades)
+                expected_buy_rows
             ),
 
         "MatchedRows":
@@ -1822,6 +1697,21 @@ def main():
                 len(df)
             ),
 
+        "ExpectedBuyRows538":
+            bool(
+                expected_buy_rows == 538
+            ),
+
+        "MatchedRows538":
+            bool(
+                len(merged) == 538
+            ),
+
+        "FactorRows538":
+            bool(
+                len(df) == 538
+            ),
+
         "RowConservation":
             bool(
                 len(merged)
@@ -1831,9 +1721,8 @@ def main():
 
         "DateOrdered":
             bool(
-                df[
-                    "DateSignal"
-                ].is_monotonic_increasing
+                df["DateSignal"]
+                .is_monotonic_increasing
             ),
 
         "DiscoveryRows":
@@ -1874,7 +1763,7 @@ def main():
                         "Y_WEAK",
                         "Y_SUCCESS",
                         "Y_ADVERSE",
-                        "Y_MAE10"
+                        "Y_MAE10",
                     ]
                 ]
                 .notna()
@@ -1882,104 +1771,96 @@ def main():
                 .all()
             ),
 
+        "StrictExAnteTiming":
+            bool(
+                timing_ok.all()
+            ),
+
+        "DuplicateTradeKeys":
+            bool(
+                duplicate_trade_keys.empty
+            ),
+
+        "DuplicateOutcomeKeys":
+            bool(
+                duplicate_outcome_keys.empty
+            ),
+
         "RobustNotionalMatching":
-            True,
+            bool(
+                matched_rows
+                == expected_buy_rows
+            ),
     }
 
+    # =========================================================================
+    # FINAL STATUS
+    # =========================================================================
 
     status = all(
         [
-            checks[
-                "InputLedgerExists"
-            ],
+            checks["InputLedgerExists"],
+            checks["InputOutcomeExists"],
+            checks["PolicyOnly"],
 
-            checks[
-                "InputOutcomeExists"
-            ],
+            checks["ExpectedBuyRows538"],
+            checks["MatchedRows538"],
+            checks["FactorRows538"],
 
-            checks[
-                "PolicyOnly"
-            ],
+            checks["RowConservation"],
 
-            checks[
-                "MatchedRows"
-            ] > 0,
+            checks["DateOrdered"],
 
-            checks[
-                "FactorRows"
-            ]
-            ==
-            checks[
-                "MatchedRows"
-            ],
-
-            checks[
-                "RowConservation"
-            ],
-
-            checks[
-                "DateOrdered"
-            ],
-
-            checks[
-                "ValidationRows"
-            ] > 0,
+            checks["ValidationRows"] > 0,
 
             checks[
                 "NoOutcomeLeakageInFactorConstruction"
             ],
 
-            checks[
-                "NoNaNOutcome"
-            ],
+            checks["NoNaNOutcome"],
 
-            checks[
-                "RobustNotionalMatching"
-            ],
+            checks["StrictExAnteTiming"],
+
+            checks["DuplicateTradeKeys"],
+            checks["DuplicateOutcomeKeys"],
+
+            checks["RobustNotionalMatching"],
         ]
     )
 
-
-    checks[
-        "STATUS"
-    ] = (
+    checks["STATUS"] = (
         "PASS"
         if status
         else "FAIL"
     )
 
-
-    checks[
-        "RuntimeSeconds"
-    ] = (
-        time.time()
-        - t0
+    checks["RuntimeSeconds"] = (
+        time.time() - t0
     )
 
-
-    # ========================================================
+    # =========================================================================
     # AUDIT JSON
-    # ========================================================
+    # =========================================================================
 
-    (
+    audit_path = (
         OUTDIR
         / "phase17_audit.json"
-    ).write_text(
+    )
+
+    audit_path.write_text(
         json.dumps(
             checks,
             indent=2,
-            default=str
+            default=str,
         ),
-        encoding="utf-8"
+        encoding="utf-8",
     )
 
-
-    # ========================================================
+    # =========================================================================
     # CONSOLE OUTPUT
-    # ========================================================
+    # =========================================================================
 
     print()
-
     print(
         "--- VALIDATION TOP DIAGNOSTICS ---"
     )
@@ -1990,44 +1871,35 @@ def main():
         else "No valid diagnostics"
     )
 
-
     print()
-
     print(
         "--- COVERAGE ---"
     )
-
 
     print(
         json.dumps(
             checks,
             indent=2,
-            default=str
+            default=str,
         )
     )
 
-
     print()
-
     print(
         f"Artifacts: {OUTDIR}"
     )
-
 
     print(
         f"STATUS: {checks['STATUS']}"
     )
 
-
     if not status:
-
         raise SystemExit(1)
 
 
-# ============================================================
+# =============================================================================
 # ENTRY POINT
-# ============================================================
+# =============================================================================
 
 if __name__ == "__main__":
-
     main()
