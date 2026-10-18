@@ -1,0 +1,44 @@
+name: Fase 19B - Exposure Controlled Attribution
+
+on:
+  workflow_dispatch:
+
+jobs:
+  phase19b:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy pandas scipy yfinance openpyxl
+
+      - name: Run Phase 19B
+        run: |
+          python -u "Nueva_Estrategia_Fase19B_Exposure_Controlled_Attribution.py"
+
+      - name: List generated files
+        if: always()
+        run: |
+          echo "========================================"
+          echo "ARCHIVOS GENERADOS — FASE 19B"
+          echo "========================================"
+          find . -maxdepth 3 -type f | sort
+
+      - name: Upload Phase 19B artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fase19b_exposure_controlled_attribution
+          path: |
+            nueva_estrategia_phase19b_exposure_attribution/
+          if-no-files-found: warn
