@@ -204,15 +204,185 @@ def main():
     if missing:
         raise RuntimeError(f"Phase16B output missing columns: {missing}")
 
-    # Transaction-level merge, matching the Phase16B anatomy unit.
-    key = ["ExecutionDate", "Ticker", "Notional"]
-    for c in key:
+    # ========================================================
+    # TRANSACTION-LEVEL MERGE
+    # ========================================================
+    #
+    # IMPORTANTE:
+    # Phase15B y Phase16B contienen el mismo Notional económico,
+    # pero al serializar/deserializar CSV como float pueden aparecer
+    # diferencias binarias minúsculas, por ejemplo:
+    #
+    #   30.242025
+    #   30.242025000000004
+    #
+    # Un merge exacto sobre el float puede perder operaciones
+    # económicamente idénticas.
+    #
+    # Solución:
+    #   ExecutionDate + Ticker + round(Notional, 8)
+    #
+    # Esto NO cambia la estrategia ni el Notional económico.
+    # Solamente hace robusto el matching entre fases.
+    # ========================================================
+
+    key = [
+        "ExecutionDate",
+        "Ticker",
+        "NotionalKey"
+    ]
+
+    for c in ["ExecutionDate", "Ticker", "Notional"]:
         if c not in trades.columns or c not in outcomes.columns:
-            raise RuntimeError(f"Cannot perform exact transaction merge; missing {c}")
-    merged = trades.merge(outcomes, on=key, how="inner", suffixes=("_trade", "_out"))
+            raise RuntimeError(
+                f"Cannot perform transaction merge; missing {c}"
+            )
+
+    # Convertir explícitamente Notional a numérico.
+    trades["Notional"] = pd.to_numeric(
+        trades["Notional"],
+        errors="coerce"
+    )
+
+    outcomes["Notional"] = pd.to_numeric(
+        outcomes["Notional"],
+        errors="coerce"
+    )
+
+    # Llave numéricamente estable.
+    trades["NotionalKey"] = (
+        trades["Notional"]
+        .round(8)
+    )
+
+    outcomes["NotionalKey"] = (
+        outcomes["Notional"]
+        .round(8)
+    )
+
+    # Las columnas de outcomes necesarias para Phase17.
+    # NO incluimos Notional de outcomes para conservar el
+    # Notional original del ledger Phase15B.
+    outcome_cols = [
+        "ExecutionDate",
+        "Ticker",
+        "NotionalKey",
+        "FailureClass",
+        "Return_5D",
+        "Return_10D",
+        "Return_20D",
+        "MAE_20D",
+        "MFE_20D",
+        "GapMin_20D",
+    ]
+
+    outcome_cols = [
+        c for c in outcome_cols
+        if c in outcomes.columns
+    ]
+
+    outcomes_for_merge = outcomes[
+        outcome_cols
+    ].copy()
+
+    # Verificación de duplicados en la llave robusta.
+    duplicate_outcome_keys = (
+        outcomes_for_merge
+        .groupby(key, dropna=False)
+        .size()
+        .reset_index(name="Count")
+    )
+
+    duplicate_outcome_keys = duplicate_outcome_keys[
+        duplicate_outcome_keys["Count"] > 1
+    ]
+
+    if not duplicate_outcome_keys.empty:
+        raise RuntimeError(
+            "Duplicate Phase16B outcome keys after "
+            "NotionalKey normalization:\n"
+            + duplicate_outcome_keys.to_string(index=False)
+        )
+
+    merged = trades.merge(
+        outcomes_for_merge,
+        on=key,
+        how="inner",
+        validate="one_to_one"
+    )
+
     if merged.empty:
-        raise RuntimeError("No Phase15B BUY rows matched Phase16B outcomes")
-    merged = merged.sort_values(["ExecutionDate", "Ticker"]).reset_index(drop=True)
+        raise RuntimeError(
+            "No Phase15B BUY rows matched Phase16B outcomes "
+            "using robust NotionalKey"
+        )
+
+    # ========================================================
+    # MATCHING AUDIT
+    # ========================================================
+
+    expected_rows = len(trades)
+    matched_rows = len(merged)
+
+    if matched_rows != expected_rows:
+
+        matched_keys = merged[key].drop_duplicates()
+
+        missing_rows = trades.merge(
+            matched_keys,
+            on=key,
+            how="left",
+            indicator=True
+        )
+
+        missing_rows = missing_rows[
+            missing_rows["_merge"] == "left_only"
+        ].copy()
+
+        print(
+            "\nWARNING: Phase17 robust matching did not "
+            "recover all Phase15B BUY rows."
+        )
+
+        print(
+            f"Expected BUY rows: {expected_rows}"
+        )
+
+        print(
+            f"Matched rows:      {matched_rows}"
+        )
+
+        print(
+            f"Missing rows:      {len(missing_rows)}"
+        )
+
+        print(
+            missing_rows[
+                [
+                    "ExecutionDate",
+                    "Ticker",
+                    "Notional",
+                    "NotionalKey"
+                ]
+            ].to_string(index=False)
+        )
+
+        raise RuntimeError(
+            "Phase17 transaction matching incomplete."
+        )
+
+    print(
+        f"ROBUST TRANSACTION MATCH PASS: "
+        f"{matched_rows}/{expected_rows}"
+    )
+
+    merged = (
+        merged
+        .sort_values(
+            ["ExecutionDate", "Ticker"]
+        )
+        .reset_index(drop=True)
+    )
 
     # Phase15B ledger does not persist DateSignal. The frozen strategy executes
     # at the next trading day's open after the signal close, so reconstruct the
