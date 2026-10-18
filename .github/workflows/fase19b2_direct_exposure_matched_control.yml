@@ -1,0 +1,37 @@
+name: Fase 19B.2 - Direct Exposure Matched Control
+
+on:
+  workflow_dispatch:
+
+jobs:
+  phase19b2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy pandas scipy yfinance openpyxl
+      - name: Verify frozen dependencies
+        run: |
+          test -f "Nueva_Estrategia_Fase12_FinalOOS_Selection_LTM.py"
+          test -f "Nueva_Estrategia_Fase11_Real1000_LTM_v4.py"
+      - name: Run Phase 19B.2
+        run: |
+          python -u "Nueva_Estrategia_Fase19B2_Direct_Exposure_Matched_Control.py"
+      - name: List artifacts
+        if: always()
+        run: find . -maxdepth 3 -type f | sort
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fase19b2_direct_exposure_matched_control
+          path: nueva_estrategia_phase19b2_direct_exposure/
+          if-no-files-found: warn
