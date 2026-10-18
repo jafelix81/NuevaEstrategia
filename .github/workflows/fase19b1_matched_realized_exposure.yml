@@ -1,0 +1,43 @@
+name: Fase 19B.1 - Matched Realized Exposure Attribution
+
+on:
+  workflow_dispatch:
+
+jobs:
+  phase19b1:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy pandas scipy yfinance openpyxl
+
+      - name: Run Phase 19B.1
+        run: |
+          python -u "Nueva_Estrategia_Fase19B1_Matched_Realized_Exposure.py"
+
+      - name: List generated files
+        if: always()
+        run: |
+          echo "========================================"
+          echo "PHASE 19B.1 OUTPUT"
+          echo "========================================"
+          find . -maxdepth 3 -type f | sort
+
+      - name: Upload Phase 19B.1 artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fase19b1_matched_realized_exposure
+          path: nueva_estrategia_phase19b1_exposure_attribution/
+          if-no-files-found: warn
