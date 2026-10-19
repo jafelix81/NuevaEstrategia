@@ -22,9 +22,7 @@ LOOKBACK_DAYS=100; MIN_TOTAL_VOLUME=100_000; TIMEOUT=30; RETRIES=4
 URL="https://cdn.finra.org/equity/regsho/daily/CNMSshvol{date}.txt"
 FACTORS=["SHORT_RATIO","SHORT_RATIO_Z20","SHORT_RATIO_Z60","SHORT_RATIO_CHANGE","SHORT_RATIO_ACCEL","SHORT_RATIO_PERSIST20","SHORT_EXEMPT_RATIO"]
 
-
 def nd(x): return pd.Timestamp(x).normalize()
-
 
 def fetch(dt):
     ds=pd.Timestamp(dt).strftime("%Y%m%d"); path=RAW/f"CNMSshvol{ds}.txt"
@@ -41,7 +39,6 @@ def fetch(dt):
         time.sleep(2**k)
     return None,f"error_{last}"
 
-
 def parse(path,wanted):
     x=pd.read_csv(path,sep="|",dtype={"Symbol":str},engine="python")
     x.columns=[str(c).strip() for c in x.columns]
@@ -51,7 +48,6 @@ def parse(path,wanted):
     for c in ["ShortVolume","ShortExemptVolume","TotalVolume"]: x[c]=pd.to_numeric(x[c],errors="coerce")
     x=x[x.Date.notna() & x.Symbol.isin(wanted) & (x.TotalVolume>0)]
     return x[["Date","Symbol","ShortVolume","ShortExemptVolume","TotalVolume","Market"]]
-
 
 def sf_features(g):
     g=g.sort_values("Date").copy(); g["SHORT_RATIO"]=g.ShortVolume/g.TotalVolume
@@ -64,7 +60,6 @@ def sf_features(g):
     g["SHORT_RATIO_PERSIST20"]=(g.SHORT_RATIO>=m20.quantile(.80)).rolling(20,min_periods=10).mean()
     return g
 
-
 def ltm(data,dt):
     rows=[]
     for t,h in data.items():
@@ -76,7 +71,6 @@ def ltm(data,dt):
     f["LTM"]=f[[c+"_PCT" for c in ["R100","R120","R140","R160"]]].mean(axis=1)
     return f[["Ticker","LTM"]]
 
-
 def forwards(data,dt):
     out=[]
     for t,h in data.items():
@@ -87,7 +81,6 @@ def forwards(data,dt):
         for n in (5,10,20): r[f"FwdRet_{n}D"]=c[i+n]/c[i]-1 if i+n<len(c) and np.isfinite(c[i]) and np.isfinite(c[i+n]) else np.nan
         out.append(r)
     return pd.DataFrame(out)
-
 
 def main():
     t0=time.time(); print("FASE 20A — FINRA SHORT FLOW / FINAL OOS")
@@ -122,7 +115,6 @@ def main():
     panel=pd.concat(rows,ignore_index=True) if rows else pd.DataFrame()
     if panel.empty: raise RuntimeError("No FINRA/LTM OOS cross-section")
     panel.to_csv(OUTDIR/"phase20a_finra_shortflow_oos_cross_sections.csv",index=False)
-
     diag=[]; residual=[]
     for factor in FACTORS:
         for h in (5,10,20):
@@ -132,12 +124,12 @@ def main():
                 if m.sum()>=20: rr.append(spearmanr(g.loc[m,factor],g.loc[m,f"FwdRet_{h}D"])[0])
             if rr: diag.append({"Factor":factor,"Horizon":h,"N_OOS_Dates":len(rr),"MeanSpearman":float(np.mean(rr)),"MedianSpearman":float(np.median(rr)),"MinSpearman":float(np.min(rr)),"MaxSpearman":float(np.max(rr))})
         for dt,g in panel.groupby("DateSignal"):
-            q=g[["LTM",factor]].dropna();
+            q=g[["LTM",factor]].dropna()
             if len(q)<20: continue
-            X=np.column_stack([np.ones(len(q)),q.LTM.to_numpy()]); y=q[factor].to_numpy(); b=np.linalg.lstsq(X,y,rcond=None)[0]; res=y-X@b
+            X=np.column_stack([np.ones(len(q)),q.LTM.to_numpy()]); y=q[factor].to_numpy(); b=np.linalg.lstsq(X,y,rcond=None)[0]; res=pd.Series(y-X@b,index=q.index)
             for h in (5,10,20):
-                m=g[f"FwdRet_{h}D"].notna(); m=m & g.LTM.notna() & g[factor].notna()
-                if m.sum()>=20: residual.append({"Factor":factor,"DateSignal":dt,"Horizon":h,"N":int(m.sum()),"SpearmanResidual":float(spearmanr(res[m.to_numpy()],g.loc[m,f"FwdRet_{h}D"])[0])})
+                z=pd.concat([res.rename("Residual"),g[f"FwdRet_{h}D"].rename("Fwd")],axis=1).dropna()
+                if len(z)>=20: residual.append({"Factor":factor,"DateSignal":dt,"Horizon":h,"N":len(z),"SpearmanResidual":float(spearmanr(z["Residual"],z["Fwd"])[0])})
     pd.DataFrame(diag).to_csv(OUTDIR/"phase20a_finra_shortflow_predictability.csv",index=False)
     pd.DataFrame(residual).to_csv(OUTDIR/"phase20a_finra_shortflow_ltm_residual_predictability.csv",index=False)
     checks={"ValidUniverse":len(data),"OOSSignals":len(oos),"FilesNeeded":len(needed),"FilesAvailable":int(ad.Status.astype(str).str.startswith(("downloaded","cached")).sum()),"RawRows":len(raw),"PanelRows":len(panel),"FutureRowsUsed":0,"Status":"DIAGNOSTIC_READY_REQUIRES_RESEARCH_JUDGMENT","SignalDates":[str(x.date()) for x in oos]}
