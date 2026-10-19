@@ -1,0 +1,30 @@
+name: FASE 20A - FINRA Short Flow
+
+on:
+  push:
+    branches: [phase20a-finra-shortflow]
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy pandas scipy requests yfinance openpyxl
+      - name: Run Phase 20A
+        run: python -u Nueva_Estrategia_Fase20A_FINRA_ShortFlow_OOS.py
+      - name: Upload Phase 20A artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase20a-finra-shortflow
+          path: nueva_estrategia_phase20a_finra_shortflow/
