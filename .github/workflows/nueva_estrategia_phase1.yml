@@ -2,8 +2,6 @@ name: Nueva Estrategia - Fase 1 Confirmacion
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '20 19 * * 1-5'
 
 jobs:
   phase1:
