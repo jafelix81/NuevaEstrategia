@@ -2,8 +2,6 @@ name: Nueva Estrategia - Fase 4 Stress R120
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '20 19 * * 1-5'
 
 jobs:
   phase4:
