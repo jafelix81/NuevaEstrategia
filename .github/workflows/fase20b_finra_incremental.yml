@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 env:
-  PHASE20B_REVISION: train-derived-incremental
+  PHASE20B_REVISION: train-derived-incremental-trigger
 
 jobs:
   run:
