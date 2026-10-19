@@ -1,0 +1,33 @@
+name: FASE 20C - FINRA Walk-Forward
+
+on:
+  push:
+    branches: [phase20c-finra-walkforward]
+  workflow_dispatch:
+
+env:
+  PHASE20C_REVISION: chronological-walk-forward-validation
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy pandas scipy requests yfinance openpyxl
+      - name: Run Phase 20C
+        run: python -u Nueva_Estrategia_Fase20C_FINRA_WalkForward_OOS.py
+      - name: Upload Phase 20C artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase20c-finra-walkforward
+          path: nueva_estrategia_phase20c_finra_walkforward/
