@@ -2,8 +2,6 @@ name: Nueva Estrategia - Fase 3 Incremental
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '20 19 * * 1-5'
 
 jobs:
   phase3:
