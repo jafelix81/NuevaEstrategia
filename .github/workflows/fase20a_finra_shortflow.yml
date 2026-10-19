@@ -5,6 +5,9 @@ on:
     branches: [phase20a-finra-shortflow]
   workflow_dispatch:
 
+env:
+  PHASE20A_REVISION: residual-alignment-fix
+
 jobs:
   run:
     runs-on: ubuntu-latest
