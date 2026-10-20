@@ -46,14 +46,11 @@ def adtv_map(data):
     out={}
     for t,df in data.items():
         x=df.copy(); x.Date=pd.to_datetime(x.Date).dt.normalize(); x["DV"]=pd.to_numeric(x.Close,errors="coerce")*pd.to_numeric(x.get("Volume",np.nan),errors="coerce")
-        # build_features does not retain Volume, so reload volume once per ticker is avoided:
-        # use close returns only if Volume is absent; feature normalization then falls back to price scale.
         if "DV" not in x or x.DV.isna().all(): x["DV"]=pd.to_numeric(x.Close,errors="coerce")
         out[t]=x[["Date","Close","DV"]].dropna(subset=["Date"]).set_index("Date")
     return out
 
 def make_volume(data):
-    # yfinance volume is needed only for ADTV scaling. Download in the same deterministic universe.
     vols={};
     for i,t in enumerate(sorted(set(DEFAULT_UNIVERSE)),1):
         try:
@@ -81,7 +78,12 @@ def forward_returns(data,sigdates):
     return pd.DataFrame(out)
 
 def feature_frame(tx,owners,vols,dates,sigdates):
-    tx=tx.copy(); tx.KnowledgeDate=pd.to_datetime(tx.KnowledgeDate).dt.normalize(); tx.TransactionDate=pd.to_datetime(tx.TransactionDate).dt.normalize()
+    tx=tx.copy()
+    # SEC quarterly datasets contain mixed date representations (e.g. ISO and yy-mm-dd).
+    # format='mixed' is intentional: it parses each source representation without
+    # imposing the first observed format on the entire column.
+    tx.KnowledgeDate=pd.to_datetime(tx.KnowledgeDate,format="mixed",errors="coerce").dt.normalize()
+    tx.TransactionDate=pd.to_datetime(tx.TransactionDate,format="mixed",errors="coerce").dt.normalize()
     tx=tx[tx.IsOpenMarket & tx.ISSUERTRADINGSYMBOL.notna()].copy(); tx["Notional"]=pd.to_numeric(tx.Notional,errors="coerce").fillna(0.0)
     p=tx[tx.IsPurchase].copy(); s=tx[tx.IsSale].copy();
     own=owners.copy(); own["RPTOWNERCIK"]=own.RPTOWNERCIK.astype(str)
@@ -121,12 +123,10 @@ def main():
     if len(sig)<10: raise RuntimeError(f"too few F80 signal dates: {len(sig)}")
     split=int(len(sig)*TRAIN_FRAC); train_dates=sig[:split]; oos_dates=sig[split:]
     vols=make_volume(data); ff=feature_frame(d,o,vols,dates,sig); fw=forward_returns(data,sig); df=ff.merge(fw,on=["Ticker","SignalDate"],how="left")
-    # Cross-sectional residual test against LTM. LTM is frozen and is recomputed from the audited Phase 11 snapshot.
     ltm=[]
     for sd in sig:
         g=snaps[sd][["Ticker","LTM"]].copy(); g["SignalDate"]=sd; ltm.append(g)
     df=df.merge(pd.concat(ltm,ignore_index=True),on=["Ticker","SignalDate"],how="left")
-    # Training-only feature direction selection; require at least 6 valid signal dates.
     sel=[]
     for f in FEATURES:
         for h in HORIZONS:
@@ -148,7 +148,6 @@ def main():
             q=df[(df.SignalDate==sd)&df[f].notna()&df[f"FWD{h}"].notna()].copy()
             if len(q)<MIN_CROSS_SECTION: continue
             q["Score"]=direction*q[f]
-            # Incremental test: residualize factor against LTM cross-sectionally, then rank score.
             x=q[[f,"LTM"]].dropna(); beta=np.polyfit(x.LTM,x[f],1)[0] if len(x)>=MIN_CROSS_SECTION else 0.0
             q["Residual"]=q[f]-beta*q.LTM
             rho=spearmanr(q["Score"],q[f"FWD{h}"]).statistic
