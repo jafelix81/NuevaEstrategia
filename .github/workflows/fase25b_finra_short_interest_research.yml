@@ -1,0 +1,26 @@
+name: Fase 25B - FINRA Short Interest Research
+
+on:
+  push:
+    branches: [phase25b-finra-short-interest-research]
+  workflow_dispatch:
+
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install numpy pandas scipy requests yfinance
+      - name: Run Phase 25B
+        run: python -u Nueva_Estrategia_Fase25B_FINRA_ShortInterest_Research.py
+      - name: Upload research outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase25b-finra-short-interest-research
+          path: nueva_estrategia_phase25b_finra_short_interest_research/**
+          retention-days: 30
