@@ -1,0 +1,26 @@
+name: Fase 23B-v2 - CFTC COT Predictability
+
+on:
+  push:
+    branches: [ phase23b-cftc-cot-research-fix ]
+  workflow_dispatch:
+
+jobs:
+  predictability:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install pandas numpy requests yfinance
+      - name: Run Phase 23B-v2
+        run: python -u Nueva_Estrategia_Fase23B_CFTC_COT_Predictability_v2.py
+      - name: Upload research outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase23b-cftc-cot-predictability-v2
+          path: nueva_estrategia_phase23b_cftc_cot_predictability_v2/**
+          retention-days: 30
