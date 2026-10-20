@@ -1,0 +1,26 @@
+name: Fase 25C - FINRA Short Interest Corrected Incremental
+
+on:
+  push:
+    branches: [phase25c-finra-short-interest-incremental]
+  workflow_dispatch:
+
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install numpy pandas scipy requests yfinance
+      - name: Run Phase 25C
+        run: python -u Nueva_Estrategia_Fase25C_FINRA_ShortInterest_CorrectedIncremental.py
+      - name: Upload research outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase25c-finra-short-interest-corrected
+          path: nueva_estrategia_phase25c_finra_short_interest_corrected/**
+          retention-days: 30
