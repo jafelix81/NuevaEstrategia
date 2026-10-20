@@ -1,0 +1,44 @@
+name: Fase 27H - SEC N-PORT Longitudinal Panel
+
+on:
+  push:
+    branches:
+      - phase27h-nport-longitudinal-panel
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase27h-nport-longitudinal-panel
+  cancel-in-progress: false
+
+jobs:
+  research:
+    strategy:
+      fail-fast: false
+      matrix:
+        periods:
+          - "2019Q4,2020Q4"
+          - "2021Q4,2022Q4"
+          - "2023Q4,2024Q4"
+          - "2025Q4,2026Q3"
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      NPORT_PERIODS: ${{ matrix.periods }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run Phase 27H period pair
+        run: python -u Nueva_Estrategia_Fase27H_SEC_NPORT_Longitudinal_Panel.py
+      - name: Upload research output
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase27h-sec-nport-${{ matrix.periods }}
+          path: nueva_estrategia_phase27h_sec_nport/**
+          if-no-files-found: error
