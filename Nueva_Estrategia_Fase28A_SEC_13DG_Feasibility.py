@@ -1,4 +1,4 @@
-import ast, json, os, time
+import ast, json, os, time, gzip
 from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from urllib.request import Request, urlopen
@@ -27,7 +27,11 @@ def universe():
 def get(url):
     req = Request(url, headers=HEADERS)
     with urlopen(req, timeout=60) as r:
-        return json.load(r)
+        raw = r.read()
+        encoding = (r.headers.get('Content-Encoding') or '').lower()
+        if encoding == 'gzip' or raw[:2] == b'\x1f\x8b':
+            raw = gzip.decompress(raw)
+        return json.loads(raw.decode('utf-8'))
 
 
 def main():
