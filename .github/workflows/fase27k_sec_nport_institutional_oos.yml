@@ -1,0 +1,26 @@
+name: Fase 27K - SEC N-PORT Institutional OOS
+on:
+  push:
+    branches: [phase27k-nport-institutional-oos]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: phase27k-nport-institutional-oos
+  cancel-in-progress: false
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: Run Phase 27K
+        run: python -u Nueva_Estrategia_Fase27K_SEC_NPORT_Institutional_OOS.py
+      - name: Upload research output
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase27k-sec-nport-institutional-oos
+          path: nueva_estrategia_phase27k_sec_nport_institutional_oos/
+          if-no-files-found: error
