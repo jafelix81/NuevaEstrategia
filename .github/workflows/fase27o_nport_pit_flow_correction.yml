@@ -1,0 +1,33 @@
+name: Fase 27O - SEC N-PORT corrected PIT flow pilot
+
+on:
+  push:
+    branches: [phase27o-nport-pit-flow-correction]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase27o-nport-pit-flow-correction
+  cancel-in-progress: false
+
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install research dependencies
+        run: pip install yfinance pandas numpy
+      - name: Run Phase 27O
+        run: python -u Nueva_Estrategia_Fase27N_SEC_NPORT_PIT_FlowPilot.py
+      - name: Upload research output
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase27o-nport-pit-flow-correction
+          path: nueva_estrategia_phase27o_nport_pit_flow_correction/
+          if-no-files-found: error
