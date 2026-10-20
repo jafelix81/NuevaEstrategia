@@ -1,0 +1,4 @@
+Phase 27G launched 2026-10-20 UTC.
+Purpose: correct 27F false exits caused by changing fund-series panels.
+Rule: compare only fund series present in both report-month snapshots; missing ticker within a common series is zero, missing series is excluded.
+No alpha test; no production change; F80 frozen.
