@@ -1,0 +1,27 @@
+name: Fase 27N - SEC N-PORT PIT institutional flow pilot
+on:
+  push:
+    branches: [phase27n-nport-pit-flow-pilot]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: write
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install research dependencies
+        run: pip install --disable-pip-version-check --no-input yfinance
+      - name: Run Phase 27N
+        run: python -u Nueva_Estrategia_Fase27N_SEC_NPORT_PIT_FlowPilot.py
+      - name: Upload research output
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase27n-nport-pit-flow-pilot
+          path: nueva_estrategia_phase27n_nport_pit_flow/
+          if-no-files-found: error
