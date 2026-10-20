@@ -1,0 +1,27 @@
+name: Fase 27D - SEC N-PORT PIT Universe Coverage
+
+on:
+  push:
+    branches:
+      - phase27d-sec-nport-pit-universe-coverage
+
+permissions:
+  contents: read
+
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run Phase 27D
+        run: python -u Nueva_Estrategia_Fase27D_SEC_NPORT_PIT_Universe_Coverage.py
+      - name: Upload research outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase27d-sec-nport-pit-universe-coverage
+          path: nueva_estrategia_phase27d_sec_nport/**
+          if-no-files-found: error
