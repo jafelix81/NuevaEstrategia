@@ -1,0 +1,26 @@
+name: Fase 24A - Options Feasibility
+
+on:
+  push:
+    branches: [ phase24a-options-feasibility ]
+  workflow_dispatch:
+
+jobs:
+  feasibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install pandas requests
+      - name: Run Phase 24A
+        run: python -u Nueva_Estrategia_Fase24A_Options_Feasibility.py
+      - name: Upload research outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase24a-options-feasibility
+          path: nueva_estrategia_phase24a_options_feasibility/**
+          retention-days: 30
