@@ -1,0 +1,1 @@
+Phase 27E launched from the completed Phase 27D coverage audit. This marker exists only to trigger the branch workflow; F80 remains frozen.
