@@ -1,0 +1,27 @@
+name: Fase 27J - SEC N-PORT PIT Snapshot Panel
+
+on:
+  push:
+    branches: [phase27j-nport-pit-snapshot-panel]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run Phase 27J
+        run: python -u Nueva_Estrategia_Fase27J_SEC_NPORT_PIT_SnapshotPanel.py
+      - name: Upload research output
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase27j-sec-nport-pit-snapshot-panel
+          path: nueva_estrategia_phase27j_sec_nport/
+          if-no-files-found: error
