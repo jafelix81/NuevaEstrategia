@@ -1,0 +1,27 @@
+name: Fase 28B - SEC 13D/13G PIT OOS pilot
+on:
+  push:
+    branches: [phase28b-sec-13dg-pit-oos]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: write
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install parsing dependencies
+        run: python -m pip install --disable-pip-version-check beautifulsoup4 lxml
+      - name: Run Phase 28B
+        run: python -u Nueva_Estrategia_Fase28B_SEC_13DG_PIT_OOS.py
+      - name: Upload research output
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase28b-sec-13dg-pit-oos
+          path: nueva_estrategia_phase28b_sec_13dg_pit_oos/
+          if-no-files-found: error
