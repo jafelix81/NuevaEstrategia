@@ -1,0 +1,24 @@
+name: Fase 23C - CFTC COT Walk-Forward
+on:
+  push:
+    branches: [phase23c-cftc-cot-walkforward]
+  workflow_dispatch:
+jobs:
+  walkforward:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install numpy pandas requests yfinance
+      - name: Run Phase 23C
+        run: python -u Nueva_Estrategia_Fase23C_CFTC_COT_WalkForward.py
+      - name: Upload research outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase23c-cftc-cot-walkforward
+          path: nueva_estrategia_phase23c_cftc_cot_walkforward/
+          retention-days: 30
