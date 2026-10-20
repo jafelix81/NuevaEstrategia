@@ -1,0 +1,28 @@
+name: Fase 27M - SEC N-PORT PIT crosswalk audit
+on:
+  push:
+    branches: [phase27m-nport-pit-crosswalk-audit]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: write
+concurrency:
+  group: phase27m-nport-pit-crosswalk-audit
+  cancel-in-progress: false
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run Phase 27M
+        run: python -u Nueva_Estrategia_Fase27M_SEC_NPORT_PIT_CrosswalkAudit.py
+      - name: Upload research output
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase27m-nport-pit-crosswalk-audit
+          path: nueva_estrategia_phase27m_nport_pit_crosswalk_audit/
+          if-no-files-found: error
