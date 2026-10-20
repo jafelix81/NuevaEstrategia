@@ -1,0 +1,27 @@
+name: Fase 28A - SEC 13D/13G Feasibility
+
+on:
+  push:
+    branches: [phase28a-sec-13dg-feasibility]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run Phase 28A
+        run: python -u Nueva_Estrategia_Fase28A_SEC_13DG_Feasibility.py
+      - name: Upload research output
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase28a-sec-13dg-feasibility
+          path: nueva_estrategia_phase28a_sec_13dg/
+          if-no-files-found: error
