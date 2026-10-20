@@ -1,0 +1,26 @@
+name: Fase 26A - FINRA OTC ATS Feasibility
+
+on:
+  push:
+    paths:
+      - 'Nueva_Estrategia_Fase26A_FINRA_OTC_ATS_Feasibility.py'
+      - '.github/workflows/fase26a_finra_otc_ats_feasibility.yml'
+  workflow_dispatch:
+
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install requests
+      - name: Run Phase 26A
+        run: python Nueva_Estrategia_Fase26A_FINRA_OTC_ATS_Feasibility.py
+      - name: Upload research outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase26a-finra-otc-ats-feasibility
+          path: phase26a_outputs/
