@@ -1,0 +1,24 @@
+name: Fase 22B - SEC 13F Mapping Audit
+on:
+  push:
+    branches: [phase22b-sec-13f-mapping-audit]
+  workflow_dispatch:
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install pandas requests
+      - name: Run Phase 22B
+        run: python -u Nueva_Estrategia_Fase22B_SEC_13F_Mapping_Audit.py
+      - name: Upload audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase22b-sec-13f-mapping-audit
+          path: nueva_estrategia_phase22b_sec_13f_mapping_audit/**
+          retention-days: 30
