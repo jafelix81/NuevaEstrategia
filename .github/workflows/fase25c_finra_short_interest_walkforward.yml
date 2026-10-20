@@ -1,0 +1,25 @@
+name: Fase 25C - FINRA Short Interest Walk-Forward
+on:
+  push:
+    branches: [phase25c-finra-short-interest-walkforward]
+  workflow_dispatch:
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install numpy pandas scipy requests yfinance
+      - name: Run Phase 25C
+        run: python -u Nueva_Estrategia_Fase25C_FINRA_ShortInterest_WalkForward.py
+      - name: Upload research outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase25c-finra-short-interest-walkforward
+          path: nueva_estrategia_phase25c_finra_short_interest_walkforward/**
+          retention-days: 30
+          if-no-files-found: error
