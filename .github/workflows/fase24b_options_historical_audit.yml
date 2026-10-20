@@ -1,0 +1,26 @@
+name: Fase 24B - Options Historical Audit
+
+on:
+  push:
+    branches: [ phase24b-options-historical-audit ]
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install pandas requests
+      - name: Run Phase 24B
+        run: python -u Nueva_Estrategia_Fase24B_Options_Historical_Audit.py
+      - name: Upload research outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase24b-options-historical-audit
+          path: nueva_estrategia_phase24b_options_historical_audit/**
+          retention-days: 30
