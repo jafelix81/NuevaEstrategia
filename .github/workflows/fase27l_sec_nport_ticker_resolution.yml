@@ -1,0 +1,28 @@
+name: Fase 27L - SEC N-PORT ticker-resolution diagnostic
+on:
+  push:
+    branches: [phase27l-nport-ticker-resolution-diagnostic]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: write
+concurrency:
+  group: phase27l-nport-ticker-resolution-diagnostic
+  cancel-in-progress: false
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run Phase 27L
+        run: python -u Nueva_Estrategia_Fase27L_SEC_NPORT_TickerResolution.py
+      - name: Upload research output
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase27l-nport-ticker-resolution
+          path: nueva_estrategia_phase27l_nport_ticker_resolution/
+          if-no-files-found: error
