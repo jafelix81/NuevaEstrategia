@@ -1,4 +1,4 @@
-name: Fase 27B - SEC N-PORT Schema Audit
+name: Fase 27B/27C - SEC N-PORT Schema and PIT Mapping Audit
 on:
   push:
     branches: [phase27b-sec-nport-schema-audit]
@@ -14,8 +14,123 @@ jobs:
           python-version: '3.11'
       - name: Run Phase 27B
         run: python -u Nueva_Estrategia_Fase27B_SEC_NPORT_Schema_Audit.py
+      - name: Run Phase 27C PIT issuer mapping audit
+        run: |
+          python -u - <<'PY'
+          import csv, io, json, os, tempfile, zipfile
+          from datetime import datetime, timezone
+          from urllib.request import Request, urlopen
+
+          HEADERS = {"User-Agent": "NuevaEstrategia research contact research@example.com", "Accept-Encoding": "gzip, deflate"}
+          DATASETS = {
+              "2019Q4": "https://www.sec.gov/files/dera/data/form-n-port-data-sets/2019q4_nport.zip",
+              "2023Q4": "https://www.sec.gov/files/dera/data/form-n-port-data-sets/2023q4_nport.zip",
+              "2026Q3": "https://www.sec.gov/files/dera/data/form-n-port-data-sets/2026q3_nport.zip",
+          }
+          OUT = "nueva_estrategia_phase27c_sec_nport"
+          os.makedirs(OUT, exist_ok=True)
+
+          def download(url, path):
+              req = Request(url, headers=HEADERS, method="GET")
+              with urlopen(req, timeout=240) as r, open(path, "wb") as f:
+                  while True:
+                      chunk = r.read(1024 * 1024)
+                      if not chunk: break
+                      f.write(chunk)
+
+          def find_member(zf, stem):
+              for n in zf.namelist():
+                  base = os.path.basename(n).lower()
+                  if base == stem.lower() or base.startswith(stem.lower() + "."):
+                      return n
+              for n in zf.namelist():
+                  base = os.path.basename(n).lower()
+                  if stem.lower() in base and base.endswith((".txt", ".csv")):
+                      return n
+              return None
+
+          def read_rows(zf, member, limit):
+              with zf.open(member) as raw:
+                  text = io.TextIOWrapper(raw, encoding="utf-8-sig", errors="replace", newline="")
+                  reader = csv.DictReader(text, delimiter="\t")
+                  rows = []
+                  for row in reader:
+                      rows.append(row)
+                      if len(rows) >= limit: break
+                  return rows
+
+          def get_header(zf, member):
+              with zf.open(member) as raw:
+                  return raw.readline().decode("utf-8-sig", "replace").rstrip("\r\n").split("\t")
+
+          audit = {
+              "phase": "27C",
+              "source": "SEC Form N-PORT Data Sets",
+              "purpose": "Historical point-in-time issuer/identifier mapping audit before alpha testing.",
+              "audit_timestamp_utc": datetime.now(timezone.utc).isoformat(),
+              "datasets": {},
+              "mapping_policy": {
+                  "primary_security_identifiers": ["ISSUER_CUSIP", "IDENTIFIER_ISIN"],
+                  "ticker_role": "cross-check only; never the sole historical key",
+                  "knowledge_rule": "filing/public dissemination chronology; never report month-end as knowledge date",
+                  "amendments": "retain accession and filing chronology and resolve amendments before alpha",
+                  "universe_rule": "same frozen F80/LTM universe; no expansion or survivorship-driven replacement"
+              },
+              "decision": None
+          }
+
+          for period, url in DATASETS.items():
+              path = os.path.join(tempfile.gettempdir(), period + "_nport.zip")
+              download(url, path)
+              info = {"url": url, "zip_bytes": os.path.getsize(path)}
+              with zipfile.ZipFile(path) as zf:
+                  info["member_count"] = len(zf.namelist())
+                  required = {stem: find_member(zf, stem) for stem in ("SUBMISSION", "REGISTRANT", "FUND_REPORTED_HOLDING", "IDENTIFIERS")}
+                  info["required_members"] = required
+                  for stem, member in required.items():
+                      info[stem.lower() + "_columns"] = get_header(zf, member) if member else []
+                  if all(required.values()):
+                      sub = read_rows(zf, required["SUBMISSION"], 100000)
+                      hold = read_rows(zf, required["FUND_REPORTED_HOLDING"], 250000)
+                      ids = read_rows(zf, required["IDENTIFIERS"], 250000)
+                      info["sampled_rows"] = {"submission": len(sub), "holding": len(hold), "identifiers": len(ids)}
+                      info["submission_dates"] = {
+                          "filing_min": min((r.get("FILING_DATE") or "" for r in sub), default=""),
+                          "filing_max": max((r.get("FILING_DATE") or "" for r in sub), default=""),
+                          "report_min": min((r.get("REPORT_DATE") or "" for r in sub), default=""),
+                          "report_max": max((r.get("REPORT_DATE") or "" for r in sub), default="")
+                      }
+                      info["identifier_coverage"] = {
+                          "holding_cusip_nonempty": sum(bool((r.get("ISSUER_CUSIP") or "").strip()) for r in hold),
+                          "holding_issuer_name_nonempty": sum(bool((r.get("ISSUER_NAME") or "").strip()) for r in hold),
+                          "identifier_isin_nonempty": sum(bool((r.get("IDENTIFIER_ISIN") or "").strip()) for r in ids),
+                          "identifier_ticker_nonempty": sum(bool((r.get("IDENTIFIER_TICKER") or "").strip()) for r in ids)
+                      }
+                      info["sample_records"] = {"submission": sub[:2], "holding": hold[:2], "identifiers": ids[:2]}
+              audit["datasets"][period] = info
+              try: os.remove(path)
+              except OSError: pass
+
+          ready = all(
+              all(audit["datasets"][p]["required_members"].values()) and
+              "FILING_DATE" in audit["datasets"][p]["submission_columns"] and
+              "REPORT_DATE" in audit["datasets"][p]["submission_columns"] and
+              "ISSUER_CUSIP" in audit["datasets"][p]["fund_reported_holding_columns"] and
+              "IDENTIFIER_TICKER" in audit["datasets"][p]["identifiers_columns"]
+              for p in DATASETS
+          )
+          audit["decision"] = "PROMOTE_TO_PIT_UNIVERSE_MAPPING" if ready else "HOLD_FOR_SCHEMA_REVIEW"
+          with open(os.path.join(OUT, "phase27c_sec_nport_pit_mapping_audit.json"), "w", encoding="utf-8") as f:
+              json.dump(audit, f, indent=2)
+          print(json.dumps({"phase": "27C", "decision": audit["decision"], "datasets": {
+              p: {"zip_bytes": x.get("zip_bytes"), "members": x.get("member_count"), "required_members_present": all(x.get("required_members", {}).values()), "has_cusip": "ISSUER_CUSIP" in x.get("fund_reported_holding_columns", []), "has_pit_dates": all(c in x.get("submission_columns", []) for c in ("FILING_DATE", "REPORT_DATE"))}
+              for p, x in audit["datasets"].items()
+          }}, indent=2))
+          PY
       - name: Upload research outputs
         uses: actions/upload-artifact@v4
         with:
-          name: phase27b-sec-nport-schema-audit
-          path: nueva_estrategia_phase27b_sec_nport/**
+          name: phase27b-27c-sec-nport-audit
+          path: |
+            nueva_estrategia_phase27b_sec_nport/**
+            nueva_estrategia_phase27c_sec_nport/**
