@@ -31,4 +31,16 @@ The audit was refactored to be period-scoped and parallelizable: four matrix job
 
 **Promotion rule:** do not proceed to alpha construction until the historical coverage/mapping audit completes and shows adequate universe coverage, acceptable identifier ambiguity, and reproducible PIT timing across the sampled history.
 
+## Phase 27G — SEC N-PORT series-panel correction
+**Status:** COMPLETE / ALPHA NOT TESTED
+
+27G corrected a methodological flaw in 27F: different fund-series panels had been compared across snapshots, so a series absent from the later snapshot could be incorrectly interpreted as a 100% position exit. The corrected panel compares only `SERIES_ID`s present in both snapshots; a missing ticker holding inside a common series is a valid zero, while a missing series is excluded from deltas. The 2021Q4→2022Q4 pilot produced only 3 common fund series and 21 usable universe tickers, so it was a methodological correction rather than alpha evidence.
+
+## Phase 27H — SEC N-PORT longitudinal panel
+**Status:** RUNNING / FEASIBILITY AUDIT ONLY
+
+27H generalizes the 27G correction across four historical pairs: 2019Q4→2020Q4, 2021Q4→2022Q4, 2023Q4→2024Q4, and 2025Q4→2026Q3. Each pair is processed independently in a matrix job to avoid the long sequential SEC ZIP processing that previously caused runner cancellations. The audit measures series counts, common-series continuity, frozen-335 universe coverage, identifier ambiguity and usable signal breadth.
+
+No alpha is being tested in 27H. No return data is used and no production model is changed. Promotion to an alpha test requires materially broader and sufficiently stable longitudinal coverage; otherwise N-PORT will be archived and the research line will move to another Smart Money source.
+
 **F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.**
