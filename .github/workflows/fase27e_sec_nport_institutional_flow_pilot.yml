@@ -1,0 +1,26 @@
+name: Fase 27E - SEC N-PORT Institutional Flow PIT Pilot
+
+on:
+  push:
+    branches: [phase27e-sec-nport-institutional-flow-pilot]
+  workflow_dispatch:
+
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run Phase 27E
+        run: python Nueva_Estrategia_Fase27E_SEC_NPORT_InstitutionalFlow_Pilot.py
+      - name: Upload research output
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase27e-sec-nport-institutional-flow-pilot
+          path: nueva_estrategia_phase27e_sec_nport/
+          if-no-files-found: error
