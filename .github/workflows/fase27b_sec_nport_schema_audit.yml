@@ -1,0 +1,21 @@
+name: Fase 27B - SEC N-PORT Schema Audit
+on:
+  push:
+    branches: [phase27b-sec-nport-schema-audit]
+  workflow_dispatch:
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run Phase 27B
+        run: python -u Nueva_Estrategia_Fase27B_SEC_NPORT_Schema_Audit.py
+      - name: Upload research outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase27b-sec-nport-schema-audit
+          path: nueva_estrategia_phase27b_sec_nport/**
