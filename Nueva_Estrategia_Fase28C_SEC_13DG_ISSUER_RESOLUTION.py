@@ -120,15 +120,16 @@ def main():
         issuer_ticker=cik_to_ticker.get(r.get('issuer_cik'))
         row={**r,'issuer_ticker':issuer_ticker,'issuer_in_frozen_universe':bool(issuer_ticker in frozen)}
         (mapped if issuer_ticker in frozen else unmapped).append(row)
+    all_resolved=sorted(mapped+unmapped,key=lambda r:(r['filing_date'],r['filer_ticker'],r['accession']))
 
     period=defaultdict(list)
-    for r in parsed:
+    for r in all_resolved:
         p=next((x[0] for x in PERIODS if x[1]<=r['filing_date']<=x[2]),None)
         if p: period[p].append(r)
     summary=[]
     for p,_,_ in PERIODS:
-        xs=period[p]; mapped_p=[r for r in xs if r.get('issuer_ticker') in frozen]
-        summary.append({'period':p,'filings':len(xs),'issuer_mapped':len(mapped_p),'issuer_unmapped':len(xs)-len(mapped_p),'unique_filers':len({r['filer_cik'] for r in xs}),'unique_issuers_mapped':len({r['issuer_ticker'] for r in mapped_p})})
+        xs=period[p]; mapped_p=[r for r in xs if r.get('issuer_in_frozen_universe')]
+        summary.append({'period':p,'filings':len(xs),'issuer_mapped':len(mapped_p),'issuer_unmapped':len(xs)-len(mapped_p),'mapping_rate':len(mapped_p)/len(xs) if xs else None,'unique_filers':len({r['filer_cik'] for r in xs}),'unique_issuers_mapped':len({r['issuer_ticker'] for r in mapped_p})})
 
     top_filer=Counter(r['filer_ticker'] for r in parsed).most_common(25)
     top_issuer=Counter(r['issuer_ticker'] for r in mapped).most_common(25)
@@ -136,7 +137,7 @@ def main():
     with open(os.path.join(OUT,'phase28c_sec_13dg_issuer_resolution.json'),'w',encoding='utf-8') as f: json.dump(payload,f,indent=2)
     fields=['filing_date','form','accession','filer_ticker','filer_cik','issuer_ticker','issuer_cik','issuer_name','issuer_in_frozen_universe','header_url']
     with open(os.path.join(OUT,'phase28c_filing_mapping.csv'),'w',newline='',encoding='utf-8') as f:
-        w=csv.DictWriter(f,fieldnames=fields); w.writeheader(); w.writerows({k:r.get(k) for k in fields} for r in parsed)
+        w=csv.DictWriter(f,fieldnames=fields); w.writeheader(); w.writerows({k:r.get(k) for k in fields} for r in all_resolved)
     print(json.dumps({'phase':'28C','status':'COMPLETE','filings':len(filings),'parsed_headers':len(parsed),'issuer_mapped':len(mapped),'issuer_unmapped':len(unmapped),'mapping_rate':len(mapped)/len(parsed) if parsed else None,'period_summary':summary,'parse_errors':len(parse_errors)},indent=2))
 
 if __name__=='__main__': main()
