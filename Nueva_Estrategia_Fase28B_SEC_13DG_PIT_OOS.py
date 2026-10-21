@@ -114,11 +114,23 @@ def parse_filing(r):
 def price_one(ticker,start,end):
     import urllib.parse
     try:
-        url='https://stooq.com/q/d/l/?'+urllib.parse.urlencode({'s':ticker.lower()+'.us','d1':start.replace('-',''),'d2':end.replace('-',''),'i':'d'})
-        raw=get(url).decode('utf-8',errors='ignore').splitlines(); vals={}
-        for line in raw[1:]:
-            p=line.split(',')
-            if len(p)>=5 and p[4] not in ('','N/D'): vals[p[0]]=float(p[4])
+        symbol=ticker.replace('.','-')
+        p1=int(datetime.strptime(start,'%Y-%m-%d').replace(tzinfo=timezone.utc).timestamp())
+        p2=int((datetime.strptime(end,'%Y-%m-%d')+timedelta(days=1)).replace(tzinfo=timezone.utc).timestamp())
+        url='https://query1.finance.yahoo.com/v8/finance/chart/'+urllib.parse.quote(symbol,safe='')+'?'+urllib.parse.urlencode({'period1':p1,'period2':p2,'interval':'1d','events':'div,splits','includeAdjustedClose':'true'})
+        obj=json.loads(get(url,timeout=60,retries=5).decode('utf-8'))
+        result=(obj.get('chart') or {}).get('result') or []
+        if not result: raise RuntimeError('Yahoo chart returned no result')
+        r=result[0]; ts=r.get('timestamp') or []
+        q=r.get('indicators') or {}
+        adj=((q.get('adjclose') or [{}])[0].get('adjclose')) or []
+        close=((q.get('quote') or [{}])[0].get('close')) or []
+        vals={}
+        for i,t in enumerate(ts):
+            if i>=len(close): continue
+            v=adj[i] if i<len(adj) and adj[i] is not None else close[i]
+            if v is not None: vals[datetime.fromtimestamp(t,timezone.utc).date().isoformat()]=float(v)
+        if not vals: raise RuntimeError('Yahoo chart returned no usable daily prices')
         return ticker,vals,None
     except Exception as e:return ticker,{},str(e)
 
@@ -185,7 +197,7 @@ def main():
         xs=by_period.get(key,[]); sx=sorted(xs)
         summary.append({'period':key,'n':len(xs),'mean_return':sum(xs)/len(xs) if xs else None,'median_return':sx[len(sx)//2] if xs else None,'hit_rate':sum(x>0 for x in xs)/len(xs) if xs else None})
 
-    payload={'phase':'28B','status':'COMPLETE','hypothesis':'PIT 13D/13G beneficial ownership events with parsed >=5% ownership may predict subsequent returns.','frozen_universe_size':335,'mapped_universe':len(mapped),'periods':PERIODS,'filings_collected':len(filings),'parsed_events':len(parsed),'signal_events':len(signal_events),'observations':len(observations),'parse_errors':len(parse_errors),'fetch_errors':errors,'price_errors':price_errors,'period_summary':summary,'forward_days':FORWARD_DAYS,'knowledge_rule':'filingDate is earliest public availability; signal enters next trading day; only six predefined Q4 OOS periods are parsed; prices are downloaded only after signals are frozen.','price_source':'Stooq daily CSV.','alpha_status':'PILOT_ONLY','performance_note':'Technical rerun required because prior run was SEC-rate-limited; no alpha conclusion is drawn from zero observations.','audit_timestamp_utc':datetime.now(timezone.utc).isoformat()}
+    payload={'phase':'28B','status':'COMPLETE','hypothesis':'PIT 13D/13G beneficial ownership events with parsed >=5% ownership may predict subsequent returns.','frozen_universe_size':335,'mapped_universe':len(mapped),'periods':PERIODS,'filings_collected':len(filings),'parsed_events':len(parsed),'signal_events':len(signal_events),'observations':len(observations),'parse_errors':len(parse_errors),'fetch_errors':errors,'price_errors':price_errors,'period_summary':summary,'forward_days':FORWARD_DAYS,'knowledge_rule':'filingDate is earliest public availability; signal enters next trading day; only six predefined Q4 OOS periods are parsed; prices are downloaded only after signals are frozen.','price_source':'Yahoo Finance chart API daily adjusted close (evaluation only).','alpha_status':'PILOT_ONLY','performance_note':'Prior SEC-rate-limit failure was resolved. This run must have usable price coverage before any alpha conclusion; price errors are reported explicitly.','audit_timestamp_utc':datetime.now(timezone.utc).isoformat()}
     with open(os.path.join(OUT,'phase28b_sec_13dg_pit_oos.json'),'w',encoding='utf-8') as f: json.dump(payload,f,indent=2)
     if observations:
         with open(os.path.join(OUT,'phase28b_events.csv'),'w',newline='',encoding='utf-8') as f:
