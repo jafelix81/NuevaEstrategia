@@ -13,6 +13,7 @@ INDEX_BASE='https://www.sec.gov/Archives/edgar/full-index'
 DAILY_BASE='https://www.sec.gov/Archives/edgar/daily-index'
 HEADERS={'User-Agent':'NuevaEstrategia research research@example.com','Accept-Encoding':'gzip, deflate'}
 TARGET_FORMS={'SC 13D','SC 13G','SC 13D/A','SC 13G/A','SCHEDULE 13D','SCHEDULE 13G','SCHEDULE 13D/A','SCHEDULE 13G/A'}
+NORMALIZED_TARGET_FORMS={'SC 13D','SC 13G','SC 13D/A','SC 13G/A'}
 PERIODS=[('2020Q4','2020','QTR4'),('2021Q4','2021','QTR4'),('2022Q4','2022','QTR4'),('2023Q4','2023','QTR4'),('2024Q4','2024','QTR4'),('2025Q4','2025','QTR4')]
 SEC_WORKERS=4
 MIN_REQUEST_INTERVAL=0.20
@@ -63,6 +64,12 @@ def normalize_form(form):
     f=f.replace('SCHEDULE ','SC ')
     return f
 
+def normalize_date(date_filed):
+    d=str(date_filed).strip()
+    if re.fullmatch(r'\d{8}',d): return d
+    if re.fullmatch(r'\d{4}-\d{2}-\d{2}',d): return d.replace('-','')
+    return None
+
 def parse_idx(raw,year):
     text=raw.decode('latin-1',errors='replace')
     rows=[]
@@ -72,23 +79,27 @@ def parse_idx(raw,year):
         if len(parts)!=5: continue
         cik,name,form,date_filed,file_name=[p.strip() for p in parts]
         form_norm=normalize_form(form)
-        if not cik.isdigit() or form_norm not in {'SC 13D','SC 13G','SC 13D/A','SC 13G/A'}: continue
-        if not re.fullmatch(r'\d{8}',date_filed): continue
+        if not cik.isdigit() or form_norm not in NORMALIZED_TARGET_FORMS: continue
+        filed=normalize_date(date_filed)
+        if not filed: continue
         acc=re.search(r'(\d{10}-\d{2}-\d{6})',file_name)
         if not acc: continue
-        rows.append({'period':f'{year}Q4','year':year,'filer_cik':cik.zfill(10),'filer_name':name,'form':form,'filing_date':date_filed,'file_name':file_name,'accession':acc.group(1)})
+        rows.append({'period':f'{year}Q4','year':year,'filer_cik':cik.zfill(10),'filer_name':name,'form':form,'filing_date':filed,'file_name':file_name,'accession':acc.group(1)})
     return rows
 
 def fetch_index(year,qtr):
     diagnostics=[]
-    for url in [f'{INDEX_BASE}/{year}/{qtr}/form.idx',f'{INDEX_BASE}/{year}/{qtr}/master.idx']:
-        try:
-            raw=get(url)
-            rows=parse_idx(raw,year)
-            diagnostics.append({'url':url,'bytes':len(raw),'target_rows':len(rows)})
-            if rows: return rows,diagnostics
-        except Exception as e:
-            diagnostics.append({'url':url,'error':str(e)})
+    # SEC master.idx is the machine-friendly quarterly index and is pipe-delimited.
+    # The previous implementation rejected its YYYY-MM-DD filing dates and then
+    # fell back to daily indexes, creating a distorted/duplicated census.
+    url=f'{INDEX_BASE}/{year}/{qtr}/master.idx'
+    try:
+        raw=get(url)
+        rows=parse_idx(raw,year)
+        diagnostics.append({'url':url,'bytes':len(raw),'target_rows':len(rows)})
+        if rows: return rows,diagnostics
+    except Exception as e:
+        diagnostics.append({'url':url,'error':str(e)})
 
     dates=[]
     for month in range(10,13):
