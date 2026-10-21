@@ -76,23 +76,34 @@ def fetch_submission(item):
     try:return extract_filings(t,cik,get_json(SUB_URL.format(cik=cik))),None
     except Exception as e:return [],{'filer_ticker':t,'error':str(e)}
 
+def parse_subject_company(raw):
+    text=raw.decode('utf-8',errors='ignore') if isinstance(raw,(bytes,bytearray)) else raw
+    sec=text.split('</SEC-HEADER>',1)[0]
+    m=re.search(r'SUBJECT COMPANY:\s*(.*?)(?=\n\s*FILED BY:|\Z)',sec,re.I|re.S)
+    block=m.group(1) if m else ''
+    km=re.search(r'CENTRAL INDEX KEY:\s*([0-9]+)',block,re.I)
+    nm=re.search(r'COMPANY CONFORMED NAME:\s*(.*?)\s*(?:CENTRAL INDEX KEY:|STANDARD INDUSTRIAL CLASSIFICATION:)',block,re.I|re.S)
+    issuer_cik=km.group(1).zfill(10) if km else None
+    issuer_name=re.sub(r'\s+',' ',nm.group(1)).strip() if nm else None
+    return issuer_cik,issuer_name
+
 def parse_header(r):
     acc=r['accession'].replace('-','')
-    candidates=[
-        f'{ARCHIVE_BASE}/{int(r["filer_cik"])}/{acc}/{acc}-index-headers.html',
-        f'{ARCHIVE_BASE}/{int(r["filer_cik"])}/{acc}/{acc}.txt',
+    base=f'{ARCHIVE_BASE}/{int(r["filer_cik"])}/{acc}'
+    primary=r.get('primary') or ''
+    candidates=[]
+    if primary:
+        candidates.append(f'{base}/{primary}')
+    candidates += [
+        f'{base}/{acc}-index.html',
+        f'{base}/{acc}-index-headers.html',
+        f'{base}/{acc}.txt',
     ]
     errors=[]
     for url in candidates:
         try:
-            raw=get(url).decode('utf-8',errors='ignore')
-            sec=raw.split('</SEC-HEADER>',1)[0]
-            m=re.search(r'SUBJECT COMPANY:\s*(.*?)(?=\n\s*FILED BY:|\Z)',sec,re.I|re.S)
-            block=m.group(1) if m else ''
-            km=re.search(r'CENTRAL INDEX KEY:\s*([0-9]+)',block,re.I)
-            nm=re.search(r'COMPANY CONFORMED NAME:\s*(.*?)\s*(?:CENTRAL INDEX KEY:|STANDARD INDUSTRIAL CLASSIFICATION:)',block,re.I|re.S)
-            issuer_cik=km.group(1).zfill(10) if km else None
-            issuer_name=re.sub(r'\s+',' ',nm.group(1)).strip() if nm else None
+            raw=get(url)
+            issuer_cik,issuer_name=parse_subject_company(raw)
             if issuer_cik:
                 return {**r,'issuer_cik':issuer_cik,'issuer_name':issuer_name,'header_url':url},None
             errors.append(f'no issuer CIK parsed from {url}')
