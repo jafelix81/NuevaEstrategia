@@ -3,6 +3,9 @@ on:
   push:
     branches: [phase28c2-sec-13dg-quarterly-index-census]
   workflow_dispatch:
+concurrency:
+  group: phase28c2-sec-13dg-quarterly-census
+  cancel-in-progress: true
 jobs:
   research:
     runs-on: ubuntu-latest
