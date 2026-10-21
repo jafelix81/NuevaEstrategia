@@ -77,19 +77,28 @@ def fetch_submission(item):
     except Exception as e:return [],{'filer_ticker':t,'error':str(e)}
 
 def parse_header(r):
-    try:
-        acc=r['accession'].replace('-','')
-        url=f'{ARCHIVE_BASE}/{int(r["filer_cik"])}/{acc}/{acc}.txt'
-        raw=get(url).decode('utf-8',errors='ignore')
-        sec=raw.split('</SEC-HEADER>',1)[0]
-        m=re.search(r'SUBJECT COMPANY:\s*(.*?)(?=\nFILED BY:|\Z)',sec,re.I|re.S)
-        block=m.group(1) if m else ''
-        km=re.search(r'CENTRAL INDEX KEY:\s*([0-9]+)',block,re.I)
-        nm=re.search(r'COMPANY CONFORMED NAME:\s*(.*?)\s*(?:CENTRAL INDEX KEY:|STANDARD INDUSTRIAL CLASSIFICATION:)',block,re.I|re.S)
-        issuer_cik=km.group(1).zfill(10) if km else None
-        issuer_name=re.sub(r'\s+',' ',nm.group(1)).strip() if nm else None
-        return {**r,'issuer_cik':issuer_cik,'issuer_name':issuer_name,'header_url':url},None
-    except Exception as e:return None,{**r,'error':str(e)}
+    acc=r['accession'].replace('-','')
+    candidates=[
+        f'{ARCHIVE_BASE}/{int(r["filer_cik"])}/{acc}/{acc}-index-headers.html',
+        f'{ARCHIVE_BASE}/{int(r["filer_cik"])}/{acc}/{acc}.txt',
+    ]
+    errors=[]
+    for url in candidates:
+        try:
+            raw=get(url).decode('utf-8',errors='ignore')
+            sec=raw.split('</SEC-HEADER>',1)[0]
+            m=re.search(r'SUBJECT COMPANY:\s*(.*?)(?=\n\s*FILED BY:|\Z)',sec,re.I|re.S)
+            block=m.group(1) if m else ''
+            km=re.search(r'CENTRAL INDEX KEY:\s*([0-9]+)',block,re.I)
+            nm=re.search(r'COMPANY CONFORMED NAME:\s*(.*?)\s*(?:CENTRAL INDEX KEY:|STANDARD INDUSTRIAL CLASSIFICATION:)',block,re.I|re.S)
+            issuer_cik=km.group(1).zfill(10) if km else None
+            issuer_name=re.sub(r'\s+',' ',nm.group(1)).strip() if nm else None
+            if issuer_cik:
+                return {**r,'issuer_cik':issuer_cik,'issuer_name':issuer_name,'header_url':url},None
+            errors.append(f'no issuer CIK parsed from {url}')
+        except Exception as e:
+            errors.append(f'{url}: {e}')
+    return None,{**r,'error':' | '.join(errors)}
 
 def main():
     os.makedirs(OUT,exist_ok=True)
@@ -130,12 +139,12 @@ def main():
 
     top_filer=Counter(r['filer_ticker'] for r in parsed).most_common(25)
     top_issuer=Counter(r['issuer_ticker'] for r in mapped).most_common(25)
-    payload={'phase':'28C','status':'COMPLETE','hypothesis':'SEC 13D/13G filings must be mapped by SUBJECT COMPANY issuer, not filing-person CIK/ticker.','frozen_universe_size':335,'frozen_universe_mapped_ciks':len(ticker_to_cik),'filings_collected':len(filings),'parsed_headers':len(parsed),'header_parse_errors':len(parse_errors),'issuer_mapped_filings':len(mapped),'issuer_unmapped_filings':len(unmapped),'issuer_mapping_rate':len(mapped)/len(parsed) if parsed else None,'period_summary':summary,'top_filer_tickers':top_filer,'top_mapped_issuer_tickers':top_issuer,'sample_mapped':mapped[:50],'sample_unmapped':unmapped[:25],'fetch_errors':fetch_errors,'knowledge_rule':'filingDate is the earliest public-availability timestamp; this phase is a mapping audit only and does not estimate returns.','audit_timestamp_utc':datetime.now(timezone.utc).isoformat()}
+    payload={'phase':'28C','status':'COMPLETE','hypothesis':'SEC 13D/13G filings must be mapped by SUBJECT COMPANY issuer, not filing-person CIK/ticker.','frozen_universe_size':335,'frozen_universe_mapped_ciks':len(ticker_to_cik),'filings_collected':len(filings),'parsed_headers':len(parsed),'header_parse_errors':len(parse_errors),'issuer_mapped_filings':len(mapped),'issuer_unmapped_filings':len(unmapped),'issuer_mapping_rate':len(mapped)/len(parsed) if parsed else None,'period_summary':summary,'top_filer_tickers':top_filer,'top_mapped_issuer_tickers':top_issuer,'sample_mapped':mapped[:50],'sample_unmapped':unmapped[:25],'fetch_errors':fetch_errors,'parse_error_samples':parse_errors[:25],'knowledge_rule':'filingDate is the earliest public-availability timestamp; this phase is a mapping audit only and does not estimate returns.','audit_timestamp_utc':datetime.now(timezone.utc).isoformat()}
     with open(os.path.join(OUT,'phase28c_sec_13dg_issuer_resolution.json'),'w',encoding='utf-8') as f: json.dump(payload,f,indent=2)
     if parsed:
         fields=['filing_date','form','accession','filer_ticker','filer_cik','issuer_ticker','issuer_cik','issuer_name','issuer_in_frozen_universe','header_url']
         with open(os.path.join(OUT,'phase28c_filing_mapping.csv'),'w',newline='',encoding='utf-8') as f:
             w=csv.DictWriter(f,fieldnames=fields); w.writeheader(); w.writerows({k:r.get(k) for k in fields} for r in parsed)
-    print(json.dumps({'phase':'28C','status':'COMPLETE','filings':len(filings),'parsed_headers':len(parsed),'issuer_mapped':len(mapped),'issuer_unmapped':len(unmapped),'mapping_rate':len(mapped)/len(parsed) if parsed else None,'period_summary':summary},indent=2))
+    print(json.dumps({'phase':'28C','status':'COMPLETE','filings':len(filings),'parsed_headers':len(parsed),'issuer_mapped':len(mapped),'issuer_unmapped':len(unmapped),'mapping_rate':len(mapped)/len(parsed) if parsed else None,'period_summary':summary,'parse_error_samples':parse_errors[:5]},indent=2))
 
 if __name__=='__main__': main()
