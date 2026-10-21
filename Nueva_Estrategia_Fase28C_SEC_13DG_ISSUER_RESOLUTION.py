@@ -14,7 +14,7 @@ HEADERS={'User-Agent':'NuevaEstrategia research research@example.com','Accept-En
 TARGET_FORMS={'SC 13D','SC 13G','SC 13D/A','SC 13G/A'}
 PERIODS=[('2020Q4','2020-10-01','2020-12-31'),('2021Q4','2021-10-01','2021-12-31'),('2022Q4','2022-10-01','2022-12-31'),('2023Q4','2023-10-01','2023-12-31'),('2024Q4','2024-10-01','2024-12-31'),('2025Q4','2025-10-01','2025-12-31')]
 SEC_WORKERS=2
-MIN_REQUEST_INTERVAL=0.20
+MIN_REQUEST_INTERVAL=0.35
 _last_request=0.0
 
 def throttle():
@@ -23,7 +23,7 @@ def throttle():
     if wait>0: time.sleep(wait)
     _last_request=time.monotonic()
 
-def get(url,timeout=60,retries=6):
+def get(url,timeout=60,retries=7):
     for attempt in range(retries):
         throttle()
         try:
@@ -35,7 +35,7 @@ def get(url,timeout=60,retries=6):
         except HTTPError as e:
             if e.code not in (429,500,502,503,504): raise
             ra=e.headers.get('Retry-After')
-            delay=float(ra) if ra and ra.replace('.','',1).isdigit() else min(30.0,2.0**attempt)
+            delay=float(ra) if ra and ra.replace('.','',1).isdigit() else min(45.0,2.0**attempt)
             time.sleep(delay)
     raise RuntimeError(f'HTTP retry exhaustion: {url}')
 
@@ -78,16 +78,19 @@ def fetch_submission(item):
 
 def parse_header(r):
     try:
-        acc=r['accession'].replace('-','')
-        url=f'{ARCHIVE_BASE}/{int(r["filer_cik"])}/{acc}/{acc}.txt'
+        acc_dash=r['accession']; acc=acc_dash.replace('-','')
+        # The issuer is in the SEC submission header, not in the filing person's submissions metadata.
+        url=f'{ARCHIVE_BASE}/{int(r["filer_cik"])}/{acc}/{acc_dash}.txt'
         raw=get(url).decode('utf-8',errors='ignore')
         sec=raw.split('</SEC-HEADER>',1)[0]
-        m=re.search(r'SUBJECT COMPANY:\s*(.*?)(?=\nFILED BY:|\Z)',sec,re.I|re.S)
-        block=m.group(1) if m else ''
+        m=re.search(r'SUBJECT COMPANY:\s*(.*?)(?=\nFILED BY:|\r?\nFILED BY:|\Z)',sec,re.I|re.S)
+        if not m: raise RuntimeError('SEC submission header missing SUBJECT COMPANY block')
+        block=m.group(1)
         km=re.search(r'CENTRAL INDEX KEY:\s*([0-9]+)',block,re.I)
-        nm=re.search(r'COMPANY CONFORMED NAME:\s*(.*?)\s*(?:CENTRAL INDEX KEY:|STANDARD INDUSTRIAL CLASSIFICATION:)',block,re.I|re.S)
+        nm=re.search(r'COMPANY CONFORMED NAME:\s*(.*?)(?:\r?\n|CENTRAL INDEX KEY:)',block,re.I|re.S)
         issuer_cik=km.group(1).zfill(10) if km else None
         issuer_name=re.sub(r'\s+',' ',nm.group(1)).strip() if nm else None
+        if not issuer_cik: raise RuntimeError('SUBJECT COMPANY block has no CENTRAL INDEX KEY')
         return {**r,'issuer_cik':issuer_cik,'issuer_name':issuer_name,'header_url':url},None
     except Exception as e:return None,{**r,'error':str(e)}
 
@@ -130,12 +133,11 @@ def main():
 
     top_filer=Counter(r['filer_ticker'] for r in parsed).most_common(25)
     top_issuer=Counter(r['issuer_ticker'] for r in mapped).most_common(25)
-    payload={'phase':'28C','status':'COMPLETE','hypothesis':'SEC 13D/13G filings must be mapped by SUBJECT COMPANY issuer, not filing-person CIK/ticker.','frozen_universe_size':335,'frozen_universe_mapped_ciks':len(ticker_to_cik),'filings_collected':len(filings),'parsed_headers':len(parsed),'header_parse_errors':len(parse_errors),'issuer_mapped_filings':len(mapped),'issuer_unmapped_filings':len(unmapped),'issuer_mapping_rate':len(mapped)/len(parsed) if parsed else None,'period_summary':summary,'top_filer_tickers':top_filer,'top_mapped_issuer_tickers':top_issuer,'sample_mapped':mapped[:50],'sample_unmapped':unmapped[:25],'fetch_errors':fetch_errors,'knowledge_rule':'filingDate is the earliest public-availability timestamp; this phase is a mapping audit only and does not estimate returns.','audit_timestamp_utc':datetime.now(timezone.utc).isoformat()}
+    payload={'phase':'28C','status':'COMPLETE','hypothesis':'SEC 13D/13G filings must be mapped by SUBJECT COMPANY issuer, not filing-person CIK/ticker.','frozen_universe_size':335,'frozen_universe_mapped_ciks':len(ticker_to_cik),'filings_collected':len(filings),'parsed_headers':len(parsed),'header_parse_errors':len(parse_errors),'issuer_mapped_filings':len(mapped),'issuer_unmapped_filings':len(unmapped),'issuer_mapping_rate':len(mapped)/len(parsed) if parsed else None,'period_summary':summary,'top_filer_tickers':top_filer,'top_mapped_issuer_tickers':top_issuer,'sample_mapped':mapped[:50],'sample_unmapped':unmapped[:25],'fetch_errors':fetch_errors,'parse_error_samples':parse_errors[:25],'knowledge_rule':'filingDate is the earliest public-availability timestamp; issuer is taken only from the SEC SUBJECT COMPANY header; this phase is a mapping audit only and does not estimate returns.','audit_timestamp_utc':datetime.now(timezone.utc).isoformat()}
     with open(os.path.join(OUT,'phase28c_sec_13dg_issuer_resolution.json'),'w',encoding='utf-8') as f: json.dump(payload,f,indent=2)
-    if parsed:
-        fields=['filing_date','form','accession','filer_ticker','filer_cik','issuer_ticker','issuer_cik','issuer_name','issuer_in_frozen_universe','header_url']
-        with open(os.path.join(OUT,'phase28c_filing_mapping.csv'),'w',newline='',encoding='utf-8') as f:
-            w=csv.DictWriter(f,fieldnames=fields); w.writeheader(); w.writerows({k:r.get(k) for k in fields} for r in parsed)
-    print(json.dumps({'phase':'28C','status':'COMPLETE','filings':len(filings),'parsed_headers':len(parsed),'issuer_mapped':len(mapped),'issuer_unmapped':len(unmapped),'mapping_rate':len(mapped)/len(parsed) if parsed else None,'period_summary':summary},indent=2))
+    fields=['filing_date','form','accession','filer_ticker','filer_cik','issuer_ticker','issuer_cik','issuer_name','issuer_in_frozen_universe','header_url']
+    with open(os.path.join(OUT,'phase28c_filing_mapping.csv'),'w',newline='',encoding='utf-8') as f:
+        w=csv.DictWriter(f,fieldnames=fields); w.writeheader(); w.writerows({k:r.get(k) for k in fields} for r in parsed)
+    print(json.dumps({'phase':'28C','status':'COMPLETE','filings':len(filings),'parsed_headers':len(parsed),'issuer_mapped':len(mapped),'issuer_unmapped':len(unmapped),'mapping_rate':len(mapped)/len(parsed) if parsed else None,'period_summary':summary,'parse_errors':len(parse_errors)},indent=2))
 
 if __name__=='__main__': main()
