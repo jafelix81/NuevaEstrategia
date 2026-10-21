@@ -1,0 +1,29 @@
+name: Fase 29 PR Validation
+
+on:
+  pull_request:
+    paths:
+      - 'Nueva_Estrategia_Fase29_IndependentAlphaLab.py'
+      - '.github/workflows/fase29_independent_alpha_lab.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  phase29:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install numpy pandas scipy yfinance
+      - run: python Nueva_Estrategia_Fase29_IndependentAlphaLab.py
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase29-independent-alpha-lab-pr
+          path: nueva_estrategia_phase29_independent_alpha/**
+          if-no-files-found: warn
+          retention-days: 30
