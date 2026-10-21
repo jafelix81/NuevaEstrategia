@@ -1,7 +1,7 @@
 name: Fase 28C - SEC 13D/13G issuer-resolution diagnostic
 on:
   push:
-    branches: [phase28c-sec-13dg-issuer-resolution]
+    branches: [phase28c-sec-13dg-issuer-resolution-v2]
   workflow_dispatch:
 permissions:
   contents: read
@@ -20,6 +20,6 @@ jobs:
       - name: Upload research output
         uses: actions/upload-artifact@v4
         with:
-          name: phase28c-sec-13dg-issuer-resolution
+          name: phase28c-sec-13dg-issuer-resolution-v2
           path: nueva_estrategia_phase28c_sec_13dg_issuer_resolution/
           if-no-files-found: error
