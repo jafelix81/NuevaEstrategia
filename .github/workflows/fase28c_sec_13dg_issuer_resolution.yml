@@ -1,0 +1,25 @@
+name: Fase 28C - SEC 13D/13G issuer-resolution diagnostic
+on:
+  push:
+    branches: [phase28c-sec-13dg-issuer-resolution]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: write
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run Phase 28C
+        run: python -u Nueva_Estrategia_Fase28C_SEC_13DG_ISSUER_RESOLUTION.py
+      - name: Upload research output
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase28c-sec-13dg-issuer-resolution
+          path: nueva_estrategia_phase28c_sec_13dg_issuer_resolution/
+          if-no-files-found: error
