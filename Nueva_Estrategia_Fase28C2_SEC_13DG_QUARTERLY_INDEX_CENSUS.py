@@ -1,5 +1,5 @@
 import ast, csv, gzip, json, os, re, time
-from collections import defaultdict, Counter
+from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from urllib.error import HTTPError
@@ -23,7 +23,8 @@ def throttle():
     if wait>0: time.sleep(wait)
     _last_request=time.monotonic()
 
-def get(url,timeout=60,retries=7):
+def get(url,timeout=90,retries=7):
+    last=None
     for attempt in range(retries):
         throttle()
         try:
@@ -33,10 +34,15 @@ def get(url,timeout=60,retries=7):
                 if enc=='gzip' or raw[:2]==b'\x1f\x8b': raw=gzip.decompress(raw)
                 return raw
         except HTTPError as e:
+            last=e
             if e.code not in (429,500,502,503,504): raise
             ra=e.headers.get('Retry-After'); delay=float(ra) if ra and re.fullmatch(r'\d+(?:\.\d+)?',ra) else min(45.0,2.0**attempt)
             time.sleep(delay)
-    raise RuntimeError(f'HTTP retry exhaustion: {url}')
+        except Exception as e:
+            last=e
+            if attempt==retries-1: break
+            time.sleep(min(20.0,2.0**attempt))
+    raise RuntimeError(f'HTTP retry exhaustion: {url}: {last}')
 
 def universe():
     tree=ast.parse(open(BASE_SOURCE,encoding='utf-8').read())
@@ -49,22 +55,33 @@ def universe():
                     return u
     raise RuntimeError('DEFAULT_UNIVERSE not found')
 
-def parse_idx(raw,year,qtr):
+def parse_idx(raw,year):
     text=raw.decode('latin-1',errors='replace')
-    rows=[]; started=False
+    rows=[]
     for line in text.splitlines():
-        if not started:
-            if line.startswith('CIK|Company Name|Form Type|Date Filed|File Name'):
-                started=True
-            continue
+        if '|' not in line: continue
         parts=line.split('|')
         if len(parts)!=5: continue
-        cik,name,form,date_filed,file_name=parts
-        if form not in TARGET_FORMS: continue
+        cik,name,form,date_filed,file_name=[p.strip() for p in parts]
+        if not cik.isdigit() or form not in TARGET_FORMS: continue
+        if not re.fullmatch(r'\d{8}',date_filed): continue
         acc=re.search(r'(\d{10}-\d{2}-\d{6})',file_name)
         if not acc: continue
-        rows.append({'period':f'{year}Q4','year':year,'filer_cik':cik.zfill(10),'filer_name':name.strip(),'form':form,'filing_date':date_filed,'file_name':file_name,'accession':acc.group(1)})
+        rows.append({'period':f'{year}Q4','year':year,'filer_cik':cik.zfill(10),'filer_name':name,'form':form,'filing_date':date_filed,'file_name':file_name,'accession':acc.group(1)})
     return rows
+
+def fetch_index(year,qtr):
+    urls=[f'{INDEX_BASE}/{year}/{qtr}/form.idx',f'{INDEX_BASE}/{year}/{qtr}/master.idx']
+    diagnostics=[]
+    for url in urls:
+        try:
+            raw=get(url)
+            rows=parse_idx(raw,year)
+            diagnostics.append({'url':url,'bytes':len(raw),'target_rows':len(rows)})
+            if rows: return rows,diagnostics
+        except Exception as e:
+            diagnostics.append({'url':url,'error':str(e)})
+    return [],diagnostics
 
 def main():
     os.makedirs(OUT,exist_ok=True)
@@ -75,22 +92,20 @@ def main():
 
     census=[]; index_stats=[]; errors=[]
     for period,year,qtr in PERIODS:
-        url=f'{INDEX_BASE}/{year}/{qtr}/form.idx'
         try:
-            rows=parse_idx(get(url),year,qtr)
+            rows,diag=fetch_index(year,qtr)
             matched=[r for r in rows if r['filer_cik'] in frozen_ciks]
             census.extend(matched)
-            index_stats.append({'period':period,'all_target_filings_in_SEC_index':len(rows),'frozen_universe_filer_filings':len(matched),'index_url':url})
+            index_stats.append({'period':period,'all_target_filings_in_SEC_index':len(rows),'frozen_universe_filer_filings':len(matched),'index_diagnostics':diag})
         except Exception as e:
-            errors.append({'period':period,'url':url,'error':str(e)})
+            errors.append({'period':period,'error':str(e)})
 
-    # Deduplicate accessions and resolve issuer from the actual SEC submission header.
     unique={r['accession']:r for r in census}
     filings=sorted(unique.values(),key=lambda r:(r['filing_date'],r['accession']))
     def resolve(r):
         try:
-            acc=r['accession']; acc_dash=acc; acc_compact=acc.replace('-','')
-            url=f'{ARCHIVE_BASE}/{int(r["filer_cik"])}/{acc_compact}/{acc_dash}.txt'
+            acc=r['accession']; compact=acc.replace('-','')
+            url=f'{ARCHIVE_BASE}/{int(r["filer_cik"])}/{compact}/{acc}.txt'
             raw=get(url).decode('utf-8',errors='ignore'); sec=raw.split('</SEC-HEADER>',1)[0]
             m=re.search(r'SUBJECT COMPANY:\s*(.*?)(?=\nFILED BY:|\r?\nFILED BY:|\Z)',sec,re.I|re.S)
             if not m: raise RuntimeError('missing SUBJECT COMPANY block')
@@ -119,7 +134,7 @@ def main():
         xs=period[p]; mapped=[r for r in xs if r['issuer_in_frozen_universe']]
         summary.append({'period':p,'filings_from_frozen_filers':len(xs),'issuer_mapped':len(mapped),'issuer_unmapped':len(xs)-len(mapped),'mapping_rate':len(mapped)/len(xs) if xs else None,'unique_issuers_mapped':len({r['issuer_ticker'] for r in mapped})})
 
-    payload={'phase':'28C2','status':'COMPLETE','purpose':'Comprehensive Q4 SEC EDGAR form-index census to remove the submissions.json historical-coverage gap before any 13D/13G OOS test.','frozen_universe_size':335,'frozen_universe_mapped_ciks':len(frozen_ciks),'index_stats':index_stats,'period_summary':summary,'filings_after_filer_filter':len(filings),'headers_resolved':len(resolved),'header_parse_errors':len(parse_errors),'knowledge_rule':'filingDate is the earliest public-availability date; issuer is taken only from SUBJECT COMPANY in the SEC submission header; this phase does not estimate returns.','errors':errors,'parse_error_samples':parse_errors[:25],'audit_timestamp_utc':datetime.now(timezone.utc).isoformat()}
+    payload={'phase':'28C2','status':'COMPLETE','purpose':'Comprehensive Q4 SEC EDGAR index census using form.idx with master.idx fallback before any 13D/13G OOS test.','frozen_universe_size':335,'frozen_universe_mapped_ciks':len(frozen_ciks),'index_stats':index_stats,'period_summary':summary,'filings_after_filer_filter':len(filings),'headers_resolved':len(resolved),'header_parse_errors':len(parse_errors),'knowledge_rule':'filingDate is the earliest public-availability date; issuer is taken only from SUBJECT COMPANY in the SEC submission header; this phase does not estimate returns.','errors':errors,'parse_error_samples':parse_errors[:25],'audit_timestamp_utc':datetime.now(timezone.utc).isoformat()}
     with open(os.path.join(OUT,'phase28c2_sec_13dg_quarterly_index_census.json'),'w',encoding='utf-8') as f: json.dump(payload,f,indent=2)
     fields=['period','filing_date','form','accession','filer_ticker','filer_cik','filer_name','issuer_ticker','issuer_cik','issuer_name','issuer_in_frozen_universe']
     with open(os.path.join(OUT,'phase28c2_filing_census.csv'),'w',newline='',encoding='utf-8') as f:
