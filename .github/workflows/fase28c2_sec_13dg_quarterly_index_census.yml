@@ -1,0 +1,21 @@
+name: Fase 28C2 - SEC 13D/13G quarterly index census
+on:
+  push:
+    branches: [phase28c2-sec-13dg-quarterly-index-census]
+  workflow_dispatch:
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run Phase 28C2
+        run: python -u Nueva_Estrategia_Fase28C2_SEC_13DG_QUARTERLY_INDEX_CENSUS.py
+      - name: Upload research output
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase28c2-sec-13dg-quarterly-index-census
+          path: nueva_estrategia_phase28c2_sec_13dg_quarterly_index_census/
+          if-no-files-found: error
