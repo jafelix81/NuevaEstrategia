@@ -12,7 +12,7 @@ ARCHIVE_BASE='https://www.sec.gov/Archives/edgar/data'
 INDEX_BASE='https://www.sec.gov/Archives/edgar/full-index'
 DAILY_BASE='https://www.sec.gov/Archives/edgar/daily-index'
 HEADERS={'User-Agent':'NuevaEstrategia research research@example.com','Accept-Encoding':'gzip, deflate'}
-TARGET_FORMS={'SC 13D','SC 13G','SC 13D/A','SC 13G/A'}
+TARGET_FORMS={'SC 13D','SC 13G','SC 13D/A','SC 13G/A','SCHEDULE 13D','SCHEDULE 13G','SCHEDULE 13D/A','SCHEDULE 13G/A'}
 PERIODS=[('2020Q4','2020','QTR4'),('2021Q4','2021','QTR4'),('2022Q4','2022','QTR4'),('2023Q4','2023','QTR4'),('2024Q4','2024','QTR4'),('2025Q4','2025','QTR4')]
 SEC_WORKERS=4
 MIN_REQUEST_INTERVAL=0.20
@@ -58,6 +58,11 @@ def universe():
                     return u
     raise RuntimeError('DEFAULT_UNIVERSE not found')
 
+def normalize_form(form):
+    f=re.sub(r'\s+',' ',str(form).strip().upper())
+    f=f.replace('SCHEDULE ','SC ')
+    return f
+
 def parse_idx(raw,year):
     text=raw.decode('latin-1',errors='replace')
     rows=[]
@@ -66,7 +71,8 @@ def parse_idx(raw,year):
         parts=line.split('|')
         if len(parts)!=5: continue
         cik,name,form,date_filed,file_name=[p.strip() for p in parts]
-        if not cik.isdigit() or form not in TARGET_FORMS: continue
+        form_norm=normalize_form(form)
+        if not cik.isdigit() or form_norm not in {'SC 13D','SC 13G','SC 13D/A','SC 13G/A'}: continue
         if not re.fullmatch(r'\d{8}',date_filed): continue
         acc=re.search(r'(\d{10}-\d{2}-\d{6})',file_name)
         if not acc: continue
@@ -84,8 +90,6 @@ def fetch_index(year,qtr):
         except Exception as e:
             diagnostics.append({'url':url,'error':str(e)})
 
-    # Fallback: the SEC daily index is independently reconstructible and avoids relying
-    # on the quarterly index endpoint. This still discovers ALL filers first.
     dates=[]
     for month in range(10,13):
         for day in range(1,calendar.monthrange(int(year),month)[1]+1):
@@ -98,8 +102,7 @@ def fetch_index(year,qtr):
         except HTTPError as e:
             if e.code==404: return [],{'url':url,'status':404}
             return [],{'url':url,'error':str(e)}
-        except Exception as e:
-            return [],{'url':url,'error':str(e)}
+        except Exception as e: return [],{'url':url,'error':str(e)}
     rows=[]; daily_diag=[]
     with ThreadPoolExecutor(max_workers=4) as ex:
         for rs,diag in ex.map(one,dates):
@@ -130,19 +133,14 @@ def main():
     cik_to_ticker={str(v.get('cik_str','')).zfill(10):str(v.get('ticker','')).strip().upper() for v in company.values() if v.get('ticker')}
     frozen_ciks={cik for cik,t in cik_to_ticker.items() if t in frozen}
     ticker_by_cik={cik:t for cik,t in cik_to_ticker.items() if t in frozen}
-
     all_rows=[]; index_stats=[]; errors=[]
     for period,year,qtr in PERIODS:
         try:
-            rows,diag=fetch_index(year,qtr)
-            all_rows.extend(rows)
+            rows,diag=fetch_index(year,qtr); all_rows.extend(rows)
             index_stats.append({'period':period,'all_target_filings_in_SEC_index':len(rows),'index_diagnostics':diag})
-        except Exception as e:
-            errors.append({'period':period,'error':str(e)})
-
+        except Exception as e: errors.append({'period':period,'error':str(e)})
     unique={r['accession']:r for r in all_rows}
     filings=sorted(unique.values(),key=lambda r:(r['filing_date'],r['accession']))
-
     resolved=[]; parse_errors=[]
     with ThreadPoolExecutor(max_workers=SEC_WORKERS) as ex:
         futs=[ex.submit(resolve_header,r,ticker_by_cik) for r in filings]
@@ -151,7 +149,6 @@ def main():
             if row: resolved.append(row)
             if err: parse_errors.append(err)
     resolved.sort(key=lambda r:(r['filing_date'],r['accession']))
-
     period=defaultdict(list)
     for r in resolved: period[r['period']].append(r)
     summary=[]
@@ -159,8 +156,7 @@ def main():
         xs=period[p]; mapped=[r for r in xs if r['issuer_in_frozen_universe']]
         idx_n=next((x['all_target_filings_in_SEC_index'] for x in index_stats if x['period']==p),0)
         summary.append({'period':p,'all_target_filings':idx_n,'headers_resolved':len(xs),'issuer_mapped':len(mapped),'issuer_unmapped':len(xs)-len(mapped),'issuer_mapping_rate':len(mapped)/len(xs) if xs else None,'unique_issuers_mapped':len({r['issuer_ticker'] for r in mapped})})
-
-    payload={'phase':'28C2','status':'COMPLETE','purpose':'Issuer-first historical census: discover all Q4 SC 13D/13G filings from SEC quarterly index, with daily-index reconstruction fallback; extract issuer only from SUBJECT COMPANY; then map issuer CIK to frozen 335-name universe.','frozen_universe_size':335,'frozen_universe_current_ciks':len(frozen_ciks),'index_stats':index_stats,'period_summary':summary,'target_filings_discovered':len(filings),'headers_resolved':len(resolved),'header_parse_errors':len(parse_errors),'knowledge_rule':'filingDate is the earliest public-availability date; issuer is taken only from SUBJECT COMPANY in the SEC submission header; this phase does not estimate returns.','errors':errors,'parse_error_samples':parse_errors[:25],'audit_timestamp_utc':datetime.now(timezone.utc).isoformat()}
+    payload={'phase':'28C2','status':'COMPLETE','purpose':'Issuer-first historical census of Q4 13D/13G filings; SEC form labels are normalized across legacy SC and current SCHEDULE labels before issuer resolution.','frozen_universe_size':335,'frozen_universe_current_ciks':len(frozen_ciks),'index_stats':index_stats,'period_summary':summary,'target_filings_discovered':len(filings),'headers_resolved':len(resolved),'header_parse_errors':len(parse_errors),'knowledge_rule':'filingDate is the earliest public-availability date; issuer is taken only from SUBJECT COMPANY in the SEC submission header; this phase does not estimate returns.','errors':errors,'parse_error_samples':parse_errors[:25],'audit_timestamp_utc':datetime.now(timezone.utc).isoformat()}
     with open(os.path.join(OUT,'phase28c2_sec_13dg_quarterly_index_census.json'),'w',encoding='utf-8') as f: json.dump(payload,f,indent=2)
     fields=['period','filing_date','form','accession','filer_ticker','filer_cik','filer_name','issuer_ticker','issuer_cik','issuer_name','issuer_in_frozen_universe']
     with open(os.path.join(OUT,'phase28c2_filing_census.csv'),'w',newline='',encoding='utf-8') as f:
