@@ -68,7 +68,7 @@ def simulate(panel,signals,factor,cost_bps):
     dates=sorted(pd.Timestamp(x) for x in p.Date.unique())
     opens={}; closes={}
     last_price={}
-    for dt,t,z in p.groupby(['Date','Ticker']):
+    for (dt,t),z in p.groupby(['Date','Ticker']):
         dt=pd.Timestamp(dt); o=float(z.Open.iloc[0]) if np.isfinite(z.Open.iloc[0]) and z.Open.iloc[0]>0 else np.nan
         c=float(z.Close.iloc[0]) if np.isfinite(z.Close.iloc[0]) and z.Close.iloc[0]>0 else np.nan
         if np.isfinite(o): opens[(dt,t)]=o
@@ -88,7 +88,6 @@ def simulate(panel,signals,factor,cost_bps):
             newpos[t]=desired
         return cost,newpos
     for i,dt in enumerate(dates):
-        # update last known prices before valuation
         for t in set(positions):
             px=value_at(dt,t)
             if np.isfinite(px) and px>0: last_price[t]=px
@@ -104,7 +103,6 @@ def simulate(panel,signals,factor,cost_bps):
             raw_w={t:max(0.,current_w.get(t,0.)+PARTIAL*(desired[t]-current_w.get(t,0.))) for t in names}
             raw_gross=sum(raw_w.values())
             if raw_gross>GROSS_CAP: raw_w={t:w*GROSS_CAP/raw_gross for t,w in raw_w.items()}
-            # Solve for the largest investable scale after transaction costs.
             lo,hi=0.,1.
             for _ in range(60):
                 mid=(lo+hi)/2; cst,_=trade_cost_for(mid,dt,raw_w,positions,pre_eq)
@@ -112,7 +110,6 @@ def simulate(panel,signals,factor,cost_bps):
                 if invested+cst<=pre_eq: lo=mid
                 else: hi=mid
             scale=lo; trade_cost,new_pos=trade_cost_for(scale,dt,raw_w,positions,pre_eq)
-            # Only orders with valid opens are included; positions without an open remain unchanged.
             for t,old in positions.items():
                 if t not in new_pos: new_pos[t]=old
             for t,w in raw_w.items():
