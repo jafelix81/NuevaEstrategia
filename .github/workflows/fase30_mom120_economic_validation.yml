@@ -1,0 +1,25 @@
+name: Fase 30 - MOM120 economic validation
+
+on:
+  push:
+    branches: [phase30-mom120-economic-validation]
+  workflow_dispatch:
+
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install numpy pandas yfinance scipy
+      - name: Run Phase 30
+        run: python -u Nueva_Estrategia_Fase30_MOM120_EconomicValidation.py
+      - name: Upload Phase 30 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase30-mom120-economic-validation
+          path: nueva_estrategia_phase30_mom120_economic/
