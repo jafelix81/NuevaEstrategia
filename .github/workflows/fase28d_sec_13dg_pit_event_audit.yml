@@ -1,0 +1,25 @@
+name: Fase 28D - SEC 13D/13G PIT event audit
+on:
+  push:
+    branches: [phase28d-sec-13dg-pit-event-audit]
+  workflow_dispatch:
+concurrency:
+  group: phase28d-sec-13dg-pit-event-audit
+  cancel-in-progress: true
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run Phase 28D
+        run: python -u Nueva_Estrategia_Fase28D_SEC_13DG_PIT_Event_Audit.py
+      - name: Upload research output
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase28d-sec-13dg-pit-event-audit
+          path: nueva_estrategia_phase28d_sec_13dg_pit_event_audit/
+          if-no-files-found: error
