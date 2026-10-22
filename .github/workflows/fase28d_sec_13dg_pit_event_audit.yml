@@ -57,10 +57,21 @@ jobs:
         with:
           pattern: phase28d-sec-13dg-pit-event-audit-chunk-*
           path: chunk_artifacts
+      - name: Normalize chunk directories
+        shell: bash
+        run: |
+          set -euo pipefail
+          for d in chunk_artifacts/phase28d-sec-13dg-pit-event-audit-chunk-*; do
+            [ -d "$d" ] || continue
+            id="${d##*-chunk-}"
+            out="nueva_estrategia_phase28d_sec_13dg_pit_event_audit_chunk${id}"
+            mkdir -p "$out"
+            cp "$d/phase28d_summary.json" "$out/phase28d_summary.json"
+            cp "$d/phase28d_events.csv" "$out/phase28d_events.csv"
+          done
       - name: Aggregate Phase 28D
         env:
           PHASE28D_MODE: aggregate
-          PHASE28D_ARTIFACT_ROOT: chunk_artifacts
         run: python -u Nueva_Estrategia_Fase28D_SEC_13DG_PIT_Event_Audit.py
       - name: Upload aggregated research output
         uses: actions/upload-artifact@v4
