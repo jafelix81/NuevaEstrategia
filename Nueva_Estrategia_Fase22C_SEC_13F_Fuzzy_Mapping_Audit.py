@@ -26,6 +26,10 @@ def main():
  src=Path('Nueva_Estrategia_Fase0_Descubrimiento.py').read_text(encoding='utf-8'); block=src.split('DEFAULT_UNIVERSE = [',1)[1].split(']\n',1)[0]
  frozen=set(re.findall(r"'([A-Z0-9.\-]+)'",block)); candidates=[x for x in universe if x['ticker'] in frozen]; by_norm={x['norm']:x for x in candidates}
  audit={'phase':'22C_SEC_13F_FUZZY_MAPPING_AUDIT','frozen_universe':len(frozen),'sec_name_rows':len(candidates),'datasets':{},'rule':'issuer-name similarity only; no production mapping; ambiguous matches are rejected'}
+ if not candidates:
+  audit['conclusion']='INSUFFICIENT_FOR_FUZZY_MAPPING__CURRENT_SEC_TICKER_MAP_HAS_NO_FROZEN_UNIVERSE_MATCHES'
+  audit['reason']='The frozen study universe cannot be resolved against the current SEC ticker/name table. Historical issuer/CUSIP crosswalk is required; do not substitute current-name fuzzy matching.'
+  (OUT/'phase22c_mapping_summary.json').write_text(json.dumps(audit,indent=2),encoding='utf-8'); print(json.dumps(audit,indent=2)); return
  for label,url in DATASETS.items():
   raw=get(url)
   with zipfile.ZipFile(io.BytesIO(raw)) as z:
