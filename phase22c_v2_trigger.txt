@@ -1,0 +1,1 @@
+Phase 22C v2 trigger: run bounded fuzzy mapping audit after fixing empty-candidate edge case. No production mapping implied.
