@@ -1,4 +1,4 @@
-import ast, csv, gzip, json, os, re, time
+import ast, csv, gzip, json, os, re, time, threading
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date, datetime, timezone
@@ -15,14 +15,18 @@ HEADERS={'User-Agent':'NuevaEstrategia research research@example.com','Accept-En
 FORMS={'SC 13D','SC 13G','SC 13D/A','SC 13G/A'}
 START=date(2020,10,1); END=date(2026,9,30)
 _last=0.0
+_rate_lock=threading.Lock()
 
-def get(url,timeout=60,retries=6):
+# SEC is sensitive to bursty parallel traffic. Keep a single global request
+# cadence even when several workers are active.
+def get(url,timeout=60,retries=8):
     global _last
     err=None
     for a in range(retries):
-        wait=.25-(time.monotonic()-_last)
-        if wait>0: time.sleep(wait)
-        _last=time.monotonic()
+        with _rate_lock:
+            wait=max(0.0,0.55-(time.monotonic()-_last))
+            if wait: time.sleep(wait)
+            _last=time.monotonic()
         try:
             with urlopen(Request(url,headers=HEADERS),timeout=timeout) as r:
                 raw=r.read(); enc=(r.headers.get('Content-Encoding') or '').lower()
@@ -32,9 +36,9 @@ def get(url,timeout=60,retries=6):
             err=e
             if e.code==404: raise
             if e.code not in (429,500,502,503,504): raise
-            time.sleep(min(20,2**a))
+            time.sleep(min(60,3*(2**a)))
         except Exception as e:
-            err=e; time.sleep(min(15,2**a))
+            err=e; time.sleep(min(30,2**a))
     raise RuntimeError(f'GET failed: {url}: {err}')
 
 def frozen_universe():
@@ -76,9 +80,19 @@ def clean_text(raw):
     s=s.replace('&nbsp;',' ').replace('&amp;','&')
     return re.sub(r'\s+',' ',s)
 
+def raw_attr_value(patterns,text):
+    # Many SEC Schedule 13D/13G filings are HTML tables whose values live in
+    # input/value attributes. Stripping tags before parsing loses these values.
+    for p in patterns:
+        m=re.search(p,text,re.I|re.S)
+        if m:
+            v=re.sub(r'\s+',' ',m.group(1)).strip(' :;')
+            if v: return v
+    return None
+
 def first_num(patterns,text):
     for p in patterns:
-        m=re.search(p,text,re.I)
+        m=re.search(p,text,re.I|re.S)
         if m:
             try: return float(m.group(1).replace(',',''))
             except Exception: return None
@@ -86,29 +100,57 @@ def first_num(patterns,text):
 
 def first_text(patterns,text):
     for p in patterns:
-        m=re.search(p,text,re.I)
+        m=re.search(p,text,re.I|re.S)
         if m:
             v=re.sub(r'\s+',' ',m.group(1)).strip(' :;')
             if v: return v[:300]
     return None
 
 def extract_fields(raw,r):
-    text=clean_text(raw)
-    event=first_text([r'DATE OF EVENT WHICH REQUIRES FILING\s*:?\s*([0-9]{1,2}/[0-9]{1,2}/[0-9]{4})'],text)
+    raw_text=raw.decode('utf-8','ignore') if isinstance(raw,bytes) else str(raw)
+    text=clean_text(raw_text)
+
+    # Prefer raw-HTML/XML extraction for fields frequently rendered as form
+    # inputs; fall back to flattened text for older plain-text filings.
+    event=raw_attr_value([
+        r'DATE\s+OF\s+EVENT\s+WHICH\s+REQUIRES\s+FILING.{0,1200}?value\s*=\s*["\']([0-9]{1,2}/[0-9]{1,2}/[0-9]{4})["\']',
+        r'DATE\s+OF\s+EVENT\s+WHICH\s+REQUIRES\s+FILING.{0,1200}?([0-9]{1,2}/[0-9]{1,2}/[0-9]{4})'
+    ],raw_text)
+    if not event:
+        event=first_text([r'DATE OF EVENT WHICH REQUIRES FILING\s*:?\s*([0-9]{1,2}/[0-9]{1,2}/[0-9]{4})'],text)
     if event:
         try: event=datetime.strptime(event,'%m/%d/%Y').date().isoformat()
         except Exception: event=None
-    issuer=first_text([r'CENTRAL INDEX KEY\s*:?\s*([0-9]{6,10})'],text) or r['issuer_cik']
-    owner=first_text([r'NAME OF REPORTING PERSON\s*:?\s*([A-Z0-9][A-Z0-9 .,&\-\'()]{1,180}?)(?:\s+CHECK THE APPROPRIATE BOX|\s+I\.R\.S\. IDENTIFICATION|\s+ITEM 1|\s+SEC USE ONLY)'],text)
-    shares=first_num([r'AGGREGATE AMOUNT BENEFICIALLY OWNED BY EACH REPORTING PERSON\s*:?\s*([0-9,]+(?:\.0+)?)',r'AGGREGATE AMOUNT BENEFICIALLY OWNED\s*:?\s*([0-9,]+)'],text)
-    pct=first_num([r'PERCENT OF CLASS REPRESENTED BY AMOUNT IN ROW\s*:?\s*([0-9]+(?:\.[0-9]+)?)\s*%',r'PERCENT OF CLASS REPRESENTED.*?([0-9]+(?:\.[0-9]+)?)\s*%'],text)
-    sole=first_num([r'SOLE VOTING POWER\s*:?\s*([0-9,]+)'],text)
-    shared=first_num([r'SHARED VOTING POWER\s*:?\s*([0-9,]+)'],text)
-    disp=first_num([r'SOLE DISPOSITIVE POWER\s*:?\s*([0-9,]+)'],text)
-    shared_disp=first_num([r'SHARED DISPOSITIVE POWER\s*:?\s*([0-9,]+)'],text)
-    person_type=first_text([r'TYPE OF REPORTING PERSON\s*:?\s*([A-Z]{1,8})'],text)
+
+    owner=raw_attr_value([
+        r'NAME\s+OF\s+REPORTING\s+PERSON.{0,1500}?value\s*=\s*["\']([^"\']{2,180})["\']',
+        r'NAME\s+OF\s+REPORTING\s+PERSON.{0,1200}?>([^<]{2,180})<'
+    ],raw_text)
+    if not owner:
+        owner=first_text([r'NAME OF REPORTING PERSON\s*:?\s*([A-Z0-9][A-Z0-9 .,&\-\'()]{1,180}?)(?:\s+CHECK THE APPROPRIATE BOX|\s+I\.R\.S\. IDENTIFICATION|\s+ITEM 1|\s+SEC USE ONLY)'],text)
+
+    shares=first_num([
+        r'AGGREGATE AMOUNT BENEFICIALLY OWNED BY EACH REPORTING PERSON.{0,1500}?value\s*=\s*["\']([0-9,]+(?:\.0+)?)["\']',
+        r'AGGREGATE AMOUNT BENEFICIALLY OWNED BY EACH REPORTING PERSON\s*:?\s*([0-9,]+(?:\.0+)?)',
+        r'AGGREGATE AMOUNT BENEFICIALLY OWNED\s*:?\s*([0-9,]+)'
+    ],raw_text if raw_attr_value([],raw_text) is not None else text)
+    if shares is None:
+        shares=first_num([r'AGGREGATE AMOUNT BENEFICIALLY OWNED BY EACH REPORTING PERSON\s*:?\s*([0-9,]+(?:\.0+)?)',r'AGGREGATE AMOUNT BENEFICIALLY OWNED\s*:?\s*([0-9,]+)'],text)
+
+    pct=first_num([
+        r'PERCENT OF CLASS REPRESENTED BY AMOUNT IN ROW.{0,1500}?value\s*=\s*["\']([0-9]+(?:\.[0-9]+)?)\s*%?["\']',
+        r'PERCENT OF CLASS REPRESENTED BY AMOUNT IN ROW\s*:?\s*([0-9]+(?:\.[0-9]+)?)\s*%',
+        r'PERCENT OF CLASS REPRESENTED.*?([0-9]+(?:\.[0-9]+)?)\s*%'
+    ],raw_text)
+    if pct is None: pct=first_num([r'PERCENT OF CLASS REPRESENTED BY AMOUNT IN ROW\s*:?\s*([0-9]+(?:\.[0-9]+)?)\s*%',r'PERCENT OF CLASS REPRESENTED.*?([0-9]+(?:\.[0-9]+)?)\s*%'],text)
+
+    sole=first_num([r'SOLE VOTING POWER.{0,1200}?value\s*=\s*["\']([0-9,]+)["\']',r'SOLE VOTING POWER\s*:?\s*([0-9,]+)'],raw_text)
+    shared=first_num([r'SHARED VOTING POWER.{0,1200}?value\s*=\s*["\']([0-9,]+)["\']',r'SHARED VOTING POWER\s*:?\s*([0-9,]+)'],raw_text)
+    disp=first_num([r'SOLE DISPOSITIVE POWER.{0,1200}?value\s*=\s*["\']([0-9,]+)["\']',r'SOLE DISPOSITIVE POWER\s*:?\s*([0-9,]+)'],raw_text)
+    shared_disp=first_num([r'SHARED DISPOSITIVE POWER.{0,1200}?value\s*=\s*["\']([0-9,]+)["\']',r'SHARED DISPOSITIVE POWER\s*:?\s*([0-9,]+)'],raw_text)
+    person_type=raw_attr_value([r'TYPE\s+OF\s+REPORTING\s+PERSON.{0,1000}?value\s*=\s*["\']([A-Z]{1,8})["\']'],raw_text) or first_text([r'TYPE OF REPORTING PERSON\s*:?\s*([A-Z]{1,8})'],text)
     purpose=first_text([r'PURPOSE OF TRANSACTION\s*:?\s*(.{20,500}?)(?:\s+ITEM 5|\s+ITEM 6|\s+ITEM 7|\s+SIGNATURE)'],text)
-    return {**r,'issuer_cik':issuer.zfill(10),'event_date':event,'event_date_available':bool(event),'reporting_person':owner,'shares_beneficially_owned':shares,'percent_class':pct,'sole_voting_power':sole,'shared_voting_power':shared,'sole_dispositive_power':disp,'shared_dispositive_power':shared_disp,'reporting_person_type':person_type,'purpose_text':purpose,'is_amendment':r['form'].endswith('/A')}
+    return {**r,'issuer_cik':(first_text([r'CENTRAL INDEX KEY\s*:?\s*([0-9]{6,10})'],text) or r['issuer_cik']).zfill(10),'event_date':event,'event_date_available':bool(event),'reporting_person':owner,'shares_beneficially_owned':shares,'percent_class':pct,'sole_voting_power':sole,'shared_voting_power':shared,'sole_dispositive_power':disp,'shared_dispositive_power':shared_disp,'reporting_person_type':person_type,'purpose_text':purpose,'is_amendment':r['form'].endswith('/A')}
 
 def resolve(r):
     url=f'{ARCHIVE_BASE}/{int(r["issuer_cik"])}/{r["accession"].replace("-","")}/{r["primary_document"]}'
@@ -127,8 +169,7 @@ def main():
     sec=json.loads(get(SEC_TICKERS).decode('utf-8'))
     sec_map={str(v.get('ticker','')).upper():str(v.get('cik_str','')).zfill(10) for v in sec.values() if v.get('ticker')}
     mapper=json.loads(get(MAPPER).decode('utf-8'))
-    selected={}
-    mapping_source={}
+    selected={}; mapping_source={}
     for t in frozen:
         a=sec_map.get(t); b=str(mapper.get(t,'')).zfill(10) if mapper.get(t) else None
         selected[t]=a or b
@@ -136,27 +177,28 @@ def main():
     targets=sorted({c for c in selected.values() if c})
     ticker_by_cik={c:t for t,c in selected.items() if c}
     rows=[]; sub_errors=[]
-    with ThreadPoolExecutor(max_workers=6) as ex:
+    with ThreadPoolExecutor(max_workers=3) as ex:
         fs={ex.submit(submissions_for_cik,c):c for c in targets}
         for f in as_completed(fs):
             try: rows.extend(f.result())
             except Exception as e: sub_errors.append({'issuer_cik':fs[f],'error':str(e)})
     unique={r['accession']:r for r in rows}
     resolved=[]; resolve_errors=[]
-    with ThreadPoolExecutor(max_workers=6) as ex:
+    with ThreadPoolExecutor(max_workers=2) as ex:
         fs=[ex.submit(resolve,r) for r in unique.values()]
         for f in as_completed(fs):
             x,e=f.result()
             if x: resolved.append(x)
             if e: resolve_errors.append(e)
-    for r in resolved: r['ticker']=ticker_by_cik.get(r['issuer_cik'],''); r['mapping_source']=mapping_source.get(r['ticker'],''); r['filing_lag_business_days']=bd_lag(r['filing_date'],r['event_date'])
+    for r in resolved:
+        r['ticker']=ticker_by_cik.get(r['issuer_cik'],''); r['mapping_source']=mapping_source.get(r['ticker'],''); r['filing_lag_business_days']=bd_lag(r['filing_date'],r['event_date'])
     resolved.sort(key=lambda r:(r['filing_date'],r['accession'],r.get('reporting_person') or ''))
     out=OUT_BASE; os.makedirs(out,exist_ok=True)
     fields=['ticker','issuer_cik','form','filing_date','report_date','event_date','filing_lag_business_days','accession','primary_document','reporting_person','reporting_person_type','shares_beneficially_owned','percent_class','sole_voting_power','shared_voting_power','sole_dispositive_power','shared_dispositive_power','purpose_text','event_date_available','is_amendment','mapping_source']
     with open(os.path.join(out,'phase28d_events.csv'),'w',newline='',encoding='utf-8') as f:
         w=csv.DictWriter(f,fieldnames=fields); w.writeheader(); w.writerows({k:r.get(k) for k in fields} for r in resolved)
     field_cov={k:sum(r.get(k) not in (None,'') for r in resolved) for k in fields}
-    payload={'phase':'28D','status':'COMPLETE','method':'issuer-specific SEC submissions using SEC/current + historical CIK crosswalk','frozen_universe_size':335,'ciks_selected':len(targets),'unresolved_tickers':sum(v is None for v in selected.values()),'filings_candidate':len(unique),'resolved_filings':len(resolved),'unique_issuers':len({r['issuer_cik'] for r in resolved}),'amendments':sum(r['is_amendment'] for r in resolved),'event_date_available':sum(r['event_date_available'] for r in resolved),'field_coverage':field_cov,'submission_errors':len(sub_errors),'resolve_errors':len(resolve_errors),'knowledge_rule':'filing_date is the PIT knowledge date; event_date and all parsed ownership fields are only available information from the filing itself.','audit_timestamp_utc':datetime.now(timezone.utc).isoformat(),'errors_sample':(sub_errors+resolve_errors)[:25]}
+    payload={'phase':'28D','status':'COMPLETE','method':'issuer-specific SEC submissions using SEC/current + historical CIK crosswalk; throttled PIT document retrieval','frozen_universe_size':335,'ciks_selected':len(targets),'unresolved_tickers':sum(v is None for v in selected.values()),'filings_candidate':len(unique),'resolved_filings':len(resolved),'unique_issuers':len({r['issuer_cik'] for r in resolved}),'amendments':sum(r['is_amendment'] for r in resolved),'event_date_available':sum(r['event_date_available'] for r in resolved),'field_coverage':field_cov,'submission_errors':len(sub_errors),'resolve_errors':len(resolve_errors),'knowledge_rule':'filing_date is the PIT knowledge date; event_date and all parsed ownership fields are only available information from the filing itself.','audit_timestamp_utc':datetime.now(timezone.utc).isoformat(),'errors_sample':(sub_errors+resolve_errors)[:25]}
     with open(os.path.join(out,'phase28d_summary.json'),'w',encoding='utf-8') as f: json.dump(payload,f,indent=2)
     print(json.dumps(payload,indent=2))
 
