@@ -1,4 +1,4 @@
-name: Fase 22B - SEC 13F Mapping Audit
+name: Fase 22C - SEC 13F Fuzzy Mapping Audit
 on:
   push:
     branches: [phase22b-sec-13f-mapping-audit]
@@ -14,11 +14,11 @@ jobs:
           python-version: '3.11'
       - name: Install dependencies
         run: pip install pandas requests
-      - name: Run Phase 22B
-        run: python -u Nueva_Estrategia_Fase22B_SEC_13F_Mapping_Audit.py
+      - name: Run Phase 22C
+        run: python -u Nueva_Estrategia_Fase22C_SEC_13F_Fuzzy_Mapping_Audit.py
       - name: Upload audit
         uses: actions/upload-artifact@v4
         with:
-          name: phase22b-sec-13f-mapping-audit
-          path: nueva_estrategia_phase22b_sec_13f_mapping_audit/**
+          name: phase22c-sec-13f-fuzzy-mapping-audit
+          path: nueva_estrategia_phase22c_sec_13f_fuzzy_mapping_audit/**
           retention-days: 30
