@@ -1,4 +1,4 @@
-import ast, csv, hashlib, json, os, time
+import ast, csv, gzip, hashlib, json, os, time, zlib
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from urllib.error import HTTPError
@@ -15,6 +15,16 @@ START='2020-10-01'; END='2026-09-30'
 
 _last = 0.0
 
+def decode_http_body(raw):
+    # urllib does not reliably decompress every compressed HTTP response.
+    # Detect the wire format from magic bytes so JSON parsing is deterministic.
+    if raw[:2] == b'\x1f\x8b':
+        return gzip.decompress(raw)
+    try:
+        return zlib.decompress(raw)
+    except zlib.error:
+        return raw
+
 def get(url, timeout=60, retries=6):
     global _last
     err=None
@@ -24,7 +34,7 @@ def get(url, timeout=60, retries=6):
         _last=time.monotonic()
         try:
             with urlopen(Request(url,headers=HEADERS),timeout=timeout) as r:
-                return r.read()
+                return decode_http_body(r.read())
         except HTTPError as e:
             err=e
             if e.code == 404: raise
