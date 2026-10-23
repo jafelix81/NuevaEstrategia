@@ -37,10 +37,40 @@ The audit was refactored to be period-scoped and parallelizable: four matrix job
 27G corrected a methodological flaw in 27F: different fund-series panels had been compared across snapshots, so a series absent from the later snapshot could be incorrectly interpreted as a 100% position exit. The corrected panel compares only `SERIES_ID`s present in both snapshots; a missing ticker holding inside a common series is a valid zero, while a missing series is excluded from deltas. The 2021Q4→2022Q4 pilot produced only 3 common fund series and 21 usable universe tickers, so it was a methodological correction rather than alpha evidence.
 
 ## Phase 27H — SEC N-PORT longitudinal panel
-**Status:** RUNNING / FEASIBILITY AUDIT ONLY
+**Status:** NO ACTIVE RUN FOUND / FEASIBILITY ONLY
 
-27H generalizes the 27G correction across four historical pairs: 2019Q4→2020Q4, 2021Q4→2022Q4, 2023Q4→2024Q4, and 2025Q4→2026Q3. Each pair is processed independently in a matrix job to avoid the long sequential SEC ZIP processing that previously caused runner cancellations. The audit measures series counts, common-series continuity, frozen-335 universe coverage, identifier ambiguity and usable signal breadth.
+No active 27H workflow run is currently present on the historical branch. No alpha is promoted from N-PORT. The dose-response work remains negative/unstable and N-PORT is not allowed to modify F80.
 
-No alpha is being tested in 27H. No return data is used and no production model is changed. Promotion to an alpha test requires materially broader and sufficiently stable longitudinal coverage; otherwise N-PORT will be archived and the research line will move to another Smart Money source.
+## Phase 28D — SEC 13D/13G PIT event audit
+**Status:** ENGINEERING UPGRADE STAGED
+
+The original issuer-targeted audit completed successfully on 2026-10-23 and established that filing-level PIT retrieval is feasible, but the current SEC ticker map covered only part of the frozen universe. The next engineering step uses SEC current ticker→CIK plus a historical ticker→CIK crosswalk, validates the selected CIK against SEC submissions, and then extracts economic fields from the actual filing while keeping `filing_date` as the sole PIT knowledge date.
+
+The upgraded extractor records, when present: reporting person, reporting person type, beneficial shares, percent of class, sole/shared voting power, sole/shared dispositive power, transaction-purpose text, event date (diagnostic only), amendment status, filing lag and mapping source. This is an extraction audit, not an alpha test.
+
+## Phase 28E — SEC 13D/13G historical CIK crosswalk
+**Status:** COMPLETE
+
+Run 39929661159 completed successfully. The audit covered all 335 frozen tickers and produced a validated identity crosswalk:
+- SEC current ticker mapping: 301/335
+- historical mapper mapping: 305/335
+- selected CIKs: 308/335
+- SEC-validated CIKs: 308/335
+- unresolved tickers: 27/335
+- selected CIKs with 13D/13G history in the audit window: 304/335
+- mapping conflicts: 2
+- validation errors: 0
+
+The historical mapper is used only for identity discovery. It is not treated as an information source. `filing_date` remains the PIT knowledge date. The audit artifact is `phase28e-sec-13dg-historical-cik-crosswalk`.
+
+## Other Smart Money source feasibility
+
+CFTC COT is retained as a regime/context candidate rather than a stock-selector source: the CFTC publishes complete futures-only history back to 1986 and futures-and-options combined history from 1995, with weekly report dates. This has excellent historical depth but weak direct mapping to individual equities. citeturn0search0turn0search14
+
+Options data remains conditional. Cboe provides historical options-volume downloads by symbol/product/month/year, but the currently verified public source does not by itself establish a complete, reproducible long-history contract-level PIT panel for open interest/IV/skew across the frozen stock universe. Therefore no options alpha is promoted yet. citeturn0search13
+
+13F remains promising for institutional ownership because SEC describes quarterly holdings disclosures for managers over $100M, including shares and market value, but the 45-day reporting delay must be treated explicitly as the ex-ante knowledge date. SEC also publishes structured 13F datasets. citeturn0search8turn0search48
+
+**Research rule:** no Smart Money source is promoted because it is intuitively “smart.” It must demonstrate ex-ante availability, adequate historical coverage, stable identifiers, incremental information versus frozen LTM/F80, and chronological OOS robustness.
 
 **F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.**
