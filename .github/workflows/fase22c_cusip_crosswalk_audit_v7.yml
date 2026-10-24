@@ -19,10 +19,10 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install pandas requests
-      - name: Run Phase 22C v7 PIT CUSIP crosswalk audit
+      - name: Run Phase 22C v8 PIT issuer-CUSIP audit
         run: python -u Nueva_Estrategia_Fase22C_CUSIP_Crosswalk_Audit_v7.py
       - name: Upload audit
         uses: actions/upload-artifact@v4
         with:
-          name: phase22c-pit-cusip-crosswalk-audit-v7
+          name: phase22c-pit-issuer-cusip-audit-v8
           path: nueva_estrategia_phase22c_cusip_crosswalk_audit/
