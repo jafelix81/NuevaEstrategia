@@ -1,4 +1,4 @@
-name: Fase 22C v2 - SEC 13F Fuzzy Mapping Audit
+name: Fase 22C v2 - SEC 13F Mapping Feasibility Audit
 
 on:
   push:
@@ -8,17 +8,17 @@ on:
 jobs:
   audit:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       - run: pip install pandas requests
-      - name: Run Phase 22C v3
+      - name: Run bounded Phase 22C
         run: python -u Nueva_Estrategia_Fase22C_SEC_13F_Fuzzy_Mapping_Audit_v2.py
       - name: Upload audit
         uses: actions/upload-artifact@v4
         with:
-          name: phase22c-sec-13f-mapping-audit-v3
+          name: phase22c-sec-13f-mapping-audit-v4
           path: nueva_estrategia_phase22c_sec_13f_fuzzy_mapping_audit/
