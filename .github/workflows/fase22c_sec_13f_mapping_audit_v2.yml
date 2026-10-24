@@ -12,17 +12,17 @@ concurrency:
 jobs:
   audit:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       - run: pip install pandas requests
-      - name: Run corrected bounded Phase 22C v5
+      - name: Run corrected bounded Phase 22C v6
         run: python -u Nueva_Estrategia_Fase22C_SEC_13F_Fuzzy_Mapping_Audit_v2.py
       - name: Upload audit
         uses: actions/upload-artifact@v4
         with:
-          name: phase22c-sec-13f-mapping-audit-v5
+          name: phase22c-sec-13f-mapping-audit-v6
           path: nueva_estrategia_phase22c_sec_13f_fuzzy_mapping_audit/
