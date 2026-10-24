@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: phase22c-sec13f-mapping-audit
+  group: phase22c-sec-13f-mapping-audit
   cancel-in-progress: true
 
 jobs:
@@ -19,10 +19,10 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install pandas requests
-      - name: Run bounded Phase 22C
+      - name: Run corrected bounded Phase 22C v5
         run: python -u Nueva_Estrategia_Fase22C_SEC_13F_Fuzzy_Mapping_Audit_v2.py
       - name: Upload audit
         uses: actions/upload-artifact@v4
         with:
-          name: phase22c-sec-13f-mapping-audit-v4
-          path: nueva_estrategia_phase22c_sec_13f_mapping_audit/
+          name: phase22c-sec-13f-mapping-audit-v5
+          path: nueva_estrategia_phase22c_sec_13f_fuzzy_mapping_audit/
