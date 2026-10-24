@@ -8,10 +8,14 @@ on:
 env:
   PHASE20C_REVISION: chronological-walk-forward-validation
 
+concurrency:
+  group: phase20c-finra-walkforward
+  cancel-in-progress: true
+
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 100
+    timeout-minutes: 120
     steps:
       - name: Checkout
         uses: actions/checkout@v4
