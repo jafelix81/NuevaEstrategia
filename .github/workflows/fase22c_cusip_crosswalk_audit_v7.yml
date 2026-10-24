@@ -1,0 +1,28 @@
+name: Fase 22C v7 - PIT CIK-CUSIP Crosswalk Audit
+
+on:
+  push:
+    branches: [phase22c-cusip-crosswalk-audit]
+  workflow_dispatch:
+
+concurrency:
+  group: phase22c-cusip-crosswalk-audit
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install pandas requests
+      - name: Run Phase 22C v7 PIT CUSIP crosswalk audit
+        run: python -u Nueva_Estrategia_Fase22C_CUSIP_Crosswalk_Audit_v7.py
+      - name: Upload audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase22c-pit-cusip-crosswalk-audit-v7
+          path: nueva_estrategia_phase22c_cusip_crosswalk_audit/
