@@ -56,6 +56,14 @@ def make_signals(panel):
     return dict(signals[::FREQ])
 
 def simulate(panel,signals,factor,cost_bps):
+    """Rebalance a bounded Top-20 state, using only yesterday's signal.
+
+    PARTIAL50 is an execution rule toward the new Top-20, not permission for
+    an unbounded residual book. Target incumbents are ranked with entrants;
+    only the 20 highest-ranked names may survive each rebalance. Existing
+    positions move 50% toward their target dollar weights; positions outside
+    the retained set are liquidated at the execution open.
+    """
     p=panel.sort_values(['Date','Ticker']);dates=sorted(pd.Timestamp(x) for x in p.Date.unique());opens={};closes={}
     for (dt,t),z in p.groupby(['Date','Ticker']):
         dt=pd.Timestamp(dt);o=float(z.Open.iloc[0]) if np.isfinite(z.Open.iloc[0]) and z.Open.iloc[0]>0 else np.nan;c=float(z.Close.iloc[0]) if np.isfinite(z.Close.iloc[0]) and z.Close.iloc[0]>0 else np.nan
@@ -63,51 +71,77 @@ def simulate(panel,signals,factor,cost_bps):
         if np.isfinite(c):closes[(dt,t)]=c
     positions={};cash=INITIAL;ledger=[];trades=[];prev_equity=INITIAL;last_close={}
     for i,dt in enumerate(dates):
-        # Prior close -> today's open is the first component of today's P&L.
-        open_value=sum(sh*opens.get((dt,t),last_close.get(t,np.nan)) for t,sh in positions.items() if np.isfinite(opens.get((dt,t),last_close.get(t,np.nan))))
+        open_marks={t:opens.get((dt,t),last_close.get(t,np.nan)) for t in positions}
+        open_value=sum(sh*px for t,sh in positions.items() if np.isfinite(px:=open_marks[t]) and px>0)
         open_equity=cash+open_value
         if open_equity<=0:raise RuntimeError(f'NONPOSITIVE_OPEN_EQUITY {dt} {open_equity}')
-        # Rebalance using yesterday's signal, never today's information.
         if i and dates[i-1] in signals:
-            s=signals[dates[i-1]].dropna(subset=[factor]).sort_values(factor,ascending=False).head(TOP_N)
-            target={r.Ticker:min(MAX_POS,GROSS_CAP/TOP_N) for r in s.itertuples()}
-            current_w={t:(sh*opens.get((dt,t),last_close.get(t,np.nan)))/open_equity for t,sh in positions.items() if np.isfinite(opens.get((dt,t),last_close.get(t,np.nan)))}
-            names=set(current_w)|set(target)
-            raw_w={t:max(0.,current_w.get(t,0.)+PARTIAL*(target.get(t,0.)-current_w.get(t,0.))) for t in names}
-            gross=sum(raw_w.values())
-            if gross>GROSS_CAP:raw_w={t:w*GROSS_CAP/gross for t,w in raw_w.items()}
-            # Scale target weights only when transaction costs would otherwise exceed equity.
-            def cost_and_sh(scale):
-                c=0.;new={}
-                for t,w in raw_w.items():
-                    px=opens.get((dt,t));
-                    if px is None:continue
-                    sh=scale*w*open_equity/px;old=positions.get(t,0.);c+=abs(sh-old)*px*cost_bps/10000.;new[t]=sh
-                return c,new
-            lo,hi=0.,1.
+            sig=signals[dates[i-1]].dropna(subset=[factor]).sort_values(factor,ascending=False)
+            ranked=sig.Ticker.astype(str).tolist()
+            rank={t:j+1 for j,t in enumerate(ranked)}
+            # Retain current positions only if they are still in the next Top-20.
+            # Filling all slots from the new ranking makes the book strictly bounded.
+            target_names=ranked[:TOP_N]
+            target={t:1.0/TOP_N for t in target_names}
+            eligible=set(target_names)
+            exec_prices={t:px for (day,t),px in opens.items() if day==dt and np.isfinite(px) and px>0}
+            all_names=set(positions)|eligible
+            current_weight={}
+            for t in all_names:
+                px=exec_prices.get(t,last_close.get(t,np.nan))
+                if t in positions and np.isfinite(px) and px>0:
+                    current_weight[t]=positions[t]*px/open_equity
+                else:
+                    current_weight[t]=0.0
+            # PARTIAL50 applies to holdings in the target; outside names exit fully.
+            raw_weight={t:(current_weight[t]+PARTIAL*(target.get(t,0.0)-current_weight[t]) if t in eligible else 0.0) for t in all_names}
+            # Normalize target book back to 100% gross (before costs) while keeping
+            # excluded names at zero. Rebalancing costs are funded from cash/equity.
+            positive={t:w for t,w in raw_weight.items() if w>1e-12}
+            gross=sum(positive.values())
+            if gross>0: positive={t:w/gross for t,w in positive.items()}
+            # Protect cash for transaction costs; solve a common invested scale.
+            def build_scaled(scale):
+                new={}
+                for t,w in positive.items():
+                    px=exec_prices.get(t)
+                    if px is None:
+                        # A missing execution price means do not fabricate an order.
+                        # Existing holding is carried, and the portfolio will be
+                        # marked at the last observable close with a missing-price flag.
+                        if t in positions:new[t]=positions[t]
+                        continue
+                    new[t]=scale*w*open_equity/px
+                for t,sh in positions.items():
+                    if t not in new and t not in exec_prices:
+                        new[t]=sh
+                cost=sum(abs(new.get(t,0.0)-positions.get(t,0.0))*exec_prices[t]*cost_bps/10000.0 for t in set(new)|set(positions) if t in exec_prices)
+                invested=sum(sh*exec_prices[t] for t,sh in new.items() if t in exec_prices)
+                return new,cost,invested
+            lo,hi=0.0,1.0
             for _ in range(60):
-                mid=(lo+hi)/2;cst,_=cost_and_sh(mid);invested=mid*sum(raw_w.values())*open_equity
-                if invested+cst<=open_equity:lo=mid
+                mid=(lo+hi)/2;new,cost,invested=build_scaled(mid)
+                if invested+cost<=open_equity:lo=mid
                 else:hi=mid
-            trade_cost,newpos=cost_and_sh(lo)
-            # Positions with no valid order price are carried unchanged; this is explicit, not hidden leverage.
-            for t,old in positions.items():
-                if t not in newpos:newpos[t]=old
-            invested=sum(sh*opens.get((dt,t),last_close.get(t,np.nan)) for t,sh in newpos.items() if np.isfinite(opens.get((dt,t),last_close.get(t,np.nan))))
+            newpos,trade_cost,invested=build_scaled(lo)
+            for t in set(newpos)|set(positions):
+                old=positions.get(t,0.0);new=newpos.get(t,0.0);px=exec_prices.get(t)
+                if px is not None and abs(new-old)>1e-12:
+                    notional=abs(new-old)*px;side='BUY' if new>old else 'SELL'
+                    trades.append({'Date':str(dt.date()),'Ticker':t,'Notional':notional,'Side':side,'Cost':notional*cost_bps/10000.,'Factor':factor})
             cash=open_equity-invested-trade_cost
-            if cash < -1e-8:raise RuntimeError(f'NEGATIVE_CASH {dt} {cash}')
-            cash=max(0.,cash)
-            for t,sh in newpos.items():
-                old=positions.get(t,0.);px=opens.get((dt,t));
-                if px is not None and abs(sh-old)>1e-12:
-                    notional=abs(sh-old)*px;trades.append({'Date':str(dt.date()),'Ticker':t,'Notional':notional,'Side':'BUY' if sh>old else 'SELL','Cost':notional*cost_bps/10000.,'Factor':factor})
-            positions={t:sh for t,sh in newpos.items() if sh>1e-12}
-        close_value=0.
+            if cash < -1e-7:raise RuntimeError(f'NEGATIVE_CASH {dt} {cash}')
+            cash=max(0.0,cash);positions={t:sh for t,sh in newpos.items() if sh>1e-12}
+            if len(positions)>TOP_N:
+                raise RuntimeError(f'TOP_N_INVARIANT_FAIL {dt}: {len(positions)} > {TOP_N}')
+        close_value=0.0
         for t,sh in positions.items():
             px=closes.get((dt,t),last_close.get(t,np.nan))
-            if np.isfinite(px) and px>0:last_close[t]=px;close_value+=sh*px
+            if np.isfinite(px) and px>0:
+                last_close[t]=px;close_value+=sh*px
         equity=cash+close_value;gross=close_value/equity if equity>0 else np.inf
         if equity<=0 or gross>GROSS_CAP+1e-6:raise RuntimeError(f'INVALID_EQUITY {dt} equity={equity} gross={gross}')
+        if cash < -1e-8:raise RuntimeError(f'NEGATIVE_CASH_CLOSE {dt} {cash}')
         ledger.append({'Date':dt,'Equity':equity,'DailyReturn':equity/prev_equity-1.,'Cash':cash,'GrossValue':close_value,'Positions':len(positions),'Gross':gross})
         prev_equity=equity
     return pd.DataFrame(ledger),pd.DataFrame(trades)
