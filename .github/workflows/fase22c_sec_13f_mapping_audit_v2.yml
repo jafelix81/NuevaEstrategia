@@ -5,6 +5,10 @@ on:
     branches: [main, phase22c-sec13f-mapping-audit-fix]
   workflow_dispatch:
 
+concurrency:
+  group: phase22c-sec13f-mapping-audit
+  cancel-in-progress: true
+
 jobs:
   audit:
     runs-on: ubuntu-latest
@@ -21,4 +25,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: phase22c-sec-13f-mapping-audit-v4
-          path: nueva_estrategia_phase22c_sec_13f_fuzzy_mapping_audit/
+          path: nueva_estrategia_phase22c_sec_13f_mapping_audit/
