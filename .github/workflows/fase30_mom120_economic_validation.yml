@@ -2,7 +2,7 @@ name: Fase 30 - MOM120 economic validation
 
 on:
   push:
-    branches: [phase30-mom120-economic-validation]
+    branches: [phase30-mom120-top20-state-machine]
   workflow_dispatch:
 
 jobs:
