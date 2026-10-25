@@ -28,15 +28,23 @@ Decision: **FEASIBLE DATASET, ACCESS-BLOCKED**. Do not fabricate a test without 
 
 ### HistoricalData.net EOD chains
 
-Public documentation states US stock/ETF/index option EOD chains from February 2002, one row per contract, with bid/ask, volume, open interest, IV, Greeks, quote time, underlying close and related fields. A free sample is exposed publicly, but full historical universe access is commercial.
+Public documentation states US stock/ETF/index option EOD chains from February 2002, one row per contract, with bid/ask, volume, open interest, IV, Greeks, quote time, underlying close and related fields. Its documentation explicitly states that `open_interest` reflects the **prior business day's close**, which is unusually useful for a clean PIT implementation. The public sample is independently reconciled and includes a fixed schema, but full historical universe access is commercial.
 
-Decision: **HIGH-PRIORITY EOD CANDIDATE**. EOD flow/OI/IV/skew research is feasible if full historical access can be obtained. It is less informative than trade-level Cboe data for order-flow classification, but substantially easier to use for a PIT daily factor panel.
+Decision: **HIGH-PRIORITY EOD CANDIDATE**. The documented T-1 OI convention materially reduces lookahead ambiguity. It is less informative than trade-level Cboe data for order-flow classification, but substantially easier to use for a PIT daily factor panel.
 
-### Massive options API
+### HistoricalOptionData / DeltaNeutral
 
-Public documentation advertises historical options prices/trades and broad US-market coverage, plus stock darkpool/OTC history. Pricing/access is commercial.
+Current public documentation advertises 24+ years of US equity/ETF/index options history beginning in 2002, with **5,900+ optionable underlyings on a typical day and 14,110 symbols across the historical archive**, including delisted/retired securities. It explicitly states that obsolete symbols are retained, making it materially stronger on survivorship-bias control than a current-symbol-only feed. Level 2/3 datasets include volume, open interest, IV/Greeks, and Level 3 adds T-1 open interest plus IV-surface fields. Public documentation also states that the data are delivered in reproducible CSV/Parquet formats.
 
-Decision: **SECONDARY CANDIDATE** pending credentialed historical-coverage test. Do not assume coverage quality until a F80 universe audit is run.
+The provider exposes a small free historical sample, but it is intentionally a micro-subset (one symbol per month), so it is insufficient for the F80 coverage gate. Full-universe access is commercial.
+
+Decision: **NEW HIGHEST-PRIORITY EOD CANDIDATE, ACCESS-BLOCKED**. Its historical breadth and explicit retention of delisted symbols make it a particularly strong candidate for a survivorship-aware cross-sectional options panel. The exact PIT semantics of each field still require verification against the purchased schema before any alpha test.
+
+### Massive options API / flat files
+
+Public documentation advertises historical options prices/trades with tick-level OPRA timestamps and history back to June 2, 2014, plus broad U.S. market coverage. Pricing/access is commercial.
+
+Decision: **SECONDARY CANDIDATE** pending credentialed historical-coverage test. Do not assume F80 coverage quality until an actual universe audit is run.
 
 ### Alpaca historical options
 
@@ -52,7 +60,7 @@ Decision: **REJECTED as primary Smart Money source**. Too coarse to identify inc
 
 ### Czar28
 
-Public site advertises 12+ years of US equity-option EOD, intraday and trade history with a free 1,000-request tier. Provenance, historical universe coverage and reproducibility have not yet been independently validated.
+Public site advertises 12+ years of US equity-option EOD, intraday and trade history with a free 1,000-request tier. Public documentation now exposes EOD, intraday and trade endpoints, but historical provenance, complete F80 universe coverage and reproducibility have not yet been independently validated.
 
 Decision: **UNVERIFIED**. Do not use until a coverage/schema/PIT audit is independently reproducible.
 
@@ -75,6 +83,7 @@ No hypothesis will be labeled "smart money" until it demonstrates incremental OO
 - Intraday trade signals use only trades/quotes timestamped before the strategy decision time.
 - EOD signals use the complete session only if the execution rule is explicitly next-session; no same-close lookahead.
 - Contract expiry, corporate actions and ticker changes must be resolved using information available at the signal date.
+- For any vendor whose OI is explicitly T-1, the OI feature must be aligned to the prior business-day observation and never to a same-day value that could contain post-close information.
 
 ## Acceptance gate
 
@@ -91,18 +100,25 @@ If these fail, archive the source as infeasible and do not optimize around the g
 
 ## Current decision
 
-**Phase 34 is a feasibility pass for commercial contract-level options data, not an alpha result.**
+**Phase 34 remains a feasibility pass, not an alpha result.**
 
-Priority order:
+After the latest provider audit, the practical priority order is:
 
-1. Cboe OPRA trade-level history — strongest microstructure/flow candidate if access is available.
-2. HistoricalData.net EOD chains — strongest practical EOD OI/IV/skew candidate if full history is available.
-3. Massive — secondary cross-check / alternative provider.
-4. Czar28 — unverified until provenance and historical coverage are independently tested.
-5. Alpaca — rejected for primary OOS research because history begins only in 2024.
+1. **HistoricalOptionData / DeltaNeutral Level 2/3** — best current EOD candidate because of 2002+ history, explicit retention of delisted/retired symbols, broad historical symbol coverage, and T-1 OI / IV-surface fields. Access is blocked pending full-universe data.
+2. **HistoricalData.net EOD** — excellent alternative because its public schema explicitly documents prior-business-day OI and provides a large independently verified sample. Access is blocked pending full-universe data.
+3. **Cboe OPRA trade-level history** — strongest candidate for true options-flow/microstructure inference, but commercial access is required.
+4. **Massive** — strong secondary trade-level candidate, pending credentialed F80 coverage/PIT audit.
+5. **Czar28** — unverified until provenance and historical coverage are independently tested.
+6. **Alpaca** — rejected for primary OOS research because history begins only in 2024.
 
 The frozen baseline remains unchanged.
 
 ## Research discipline
 
 No positive result will be pursued merely because an options feature looks intuitive. Every candidate must beat the frozen LTM/F80 control on the same dates and exposure, survive chronological OOS evaluation, bootstrap/LOO checks, and economic-cost validation. Failed hypotheses will be archived rather than tuned until positive.
+
+## 2026-10-25 provider-audit addendum
+
+The latest external documentation review materially strengthens the EOD-options path. HistoricalOptionData now documents a survivorship-aware historical universe of 14,110 symbols, including 7,996 delisted/retired symbols, and Level 3 fields that include T-1 open interest and IV-surface metrics. HistoricalData.net independently documents 34 daily contract fields and states that its open-interest field reflects the prior business day's close. These are stronger PIT/data-quality properties than the earlier generic feasibility assessment implied.
+
+This does **not** constitute an alpha result. The remaining blocker is credentialed access to a full-universe historical archive so the F80 coverage gate can be measured directly. The free samples from both providers are intentionally too small to substitute for that test.
