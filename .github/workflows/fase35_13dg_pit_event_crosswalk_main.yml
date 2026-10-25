@@ -1,0 +1,29 @@
+name: Fase 35 - SEC 13D/13G PIT crosswalk audit runner
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+concurrency:
+  group: fase35-13dg-pit-crosswalk-main
+  cancel-in-progress: true
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch Phase 35 research branch
+        run: git fetch origin phase35-13dg-pit-event-crosswalk:refs/remotes/origin/phase35-13dg-pit-event-crosswalk
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Materialize and run historical-CIK PIT audit
+        run: |
+          git show origin/phase35-13dg-pit-event-crosswalk:Nueva_Estrategia_Fase28D_SEC_13DG_PIT_Event_Audit.py > /tmp/phase35_audit.py
+          python -u /tmp/phase35_audit.py
+      - name: Upload audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase35-13dg-pit-event-crosswalk-audit
+          path: nueva_estrategia_phase28d_sec_13dg_pit_event_audit/
+          if-no-files-found: error
