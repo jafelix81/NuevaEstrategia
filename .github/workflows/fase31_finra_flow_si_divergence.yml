@@ -1,0 +1,31 @@
+name: Fase 31 - FINRA Flow SI Divergence
+on:
+  push:
+    branches: [phase31-finra-flow-si-divergence]
+  workflow_dispatch:
+concurrency:
+  group: phase31-finra-flow-si-divergence
+  cancel-in-progress: false
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy pandas scipy requests yfinance
+      - name: Run Phase 31
+        run: python -u Nueva_Estrategia_Fase31_FINRA_Flow_SI_Divergence.py
+      - name: Upload Phase 31 artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase31-finra-flow-si-divergence
+          path: nueva_estrategia_phase31_finra_flow_si_divergence/
+          retention-days: 30
+          if-no-files-found: error
