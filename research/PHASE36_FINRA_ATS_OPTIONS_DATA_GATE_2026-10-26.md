@@ -46,6 +46,37 @@ H4: any apparent predictive effect disappears after controlling for contemporane
 
 No hypothesis is admitted to production without chronological OOS confirmation.
 
+## FINRA block-trade / large-trade candidate
+
+Fresh official FINRA API documentation identifies a separate public `blocksSummary` dataset. It aggregates ATS trade activity in NMS stocks that meets defined share/dollar thresholds and includes fields such as block quantity, block count, average block size, ATS share, and initial publication date. FINRA documents `monthStartDate` as its historical partition field.
+
+This is potentially more economically targeted than raw ATS volume because it isolates unusually large transactions rather than total venue activity. However, it is still an aggregate proxy and does not identify the ultimate investor or whether a block is informed.
+
+### Decision
+
+**NEW PUBLIC-DATA CANDIDATE — HISTORICAL/PIT GATE OPEN.**
+
+Before any alpha test, audit:
+
+1. historical partition start/end dates for `blocksSummary`;
+2. frozen-universe symbol coverage by month;
+3. whether `initialPublishedDate` is available consistently enough to enforce PIT;
+4. threshold-definition stability across the historical window;
+5. whether the aggregate fields can be reconstructed reproducibly from the API without manual intervention;
+6. whether the dataset materially overlaps the ATS weekly panel or adds independent information.
+
+### Economic hypotheses (not assumptions)
+
+B1: abnormal ATS block share predicts future returns after controlling for LTM/F80, size, liquidity, volatility, and recent return.
+
+B2: block-share changes add information beyond overall ATS participation.
+
+B3: unusually large ATS blocks are more informative than ordinary ATS flow.
+
+B4: any effect disappears after controlling for contemporaneous return/volume, indicating return-chasing rather than informed activity.
+
+The block hypothesis should be tested as an incremental residual signal, not as a standalone replacement for F80/LTM.
+
 ## Options
 
 ### Confirmed facts
@@ -91,8 +122,9 @@ Important classification caveat: Cboe capacity buckets identify participant capa
 ## Current ranking
 
 1. Options Open-Close / OI / IV / skew — highest information potential; commercial access required. Historical depth is better than previously recorded, with current Cboe documentation showing core products back to January 2010 and Open-Close C1 EOD back to January 2005.
-2. FINRA ATS/off-exchange — strongest public candidate; historical archive gate required.
-3. SEC 13D/13G — retained as secondary candidate; latest audit resolves 20,103/20,266 filings but only 303/335 universe names and has 163 SEC archive retrieval failures, so it is not yet eligible for an apples-to-apples alpha test.
+2. FINRA ATS block activity — new public candidate; requires historical partition and PIT coverage audit before testing.
+3. FINRA ATS/off-exchange — strongest broad public candidate; historical archive gate required.
+4. SEC 13D/13G — retained as secondary candidate; latest audit resolves 20,103/20,266 filings but only 303/335 universe names and has 163 SEC archive retrieval failures, so it is not yet eligible for an apples-to-apples alpha test.
 
 ## Official references
 
