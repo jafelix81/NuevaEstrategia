@@ -2,7 +2,7 @@
 
 Date: 2026-10-26
 Branch: phase36-finra-ats-feasibility
-Commit context: 0d109eb6b1745e77cb247183baeb9bd8546a69a4
+Commit context: 6ba00d1c97d7b1dd423232c549c50ba2020cb99b
 
 ## Purpose
 
@@ -17,6 +17,7 @@ Evaluate whether Smart Money candidates have enough historical depth, point-in-t
 - Tier-1 NMS information is published with a two-week delay; other NMS/OTC securities use a four-week delay.
 - The current FINRA API exposes `weeklySummary` on a rolling 12-month basis and `weeklySummaryHistoric` on a rolling four-year basis. Data older than one year in the historical dataset are static.
 - Therefore the current API alone cannot reconstruct the full 2016-present panel required for the research window.
+- Current FINRA catalog/support documentation also distinguishes API datasets from other FINRA data sources, so API availability must not be treated as proof of full historical-file availability.
 
 ### Decision
 
@@ -49,11 +50,18 @@ No hypothesis is admitted to production without chronological OOS confirmation.
 
 ### Confirmed facts
 
-Cboe documents historical Option EOD Summary data from January 2012 to present, including option OHLC, trade volume, VWAP, open interest, NBBO snapshots, and optional point-in-time IV/Greeks.
+Current Cboe DataShop documentation reports historical availability materially earlier than previously recorded in this audit:
 
-Cboe also documents Option Trades and Option Quotes historical products from January 2012. Option Trades provides transaction-level prints; Option Quotes provides interval NBBO/size with optional open interest and IV/Greeks.
+- Open-Close Volume Summary EOD C1: **January 2005**.
+- Open-Close Volume Summary interval C1: **January 2011**.
+- Option Quotes: **January 2010**.
+- Option EOD Summary: **January 2010**.
+- Option Trades: **January 2010**.
+- Option Sentiment: **January 2012**.
 
-Cboe Open-Close Volume Summary is particularly relevant because it categorizes option activity by participant type (customer, professional customer, broker-dealer, market maker), action (buy/sell), and position (open/close). This is a stronger direct test of the Smart Money hypothesis than raw option volume.
+Cboe's current product catalog describes Open-Close Volume Summary as option volume summarized by capacity (Customer, Pro-Customer, Broker, Firm, MM), available EOD and in 10-minute intervals on Cboe exchanges. This is a more direct participant-capacity signal than raw option volume, but capacity is not equivalent to “smart money”; it remains a hypothesis that must be tested.
+
+Cboe also documents Option Trades and Option Quotes historical products. Option Quotes provide interval NBBO/size, OHLC and trade volume, with optional open interest and implied-volatility/Greeks calculations; Option Trades provide transaction-level prints with contextual market information and optional IV/Delta.
 
 ### Decision
 
@@ -63,7 +71,7 @@ Do not substitute a materially different free options feed and call it the same 
 
 ### Preferred eventual test
 
-If access is obtained, start with EOD Open-Close + OI + IV/skew rather than raw option volume alone. Candidate features:
+If access is obtained, start with Open-Close + OI + IV/skew rather than raw option volume alone. Candidate features:
 
 - abnormal customer/professional opening volume;
 - opening buy/sell imbalance;
@@ -74,21 +82,25 @@ If access is obtained, start with EOD Open-Close + OI + IV/skew rather than raw 
 
 The key test is incremental information, not whether options activity correlates with stocks that are already moving.
 
+Important classification caveat: Cboe capacity buckets identify participant capacity, not investor identity or informational sophistication. “Customer” and “professional customer” must therefore be treated as hypotheses about potentially informed positioning, not as assumed smart money.
+
 ## Frozen baseline
 
 `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen. No Smart Money source is permitted to modify the baseline until it passes the same chronological OOS, identical-exposure, cost, bootstrap/LOO, and return-chasing controls.
 
 ## Current ranking
 
-1. Options Open-Close / OI / IV / skew — highest information potential; commercial access required.
+1. Options Open-Close / OI / IV / skew — highest information potential; commercial access required. Historical depth is better than previously recorded, with current Cboe documentation showing core products back to January 2010 and Open-Close C1 EOD back to January 2005.
 2. FINRA ATS/off-exchange — strongest public candidate; historical archive gate required.
 3. SEC 13D/13G — retained as secondary candidate; latest audit resolves 20,103/20,266 filings but only 303/335 universe names and has 163 SEC archive retrieval failures, so it is not yet eligible for an apples-to-apples alpha test.
 
 ## Official references
 
 - FINRA OTC Transparency API/documentation: https://developer.finra.org/docs
+- FINRA OTC Transparency catalog: https://developer.finra.org/catalog
 - FINRA OTC Transparency historical specification: https://www.finra.org/sites/default/files/OTC-Transparency-Data-File-Download-API-v04.pdf
+- Cboe DataShop FAQ / historical availability: https://datashop.cboe.com/faqs
+- Cboe Data Products: https://datashop.cboe.com/data-products
 - Cboe Option EOD Summary: https://datashop.cboe.com/option-eod-summary
 - Cboe Option Trades: https://datashop.cboe.com/option-trades
 - Cboe Option Quotes: https://datashop.cboe.com/option-quote-intervals
-- Cboe Open-Close Volume Summary: https://datashop.cboe.com/cboe-options-open-close-volume-summary
