@@ -10,7 +10,8 @@ OUT.mkdir(exist_ok=True)
 
 # Deliberately sampled across the documented rolling-history window. The goal is
 # feasibility/coverage only; no return test is run in this phase.
-MONTHS = ["2023-Jan", "2024-Jan", "2025-Jan", "2026-Jan"]
+# FINRA historicalMonth requires YYYY-MM (not YYYY-Mon).
+MONTHS = ["2023-01", "2024-01", "2025-01", "2026-01"]
 TIERS = ["T1", "T2"]
 FIELDS = [
     "issueSymbolIdentifier", "issueName", "weekStartDate", "tierIdentifier",
