@@ -1,0 +1,54 @@
+name: Phase 36 - FINRA blocksSummary live feasibility audit
+on:
+  push:
+    branches: [phase36-finra-ats-feasibility]
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run live blocksSummary audit
+        env:
+          FINRA_BASE: https://api.finra.org
+        run: |
+          python - <<'PY'
+          import json, os, urllib.request, urllib.error, datetime
+          base=os.environ['FINRA_BASE']
+          out={"captured_at_utc":datetime.datetime.now(datetime.timezone.utc).isoformat(),"base":base}
+          def get(path):
+              req=urllib.request.Request(base+path,headers={"Accept":"application/json","Data-API-Version":"1"})
+              with urllib.request.urlopen(req,timeout=30) as r:
+                  return r.status, r.read().decode('utf-8')
+          for label,path in [
+              ('metadata','/metadata/group/otcMarket/name/blocksSummary'),
+              ('partitions','/partitions/group/otcMarket/name/blocksSummary')]:
+              try:
+                  s,txt=get(path); out[label]={"status":s,"body":json.loads(txt)}
+              except Exception as e:
+                  out[label]={"error":repr(e)}
+          try:
+              s,txt=get('/data/group/otcMarket/name/blocksSummary?limit=5')
+              out['sample']={"status":s,"body":json.loads(txt)}
+          except Exception as e:
+              out['sample']={"error":repr(e)}
+          parts=[]
+          try:
+              parts=out['partitions']['body'].get('availablePartitions',[])
+          except Exception: pass
+          flat=[]
+          for x in parts:
+              p=x.get('partitions',[]) if isinstance(x,dict) else []
+              flat.extend(p)
+          out['partition_summary']={"count":len(flat),"min":min(flat) if flat else None,"max":max(flat) if flat else None,"first_12":flat[:12],"last_12":flat[-12:]}
+          os.makedirs('phase36_blocks_audit',exist_ok=True)
+          with open('phase36_blocks_audit/blocks_summary_live_audit.json','w') as f: json.dump(out,f,indent=2,default=str)
+          print(json.dumps(out,indent=2,default=str)[:20000])
+          PY
+      - name: Upload audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase36-finra-blocks-live-audit
+          path: phase36_blocks_audit/blocks_summary_live_audit.json
