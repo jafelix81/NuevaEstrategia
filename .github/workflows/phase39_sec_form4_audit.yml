@@ -1,0 +1,26 @@
+name: Phase 39 - SEC Form 4 Insider Feasibility Audit
+
+on:
+  push:
+    branches:
+      - phase39-sec-form4-audit
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install pandas requests
+      - name: Run Phase 39 audit
+        run: python -u Nueva_Estrategia_Phase39_SEC_Form4_Feasibility_Audit.py
+      - name: Upload Phase 39 audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase39-sec-form4-feasibility-audit
+          path: nueva_estrategia_phase39_sec_form4_audit/
+          if-no-files-found: warn
