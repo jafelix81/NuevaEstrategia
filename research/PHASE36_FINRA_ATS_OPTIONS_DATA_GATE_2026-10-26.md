@@ -1,8 +1,6 @@
 # Phase 36 — FINRA ATS / Options Data Feasibility Gate
 
 Date: 2026-10-26
-Branch: phase36-finra-ats-feasibility
-Commit context: 6ba00d1c97d7b1dd423232c549c50ba2020cb99b
 
 ## Purpose
 
@@ -16,66 +14,46 @@ Evaluate whether Smart Money candidates have enough historical depth, point-in-t
 - Official FINRA documentation states weekly reports began April 25, 2016.
 - Tier-1 NMS information is published with a two-week delay; other NMS/OTC securities use a four-week delay.
 - The current FINRA API exposes `weeklySummary` on a rolling 12-month basis and `weeklySummaryHistoric` on a rolling four-year basis. Data older than one year in the historical dataset are static.
-- Therefore the current API alone cannot reconstruct the full 2016-present panel required for the research window.
-- Current FINRA catalog/support documentation also distinguishes API datasets from other FINRA data sources, so API availability must not be treated as proof of full historical-file availability.
+- Therefore the current API alone cannot reconstruct the full 2016-present weekly security-level panel required for the research window.
 
 ### Decision
 
 **PUBLIC-DATA CANDIDATE — ARCHIVE ACCESS GATE OPEN.**
 
-Do not run alpha tests until the historical downloadable archive (or another reproducible official FINRA archive) is demonstrated to reconstruct the frozen 335-name universe with explicit publication/knowledge dates.
+Do not run alpha tests until the historical weekly archive (or another reproducible official FINRA archive) is demonstrated to reconstruct the frozen 335-name universe with explicit publication/knowledge dates.
 
-### Required next gate
+## FINRA `blocksSummary` — live schema audit
 
-1. Locate and programmatically sample the historical weekly archive from 2016 onward.
-2. Build a symbol-by-week coverage matrix for the frozen 335 names.
-3. Record report week, initial publication date, and any revisions separately.
-4. Use publication date, not report week, as the PIT knowledge boundary.
-5. Verify that the archive can be re-downloaded reproducibly without manual intervention.
-6. Only then define abnormal ATS-share / off-exchange participation variables.
+A live GitHub Actions audit was run against the production FINRA API on 2026-10-26. The endpoint returned HTTP 200 for metadata, partitions, and a sample query. Artifact: `phase36-finra-blocks-live-audit`, run `40340466922`, artifact `12658048654`.
 
-### Economic hypotheses (not assumptions)
+### What the live audit established
 
-H1: abnormal ATS share of consolidated/off-exchange activity predicts future returns after controlling for LTM/F80, liquidity, size, volatility, and recent return.
+- `blocksSummary` is a public FINRA OTCMARKET dataset.
+- Historical partitions are available from **2016-06-01 through 2026-08-01**, 123 monthly partitions at the time of capture.
+- The dataset has a PIT field `initialPublishedDate`; FINRA describes it as the first Monday or next business day of the following month.
+- The dataset contains ATS-level aggregate fields such as `ATSBlockCount`, `ATSBlockQuantity`, `averageBlockSize`, ATS share percentages/ranks, `MPID`, `marketParticipantName`, and `summaryTypeCode`.
+- Critically, the live metadata contains **no security/ticker identifier** (no `issueSymbolIdentifier` or equivalent). The sample rows are by ATS/MPID and month, not by stock.
 
-H2: changes in ATS participation contain incremental information beyond the level of ATS participation.
+### Decision — block hypothesis
 
-H3: ATS block activity is more informative than raw ATS volume.
+**KILL AS A DIRECT STOCK-ALPHA SOURCE.**
 
-H4: any apparent predictive effect disappears after controlling for contemporaneous return/volume, which would classify it as return-chasing rather than informed behavior.
+The original B1-B3 hypotheses required symbol-level block activity to predict individual-stock returns. The live schema makes that impossible from `blocksSummary`: there is no ticker dimension to join to the frozen 335-name universe. Testing it as stock alpha would require inventing a mapping that does not exist in the source and would violate the research design.
 
-No hypothesis is admitted to production without chronological OOS confirmation.
+Do not run a stock-level economic test on `blocksSummary`.
 
-## FINRA block-trade / large-trade candidate
+### What remains potentially useful
 
-Fresh official FINRA API documentation identifies a separate public `blocksSummary` dataset. It aggregates ATS trade activity in NMS stocks that meets defined share/dollar thresholds and includes fields such as block quantity, block count, average block size, ATS share, and initial publication date. FINRA documents `monthStartDate` as its historical partition field.
+The dataset may still be useful as a **market/ATS-regime descriptor** (e.g., aggregate block intensity, ATS participant concentration, or market-wide block activity), but that is a different hypothesis and must be tested only as a broad market/regime variable with proper OOS controls. It is not a Smart Money stock-selection signal and is therefore not prioritized ahead of the security-level ATS panel or options data.
 
-This is potentially more economically targeted than raw ATS volume because it isolates unusually large transactions rather than total venue activity. However, it is still an aggregate proxy and does not identify the ultimate investor or whether a block is informed.
+### Hypotheses killed
 
-### Decision
+- B1: abnormal ATS block share predicts individual-stock future returns — **KILLED: no stock identifier**.
+- B2: changes in stock-level block share add information — **KILLED: no stock identifier**.
+- B3: unusually large stock-level ATS blocks are more informative — **KILLED: no stock identifier**.
+- B4: return-chasing diagnosis for stock-level blocks — **NOT TESTED: prerequisite stock-level data do not exist in this dataset**.
 
-**NEW PUBLIC-DATA CANDIDATE — HISTORICAL/PIT GATE OPEN.**
-
-Before any alpha test, audit:
-
-1. historical partition start/end dates for `blocksSummary`;
-2. frozen-universe symbol coverage by month;
-3. whether `initialPublishedDate` is available consistently enough to enforce PIT;
-4. threshold-definition stability across the historical window;
-5. whether the aggregate fields can be reconstructed reproducibly from the API without manual intervention;
-6. whether the dataset materially overlaps the ATS weekly panel or adds independent information.
-
-### Economic hypotheses (not assumptions)
-
-B1: abnormal ATS block share predicts future returns after controlling for LTM/F80, size, liquidity, volatility, and recent return.
-
-B2: block-share changes add information beyond overall ATS participation.
-
-B3: unusually large ATS blocks are more informative than ordinary ATS flow.
-
-B4: any effect disappears after controlling for contemporaneous return/volume, indicating return-chasing rather than informed activity.
-
-The block hypothesis should be tested as an incremental residual signal, not as a standalone replacement for F80/LTM.
+This is a feasibility failure, not evidence that large ATS blocks are economically useless in aggregate.
 
 ## Options
 
@@ -122,9 +100,9 @@ Important classification caveat: Cboe capacity buckets identify participant capa
 ## Current ranking
 
 1. Options Open-Close / OI / IV / skew — highest information potential; commercial access required. Historical depth is better than previously recorded, with current Cboe documentation showing core products back to January 2010 and Open-Close C1 EOD back to January 2005.
-2. FINRA ATS block activity — new public candidate; requires historical partition and PIT coverage audit before testing.
-3. FINRA ATS/off-exchange — strongest broad public candidate; historical archive gate required.
-4. SEC 13D/13G — retained as secondary candidate; latest audit resolves 20,103/20,266 filings but only 303/335 universe names and has 163 SEC archive retrieval failures, so it is not yet eligible for an apples-to-apples alpha test.
+2. FINRA ATS/off-exchange security-level panel — strongest broad public candidate, but historical 2016+ archive reconstruction remains the gate.
+3. SEC 13D/13G — retained as secondary candidate; latest audit resolves 20,103/20,266 filings but only 303/335 universe names and has 163 SEC archive retrieval failures, so it is not yet eligible for an apples-to-apples alpha test.
+4. FINRA `blocksSummary` — **killed for stock selection** after live schema audit; retained only as a possible future market-regime descriptor.
 
 ## Official references
 
