@@ -1,0 +1,95 @@
+name: Phase 43 - SEC FTD actual-file audit
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Download representative SEC FTD files
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/ftd
+          python - <<'PY'
+          import urllib.request
+          urls = {
+              '2018a': 'https://www.sec.gov/files/data/fails-deliver-data/cnsfails201801a.zip',
+              '202609b': 'https://www.sec.gov/files/data/fails-deliver-data/cnsfails202609b.zip',
+          }
+          headers = {'User-Agent': 'NuevaEstrategia research contact'}
+          for name, url in urls.items():
+              req = urllib.request.Request(url, headers=headers)
+              with urllib.request.urlopen(req, timeout=60) as r:
+                  data = r.read()
+              open(f'/tmp/ftd/{name}.zip', 'wb').write(data)
+              print(name, len(data), url)
+          PY
+      - name: Parse and validate representative files
+        run: |
+          python - <<'PY'
+          import csv, io, json, zipfile
+          from pathlib import Path
+          out = []
+          for path in sorted(Path('/tmp/ftd').glob('*.zip')):
+              with zipfile.ZipFile(path) as z:
+                  names = z.namelist()
+                  assert names, f'{path}: empty zip'
+                  raw = z.read(names[0])
+              text = raw.decode('latin-1')
+              rows = list(csv.reader(io.StringIO(text), delimiter='|'))
+              assert rows, f'{path}: empty text'
+              # SEC files normally have a header plus records. Ignore blank rows.
+              rows = [r for r in rows if any(x.strip() for x in r)]
+              header = [x.strip().upper() for x in rows[0]]
+              required = ['SETTLEMENT DATE','CUSIP','SYMBOL','QUANTITY (FAILS)','DESCRIPTION','PRICE']
+              assert header == required, f'{path}: unexpected header {header}'
+              records = rows[1:]
+              bad_len = sum(len(r) != 6 for r in records)
+              assert bad_len == 0, f'{path}: {bad_len} malformed records'
+              parsed = 0
+              bad_date = 0
+              bad_qty = 0
+              symbols = set()
+              dates = []
+              for r in records:
+                  d = r[0].strip()
+                  try:
+                      assert len(d) == 8 and d.isdigit()
+                      dates.append(d)
+                  except Exception:
+                      bad_date += 1
+                  try:
+                      int(r[3].strip().replace(',', ''))
+                  except Exception:
+                      bad_qty += 1
+                  if r[2].strip():
+                      symbols.add(r[2].strip().upper())
+                  parsed += 1
+              assert bad_date == 0, f'{path}: {bad_date} bad settlement dates'
+              assert bad_qty == 0, f'{path}: {bad_qty} bad fail quantities'
+              out.append({
+                  'file': path.name,
+                  'zip_members': names,
+                  'records': parsed,
+                  'unique_symbols': len(symbols),
+                  'min_settlement_date': min(dates),
+                  'max_settlement_date': max(dates),
+                  'bad_date': bad_date,
+                  'bad_quantity': bad_qty,
+              })
+          Path('ftd_audit_summary.json').write_text(json.dumps(out, indent=2))
+          print(json.dumps(out, indent=2))
+          PY
+      - name: Upload parser audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase43-sec-ftd-actual-file-audit
+          path: ftd_audit_summary.json
