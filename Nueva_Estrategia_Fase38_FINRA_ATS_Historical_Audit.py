@@ -8,10 +8,10 @@ BASE = "https://api.finra.org/data/group/otcmarket/name/weeklySummaryHistoric"
 OUT = Path("phase38_finra_ats_audit")
 OUT.mkdir(exist_ok=True)
 
-# Deliberately sampled across the documented rolling-history window. The goal is
-# feasibility/coverage only; no return test is run in this phase.
-# FINRA historicalMonth requires YYYY-MM (not YYYY-Mon).
-MONTHS = ["2023-01", "2024-01", "2025-01", "2026-01"]
+# Feasibility/coverage only. FINRA currently reports the rolling historical
+# range as 2021-10-27 through 2025-10-26; do not request outside that window.
+# historicalMonth requires YYYY-MM.
+MONTHS = ["2022-01", "2023-01", "2024-01", "2025-01", "2025-10"]
 TIERS = ["T1", "T2"]
 FIELDS = [
     "issueSymbolIdentifier", "issueName", "weekStartDate", "tierIdentifier",
@@ -39,16 +39,33 @@ def request_month(month: str, tier: str):
             "limit": 5000,
             "offset": offset,
         }
-        r = requests.post(BASE, json=payload, headers={"Accept": "application/json", "Content-Type": "application/json"}, timeout=90)
-        text = r.text[:1000]
+        r = requests.post(
+            BASE,
+            json=payload,
+            headers={"Accept": "application/json", "Content-Type": "application/json"},
+            timeout=90,
+        )
+        text = r.text[:2000]
         if r.status_code != 200:
             raise RuntimeError(f"POST failed {month}/{tier}: HTTP {r.status_code}: {text}")
+
         obj = r.json()
-        data = obj.get("data", obj) if isinstance(obj, (dict, list)) else []
-        if isinstance(data, dict):
-            data = data.get("data", [])
+        # FINRA may return either a top-level list or a dict containing data.
+        # The previous audit called .get() on a list, which caused a false 0-row result.
+        if isinstance(obj, list):
+            data = obj
+        elif isinstance(obj, dict):
+            data = obj.get("data", [])
+            if isinstance(data, dict):
+                data = data.get("data", [])
+        else:
+            data = []
+
+        if not isinstance(data, list):
+            raise RuntimeError(f"Unexpected FINRA response schema {month}/{tier}: {type(data).__name__}")
         if not data:
             break
+
         rows.extend(data)
         audit.append({"month": month, "tier": tier, "page": page, "offset": offset, "rows": len(data)})
         page += 1
@@ -75,6 +92,8 @@ for month in MONTHS:
 # Coverage is measured on issueSymbolIdentifier, not firms/MPIDs.
 seen = {}
 for row in all_rows:
+    if not isinstance(row, dict):
+        continue
     sym = str(row.get("issueSymbolIdentifier", "")).upper()
     if sym:
         seen.setdefault(sym, set()).add(f"{row.get('weekStartDate')}|{row.get('tierIdentifier')}")
@@ -95,7 +114,7 @@ report = {
     "missing_count": len(missing),
     "errors": errors,
     "pagination": all_audit,
-    "pit_fields_present": bool(all_rows) and all("initialPublishedDate" in r for r in all_rows[: min(100, len(all_rows))]),
+    "pit_fields_present": bool(all_rows) and all("initialPublishedDate" in r for r in all_rows[: min(100, len(all_rows))] if isinstance(r, dict)),
     "status": "PROMOTE_TO_SECURITY_LEVEL_RESEARCH" if len(covered) >= 0.90 * len(UNIVERSE) and not errors else "HOLD_FOR_COVERAGE_OR_ACCESS_REVIEW",
 }
 (OUT / "audit.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
