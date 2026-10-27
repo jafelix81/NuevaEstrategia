@@ -6,7 +6,7 @@
 
 ## Why this source is worth testing
 
-Cboe publishes historical options-volume data across its exchanges. Its historical-data interface allows historical options volume to be downloaded by symbol, product type, or all symbols, with daily/weekly/monthly/annual aggregation. Cboe also maintains an equity-option-volume archive reaching back to 2006; starting September 2019, historical equity-options volume is available through the historical-options-data download interface.
+Cboe publishes historical options-volume data across the Cboe exchanges. Its historical-data interface allows historical options volume to be downloaded by a single symbol, a product type, or all symbols for a month or year, with daily/weekly/monthly/annual aggregation. Cboe also maintains an equity-option-volume archive reaching back to 2006; starting September 2019, historical equity-options volume is available through the historical-options-data download interface.
 
 This is materially more accessible than contract-level options flow/open-interest/IV datasets, which remain commercially licensed. It therefore provides a credible public fallback for the options branch without weakening the PIT standard.
 
@@ -32,17 +32,21 @@ Primary candidate features, to be specified before OOS testing:
 - verify ticker continuity and symbol changes;
 - identify the actual publication/download availability date for each historical partition and apply a conservative knowledge-date rule;
 - verify whether historical files are revisions or immutable snapshots;
-- document exchange coverage and any methodology changes;
+- document **exchange scope explicitly**. The public Cboe historical-options page states that the downloadable historical volume is across the Cboe exchanges. This must **not** be treated as OPRA-wide U.S. options volume without separate evidence. Cboe-only activity may be systematically related to Cboe market share and therefore can create structural/exchange-share effects rather than a pure informed-flow signal;
 - avoid mixing Cboe-only activity with OPRA-wide activity unless coverage is explicitly understood;
 - compare all candidates against the same frozen LTM/F80 universe, dates, exposure and costs.
 
+## Additional structural audit requirement
+
+Because the public series is exchange-scoped, the first empirical audit should measure Cboe-volume coverage and stability against the frozen universe at representative dates and, where possible, compare it with Cboe's own historical market-share context. A large apparent signal that is concentrated in periods of changing Cboe market share should be treated as a market-structure artifact and killed rather than promoted.
+
 ## Kill conditions
 
-Do not proceed to alpha if symbol-level coverage is materially incomplete, PIT availability cannot be established, or the data cannot be reproduced. Do not use raw option volume as evidence of informed trading.
+Do not proceed to alpha if symbol-level coverage is materially incomplete, PIT availability cannot be established, the data cannot be reproduced, or the exchange-scope effect cannot be controlled. Do not use raw option volume as evidence of informed trading.
 
 ## If the gate passes
 
-Run a chronological incremental test versus frozen LTM/F80. No factor selection on the final OOS period. Evaluate IC/rank behavior, portfolio spread, incremental C20 return, drawdown/volatility, bootstrap confidence intervals and leave-one-period-out stability. Use identical exposure and costs. A positive result is not promotable unless the effect is economically plausible and survives OOS/LOO/ bootstrap checks.
+Run a chronological incremental test versus frozen LTM/F80. No factor selection on the final OOS period. Evaluate IC/rank behavior, portfolio spread, incremental C20 return, drawdown/volatility, bootstrap confidence intervals and leave-one-period-out stability. Use identical exposure and costs. A positive result is not promotable unless the effect is economically plausible and survives OOS/LOO/bootstrap checks.
 
 ## Current conclusion
 
@@ -50,8 +54,8 @@ Run a chronological incremental test versus frozen LTM/F80. No factor selection 
 
 ## Official source verification (2026-10-27)
 
-- Cboe Historical Options Data documents symbol/product/all-symbol downloads and daily through annual aggregation.
-- Cboe states its Equity Option Volume Archive reaches back to 2006 and that the historical-download mechanism covers equity-options volume from September 2019 onward.
+- Cboe Historical Options Data states that historical options volume can be downloaded across the Cboe exchanges by single symbol, product type, or all symbols for a month/year.
+- Cboe states its Equity Option Volume Archive reaches back to 2006 and that historical equity-options volume can be acquired through the historical-download mechanism starting September 2019.
 - Cboe DataShop documents Open-Close EOD history from January 2005 for C1 and from January 2018 for BZX/C2/EDGX, but access is licensed.
 
 Official sources:
