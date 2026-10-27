@@ -10,8 +10,9 @@ OUT.mkdir(exist_ok=True)
 
 # Feasibility/coverage only. FINRA currently reports the rolling historical
 # range as 2021-10-27 through 2025-10-26; do not request outside that window.
-# FINRA's historicalMonth partition uses YYYY-MMM (for example, 2022-Jan).
-MONTHS = ["2022-Jan", "2023-Jan", "2024-Jan", "2025-Jan", "2025-Oct"]
+# Use historicalWeek rather than historicalMonth to avoid month-partition format
+# ambiguity and to test concrete Monday partitions.
+WEEKS = ["2022-01-03", "2023-01-02", "2024-01-01", "2025-01-06", "2025-10-20"]
 TIERS = ["T1", "T2"]
 FIELDS = [
     "issueSymbolIdentifier", "issueName", "weekStartDate", "tierIdentifier",
@@ -24,7 +25,7 @@ from Nueva_Estrategia_Fase11_Real1000_LTM_v4 import DEFAULT_UNIVERSE
 UNIVERSE = {str(x).upper() for x in DEFAULT_UNIVERSE}
 
 
-def request_month(month: str, tier: str):
+def request_week(week: str, tier: str):
     rows = []
     offset = 0
     page = 0
@@ -33,7 +34,7 @@ def request_month(month: str, tier: str):
         payload = {
             "fields": FIELDS,
             "compareFilters": [
-                {"compareType": "equal", "fieldName": "historicalMonth", "fieldValue": month},
+                {"compareType": "equal", "fieldName": "historicalWeek", "fieldValue": week},
                 {"compareType": "equal", "fieldName": "tierIdentifier", "fieldValue": tier},
             ],
             "limit": 5000,
@@ -47,11 +48,10 @@ def request_month(month: str, tier: str):
         )
         text = r.text[:2000]
         if r.status_code != 200:
-            raise RuntimeError(f"POST failed {month}/{tier}: HTTP {r.status_code}: {text}")
+            raise RuntimeError(f"POST failed {week}/{tier}: HTTP {r.status_code}: {text}")
 
         obj = r.json()
         # FINRA may return either a top-level list or a dict containing data.
-        # The previous audit called .get() on a list, which caused a false 0-row result.
         if isinstance(obj, list):
             data = obj
         elif isinstance(obj, dict):
@@ -62,32 +62,32 @@ def request_month(month: str, tier: str):
             data = []
 
         if not isinstance(data, list):
-            raise RuntimeError(f"Unexpected FINRA response schema {month}/{tier}: {type(data).__name__}")
+            raise RuntimeError(f"Unexpected FINRA response schema {week}/{tier}: {type(data).__name__}")
         if not data:
             break
 
         rows.extend(data)
-        audit.append({"month": month, "tier": tier, "page": page, "offset": offset, "rows": len(data)})
+        audit.append({"week": week, "tier": tier, "page": page, "offset": offset, "rows": len(data)})
         page += 1
         offset += len(data)
         if len(data) < 5000:
             break
         if page > 200:
-            raise RuntimeError(f"Pagination guard exceeded for {month}/{tier}")
+            raise RuntimeError(f"Pagination guard exceeded for {week}/{tier}")
     return rows, audit
 
 
 all_rows = []
 all_audit = []
 errors = []
-for month in MONTHS:
+for week in WEEKS:
     for tier in TIERS:
         try:
-            rows, audit = request_month(month, tier)
+            rows, audit = request_week(week, tier)
             all_rows.extend(rows)
             all_audit.extend(audit)
         except Exception as exc:
-            errors.append({"month": month, "tier": tier, "error": repr(exc)})
+            errors.append({"week": week, "tier": tier, "error": repr(exc)})
 
 # Coverage is measured on issueSymbolIdentifier, not firms/MPIDs.
 seen = {}
@@ -104,7 +104,7 @@ missing = sorted(UNIVERSE - set(seen))
 report = {
     "phase": "38",
     "source": "FINRA OTCMarket weeklySummaryHistoric",
-    "months": MONTHS,
+    "weeks": WEEKS,
     "tiers": TIERS,
     "frozen_universe_size": len(UNIVERSE),
     "rows_retrieved": len(all_rows),
