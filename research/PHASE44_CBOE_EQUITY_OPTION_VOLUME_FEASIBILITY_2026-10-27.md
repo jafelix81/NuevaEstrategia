@@ -10,6 +10,8 @@ Cboe publishes historical options-volume data across its exchanges. Its historic
 
 This is materially more accessible than contract-level options flow/open-interest/IV datasets, which remain commercially licensed. It therefore provides a credible public fallback for the options branch without weakening the PIT standard.
 
+The richer Cboe Open-Close dataset is also economically attractive but licensed: Cboe documents EOD participant-capacity buckets (customer, professional customer, broker-dealer, market maker), buy/sell and open/close fields, with C1 history back to January 2005 and BZX/C2/EDGX history from 2018. This confirms that the economically strongest options hypothesis is feasible in principle, but it is not reproducibly available to this repository without licensed access and therefore must not be approximated with inferior public proxies.
+
 ## Candidate hypothesis
 
 Options activity may contain incremental information about informed positioning or attention when it is unusually large relative to the underlying security's normal activity. The interpretation is deliberately agnostic: high option volume can reflect hedging, speculation, market making, or information. We do **not** assume it is "smart money."
@@ -46,6 +48,12 @@ Run a chronological incremental test versus frozen LTM/F80. No factor selection 
 
 **Proceed to actual-file and symbol-coverage audit.** This source is a promising low-cost complement to the commercial Cboe contract-level options datasets, but there is currently **no alpha evidence** and no justification to alter the frozen baseline.
 
-## Official source
+## Official source verification (2026-10-27)
 
-Cboe Historical Options Data: https://www.cboe.com/us/options/market_statistics/historical_data/
+- Cboe Historical Options Data documents symbol/product/all-symbol downloads and daily through annual aggregation.
+- Cboe states its Equity Option Volume Archive reaches back to 2006 and that the historical-download mechanism covers equity-options volume from September 2019 onward.
+- Cboe DataShop documents Open-Close EOD history from January 2005 for C1 and from January 2018 for BZX/C2/EDGX, but access is licensed.
+
+Official sources:
+- https://www.cboe.com/us/options/market_statistics/historical_data/
+- https://datashop.cboe.com/cboe-options-open-close-volume-summary
