@@ -2,6 +2,10 @@ name: Phase 43 - SEC FTD actual-file audit
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'research/PHASE43_SEC_FTD_ACTUAL_FILE_AUDIT_2026-10-27.md'
 
 permissions:
   contents: read
@@ -46,19 +50,14 @@ jobs:
               text = raw.decode('latin-1')
               rows = list(csv.reader(io.StringIO(text), delimiter='|'))
               assert rows, f'{path}: empty text'
-              # SEC files normally have a header plus records. Ignore blank rows.
               rows = [r for r in rows if any(x.strip() for x in r)]
               header = [x.strip().upper() for x in rows[0]]
               required = ['SETTLEMENT DATE','CUSIP','SYMBOL','QUANTITY (FAILS)','DESCRIPTION','PRICE']
               assert header == required, f'{path}: unexpected header {header}'
               records = rows[1:]
-              bad_len = sum(len(r) != 6 for r in records)
-              assert bad_len == 0, f'{path}: {bad_len} malformed records'
-              parsed = 0
-              bad_date = 0
-              bad_qty = 0
-              symbols = set()
-              dates = []
+              assert all(len(r) == 6 for r in records), f'{path}: malformed record length'
+              bad_date = bad_qty = 0
+              symbols, dates = set(), []
               for r in records:
                   d = r[0].strip()
                   try:
@@ -72,19 +71,12 @@ jobs:
                       bad_qty += 1
                   if r[2].strip():
                       symbols.add(r[2].strip().upper())
-                  parsed += 1
               assert bad_date == 0, f'{path}: {bad_date} bad settlement dates'
               assert bad_qty == 0, f'{path}: {bad_qty} bad fail quantities'
-              out.append({
-                  'file': path.name,
-                  'zip_members': names,
-                  'records': parsed,
-                  'unique_symbols': len(symbols),
-                  'min_settlement_date': min(dates),
-                  'max_settlement_date': max(dates),
-                  'bad_date': bad_date,
-                  'bad_quantity': bad_qty,
-              })
+              out.append({'file': path.name, 'zip_members': names, 'records': len(records),
+                          'unique_symbols': len(symbols), 'min_settlement_date': min(dates),
+                          'max_settlement_date': max(dates), 'bad_date': bad_date,
+                          'bad_quantity': bad_qty})
           Path('ftd_audit_summary.json').write_text(json.dumps(out, indent=2))
           print(json.dumps(out, indent=2))
           PY
