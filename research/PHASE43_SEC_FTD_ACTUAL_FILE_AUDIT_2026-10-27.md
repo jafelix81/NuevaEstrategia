@@ -51,4 +51,4 @@ No feature will be interpreted as directional short pressure a priori.
 
 `ACTUAL_FILE_GATE_PENDING_RUN`
 
-No alpha conclusion. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+Parser workflow added; waiting for the triggered GitHub Actions audit result before any alpha work. No alpha conclusion. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
