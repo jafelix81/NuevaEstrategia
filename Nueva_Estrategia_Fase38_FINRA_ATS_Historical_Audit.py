@@ -10,8 +10,8 @@ OUT.mkdir(exist_ok=True)
 
 # Feasibility/coverage only. FINRA currently reports the rolling historical
 # range as 2021-10-27 through 2025-10-26; do not request outside that window.
-# historicalMonth requires YYYY-MM.
-MONTHS = ["2022-01", "2023-01", "2024-01", "2025-01", "2025-10"]
+# FINRA's historicalMonth partition uses YYYY-MMM (for example, 2022-Jan).
+MONTHS = ["2022-Jan", "2023-Jan", "2024-Jan", "2025-Jan", "2025-Oct"]
 TIERS = ["T1", "T2"]
 FIELDS = [
     "issueSymbolIdentifier", "issueName", "weekStartDate", "tierIdentifier",
