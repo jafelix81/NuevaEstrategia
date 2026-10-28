@@ -87,8 +87,19 @@ The parser's own output correctly records `filing_date` as the PIT knowledge dat
 
 The correct next action is either a robust structured/XML-aware extraction of event/report dates with rate-limit controls, or archival/secondary official SEC data that supplies those fields reproducibly. No return test should be built on the current 13D/13G output.
 
+## Phase 39 PIT parser correction — 2026-10-28
+The first EDGAR PIT gate run (`40667764722`) successfully downloaded both representative filing texts and recovered valid 14-digit acceptance timestamps:
+- 2012 Q1 representative filing: `20120131121051`;
+- 2026 Q3 representative filing: `20260731164155`.
+
+The run nevertheless failed because the parser expected XML tags such as `<ACCESSION-NUMBER>` and `<ACCEPTANCE-DATETIME>`. The actual EDGAR text header uses label-style fields in these representative filings, so accession and filing-date extraction returned null even though acceptance datetime was present. This is a **parser-format defect, not a source/PIT failure**.
+
+The Phase 39 workflow was corrected in commit `9b9f128d729a5ce6a539075514a921f13006305` to accept both XML-tagged and label-style EDGAR header forms for accession, filing date and acceptance datetime. The workflow retains the SEC descriptive User-Agent, retry policy, concurrency protection, and exact 14-digit acceptance validation.
+
+No alpha test is authorized yet. The corrected workflow must pass on both historical representatives before the accession-level PIT gate is considered complete.
+
 ## Status
-**Form 4: SCHEMA/HISTORY GATE PASSED; PIT JOIN GATE PENDING.**
+**Form 4: SCHEMA/HISTORY GATE PASSED; PIT JOIN GATE CORRECTED AND PENDING RE-RUN.**
 
 **13D/13G: DOCUMENT-EXTRACTION GATE FAILED/PENDING REPAIR; NO ALPHA TEST AUTHORIZED.**
 
