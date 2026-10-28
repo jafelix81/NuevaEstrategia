@@ -31,6 +31,13 @@ KNOWLEDGE_DATES = {
     "2026_second_half": "2026-10-15",
 }
 
+# Expected settlement windows for the representative files. These are audit
+# constraints only; they do not define any trading signal.
+SETTLEMENT_WINDOWS = {
+    "2018_first_half": (date(2018, 1, 1), date(2018, 1, 15)),
+    "2026_second_half": (date(2026, 9, 16), date(2026, 9, 30)),
+}
+
 EXPECTED_COLUMNS = ("SETTLEMENT DATE", "CUSIP", "SYMBOL", "QUANTITY (FAILS)", "DESCRIPTION", "PRICE")
 
 
@@ -41,6 +48,18 @@ def download(url: str) -> bytes:
     )
     with urllib.request.urlopen(req, timeout=60) as response:
         return response.read()
+
+
+def parse_settlement_date(value: str) -> date:
+    """Parse SEC settlement dates in YYYYMMDD or separated YYYY-MM-DD form."""
+    value = value.strip()
+    if re.fullmatch(r"\d{8}", value):
+        return date(int(value[:4]), int(value[4:6]), int(value[6:8]))
+    parts = re.split(r"[-/]", value)
+    if len(parts) == 3 and all(p.isdigit() for p in parts):
+        y, m, d = map(int, parts)
+        return date(y, m, d)
+    raise ValueError(f"unsupported settlement date format: {value!r}")
 
 
 def parse_zip(payload: bytes):
@@ -68,8 +87,7 @@ def parse_zip(payload: bytes):
             continue
         settlement, cusip, symbol, quantity, description, price = [x.strip() for x in row]
         try:
-            y, m, d = map(int, re.split(r"[-/]", settlement))
-            dt = date(y, m, d)
+            dt = parse_settlement_date(settlement)
         except Exception as exc:
             raise ValueError(f"bad settlement date {settlement!r}: {exc}")
         q = int(quantity.replace(",", ""))
@@ -82,7 +100,9 @@ def parse_zip(payload: bytes):
 def audit_one(label: str, url: str) -> dict:
     payload = download(url)
     member, rows, bad_width = parse_zip(payload)
-    settlements = [r[0] for r in rows]
+    settlements = [date.fromisoformat(r[0]) for r in rows]
+    min_expected, max_expected = SETTLEMENT_WINDOWS[label]
+    outside_window = sum(not (min_expected <= dt <= max_expected) for dt in settlements)
     duplicate_keys = Counter((r[0], r[1], r[2], r[3], r[4], r[5]) for r in rows)
     duplicate_rows = sum(v - 1 for v in duplicate_keys.values() if v > 1)
     empty_cusip = sum(not r[1] for r in rows)
@@ -97,9 +117,10 @@ def audit_one(label: str, url: str) -> dict:
         "rows": len(rows),
         "bad_width_rows": bad_width,
         "duplicate_exact_rows": duplicate_rows,
-        "min_settlement": min(settlements),
-        "max_settlement": max(settlements),
-        "unique_settlement_dates": len(set(settlements)),
+        "min_settlement": min(r[0] for r in rows),
+        "max_settlement": max(r[0] for r in rows),
+        "unique_settlement_dates": len(set(r[0] for r in rows)),
+        "outside_expected_settlement_window_rows": outside_window,
         "empty_cusip_rows": empty_cusip,
         "empty_symbol_rows": empty_symbol,
         "negative_quantity_rows": invalid_qty,
@@ -121,6 +142,7 @@ def main() -> None:
         r["rows"] > 0
         and r["bad_width_rows"] == 0
         and r["duplicate_exact_rows"] == 0
+        and r["outside_expected_settlement_window_rows"] == 0
         and r["empty_cusip_rows"] == 0
         and r["empty_symbol_rows"] == 0
         and r["negative_quantity_rows"] == 0
