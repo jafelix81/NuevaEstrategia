@@ -1,26 +1,34 @@
 # Phase 39 — Form 4 PIT parser correction
 
-Date: 2026-10-26
+Date: 2026-10-27
 
-## Finding
-The prior Phase 39 feasibility audit reported 0/12 recovered SEC acceptance timestamps. This must **not** be interpreted as evidence that EDGAR lacks a reproducible point-in-time acceptance timestamp.
+## Findings
+The prior Phase 39 feasibility audit contained two distinct parser issues that must not be interpreted as data-source failures.
 
-Current SEC EDGAR submission-header examples expose:
+### 1. EDGAR acceptance timestamp
+The prior acceptance-time extractor searched for the wrong literal form. SEC EDGAR filing headers expose:
 
 `<ACCEPTANCE-DATETIME>YYYYMMDDHHMMSS</ACCEPTANCE-DATETIME>`
 
-The prior extractor searched for a different literal format (`ACCEPTANCE-DATETIME:`), producing a false negative.
+Therefore the earlier 0/12 acceptance-timestamp result was a parser false negative, not evidence that EDGAR lacks a reproducible PIT timestamp.
+
+### 2. SEC quarterly dataset delimiter
+The representative SEC insider-transaction files are TSV, not comma-delimited CSV. The previous schema audit used Python `csv.reader` with the default comma delimiter. Consequently the 2012 Q1 audit reported all required SUBMISSION fields as missing even though the ZIP download and file members were valid.
+
+The workflow has now been corrected to parse headers with `delimiter='\t'`.
 
 ## Consequence
-The PIT gate remains technically feasible in principle, but Form 4 is still **not production-feasible for frozen-universe stock selection** under the current evidence because historical security coverage was only approximately 54.6% (2016 Q1), 65.4% (2020 Q1), 76.4% (2024 Q1), and 83.3% (2026 Q3).
+The Phase 39 actual-file schema/history gate is not yet passed because the corrected workflow must execute successfully before the schema result is accepted.
 
-Do not run a return/OOS test on the reduced and changing universe merely to obtain an alpha result.
+The PIT gate remains conceptually feasible through EDGAR acceptance datetime. However, the frozen-universe security-coverage constraint remains binding: prior research measured approximately 54.6% (2016 Q1), 65.4% (2020 Q1), 76.4% (2024 Q1), and 83.3% (2026 Q3) coverage. Those figures are insufficient for a clean frozen-universe alpha test if the missing coverage is changing through time.
 
 ## Required resurrection test
-1. Correct acceptance-header parsing and verify on a historical sample.
-2. Re-measure frozen-universe coverage after issuer/CIK mapping.
-3. Keep transaction-level PIT based on EDGAR acceptance time, not quarterly dataset publication time.
-4. Only proceed to alpha testing if coverage passes the frozen-universe gate.
+1. Run the corrected TSV schema audit on representative historical periods.
+2. Reconstruct accession-level EDGAR acceptance timestamps on a historical sample.
+3. Re-measure frozen-universe issuer/CIK/security coverage.
+4. Require stable, ex-ante coverage before any return/OOS test.
+5. If coverage fails, archive/kills the hypothesis for the frozen universe rather than testing a changing subset.
 
 ## Status
-PIT issue corrected conceptually; coverage gate remains the binding feasibility constraint. No strategy change authorized.
+**ACTUAL-FILE SCHEMA GATE — RETRY PENDING.**
+No strategy change authorized. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
