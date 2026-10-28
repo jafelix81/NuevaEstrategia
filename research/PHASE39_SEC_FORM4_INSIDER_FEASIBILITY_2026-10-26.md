@@ -68,5 +68,28 @@ H4: insider activity may predict returns only because it follows prior returns; 
 - Signal is explained by prior returns/volume/volatility.
 - Apparent alpha exists only in-sample or fails chronological OOS/bootstrap discipline.
 
+## Latest Phase 35 crosswalk result — 2026-10-28
+Run `40644893540` completed successfully and produced artifact `phase35-13dg-pit-event-crosswalk-audit` (581,390 bytes).
+
+The actual audit covered the frozen 335-name universe using issuer-specific SEC submissions plus a historical CIK crosswalk:
+- 307 CIKs selected;
+- 27 unresolved tickers;
+- 20,266 candidate filings;
+- 19,721 resolved filings across 303 issuers;
+- 14,219 amendments;
+- 545 document-resolution errors, predominantly SEC HTTP 429 responses;
+- **0 resolved `event_date` values**.
+
+The parser's own output correctly records `filing_date` as the PIT knowledge date. The apparent `event_date_available: 19721` in its field-coverage counter is a counting artifact because the counter counts boolean `False` as a non-null value; the actual event-date count is zero. The extraction pattern currently searches only for the literal `DATE OF EVENT WHICH REQUIRES FILING` label, which is not robust across the heterogeneous 13D/13G document formats encountered.
+
+### Decision
+13D/13G is **not authorized for alpha testing yet**. The current result is a parser/document-format failure, not evidence for or against the economic hypothesis. Because event/report-date extraction is incomplete and SEC archive requests also generated material 429 errors, the source does not currently satisfy the reproducible historical-event gate needed for a clean security-level test.
+
+The correct next action is either a robust structured/XML-aware extraction of event/report dates with rate-limit controls, or archival/secondary official SEC data that supplies those fields reproducibly. No return test should be built on the current 13D/13G output.
+
 ## Status
-**SCHEMA/HISTORY GATE PASSED. PIT JOIN GATE PENDING. No return test or strategy change authorized yet.**
+**Form 4: SCHEMA/HISTORY GATE PASSED; PIT JOIN GATE PENDING.**
+
+**13D/13G: DOCUMENT-EXTRACTION GATE FAILED/PENDING REPAIR; NO ALPHA TEST AUTHORIZED.**
+
+The frozen `F80_TOP20_PARTIAL50_BASELINE_C20` remains unchanged.
