@@ -1,0 +1,35 @@
+name: Phase 43 - SEC FTD actual-file audit
+
+on:
+  push:
+    branches: [phase43-sec-ftd-actual-file-audit]
+    paths:
+      - 'research/phase43_sec_ftd_actual_file_audit.py'
+      - '.github/workflows/fase43_sec_ftd_actual_file_audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run SEC FTD actual-file audit
+        run: python research/phase43_sec_ftd_actual_file_audit.py
+
+      - name: Upload audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase43-sec-ftd-actual-file-audit
+          path: ftd_actual_file_audit.json
+          if-no-files-found: error
