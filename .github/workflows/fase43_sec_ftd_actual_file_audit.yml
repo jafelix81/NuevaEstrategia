@@ -6,6 +6,11 @@ on:
     paths:
       - 'research/phase43_sec_ftd_actual_file_audit.py'
       - '.github/workflows/fase43_sec_ftd_actual_file_audit.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'research/phase43_sec_ftd_actual_file_audit.py'
+      - '.github/workflows/fase43_sec_ftd_actual_file_audit.yml'
   workflow_dispatch:
 
 permissions:
