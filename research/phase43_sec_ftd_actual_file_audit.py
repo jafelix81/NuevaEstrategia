@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
-"""Phase 43: SEC FTD actual-file feasibility audit.
-
-Downloads two official SEC files (2018 and 2026), validates the raw schema,
-and records PIT metadata separately from settlement dates. This is a gate only:
-no alpha construction or portfolio testing occurs here.
-"""
+"""Phase 43: SEC FTD actual-file feasibility audit."""
 
 from __future__ import annotations
 
@@ -23,16 +18,11 @@ FILES = {
     "2026_second_half": "https://www.sec.gov/files/data/fails-deliver-data/cnsfails202609b.zip",
 }
 
-# Conservative knowledge dates required by the research protocol. The SEC says
-# the first half is available at month-end and the second half around the 15th
-# of the following month, without guaranteeing an exact posting date.
 KNOWLEDGE_DATES = {
     "2018_first_half": "2018-01-31",
     "2026_second_half": "2026-10-15",
 }
 
-# Expected settlement windows for the representative files. These are audit
-# constraints only; they do not define any trading signal.
 SETTLEMENT_WINDOWS = {
     "2018_first_half": (date(2018, 1, 1), date(2018, 1, 15)),
     "2026_second_half": (date(2026, 9, 15), date(2026, 9, 30)),
@@ -42,23 +32,18 @@ EXPECTED_COLUMNS = ("SETTLEMENT DATE", "CUSIP", "SYMBOL", "QUANTITY (FAILS)", "D
 
 
 def download(url: str) -> bytes:
-    req = urllib.request.Request(
-        url,
-        headers={"User-Agent": "NuevaEstrategia research audit contact research@example.com"},
-    )
+    req = urllib.request.Request(url, headers={"User-Agent": "NuevaEstrategia research audit contact research@example.com"})
     with urllib.request.urlopen(req, timeout=60) as response:
         return response.read()
 
 
 def parse_settlement_date(value: str) -> date:
-    """Parse SEC settlement dates in YYYYMMDD or separated YYYY-MM-DD form."""
     value = value.strip()
     if re.fullmatch(r"\d{8}", value):
         return date(int(value[:4]), int(value[4:6]), int(value[6:8]))
     parts = re.split(r"[-/]", value)
     if len(parts) == 3 and all(p.isdigit() for p in parts):
-        y, m, d = map(int, parts)
-        return date(y, m, d)
+        return date(*map(int, parts))
     raise ValueError(f"unsupported settlement date format: {value!r}")
 
 
@@ -70,9 +55,6 @@ def parse_zip(payload: bytes):
         raw = zf.read(names[0])
     text = raw.decode("utf-8-sig", errors="replace")
     lines = [line for line in text.splitlines() if line.strip()]
-    if not lines:
-        raise ValueError("empty text file")
-
     reader = csv.reader(lines, delimiter="|")
     rows = list(reader)
     header = tuple(x.strip().upper() for x in rows[0])
@@ -80,29 +62,25 @@ def parse_zip(payload: bytes):
         raise ValueError(f"unexpected schema: {header!r}")
 
     data = rows[1:]
-    bad_width = sum(len(r) != 6 for r in data)
+    malformed = [(i + 2, row) for i, row in enumerate(data) if len(row) != 6]
     parsed = []
     for row in data:
         if len(row) != 6:
             continue
         settlement, cusip, symbol, quantity, description, price = [x.strip() for x in row]
-        try:
-            dt = parse_settlement_date(settlement)
-        except Exception as exc:
-            raise ValueError(f"bad settlement date {settlement!r}: {exc}")
+        dt = parse_settlement_date(settlement)
         q = int(quantity.replace(",", ""))
         p = None if price == "." else float(price.replace(",", ""))
         parsed.append((dt.isoformat(), cusip, symbol, q, description, p))
-
-    return names[0], parsed, bad_width
+    return names[0], parsed, malformed
 
 
 def audit_one(label: str, url: str) -> dict:
     payload = download(url)
-    member, rows, bad_width = parse_zip(payload)
+    member, rows, malformed = parse_zip(payload)
     settlements = [date.fromisoformat(r[0]) for r in rows]
-    min_expected, max_expected = SETTLEMENT_WINDOWS[label]
-    outside_window = sum(not (min_expected <= dt <= max_expected) for dt in settlements)
+    lo, hi = SETTLEMENT_WINDOWS[label]
+    outside_window = sum(not (lo <= dt <= hi) for dt in settlements)
     duplicate_keys = Counter((r[0], r[1], r[2], r[3], r[4], r[5]) for r in rows)
     duplicate_rows = sum(v - 1 for v in duplicate_keys.values() if v > 1)
     empty_cusip = sum(not r[1] for r in rows)
@@ -115,7 +93,8 @@ def audit_one(label: str, url: str) -> dict:
         "zip_member": member,
         "bytes": len(payload),
         "rows": len(rows),
-        "bad_width_rows": bad_width,
+        "bad_width_rows": len(malformed),
+        "bad_width_samples": [{"line_number": n, "fields": row} for n, row in malformed[:10]],
         "duplicate_exact_rows": duplicate_rows,
         "min_settlement": min(r[0] for r in rows),
         "max_settlement": max(r[0] for r in rows),
@@ -131,13 +110,7 @@ def audit_one(label: str, url: str) -> dict:
 
 
 def main() -> None:
-    results = []
-    for label, url in FILES.items():
-        results.append(audit_one(label, url))
-
-    # Gate conditions deliberately conservative: schema and types must be clean;
-    # identity fields should be substantially populated; duplicates cannot be
-    # silently accepted; settlement dates must fall within the named period.
+    results = [audit_one(label, url) for label, url in FILES.items()]
     passed = all(
         r["rows"] > 0
         and r["bad_width_rows"] == 0
@@ -148,21 +121,18 @@ def main() -> None:
         and r["negative_quantity_rows"] == 0
         for r in results
     )
-
     report = {
         "phase": "43",
         "status": "PASS_ACTUAL_FILE_SCHEMA_GATE" if passed else "FAIL_ACTUAL_FILE_SCHEMA_GATE",
         "generated_on": date.today().isoformat(),
         "files": results,
         "interpretation": (
-            "Schema/PIT parser gate passed. Proceed to frozen-universe identity coverage and continuity audit; "
-            "do not interpret FTD as short selling."
-            if passed
-            else "Do not proceed to alpha research until parser/schema defects are resolved."
+            "Schema/PIT parser gate passed. Proceed to frozen-universe identity coverage and continuity audit; do not interpret FTD as short selling."
+            if passed else
+            "Do not proceed to alpha research until parser/schema defects are resolved. Malformed-row samples are retained for diagnosis."
         ),
     }
-    out = Path("ftd_actual_file_audit.json")
-    out.write_text(json.dumps(report, indent=2), encoding="utf-8")
+    Path("ftd_actual_file_audit.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
     print(json.dumps(report, indent=2))
     if not passed:
         raise SystemExit(1)
