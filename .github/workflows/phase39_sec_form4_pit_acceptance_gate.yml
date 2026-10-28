@@ -24,7 +24,6 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p audit
-          # SEC requests a descriptive User-Agent with a contact email.
           UA='NuevaEstrategia research jafelix@gmail.com'
           BASE='https://www.sec.gov/Archives/edgar/data'
 
@@ -43,7 +42,7 @@ jobs:
               --connect-timeout 30 --max-time 120 -A "$UA" \
               -H 'Accept: text/plain, */*' "$url" -o "$out"
             test -s "$out"
-            grep -Eiq 'ACCEPTANCE-DATETIME|FILING-DATE|ACCESSION-NUMBER' "$out"
+            grep -Eiq 'ACCEPTANCE[- ]DATETIME|FILING[- ]DATE|ACCESSION[- ]NUMBER' "$out"
           done
 
       - name: Parse and validate acceptance datetime
@@ -54,15 +53,31 @@ jobs:
           import json, re
           from pathlib import Path
 
+          def first(text, patterns):
+              for pattern in patterns:
+                  m = re.search(pattern, text, re.I | re.M)
+                  if m:
+                      return m.group(1).strip()
+              return None
+
           results=[]
           for p in sorted(Path('audit').glob('*.txt')):
               text=p.read_text(encoding='latin-1',errors='replace')
-              def first(pattern):
-                  m=re.search(pattern,text,re.I)
-                  return m.group(1).strip() if m else None
-              accession=first(r'<ACCESSION-NUMBER>\s*([^\s<]+)')
-              filing_date=first(r'<FILING-DATE>\s*([^\s<]+)')
-              acceptance=first(r'<ACCEPTANCE-DATETIME>\s*([^\s<]+)')
+              accession=first(text, [
+                  r'<ACCESSION-NUMBER>\s*([^\s<]+)',
+                  r'^\s*ACCESSION[- ]NUMBER\s*[:=]\s*([^\s]+)',
+                  r'^\s*ACCESSION[- ]NUMBER\s+([^\s]+)',
+              ])
+              filing_date=first(text, [
+                  r'<FILING-DATE>\s*([^\s<]+)',
+                  r'^\s*FILING[- ]DATE\s*[:=]\s*([^\s]+)',
+                  r'^\s*FILING[- ]DATE\s+([^\s]+)',
+              ])
+              acceptance=first(text, [
+                  r'<ACCEPTANCE-DATETIME>\s*([^\s<]+)',
+                  r'^\s*ACCEPTANCE[- ]DATETIME\s*[:=]\s*([^\s]+)',
+                  r'^\s*ACCEPTANCE[- ]DATETIME\s+([^\s]+)',
+              ])
               results.append({'file':str(p),'accession':accession,'filing_date':filing_date,'acceptance_datetime':acceptance})
 
           if len(results) != 2 or any(not r['accession'] or not r['acceptance_datetime'] for r in results):
