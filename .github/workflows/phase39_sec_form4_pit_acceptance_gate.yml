@@ -24,12 +24,10 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p audit
-          UA='NuevaEstrategia/Phase39 PIT feasibility audit research'
+          # SEC requests a descriptive User-Agent with a contact email.
+          UA='NuevaEstrategia research jafelix@gmail.com'
           BASE='https://www.sec.gov/Archives/edgar/data'
 
-          # Representative accessions proven present in the actual quarterly datasets:
-          # 2012 Q1: CIK 920371 / accession 0000920371-12-000007
-          # 2026 Q3: CIK 1709048 / accession 0001709048-26-000199
           for spec in \
             '920371 0000920371-12-000007 2012q1' \
             '1709048 0001709048-26-000199 2026q3'; do
