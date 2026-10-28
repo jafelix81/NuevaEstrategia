@@ -1,0 +1,86 @@
+name: Phase 39 - SEC Form 4 accession PIT acceptance gate
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/phase39_sec_form4_pit_acceptance_gate.yml'
+      - 'research/PHASE39_SEC_FORM4_INSIDER_FEASIBILITY_2026-10-26.md'
+  workflow_dispatch:
+
+concurrency:
+  group: phase39-sec-form4-pit-acceptance-gate
+  cancel-in-progress: true
+
+jobs:
+  pit-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Recover accession acceptance timestamps from EDGAR filing text
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p audit
+          UA='NuevaEstrategia/Phase39 PIT feasibility audit research'
+          BASE='https://www.sec.gov/Archives/edgar/data'
+
+          # Representative accessions proven present in the actual quarterly datasets:
+          # 2012 Q1: CIK 920371 / accession 0000920371-12-000007
+          # 2026 Q3: CIK 1709048 / accession 0001709048-26-000199
+          for spec in \
+            '920371 0000920371-12-000007 2012q1' \
+            '1709048 0001709048-26-000199 2026q3'; do
+            set -- $spec
+            cik="$1"
+            acc="$2"
+            label="$3"
+            nodash="${acc//-/}"
+            url="$BASE/$cik/$nodash/$acc.txt"
+            out="audit/${label}_${acc}.txt"
+            echo "Downloading $url"
+            curl --fail --show-error --location --retry 6 --retry-all-errors --retry-delay 5 \
+              --connect-timeout 30 --max-time 120 -A "$UA" \
+              -H 'Accept: text/plain, */*' "$url" -o "$out"
+            test -s "$out"
+            grep -Eiq 'ACCEPTANCE-DATETIME|FILING-DATE|ACCESSION-NUMBER' "$out"
+          done
+
+      - name: Parse and validate acceptance datetime
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, re
+          from pathlib import Path
+
+          results=[]
+          for p in sorted(Path('audit').glob('*.txt')):
+              text=p.read_text(encoding='latin-1',errors='replace')
+              def first(pattern):
+                  m=re.search(pattern,text,re.I)
+                  return m.group(1).strip() if m else None
+              accession=first(r'<ACCESSION-NUMBER>\s*([^\s<]+)')
+              filing_date=first(r'<FILING-DATE>\s*([^\s<]+)')
+              acceptance=first(r'<ACCEPTANCE-DATETIME>\s*([^\s<]+)')
+              results.append({'file':str(p),'accession':accession,'filing_date':filing_date,'acceptance_datetime':acceptance})
+
+          if len(results) != 2 or any(not r['accession'] or not r['acceptance_datetime'] for r in results):
+              raise SystemExit(f'PIT gate failed: {json.dumps(results,indent=2)}')
+
+          for r in results:
+              if not re.fullmatch(r'\d{14}', r['acceptance_datetime']):
+                  raise SystemExit(f'Invalid acceptance datetime: {r}')
+
+          Path('audit/pit_acceptance_report.json').write_text(json.dumps(results,indent=2),encoding='utf-8')
+          print(json.dumps(results,indent=2))
+          PY
+
+      - name: Upload PIT gate artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase39-sec-form4-pit-acceptance-gate
+          path: audit/
+          if-no-files-found: error
