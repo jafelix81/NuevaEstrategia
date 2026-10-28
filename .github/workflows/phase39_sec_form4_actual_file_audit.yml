@@ -42,7 +42,7 @@ jobs:
             unzip -t "$out" >/dev/null
           done
 
-      - name: Inspect ZIP schemas and coverage fields
+      - name: Inspect ZIP schemas and required fields
         shell: bash
         run: |
           set -euo pipefail
@@ -50,20 +50,28 @@ jobs:
           import csv, json, zipfile
           from pathlib import Path
 
+          required = {
+              'SUBMISSION.tsv': {'ACCESSION_NUMBER','FILING_DATE','ISSUERCIK','ISSUERNAME','ISSUERTRADINGSYMBOL'},
+              'NONDERIV_TRANS.tsv': {'ACCESSION_NUMBER','TRANS_DATE','TRANS_CODE','TRANS_SHARES','TRANS_PRICEPERSHARE','TRANS_ACQUIRED_DISP_CD'},
+              'REPORTINGOWNER.tsv': {'ACCESSION_NUMBER','RPTOWNERCIK','RPTOWNERNAME','RPTOWNER_RELATIONSHIP'},
+          }
           out=[]
           for fn in ['audit/2012q1_form345.zip','audit/2026q3_form345.zip']:
-              z=zipfile.ZipFile(fn)
-              names=z.namelist()
-              rec={'file':fn,'members':names}
-              for n in names:
-                  low=n.lower()
-                  if low.endswith('.csv') and any(k in low for k in ['submission','nonderiv_trans','reportingowner','metadata']):
-                      with z.open(n) as f:
-                          raw=f.read(200000).decode('utf-8-sig',errors='replace')
-                      lines=raw.splitlines()
-                      if lines:
-                          rec.setdefault('csv_headers',{})[n]=next(csv.reader([lines[0]]))
-              out.append(rec)
+              with zipfile.ZipFile(fn) as z:
+                  names=z.namelist()
+                  rec={'file':fn,'members':names,'headers':{},'required_fields_ok':{}}
+                  for target, req in required.items():
+                      if target not in names:
+                          raise SystemExit(f'{fn}: missing required member {target}')
+                      with z.open(target) as f:
+                          header=f.readline().decode('utf-8-sig',errors='replace').rstrip('\r\n')
+                      cols=set(next(csv.reader([header]), []))
+                      rec['headers'][target]=sorted(cols)
+                      missing=sorted(req-cols)
+                      rec['required_fields_ok'][target]=not missing
+                      if missing:
+                          raise SystemExit(f'{fn}: {target} missing fields {missing}')
+                  out.append(rec)
           Path('audit/schema_report.json').write_text(json.dumps(out,indent=2),encoding='utf-8')
           print(json.dumps(out,indent=2)[:30000])
           PY
