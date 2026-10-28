@@ -44,7 +44,7 @@ Key schema fields confirmed in both periods:
 This establishes genuine long-history data availability and the fields required to construct economically meaningful insider-transaction hypotheses. It also demonstrates schema continuity between 2012 and 2026 for the core non-derivative transaction table.
 
 ## PIT consequence
-The actual-file audit **passes schema/history feasibility but does not yet pass the final PIT gate**. The next step is a reproducible accession-level join from `SUBMISSION.tsv` to EDGAR filing metadata to recover acceptance datetime. Until that is demonstrated, any return test must not use intraday timing and should use a conservative next-trading-session implementation only if the filing-date boundary is explicitly defined.
+The actual-file audit **passes schema/history feasibility**. The final accession-level PIT gate is now also **PASSED** after correcting the EDGAR header parser.
 
 ## Hypotheses — explicitly not assumed to be "smart money"
 H1: discretionary open-market insider purchases contain incremental information beyond F80/LTM.
@@ -87,19 +87,23 @@ The parser's own output correctly records `filing_date` as the PIT knowledge dat
 
 The correct next action is either a robust structured/XML-aware extraction of event/report dates with rate-limit controls, or archival/secondary official SEC data that supplies those fields reproducibly. No return test should be built on the current 13D/13G output.
 
-## Phase 39 PIT parser correction — 2026-10-28
+## Phase 39 PIT parser correction and final gate — 2026-10-28
 The first EDGAR PIT gate run (`40667764722`) successfully downloaded both representative filing texts and recovered valid 14-digit acceptance timestamps:
 - 2012 Q1 representative filing: `20120131121051`;
 - 2026 Q3 representative filing: `20260731164155`.
 
-The run nevertheless failed because the parser expected XML tags such as `<ACCESSION-NUMBER>` and `<ACCEPTANCE-DATETIME>`. The actual EDGAR text header uses label-style fields in these representative filings, so accession and filing-date extraction returned null even though acceptance datetime was present. This is a **parser-format defect, not a source/PIT failure**.
+That run initially failed only because the parser expected XML tags such as `<ACCESSION-NUMBER>` and `<ACCEPTANCE-DATETIME>`, while these EDGAR text headers use label-style fields. This was a parser-format defect, not a source/PIT failure.
 
-The Phase 39 workflow was corrected in commit `9b9f128d729a5ce6a539075514a921f13006305` to accept both XML-tagged and label-style EDGAR header forms for accession, filing date and acceptance datetime. The workflow retains the SEC descriptive User-Agent, retry policy, concurrency protection, and exact 14-digit acceptance validation.
+The workflow was corrected in commit `9b9f128d729a5ce6a539075514a921f13006305` to accept both XML-tagged and label-style EDGAR header forms. Corrected run `40671502886` completed successfully and produced artifact `phase39-sec-form4-pit-acceptance-gate`.
 
-No alpha test is authorized yet. The corrected workflow must pass on both historical representatives before the accession-level PIT gate is considered complete.
+The artifact confirms both accession numbers and acceptance timestamps:
+- `0000920371-12-000007` → acceptance `20120131121051`;
+- `0001709048-26-000199` → acceptance `20260731164155`.
+
+This establishes that an accession-level EDGAR acceptance-time join is technically reproducible across both a 2012 and a 2026 representative filing. The PIT boundary is therefore now suitable for a historical Form 4 test, subject to the remaining frozen-universe mapping/coverage gate.
 
 ## Status
-**Form 4: SCHEMA/HISTORY GATE PASSED; PIT JOIN GATE CORRECTED AND PENDING RE-RUN.**
+**Form 4: SCHEMA/HISTORY GATE PASSED; ACCESSION-LEVEL PIT GATE PASSED. NEXT: FROZEN-UNIVERSE SECURITY/TICKER COVERAGE + TRANSACTION-CODE FILTERING.**
 
 **13D/13G: DOCUMENT-EXTRACTION GATE FAILED/PENDING REPAIR; NO ALPHA TEST AUTHORIZED.**
 
