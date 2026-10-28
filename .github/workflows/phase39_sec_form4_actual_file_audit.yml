@@ -65,7 +65,7 @@ jobs:
                           raise SystemExit(f'{fn}: missing required member {target}')
                       with z.open(target) as f:
                           header=f.readline().decode('utf-8-sig',errors='replace').rstrip('\r\n')
-                      cols=set(next(csv.reader([header]), []))
+                      cols=set(next(csv.reader([header], delimiter='\t'), []))
                       rec['headers'][target]=sorted(cols)
                       missing=sorted(req-cols)
                       rec['required_fields_ok'][target]=not missing
