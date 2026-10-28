@@ -35,7 +35,7 @@ KNOWLEDGE_DATES = {
 # constraints only; they do not define any trading signal.
 SETTLEMENT_WINDOWS = {
     "2018_first_half": (date(2018, 1, 1), date(2018, 1, 15)),
-    "2026_second_half": (date(2026, 9, 16), date(2026, 9, 30)),
+    "2026_second_half": (date(2026, 9, 15), date(2026, 9, 30)),
 }
 
 EXPECTED_COLUMNS = ("SETTLEMENT DATE", "CUSIP", "SYMBOL", "QUANTITY (FAILS)", "DESCRIPTION", "PRICE")
