@@ -25,19 +25,29 @@ jobs:
           set -euo pipefail
           mkdir -p audit
           UA='NuevaEstrategia/Phase39 data-feasibility audit contact research'
-          curl -fL --retry 4 --retry-delay 3 -A "$UA" \
-            'https://www.sec.gov/files/datastandardsinnovation/data/insider-transactions-data-sets/2026q3_form345.zip' \
-            -o audit/2026q3_form345.zip
-          curl -fL --retry 4 --retry-delay 3 -A "$UA" \
-            'https://www.sec.gov/files/structureddata/data/insider-transactions-data-sets/2012q1_form345.zip' \
-            -o audit/2012q1_form345.zip
+          BASE='https://www.sec.gov/files'
+          for spec in \
+            'datastandardsinnovation/data/insider-transactions-data-sets/2026q3_form345.zip 2026q3_form345.zip' \
+            'structureddata/data/insider-transactions-data-sets/2012q1_form345.zip 2012q1_form345.zip'; do
+            set -- $spec
+            url="$BASE/$1"
+            out="audit/$2"
+            echo "Downloading $url"
+            curl --fail --show-error --location --retry 6 --retry-all-errors --retry-delay 5 \
+              --connect-timeout 30 --max-time 180 -A "$UA" \
+              -H 'Accept: application/zip, application/octet-stream, */*' \
+              -H 'Accept-Encoding: gzip, deflate' "$url" -o "$out"
+            test -s "$out"
+            file "$out"
+            unzip -t "$out" >/dev/null
+          done
 
       - name: Inspect ZIP schemas and coverage fields
         shell: bash
         run: |
           set -euo pipefail
           python - <<'PY'
-          import csv, io, json, os, zipfile
+          import csv, json, zipfile
           from pathlib import Path
 
           out=[]
@@ -55,7 +65,7 @@ jobs:
                           rec.setdefault('csv_headers',{})[n]=next(csv.reader([lines[0]]))
               out.append(rec)
           Path('audit/schema_report.json').write_text(json.dumps(out,indent=2),encoding='utf-8')
-          print(json.dumps(out,indent=2)[:20000])
+          print(json.dumps(out,indent=2)[:30000])
           PY
 
       - name: Upload audit artifact
