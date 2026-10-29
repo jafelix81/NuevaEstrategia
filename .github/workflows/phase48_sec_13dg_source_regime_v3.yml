@@ -1,0 +1,25 @@
+name: Phase 48 - SEC 13D/13G source regime audit v3
+on:
+  push:
+    branches: [phase48-sec-13dg-feasibility-audit-v3]
+  workflow_dispatch:
+concurrency:
+  group: phase48-sec-13dg-source-regime-v3
+  cancel-in-progress: true
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run source-regime audit
+        run: python -u research/phase48_sec_13dg_source_regime_audit.py
+      - name: Upload audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase48-sec-13dg-source-regime-v3
+          path: phase48_sec_13dg_source_regime_audit/
+          if-no-files-found: error
