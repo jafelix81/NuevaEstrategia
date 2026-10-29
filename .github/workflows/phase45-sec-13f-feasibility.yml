@@ -1,0 +1,32 @@
+name: Phase 45 - SEC 13F feasibility audit
+
+on:
+  push:
+    branches:
+      - phase45-sec-13f-feasibility-audit
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run SEC 13F feasibility audit
+        run: python research/phase45_sec_13f_feasibility_audit.py
+      - name: Upload audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase45-sec-13f-feasibility-audit
+          path: sec_13f_feasibility_audit.json
+          if-no-files-found: warn
+          retention-days: 30
