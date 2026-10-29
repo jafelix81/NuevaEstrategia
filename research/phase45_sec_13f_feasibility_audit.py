@@ -4,6 +4,9 @@
 Data gate only. No alpha test and no production/baseline changes.
 Audits representative SEC public 13F datasets for historical continuity,
 structured schema, point-in-time fields and basic record coverage.
+
+SEC changed the structured-data dataset URL family in 2026. The current
+June-July-August 2026 release is used as the recent representative period.
 """
 from __future__ import annotations
 
@@ -17,7 +20,7 @@ from pathlib import Path
 
 DATASETS = {
     "2018_q1": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2018q1_form13f.zip",
-    "2026_q2": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2026q2_form13f.zip",
+    "2026_jun_jul_aug": "https://www.sec.gov/files/datastandardsinnovation/data/form-13f-data-sets/01jun2026-31aug2026_form13f.zip",
 }
 
 
@@ -39,19 +42,18 @@ def inspect_zip(payload: bytes) -> dict:
         files = [n for n in z.namelist() if not n.endswith("/")]
         csv_files = [n for n in files if n.lower().endswith((".csv", ".txt"))]
         samples = []
-        for name in csv_files[:12]:
+        for name in csv_files[:20]:
             raw = z.read(name)
             text = raw.decode("utf-8-sig", errors="replace")
             lines = [x for x in text.splitlines() if x.strip()]
             if not lines:
                 continue
-            # SEC datasets are comma-delimited in current flattened releases; detect conservatively.
             delim = "," if lines[0].count(",") >= lines[0].count("|") else "|"
             reader = csv.reader(lines[:3], delimiter=delim)
             rows = list(reader)
             header = [x.strip() for x in rows[0]] if rows else []
             samples.append({"file": name, "size_bytes": len(raw), "delimiter": delim, "columns": header[:80], "sample_rows": max(0, len(rows)-1)})
-        return {"file_count": len(files), "csv_or_txt_count": len(csv_files), "files": files[:50], "samples": samples}
+        return {"file_count": len(files), "csv_or_txt_count": len(csv_files), "files": files[:80], "samples": samples}
 
 
 def semantic_columns(samples: list[dict]) -> dict:
@@ -60,7 +62,7 @@ def semantic_columns(samples: list[dict]) -> dict:
         all_cols.extend(s.get("columns", []))
     n = {norm(x): x for x in all_cols}
     groups = {
-        "identity": ["CUSIP", "CUSIPNO", "ISSUERNAME", "ISSUERNAME"],
+        "identity": ["CUSIP", "CUSIPNO", "ISSUERNAME"],
         "position": ["VALUE", "SSHPRNAMT", "SHRSORPRNAMT", "SHARES", "PRNAMT"],
         "report_date": ["PERIODOFREPORT", "REPORTDATE", "REPORTPERIOD"],
         "filing_date": ["FILINGDATE", "FILEDDATE", "ACCEPTEDDATE", "ACCEPTED"],
