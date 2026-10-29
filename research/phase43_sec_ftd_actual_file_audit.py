@@ -29,6 +29,8 @@ SETTLEMENT_WINDOWS = {
 }
 
 EXPECTED_COLUMNS = ("SETTLEMENT DATE", "CUSIP", "SYMBOL", "QUANTITY (FAILS)", "DESCRIPTION", "PRICE")
+TRAILER_COUNT_RE = re.compile(r"^Trailer record count\s+(\d+)\s*$", re.I)
+TRAILER_QTY_RE = re.compile(r"^Trailer total quantity of shares\s+(\d+)\s*$", re.I)
 
 
 def download(url: str) -> bytes:
@@ -62,22 +64,35 @@ def parse_zip(payload: bytes):
         raise ValueError(f"unexpected schema: {header!r}")
 
     data = rows[1:]
-    malformed = [(i + 2, row) for i, row in enumerate(data) if len(row) != 6]
     parsed = []
-    for row in data:
+    malformed = []
+    trailer_count = None
+    trailer_total_quantity = None
+    for i, row in enumerate(data, start=2):
+        if len(row) == 1:
+            text_row = row[0].strip()
+            m_count = TRAILER_COUNT_RE.match(text_row)
+            m_qty = TRAILER_QTY_RE.match(text_row)
+            if m_count:
+                trailer_count = int(m_count.group(1))
+                continue
+            if m_qty:
+                trailer_total_quantity = int(m_qty.group(1))
+                continue
         if len(row) != 6:
+            malformed.append((i, row))
             continue
         settlement, cusip, symbol, quantity, description, price = [x.strip() for x in row]
         dt = parse_settlement_date(settlement)
         q = int(quantity.replace(",", ""))
         p = None if price == "." else float(price.replace(",", ""))
         parsed.append((dt.isoformat(), cusip, symbol, q, description, p))
-    return names[0], parsed, malformed
+    return names[0], parsed, malformed, trailer_count, trailer_total_quantity
 
 
 def audit_one(label: str, url: str) -> dict:
     payload = download(url)
-    member, rows, malformed = parse_zip(payload)
+    member, rows, malformed, trailer_count, trailer_total_quantity = parse_zip(payload)
     settlements = [date.fromisoformat(r[0]) for r in rows]
     lo, hi = SETTLEMENT_WINDOWS[label]
     outside_window = sum(not (lo <= dt <= hi) for dt in settlements)
@@ -87,6 +102,7 @@ def audit_one(label: str, url: str) -> dict:
     empty_symbol = sum(not r[2] for r in rows)
     invalid_qty = sum(r[3] < 0 for r in rows)
     prices_available = sum(r[5] is not None for r in rows)
+    quantity_sum = sum(r[3] for r in rows)
     return {
         "label": label,
         "url": url,
@@ -95,6 +111,10 @@ def audit_one(label: str, url: str) -> dict:
         "rows": len(rows),
         "bad_width_rows": len(malformed),
         "bad_width_samples": [{"line_number": n, "fields": row} for n, row in malformed[:10]],
+        "trailer_record_count": trailer_count,
+        "trailer_total_quantity": trailer_total_quantity,
+        "trailer_count_matches_rows": trailer_count == len(rows) if trailer_count is not None else False,
+        "trailer_quantity_matches_rows": trailer_total_quantity == quantity_sum if trailer_total_quantity is not None else False,
         "duplicate_exact_rows": duplicate_rows,
         "min_settlement": min(r[0] for r in rows),
         "max_settlement": max(r[0] for r in rows),
@@ -114,6 +134,8 @@ def main() -> None:
     passed = all(
         r["rows"] > 0
         and r["bad_width_rows"] == 0
+        and r["trailer_count_matches_rows"]
+        and r["trailer_quantity_matches_rows"]
         and r["duplicate_exact_rows"] == 0
         and r["outside_expected_settlement_window_rows"] == 0
         and r["empty_cusip_rows"] == 0
@@ -127,9 +149,9 @@ def main() -> None:
         "generated_on": date.today().isoformat(),
         "files": results,
         "interpretation": (
-            "Schema/PIT parser gate passed. Proceed to frozen-universe identity coverage and continuity audit; do not interpret FTD as short selling."
+            "Schema/PIT parser gate passed. Trailer metadata is explicitly validated. Proceed to frozen-universe identity coverage and continuity audit; do not interpret FTD as short selling."
             if passed else
-            "Do not proceed to alpha research until parser/schema defects are resolved. Malformed-row samples are retained for diagnosis."
+            "Do not proceed to alpha research until parser/schema defects are resolved. Recognized SEC trailer metadata is retained as validation; unexpected malformed rows remain blocking."
         ),
     }
     Path("ftd_actual_file_audit.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
