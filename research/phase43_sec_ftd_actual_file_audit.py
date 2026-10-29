@@ -100,6 +100,7 @@ def audit_one(label: str, url: str) -> dict:
     duplicate_rows = sum(v - 1 for v in duplicate_keys.values() if v > 1)
     empty_cusip = sum(not r[1] for r in rows)
     empty_symbol = sum(not r[2] for r in rows)
+    empty_symbol_without_cusip = sum((not r[2]) and (not r[1]) for r in rows)
     invalid_qty = sum(r[3] < 0 for r in rows)
     prices_available = sum(r[5] is not None for r in rows)
     quantity_sum = sum(r[3] for r in rows)
@@ -122,6 +123,7 @@ def audit_one(label: str, url: str) -> dict:
         "outside_expected_settlement_window_rows": outside_window,
         "empty_cusip_rows": empty_cusip,
         "empty_symbol_rows": empty_symbol,
+        "empty_symbol_without_cusip_rows": empty_symbol_without_cusip,
         "negative_quantity_rows": invalid_qty,
         "price_available_pct": round(100 * prices_available / len(rows), 3),
         "knowledge_date": KNOWLEDGE_DATES[label],
@@ -139,7 +141,7 @@ def main() -> None:
         and r["duplicate_exact_rows"] == 0
         and r["outside_expected_settlement_window_rows"] == 0
         and r["empty_cusip_rows"] == 0
-        and r["empty_symbol_rows"] == 0
+        and r["empty_symbol_without_cusip_rows"] == 0
         and r["negative_quantity_rows"] == 0
         for r in results
     )
@@ -149,9 +151,9 @@ def main() -> None:
         "generated_on": date.today().isoformat(),
         "files": results,
         "interpretation": (
-            "Schema/PIT parser gate passed. Trailer metadata is explicitly validated. Proceed to frozen-universe identity coverage and continuity audit; do not interpret FTD as short selling."
+            "Schema/PIT parser gate passed. Trailer metadata is explicitly validated. Missing ticker is non-blocking when CUSIP is present; CUSIP remains required for deterministic identity coverage. Proceed to frozen-universe identity coverage and continuity audit; do not interpret FTD as short selling."
             if passed else
-            "Do not proceed to alpha research until parser/schema defects are resolved. Recognized SEC trailer metadata is retained as validation; unexpected malformed rows remain blocking."
+            "Do not proceed to alpha research until parser/schema defects are resolved. Recognized SEC trailer metadata is retained as validation; malformed rows and records missing both CUSIP and ticker remain blocking."
         ),
     }
     Path("ftd_actual_file_audit.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
