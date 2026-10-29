@@ -53,16 +53,17 @@ def pd(x):
 
 def norm(x): return ' '.join(str(x).upper().replace('SCHEDULE ','SC ').split())
 
-def clean(s): return re.sub(r'\\s+',' ',re.sub(r'<[^>]+>',' ',s.decode('utf-8','ignore') if isinstance(s,bytes) else str(s))).strip()
+def clean(s): return re.sub(r'\s+',' ',re.sub(r'<[^>]+>',' ',s.decode('utf-8','ignore') if isinstance(s,bytes) else str(s))).strip()
 
 def parse_doc(raw):
-    text=clean(raw)
-    xml=('<?xml' in text[:5000] or '<edgarSubmission' in text[:20000] or '<formData' in text[:20000])
-    cusip=bool(re.search(r'<issuerCusip>[^<]+</issuerCusip>',text,re.I))
-    issuer_cik=bool(re.search(r'<issuerCik>[^<]+</issuerCik>',text,re.I))
-    event=bool(re.search(r'(eventDateRequiresFilingThisStatement|DATE OF EVENT WHICH REQUIRES FILING)',text,re.I))
-    owner=bool(re.search(r'(reportingPersonName|NAME OF REPORTING PERSON)',text,re.I))
-    pct=bool(re.search(r'(percentOfClass|PERCENT OF CLASS)',text,re.I))
+    raw_text=raw.decode('utf-8','ignore') if isinstance(raw,bytes) else str(raw)
+    text=clean(raw_text)
+    xml=('<?xml' in raw_text[:5000] or '<edgarSubmission' in raw_text[:20000] or '<formData' in raw_text[:20000] or '<ownershipDocument' in raw_text[:20000])
+    cusip=bool(re.search(r'<issuerCusip>\s*[^<\s]+\s*</issuerCusip>',raw_text,re.I)) or bool(re.search(r'CUSIP(?:\s+NO\.?|\s*NUMBER)?\s*[:#]?\s*[A-Z0-9]{6,12}',text,re.I))
+    issuer_cik=bool(re.search(r'<issuerCik>\s*[^<\s]+\s*</issuerCik>',raw_text,re.I)) or bool(re.search(r'CENTRAL INDEX KEY\s*[:#]?\s*\d{7,10}',text,re.I))
+    event=bool(re.search(r'<eventDateRequiresFilingThisStatement>\s*[^<]+\s*</eventDateRequiresFilingThisStatement>',raw_text,re.I)) or bool(re.search(r'DATE OF EVENT WHICH REQUIRES FILING',text,re.I))
+    owner=bool(re.search(r'<reportingPersonName>\s*.*?</reportingPersonName>',raw_text,re.I|re.S)) or bool(re.search(r'NAME OF REPORTING PERSON',text,re.I))
+    pct=bool(re.search(r'<percentOfClass>\s*[^<]+\s*</percentOfClass>',raw_text,re.I)) or bool(re.search(r'PERCENT OF CLASS',text,re.I))
     return {'xml_detected':xml,'cusip':cusip,'issuer_cik':issuer_cik,'event_date':event,'reporting_person':owner,'ownership_pct':pct}
 
 def main():
@@ -90,7 +91,6 @@ def main():
     filings.sort(key=lambda r:r['filing_date'])
     pre=[r for r in filings if pd(r['filing_date'])<CUTOFF]
     post=[r for r in filings if pd(r['filing_date'])>=CUTOFF]
-    # Sample both regimes, preferring spread across time and issuers.
     def sample(rows,n=25):
         if not rows:return []
         idx=[round(i*(len(rows)-1)/(n-1)) for i in range(min(n,len(rows)))] if len(rows)>1 else [0]
