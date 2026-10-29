@@ -40,20 +40,22 @@ def norm(s: str) -> str:
 def inspect_zip(payload: bytes) -> dict:
     with zipfile.ZipFile(io.BytesIO(payload)) as z:
         files = [n for n in z.namelist() if not n.endswith("/")]
-        csv_files = [n for n in files if n.lower().endswith((".csv", ".txt"))]
+        tabular_files = [n for n in files if n.lower().endswith((".csv", ".tsv", ".txt"))]
         samples = []
-        for name in csv_files[:20]:
+        for name in tabular_files[:20]:
             raw = z.read(name)
             text = raw.decode("utf-8-sig", errors="replace")
             lines = [x for x in text.splitlines() if x.strip()]
             if not lines:
                 continue
-            delim = "," if lines[0].count(",") >= lines[0].count("|") else "|"
+            first = lines[0]
+            counts = {"\t": first.count("\t"), ",": first.count(","), "|": first.count("|")}
+            delim = max(counts, key=counts.get)
             reader = csv.reader(lines[:3], delimiter=delim)
             rows = list(reader)
             header = [x.strip() for x in rows[0]] if rows else []
             samples.append({"file": name, "size_bytes": len(raw), "delimiter": delim, "columns": header[:80], "sample_rows": max(0, len(rows)-1)})
-        return {"file_count": len(files), "csv_or_txt_count": len(csv_files), "files": files[:80], "samples": samples}
+        return {"file_count": len(files), "tabular_file_count": len(tabular_files), "files": files[:80], "samples": samples}
 
 
 def semantic_columns(samples: list[dict]) -> dict:
@@ -62,11 +64,11 @@ def semantic_columns(samples: list[dict]) -> dict:
         all_cols.extend(s.get("columns", []))
     n = {norm(x): x for x in all_cols}
     groups = {
-        "identity": ["CUSIP", "CUSIPNO", "ISSUERNAME"],
+        "identity": ["CUSIP", "CUSIPNO", "ISSUERNAME", "NAMEOFISSUER"],
         "position": ["VALUE", "SSHPRNAMT", "SHRSORPRNAMT", "SHARES", "PRNAMT"],
-        "report_date": ["PERIODOFREPORT", "REPORTDATE", "REPORTPERIOD"],
+        "report_date": ["PERIODOFREPORT", "REPORTDATE", "REPORTPERIOD", "REPORTCALENDARORQUARTER"],
         "filing_date": ["FILINGDATE", "FILEDDATE", "ACCEPTEDDATE", "ACCEPTED"],
-        "manager": ["CIK", "FILERCIK", "FILERNAME", "MANAGERNAME"],
+        "manager": ["CIK", "FILERCIK", "FILERNAME", "MANAGERNAME", "FILINGMANAGERNAME"],
     }
     out = {}
     for k, candidates in groups.items():
