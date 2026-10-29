@@ -1,0 +1,35 @@
+name: Phase 50 - SEC Form 144 feasibility audit
+
+on:
+  push:
+    branches: [phase50-sec-form144-feasibility]
+    paths:
+      - 'research/phase50_sec_form144_feasibility.py'
+      - '.github/workflows/phase50_sec_form144_feasibility.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: phase50-sec-form144-feasibility
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run SEC Form 144 feasibility audit
+        run: python -u research/phase50_sec_form144_feasibility.py
+      - name: Upload audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase50-sec-form144-feasibility
+          path: phase50_sec_form144_feasibility/
+          if-no-files-found: error
