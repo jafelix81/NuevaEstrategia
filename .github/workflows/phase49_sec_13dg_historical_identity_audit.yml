@@ -1,0 +1,26 @@
+name: Phase 49 - SEC 13D/13G historical identity coverage audit
+on:
+  push:
+    branches: [phase49-sec-13dg-historical-identity-audit]
+  workflow_dispatch:
+concurrency:
+  group: phase49-sec-13dg-historical-identity
+  cancel-in-progress: true
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run historical identity audit
+        run: python -u research/phase49_sec_13dg_historical_identity_audit.py
+      - name: Upload audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase49-sec-13dg-historical-identity-audit
+          path: phase49_sec_13dg_historical_identity_audit/
+          if-no-files-found: error
