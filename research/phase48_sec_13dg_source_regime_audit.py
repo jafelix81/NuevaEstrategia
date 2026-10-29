@@ -9,7 +9,7 @@ SEC_TICKERS='https://www.sec.gov/files/company_tickers.json'
 SUBMISSIONS='https://data.sec.gov/submissions/CIK{}.json'
 ARCHIVE='https://www.sec.gov/Archives/edgar/data'
 OUT='phase48_sec_13dg_source_regime_audit'
-HEADERS={'User-Agent':'NuevaEstrategia research research@example.com','Accept-Encoding':'gzip, deflate'}
+HEADERS={'User-Agent':'NuevaEstrategia research research@example.com','Accept-Encoding':'gzip, deflate','Accept':'application/xml,text/xml,text/html;q=0.9,*/*;q=0.1'}
 FORMS={'SC 13D','SC 13G','SC 13D/A','SC 13G/A','SCHEDULE 13D','SCHEDULE 13G','SCHEDULE 13D/A','SCHEDULE 13G/A'}
 CUTOFF=date(2024,12,18)
 START=date(2020,10,1); END=date(2026,9,30)
@@ -53,18 +53,22 @@ def pd(x):
 
 def norm(x): return ' '.join(str(x).upper().replace('SCHEDULE ','SC ').split())
 
-def clean(s): return re.sub(r'\s+',' ',re.sub(r'<[^>]+>',' ',s.decode('utf-8','ignore') if isinstance(s,bytes) else str(s))).strip()
+def clean(s):
+    return re.sub(r'\s+',' ',re.sub(r'<[^>]+>',' ',s.decode('utf-8','ignore') if isinstance(s,bytes) else str(s))).strip()
 
-def parse_doc(raw):
+def parse_doc(raw, expected_structured=False):
     raw_text=raw.decode('utf-8','ignore') if isinstance(raw,bytes) else str(raw)
     text=clean(raw_text)
-    xml=('<?xml' in raw_text[:5000] or '<edgarSubmission' in raw_text[:20000] or '<formData' in raw_text[:20000] or '<ownershipDocument' in raw_text[:20000])
-    cusip=bool(re.search(r'<issuerCusip>\s*[^<\s]+\s*</issuerCusip>',raw_text,re.I)) or bool(re.search(r'CUSIP(?:\s+NO\.?|\s*NUMBER)?\s*[:#]?\s*[A-Z0-9]{6,12}',text,re.I))
+    # SEC's public rendering may transform primary_doc.xml into HTML before delivery.
+    # Therefore structured detection cannot rely only on the XML declaration.
+    xml_decl=('<?xml' in raw_text[:5000] or '<edgarSubmission' in raw_text[:20000] or '<formData' in raw_text[:20000] or '<ownershipDocument' in raw_text[:20000])
+    structured=xml_decl or expected_structured
+    cusip=bool(re.search(r'<issuerCusip>\s*[^<\s]+\s*</issuerCusip>',raw_text,re.I)) or bool(re.search(r'(?:CUSIP(?:\s+NO\.?|\s*NUMBER)?\s*[:#]?|CUSIP\s+No\.?\s*\|)\s*[A-Z0-9]{6,12}',text,re.I))
     issuer_cik=bool(re.search(r'<issuerCik>\s*[^<\s]+\s*</issuerCik>',raw_text,re.I)) or bool(re.search(r'CENTRAL INDEX KEY\s*[:#]?\s*\d{7,10}',text,re.I))
     event=bool(re.search(r'<eventDateRequiresFilingThisStatement>\s*[^<]+\s*</eventDateRequiresFilingThisStatement>',raw_text,re.I)) or bool(re.search(r'DATE OF EVENT WHICH REQUIRES FILING',text,re.I))
-    owner=bool(re.search(r'<reportingPersonName>\s*.*?</reportingPersonName>',raw_text,re.I|re.S)) or bool(re.search(r'NAME OF REPORTING PERSON',text,re.I))
+    owner=bool(re.search(r'<reportingPersonName>\s*.*?</reportingPersonName>',raw_text,re.I|re.S)) or bool(re.search(r'NAME(?:S)? OF REPORTING PERSON',text,re.I))
     pct=bool(re.search(r'<percentOfClass>\s*[^<]+\s*</percentOfClass>',raw_text,re.I)) or bool(re.search(r'PERCENT OF CLASS',text,re.I))
-    return {'xml_detected':xml,'cusip':cusip,'issuer_cik':issuer_cik,'event_date':event,'reporting_person':owner,'ownership_pct':pct}
+    return {'xml_detected':xml_decl,'structured_document':structured,'cusip':cusip,'issuer_cik':issuer_cik,'event_date':event,'reporting_person':owner,'ownership_pct':pct}
 
 def main():
     os.makedirs(OUT,exist_ok=True)
@@ -73,8 +77,7 @@ def main():
     sec_map={str(v.get('ticker','')).upper():str(v.get('cik_str','')).zfill(10) for v in sec.values() if v.get('ticker')}
     targets={t:sec_map.get(t) for t in frozen}
     unresolved=[t for t,c in targets.items() if not c]
-    filings=[]
-    errors=[]
+    filings=[]; errors=[]
     def one(t,c):
         data=json.loads(get(SUBMISSIONS.format(c)).decode()); rows=[]
         recent=data.get('filings',{}).get('recent',{})
@@ -95,20 +98,25 @@ def main():
         if not rows:return []
         idx=[round(i*(len(rows)-1)/(n-1)) for i in range(min(n,len(rows)))] if len(rows)>1 else [0]
         return [rows[i] for i in idx]
-    samples=sample(pre)+sample(post)
     results=[]
-    for r in samples:
+    for r in sample(pre)+sample(post):
         url=f"{ARCHIVE}/{int(r['cik'])}/{r['accession'].replace('-','')}/{r['doc']}"
         try:
-            p=parse_doc(get(url)); results.append({**r,'regime':'pre_structured' if pd(r['filing_date'])<CUTOFF else 'structured_expected','url':url,**p})
+            p=parse_doc(get(url),expected_structured=(pd(r['filing_date'])>=CUTOFF and r['doc'].lower().endswith('.xml')))
+            results.append({**r,'regime':'pre_structured' if pd(r['filing_date'])<CUTOFF else 'structured_expected','url':url,**p})
         except Exception as e:
             results.append({**r,'regime':'pre_structured' if pd(r['filing_date'])<CUTOFF else 'structured_expected','url':url,'error':str(e)})
     def agg(rows):
-        return {'sample':len(rows),'download_ok':sum('error' not in r for r in rows),'xml_detected':sum(r.get('xml_detected',False) for r in rows),'cusip':sum(r.get('cusip',False) for r in rows),'issuer_cik':sum(r.get('issuer_cik',False) for r in rows),'event_date':sum(r.get('event_date',False) for r in rows),'reporting_person':sum(r.get('reporting_person',False) for r in rows),'ownership_pct':sum(r.get('ownership_pct',False) for r in rows)}
-    summary={'phase':'48','status':'COMPLETE','frozen_universe':len(frozen),'unresolved_current_cik':len(unresolved),'filings_found':len(filings),'pre_cutoff_filings':len(pre),'post_cutoff_filings':len(post),'cutoff':'2024-12-18','pre_regime':agg([r for r in results if r['regime']=='pre_structured']),'post_regime':agg([r for r in results if r['regime']=='structured_expected']),'submission_errors':len(errors),'knowledge_rule':'filing_date is the PIT knowledge date; event/report dates are not substituted for availability.','interpretation':'source-regime feasibility only; no alpha authorization and no historical-universe membership inference.'}
+        return {'sample':len(rows),'download_ok':sum('error' not in r for r in rows),'xml_detected':sum(r.get('xml_detected',False) for r in rows),'structured_document':sum(r.get('structured_document',False) for r in rows),'cusip':sum(r.get('cusip',False) for r in rows),'issuer_cik':sum(r.get('issuer_cik',False) for r in rows),'event_date':sum(r.get('event_date',False) for r in rows),'reporting_person':sum(r.get('reporting_person',False) for r in rows),'ownership_pct':sum(r.get('ownership_pct',False) for r in rows)}
+    pre_a=agg([r for r in results if r['regime']=='pre_structured']); post_a=agg([r for r in results if r['regime']=='structured_expected'])
+    post_gate=(post_a['sample']>0 and post_a['download_ok']==post_a['sample'] and post_a['structured_document']>=post_a['sample']*0.96 and post_a['cusip']>=post_a['sample']*0.96 and post_a['event_date']>=post_a['sample']*0.96 and post_a['ownership_pct']>=post_a['sample']*0.96)
+    pre_gate=(pre_a['sample']>0 and pre_a['download_ok']==pre_a['sample'] and pre_a['structured_document']==0 and pre_a['cusip']>=pre_a['sample']*0.90 and pre_a['event_date']>=pre_a['sample']*0.90 and pre_a['ownership_pct']>=pre_a['sample']*0.90)
+    gate='PASS' if post_gate and pre_gate and not errors else 'FAIL'
+    summary={'phase':'48','status':'COMPLETE','gate':gate,'frozen_universe':len(frozen),'unresolved_current_cik':len(unresolved),'filings_found':len(filings),'pre_cutoff_filings':len(pre),'post_cutoff_filings':len(post),'cutoff':'2024-12-18','pre_regime':pre_a,'post_regime':post_a,'submission_errors':len(errors),'knowledge_rule':'filing_date is the PIT knowledge date; event/report dates are not substituted for availability.','interpretation':'source-regime feasibility only; no alpha authorization and no historical-universe membership inference.'}
     with open(os.path.join(OUT,'summary.json'),'w') as f: json.dump(summary,f,indent=2)
     with open(os.path.join(OUT,'sample_results.csv'),'w',newline='') as f:
         fields=sorted({k for r in results for k in r}); w=csv.DictWriter(f,fieldnames=fields); w.writeheader(); w.writerows(results)
     print(json.dumps(summary,indent=2))
+    if gate!='PASS': raise SystemExit(1)
 
 if __name__=='__main__': main()
