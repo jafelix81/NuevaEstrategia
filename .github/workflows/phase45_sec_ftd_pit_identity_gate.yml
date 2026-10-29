@@ -1,0 +1,28 @@
+name: Phase 45 - SEC FTD PIT identity gate
+
+on:
+  push:
+    branches: [phase45-sec-ftd-pit-identity-gate]
+  workflow_dispatch:
+
+concurrency:
+  group: phase45-sec-ftd-pit-identity-gate
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run SEC FTD PIT identity gate
+        run: python -u research/phase45_sec_ftd_pit_identity_gate.py
+      - name: Upload audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase45-sec-ftd-pit-identity-gate
+          path: ftd_pit_identity_gate.json
+          if-no-files-found: error
