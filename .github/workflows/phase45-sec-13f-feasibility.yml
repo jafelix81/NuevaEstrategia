@@ -1,5 +1,6 @@
 name: Phase 45 - SEC 13F feasibility audit
 
+# Re-run source/schema gate after the SEC 2026 endpoint and TSV parser correction.
 on:
   push:
     branches:
