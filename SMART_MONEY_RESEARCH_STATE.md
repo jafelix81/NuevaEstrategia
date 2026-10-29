@@ -1,6 +1,6 @@
 # Smart Money Research State
 
-Updated: 2026-10-25
+Updated: 2026-10-29
 
 ## Frozen control
 - F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
@@ -46,10 +46,27 @@ Updated: 2026-10-25
 ## Phase 32 — market microstructure
 - Feasibility audit indicates event-level historical order/quote data would be valuable, but reproducible execution currently requires a licensed historical dataset. Do not synthesize microstructure from inadequate aggregates.
 
+## Phase 43/44 — SEC FTD
+- Status: FEASIBLE_PUBLIC_CANDIDATE; actual-file and representative universe-coverage audits passed. SEC documents coverage from February 2004 through September 2026, with first-half files available at month-end and second-half files around the 15th of the following month.
+- The source contains settlement date, CUSIP, ticker, price and aggregate fails-to-deliver balance. FTD is explicitly not equivalent to short selling and must be treated as settlement-friction information.
+- Coverage audit found 70.75% overlap on both sampled half-month files, 99.10% on either sampled file, and 94.33% on the late-2026 sample. Missing symbols must not be silently interpreted as zero before the active-universe logic is fixed.
+- Next gate: construct the conservative PIT signal panel and distinguish inactive/non-applicable names from active securities with zero FTD. No alpha test yet.
+
+## Phase 48 — SEC 13D/13G source-regime feasibility
+- Status: SOURCE-REGIME PASS, but not alpha-authorized.
+- Run 40932788305 / artifact 12923896183 passed the pre/post structured-document regime gate. The audit found 4,651 pre-cutoff filings and 4,238 post-cutoff filings in the 2020-10-01 through 2026-09-30 candidate window; filing date is the PIT knowledge date.
+- Submission retrieval errors were 53 (17.6%) and were deliberately separated from the document-field gate; they remain an identity/coverage problem that must be resolved before alpha.
+
+## Phase 49 — SEC 13D/13G historical identity coverage
+- Status: KILLED FOR CURRENT IMPLEMENTATION / DO NOT ALPHA TEST.
+- Run 40938882261 completed the reproducible identity gate on the frozen 335-name universe. Only 308/335 names (91.94%) had a CIK from either SEC current data or the historical CIK mapper, below the pre-registered 95% threshold.
+- Only 296/335 names (88.36%) had agreement between the two identity sources. There were 27 unresolved tickers and two source disagreements (PARA and XOM). Five names were SEC-current-only and seven were historical-mapper-only.
+- Decision: no 13D/13G alpha testing and no universe shrinkage. The source remains economically interesting, but the current identity layer is not strong enough for a defensible F80/LTM incremental test. Reopen only with deterministic security identity resolution that materially improves coverage and resolves the two disagreements.
+
 ## Current priority
 - Keep the frozen F80/LTM control unchanged.
-- Do not spend further cycles rescuing FINRA, Form 4, CFTC COT, or the current N-PORT dose-response hypothesis.
-- Prioritize Smart Money sources that can deliver genuinely different information with reliable PIT timestamps: institutional/options microstructure if reproducible historical access can be established; otherwise continue feasibility work on deterministic institutional-ownership sources and direct market-microstructure datasets.
+- Do not spend further cycles rescuing FINRA, Form 4, CFTC COT, current N-PORT dose-response, or the current 13D/13G identity implementation.
+- Prioritize sources with genuinely different information and reproducible PIT: SEC FTD is currently the strongest public candidate for the next economic test; licensed institutional/options microstructure remains attractive only if reproducible historical access can be established.
 
 ## Research principle
 "Smart money" is a hypothesis, not an assumption. Candidate sources must pass historical coverage, ex-ante availability, timestamp/PIT, universe overlap, incremental-information, chronological OOS, bootstrap and LOO tests before portfolio promotion.
