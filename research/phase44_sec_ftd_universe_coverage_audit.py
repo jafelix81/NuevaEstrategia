@@ -10,11 +10,9 @@ from __future__ import annotations
 import csv
 import io
 import json
-import re
 import urllib.request
 import zipfile
 from collections import defaultdict
-from datetime import date
 from pathlib import Path
 
 FILES = {
@@ -23,8 +21,6 @@ FILES = {
 }
 KNOWLEDGE_DATES = {"2018_first_half": "2018-01-31", "2026_second_half": "2026-10-15"}
 EXPECTED_COLUMNS = ("SETTLEMENT DATE", "CUSIP", "SYMBOL", "QUANTITY (FAILS)", "DESCRIPTION", "PRICE")
-TRAILER_COUNT_RE = re.compile(r"^Trailer record count\s+(\d+)\s*$", re.I)
-TRAILER_QTY_RE = re.compile(r"^Trailer total quantity of shares\s+(\d+)\s*$", re.I)
 
 
 def download(url: str) -> bytes:
@@ -36,6 +32,8 @@ def download(url: str) -> bytes:
 def parse_zip(payload: bytes):
     with zipfile.ZipFile(io.BytesIO(payload)) as zf:
         names = [n for n in zf.namelist() if not n.endswith("/")]
+        if not names:
+            raise ValueError("ZIP contains no files")
         raw = zf.read(names[0])
     lines = [line for line in raw.decode("utf-8-sig", errors="replace").splitlines() if line.strip()]
     rows = list(csv.reader(lines, delimiter="|"))
@@ -43,16 +41,13 @@ def parse_zip(payload: bytes):
     if header != EXPECTED_COLUMNS:
         raise ValueError(f"unexpected schema: {header!r}")
     symbols = defaultdict(set)
-    cusips = defaultdict(set)
     for row in rows[1:]:
         if len(row) != 6:
             continue
         _, cusip, symbol, *_ = [x.strip().upper() for x in row]
         if symbol:
             symbols[symbol].add(cusip)
-            if cusip:
-                cusips[cusip].add(symbol)
-    return symbols, cusips
+    return symbols
 
 
 def load_universe(path: str) -> list[str]:
@@ -64,13 +59,16 @@ def main() -> None:
     universe = load_universe("research/phase44_frozen_universe_335_tickers.csv")
     if len(universe) != 335 or len(set(universe)) != 335:
         raise SystemExit(f"Expected exactly 335 unique frozen symbols, got {len(universe)}")
+    universe_set = set(universe)
 
     by_file = {}
+    covered_sets = {}
     for label, url in FILES.items():
-        symbols, cusips = parse_zip(download(url))
-        present = [t for t in universe if t in symbols]
-        missing = [t for t in universe if t not in symbols]
-        multi_cusip = {t: sorted(c) for t, c in symbols.items() if t in set(universe) and len(c) > 1}
+        symbols = parse_zip(download(url))
+        present = sorted(universe_set & set(symbols))
+        missing = sorted(universe_set - set(symbols))
+        multi_cusip = {t: sorted(c) for t, c in symbols.items() if t in universe_set and len(c) > 1}
+        covered_sets[label] = set(present)
         by_file[label] = {
             "knowledge_date": KNOWLEDGE_DATES[label],
             "universe_size": len(universe),
@@ -82,12 +80,8 @@ def main() -> None:
             "pit_rule": "symbol/CUSIP observations are usable only after the file knowledge date; settlement date is not the knowledge date",
         }
 
-    covered_both = [t for t in universe if t in by_file["2018_first_half"]["missing_symbols"] is False]
-    # Explicit set arithmetic keeps the report auditable without confusing historical absence with bad identity.
-    s2018 = set(universe) - set(by_file["2018_first_half"]["missing_symbols"])
-    s2026 = set(universe) - set(by_file["2026_second_half"]["missing_symbols"])
-    both = sorted(s2018 & s2026)
-    either = sorted(s2018 | s2026)
+    both = sorted(covered_sets["2018_first_half"] & covered_sets["2026_second_half"])
+    either = sorted(covered_sets["2018_first_half"] | covered_sets["2026_second_half"])
 
     report = {
         "phase": "44",
@@ -102,9 +96,7 @@ def main() -> None:
             "covered_in_either_pct": round(100 * len(either) / len(universe), 3),
             "symbols_covered_in_both": both,
         },
-        "interpretation": (
-            "This is an identity/coverage gate only. Missing a symbol in a historical FTD file is not automatically a data failure because the frozen universe contains securities that may not have existed/listed at that date. Production alpha requires a date-appropriate active-universe panel and deterministic security identity, not a full 335/335 historical match. No FTD directional interpretation is authorized."
-        ),
+        "interpretation": "Identity/coverage gate only. Missing a symbol in a historical FTD file is not automatically a data failure because the frozen universe contains securities that may not have existed/listed at that date. Production alpha requires a date-appropriate active-universe panel and deterministic security identity, not a full 335/335 historical match. No FTD directional interpretation is authorized.",
         "next_gate": "Construct a date-appropriate active-universe/CUSIP crosswalk and quantify coverage by historical signal date before any FTD return test.",
     }
     Path("ftd_universe_coverage_audit.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
