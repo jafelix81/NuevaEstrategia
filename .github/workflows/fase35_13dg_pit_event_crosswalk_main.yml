@@ -12,14 +12,14 @@ jobs:
     timeout-minutes: 240
     steps:
       - uses: actions/checkout@v4
-      - name: Fetch Phase 35 research branch
-        run: git fetch origin phase35-13dg-pit-event-crosswalk:refs/remotes/origin/phase35-13dg-pit-event-crosswalk
+      - name: Fetch Phase 35 repaired research branch
+        run: git fetch origin phase35-13dg-parser-repair:refs/remotes/origin/phase35-13dg-parser-repair
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Materialize and run historical-CIK PIT audit
+      - name: Materialize and run repaired historical-CIK PIT audit
         run: |
-          git show origin/phase35-13dg-pit-event-crosswalk:Nueva_Estrategia_Fase28D_SEC_13DG_PIT_Event_Audit.py > /tmp/phase35_audit.py
+          git show origin/phase35-13dg-parser-repair:Nueva_Estrategia_Fase28D_SEC_13DG_PIT_Event_Audit.py > /tmp/phase35_audit.py
           python -u /tmp/phase35_audit.py
       - name: Upload audit
         uses: actions/upload-artifact@v4
