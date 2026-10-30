@@ -15,6 +15,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Install PDF text extraction dependency
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends poppler-utils
       - name: Run SEC 13F official security crosswalk audit v2
         run: python -u research/phase51_sec13f_official_security_crosswalk_v2.py
       - name: Upload audit
