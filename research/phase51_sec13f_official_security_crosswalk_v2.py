@@ -1,5 +1,5 @@
 # Phase 51 v2 audit: official SEC 13(f) quarterly security-list crosswalk.
-import json, re, subprocess, tempfile, time, unicodedata
+import gzip, json, re, subprocess, tempfile, time, unicodedata
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -22,7 +22,14 @@ def get(url,retries=5):
     last=None
     for i in range(retries):
         try:
-            with urlopen(Request(url,headers=HEADERS),timeout=60) as r: return r.read()
+            with urlopen(Request(url,headers=HEADERS),timeout=60) as r:
+                raw=r.read()
+                # SEC may return gzip-compressed payloads even when urllib does not
+                # transparently decode them. Decode by header or gzip magic bytes.
+                enc=str(r.headers.get('Content-Encoding','')).lower()
+                if enc=='gzip' or raw[:2]==b'\x1f\x8b':
+                    raw=gzip.decompress(raw)
+                return raw
         except HTTPError as e:
             last=e
             if e.code in (429,500,502,503,504): time.sleep(min(20,2**i)); continue
@@ -129,7 +136,7 @@ def main():
         covered=sum(1 for x in hits if x['match_count']>0); ambiguous=sum(1 for x in hits if x['match_count']>1)
         results[q]={'covered':covered,'coverage_pct':round(100*covered/len(uni),3),'ambiguous':ambiguous,'rows':hits}
     gate=(len(cmap_errors)==0 and not download_errors and len(errors)==0 and len(mapped)>=301 and all(results[q]['coverage_pct']>=95 for q in results))
-    summary={'phase':'51-v2','source':'SEC Official List of Section 13(f) Securities','status':'COMPLETE','universe_size':len(uni),'current_sec_ticker_cik_mapped':len(mapped),'current_sec_ticker_cik_unmapped':len(unmapped),'unmapped_tickers':unmapped,'mapping_endpoint_errors':cmap_errors,'submission_errors':len(errors),'samples':{q:{k:v for k,v in r.items() if k!='rows'} for q,r in results.items()},'download_errors':download_errors,'identity_rule':'Ticker-to-CIK from SEC current association endpoint; issuer aliases from SEC current/former names; quarterly CUSIP from SEC official Section 13(f) security list. Knowledge date is the quarter list effective date, not a later lookup date.','interpretation':'Feasibility only. No alpha testing. The v2 change is limited to robust SEC ticker/CIK endpoint fallback and a compliant research User-Agent; it does not relax the historical coverage gate.','gate_rule':'PASS only if all four historical snapshots have >=95% issuer-name coverage, no SEC mapping/submission/download errors, and at least 301/335 current ticker-CIK mappings.','gate':'PASS' if gate else 'FAIL','alpha_authorized':False,'next_step':'If PASS, use this crosswalk as an independent PIT identity layer for 13F research and reassess the prior 13F coverage gate. If FAIL, do not run 13F alpha and record the precise identity limitation.'}
+    summary={'phase':'51-v2','source':'SEC Official List of Section 13(f) Securities','status':'COMPLETE','universe_size':len(uni),'current_sec_ticker_cik_mapped':len(mapped),'current_sec_ticker_cik_unmapped':len(unmapped),'unmapped_tickers':unmapped,'mapping_endpoint_errors':cmap_errors,'submission_errors':len(errors),'samples':{q:{k:v for k,v in r.items() if k!='rows'} for q,r in results.items()},'download_errors':download_errors,'identity_rule':'Ticker-to-CIK from SEC current association endpoint; issuer aliases from SEC current/former names; quarterly CUSIP from SEC official Section 13(f) security list. Knowledge date is the quarter list effective date, not a later lookup date.','interpretation':'Feasibility only. No alpha testing. The v2 change is limited to robust SEC ticker/CIK endpoint fallback and gzip-aware SEC response decoding; it does not relax the historical coverage gate.','gate_rule':'PASS only if all four historical snapshots have >=95% issuer-name coverage, no SEC mapping/submission/download errors, and at least 301/335 current ticker-CIK mappings.','gate':'PASS' if gate else 'FAIL','alpha_authorized':False,'next_step':'If PASS, use this crosswalk as an independent PIT identity layer for 13F research and reassess the prior 13F coverage gate. If FAIL, do not run 13F alpha and record the precise identity limitation.'}
     json.dump(summary,open(OUT/'summary.json','w'),indent=2); json.dump(results,open(OUT/'matches.json','w'),indent=2); print(json.dumps(summary,indent=2))
     if not gate: raise SystemExit(1)
 if __name__=='__main__': main()
