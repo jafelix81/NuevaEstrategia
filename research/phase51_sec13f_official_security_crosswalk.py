@@ -1,3 +1,4 @@
+# Phase 51 audit: official SEC 13(f) quarterly security-list crosswalk.
 import json, os, re, subprocess, tempfile, time, unicodedata
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
@@ -43,8 +44,7 @@ def universe():
     return vals
 
 def sec_company_map():
-    data=json.loads(get(TICKERS).decode())
-    out={}
+    data=json.loads(get(TICKERS).decode()); out={}
     for r in data.values():
         t=str(r.get('ticker','')).upper().strip(); cik=str(r.get('cik_str','')).zfill(10)
         if t: out[t]={'cik':cik,'name':r.get('title','')}
@@ -53,11 +53,9 @@ def sec_company_map():
 def submissions(item):
     try:
         d=json.loads(get(SUB.format(cik=item['cik'])).decode())
-        names=[d.get('name','')]
-        names += [x.get('name','') for x in d.get('formerNames',[]) if x.get('name')]
+        names=[d.get('name','')]+[x.get('name','') for x in d.get('formerNames',[]) if x.get('name')]
         return sorted(set(norm(x) for x in names if norm(x)))
-    except Exception as e:
-        return {'error':str(e)}
+    except Exception as e: return {'error':str(e)}
 
 def parse_txt(raw):
     rows=[]
@@ -76,8 +74,7 @@ def parse_pdf(raw):
     rows=[]
     for line in lines:
         m=re.match(r'^\s*([A-Z0-9]{6,9})\s+10\s+\d\s+\*?\s*(.*)$',line)
-        if not m: continue
-        rest=m.group(2).strip(); rows.append((m.group(1),rest,'' ,''))
+        if m: rows.append((m.group(1),m.group(2).strip(),'',''))
     return rows
 
 def main():
@@ -92,14 +89,12 @@ def main():
                 if isinstance(r,dict): errors.append({'ticker':t,'error':r['error']})
                 else: aliases[t]=r
             except Exception as e: errors.append({'ticker':t,'error':str(e)})
-    # Add current SEC title as alias even if submissions retrieval failed.
     for t,v in mapped.items():
-        aliases.setdefault(t,[]).append(norm(v['name']))
-        aliases[t]=sorted(set(x for x in aliases[t] if x))
+        aliases.setdefault(t,[]).append(norm(v['name'])); aliases[t]=sorted(set(x for x in aliases[t] if x))
     quarter_rows={}; download_errors={}
     for q,(url,kind) in SAMPLES.items():
         try:
-            raw=get(url); rows=parse_txt(raw) if kind=='txt' else parse_pdf(raw); quarter_rows[q]=rows
+            raw=get(url); quarter_rows[q]=parse_txt(raw) if kind=='txt' else parse_pdf(raw)
         except Exception as e: download_errors[q]=str(e); quarter_rows[q]=[]
     results={}
     for q,rows in quarter_rows.items():
@@ -109,11 +104,9 @@ def main():
             for cusip,name,desc,status in rows:
                 nn=norm(name)
                 if nn and any(nn==a or (len(a)>=6 and (a in nn or nn in a)) for a in als):
-                    # Common equity row only; exclude option/call/put rows by description.
                     if not re.search(r'\b(CALL|PUT|WARRANT|RIGHT|UNIT|DEBT|NOTE|PREF|PREFERRED)\b',desc.upper()): matched.append((cusip,name,desc,status))
             hits.append({'ticker':t,'mapped_cik':mapped.get(t,{}).get('cik'),'aliases':als,'matches':matched[:10],'match_count':len(matched)})
-        covered=sum(1 for x in hits if x['match_count']>0)
-        ambiguous=sum(1 for x in hits if x['match_count']>1)
+        covered=sum(1 for x in hits if x['match_count']>0); ambiguous=sum(1 for x in hits if x['match_count']>1)
         results[q]={'covered':covered,'coverage_pct':round(100*covered/len(uni),3),'ambiguous':ambiguous,'rows':hits}
     gate=not download_errors and len(errors)==0 and all(results[q]['coverage_pct']>=95 for q in results)
     summary={'phase':'51','source':'SEC Official List of Section 13(f) Securities','status':'COMPLETE','universe_size':len(uni),'current_sec_ticker_cik_mapped':len(mapped),'current_sec_ticker_cik_unmapped':len(unmapped),'unmapped_tickers':unmapped,'submission_errors':len(errors),'samples':{q:{k:v for k,v in r.items() if k!='rows'} for q,r in results.items()},'download_errors':download_errors,'identity_rule':'Ticker-to-CIK from SEC current association; issuer aliases from SEC current/former names; quarterly CUSIP from the SEC official Section 13(f) security list. Knowledge date is the quarter list effective date, not a later lookup date.','interpretation':'This phase tests whether the SEC official 13(f) list plus SEC issuer-name history can provide a deterministic historical CUSIP/issuer crosswalk for the frozen universe. It does not infer exchange listing status from FTD presence and does not run alpha.','gate_rule':'PASS only if all four historical snapshots have >=95% issuer-name coverage, no SEC submission/download errors, and the mapping remains auditable. Ambiguous multi-CUSIP matches are reported separately.','gate':'PASS' if gate else 'FAIL','alpha_authorized':False,'next_step':'If PASS, use this crosswalk as an independent PIT identity layer for 13F research and reassess the prior 13F coverage gate. If FAIL, do not run 13F alpha and record the precise identity limitation.'}
