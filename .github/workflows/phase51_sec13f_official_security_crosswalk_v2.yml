@@ -1,0 +1,25 @@
+name: Phase 51 v2 - SEC 13F official security crosswalk
+on:
+  push:
+    branches: [phase51-sec13f-official-security-crosswalk]
+  workflow_dispatch:
+concurrency:
+  group: phase51-sec13f-official-security-crosswalk-v2
+  cancel-in-progress: true
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run SEC 13F official security crosswalk audit v2
+        run: python -u research/phase51_sec13f_official_security_crosswalk_v2.py
+      - name: Upload audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase51-sec13f-official-security-crosswalk-v2
+          path: phase51_sec13f_official_security_crosswalk_v2/
+          if-no-files-found: error
