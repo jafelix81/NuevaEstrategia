@@ -23,5 +23,20 @@ def test_event_date_iso_variant():
     assert mod.parse_event_date(text) == '2023-12-01'
 
 
+def test_event_date_reverse_date_then_label():
+    text = '10/17/2025 (Date of Event Which Requires Filing of this Statement)'
+    assert mod.parse_event_date(text) == '2025-10-17'
+
+
+def test_event_date_reverse_with_parenthetical_format():
+    text = '09/03/2024 (MM/DD/YYYY) Date of Event Which Requires Filing'
+    assert mod.parse_event_date(text) == '2024-09-03'
+
+
+def test_event_date_month_name():
+    text = 'Date of Event Which Requires Filing: October 17, 2025'
+    assert mod.parse_event_date(text) == '2025-10-17'
+
+
 def test_event_date_missing_returns_none():
     assert mod.parse_event_date('DATE OF EVENT WHICH REQUIRES FILING') is None
