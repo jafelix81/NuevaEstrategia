@@ -99,17 +99,21 @@ def first_text(patterns,text):
     return None
 
 def parse_event_date(text):
+    # SEC cover pages appear in both label->date and date->label layouts.
+    # Match only within a tight window around the distinctive event-date label.
+    date_token=r'(?:[0-9]{1,2}/[0-9]{1,2}/[0-9]{4}|[0-9]{4}-[0-9]{2}-[0-9]{2}|[A-Za-z]{3,9}\s+[0-9]{1,2},\s+[0-9]{4})'
+    label=r'DATE\s+OF\s+EVENT\s+WHICH\s+REQUIRES\s+FILING(?:\s+OF\s+THIS\s+STATEMENT)?'
     patterns=[
-        r'DATE\s+OF\s+EVENT\s+WHICH\s+REQUIRES\s+FILING\s*(?:\([^)]*\))?\s*[:\-]?\s*([0-9]{1,2}/[0-9]{1,2}/[0-9]{4})',
-        r'DATE\s+OF\s+EVENT\s+WHICH\s+REQUIRES\s+FILING\s*(?:\([^)]*\))?\s*[:\-]?\s*([0-9]{4}-[0-9]{2}-[0-9]{2})'
+        rf'{label}.{{0,140}}?({date_token})',
+        rf'({date_token}).{{0,180}}?{label}',
     ]
     for p in patterns:
         m=re.search(p,text,re.I)
-        if m:
-            raw=m.group(1)
-            for fmt in ('%m/%d/%Y','%Y-%m-%d'):
-                try: return datetime.strptime(raw,fmt).date().isoformat()
-                except ValueError: pass
+        if not m: continue
+        raw=m.group(1)
+        for fmt in ('%m/%d/%Y','%Y-%m-%d','%B %d, %Y','%b %d, %Y'):
+            try: return datetime.strptime(raw,fmt).date().isoformat()
+            except ValueError: pass
     return None
 
 def extract_fields(raw,r):
