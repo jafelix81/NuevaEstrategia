@@ -13,7 +13,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Fetch Phase 35 repaired research branch
-        run: git fetch origin phase35-13dg-parser-repair:refs/remotes/origin/phase35-13dg-parser-repair
+        run: git fetch --force origin phase35-13dg-parser-repair:refs/remotes/origin/phase35-13dg-parser-repair
+      - name: Verify repaired branch head
+        run: git rev-parse origin/phase35-13dg-parser-repair
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
