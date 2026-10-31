@@ -59,4 +59,4 @@ The source family is now technically credible enough to justify a concrete data-
 No change to `F80_TOP20_PARTIAL50_BASELINE_C20`.
 
 ## 2026-10-31 execution note
-At the time of this update, GitHub Actions run `41237259824` (Phase 35/13D-13G audit, run #55) is still `in_progress`; its audit job `124643582010` remains on the historical-CIK PIT audit step. No duplicate execution was launched. The latest 13F mapping run on the same commit completed successfully and produced artifact `phase22c-sec-13f-mapping-audit-v6`; its research decision remains insufficient historical coverage for production.
+The latest Phase 35/13D-13G audit run is `41242671789` (run #56), still `in_progress`; job `124659661799` remains on the historical-CIK PIT audit step. No duplicate execution was launched. The immediately preceding Phase 22C/13F mapping audit run `41242671794` (run #68) completed successfully and produced artifact `phase22c-sec-13f-mapping-audit-v6`; its production decision remains insufficient historical coverage. GitHub's job-log endpoint for the active Phase 35 job currently returns `404 BlobNotFound`, so no internal progress should be inferred from unavailable logs.
