@@ -21,7 +21,6 @@ jobs:
         run: |
           git show origin/phase35-13dg-parser-repair:Nueva_Estrategia_Fase28D_SEC_13DG_PIT_Event_Audit.py > /tmp/phase35_audit.py
           git show origin/phase35-13dg-parser-repair:Nueva_Estrategia_Fase28D_SEC_13DG_PIT_Event_Audit_v2.py > /tmp/phase35_audit_v2.py
-          sed -i "s@runpy.run_path('/tmp/phase35_audit.py')@runpy.run_path('/tmp/phase35_audit.py', run_name='phase35_audit')@" /tmp/phase35_audit_v2.py
           python -u /tmp/phase35_audit_v2.py
       - name: Upload audit
         uses: actions/upload-artifact@v4
