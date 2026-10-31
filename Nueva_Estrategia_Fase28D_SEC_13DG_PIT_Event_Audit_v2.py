@@ -2,11 +2,10 @@ import runpy
 import re
 from datetime import datetime
 
-# Wrapper around the repaired Phase 28D audit. The prior parser correctly
-# throttles SEC access and resolves filings, but its event-date regex omitted
-# the common phrase "OF THIS STATEMENT". Patch only that parser here and keep
-# filing_date as the PIT knowledge date.
-ns = runpy.run_path('/tmp/phase35_audit.py')
+# Wrapper around the repaired Phase 28D audit. Keep filing_date as the PIT
+# knowledge date. The original audit main() is defined under __main__, so use
+# a neutral run_name to materialize its globals without executing it first.
+ns = runpy.run_path('/tmp/phase35_audit.py', run_name='phase35_audit')
 
 
 def parse_event_date_v2(text):
@@ -26,5 +25,7 @@ def parse_event_date_v2(text):
                 pass
     return None
 
+
+# Replace the function in the exact globals dictionary used by main().
 ns['parse_event_date'] = parse_event_date_v2
 ns['main']()
