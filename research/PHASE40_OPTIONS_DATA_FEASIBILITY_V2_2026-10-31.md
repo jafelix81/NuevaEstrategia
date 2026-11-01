@@ -62,3 +62,15 @@ No change to `F80_TOP20_PARTIAL50_BASELINE_C20`.
 The latest Phase 35/13D-13G audit run is `41273580859` (run #58) and is still `in_progress`; job `124751137006` remains on the corrected historical-CIK PIT audit step. No duplicate execution was launched. No artifact exists yet. The active job's log endpoint is unavailable through the current GitHub connector response, so no internal progress should be inferred from missing logs.
 
 The immediately preceding Phase 22C/13F mapping audit run `41273580840` (run #70) completed successfully. Its production decision remains unchanged: insufficient historical coverage for the frozen universe, so no alpha test is authorized.
+
+## 2026-11-01 execution note
+Fresh official-source verification confirms the current Cboe DataShop FAQ still lists Open-Close EOD C1 from January 2005, while current product pages describe the Open-Close product as capacity/side/transaction-type volume data on Cboe exchanges. Cboe's 2025 rule filing explicitly states that EOD Open-Close is proprietary exchange data and does not include other exchanges; therefore exchange coverage must be treated as a first-class audit variable rather than assuming OPRA-wide coverage. The current FINRA catalog also confirms that Reg SHO Daily Short Sale Volume, Blocks Summary, OTC Block Summary and other off-exchange datasets are available as distinct products; FINRA explicitly warns that short-sale volume is not equivalent to short interest. These facts reinforce the research priority: use participant-classified options only if delivered historical files cover the frozen universe adequately, and keep FINRA short-flow and short-interest as separate signals rather than conflating them.
+
+Fresh official references:
+- Cboe DataShop FAQ: https://datashop.cboe.com/faqs
+- Cboe Data Products: https://datashop.cboe.com/data-products
+- Cboe Open-Close rule filing: https://cdn.cboe.com/resources/regulation/rule_filings/approved/2025/SR-CboeEDGX-2025-047.pdf
+- FINRA dataset catalog: https://developer.finra.org/catalog
+- FINRA short-interest explanation: https://syndication.finra.org/content/short-interest-what-it-what-it-not
+
+Current Actions state checked 2026-11-01: Phase 35 run `41306633592` (#60) completed successfully; job `124848250890` completed the corrected historical-CIK PIT audit and uploaded artifact `13091036734` (`phase35-13dg-pit-event-crosswalk-audit`). No active run was duplicated. The Phase 35 audit returned 20,254 resolved filings out of 20,266 candidates, 12 retrieval failures, 97.11% event-date coverage and 100% filing-date coverage; its PIT rule remains filing_date as the knowledge date.
