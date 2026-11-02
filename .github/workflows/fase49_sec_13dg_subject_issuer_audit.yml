@@ -1,0 +1,28 @@
+name: Fase 49 - SEC 13D/13G subject-issuer identity audit
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'Nueva_Estrategia_Fase49_SEC_13DG_SubjectIssuer_Audit.py'
+      - '.github/workflows/fase49_sec_13dg_subject_issuer_audit.yml'
+  workflow_dispatch:
+concurrency:
+  group: fase49-sec-13dg-subject-issuer-audit
+  cancel-in-progress: true
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run subject-vs-filer identity audit
+        run: python -u Nueva_Estrategia_Fase49_SEC_13DG_SubjectIssuer_Audit.py
+      - name: Upload audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase49-sec-13dg-subject-issuer-audit
+          path: nueva_estrategia_phase49_sec_13dg_subject_issuer_audit/
+          if-no-files-found: error
