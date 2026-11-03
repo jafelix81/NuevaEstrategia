@@ -1,6 +1,6 @@
 # Smart Money Research State
 
-Updated: 2026-11-02
+Updated: 2026-11-03
 
 ## Frozen control
 - F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
@@ -47,18 +47,19 @@ Updated: 2026-11-02
 - Feasibility audit indicates event-level historical order/quote data would be valuable, but reproducible execution currently requires a licensed historical dataset. Do not synthesize microstructure from inadequate aggregates.
 
 ## Phase 35/49 — SEC 13D/13G subject-issuer identity
-- Status: BLOCKED / PARSER INVALID; no economic testing authorized.
-- Phase 49 run 41539253881 completed successfully on 2026-11-03 and processed 20,266 filings with zero download/submission errors, but returned 0 subject CIKs and 0 F80 subject matches.
-- Root cause: the implementation fetched each filing's primary document under the filer CIK and attempted to parse the SUBJECT COMPANY block from that document. The official EDGAR `*-index-headers.html` contains the structured `SUBJECT COMPANY` and `FILED BY` blocks and their distinct CIKs; the primary-document path is therefore the wrong identity source for this gate.
-- This is a data-pipeline failure, not evidence against 13D/13G economically. The 20,266-row output is not valid for alpha or issuer-level analysis.
-- Correct next implementation: for each accession, fetch `https://www.sec.gov/Archives/edgar/data/{filer_cik}/{accession_no_dash}/{accession}-index-headers.html`, parse SUBJECT COMPANY CIK/name separately from FILED BY CIK/name, retain `filing_date` as KnowledgeDate, and rerun the coverage gate before any economic test.
-- No F80/LTM changes and no 13D/13G alpha claims are permitted until subject-CIK coverage and historical active-universe membership pass.
+- Status: DATA GATE PASSED FOR IDENTITY/PIT; ECONOMIC TESTING NOT YET AUTHORIZED.
+- Corrected run 41575083622 completed successfully on 2026-11-03 using the repaired Phase 35 branch and published artifact `phase35-13dg-pit-event-crosswalk-audit` (SHA-256 `1ba55129f8a2f2365b37e20f557759fbccd2ab2f22781f03930065c11f16337`).
+- Audit: 335 frozen-universe names; 307 selected CIKs; 27 unresolved tickers; 20,266 candidate filings; 20,265 resolved filings; 303 unique issuers; 14,541 amendments; 19,679/20,265 filings with event_date (97.11%); zero submission errors; one isolated SEC HTTP 503 resolution error.
+- Resolved rows contain issuer_cik, filing_date and accession. KnowledgeDate is filing_date. The resulting dataset is now suitable for the next identity/event-normalization gate; it must not yet be treated as alpha evidence.
+- Important correction to the old Phase 49 diagnosis: the old primary-document parser was invalid, but the repaired Phase 35/28D pipeline now provides issuer-level identity. The repository state should no longer describe 13D/13G as currently blocked by the old parser.
+- Remaining gates: deterministic amendment/original-event consolidation; 13D vs 13G mechanism separation; reporting-person/group normalization; historical active-universe membership; coverage analysis of the 27 unresolved F80 names; and only then a pre-registered economic hypothesis versus frozen LTM/F80.
+- No F80/LTM changes and no 13D/13G alpha claims are permitted until those gates pass.
 
 ## Current priority
 - Keep the frozen F80/LTM control unchanged.
 - Do not spend further cycles rescuing FINRA, the existing Form 4 standalone hypothesis, CFTC COT, or the current N-PORT dose-response hypothesis.
-- Repair the 13D/13G identity pipeline using EDGAR index headers, then re-run the data gate.
-- In parallel, prioritize Smart Money sources that can deliver genuinely different information with reliable PIT timestamps: reproducible institutional/options microstructure and deterministic institutional-ownership sources. Options remain conditional on broad historical coverage and stable contract-level identifiers.
+- Advance 13D/13G from identity/PIT feasibility into event normalization and historical active-universe validation.
+- In parallel, prioritize Smart Money sources that can deliver genuinely different information with reliable PIT timestamps: reproducible institutional/options microstructure and deterministic institutional-ownership sources. Options remain conditional on broad historical coverage, stable contract-level identifiers, access/licensing and reproducibility.
 
 ## Research principle
 "Smart money" is a hypothesis, not an assumption. Candidate sources must pass historical coverage, ex-ante availability, timestamp/PIT, universe overlap, incremental-information, chronological OOS, bootstrap and LOO tests before portfolio promotion.
