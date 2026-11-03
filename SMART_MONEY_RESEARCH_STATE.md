@@ -148,3 +148,10 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - Historical active-universe membership, the 27 unresolved tickers, legacy HTML/TXT subject attribution before structured XML, and economic-group normalization remain unpassed. No forward returns were used. Full audit: [PHASE35_GLOBAL_SUBJECT_CENSUS_XML_PILOT_RESULTS_2026-11-03.md](research/PHASE35_GLOBAL_SUBJECT_CENSUS_XML_PILOT_RESULTS_2026-11-03.md).
 - Next: validate the frozen name crosswalk on 2025Q2/Q3; add amendmentNo and lineage diagnostics; extend quarter-by-quarter global discovery; then solve historical F80 membership and legacy filings. No economic test until all event/group gates pass.
 - F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## 2026-11-03 — Cross-quarter identity validation launched
+- Canonical research branch commit: `a73e60621fbe9abb76a2b98cc600c82fabc637ef`.
+- Added `amendmentNo` extraction to parser v3, deterministic filer-to-reporting-person candidate crosswalk code/tests, and a Q2/Q3 validation workflow. The crosswalk never overwrites source CIKs and never infers an economic group.
+- Runs [41729360514](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41729360514) (canonical branch) and [41729228829](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41729228829) (prototype branch) are both in progress at the Q2 census step. They cover the same Q2/Q3 validation workload; this duplicate was caused by delayed run-list visibility after the prototype branch push. The prototype branch push trigger has been disabled; no further run was launched. Let the existing runs finish and use the canonical-branch artifact as the reference result.
+- No cross-quarter identity result is available yet. Do not dispatch or push another census while either run remains active.
