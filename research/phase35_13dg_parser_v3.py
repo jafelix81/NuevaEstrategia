@@ -221,7 +221,7 @@ def parse_index(raw):
     return out
 
 def parse_master_index(raw):
-    """Return SC 13D/G master-index rows, preserving filer as filer."""
+    """Parse SEC master.idx rows, preserving every CIK association per accession."""
     if isinstance(raw, bytes):
         raw = raw.decode("latin-1", "replace")
     lines = raw.lstrip("\ufeff").splitlines()
@@ -239,23 +239,24 @@ def parse_master_index(raw):
         parts = line.split("|", 4)
         if len(parts) != 5:
             continue
-        filer_cik, company, form, filed, filename = [x.strip() for x in parts]
-        form = " ".join(form.upper().split())
+        master_cik, company, raw_form, filed, filename = [x.strip() for x in parts]
+        raw_form = " ".join(raw_form.upper().split())
+        form = raw_form
+        if form.startswith("SCHEDULE "):
+            form = "SC " + form[len("SCHEDULE "):]
         if form not in FORM_SET:
             continue
         accession_match = re.search(r"(\d{10}-\d{2}-\d{6})\.txt$", filename, re.I)
         if not accession_match:
             continue
-        accession = accession_match.group(1)
-        archive_dir = filename.rsplit("/", 1)[0].lstrip("/")
         rows.append({
-            "filer_cik": filer_cik.zfill(10),
-            "filer_company_name": company,
+            "master_index_cik": master_cik.zfill(10),
+            "master_index_company_name": company,
             "form": form,
+            "raw_form": raw_form,
             "filing_date": filed,
-            "accession": accession,
+            "accession": accession_match.group(1),
             "filename": filename,
-            "index_url": f"https://www.sec.gov/Archives/{archive_dir}/{accession}-index.htm",
         })
     return rows
 

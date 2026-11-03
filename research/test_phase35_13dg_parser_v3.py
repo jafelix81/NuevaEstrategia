@@ -63,18 +63,26 @@ class ParserV3Tests(unittest.TestCase):
         self.assertEqual(r["accepted_at"], "2025-03-07 09:59:15")
         self.assertEqual(r["accession"], "0000315066-25-000987")
 
-    def test_master_index_filters_forms_and_preserves_filer(self):
+    def test_master_index_preserves_subject_and_filer_cik_rows(self):
         idx = """Description: SEC master file
 CIK|Company Name|Form Type|Date Filed|Filename
 --------------------------------------------------------------------------------
-315066|FMR LLC|SC 13G|2025-03-07|edgar/data/315066/000031506625000987/0000315066-25-000987.txt
-2023554|SANDISK CORP|10-K|2025-03-07|edgar/data/2023554/000202355425000001/0002023554-25-000001.txt
+1849998|Federated Hermes ETF Trust|SCHEDULE 13G/A|2025-02-06|edgar/data/1849998/0000092230-25-000015.txt
+92230|TRUIST FINANCIAL CORP|SCHEDULE 13G/A|2025-02-06|edgar/data/92230/0000092230-25-000015.txt
+2023554|Sandisk Corp|SCHEDULE 13G|2025-03-07|edgar/data/2023554/0000315066-25-000987.txt
+315066|FMR LLC|SCHEDULE 13G|2025-03-07|edgar/data/315066/0000315066-25-000987.txt
+1000209|MEDALLION FINANCIAL CORP|SC 13D/A|2025-02-18|edgar/data/1000209/0000950170-25-022263.txt
 """
         rows = parse_master_index(idx)
-        self.assertEqual(len(rows), 1)
-        self.assertEqual(rows[0]["filer_cik"], "0000315066")
-        self.assertEqual(rows[0]["accession"], "0000315066-25-000987")
-        self.assertTrue(rows[0]["index_url"].endswith("0000315066-25-000987-index.htm"))
+        self.assertEqual(len(rows), 5)
+        self.assertEqual(rows[0]["master_index_cik"], "0001849998")
+        self.assertEqual(rows[0]["master_index_company_name"], "Federated Hermes ETF Trust")
+        self.assertEqual(rows[0]["form"], "SC 13G/A")
+        self.assertEqual(rows[0]["raw_form"], "SCHEDULE 13G/A")
+        self.assertEqual(rows[1]["master_index_cik"], "0000092230")
+        self.assertEqual(rows[2]["master_index_cik"], "0002023554")
+        self.assertEqual(rows[4]["form"], "SC 13D/A")
+        self.assertEqual(rows[0]["accession"], "0000092230-25-000015")
 
     def test_legacy_parser(self):
         t = """Item 1: Reporting Person - FMR LLC

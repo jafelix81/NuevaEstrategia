@@ -107,3 +107,11 @@ A reporting-person-set hash is not an economic-group identifier. Group continuit
 - No first-event claim if predecessor history is left-censored or incomplete. No forward returns until subject-issuer coverage, group identity, amendment lineage and historical universe gates all pass.
 
 Pilot code: research/phase35_global_subject_census_pilot.py. Parser: research/phase35_13dg_parser_v3.py. Six local parser tests are synthetic/schema tests only; the full SEC census has not yet run.
+
+
+## 2026-11-03 — Master-index form and paired-CIK findings
+The 2025Q1 master.idx contains 16,629 13D/G rows after normalizing both SCHEDULE and SC form labels, and 8,318 unique accessions. 8,311 accessions have two associated CIK/name rows; seven have one. This is a promising coverage structure, but the master index does not label those CIKs as Subject or Filed by.
+
+The first pilot's seven-row count was caused by accepting only SC-prefixed form labels; the zero Subject-CIK parse was caused by constructing archive URLs without the accession subdirectory. Both defects are corrected. The new pilot groups by accession, tries archive paths for each associated CIK, verifies the accession on the filing-detail page, and validates the page's Subject/Filed-by CIKs against the master-index pair.
+
+The candidate ticker map now includes SEC exchange-listed and mutual-fund/series files. Current mapping is not historical active-universe membership. No event or return test is authorized until the pilot passes.

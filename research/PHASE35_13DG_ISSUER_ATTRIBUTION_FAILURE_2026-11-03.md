@@ -114,3 +114,7 @@ A new branch prototype implements:
 - a 2025Q1 pilot with a 95% Subject CIK coverage gate and a fixed Truist/Federated validation accession.
 
 The prototype uses current ticker mappings only as candidate CIKs and does not claim historical active-universe coverage. No economic tests are authorized.
+
+
+## 2026-11-03 — Master-index pilot diagnostics
+The initial pilot failed because it did not normalize SCHEDULE-prefixed form labels and omitted the accession directory from filing-detail URLs. The saved 2025Q1 master.idx itself is comprehensive: 16,629 13D/G rows, 8,318 unique accessions, with 8,311 two-CIK pairs and seven single-CIK accessions. Known pairs include Federated/Truist and Sandisk/FMR. These pairs are not role-labelled; the SEC filing-detail page must establish Subject and Filed-by. The corrected pilot uses the paired CIKs to locate each index page and filters by the page's Subject CIK.

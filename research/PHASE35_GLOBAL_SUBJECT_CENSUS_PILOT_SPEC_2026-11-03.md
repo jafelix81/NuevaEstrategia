@@ -60,3 +60,12 @@ If the pilot passes, expand quarter-by-quarter to the earliest usable EDGAR full
 
 ## Execution note
 The branch-scoped workflow is committed, but no hosted run has been created for the branch commit. This environment can inspect Actions runs and rerun existing jobs but cannot dispatch this new workflow. Keep the branch isolated; do not merge to main just to trigger it because that may start the existing full Phase 35 and Phase 22C workflows. The first pilot run requires a user-originated push to this branch or an available manual dispatch path.
+
+
+## Corrected pilot implementation
+- Normalizes raw SCHEDULE 13D/G and SC 13D/G form labels.
+- Groups the two (usually) master-index CIK/name rows by accession; does not treat either CIK as the Subject or Filed-by without the filing-detail page.
+- Builds archive URLs with the accession subdirectory and verifies the returned page's accession.
+- Fetches all accessions associated with a current candidate CIK, plus a deterministic 50-per-form non-target validation sample and the rare single-CIK accessions.
+- Uses SEC company_tickers, company_tickers_exchange and company_tickers_mf mapping files; retains multiple CIKs and series/class IDs.
+- Requires at least 95% Subject and Filed-by parse coverage in both target-relevant and validation samples, at least 95% paired-role consistency, <=5% fetch errors, and the fixed Truist/Federated fixture.

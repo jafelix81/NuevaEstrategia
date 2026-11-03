@@ -96,3 +96,12 @@ Updated: 2026-11-03 (critical Phase 35 attribution correction)
 - The isolated workflow file is committed at .github/workflows/phase35_global_subject_census_pilot.yml and is restricted to this research branch plus manual dispatch.
 - No GitHub Actions run was created for branch commit 4ba190f49fa4d771b4ee5eae1de6f2f5a325298f; the latest run list still contains only completed main-branch workflows. The available GitHub integration supports Actions reads and job reruns but exposes no workflow_dispatch action. The pilot is therefore prepared but not executed in hosted CI.
 - Do not merge the workflow into main merely to trigger it: a main push may relaunch the existing full Phase 35/22C workflows and duplicate expensive audits. A user-originated push to the isolated branch or an explicitly enabled manual dispatch is needed for the first hosted run.
+
+
+## 2026-11-03 — 2025Q1 global master-index feasibility result
+- The first pilot attempts exposed two implementation errors, not missing SEC data: raw master.idx uses SCHEDULE 13D/G and SCHEDULE 13D/G/A labels as well as SC variants; and filing-detail archive URLs require the accession-number subdirectory. The parser and URL construction are corrected in the isolated branch.
+- The saved 2025Q1 master.idx is 30,623,221 bytes / 340,137 lines. It contains 16,629 13D/G rows after form normalization: 4,460 13G, 9,230 13G/A, 538 13D, 2,394 13D/A, and 7 SC 13D/A.
+- Grouping by accession produces 8,318 unique accessions: 8,311 have two associated CIK/name rows and 7 have one. Known pairs: 0000092230-25-000015 maps to Federated Hermes ETF Trust (0001849998) and Truist Financial Corp (0000092230); 0000315066-25-000987 maps to Sandisk Corp (0002023554) and FMR LLC (0000315066).
+- The master-index CIK pairs are not role-labelled. The pilot must verify Subject and Filed-by from the filing-detail page; row order is not used. The revised pilot fetches all accessions associated with a current candidate CIK plus a deterministic stratified non-target sample.
+- Current candidate CIK mapping now includes SEC company_tickers.json, company_tickers_exchange.json, company_tickers_mf.json and a fallback mapper. Multiple CIKs and fund series/class IDs are retained. This is still not a PIT historical security master.
+- No forward returns, no group inference, no alpha test. F80 remains frozen.
