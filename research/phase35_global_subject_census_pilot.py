@@ -227,8 +227,8 @@ def main():
 
     if not summary["known_truist_federated_accession"]["pass"]:
         raise RuntimeError("Known Truist/Federated subject-vs-filer validation fixture failed")
-    if summary["subject_cik_coverage"] is None or summary["subject_cik_coverage"] < 0.90:
-        raise RuntimeError("Subject CIK coverage below 90% pilot gate")
+    if summary["subject_cik_coverage"] is None or summary["subject_cik_coverage"] < 0.95:
+        raise RuntimeError("Subject CIK coverage below 95% pilot gate")
 
 if __name__ == "__main__":
     main()
