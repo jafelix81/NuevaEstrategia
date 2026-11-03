@@ -1,6 +1,6 @@
 # Smart Money Research State
 
-Updated: 2026-11-03 (critical Phase 35 attribution correction)
+Updated: 2026-11-03 (Phase 35 global XML subject-census repair)
 
 ## Frozen control
 - `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
@@ -93,9 +93,10 @@ Updated: 2026-11-03 (critical Phase 35 attribution correction)
 
 
 ## Pilot execution status
-- The isolated workflow file is committed at .github/workflows/phase35_global_subject_census_pilot.yml and is restricted to this research branch plus manual dispatch.
-- No GitHub Actions run was created for branch commit 4ba190f49fa4d771b4ee5eae1de6f2f5a325298f; the latest run list still contains only completed main-branch workflows. The available GitHub integration supports Actions reads and job reruns but exposes no workflow_dispatch action. The pilot is therefore prepared but not executed in hosted CI.
-- Do not merge the workflow into main merely to trigger it: a main push may relaunch the existing full Phase 35/22C workflows and duplicate expensive audits. A user-originated push to the isolated branch or an explicitly enabled manual dispatch is needed for the first hosted run.
+- The first hosted global-census run, 41707588968, completed with a validation failure after both test suites passed. Job 126166891297 fetched 1,306 filing-detail pages with zero HTTP errors, but the HTML parser extracted zero Subject CIKs and zero Filed-by CIKs, including the fixed Truist/Federated fixture. Artifact 13267337601 is preserved; its summary correctly reports FAILED_VALIDATION.
+- The failure is a page-parser representation mismatch, not missing SEC filings. The master.idx census and candidate selection succeeded: 16,629 13D/G rows, 8,318 accessions, 1,100 target-relevant accessions, and 206 non-target validation accessions.
+- A second pilot now uses each accession's candidate archive paths to fetch structured primary_doc.xml directly. It parses subject issuer CIK separately from the XML submission-filer CIK and retains reporting persons and previousAccessionNumber. The new script and tests are on this isolated branch.
+- The branch-only workflow is being updated to run the XML pilot; its concurrency group has cancel-in-progress=false so a queued run will not overlap/replace an active run. No main-branch workflow or F80 code is changed.
 
 
 ## 2026-11-03 — 2025Q1 global master-index feasibility result
@@ -109,3 +110,12 @@ Updated: 2026-11-03 (critical Phase 35 attribution correction)
 
 ## 2026-11-03 — SEC ticker-map JSON schema correction
 The corrected global-census pilot passed both parser test suites but stopped before the master-index download because company_tickers_exchange.json encodes rows as arrays under top-level fields and data, not as dictionaries. The SEC mutual-fund ticker file may use the same shape. The mapping reader now converts fields/data arrays into named records before extracting CIK, ticker, exchange, series and class. This is an ingestion-format fix, not evidence against SEC coverage; no returns or alpha test.
+
+
+## 2026-11-03 — XML-based subject-census repair
+- Run 41707588968 (job 126166891297; artifact 13267337601) completed as FAILED_VALIDATION. The 2025Q1 master.idx discovery was successful and 1,306 index pages were fetched without HTTP errors, but the HTML text parser returned zero role CIKs. The known Truist/Federated accession also failed its role check. No forward returns were used.
+- The repair bypasses the failed HTML role parser for 2025Q1 and fetches `primary_doc.xml` through each CIK archive path associated with the accession in master.idx. Subject issuer CIK comes only from XML `issuerInfo/issuerCik`/`issuerCIK`; submission filer CIK comes separately from `filerCredentials/cik`. These are not reporting-group identifiers.
+- Structured XML is a suitable Q1 2025 feasibility route because the SEC's Modernization of Beneficial Ownership Reporting rule required structured Schedule 13D/13G data beginning 2024-12-18 (official rule: https://www.sec.gov/files/rules/final/2023/33-11253.pdf).
+- New code: `research/phase35_global_subject_census_pilot_xml.py`; tests: `research/test_phase35_global_subject_census_pilot_xml.py`; failure/repair audit: `research/PHASE35_GLOBAL_SUBJECT_CENSUS_XML_PILOT_FAILURE_2026-11-03.md`.
+- Predeclared gates remain >=95% subject and submission-filer CIK coverage, >=95% role-to-master-index-pair consistency, >=95% form agreement, <=5% XML fetch errors, and exact Truist/Federated identity. Current ticker CIKs are still candidate mappings only; 27 tickers remain unresolved in the pilot mapping.
+- KnowledgeDate remains the SEC filing date from master.idx, with signal date strictly later. No same-day signal assumption, no forward returns, no economic-group inference, and no alpha claim. F80 remains frozen.
