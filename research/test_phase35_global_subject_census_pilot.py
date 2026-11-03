@@ -1,5 +1,5 @@
 import unittest
-from phase35_global_subject_census_pilot import group_master_index_rows, build_index_urls, select_accessions
+from phase35_global_subject_census_pilot import group_rows, index_urls, select_groups
 
 class GlobalSubjectCensusPilotTests(unittest.TestCase):
     def setUp(self):
@@ -11,7 +11,7 @@ class GlobalSubjectCensusPilotTests(unittest.TestCase):
         ]
 
     def test_grouping_retains_both_ciks_for_accession(self):
-        groups = group_master_index_rows(self.rows)
+        groups = group_rows(self.rows)
         self.assertEqual(len(groups), 2)
         g = next(x for x in groups if x["accession"] == "0000092230-25-000015")
         self.assertEqual(g["master_index_ciks"], ["0000092230", "0001849998"])
@@ -19,14 +19,14 @@ class GlobalSubjectCensusPilotTests(unittest.TestCase):
         self.assertFalse(g["metadata_conflict"])
 
     def test_index_urls_use_archive_cik_and_accession_directory(self):
-        g = next(x for x in group_master_index_rows(self.rows) if x["accession"] == "0000092230-25-000015")
-        urls = build_index_urls(g)
+        g = next(x for x in group_rows(self.rows) if x["accession"] == "0000092230-25-000015")
+        urls = index_urls(g)
         self.assertEqual(urls[0], "https://www.sec.gov/Archives/edgar/data/92230/000009223025000015/0000092230-25-000015-index.htm")
         self.assertGreaterEqual(len(urls), 4)
 
     def test_target_filter_matches_either_master_index_cik(self):
-        groups = group_master_index_rows(self.rows)
-        relevant, sample = select_accessions(groups, {"0001849998"}, sample_per_form=1)
+        groups = group_rows(self.rows)
+        relevant, sample = select_groups(groups, {"0001849998"}, per_form=1)
         self.assertEqual([x["accession"] for x in relevant], ["0000092230-25-000015"])
         self.assertEqual(len(sample), 1)
 
