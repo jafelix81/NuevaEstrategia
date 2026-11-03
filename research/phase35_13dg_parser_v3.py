@@ -141,6 +141,7 @@ def parse_xml(raw):
         "schema_version": child_text(root, "schemaVersion"),
         "filer_cik": filer_cik.zfill(10) if filer_cik and filer_cik.isdigit() else filer_cik,
         "previous_accession": child_text(header, "previousAccessionNumber"),
+        "amendment_no": child_text(cover, "amendmentNo"),
         "subject_issuer_cik": child_text(issuer, "issuerCIK") or child_text(issuer, "issuerCik"),
         "subject_issuer_name": child_text(issuer, "issuerName"),
         "subject_issuer_cusips": cusips,
