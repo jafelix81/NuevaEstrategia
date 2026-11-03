@@ -1,6 +1,6 @@
 # Smart Money Research State
 
-Updated: 2026-10-25
+Updated: 2026-11-02
 
 ## Frozen control
 - F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
@@ -46,10 +46,19 @@ Updated: 2026-10-25
 ## Phase 32 — market microstructure
 - Feasibility audit indicates event-level historical order/quote data would be valuable, but reproducible execution currently requires a licensed historical dataset. Do not synthesize microstructure from inadequate aggregates.
 
+## Phase 35/49 — SEC 13D/13G subject-issuer identity
+- Status: BLOCKED / PARSER INVALID; no economic testing authorized.
+- Phase 49 run 41539253881 completed successfully on 2026-11-03 and processed 20,266 filings with zero download/submission errors, but returned 0 subject CIKs and 0 F80 subject matches.
+- Root cause: the implementation fetched each filing's primary document under the filer CIK and attempted to parse the SUBJECT COMPANY block from that document. The official EDGAR `*-index-headers.html` contains the structured `SUBJECT COMPANY` and `FILED BY` blocks and their distinct CIKs; the primary-document path is therefore the wrong identity source for this gate.
+- This is a data-pipeline failure, not evidence against 13D/13G economically. The 20,266-row output is not valid for alpha or issuer-level analysis.
+- Correct next implementation: for each accession, fetch `https://www.sec.gov/Archives/edgar/data/{filer_cik}/{accession_no_dash}/{accession}-index-headers.html`, parse SUBJECT COMPANY CIK/name separately from FILED BY CIK/name, retain `filing_date` as KnowledgeDate, and rerun the coverage gate before any economic test.
+- No F80/LTM changes and no 13D/13G alpha claims are permitted until subject-CIK coverage and historical active-universe membership pass.
+
 ## Current priority
 - Keep the frozen F80/LTM control unchanged.
-- Do not spend further cycles rescuing FINRA, Form 4, CFTC COT, or the current N-PORT dose-response hypothesis.
-- Prioritize Smart Money sources that can deliver genuinely different information with reliable PIT timestamps: institutional/options microstructure if reproducible historical access can be established; otherwise continue feasibility work on deterministic institutional-ownership sources and direct market-microstructure datasets.
+- Do not spend further cycles rescuing FINRA, the existing Form 4 standalone hypothesis, CFTC COT, or the current N-PORT dose-response hypothesis.
+- Repair the 13D/13G identity pipeline using EDGAR index headers, then re-run the data gate.
+- In parallel, prioritize Smart Money sources that can deliver genuinely different information with reliable PIT timestamps: reproducible institutional/options microstructure and deterministic institutional-ownership sources. Options remain conditional on broad historical coverage and stable contract-level identifiers.
 
 ## Research principle
 "Smart money" is a hypothesis, not an assumption. Candidate sources must pass historical coverage, ex-ante availability, timestamp/PIT, universe overlap, incremental-information, chronological OOS, bootstrap and LOO tests before portfolio promotion.
