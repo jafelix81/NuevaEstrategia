@@ -1,0 +1,47 @@
+name: Phase 35 Global Subject Census Pilot
+
+on:
+  push:
+    branches:
+      - phase35-13dg-issuer-attribution-repair
+    paths:
+      - research/phase35_13dg_parser_v3.py
+      - research/test_phase35_13dg_parser_v3.py
+      - research/phase35_global_subject_census_pilot.py
+      - .github/workflows/phase35_global_subject_census_pilot.yml
+  workflow_dispatch:
+
+concurrency:
+  group: phase35-global-subject-census-pilot
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout isolated research branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run parser and master-index unit tests
+        run: python -m unittest discover -s research -p "test_phase35_13dg_parser_v3.py" -v
+
+      - name: Run 2025Q1 global subject-issuer census pilot
+        run: python -u research/phase35_global_subject_census_pilot.py --year 2025 --quarter 1
+
+      - name: Upload pilot audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase35-global-subject-census-2025q1
+          path: phase35_global_subject_census_pilot/
+          if-no-files-found: warn
+          retention-days: 30
