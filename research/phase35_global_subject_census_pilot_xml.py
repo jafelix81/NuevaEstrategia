@@ -86,6 +86,7 @@ def identity_row(group, parsed, xml_url, target_ciks):
         "xml_form_match": normalize_form(parsed.get("submission_type")) == group["form"],
         "event_date_raw": parsed.get("event_date"),
         "previous_accession": parsed.get("previous_accession"),
+        "amendment_no": parsed.get("amendment_no"),
         "reporting_person_count": len(people),
         "reporting_person_cik_count": len(person_ciks),
         "reporting_person_cik_coverage": len(person_ciks) / len(people) if people else 0.0,
@@ -216,13 +217,17 @@ def main():
     both_pair_rel = coverage(rel, "both_subject_and_filer_in_master_pair", n_rel)
     form_match = coverage(results, "xml_form_match", len(ordered))
     known = next((r for r in results if r["accession"] == KNOWN_ACCESSION), None)
+    known_required = args.year == 2025 and args.quarter == 1
     known_check = {
+        "required": known_required,
         "found": known is not None,
         "submission_filer_cik": known.get("submission_filer_cik") if known else None,
         "subject_issuer_cik": known.get("subject_issuer_cik") if known else None,
         "pass": bool(
-            known and known.get("submission_filer_cik") == "0000092230"
-            and known.get("subject_issuer_cik") == "0001849998"
+            (not known_required) or (
+                known and known.get("submission_filer_cik") == "0000092230"
+                and known.get("subject_issuer_cik") == "0001849998"
+            )
         ),
     }
     passed = bool(
@@ -267,6 +272,9 @@ def main():
             r["submission_filer_is_target_candidate"] and not r["subject_is_target_candidate"]
             for r in results
         ),
+        "amendment_no_present_amendments": sum(bool(r.get("amendment_no")) for r in results if r["form"].endswith("/A")),
+        "amendment_total_amendments": sum(1 for r in results if r["form"].endswith("/A")),
+        "previous_accession_present_amendments": sum(bool(r.get("previous_accession")) for r in results if r["form"].endswith("/A")),
         "reporting_person_cik_coverage_mean": (
             statistics.mean(r["reporting_person_cik_coverage"] for r in results)
             if results else None
