@@ -19,7 +19,7 @@ from phase35_13dg_parser_v3 import parse_index, parse_master_index
 
 SEC_TICKERS = "https://www.sec.gov/files/company_tickers.json"
 MAPPER = "https://raw.githubusercontent.com/jadchaar/sec-cik-mapper/main/mappings/stocks/ticker_to_cik.json"
-SEC_UA = "NuevaEstrategia quantitative research jafelix@gmail.com"
+SEC_UA = "NuevaEstrategia quantitative research jose.felix@felixsarmiento.com"
 SEC_INTERVAL = 0.16
 _last_sec_request = 0.0
 
