@@ -34,6 +34,9 @@ jobs:
       - name: Run parser and master-index unit tests
         run: python -m unittest discover -s research -p "test_phase35_13dg_parser_v3.py" -v
 
+      - name: Run global-census URL construction tests
+        run: python -m unittest discover -s research -p "test_phase35_global_subject_census_pilot.py" -v
+
       - name: Run 2025Q1 global subject-issuer census pilot
         run: python -u research/phase35_global_subject_census_pilot.py --year 2025 --quarter 1
 
