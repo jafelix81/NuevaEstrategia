@@ -1,4 +1,4 @@
-name: Phase 35 Global Subject Census Pilot
+name: Phase 35 Global Subject Census XML Pilot
 
 on:
   push:
@@ -9,6 +9,8 @@ on:
       - research/test_phase35_13dg_parser_v3.py
       - research/test_phase35_global_subject_census_pilot.py
       - research/phase35_global_subject_census_pilot.py
+      - research/phase35_global_subject_census_pilot_xml.py
+      - research/test_phase35_global_subject_census_pilot_xml.py
       - .github/workflows/phase35_global_subject_census_pilot.yml
   workflow_dispatch:
 
@@ -32,20 +34,23 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Run parser and master-index unit tests
+      - name: Run schema-aware SEC 13D/13G parser tests
         run: python -m unittest discover -s research -p "test_phase35_13dg_parser_v3.py" -v
 
-      - name: Run global-census URL construction tests
+      - name: Run master-index discovery tests
         run: python -m unittest discover -s research -p "test_phase35_global_subject_census_pilot.py" -v
 
-      - name: Run 2025Q1 global subject-issuer census pilot
-        run: python -u research/phase35_global_subject_census_pilot.py --year 2025 --quarter 1
+      - name: Run structured-XML subject/filer identity tests
+        run: python -m unittest discover -s research -p "test_phase35_global_subject_census_pilot_xml.py" -v
 
-      - name: Upload pilot audit
+      - name: Run 2025Q1 global subject census from primary XML
+        run: python -u research/phase35_global_subject_census_pilot_xml.py --year 2025 --quarter 1
+
+      - name: Upload XML census pilot audit
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: phase35-global-subject-census-2025q1
-          path: phase35_global_subject_census_pilot/
+          name: phase35-global-subject-census-xml-2025q1
+          path: phase35_global_subject_census_xml_pilot/
           if-no-files-found: warn
           retention-days: 30
