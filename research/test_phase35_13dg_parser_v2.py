@@ -29,11 +29,40 @@ class ParserTests(unittest.TestCase):
         self.assertEqual(r["subject_issuer_name"], "Federated Hermes ETF Trust")
         self.assertEqual(r["subject_issuer_cusips"], ["31423L503"])
         self.assertEqual(r["previous_accession"], "0000092230-25-000001")
-        self.assertEqual(r["reporting_persons"][0]["name"], "TRUIST FINANCIAL CORP",)
+        self.assertEqual(r["reporting_persons"][0]["name"], "TRUIST FINANCIAL CORP")
         self.assertEqual(r["reporting_persons"][0]["percent"], "38.0")
         self.assertEqual(r["reporting_persons"][0]["types"], "IA|HC")
 
     def test_legacy_multiple_people(self):
         t = """Item 1: Reporting Person - FMR LLC
         Item 1: Reporting Person - Abigail P. Johnson
-        CUSIÿÿÀÈÔÌÌäÌÄÀÈ()=%9P%1%9I59P(ÈôÁÉÍ}±ä¡Ð¤(Í±¹ÍÍÉÑÅÕ°¡ÉlÉÁ½ÉÑ¥¹}ÁÉÍ½¹}¹µÌt°l5H11°¥¥°@¸)½¡¹Í½¸t¤(Í±¹ÍÍÉÑÅÕ°¡ÉlÕÍ¥Àt°ÈÔÌÌäÌÄÀÈ¤(Í±¹ÍÍÉÑQÉÕ¡Él©½¥¹Ñ}¥±¥¹}Éµ¹Ðt¤((ÑÍÑ}±å}½ÙÉ}Á¡Í±¤è(ÐôUM%@9¼¸ÀÈÌäÁÄÀÄ(Äð9µ½ÉÁ½ÉÑ¥¹ÁÉÍ½¸(!1TI1=LM1%4(%Ñ´Ð¸AÕÉÁ½Í½QÉ¹ÍÑ¥½¸(Q¡ÉÁ½ÉÑ¥¹ÁÉÍ½¹ÌµäÍ¬Ñ¼¥¹±Õ¹µ¹µ¹Ð¸(%Ñ´Ô¸%¹ÑÉÍÐ¥¸MÕÉ¥Ñ¥Ì(ÈôÁÉÍ}±ä¡Ð¤(Í±¹ÍÍÉÑ%¸ !1TI1=LM1%4°ÉlÉÁ½ÉÑ¥¹}ÁÉÍ½¹}¹µÌt¤(Í±¹ÍÍÉÑ%¸ ¥¹±Õ¹°ÉlÁÕÉÁ½Í}ÑáÐt¤((ÑÍÑ}¥¹á}ÍÁÉÑÍ}¥±É}¹}ÍÕ©Ð¡Í±¤è(Áôñ¥ØùÁÑð½¥Øøñ¥ØøÈÀÈÐ´ÄÈ´ÈÜÄØèÄÔèÄÈð½¥Øø(ñ¥Øù!1TI1=LM1%4¡¥±ä¤%,èÀÀÀÄÀàÀäÄÀð½¥Øø(ñ¥Øù5I%5=Y%0MX¡MÕ©Ð¤%,èÀÀÀÄÄÈäÄÌÜð½¥Øø(ÈôÁÉÍ}¥¹à¡Á¤(Í±¹ÍÍÉÑÅÕ°¡Él¥±}å}¥¬t°ÀÀÀÄÀàÀäÄÀ¤(Í±¹ÍÍÉÑÅÕ°¡ÉlÍÕ©Ñ}¥¬t°ÀÀÀÄÄÈäÄÌÜ¤(Í±¹ÍÍÉÑÅÕ°¡ÉlÁÑ}Ðt°ÈÀÈÐ´ÄÈ´ÈÜÄØèÄÔèÄÈ¤(()¥}}¹µ}|ôô}}µ¥¹}|è(Õ¹¥ÑÑÍÐ¹µ¥¸ ¤(ÿÿÿ
+        CUSIP #253393102
+        JOINT FILING AGREEMENT"""
+        r = parse_legacy(t)
+        self.assertEqual(r["reporting_person_names"], ["FMR LLC", "Abigail P. Johnson"])
+        self.assertEqual(r["cusip"], "253393102")
+        self.assertTrue(r["joint_filing_agreement"])
+
+    def test_legacy_cover_page(self):
+        t = """CUSIP No. 02390A101
+        1 | Name of reporting person
+        HELU CARLOS SLIM
+        Item 4. Purpose of Transaction
+        The reporting persons may seek to influence management.
+        Item 5. Interest in Securities"""
+        r = parse_legacy(t)
+        self.assertIn("HELU CARLOS SLIM", r["reporting_person_names"])
+        self.assertIn("influence", r["purpose_text"])
+
+    def test_index_separates_filer_and_subject(self):
+        page = """<div>Accepted</div><div>2024-12-27 16:15:12</div>
+        <div>HELU CARLOS SLIM (Filed by) CIK: 0001080910</div>
+        <div>AMERICA MOVIL SAB DE CV (Subject) CIK: 0001129137</div>"""
+        r = parse_index(page)
+        self.assertEqual(r["filed_by_cik"], "0001080910")
+        self.assertEqual(r["subject_cik"], "0001129137")
+        self.assertEqual(r["accepted_at"], "2024-12-27 16:15:12")
+
+
+if __name__ == "__main__":
+    unittest.main()
