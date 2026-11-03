@@ -119,3 +119,11 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - New code: `research/phase35_global_subject_census_pilot_xml.py`; tests: `research/test_phase35_global_subject_census_pilot_xml.py`; failure/repair audit: `research/PHASE35_GLOBAL_SUBJECT_CENSUS_XML_PILOT_FAILURE_2026-11-03.md`.
 - Predeclared gates remain >=95% subject and submission-filer CIK coverage, >=95% role-to-master-index-pair consistency, >=95% form agreement, <=5% XML fetch errors, and exact Truist/Federated identity. Current ticker CIKs are still candidate mappings only; 27 tickers remain unresolved in the pilot mapping.
 - KnowledgeDate remains the SEC filing date from master.idx, with signal date strictly later. No same-day signal assumption, no forward returns, no economic-group inference, and no alpha claim. F80 remains frozen.
+
+
+## 2026-11-03 — XML pilot retry: test-fixture robustness fix
+- Latest run 41714047979 completed with failure before any SEC census requests. The parser-v3 suite (6 tests) and master-index suite (4 tests) passed; the XML pilot suite had 2 passes and 1 error.
+- The failing negative test intentionally used `https://example.invalid/primary_doc.xml` to verify that a missing reporting-person CIK does not invent a group. `identity_row()` unconditionally split the URL on `/data/` to derive archive_path_cik, causing IndexError. This is a local robustness defect, not a source-coverage or SEC HTTP failure.
+- Replaced the unconditional split with a guarded SEC archive-path parser; non-archive URLs now yield null. Added assertions for both a real SEC archive URL and the negative URL.
+- Latest run produced no artifact because the pilot step was skipped after the unit-test failure. No SEC census, forward returns, or economic test ran. The corrected branch push will trigger one new pilot run; no overlapping run was active at the time of the fix.
+- F80 remains frozen; 13D/13G remains a data-feasibility project only.

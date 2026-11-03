@@ -58,6 +58,7 @@ class GlobalSubjectCensusXMLPilotTests(unittest.TestCase):
             "https://www.sec.gov/Archives/edgar/data/92230/000009223025000015/primary_doc.xml",
             {"0001849998"},
         )
+        self.assertEqual(row["archive_path_cik"], "0000092230")
         self.assertEqual(row["subject_issuer_cik"], "0001849998")
         self.assertEqual(row["submission_filer_cik"], "0000092230")
         self.assertNotEqual(row["subject_issuer_cik"], row["submission_filer_cik"])
@@ -82,6 +83,7 @@ class GlobalSubjectCensusXMLPilotTests(unittest.TestCase):
         row = identity_row(self.group, parsed, "https://example.invalid/primary_doc.xml", set())
         self.assertIsNone(row["reporting_person_set_fingerprint"])
         self.assertEqual(row["reporting_person_cik_coverage"], 0.0)
+        self.assertIsNone(row["archive_path_cik"])
 
 
 if __name__ == "__main__":

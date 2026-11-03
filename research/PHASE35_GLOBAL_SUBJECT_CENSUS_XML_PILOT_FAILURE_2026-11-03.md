@@ -45,3 +45,7 @@ Reporting-person CIK coverage is measured but is not used to invent missing iden
 ## Research boundary
 
 No forward returns, no alpha test, no horizon or threshold selection. The current ticker map is a candidate set, not a point-in-time historical security master. The 27 unresolved tickers, historical active-universe membership, predecessor-chain completeness, and left-censoring remain open gates. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+
+## Follow-up — run 41714047979
+The XML pilot did not reach its network/census stage. Six parser-v3 tests and four master-index tests passed. In the XML pilot test suite, the two identity/URL tests passed; the negative test for a missing reporting-person CIK errored because the deliberately non-SEC URL lacked the `/data/` path segment assumed by `identity_row()`. This was an unguarded archive-path extraction in the testable row builder, not an SEC response or schema failure. The repair now treats archive_path_cik as nullable unless the URL matches the SEC archive path. The next run must first pass all 13 local tests, then execute the 2025Q1 XML census. No artifact or census result exists for run 41714047979.

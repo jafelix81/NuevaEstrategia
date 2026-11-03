@@ -5,7 +5,7 @@ and submission-filer CIKs. No accession prefix or master-index row order is used
 as an identity role. This is a feasibility audit, not an alpha test.
 """
 from __future__ import annotations
-import argparse, csv, gzip, hashlib, json, statistics
+import argparse, csv, gzip, hashlib, json, re, statistics
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
@@ -54,6 +54,12 @@ def fetch_primary_xml(group):
     return None, None, ";".join(errors[-6:]) or "PRIMARY_XML_NOT_FOUND"
 
 
+def archive_path_cik_from_url(xml_url):
+    """Return the numeric CIK in an SEC archive path; tolerate non-archive test URLs."""
+    match = re.search(r"/Archives/edgar/data/(\\d+)/", xml_url or "", flags=re.IGNORECASE)
+    return match.group(1).zfill(10) if match else None
+
+
 def identity_row(group, parsed, xml_url, target_ciks):
     subject = cik_norm(parsed.get("subject_issuer_cik"))
     filer = cik_norm(parsed.get("filer_cik"))
@@ -96,7 +102,7 @@ def identity_row(group, parsed, xml_url, target_ciks):
         "target_relevant": group["target_relevant"],
         "validation_sample_non_target": group["validation_sample"],
         "xml_url": xml_url,
-        "archive_path_cik": xml_url.split("/data/", 1)[1].split("/", 1)[0],
+        "archive_path_cik": archive_path_cik_from_url(xml_url),
     }
 
 
