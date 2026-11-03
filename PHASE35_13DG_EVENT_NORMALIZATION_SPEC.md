@@ -72,3 +72,38 @@ After the corrected issuer/group panel passes the gates, test whether newly disc
 7. Exclusion counts and reasons.
 
 No forward returns until all seven outputs are produced and reviewed.
+
+
+## 2026-11-03 correction: discovery must be subject-issuer based, not query-CIK based
+
+The earlier 28D/35 method is structurally invalid as an issuer census. It queried SEC submissions for CIKs mapped from the target ticker list. SEC submissions are filings made by the queried CIK; for Schedule 13D/G that CIK is commonly the reporting person/filer, while the target security issuer is a different entity. The TFC/Truist/Federated example proves this distinction. A schema-aware XML parser alone cannot correct the sampling frame because filings submitted by investors outside the 335-name universe were never queried.
+
+### Required global discovery frame
+1. Download the SEC quarterly global master.idx for each quarter in the research history.
+2. Filter its Form Type column to SC 13D, SC 13D/A, SC 13G and SC 13G/A. The master index CIK is the filer/submitting entity only.
+3. For every candidate accession, fetch the SEC filing-detail index page and parse its Filed by and Subject CIK/name fields separately.
+4. Use Subject CIK as the issuer identity for legacy-compatible discovery. Where structured XML exists, parse issuerInfo/issuerCik or issuerCIK and require consistency with the index Subject CIK; disagreements are quarantined.
+5. Preserve accession-prefix/submission CIK, master-index filer CIK, index Filed-by CIK, XML filer CIK, subject issuer CIK, reporting-person CIKs/names, and security-class CUSIP(s) as separate fields.
+
+### Corrected 13G schema details
+The structured 13G schema uses:
+- issuerInfo/issuerCik, issuerName and issuerCusips/issuerCusipNumber;
+- coverPageHeaderReportingPersonDetails/reportingCik and reportingPersonName;
+- memberGroup (not memberOfGroup);
+- reportingPersonBeneficiallyOwnedNumberOfShares with nested voting/dispositive fields;
+- reportingPersonBeneficiallyOwnedAggregateNumberOfShares, classPercent and repeated typeOfReportingPerson;
+- headerData/previousAccessionNumber for exact amendment predecessor links.
+
+A reporting-person-set hash is not an economic-group identifier. Group continuity must use exact predecessor links plus explicit reporting-person and legal/group evidence. Missing CIKs or incomplete sets remain ambiguous.
+
+### Pilot and gates
+- Pilot quarter: 2025Q1.
+- Validate the known Truist/Federated accession 0000092230-25-000015: Filed-by CIK 0000092230; Subject CIK 0001849998.
+- Report global candidate counts by form, Subject CIK parse coverage, Filed-by coverage, target-subject matches, target-filer matches, and exact duplicates.
+- Minimum pilot Subject CIK parse coverage: 95%. This is a parser/data-quality gate, not an alpha threshold.
+- Expand to all quarters back to the earliest usable EDGAR full-index history (1993 archive onward where available) only after the pilot passes.
+- The 335 current ticker-to-CIK candidates are not historical active-universe membership. Build a PIT-effective historical issuer/security master before any return test.
+- Filing date remains KnowledgeDate. Accepted timestamp is retained separately; no same-day signal without verified timezone/session handling.
+- No first-event claim if predecessor history is left-censored or incomplete. No forward returns until subject-issuer coverage, group identity, amendment lineage and historical universe gates all pass.
+
+Pilot code: research/phase35_global_subject_census_pilot.py. Parser: research/phase35_13dg_parser_v3.py. Six local parser tests are synthetic/schema tests only; the full SEC census has not yet run.
