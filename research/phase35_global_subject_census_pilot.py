@@ -127,7 +127,15 @@ def main():
     master_url = f"https://www.sec.gov/Archives/edgar/full-index/{args.year}/{quarter}/master.idx"
     master_raw = fetch_bytes(master_url, sec=True, timeout=90)
     master_sha = hashlib.sha256(master_raw).hexdigest()
-    candidates = parse_master_index(master_raw)
+    candidates_raw = parse_master_index(master_raw)
+    candidates_by_accession = {}
+    duplicate_accessions = []
+    for row in candidates_raw:
+        if row["accession"] in candidates_by_accession:
+            duplicate_accessions.append(row["accession"])
+            continue
+        candidates_by_accession[row["accession"]] = row
+    candidates = list(candidates_by_accession.values())
     by_form = Counter(row["form"] for row in candidates)
 
     print(json.dumps({"stage": "MASTER_INDEX_FILTERED", "year": args.year, "quarter": quarter,
@@ -140,6 +148,9 @@ def main():
         parsed, error = fetch_filing_index(row)
         if error:
             errors.append({"accession": row["accession"], "error": error})
+            continue
+        if parsed.get("accession") != row["accession"]:
+            errors.append({"accession": row["accession"], "error": "INDEX_ACCESSION_MISMATCH", "index_accession": parsed.get("accession")})
             continue
         subject_cik, filed_by_cik = parsed.get("subject_cik"), parsed.get("filed_by_cik")
         results.append({
@@ -195,7 +206,10 @@ def main():
         "frozen_tickers": len(tickers),
         "current_candidate_ciks": len(target_ciks),
         "unresolved_tickers": unresolved,
-        "master_index_13dg_candidates": len(candidates),
+        "master_index_13dg_candidates_raw": len(candidates_raw),
+        "master_index_13dg_candidates_unique_accession": len(candidates),
+        "duplicate_accessions_in_master_index": len(duplicate_accessions),
+        "duplicate_accession_sample": duplicate_accessions[:20],
         "candidate_forms": dict(by_form),
         "index_pages_parsed": len(results),
         "index_fetch_errors": len(errors),
