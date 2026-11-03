@@ -22,6 +22,12 @@ Convert the completed SEC 13D/13G issuer-level PIT audit into a deterministic ev
 - `reporting_person` is populated on only 3,502 rows and `purpose_text` on only 261 rows; therefore those fields cannot be the sole grouping keys.
 - `report_date` is not populated in the current extracted table and must not be substituted for KnowledgeDate.
 
+## Critical identity rule
+
+The first ten digits of an accession number identify the submitting entity and may be a third-party filing agent. They are not a reliable beneficial-owner or reporting-group identifier. Store this value only as `submission_cik`; never use it as a group key. For example, SEC accession `0000928464-20-000057` concerns Occidental Petroleum (subject CIK `0000797468`) but the SEC filing detail page identifies Carl C. Icahn (CIK `0000921669`) as “Filed by”. See the SEC's [EDGAR data access guidance](https://www.sec.gov/search-filings/edgar-search-assistance/accessing-edgar-data) and [the OXY filing detail](https://www.sec.gov/Archives/edgar/data/797468/000092846420000057/0000928464-20-000057-index.htm).
+
+A deterministic issuer + accession-prefix + form-family key is only a submission-level diagnostic. It cannot establish reporting-person identity, economic-group membership, or original/amendment lineage.
+
 ## Event construction rules
 1. **Separate 13D and 13G families.** Never pool them in the primary hypothesis.
 2. **Treat each accession as an observation of a beneficial-owner disclosure, not automatically as a new economic event.**
