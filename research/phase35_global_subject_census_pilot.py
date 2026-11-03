@@ -91,9 +91,16 @@ def current_candidate_ciks(tickers):
     return by_ticker, source, cik_to_tickers
 
 def build_index_urls(row):
-    parent = row["filename"].strip().lstrip("/").rsplit("/", 1)[0]
-    base = f"https://www.sec.gov/Archives/{parent}/{row['accession']}-index"
-    return [base + ".htm", base + ".html"]
+    accession = row["accession"]
+    accession_nodash = accession.replace("-", "")
+    # The master.idx filename is a compact path and does not contain the
+    # accession subdirectory used by the Archives document index.
+    archive_ciks = [str(int(row["filer_cik"])), str(int(accession.split("-")[0]))]
+    urls = []
+    for archive_cik in dict.fromkeys(archive_ciks):
+        base = f"https://www.sec.gov/Archives/edgar/data/{archive_cik}/{accession_nodash}/{accession}-index"
+        urls.extend([base + ".htm", base + ".html"])
+    return urls
 
 def fetch_filing_index(row):
     errors = []
@@ -127,6 +134,21 @@ def main():
     master_url = f"https://www.sec.gov/Archives/edgar/full-index/{args.year}/{quarter}/master.idx"
     master_raw = fetch_bytes(master_url, sec=True, timeout=90)
     master_sha = hashlib.sha256(master_raw).hexdigest()
+    master_text = master_raw.decode("latin-1", "replace")
+    master_lines = master_text.splitlines()
+    header_idx = next((i for i, line in enumerate(master_lines)
+                       if line.strip().lower().startswith("cik|company name|form type|date filed|filename")), None)
+    all_form_counts = Counter()
+    raw_13dg_samples = []
+    if header_idx is not None:
+        for line in master_lines[header_idx+1:]:
+            parts = line.split("|", 4)
+            if len(parts) == 5:
+                form_value = " ".join(parts[2].strip().upper().split())
+                all_form_counts[form_value] += 1
+                if "13D" in form_value or "13G" in form_value:
+                    if len(raw_13dg_samples) < 40:
+                        raw_13dg_samples.append(line)
     candidates_raw = parse_master_index(master_raw)
     candidates_by_accession = {}
     duplicate_accessions = []
@@ -139,6 +161,9 @@ def main():
     by_form = Counter(row["form"] for row in candidates)
 
     print(json.dumps({"stage": "MASTER_INDEX_FILTERED", "year": args.year, "quarter": quarter,
+        "master_bytes": len(master_raw), "master_lines": len(master_lines),
+        "all_form_counts": dict(all_form_counts),
+        "raw_13dg_sample": raw_13dg_samples[:10],
         "candidate_filings": len(candidates), "by_form": dict(by_form), "target_tickers": len(tickers),
         "target_candidate_ciks": len(target_ciks), "unresolved_tickers": len(unresolved),
         "master_sha256": master_sha}, indent=2), flush=True)
@@ -182,6 +207,13 @@ def main():
 
     out = Path(args.output)
     out.mkdir(parents=True, exist_ok=True)
+    (out / "master.idx.gz").write_bytes(gzip.compress(master_raw, compresslevel=9))
+    (out / "master_index_diagnostics.json").write_text(json.dumps({
+        "master_bytes": len(master_raw), "master_lines": len(master_lines),
+        "header_line": master_lines[header_idx] if header_idx is not None else None,
+        "all_form_counts": dict(all_form_counts),
+        "raw_13dg_samples": raw_13dg_samples,
+    }, indent=2), encoding="utf-8")
     fields = ["filer_cik", "filer_company_name", "form", "filing_date", "accession", "filename",
         "subject_cik", "subject_name", "filed_by_cik_index", "filed_by_name", "accepted_at",
         "index_filing_date", "index_form", "subject_is_target_candidate", "filer_is_target_candidate",
@@ -199,10 +231,14 @@ def main():
 
     summary = {
         "phase": "35_global_subject_census_pilot",
-        "status": "COMPLETE_WITH_ERRORS" if errors else "COMPLETE",
+        "status": "PILOT_PENDING_VALIDATION",
         "quarter": f"{args.year}Q{args.quarter}",
         "master_index_url": master_url,
         "master_index_sha256": master_sha,
+        "master_index_bytes": len(master_raw),
+        "master_index_lines": len(master_lines),
+        "master_index_form_counts_all": dict(all_form_counts),
+        "master_index_raw_13dg_samples": raw_13dg_samples,
         "frozen_tickers": len(tickers),
         "current_candidate_ciks": len(target_ciks),
         "unresolved_tickers": unresolved,
@@ -239,10 +275,17 @@ def main():
     (out / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
     print(json.dumps(summary, indent=2), flush=True)
 
-    if not summary["known_truist_federated_accession"]["pass"]:
-        raise RuntimeError("Known Truist/Federated subject-vs-filer validation fixture failed")
-    if summary["subject_cik_coverage"] is None or summary["subject_cik_coverage"] < 0.95:
-        raise RuntimeError("Subject CIK coverage below 95% pilot gate")
+    pilot_pass = (
+        len(candidates) >= 100
+        and len(duplicate_accessions) == 0
+        and summary["known_truist_federated_accession"]["pass"]
+        and summary["subject_cik_coverage"] is not None
+        and summary["subject_cik_coverage"] >= 0.95
+    )
+    summary["status"] = "PASS" if pilot_pass else "FAILED_VALIDATION"
+    (out / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    if not pilot_pass:
+        raise RuntimeError("Global subject-census pilot validation failed; inspect summary.json and master_index_diagnostics.json")
 
 if __name__ == "__main__":
     main()
