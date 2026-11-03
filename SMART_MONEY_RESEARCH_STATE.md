@@ -150,11 +150,11 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
 
 
-## 2026-11-03 — Cross-quarter identity validation launched
+## 2026-11-03 — Cross-quarter identity validation launch history
 - Canonical research branch commit: `a73e60621fbe9abb76a2b98cc600c82fabc637ef`.
 - Added `amendmentNo` extraction to parser v3, deterministic filer-to-reporting-person candidate crosswalk code/tests, and a Q2/Q3 validation workflow. The crosswalk never overwrites source CIKs and never infers an economic group.
-- Runs [41729360514](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41729360514) (canonical branch) and [41729228829](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41729228829) (prototype branch) are both in progress at the Q2 census step. They cover the same Q2/Q3 validation workload; this duplicate was caused by delayed run-list visibility after the prototype branch push. The prototype branch push trigger has been disabled; no further run was launched. Let the existing runs finish and use the canonical-branch artifact as the reference result.
-- No cross-quarter identity result is available yet. Do not dispatch or push another census while either run remains active.
+- Runs [41729360514](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41729360514) (canonical branch) and [41729228829](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41729228829) (prototype branch) both completed successfully. They covered the same Q2/Q3 workload because the run list was delayed after the prototype branch push. The canonical-branch artifact is the reference result; the duplicate artifact is not pooled as an independent sample.
+- The completed Q2/Q3 findings are recorded in `research/PHASE35_CROSS_QUARTER_13DG_IDENTITY_VALIDATION_2025Q2_Q3_2026-11-03.md`.
 
 
 ## 2026-11-03 — Phase 35 cross-quarter identity validation completed (2025Q2–Q3)
@@ -166,3 +166,9 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - Added reproducible validator and tests: `research/phase35_13dg_crosswalk_precision_validation.py` and `research/test_phase35_13dg_crosswalk_precision_validation.py` (5 tests pass). Full report: `research/PHASE35_CROSS_QUARTER_13DG_IDENTITY_VALIDATION_2025Q2_Q3_2026-11-03.md`.
 - Current ticker map remains 307/335 with 27 unresolved ETF-like symbols; this is not historical F80 membership. No forward returns, economic-group inference, or alpha test. Keep F80 frozen.
 - Next: keep the crosswalk rule frozen and test 2025Q4/2026Q1; retain unmatched names as unresolved; then tackle amendment chains, historical ticker/CIK/CUSIP/listing-status continuity, and pre-structured-XML legacy filings before any economic test.
+
+
+## 2026-11-03 — Next frozen-rule validation queued
+- Added manual/push-scoped workflow `.github/workflows/phase35_q4q1_crossquarter_validation.yml` to validate the unchanged crosswalk on 2025Q4 and 2026Q1 and run the explicit-13D-CIK precision check. It is isolated to this research branch and uses a distinct concurrency group.
+- Run [41742690656](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41742690656) is queued on commit `fd7bf942634801fac9f4430e75e34ea81dc38f7f`. Do not launch another run until it completes.
+- The Q2/Q3 crosswalk and precision rule are frozen; no aliases or fuzzy matching will be added after seeing those results.
