@@ -108,6 +108,9 @@ def fetch_filing_index(row):
         try:
             raw = fetch_bytes(url, sec=True, timeout=45, retries=5)
             parsed = parse_index(raw)
+            if parsed.get("accession") != row["accession"]:
+                errors.append(f"ACCESSION_MISMATCH:{url}")
+                continue
             parsed["index_url"] = url
             return parsed, None
         except HTTPError as exc:
