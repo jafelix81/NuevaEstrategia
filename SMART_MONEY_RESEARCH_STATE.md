@@ -1,6 +1,6 @@
 # Smart Money Research State
 
-Updated: 2026-11-03
+Updated: 2026-11-03 (critical Phase 35 attribution correction)
 
 ## Frozen control
 - `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
@@ -57,14 +57,16 @@ Updated: 2026-11-03
 - Cboe Trade-by-Trade (TBT) is materially richer: participant origin, side, open/close, contract, price, size and NBBO context; historical availability begins 2019-10-07. But the documented proposed price is $12,000/month, with $8,000/month ad-hoc historical access. Decision: PARK — commercial access required; no alpha test until licensed reproducible data is available.
 
 ## Phase 35/49 — SEC 13D/13G
-- Status: **ROW-LEVEL ISSUER/PIT EXTRACTION PASSED; REPORTING-GROUP / ORIGINAL-AMENDMENT NORMALIZATION FAILED; ECONOMIC TEST BLOCKED.**
-- Latest completed corrected artifact: run 41618946255, artifact 13236177463 (`phase35-13dg-pit-event-crosswalk-audit`). It contains 20,266 resolved rows, 303 subject issuers, 14,542 amendments, 19,680/20,266 event dates (97.11%), and zero submission/resolution errors. Filing-date range is 2020-10-01 through 2026-09-25; 27 of 335 universe tickers remain unresolved. `filing_date` is KnowledgeDate.
-- The older run 41575083622 had one isolated 503 and 20,265 resolved rows; it is superseded by 41618946255 for current row-level counts.
-- Critical correction: the accession-number prefix is the submitting-entity CIK and may be a third-party filing agent, not the actual reporting person. The OXY filing 0000928464-20-000057 has accession prefix 0000928464 but SEC identifies Carl C. Icahn (CIK 0000921669) as “Filed by”. Therefore accession prefix may be stored as `submission_cik`, but **must not** be used as a beneficial-owner/reporting-group key.
-- The previous 3,115 issuer/prefix/form sequences and 58.5% amendment share are submission-prefix diagnostics only, not economic-group or true-first-event counts. The current extraction also starts in 2020, so pre-window originals are left-censored.
-- `reporting_person` is populated on 3,502 rows and `purpose_text` on 261; current parsing does not reconstruct all joint reporting persons. Raw `percent_class` is mechanically selected around the 5% reporting threshold and is not an independent signal.
-- Next gate: extend historical filing history; parse the actual Filed-by/reporting-person set and joint-filing/group evidence from index metadata, cover pages and structured XML; build deterministic issuer/group lineages; mark incomplete history left-censored; then re-audit historical active-universe coverage. No forward returns until these gates pass.
-- Current rerun 41652405132 remains `in_progress` in the historical-CIK PIT audit step; no artifact yet. Do not duplicate it.
+- Status: **BLOCKED — subject-issuer attribution is not certified; no economic test authorized.**
+- Latest workflow run 41652405132 completed successfully (job 125973726145; artifact 13256930771). It retrieved 20,266 rows, but the artifact issuer_cik field is not consistently the subject issuer CIK. The reported 303 "issuers" are not validated subject-issuer counts.
+- Root cause: submissions_for_cik() stores the ticker-mapped query CIK as issuer_cik; extract_fields() only searches the legacy text label CENTRAL INDEX KEY and falls back to that query CIK. Schedule 13G XML uses issuerCik, so the fallback can assign a reporting-person CIK as the subject issuer.
+- Concrete artifact defect: accession 0000092230-25-000015 is assigned to TFC / CIK 0000092230, but its SEC XML identifies subject issuer Federated Hermes ETF Trust / CIK 0001849998 and reporting person Truist Financial Corp. The XML also contains exact previousAccessionNumber=0000092230-25-000001.
+- There are 7,858 XML 13G rows (2024–2026) at risk pending subject-CIK re-extraction. All 7,858 have null reporting_person in the old artifact because its parser does not handle the 13G-specific coverPageHeaderReportingPersonDetails schema. The 437 XML 13D rows and legacy HTML/TXT rows also require a subject-CIK consistency audit; do not assume them correct.
+- Consequently, current ticker coverage, unique-issuer counts, 13G ownership field coverage, and the earlier accession-prefix sequence counts are not valid issuer-level or economic-group statistics. The previous 3,115 sequences / 58.5% amendment-first diagnostic is superseded.
+- The latest artifact still contains two future event_date values (MS filings 2024-02-09 and 2024-02-12 with event date 2024-12-31); event_date is not PIT-certified. Use filing_date only as KnowledgeDate after subject attribution is validated.
+- A schema-aware parser prototype and five local unit tests are in branch phase35-13dg-issuer-attribution-repair; all five tests pass on synthetic fixtures modeled on SEC XML/index structures. It is not yet integrated or run against the full artifact.
+- Next gate: reparse every XML 13G row for issuerCik; validate all XML 13D and stratified legacy rows; preserve query_cik, archive_path_cik, filed_by_cik, subject_issuer_cik, reporting-person IDs/names, and submission_cik as separate fields; deduplicate by accession; follow exact previousAccessionNumber links; rebuild historical issuer-universe coverage; then normalize events. No forward returns before these gates pass.
+- Decision: **retrieval complete, issuer attribution failed, event normalization blocked, no alpha claim.** No change to F80_TOP20_PARTIAL50_BASELINE_C20.
 
 ## Current priority
 - Keep `F80_TOP20_PARTIAL50_BASELINE_C20` frozen.
