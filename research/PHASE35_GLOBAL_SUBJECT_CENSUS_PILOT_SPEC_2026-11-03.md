@@ -56,3 +56,7 @@ If the pilot passes, expand quarter-by-quarter to the earliest usable EDGAR full
 - research/test_phase35_13dg_parser_v3.py
 - research/phase35_global_subject_census_pilot.py
 - PHASE35_13DG_EVENT_NORMALIZATION_SPEC.md
+
+
+## Execution note
+The branch-scoped workflow is committed, but no hosted run has been created for the branch commit. This environment can inspect Actions runs and rerun existing jobs but cannot dispatch this new workflow. Keep the branch isolated; do not merge to main just to trigger it because that may start the existing full Phase 35 and Phase 22C workflows. The first pilot run requires a user-originated push to this branch or an available manual dispatch path.
