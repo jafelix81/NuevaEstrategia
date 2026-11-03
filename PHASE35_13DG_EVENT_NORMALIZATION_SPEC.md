@@ -1,82 +1,74 @@
 # Phase 35 — 13D/13G Event Normalization Specification
 
-Updated: 2026-11-03
+Updated: 2026-11-03 (subject-issuer attribution correction)
 
 ## Purpose
-Convert the completed SEC 13D/13G issuer-level PIT audit into a deterministic event dataset before any return test. This document is a preregistration guardrail: it defines what counts as an event and what must be excluded before looking at forward returns.
+Build a deterministic subject-issuer and reporting-person event panel before any return test. This is a preregistration guardrail; the previous 20,266-row artifact is a retrieval output, **not a certified issuer-level panel**.
 
-## Data gate already passed
+## Current data-gate status: FAIL / NOT CERTIFIED
 - Frozen universe: 335 names.
-- Selected issuer CIKs: 307.
-- Candidate/resolved filings in the corrected artifact: 20,266.
-- Unique issuers: 303.
-- Amendments: 14,542 in the current artifact.
-- Event date available: 19,680 / 20,266 (97.11%).
-- SEC submission/resolution errors: 0 in the completed artifact.
-- KnowledgeDate = `filing_date`; no field from a filing may be used before that timestamp.
-- Artifact: `phase35-13dg-pit-event-crosswalk-audit`.
+- Ticker-to-CIK candidates selected: 307; 27 unresolved.
+- Latest artifact: run 41652405132, artifact 13256930771, 20,266 retrieved rows.
+- The prior summary's 303 "unique issuers" is not validated: the base script writes the query CIK into issuer_cik and the old parser falls back to that CIK when it cannot find a legacy CENTRAL INDEX KEY label.
+- At least one 13G XML row is demonstrably misattributed: TFC / CIK 0000092230 is assigned to a filing whose XML subject issuer is Federated Hermes ETF Trust / CIK 0001849998.
+- 7,858 XML 13G rows require subject-CIK re-extraction; 437 XML 13D rows and legacy HTML/TXT rows also require validation.
+- filing_date remains the conservative KnowledgeDate, but only after the subject issuer is verified. event_date is not KnowledgeDate and is not PIT-certified.
 
-## Immediate normalization observations
-- Forms: SC 13G = 5,509; SC 13G/A = 13,333; SC 13D = 215; SC 13D/A = 1,209.
-- 71.76% of rows are amendments, so filing-count signals would materially double-count economic positions.
-- `reporting_person` is populated on only 3,502 rows and `purpose_text` on only 261 rows; therefore those fields cannot be the sole grouping keys.
-- `report_date` is not populated in the current extracted table and must not be substituted for KnowledgeDate.
+## Required identity model
+Keep the following identifiers separate on every filing:
+1. query_cik: CIK used to query the SEC submissions endpoint.
+2. archive_path_cik: CIK used in the archive URL for the retrieved document.
+3. submission_cik: first ten digits of accession, retained only as submission traceability.
+4. subject_issuer_cik: parsed from XML issuerCIK/issuerCik or SEC filing-index Subject metadata.
+5. filed_by_cik: parsed from SEC filing-index Filed by metadata.
+6. reporting_person_ciks / reporting_person_names: parsed from the filing body.
 
-## Critical identity rule
+Never substitute query CIK, archive-path CIK, accession prefix, or Filed-by CIK for subject issuer or the complete reporting group.
 
-The first ten digits of an accession number identify the submitting entity and may be a third-party filing agent. They are not a reliable beneficial-owner or reporting-group identifier. Store this value only as `submission_cik`; never use it as a group key. For example, SEC accession `0000928464-20-000057` concerns Occidental Petroleum (subject CIK `0000797468`) but the SEC filing detail page identifies Carl C. Icahn (CIK `0000921669`) as “Filed by”. See the SEC's [EDGAR data access guidance](https://www.sec.gov/search-filings/edgar-search-assistance/accessing-edgar-data) and [the OXY filing detail](https://www.sec.gov/Archives/edgar/data/797468/000092846420000057/0000928464-20-000057-index.htm).
+## Schema-specific parsing rules
+- **13D XML:** parse all reportingPersonInfo nodes and the issuer fields from XML, not from display labels alone.
+- **13G XML:** parse issuerCik, issuerCusip, eventDateRequiresFilingThisStatement, and previousAccessionNumber. Its reporting person is commonly represented under coverPageHeaderReportingPersonDetails, with fields including reportingPersonName, reportingPersonBeneficiallyOwnedAggregateNumberOfShares, classPercent, voting/dispositive power and repeated typeOfReportingPerson. Do not expect only the 13D reportingPersonInfo structure.
+- **Legacy HTML/TXT:** preserve table/line boundaries; extract every reporting-person cover-page block, CUSIP/class, event date, Item 4 purpose where present, joint-filing agreement and explicit accession references. Do not assume the first name or Filed-by entity is the whole group.
+- **SEC filing index:** retain Filed by and Subject CIK/name separately, plus the raw accepted timestamp. Do not use accepted time for same-day portfolio timing until timezone/session handling is verified.
 
-A deterministic issuer + accession-prefix + form-family key is only a submission-level diagnostic. It cannot establish reporting-person identity, economic-group membership, or original/amendment lineage.
+A schema-aware parser prototype and unit tests are stored in research/phase35_13dg_parser_v2.py and research/test_phase35_13dg_parser_v2.py. Five synthetic-fixture tests pass; this is not yet a full-artifact validation.
+
+## Amendment lineage
+- For structured XML, previousAccessionNumber is an exact predecessor edge. Follow it recursively, validate that the predecessor exists, and retain cross-form transitions (13G to 13D) as explicit transitions rather than silently pooling families.
+- For legacy filings, use only explicit accession references or a separately validated deterministic linkage. If no exact predecessor can be established, classify the chain as ambiguous/left-censored; do not infer from accession prefixes or amendment counts.
+- An initial filing is not a true first event unless the predecessor/history census establishes that earlier relevant filings are absent from the covered history.
 
 ## Event construction rules
-1. **Separate 13D and 13G families.** Never pool them in the primary hypothesis.
-2. **Treat each accession as an observation of a beneficial-owner disclosure, not automatically as a new economic event.**
-3. **Original/amendment chain:** an amendment is linked to the same issuer + reporting group/filing lineage where deterministically identifiable. If lineage cannot be established, retain it as a disclosure but exclude it from the first event-level alpha test rather than guessing.
-4. **First-observable event:** for a reporting group/issuer pair, the first filing whose KnowledgeDate is in the active universe is eligible as the first observable disclosure event. Later amendments are not separate events unless they create a materially different ownership-state transition under a predeclared threshold.
-5. **Ownership-state transition:** candidate transitions require a change in beneficial ownership percentage or voting/dispositive position that is observable in the filing. Do not infer a buy/sell from price movement, market cap, or subsequent filings.
-6. **Direction:** increase/decrease/no-change must be derived only from two sequential observable ownership states for the same deterministic group/issuer identity. If the prior state is missing or ambiguous, classify as `unknown` and exclude from directional tests.
-7. **13D mechanism split:** retain a separate `activist/control` hypothesis only when purpose/control information is actually available. Missing purpose text is not evidence of activism.
-8. **13G mechanism split:** retain a separate passive/institutional hypothesis; do not assume that every 13G filer is informed or that every increase is bullish.
-9. **Same-day leakage guard:** an event can enter a signal only after its `filing_date`; a signal evaluated on the same date must exclude that filing unless the portfolio framework explicitly models intraday filing timestamps.
-10. **Active-universe guard:** issuer must be a member of the historical investable F80 universe as of the signal date. Current ticker membership is insufficient.
-11. **Forward return isolation:** no return, volatility, rank, threshold, or feature selection may use information after KnowledgeDate.
+1. Separate 13D and 13G families initially; never pool them without independent evidence.
+2. Each accession is a disclosure update, not automatically a new economic event.
+3. Link amendments only through exact predecessor edges or validated deterministic legacy evidence.
+4. A first-observable event requires complete enough history; otherwise mark left-censored and exclude from initiation tests.
+5. Directional ownership changes require two sequential states for the same verified subject issuer and reporting group. Missing/ambiguous prior state means unknown.
+6. Do not infer a buy/sell from price movement, market capitalization, or subsequent filings.
+7. Missing purpose text is not evidence of passivity or activism.
+8. Active-universe membership must be PIT-effective for the subject issuer; current ticker membership is insufficient.
+9. KnowledgeDate is the filing date. Event date, report date, ownership values and narrative are available only as disclosed in that filing.
+10. No same-day signal unless intraday accepted timestamp and market-session timing are explicitly modeled.
 
-## First economic hypothesis (pre-registered)
-The initial test will not be a generic “smart money buys” score. It will test whether **newly disclosed 13D ownership/control events**, separated from 13G events, contain incremental cross-sectional information about subsequent equity returns after controlling for the frozen LTM/F80 signal.
-
-Primary comparison:
-- treatment = first observable qualifying 13D ownership/control transition;
-- control = otherwise eligible F80 names on the same signal date;
-- baseline = frozen LTM/F80 ranking without the 13D variable;
-- identical exposure, transaction costs and portfolio construction for baseline and augmented variants.
-
-The 13G family will be tested independently only if 13D coverage is adequate. No sign/direction or holding horizon will be chosen from the final OOS sample.
+## First economic hypothesis (pre-registered, not yet authorized)
+After the corrected issuer/group panel passes the gates, test whether newly disclosed 13D ownership/control events add information beyond frozen LTM/F80. Test 13G separately. Do not assume either family is informed, bullish or persistent.
 
 ## Validation protocol
-- Chronological train/validation/final-OOS split.
-- Any threshold or feature choice is made only in training/validation.
-- Final OOS is touched once.
-- Report raw spread and incremental spread versus F80/LTM.
-- Use block bootstrap appropriate for overlapping holding periods.
-- Include LOO/stability diagnostics and cross-period sign consistency.
-- Distinguish announcement-day/short-window effects from persistent post-disclosure behavior.
-- If the signal only works in the announcement window and disappears thereafter, classify it as event/price-reaction rather than persistent portfolio alpha.
-- If incremental confidence intervals include zero and there is no economically stable mechanism, kill the hypothesis rather than tune it.
+- Chronological train/validation/final-OOS split; final OOS touched once.
+- Identical exposure, costs and portfolio construction for baseline and augmented models.
+- Block bootstrap appropriate for overlapping holding periods; issuer-clustered uncertainty and LOO.
+- Equalized issuer exposure and concentration checks (with/without dominant issuers).
+- Separate announcement-window price reaction from persistent post-disclosure behavior.
+- Explicit controls for return-chasing and mechanical regulatory thresholds.
+- Kill unstable hypotheses; no post-hoc horizon or threshold rescue.
 
-## Explicit exclusions
-- No use of event_date as KnowledgeDate.
-- No use of amendment filing counts as a proxy for conviction.
-- No fuzzy reporting-person aggregation when multiple plausible groups exist.
-- No optimization of holding period after observing OOS results.
-- No modification of `F80_TOP20_PARTIAL50_BASELINE_C20` without robust independent OOS evidence.
+## Next gate — required audit output
+1. Subject-CIK match rate by form, year and XML/HTML/TXT schema.
+2. False-positive filer-side rows and duplicate accession counts.
+3. Exact predecessor-chain coverage and left-censoring rate.
+4. Reporting-person/group identity coverage, with CIK/name/ambiguity classes.
+5. Historical active-universe coverage by issuer and period.
+6. Counts of eligible 13D/13G first-observable events and increase/decrease/unknown transitions.
+7. Exclusion counts and reasons.
 
-## Next gate
-Before any forward-return calculation, produce an audit containing:
-1. deterministic original/amendment lineage coverage;
-2. deterministic reporting-group coverage;
-3. issuer-level active-universe coverage by historical period;
-4. counts of eligible 13D and 13G first-observable events;
-5. percentage of events classified as increase/decrease/unknown;
-6. exclusion counts and reasons.
-
-Only if these gates pass will the economic test be executed.
+No forward returns until all seven outputs are produced and reviewed.
