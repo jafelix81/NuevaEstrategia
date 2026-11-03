@@ -101,3 +101,16 @@ No field may be substituted for another. In particular, query CIK, archive path 
 **Retrieval completion: PASS. Subject-issuer attribution: FAIL / NOT CERTIFIED. Reporting-group and amendment normalization: NOT AUTHORIZED. Economic test: BLOCKED.**
 
 No forward returns, no threshold/horizon optimization, and no changes to F80_TOP20_PARTIAL50_BASELINE_C20.
+
+
+## Additional root cause: wrong discovery universe, not only wrong XML parsing
+
+The prior workflow queried submissions for the target ticker-mapped CIKs. This retrieves filings submitted by those CIKs, not all Schedule 13D/G filings about those companies. The global master-index census is therefore required even after XML subject parsing is corrected. The old 20,266 records are not a complete subject-issuer sample and must not be treated as one.
+
+A new branch prototype implements:
+- parser v3 with correct 13G reportingCik/memberGroup/issuerCusips handling;
+- SEC master.idx filtering for all 13D/G forms;
+- filing-detail index parsing for Filed-by and Subject CIKs;
+- a 2025Q1 pilot with a 95% Subject CIK coverage gate and a fixed Truist/Federated validation accession.
+
+The prototype uses current ticker mappings only as candidate CIKs and does not claim historical active-universe coverage. No economic tests are authorized.
