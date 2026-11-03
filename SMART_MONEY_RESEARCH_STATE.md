@@ -90,3 +90,9 @@ Updated: 2026-11-03 (critical Phase 35 attribution correction)
 - The previous 20,266-row artifact, its 303 purported issuers, and ticker/form coverage statistics remain uncertified and must not be used for event counts, first-event claims, or alpha tests.
 - Full census must extend back to the earliest usable EDGAR full-index history (1993 archive onward where available) to reduce left-censoring. If complete predecessor history cannot be established for a filer/subject pair, classify as left-censored; do not call it a true first event.
 - Current state: parser prototype and global-census pilot are on this isolated branch; no main-branch workflow has been launched. F80 remains frozen.
+
+
+## Pilot execution status
+- The isolated workflow file is committed at .github/workflows/phase35_global_subject_census_pilot.yml and is restricted to this research branch plus manual dispatch.
+- No GitHub Actions run was created for branch commit 4ba190f49fa4d771b4ee5eae1de6f2f5a325298f; the latest run list still contains only completed main-branch workflows. The available GitHub integration supports Actions reads and job reruns but exposes no workflow_dispatch action. The pilot is therefore prepared but not executed in hosted CI.
+- Do not merge the workflow into main merely to trigger it: a main push may relaunch the existing full Phase 35/22C workflows and duplicate expensive audits. A user-originated push to the isolated branch or an explicitly enabled manual dispatch is needed for the first hosted run.
