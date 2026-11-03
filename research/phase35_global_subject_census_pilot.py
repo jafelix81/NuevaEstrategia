@@ -51,9 +51,15 @@ def fetch_bytes(url, sec=False, timeout=60, retries=6):
 
 def records(data):
     if isinstance(data, dict):
-        if isinstance(data.get("data"), list): return data["data"]
+        fields = data.get("fields")
+        rows = data.get("data")
+        if isinstance(fields, list) and isinstance(rows, list):
+            return [dict(zip(fields, row)) if isinstance(row, (list, tuple)) else row
+                    for row in rows if isinstance(row, (list, tuple, dict))]
+        if isinstance(rows, list):
+            return [row for row in rows if isinstance(row, dict)]
         return [v for v in data.values() if isinstance(v, dict)]
-    return data if isinstance(data, list) else []
+    return data if isinstance(data, list) and all(isinstance(x, dict) for x in data) else []
 
 def cik_norm(value):
     digits = re.sub(r"\D", "", str(value or ""))

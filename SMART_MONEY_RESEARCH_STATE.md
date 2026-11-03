@@ -105,3 +105,7 @@ Updated: 2026-11-03 (critical Phase 35 attribution correction)
 - The master-index CIK pairs are not role-labelled. The pilot must verify Subject and Filed-by from the filing-detail page; row order is not used. The revised pilot fetches all accessions associated with a current candidate CIK plus a deterministic stratified non-target sample.
 - Current candidate CIK mapping now includes SEC company_tickers.json, company_tickers_exchange.json, company_tickers_mf.json and a fallback mapper. Multiple CIKs and fund series/class IDs are retained. This is still not a PIT historical security master.
 - No forward returns, no group inference, no alpha test. F80 remains frozen.
+
+
+## 2026-11-03 — SEC ticker-map JSON schema correction
+The corrected global-census pilot passed both parser test suites but stopped before the master-index download because company_tickers_exchange.json encodes rows as arrays under top-level fields and data, not as dictionaries. The SEC mutual-fund ticker file may use the same shape. The mapping reader now converts fields/data arrays into named records before extracting CIK, ticker, exchange, series and class. This is an ingestion-format fix, not evidence against SEC coverage; no returns or alpha test.
