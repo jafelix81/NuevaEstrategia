@@ -1,0 +1,65 @@
+name: Phase 35 Cross-Quarter 13D/G Identity Validation Q4-Q1
+
+on:
+  push:
+    branches:
+      - phase35-13dg-issuer-attribution-repair
+    paths:
+      - .github/workflows/phase35_q4q1_crossquarter_validation.yml
+  workflow_dispatch:
+
+concurrency:
+  group: phase35-global-subject-census-q4q1
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  quarterly_identity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - name: Checkout isolated research branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run schema-aware SEC 13D/13G parser tests
+        run: python -m unittest discover -s research -p "test_phase35_13dg_parser_v3.py" -v
+
+      - name: Run master-index discovery tests
+        run: python -m unittest discover -s research -p "test_phase35_global_subject_census_pilot.py" -v
+
+      - name: Run structured-XML subject/filer identity tests
+        run: python -m unittest discover -s research -p "test_phase35_global_subject_census_pilot_xml.py" -v
+
+      - name: Run reporting-person crosswalk tests
+        run: python -m unittest discover -s research -p "test_phase35_13dg_reporting_person_crosswalk_audit.py" -v
+
+      - name: Run crosswalk precision validator tests
+        run: python -m unittest discover -s research -p "test_phase35_13dg_crosswalk_precision_validation.py" -v
+
+      - name: Run 2025Q4 global subject census
+        run: python -u research/phase35_global_subject_census_pilot_xml.py --year 2025 --quarter 4 --output phase35_global_subject_census_xml_pilot/2025Q4
+
+      - name: Run 2026Q1 global subject census
+        run: python -u research/phase35_global_subject_census_pilot_xml.py --year 2026 --quarter 1 --output phase35_global_subject_census_xml_pilot/2026Q1
+
+      - name: Audit frozen filer-to-reporting-person crosswalk
+        run: python -u research/phase35_13dg_reporting_person_crosswalk_audit.py --root phase35_global_subject_census_xml_pilot --quarters 2025Q4,2026Q1 --output phase35_global_subject_census_xml_pilot
+
+      - name: Validate 13D links against explicit reporting CIKs
+        run: python -u research/phase35_13dg_crosswalk_precision_validation.py --root phase35_global_subject_census_xml_pilot --quarters 2025Q4,2026Q1 --detail phase35_global_subject_census_xml_pilot/reporting_person_crosswalk_detail.csv --output phase35_global_subject_census_xml_pilot/crosswalk_precision_validation.json
+
+      - name: Upload cross-quarter identity audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase35-global-subject-census-crossquarter-identity-2025q4-2026q1
+          path: phase35_global_subject_census_xml_pilot/
+          if-no-files-found: warn
+          retention-days: 30
