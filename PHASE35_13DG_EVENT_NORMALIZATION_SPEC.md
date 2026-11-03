@@ -115,3 +115,31 @@ The 2025Q1 master.idx contains 16,629 13D/G rows after normalizing both SCHEDULE
 The first pilot's seven-row count was caused by accepting only SC-prefixed form labels; the zero Subject-CIK parse was caused by constructing archive URLs without the accession subdirectory. Both defects are corrected. The new pilot groups by accession, tries archive paths for each associated CIK, verifies the accession on the filing-detail page, and validates the page's Subject/Filed-by CIKs against the master-index pair.
 
 The candidate ticker map now includes SEC exchange-listed and mutual-fund/series files. Current mapping is not historical active-universe membership. No event or return test is authorized until the pilot passes.
+
+
+## Implementation addendum — 2025Q1 structured-XML pilot (2026-11-03)
+
+The global master-index + primary XML pilot passed only the 2025Q1 subject/filer role-extraction gate. It does not pass historical universe, reporting-group, or event-lineage gates. See `research/PHASE35_GLOBAL_SUBJECT_CENSUS_XML_PILOT_RESULTS_2026-11-03.md`.
+
+### Identity and discovery controls
+
+- Count a record as a target-company filing only when `subject_issuer_cik` maps to the candidate issuer CIK. A target `submission_filer_cik` alone is not a target-company filing. In the 2025Q1 pilot, 1,100 accessions were selected by the union of subject/filer candidates, but only 242 parsed records had a target subject; 858 were filer-only cross-issuer records.
+- The 2025Q1 sample resolved 307 candidate CIKs for 335 current tickers; 27 remain unresolved. Current mapping is not historical active-universe membership.
+- The 13G schema makes `reportingCik` optional. Missing `reportingCik` must remain missing in the source record. Never equate `submission_filer_cik` with every reporting person or an economic group.
+- A possible single-person crosswalk may use a frozen deterministic name rule: normalized Unicode/case/punctuation; fixed legal-suffix and leading-`THE` handling; order-invariant tokens only for type `IN`; order-preserving tokens for entities; exactly one reporting-person match to the master-index name for `submission_filer_cik`. The 2025Q1 development sample yielded 203/213 unique links and the non-target sample 91/100. These are coverage rates, not precision. Do not write inferred CIKs into source data or use this rule until independently validated on separate quarters and audited for false matches.
+- For multi-person filings, a unique filer-to-one-person match identifies at most that one person. It does not identify other reporting persons or establish group membership. A reporting-person-set fingerprint remains a checksum only.
+- Preserve `memberGroup` values and explicit joint-filing/group text. Missing or contradictory group markers mean group identity unresolved; do not infer a group from shared filing or filer CIK.
+
+### Lineage controls
+
+- Preserve `previousAccessionNumber` exactly when present. Treat it as an explicit lineage pointer, not automatically as the immediately preceding amendment; it may point to an original accession.
+- Missing `previousAccessionNumber` is unresolved unless a separately preregistered, unique predecessor rule is validated. Six of 25 target-subject 13D/A records and 38 of 164 13G/A records in the 2025Q1 pilot lacked this field.
+- Add `amendmentNo` to the parsed output before attempting any fallback lineage reconstruction. A missing predecessor must not be repaired by accession-prefix equality alone.
+- Extend the accession history across quarters before declaring a first-observable event. A quarter-only sample is left-censored by construction.
+
+### KnowledgeDate and economic boundary
+
+- Continue to use master-index filing date as conservative KnowledgeDate. Signal date must be strictly later. Do not use event date as KnowledgeDate.
+- No forward returns, threshold/horizon selection, or economic test is authorized from the 2025Q1 pilot.
+- The next identity validation should use separate 2025Q2 and 2025Q3 quarters with the name-crosswalk rule frozen before those runs. Historical active-universe membership and legacy pre-structured-XML subject attribution remain separate mandatory gates.
+- `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
