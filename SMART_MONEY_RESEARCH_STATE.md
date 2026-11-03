@@ -127,3 +127,10 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - Replaced the unconditional split with a guarded SEC archive-path parser; non-archive URLs now yield null. Added assertions for both a real SEC archive URL and the negative URL.
 - Latest run produced no artifact because the pilot step was skipped after the unit-test failure. No SEC census, forward returns, or economic test ran. The corrected branch push will trigger one new pilot run; no overlapping run was active at the time of the fix.
 - F80 remains frozen; 13D/13G remains a data-feasibility project only.
+
+
+## 2026-11-03 — XML pilot retry: regex escaping correction
+- Run 41724302967 again stopped before the SEC census. The 6 parser-v3 tests and 4 master-index tests passed; the XML identity suite had 2 passes and one assertion failure.
+- The first guarded archive-path patch was itself over-escaped: its regex matched a literal backslash-d rather than numeric path digits, so a valid SEC URL returned null. This was a patch-generation defect, not a data/source failure.
+- Corrected the regex to match the numeric CIK segment in `/Archives/edgar/data/{cik}/`; the negative non-archive URL still returns null. The existing test asserts both behaviors.
+- No census requests, artifact, forward returns, or economic test occurred in run 41724302967. A single corrected push will rerun the branch-only workflow.

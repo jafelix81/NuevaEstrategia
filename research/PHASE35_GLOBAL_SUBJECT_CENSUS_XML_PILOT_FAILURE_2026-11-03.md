@@ -49,3 +49,7 @@ No forward returns, no alpha test, no horizon or threshold selection. The curren
 
 ## Follow-up — run 41714047979
 The XML pilot did not reach its network/census stage. Six parser-v3 tests and four master-index tests passed. In the XML pilot test suite, the two identity/URL tests passed; the negative test for a missing reporting-person CIK errored because the deliberately non-SEC URL lacked the `/data/` path segment assumed by `identity_row()`. This was an unguarded archive-path extraction in the testable row builder, not an SEC response or schema failure. The repair now treats archive_path_cik as nullable unless the URL matches the SEC archive path. The next run must first pass all 13 local tests, then execute the 2025Q1 XML census. No artifact or census result exists for run 41714047979.
+
+
+## Follow-up — run 41724302967
+The first nullable-path patch contained an over-escaped regular expression. All six parser-v3 tests and four master-index tests passed; the XML suite's valid-SEC-URL archive-path assertion failed because the pattern looked for a literal backslash before `d`. Corrected the pattern to match numeric CIK digits. The census step was skipped and no artifact was produced. No SEC census data or forward returns were generated in this run.

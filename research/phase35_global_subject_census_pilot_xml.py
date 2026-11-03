@@ -56,7 +56,7 @@ def fetch_primary_xml(group):
 
 def archive_path_cik_from_url(xml_url):
     """Return the numeric CIK in an SEC archive path; tolerate non-archive test URLs."""
-    match = re.search(r"/Archives/edgar/data/(\\d+)/", xml_url or "", flags=re.IGNORECASE)
+    match = re.search(r"/Archives/edgar/data/(\d+)/", xml_url or "", flags=re.IGNORECASE)
     return match.group(1).zfill(10) if match else None
 
 
