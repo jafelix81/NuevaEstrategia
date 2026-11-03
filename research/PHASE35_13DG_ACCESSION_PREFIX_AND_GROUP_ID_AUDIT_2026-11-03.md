@@ -1,3 +1,5 @@
+> **SUPERSEDED (2026-11-03):** This audit's claim that row-level issuer/PIT extraction passed is invalidated by a later subject-issuer attribution audit. The 13G XML parser can fall back to the query/reporting-person CIK instead of the actual subject issuer CIK. Do not use the counts or conclusions below as issuer/group evidence. See research/PHASE35_13DG_ISSUER_ATTRIBUTION_FAILURE_2026-11-03.md.
+
 # Phase 35 — accession-prefix and reporting-group identity correction
 
 Date: 2026-11-03  
