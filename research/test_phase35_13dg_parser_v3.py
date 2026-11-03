@@ -21,7 +21,7 @@ class ParserV3Tests(unittest.TestCase):
     def test_13g_exact_schema_names_and_nested_cusips(self):
         x = """<edgarSubmission xmlns="http://www.sec.gov/edgar/schedule13g">
         <headerData><submissionType>SCHEDULE 13G/A</submissionType><previousAccessionNumber>0000092230-25-000001</previousAccessionNumber></headerData>
-        <formData><coverPageHeader><eventDateRequiresFilingThisStatement>01/31/2025</eventDateRequiresFilingThisStatement>
+        <formData><coverPageHeader><amendmentNo>1</amendmentNo><eventDateRequiresFilingThisStatement>01/31/2025</eventDateRequiresFilingThisStatement>
         <issuerInfo><issuerCik>0001849998</issuerCik><issuerName>Federated Hermes ETF Trust</issuerName><issuerCusips><issuerCusipNumber>31423L503</issuerCusipNumber></issuerCusips></issuerInfo>
         </coverPageHeader><coverPageHeaderReportingPersonDetails><reportingCik>0000092230</reportingCik><reportingPersonName>TRUIST FINANCIAL CORP</reportingPersonName><memberGroup>b</memberGroup>
         <reportingPersonBeneficiallyOwnedNumberOfShares><soleVotingPower>153847</soleVotingPower><sharedVotingPower>0</sharedVotingPower></reportingPersonBeneficiallyOwnedNumberOfShares>
@@ -32,6 +32,7 @@ class ParserV3Tests(unittest.TestCase):
         self.assertEqual(r["subject_issuer_name"], "Federated Hermes ETF Trust")
         self.assertEqual(r["subject_issuer_cusips"], ["31423L503"])
         self.assertEqual(r["previous_accession"], "0000092230-25-000001")
+        self.assertEqual(r["amendment_no"], "1")
         p = r["reporting_persons"][0]
         self.assertEqual(p["cik"], "0000092230")
         self.assertEqual(p["name"], "TRUIST FINANCIAL CORP")
