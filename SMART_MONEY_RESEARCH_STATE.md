@@ -76,3 +76,17 @@ Updated: 2026-11-03 (critical Phase 35 attribution correction)
 
 ## Research principle
 “Smart money” is a hypothesis, not an assumption. Every candidate must pass historical coverage, ex-ante availability, PIT timestamps, universe overlap, incremental-information, chronological OOS, bootstrap and LOO tests before portfolio promotion.
+
+
+## Phase 35 source-census redesign — 2026-11-03
+- **New structural finding:** the old pipeline queried the SEC submissions endpoint using the 307 ticker-mapped CIKs. That endpoint returns submissions made by the queried CIK (the filer/submitting entity), not a census of filings whose subject issuer is that CIK. Thus the old 20,266-row artifact is a filer-side sample, not an issuer-side 13D/13G universe. Parsing issuerCik fixes row attribution but cannot recover target-issuer filings that were never in the queried filer submissions.
+- SEC filing detail pages expose distinct Filed-by and Subject entities. The reproducible Truist/Federated example shows Filed by CIK 0000092230 and Subject CIK 0001849998; the same separation appears in the SEC FMR/Sandisk filing detail page.
+- Correct discovery path: scan each quarter's global EDGAR master.idx for SC 13D, SC 13D/A, SC 13G and SC 13G/A; fetch each filing detail index page; parse Filed-by and Subject CIK/name separately; filter on Subject CIK. Cross-check structured XML issuerCik/issuerCIK where available.
+- The global index's CIK column is still the filer. It must never be treated as the subject issuer. The filing index page's Subject CIK is the primary legacy-compatible identity source; XML issuerInfo is an independent cross-check.
+- Parser v3 corrects 13G field names and nesting: reportingCik (not reportingPersonCIK), memberGroup (not memberOfGroup), issuerInfo/issuerCik, and issuerCusips/issuerCusipNumber. A CIK-set fingerprint is only a reporting-person-set checksum, not an economic-group key.
+- Parser v3 has six local unit tests covering 13D, 13G, SEC filing-index Filed-by/Subject metadata, master.idx filtering, and conservative person-set hashing. These are synthetic/schema fixtures, not full-artifact validation.
+- New pilot: 2025Q1 global master-index census. It must parse at least 95% of Subject CIKs, pass the known Truist/Federated accession fixture, and report target-subject counts separately from target-filer counts. No forward returns.
+- The pilot's 335-name CIK list uses current SEC ticker mapping plus fallback mapping only as a candidate set. It is not historical active-universe membership. Historical ticker/CIK continuity, delistings, predecessor chains, and reporting-group identity remain separate gates.
+- The previous 20,266-row artifact, its 303 purported issuers, and ticker/form coverage statistics remain uncertified and must not be used for event counts, first-event claims, or alpha tests.
+- Full census must extend back to the earliest usable EDGAR full-index history (1993 archive onward where available) to reduce left-censoring. If complete predecessor history cannot be established for a filer/subject pair, classify as left-censored; do not call it a true first event.
+- Current state: parser prototype and global-census pilot are on this isolated branch; no main-branch workflow has been launched. F80 remains frozen.
