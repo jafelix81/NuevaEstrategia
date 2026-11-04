@@ -1,0 +1,39 @@
+name: Phase 50 - SEC Form 144 global-index feasibility pilot
+
+on:
+  push:
+    branches: [phase50-sec-form144-feasibility]
+    paths:
+      - 'research/phase50_form144_global_index_pilot.py'
+      - 'research/test_phase50_form144_global_index_pilot.py'
+      - 'research/PHASE50_FORM144_GLOBAL_INDEX_AUDIT_SPEC_2026-11-04.md'
+      - '.github/workflows/phase50_form144_global_index_pilot.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: phase50-form144-global-index-pilot
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  feasibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run global-index parser and PIT tests
+        run: python -m unittest research.test_phase50_form144_global_index_pilot -v
+      - name: Run SEC Form 144 global-index pilot (2025Q1)
+        run: python -u research/phase50_form144_global_index_pilot.py --year 2025 --quarter 1 --sample-per-form 25
+      - name: Upload global-index audit outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase50-form144-global-index-2025q1
+          path: phase50_form144_global_index_pilot/
+          if-no-files-found: warn
