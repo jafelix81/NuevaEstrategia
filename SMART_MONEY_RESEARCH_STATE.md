@@ -483,3 +483,11 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - If the original selection rule cannot be recovered from contemporaneous evidence, a new broad-universe benchmark must be a separate research line with predeclared PIT eligibility, permanent security/listing IDs, delisted names and terminal-return handling. Do not silently substitute it into F80 or tune the rule against historical returns.
 - Report: research/PHASE71_ORIGINAL_UNIVERSE_RULE_TRACE_2026-11-04.md.
 - No forward returns or alpha tests were run. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## 2026-11-04 — Phase 69 incremental scan implementation regression gate PASS
+
+- Added the Phase 69 incremental Form 144 fund-registrant script and tests. Hosted unit-test run 41847339213 / job 126634182880 completed SUCCESS; all 7 tests passed.
+- Strengthened the scan before any SEC index work: it replays the pre-Phase-68 ticker mapper with the old field list (excluding SEC mutual-fund symbol) and requires the exact 309-CIK legacy set, 27 previously unresolved ticker names and exact ten-CIK difference to the expanded 319-CIK map. This avoids accepting a changed CIK set merely because counts happen to match.
+- The Phase 69 data scan has not been dispatched. Phase 67 run 41828179718 remains in_progress with its XML resolution step active and its job log unavailable (BlobNotFound). The completed Phase 67 run 41828139052 already provides the validated baseline artifact, but the redundant active run is left untouched because no cancellation action is available through the connected GitHub interface. Do not start the incremental SEC scan while it remains active.
+- Phase 69 workflow coordination remains manual: after the active Phase 67 run is reconciled, download the completed Phase 67 artifact by run ID and run the incremental scan. The unit-test workflow does not make SEC requests.
