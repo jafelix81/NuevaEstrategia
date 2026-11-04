@@ -478,6 +478,8 @@ def main():
     candidate_hit_rate = len(candidate_hit_ciks) / len(mapped) if mapped else 0.0
     gate_checks = {
         "at_least_300_current_cik_mappings": len(mapped) >= MIN_MAPPED,
+        "sample_size_at_least_25": len(sample_rows) >= 25,
+        "no_efts_query_capped_at_10000": not any(row["possibly_capped"] for row in query_rows),
         "zero_efts_query_errors": query_error_rate <= MIN_QUERY_ERROR_RATE,
         "sample_xml_parse_rate_at_least_95pct": xml_rate >= MIN_SAMPLE_XML_RATE,
         "sample_subject_cik_match_at_least_95pct": subject_rate >= MIN_SUBJECT_MATCH_RATE,
