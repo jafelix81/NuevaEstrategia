@@ -541,3 +541,10 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - The first hosted test run 41863446169 had one flawed assertion: its no-CIK fixture lacked a filer CIK, so it compared two empty strings. The parser correctly left reporting-person CIK empty. Corrected the fixture to include filer CIK 0002081473 and assert that no substitution occurs.
 - Rerun 41863595467 / job 126691849721 executed all five structured-XML parser tests successfully. Its decoded log shows `Ran 5 tests ... OK`; REST run metadata remains stale `queued`. No SEC requests were made.
 - This validates the parser against representative schema-shaped 13D/13G fixtures only. The full 8,294-document XML corpus parse remains pending until Phase 69 SEC workflow queue/status is reconciled.
+
+
+## 2026-11-04 — Phase 72 corpus-audit tooling ready; 11 tests pass
+- Added the full-corpus 13D/13G structured XML audit script. It reads the immutable Phase 35 artifact, retrieves SEC submissions metadata (including acceptanceDateTime) and parses primary_doc.xml documents with 0.6-second request throttling, checkpoints and resumability.
+- Added deterministic stratified sampling across 13D/13G, original/amendment and voluntary/mandatory XML periods. The data workflow is gated by a dedicated sentinel file; code and documentation pushes cannot launch a full SEC crawl.
+- Hosted run 41864876578 / job 126696436238 passed all 11 tests (5 parser + 6 corpus-helper tests). The workflow supports an 80-filing pilot first; no Phase 72 SEC corpus requests have yet been made.
+- Parser supports flat and nested filerInfo CIK schema layouts while keeping filer CIK separate from each reporting person's CIK. Full-corpus accuracy remains unproven until the actual XML sample is fetched and parsed.
