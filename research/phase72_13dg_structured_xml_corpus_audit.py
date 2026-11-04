@@ -217,6 +217,9 @@ def _filing_row(source: dict, parsed: dict, submission: dict, fetch_url: str) ->
     actual = str(parsed.get("submission_type", "")).upper()
     issuer_source = normalize_cik(source.get("issuer_cik", ""))
     issuer_xml = normalize_cik(parsed.get("issuer_cik", ""))
+    accession_prefix_cik = normalize_cik(normalize_accession(source.get("accession", ""))[:10])
+    filer_cik_xml = normalize_cik(parsed.get("filer_cik_xml", ""))
+    filer_cik_match = (filer_cik_xml == accession_prefix_cik) if filer_cik_xml and accession_prefix_cik else None
     return {
         "ticker": source.get("ticker", ""),
         "issuer_cik_source": issuer_source,
@@ -239,7 +242,9 @@ def _filing_row(source: dict, parsed: dict, submission: dict, fetch_url: str) ->
         "accession_key": normalize_accession(source.get("accession", "")),
         "primary_document": source.get("primary_document", ""),
         "primary_document_url": fetch_url,
-        "filer_cik_xml": parsed.get("filer_cik_xml", ""),
+        "accession_prefix_cik": accession_prefix_cik,
+        "filer_cik_xml": filer_cik_xml,
+        "filer_cik_match": filer_cik_match,
         "is_amendment": parsed.get("is_amendment", False),
         "amendment_number": parsed.get("amendment_number", ""),
         "previous_accession_number": parsed.get("previous_accession_number", ""),
@@ -475,6 +480,14 @@ def run_audit(
     form_matches = int(filing_frame["form_match"].astype(str).str.lower().eq("true").sum()) if parsed_n else 0
     people_positive = int((pd.to_numeric(filing_frame["reporting_person_count"], errors="coerce").fillna(0) > 0).sum()) if parsed_n else 0
     acceptance_n = int(filing_frame["accepted_datetime"].astype(str).ne("").sum()) if parsed_n else 0
+    filer_present = int(filing_frame["filer_cik_xml"].astype(str).ne("").sum()) if parsed_n else 0
+    filer_matches = int(filing_frame["filer_cik_match"].astype(str).str.lower().eq("true").sum()) if parsed_n else 0
+    filer_match_rate = filer_matches / filer_present if filer_present else 0.0
+    event_date_n = int(filing_frame["event_date_xml"].astype(str).ne("").sum()) if parsed_n else 0
+    amendment_number_n = int(filing_frame["amendment_number"].astype(str).ne("").sum()) if parsed_n else 0
+    submission_date_matches = int((filing_frame["filing_date"].astype(str) == filing_frame["submission_filing_date"].astype(str)).sum()) if parsed_n else 0
+    submission_date_present = int(filing_frame["submission_filing_date"].astype(str).ne("").sum()) if parsed_n else 0
+    submission_date_match_rate = submission_date_matches / submission_date_present if submission_date_present else 0.0
 
     schema_versions = Counter(filing_frame.get("schema_version", pd.Series(dtype=str)).fillna("").astype(str))
     cik_status = Counter(person_frame.get("person_cik_status", pd.Series(dtype=str)).fillna("").astype(str))
@@ -502,6 +515,8 @@ def run_audit(
         "xml_parse_rate_ge_99_5pct": fetch_parse_rate >= 0.995,
         "issuer_cik_concordance_ge_99_5pct": issuer_rate >= 0.995,
         "form_concordance_ge_99_5pct": form_rate >= 0.995,
+        "filer_cik_concordance_ge_99_5pct_when_present": filer_match_rate >= 0.995 if filer_present else False,
+        "submission_filing_date_concordance_ge_99_5pct_when_present": submission_date_match_rate >= 0.995 if submission_date_present else False,
         "reporting_person_count_positive_ge_99_5pct": person_rate >= 0.995,
         "no_cross_issuer_predecessor_edges": predecessor_cross == 0,
     }
@@ -526,6 +541,15 @@ def run_audit(
         "positive_reporting_person_count_rate": person_rate,
         "acceptance_datetime_rows": acceptance_n,
         "acceptance_datetime_coverage": acceptance_n / parsed_n if parsed_n else 0.0,
+        "filer_cik_present_rows": filer_present,
+        "filer_cik_match_rows": filer_matches,
+        "filer_cik_match_rate_when_present": filer_match_rate,
+        "event_date_rows": event_date_n,
+        "event_date_coverage": event_date_n / parsed_n if parsed_n else 0.0,
+        "amendment_number_rows": amendment_number_n,
+        "amendment_number_coverage": amendment_number_n / amendments_n if amendments_n else 0.0,
+        "submission_filing_date_match_rows": submission_date_matches,
+        "submission_filing_date_match_rate_when_present": submission_date_match_rate,
         "submission_index_matches": int(len(submission_index)),
         "submission_index_errors": int(len(submission_errors)),
         "schema_version_counts": dict(schema_versions),
