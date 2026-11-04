@@ -83,8 +83,8 @@ FILED BY:
         parsed = parse_schedule13_xml(extracted["xml_bytes"])
         self.assertEqual(extracted["subject_cik"], "0001431852")
         self.assertEqual(extracted["filer_cik"], "0002083861")
-        self.assertEqual(parsed["issuer_cik"], "00001431852")
-        self.assertEqual(parsed["filer_cik_xml"], "00002083861")
+        self.assertEqual(parsed["issuer_cik"], "0001431852")
+        self.assertEqual(parsed["filer_cik_xml"], "0002083861")
         self.assertEqual(parsed["reporting_person_count"], 1)
 
     def test_missing_primary_xml_fails_closed(self):
