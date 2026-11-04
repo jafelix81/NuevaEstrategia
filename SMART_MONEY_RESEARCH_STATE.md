@@ -345,3 +345,31 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - Run 41787233183 completed with all 9,104 index pages fetched and zero HTTP errors but failed the data gate because Subject/Reporting CIK extraction was 0%. The HTML-to-text adapter removes anchor tags and leaves spaces inside role labels, e.g. "( Subject ) CIK".
 - Updated the parser to tolerate whitespace inside role-label parentheses and added an anchor-wrapped HTML regression test. Commits: 65a5930dc0095efdf883cd532805de1046c6d0a7 and 5001cb1aa5caeb34a4d9e7e531cac446e51fea6c.
 - The correction is not yet considered hosted-verified. The next Phase 50 Actions result must pass the new regression test and recompute subject/reporting identity. No economic test authorized.
+
+
+## 2026-11-04 — Phase 63 ThetaData OPRA trade/quote feasibility
+- Added `research/PHASE63_THETADATA_OPRA_TRADEQUOTE_FEASIBILITY_2026-11-04.md` and `research/PHASE63_THETADATA_SIGNED_FLOW_PIT_SPEC_2026-11-04.md`.
+- ThetaData v3 documents OPRA option trade/quote history with every trade paired to the last NBBO; historical quote matching uses millisecond timestamps. Use `exclusive=true` so quote_timestamp is strictly earlier than trade_timestamp.
+- Pricing page: individual Standard $80/month/10 years; Pro $160/month/14 years. Pro is required for trade-Greeks endpoints. Individual plans explicitly prohibit business use/redistribution. Business options page lists $1,600/month billed annually and startup pricing from $500/month, subject to quote/eligibility.
+- Options page advertises OPRA history since 2012-06 and 100% NBBO coverage. This is not a historical F80 or delisted-underlying coverage audit.
+- Trade quote API multi-day requests are limited to one month and require an expiration; `expiration=*` is documented for all expirations. Request sizing recommends one week for option tick-level and one day for highly liquid names. Historical flat-file trade_quote/EOD pages document only the latest seven calendar days; longer historical flat files require sales.
+- Trade-Greeks endpoint (Pro) supplies Delta, IV and underlying price/timestamp at trade time. It defaults to Black-Scholes, SOFR and no dividend; PIT rate/dividend inputs and binomial/own-Delta sensitivity are required. OI is normally reported around 06:30 ET and represents the previous trading day's close; zero-OI contracts may have no new message.
+- Trade conditions include auto-execution, complex spreads/straddles/buy-writes/combos, contingent/cross and cancellation codes. Historical API schema does not document the flat-file `records_back` correction field; cancellation semantics remain an acceptance gate. The free sample bundle documents stock UTP/CTA data only, not options.
+- Decision: **CONDITIONAL HIGH-PRIORITY RAW OPRA CANDIDATE**, not a data PASS. Require business-use license, historical sample including delisted/adjusted names, cancellation lineage, historical symbol coverage, PIT delivery timestamps and OCC multiplier/deliverable reconciliation. No vendor contacted, no data acquired, no cost incurred, no returns tested.
+
+## 2026-11-04 — Phase 63 SEC Form 144 master-index CIK-pair diagnostic
+- Added `research/PHASE63_FORM144_MASTER_INDEX_PAIR_IDENTITY_DIAGNOSTIC_2026-11-04.md`, `research/phase63_form144_master_index_pair_crosswalk_audit.py` and six unit tests.
+- Reproducible audit of run 41793719745 artifact 13306814836 (2025Q1, 50 XML sample rows): both XML issuer CIK and XML filer CIK appear in the accession's two master-index CIKs in 50/50 rows; they are distinct in all 50. The current candidate CIK set contains exactly one CIK in 9/50 pairs; all 9 are the XML issuer, none is the filer. Form 144: 6/6 unique candidates are issuer; Form 144/A: 3/3.
+- This sample is not random and the candidate CIK set is current, not PIT. Do not treat 9/9 as universal precision or coverage. Cases with two candidate CIKs, one master-index CIK, or corporate reporting persons remain ambiguous until XML confirms issuerCik.
+- Potential redesign: use global master.idx CIK pairs for first-stage candidate discovery; fetch primary XML to confirm issuerCik for candidate accessions; fetch filing-detail pages only for confirmed target and stratified non-target validation rows to obtain Accepted timestamps. Validate across independent quarters and unusual filer/issuer structures before integrating.
+
+## 2026-11-04 — Phase 50 latest Actions status (supersedes prior run references)
+- Run 41793719745 (run 6, commit 65a5930) completed with failure; artifact 13306814836 contains the 50-row XML sample. The HTML role parser still returned zero Subject/Reporting CIKs despite successful detail-page retrieval.
+- Run 41793724389 (run 7, commit 5001cb1) remains `in_progress`, job 126477286538. Parser/PIT tests passed; the 2025Q1 global-index pilot step is still running and no artifact is available. Do not launch another Phase 50 execution while this run is active.
+- The Phase 63 master-index pair diagnostic is independent of run 7 and does not authorize a production identity rule or economic test.
+
+## Current Phase 63 decision
+- Highest-priority raw options-flow candidates: OptionMetrics TradeFlow (identity/delisted continuity benchmark) and ThetaData raw OPRA trade_quote (transparent NBBO aggressor-side reconstruction, conditional on license and historical correction semantics).
+- ORATS remains the lower-cost EOD context candidate; Cboe/MIAX Open-Close remain venue-specific open/close complements.
+- SEC Form 144 subject attribution should pivot toward the master-index pair + XML confirmation route only after cross-quarter validation.
+- `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen. No source has passed an economic alpha test.
