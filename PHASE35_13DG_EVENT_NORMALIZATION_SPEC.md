@@ -1,6 +1,6 @@
 # Phase 35 — 13D/13G Event Normalization Specification
 
-Updated: 2026-11-03 (subject-issuer attribution correction)
+Updated: 2026-11-04 (cross-quarter lineage semantics correction)
 
 ## Purpose
 Build a deterministic subject-issuer and reporting-person event panel before any return test. This is a preregistration guardrail; the previous 20,266-row artifact is a retrieval output, **not a certified issuer-level panel**.
