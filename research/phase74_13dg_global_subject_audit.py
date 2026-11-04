@@ -3,7 +3,7 @@
 from __future__ import annotations
 import argparse, csv, hashlib, json, re, time
 from datetime import datetime, timezone
-from collections import defaultdict
+from collections import Counter, defaultdict
 from pathlib import Path
 import requests
 from research.phase73_sec_submission_text_extractor import _parse_sec_header, extract_primary_doc_xml, normalize_cik
@@ -89,6 +89,27 @@ def parse_master_index_13dg(raw, quarter=""):
     for accession, row in grouped.items():
         forms, dates = sorted(row["forms"]), sorted(row["filing_dates"])
         master, path = sorted(row["master_index_ciks"]), sorted(row["archive_path_ciks"])
+        conflict_reasons = []
+        if len(forms) != 1:
+            conflict_reasons.append("form_count_not_one")
+        if len(dates) != 1:
+            conflict_reasons.append("filing_date_count_not_one")
+        if not master:
+            conflict_reasons.append("missing_master_index_cik")
+        if not path:
+            conflict_reasons.append("missing_archive_path_cik")
+        if row["raw_rows"] != len(master):
+            conflict_reasons.append("raw_row_count_not_equal_unique_master_ciks")
+        if len(path) > len(master):
+            conflict_reasons.append("archive_path_count_exceeds_master_cik_count")
+        if len(master) == 1 and row["raw_rows"] == 1:
+            pair_type = "single_cik"
+        elif row["raw_rows"] == len(master) and len(path) == 1:
+            pair_type = "multi_cik_single_archive_path"
+        elif row["raw_rows"] == len(master) and len(path) > 1:
+            pair_type = "multi_cik_multiple_archive_paths"
+        else:
+            pair_type = "unexplained"
         out.append({
             "accession": accession, "quarter": quarter,
             "form": forms[0] if len(forms) == 1 else "",
@@ -98,7 +119,9 @@ def parse_master_index_13dg(raw, quarter=""):
             "master_index_ciks": master, "master_index_names": row["master_index_names"],
             "archive_path_ciks": path, "candidate_identity_ciks": sorted(set(master) | set(path)),
             "filenames": sorted(row["filenames"]), "raw_rows": row["raw_rows"],
-            "metadata_conflict": len(forms) != 1 or len(dates) != 1 or len(path) != 1,
+            "index_pair_type": pair_type,
+            "metadata_conflict_reasons": conflict_reasons,
+            "metadata_conflict": bool(conflict_reasons),
             "malformed_rows_in_quarter": malformed,
         })
     return sorted(out, key=lambda r: (r["filing_date"], r["accession"]))
@@ -159,11 +182,10 @@ def complete_submission_url(archive_cik, accession):
 
 def submission_url_candidates(row):
     accession = row.get("accession", "")
-    path_ciks = sorted(set(row.get("archive_path_ciks") or []))
-    if len(path_ciks) != 1:
-        raise ValueError("archive path CIK is missing or non-unique; quarantine accession")
-    cik = normalize_cik(path_ciks[0])
-    return [(cik, complete_submission_url(cik, accession))]
+    path_ciks = sorted({normalize_cik(c) for c in (row.get("archive_path_ciks") or []) if normalize_cik(c)})
+    if not path_ciks:
+        raise ValueError("archive path CIK is missing; quarantine accession")
+    return [(cik, complete_submission_url(cik, accession)) for cik in path_ciks]
 
 
 def classify_candidate_role(row, header):
@@ -287,7 +309,10 @@ def load_target_ciks(path):
 def run_index_audit(quarters, target_ciks, outdir, mode="index-only", sample_limit=120, sleep_seconds=0.6):
     outdir.mkdir(parents=True, exist_ok=True)
     raw_index_dir = outdir / "raw_master_indexes"
+    raw_submission_dir = outdir / "raw_submissions"
     raw_index_dir.mkdir(parents=True, exist_ok=True)
+    if mode == "pilot":
+        raw_submission_dir.mkdir(parents=True, exist_ok=True)
     client, all_rows, quarter_rows, errors = SecClient(sleep_seconds), [], [], []
     for quarter in quarters:
         year, q = quarter_parts(quarter)
@@ -311,7 +336,10 @@ def run_index_audit(quarters, target_ciks, outdir, mode="index-only", sample_lim
                 "amendment_13g": sum(r["form"] == "SC 13G/A" for r in rows),
                 "unique_master_index_ciks": len({c for r in rows for c in r["master_index_ciks"]}),
                 "unique_archive_path_ciks": len({c for r in rows for c in r["archive_path_ciks"]}),
-                "duplicate_raw_rows": sum(max(0, r["raw_rows"] - 1) for r in rows),
+                "single_cik_accessions": sum(r["index_pair_type"] == "single_cik" for r in rows),
+                "multi_cik_single_archive_path_accessions": sum(r["index_pair_type"] == "multi_cik_single_archive_path" for r in rows),
+                "multi_cik_multiple_archive_paths_accessions": sum(r["index_pair_type"] == "multi_cik_multiple_archive_paths" for r in rows),
+                "additional_index_rows": sum(max(0, r["raw_rows"] - 1) for r in rows),
                 "metadata_conflicts": sum(bool(r["metadata_conflict"]) for r in rows),
                 "sha256": hashlib.sha256(raw).hexdigest(),
             })
@@ -324,13 +352,25 @@ def run_index_audit(quarters, target_ciks, outdir, mode="index-only", sample_lim
     metadata_conflicts = [r for r in evidence_rows if r.get("metadata_conflict")]
     clean_rows = [r for r in all_rows if not r.get("metadata_conflict")]
     sample = stratified_sample(clean_rows, target_ciks, sample_limit)
+    pair_type_counts = dict(Counter(r["index_pair_type"] for r in all_rows))
+    gate_checks = {
+        "all_requested_quarters_retrieved": len(quarter_rows) == len(quarters),
+        "no_duplicate_accessions_across_quarters": duplicates == 0,
+        "no_unexplained_index_metadata_conflicts": not metadata_conflicts,
+        "candidate_cik_input_nonempty": bool(target_ciks),
+    }
+    data_gate = "PASS" if all(gate_checks.values()) else "FAIL"
     summary = {
-        "phase": "74-global-13dg-subject-discovery-audit",
+        "phase": "82-global-13dg-master-index-coverage-audit",
         "status": "COMPLETE" if not errors else "PARTIAL", "mode": mode,
+        "data_gate": data_gate, "gate_checks": gate_checks,
         "quarters_requested": quarters, "quarters_retrieved": len(quarter_rows),
         "global_13dg_accessions": len(all_rows), "duplicate_accessions_across_quarters": duplicates,
         "index_metadata_conflicts_quarantined": len(metadata_conflicts),
         "clean_accessions_available_for_pilot": len(clean_rows),
+        "single_cik_accessions": sum(r["raw_rows"] == 1 for r in all_rows),
+        "multi_cik_accessions": sum(r["raw_rows"] > 1 for r in all_rows),
+        "index_pair_type_counts": pair_type_counts,
         "unique_master_index_ciks": len({c for r in all_rows for c in r["master_index_ciks"]}),
         "unique_archive_path_ciks": len({c for r in all_rows for c in r["archive_path_ciks"]}),
         "target_cik_count": len(target_ciks),
@@ -365,18 +405,29 @@ def run_index_audit(quarters, target_ciks, outdir, mode="index-only", sample_lim
             path_errors = []
             for archive_cik, url in submission_url_candidates(row):
                 try:
-                    raw = client.get(url)
-                    resolved = (archive_cik, url, raw)
+                    response = client.get_response(url)
+                    resolved = (archive_cik, url, response)
                     break
                 except Exception as path_exc:
                     path_errors.append({"archive_cik": archive_cik, "url": url, "error": repr(path_exc)})
             if resolved is None:
                 fetch_errors.append({"accession": row["accession"], "path_errors": path_errors})
                 continue
-            archive_cik, url, raw = resolved
+            archive_cik, url, response = resolved
+            raw = response.content
+            retrieved_at_utc = datetime.now(timezone.utc).isoformat(timespec="seconds")
+            raw_name = f"{row['accession'].replace('-', '')}.txt"
+            (raw_submission_dir / raw_name).write_bytes(raw)
             filing_rows.append({
                 **row, **parse_pilot_record(row, raw),
                 "source_url": url, "resolved_archive_path_cik": archive_cik,
+                "source_http_status": response.status_code,
+                "source_content_type": response.headers.get("Content-Type", ""),
+                "source_bytes": len(raw),
+                "source_sha256": hashlib.sha256(raw).hexdigest(),
+                "retrieved_at_utc": retrieved_at_utc,
+                "raw_file": f"raw_submissions/{raw_name}",
+                "archive_path_candidates_json": json.dumps([c for c, _ in submission_url_candidates(row)]),
                 "archive_path_attempt_errors_json": json.dumps(path_errors, sort_keys=True),
             })
         n = len(filing_rows)
@@ -396,6 +447,7 @@ def run_index_audit(quarters, target_ciks, outdir, mode="index-only", sample_lim
             "filer_cik_presence": sum(bool(r["filer_cik"]) for r in filing_rows) / n if n else 0.0,
             "subject_cik_in_master_or_path_rate": sum(bool(r["subject_in_master_index_ciks"] or r["subject_in_archive_path_ciks"]) for r in filing_rows) / n if n else 0.0,
             "xml_rows": len(xml_rows), "xml_subject_header_concordance": xml_subject, "xml_filer_header_concordance": xml_filer,
+            "raw_submission_files_saved": sum(bool(r.get("raw_file")) for r in filing_rows),
             "unique_candidate_rows": len(candidate_rows), "unique_candidate_subject_role_rate": subject_role,
             "candidate_filer_false_positives": sum(r["candidate_role"] == "filer" for r in candidate_rows),
             "candidate_unresolved_rows": sum(r["candidate_role"] == "unresolved" for r in candidate_rows),
@@ -419,8 +471,10 @@ def run_index_audit(quarters, target_ciks, outdir, mode="index-only", sample_lim
         summary["pilot_summary"] = pilot
         (outdir / "summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
         print(json.dumps(pilot, indent=2), flush=True)
-    if errors or duplicates: raise SystemExit(2)
-    if mode == "pilot" and summary["pilot_summary"]["data_gate"] != "PASS": raise SystemExit(2)
+    if summary["data_gate"] != "PASS":
+        raise SystemExit(2)
+    if mode == "pilot" and summary["pilot_summary"]["data_gate"] != "PASS":
+        raise SystemExit(2)
     return summary
 
 
