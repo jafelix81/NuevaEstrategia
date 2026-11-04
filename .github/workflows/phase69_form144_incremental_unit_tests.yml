@@ -1,0 +1,29 @@
+name: Phase 69 - Incremental Form 144 unit tests
+
+on:
+  push:
+    branches:
+      - phase71-original-universe-rule-trace
+    paths:
+      - research/phase69_form144_incremental_fund_registrant_scan.py
+      - research/test_phase69_form144_incremental_fund_registrant_scan.py
+      - .github/workflows/phase69_form144_incremental_unit_tests.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase69-incremental-unit-tests
+  cancel-in-progress: false
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run Phase 69 regression tests
+        run: python -m unittest research.test_phase69_form144_incremental_fund_registrant_scan -v
