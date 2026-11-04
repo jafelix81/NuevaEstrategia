@@ -2,6 +2,7 @@
 """Global SEC Schedule 13D/13G index-to-subject identity feasibility audit."""
 from __future__ import annotations
 import argparse, csv, hashlib, json, re, time
+from datetime import datetime, timezone
 from collections import defaultdict
 from pathlib import Path
 import requests
@@ -233,7 +234,7 @@ class SecClient:
         self.session.headers.update({"User-Agent": USER_AGENT, "Accept-Encoding": "gzip, deflate",
                                      "Accept": "text/plain,text/html,application/xml,*/*"})
 
-    def get(self, url):
+    def get_response(self, url):
         last_error = None
         for attempt in range(self.max_retries + 1):
             delay = self.sleep_seconds - (time.monotonic() - self.last_request)
@@ -247,12 +248,15 @@ class SecClient:
                     except (TypeError, ValueError): wait = min(60.0, 2.0 ** attempt)
                     time.sleep(max(wait, self.sleep_seconds)); continue
                 response.raise_for_status()
-                return response.content
+                return response
             except requests.RequestException as exc:
                 last_error = exc
                 if attempt >= self.max_retries: break
                 time.sleep(min(60.0, 2.0 ** attempt))
         raise RuntimeError(f"SEC GET failed after retries: {url}: {last_error}")
+
+    def get(self, url):
+        return self.get_response(url).content
 
 
 def write_csv(path, rows):
@@ -282,15 +286,25 @@ def load_target_ciks(path):
 
 def run_index_audit(quarters, target_ciks, outdir, mode="index-only", sample_limit=120, sleep_seconds=0.6):
     outdir.mkdir(parents=True, exist_ok=True)
+    raw_index_dir = outdir / "raw_master_indexes"
+    raw_index_dir.mkdir(parents=True, exist_ok=True)
     client, all_rows, quarter_rows, errors = SecClient(sleep_seconds), [], [], []
     for quarter in quarters:
         year, q = quarter_parts(quarter)
         url = f"{SEC_BASE}/Archives/edgar/full-index/{year}/QTR{q}/master.idx"
         try:
-            raw = client.get(url)
+            response = client.get_response(url)
+            retrieved_at_utc = datetime.now(timezone.utc).isoformat(timespec="seconds")
+            raw = response.content
+            raw_name = f"master_{quarter}.idx"
+            (raw_index_dir / raw_name).write_bytes(raw)
             rows = parse_master_index_13dg(raw, quarter); all_rows.extend(rows)
             quarter_rows.append({
-                "quarter": quarter, "accessions": len(rows),
+                "quarter": quarter, "url": url, "http_status": response.status_code,
+                "content_type": response.headers.get("Content-Type", ""),
+                "content_length": len(raw), "retrieved_at_utc": retrieved_at_utc,
+                "raw_file": f"raw_master_indexes/{raw_name}",
+                "accessions": len(rows),
                 "original_13d": sum(r["form"] == "SC 13D" for r in rows),
                 "amendment_13d": sum(r["form"] == "SC 13D/A" for r in rows),
                 "original_13g": sum(r["form"] == "SC 13G" for r in rows),
