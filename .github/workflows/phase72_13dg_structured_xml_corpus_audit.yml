@@ -39,15 +39,14 @@ jobs:
           path: phase35_input
       - name: Validate source artifact
         run: test -s phase35_input/phase28d_events.csv
-      - name: Parse and reconcile all structured XML filings
+      - name: Run stratified 80-filing structured XML pilot
         run: |
           python -u -m research.phase72_13dg_structured_xml_corpus_audit \
             --input-csv phase35_input/phase28d_events.csv \
             --outdir phase72_13dg_structured_xml_corpus_audit \
             --sleep-seconds 0.6 \
             --max-retries 5 \
-            --checkpoint-every 100 \\
-            --limit 80
+            --checkpoint-every 100 --limit 80
       - name: Upload Phase 72 full-corpus outputs and checkpoints
         if: always()
         uses: actions/upload-artifact@v4
