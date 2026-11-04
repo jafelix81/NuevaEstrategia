@@ -29,7 +29,19 @@ from research.phase73_sec_submission_text_extractor import (
 )
 
 
-SEC_ARCHIVE_TEXT = "https://www.sec.gov/Archives/edgar/data/{filer_cik}/{accession_key}/{accession}.txt"
+SEC_ARCHIVE_TEXT = "https://www.sec.gov/Archives/edgar/data/{archive_cik}/{accession_key}/{accession}.txt"
+
+
+def complete_submission_url(archive_cik: str, accession: str) -> str:
+    """Build the SEC archive URL using a party CIK, not the accession prefix."""
+    cik = normalize_cik(archive_cik)
+    if not cik:
+        raise ValueError("missing subject/party CIK for SEC archive path")
+    return SEC_ARCHIVE_TEXT.format(
+        archive_cik=str(int(cik)),
+        accession_key=normalize_accession(accession),
+        accession=accession,
+    )
 
 
 def _person_rows(source: dict, parsed: dict, submission: dict) -> list[dict]:
@@ -101,11 +113,25 @@ def run_pilot(
         accession = str(row["accession"])
         key = normalize_accession(accession)
         accession_filer_cik = normalize_cik(key[:10])
-        filer_path = str(int(accession_filer_cik))
-        url = SEC_ARCHIVE_TEXT.format(filer_cik=filer_path, accession_key=key, accession=accession)
+        subject_cik_path = normalize_cik(row.get("issuer_cik", ""))
+        path_candidates = list(dict.fromkeys(x for x in (subject_cik_path, accession_filer_cik) if x))
         submission = submission_index.get(key, {})
         try:
-            response = client.get(url)
+            response = None
+            url = ""
+            archive_path_cik = ""
+            path_errors = []
+            for candidate_cik in path_candidates:
+                candidate_url = complete_submission_url(candidate_cik, accession)
+                try:
+                    response = client.get(candidate_url)
+                    url = candidate_url
+                    archive_path_cik = candidate_cik
+                    break
+                except Exception as path_exc:
+                    path_errors.append(f"{candidate_cik}: {path_exc!r}")
+            if response is None:
+                raise RuntimeError("all SEC archive CIK path candidates failed: " + " | ".join(path_errors))
             extracted = extract_primary_doc_xml(response.content)
             parsed = parse_schedule13_xml(extracted["xml_bytes"])
             header = extracted
@@ -120,7 +146,9 @@ def run_pilot(
             submission_date = str(submission.get("filing_date", ""))
             header_acceptance = str(header.get("acceptance_datetime", ""))
             submission_acceptance = str(submission.get("acceptance_datetime", ""))
-            header_acceptance_normalized = normalize_acceptance_datetime(header_acceptance)
+            header_acceptance_normalized = normalize_acceptance_datetime(
+                header_acceptance, source_timezone="America/New_York"
+            )
             submission_acceptance_normalized = normalize_acceptance_datetime(submission_acceptance)
             header_accession = normalize_accession(header.get("accession", ""))
             accession_match = bool(header_accession and header_accession == key)
@@ -160,6 +188,8 @@ def run_pilot(
                 "accession_key": key,
                 "source_primary_document": row.get("primary_document", ""),
                 "full_submission_text_url": url,
+                "archive_path_cik": archive_path_cik,
+                "archive_path_role_candidate": "subject_or_party_cik; verified against SEC header below",
                 "extraction_method": extracted.get("extraction_method", ""),
                 "event_date_xml": parsed.get("event_date", ""),
                 "is_amendment": parsed.get("is_amendment", False),
