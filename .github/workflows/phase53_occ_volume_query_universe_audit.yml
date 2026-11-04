@@ -1,0 +1,39 @@
+name: Phase 53B - OCC Volume Query full-universe coverage
+
+on:
+  push:
+    branches: [phase53-occ-daily-open-interest-audit]
+    paths:
+      - 'research/phase53_occ_volume_query_universe_audit.py'
+      - 'research/test_phase53_occ_volume_query_universe_audit.py'
+      - 'research/PHASE53B_OCC_VOLUME_QUERY_UNIVERSE_AUDIT_SPEC_2026-11-04.md'
+      - '.github/workflows/phase53_occ_volume_query_universe_audit.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: phase53-occ-volume-query-universe-audit
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run OCC Volume Query tests
+        run: python -m unittest research.test_phase53_occ_volume_query_universe_audit -v
+      - name: Audit OCC Volume Query across frozen 335 tickers
+        run: python -u research/phase53_occ_volume_query_universe_audit.py
+      - name: Upload full-universe OCC coverage audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase53b-occ-volume-query-universe
+          path: phase53_occ_volume_query_universe_audit/
+          if-no-files-found: warn
