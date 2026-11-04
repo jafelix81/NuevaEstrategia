@@ -28,7 +28,7 @@ If a target CIK appears in the index pair/path and is the header subject, the gl
 ## Implementation
 
 - research/phase74_13dg_global_subject_audit.py: parses four 13D/13G variants; groups duplicate rows by accession; preserves master-index and archive-path CIKs separately; computes candidate overlap; stratifies by form, amendment, regulatory timing and candidate/control/ambiguous status; validates SEC header roles and optional XML concordance. Supports index-only and pilot modes.
-- research/test_phase74_13dg_global_subject_audit.py: seven offline tests for form/accession parsing, duplicate rows, archive-path separation, subject/filer role, timing cutovers, URL construction and deterministic stratification.
+- research/test_phase74_13dg_global_subject_audit.py: twelve offline tests for form/accession parsing, duplicate rows, archive-path separation, subject/filer role, timing cutovers, URL construction and deterministic stratification.
 - .github/workflows/phase74_13dg_global_subject_audit_tests.yml: offline tests only; it does not contact the SEC or start a data crawl.
 
 ## Preregistered gates
