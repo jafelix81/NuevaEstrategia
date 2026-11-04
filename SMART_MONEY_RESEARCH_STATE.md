@@ -623,3 +623,13 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - No full 8,294-document filer-side corpus parse until Phase 73 corrected pilot and subject-side discovery pass.
 - No forward returns, alpha tests, purchases or production changes. Historical F80 membership and original universe selection rule remain unresolved.
 - F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## 2026-11-04 superseding execution update — Phase 82/83
+
+- **Phase 82 Gate A PASS:** run 41892370262 retrieved all 43 quarterly indexes (2016Q1–2026Q3), 324,964 distinct accessions, zero cross-quarter duplicates and zero unexplained metadata conflicts. The frozen 319-CIK locator set overlaps 34,400 accessions (32,805 unique-CIK hits; 1,595 ambiguous hits). These are candidate locators, not issuer events.
+- **Phase 83 Gate B FAIL as preregistered:** run 41893546069 fetched and parsed 120/120 complete submissions; header accession/form/date, subject/filer presence and subject-in-index/path checks were 100%; XML subject/filer matched header in 40/40 XML rows. But only 11/44 unique-candidate hits (25%) were header SUBJECT COMPANY; 33/44 (75%) were FILED BY only. All 32 ambiguous sample rows contained both a target subject and target filer CIK. The original gate remains failed; do not infer subject role from a unique CIK hit.
+- Phase 83 preserved 120 raw submissions, hashes and UTC retrieval timestamps. All 120 headers contained ACCEPTANCE-DATETIME. This is an Eastern acceptance timestamp, not independently verified public dissemination latency; use a conservative next-session availability rule in any future economic test.
+- **Phase 84 prepared:** branch \`phase84-13dg-role-aware-identity-validation\` defines a new, preregistered 600-filing disjoint sample. It tests target-subject recall and header role resolution while reporting filer-only false positives rather than assuming every unique candidate is an issuer. It also validates mandatory XML, acceptance-time conversion and raw-source reproducibility. Phase 83 is not retroactively reclassified.
+- Latest Phase 82 follow-up offline run 41893973070 passed tests; its live index job was skipped. Phase 69 offline tests passed in run 41892649381; the incremental live scan was skipped. Phase 35 PIT crosswalk run 41878429289 remained in progress at the last status check, so no new SEC live crawl is triggered in this update.
+- F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No forward returns, alpha tests, purchases, feature tuning or production changes were made.

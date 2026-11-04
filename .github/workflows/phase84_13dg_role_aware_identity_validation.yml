@@ -1,0 +1,80 @@
+name: Phase 84 - SEC 13D/13G role-aware identity validation
+
+on:
+  push:
+    branches:
+      - phase84-13dg-role-aware-identity-validation
+    paths:
+      - research/phase84_13dg_role_aware_identity_audit.py
+      - research/test_phase84_13dg_role_aware_identity_audit.py
+      - research/phase83_sample_accessions.csv
+      - research/phase83_role_counts_by_stratum.csv
+      - .github/workflows/phase84_13dg_role_aware_identity_validation.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: sec-public-data-research
+  cancel-in-progress: false
+
+jobs:
+  offline_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install SEC parser dependency
+        run: python -m pip install requests
+      - name: Run Phase 73/74/84 identity regression tests
+        run: >-
+          python -m unittest
+          research.test_phase73_sec_submission_text_extractor
+          research.test_phase74_13dg_global_subject_audit
+          research.test_phase84_13dg_role_aware_identity_audit
+          -v
+      - name: Compile Phase 84 module
+        run: python -m py_compile research/phase84_13dg_role_aware_identity_audit.py
+
+  role_aware_identity_pilot:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, 'Trigger Phase 84 600-filing SEC 13D/13G role-aware identity pilot')
+    needs: offline_tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install SEC parser dependency
+        run: python -m pip install requests
+      - name: Download frozen Phase 82 global index artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: phase82-global-13dg-index-coverage-audit
+          path: phase82_global_13dg_index_audit
+          repository: jafelix81/NuevaEstrategia
+          run-id: 41892370262
+          github-token: \${{ github.token }}
+      - name: Run disjoint 600-filing role-aware identity pilot
+        run: >-
+          python -u -m research.phase84_13dg_role_aware_identity_audit
+          --candidate-index-file phase82_global_13dg_index_audit/candidate_accessions.csv
+          --target-cik-file research/phase82_current_candidate_ciks.csv
+          --phase83-accessions-file research/phase83_sample_accessions.csv
+          --phase83-roles-file research/phase83_role_counts_by_stratum.csv
+          --sample-limit 600
+          --outdir phase84_13dg_role_aware_identity
+          --sleep-seconds 0.8
+      - name: Upload Phase 84 raw submissions and role-aware validation
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase84-13dg-role-aware-identity-validation
+          path: phase84_13dg_role_aware_identity/
+          if-no-files-found: warn
+          retention-days: 90

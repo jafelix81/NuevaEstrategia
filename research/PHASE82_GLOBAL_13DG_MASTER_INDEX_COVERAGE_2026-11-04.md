@@ -106,3 +106,16 @@ A guarded 120-filing pilot is prepared. It will stratify by 13D/13G family, orig
 Passing Gate A establishes index history and reproducibility only. The 120-filing identity pilot must pass before a full global subject-side census is authorized. No forward returns, feature selection or economic test has been run.
 
 The deterministic 120-row manifest in artifact 13353118959 is balanced across the six form-specific timing regimes: 60 13D / 60 13G, 62 originals / 58 amendments, and 44 unique-candidate / 32 ambiguous / 44 control accessions. The regression suite now also verifies that pilot mode saves the exact complete-submission bytes, SHA-256 and UTC retrieval timestamp; offline run [41893467636](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41893467636) passed. The live identity pilot is run [41893546069](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41893546069), currently in progress.
+
+
+## Final Phase 83 outcome — 2026-11-04
+
+Run [41893546069](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41893546069) completed with a **failed preregistered data gate**, not a parser failure. Its 120/120 complete submissions parsed; header accession/form/date and subject/filer identity fields were 100% concordant; subject CIK appeared in the master-index/path set in 120/120; XML issuer and filer matched the SEC header in 40/40 XML rows; all 120 raw submissions, SHA-256 hashes and UTC retrieval timestamps were preserved.
+
+The failed criterion was the assumption that a unique current-universe CIK hit in the unlabelled index/path pair must be the subject issuer. In 44 unique-candidate rows, only 11 (25%) were header SUBJECT COMPANY; 33 (75%) were FILED BY only. All 32 ambiguous rows contained a target subject CIK and a target filer CIK. Across 76 candidate rows, 43 had a target subject CIK and 33 were filer-only false positives. The index/path CIKs are therefore locators only; SEC header role is required. The original Phase 83 gate remains failed and is not relaxed retrospectively.
+
+All 120 headers contained a 14-digit ACCEPTANCE-DATETIME. This is an Eastern acceptance timestamp; Phase 83 did not independently establish public dissemination latency. Future economic tests must convert it with America/New_York daylight-saving rules and use a conservative next-session availability rule unless exact dissemination time is verified.
+
+## Phase 84 — next role-aware validation
+
+Branch \`phase84-13dg-role-aware-identity-validation\` contains a new preregistered 600-filing disjoint pilot. It excludes the 120 Phase 83 accessions and tests: target-subject recall in the index/path set; subject/filer role resolution; mandatory XML presence and issuer/filer concordance; acceptance timestamp conversion; raw bytes, SHA-256 and UTC retrieval. Filer-only CIK hits are measured and excluded as issuer events, not treated as a gate failure. A Phase 84 pass would authorize only a full subject-side coverage/event-normalization design, not an alpha test.
