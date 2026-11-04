@@ -100,7 +100,7 @@ class Phase72StructuredXmlParserTests(unittest.TestCase):
 
     def test_original_13g_without_predecessor_is_not_misclassified(self):
         xml = b'''<edgarSubmission xmlns="http://www.sec.gov/edgar/schedule13g">
-          <headerData><submissionType>SCHEDULE 13G</submissionType></headerData>
+          <headerData><submissionType>SCHEDULE 13G</submissionType><filerInfo><filer><filerCredentials><cik>0002081473</cik></filerCredentials></filer></filerInfo></headerData>
           <formData><coverPageHeader><issuerInfo><issuerCik>1130166</issuerCik></issuerInfo></coverPageHeader>
             <coverPageHeaderReportingPersonDetails><reportingPersonName>Investor</reportingPersonName>
               <reportingCikNotPresentInEdgarFlag>Y</reportingCikNotPresentInEdgarFlag></coverPageHeaderReportingPersonDetails>
@@ -109,6 +109,8 @@ class Phase72StructuredXmlParserTests(unittest.TestCase):
         self.assertFalse(parsed["is_amendment"])
         self.assertEqual(parsed["lineage_status"], "original_no_predecessor")
         self.assertEqual(parsed["reporting_persons"][0]["person_cik_status"], "declared_no_cik")
+        self.assertEqual(parsed["filer_cik_xml"], "0002081473")
+        self.assertEqual(parsed["reporting_persons"][0]["person_cik"], "")
         self.assertNotEqual(parsed["reporting_persons"][0]["person_cik"], parsed["filer_cik_xml"])
 
     def test_amendment_without_previous_accession_is_flagged(self):
