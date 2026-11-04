@@ -584,3 +584,42 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - Run 41867865628 passed 16 tests (5 Phase 72 parser, 7 Phase 72 audit-helper, 4 Phase 73 extractor).
 - Timestamp normalization for SEC submissions API ISO acceptanceDateTime and explicit accession-header concordance were added afterward. Run 41868094850 is the corrected-revision regression run and remains queued; 41868027603 is an earlier queued revision.
 - The separate 80-filing SEC data-pilot trigger has not been pushed. No Phase 73 SEC crawl is active.
+
+
+## 2026-11-04 — Phase 73 pilot failure classified; Phase 74 subject-discovery audit prepared
+
+### Phase 69 Form 144 incremental result
+- Run 41863703923 / artifact 13340957307 passed its data gate.
+- The ten newly mapped fund registrant CIKs added zero Form 144 candidate accessions and zero issuer events to the audited 14-quarter panel. This is a scoped negative coverage result, not proof that those registrants have no filings or historical series/class activity.
+- Expanded panel remains 21,648 candidate accessions / 21,634 issuer-matched events / 14 filer-only false positives.
+
+### Phase 73 complete-submission pilot — actual result
+- Run 41868352940 / artifact 13342854701 failed the pilot data gate.
+- Stratified sample: 80; parsed: 54; retrieval failures: 26. The 26 were HTTP 404 archive-path failures, not XML parse errors.
+- Among the 54 retrieved rows: XML issuer vs SEC header SUBJECT COMPANY = 100%; XML filer vs SEC header FILED BY/accession prefix = 100%; accession/form/filing-date concordance = 100%; reporting-person count positive = 100%.
+- Acceptance-time concordance was 0% because the SEC header timestamp is Eastern wall-clock time while submissions API acceptanceDateTime is UTC. A timezone-aware conversion is required; raw digit-string comparison is invalid.
+- The Phase 35 input remains a filer-side retrieval sample with a mixed heuristic CIK field, not a subject-issuer census.
+
+### Corrected Phase 73 rerun — do not duplicate
+- Run 41872288761 on branch phase74-13dg-archive-path-and-utc-fix is the only active SEC data pilot.
+- It tries subject/archive CIK before accession-prefix CIK and converts SEC header Eastern timestamps to UTC with America/New_York daylight-saving rules.
+- It has passed parser tests and source-artifact validation; its 80-filing retrieval step remains in progress and has no final artifact yet. Do not start another SEC crawl while it runs.
+
+### Phase 74 global subject-side discovery
+- New isolated branch: phase74-13dg-global-subject-discovery-audit.
+- Run 41872918484 passed all 12 offline tests and Python compilation. These tests make no SEC requests.
+- The audit parser preserves master-index CIKs and Filename archive-path CIKs separately, groups rows by accession, and does not assume either field is the subject issuer.
+- Complete-submission retrieval now requires exactly one archive-path CIK from the master index; missing/non-unique path rows are quarantined. The path is a retrieval locator only; SEC-HEADER SUBJECT COMPANY / FILED BY and primary XML remain identity ground truth.
+- The sample stratification separates 13D vs 13G, original vs amendment, form-specific regulatory deadline regimes, and candidate/control/ambiguous identity status. Conflicting index metadata is retained but excluded from the pilot sample.
+- A separate Phase 76 branch independently documented the FOXA agent-filed path mismatch and passed its offline tests (run 41872762613). The accession prefix can be a filing agent and must not be guessed as the archive directory.
+
+### Additional subject-side discovery route
+- SEC Full-Text Search is an official discovery candidate: SEC documentation states electronic filings are searchable since 2001, queries can use CIK and form/date filters, and XML element content is indexed (element names are not). Official sources: https://www.sec.gov/edgar/search/ ; https://www.sec.gov/edgar/search/efts-faq.html ; https://www.sec.gov/about/webmaster-frequently-asked-questions
+- Exact quoted subject-CIK search is a hypothesis, not a proven complete API. Test both zero-padded/unpadded CIKs on known cross-filer controls (Revance 0001479290 / filer JPM 0000019617; Osisko 0001431852 / filer Double Zero 0002083861), dedupe document-level hits by accession, and verify primary ownership documents against SEC header/XML. Do not assume the undocumented ciks parameter is subject-aware.
+- Another branch phase74-sec-subject-side-13dg-discovery contains an EFTS/Entity Landing Page test plan; no data crawl has been launched from it.
+
+### Research boundary
+- Phase 74 has not downloaded global 13D/13G filing documents or run the 14-quarter index scan yet; only offline code/tests and documentation were added.
+- No full 8,294-document filer-side corpus parse until Phase 73 corrected pilot and subject-side discovery pass.
+- No forward returns, alpha tests, purchases or production changes. Historical F80 membership and original universe selection rule remain unresolved.
+- F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
