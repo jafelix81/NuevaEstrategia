@@ -603,3 +603,8 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - The resulting Phase 35 issuer_cik/ticker fields are mixed/ambiguous: they can represent the filer/query CIK or the subject issuer CIK depending on the fetched representation. Example: JPM/Revance accession 0000019617-25-000296 is mapped to JPM in the raw artifact, while the SEC header/XML identify Revance (CIK 0001479290) as subject.
 - Thus Phase 35 is a filer-universe-limited crawl with possible filer/subject misattribution, not a clean subject-side census. External filers outside F80 are also missing.
 - Phase 73 must quantify source-CIK role by comparing it separately with SEC header SUBJECT COMPANY and FILED BY, then correct/drop misassigned Phase 35 rows before any ownership event test.
+
+### Phase 35 source-CIK diagnostic (20,265 rows; descriptive only)
+- Source issuer_cik equals accession-prefix CIK in 10,085/20,265 rows (49.7656%); it differs in 10,180/20,265 (50.2344%).
+- Equality rates by form: SC 13D 19/215 (8.84%); SC 13D/A 173/1,209 (14.31%); SC 13G 3,557/5,509 (64.57%); SC 13G/A 6,336/13,332 (47.52%).
+- These are role diagnostics, not subject-identity accuracy rates. A mismatch may indicate a correctly extracted subject CIK; a match may be a filer fallback or a genuine same-CIK case. Only Phase 73 XML/header reconciliation can distinguish them.
