@@ -5,11 +5,7 @@ on:
     branches:
       - phase72-13dg-structured-xml-parser
     paths:
-      - research/phase72_13dg_structured_xml_parser.py
-      - research/test_phase72_13dg_structured_xml_parser.py
-      - research/phase72_13dg_structured_xml_corpus_audit.py
-      - research/test_phase72_13dg_structured_xml_corpus_audit.py
-      - .github/workflows/phase72_13dg_structured_xml_parser_tests.yml
+      - research/phase72_13dg_parser_tests_trigger.txt
 
 permissions:
   contents: read
