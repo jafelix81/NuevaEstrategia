@@ -46,7 +46,8 @@ jobs:
             --outdir phase72_13dg_structured_xml_corpus_audit \
             --sleep-seconds 0.6 \
             --max-retries 5 \
-            --checkpoint-every 100
+            --checkpoint-every 100 \\
+            --limit 80
       - name: Upload Phase 72 full-corpus outputs and checkpoints
         if: always()
         uses: actions/upload-artifact@v4
