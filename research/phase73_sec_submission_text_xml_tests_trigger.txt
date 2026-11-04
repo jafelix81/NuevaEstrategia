@@ -1,1 +1,1 @@
-Phase 73 test trigger: SEC complete-submission text XML extractor regression suite. No SEC data crawl.
+Phase 73 test trigger: corrected 10-digit CIK expectations; rerun extractor regression suite.
