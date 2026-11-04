@@ -34,6 +34,11 @@ NEW_FUND_REGISTRANT_CIKS = {
     "0001579982", "0001174610", "0001100663", "0001540305", "0001064642",
     "0001137360", "0000923202", "0000734383", "0000857489", "0001064641",
 }
+EXPECTED_LEGACY_UNRESOLVED_TICKERS = {
+    "ARKF", "ARKG", "ARKK", "ARKQ", "ARKW", "BITO", "IEFA", "IWM", "JETS",
+    "KRE", "OIH", "SMH", "SOXX", "VEA", "VNQ", "VWO", "XBI", "XLB", "XLE",
+    "XLF", "XLI", "XLK", "XLP", "XLRE", "XLU", "XLV", "XLY",
+}
 OUT_DIR = Path("phase69_form144_fund_registrant_scan")
 
 
@@ -118,6 +123,15 @@ def legacy_cik_candidates(tickers: list[str]):
         for cik in found:
             cik_to_tickers.setdefault(cik, set()).add(ticker)
     return {cik: sorted(values) for cik, values in cik_to_tickers.items()}, unresolved, source_errors
+
+
+def validate_legacy_snapshot(legacy_map: dict, unresolved: list[str], source_errors: list[dict]) -> None:
+    if len(legacy_map) != 309:
+        raise ValueError(f"Expected 309 legacy CIKs, got {len(legacy_map)}")
+    if set(unresolved) != EXPECTED_LEGACY_UNRESOLVED_TICKERS:
+        raise ValueError("Legacy unresolved ticker names differ from the Phase 67 snapshot")
+    if source_errors:
+        raise ValueError("Legacy mapping source errors: " + json.dumps(source_errors))
 
 
 def derive_new_ciks(expanded_ciks: set[str], legacy_ciks: set[str]) -> set[str]:
@@ -225,8 +239,7 @@ def main():
     new_ciks = derive_new_ciks(expanded_ciks, set(legacy_cik_to_tickers))
     if len(tickers) != 335 or unresolved or source_errors:
         raise ValueError("Phase 68 current map must resolve 335/335 with zero source errors")
-    if len(legacy_unresolved) != 27 or legacy_errors:
-        raise ValueError("Legacy Phase 67 mapper must reproduce 27 unresolved tickers with zero source errors")
+    validate_legacy_snapshot(legacy_cik_to_tickers, legacy_unresolved, legacy_errors)
 
     all_accessions, quarter_data = set(), []
     for token in [x.strip() for x in args.quarters.split(",") if x.strip()]:
@@ -304,8 +317,8 @@ def main():
         "ten_preregistered_new_fund_ciks_present": len(new_ciks)==10,
         "legacy_309_cik_set_exactly_reproduced": len(legacy_cik_to_tickers)==309
             and not (set(legacy_cik_to_tickers)-expanded_ciks)
-            and (expanded_ciks-set(legacy_cik_to_tickers))==NEW_FUND_REGISTRANT_CIKS
-            and len(legacy_unresolved)==27 and not legacy_errors,
+            and (expanded_ciks-set(legacy_cik_to_tickers))==NEW_FUND_REGISTRANT_CIKS,
+        "legacy_27_unresolved_ticker_names_match": set(legacy_unresolved)==EXPECTED_LEGACY_UNRESOLVED_TICKERS,
         "incremental_xml_fetch_success_ge_99_5pct": not attempted or (len(attempted)-failed)/len(attempted)>=0.995,
         "incremental_role_resolution_ge_99_9pct": not inc_rows or resolved/len(inc_rows)>=0.999,
         "incremental_pair_concordance_ge_99_9pct": not parsed or pair_ok/len(parsed)>=0.999,
@@ -353,6 +366,7 @@ def main():
         "gate_checks":gates,
         "mapping_source_errors":source_errors,
         "legacy_mapping_unresolved_count":len(legacy_unresolved),
+        "legacy_mapping_unresolved_tickers":sorted(legacy_unresolved),
         "legacy_mapping_source_errors":legacy_errors,
         "historical_pit_f80_universe_gate":"NOT_TESTED",
         "fund_series_class_to_security_class_gate":"NOT_TESTED",
