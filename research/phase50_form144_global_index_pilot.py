@@ -147,6 +147,16 @@ def ticker_variants(ticker):
     return list(dict.fromkeys(variants))
 
 
+def ticker_from_sec_row(row):
+    """Read stock and mutual-fund ticker field variants from SEC mapping files.
+
+    company_tickers_mf.json uses the field name 'symbol' (with CIK, seriesId,
+    and classId), unlike the company ticker files that use 'ticker'.
+    """
+    return (row.get("ticker") or row.get("classTicker") or
+            row.get("class_ticker") or row.get("symbol"))
+
+
 def load_universe():
     tree = ast.parse(Path(BASE_SOURCE).read_text(encoding="utf-8"))
     for node in tree.body:
@@ -186,7 +196,7 @@ def current_cik_candidates(tickers):
     ):
         try:
             for row in records(fetch_json(url, sec=True)):
-                ticker = row.get("ticker") or row.get("classTicker") or row.get("class_ticker")
+                ticker = ticker_from_sec_row(row)
                 cik = row.get("cik_str") or row.get("cik")
                 fund = None
                 if source == "company_tickers_mf":
