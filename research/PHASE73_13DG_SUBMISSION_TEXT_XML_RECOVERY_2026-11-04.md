@@ -93,3 +93,11 @@ F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
 ## 6. Hosted extractor regression note
 
 The first hosted Phase 73 test attempts exposed fixture-only CIK zero-padding mistakes in the test expectations, not parser defects. The 13G and 13D extracted/header/XML CIKs are ten-digit values; the fixture assertions have been corrected. The pilot also normalizes SEC submissions API ISO acceptanceDateTime values to the SEC header's 14-digit form before concordance testing and now checks accession identity explicitly. The corrected hosted suite is queued; no SEC data pilot has been triggered.
+
+
+## 7. Hosted test status at 2026-11-04 16:31 UTC
+
+- Run 41867865628 passed all 16 tests: 5 existing Phase 72 parser tests, 7 Phase 72 corpus-helper tests and 4 Phase 73 complete-submission extractor tests. This confirms the 13D/13G fixtures correctly separate subject and filer identities after the ten-digit CIK expectation correction.
+- A further test adds normalization of SEC submissions API ISO acceptanceDateTime values to the SEC header's 14-digit timestamp and an explicit accession-number concordance gate.
+- Run 41868027603 was queued with the first timestamp-normalization revision; run 41868094850 was queued with the corrected digit-normalization regex. The latter is the current code revision to verify.
+- The separate SEC data-pilot trigger has not been created or pushed. No SEC crawl is running from Phase 73.
