@@ -26,9 +26,9 @@ For each sampled primary XML, preserve and measure:
 - security class, units proposed for sale, aggregate market value and approximate sale date;
 - notice date, remarks, 10b5-1 mention and plan-adoption dates;
 - previousAccessionNumber and whether its normalized accession falls inside the 14-quarter census;
-- number of securities-to-be-sold blocks.
+- number of proposed-sale securitiesInformation blocks, acquisition-history securitiesToBeSold blocks, and realized-prior-sale securitiesSoldInPast3Months blocks.
 
-The audit separately extracts each securities-to-be-sold block. It must not collapse multi-tranche filings into the first security class or first quantity. Numeric parsing and date parsing are measured separately from raw field presence.
+The SEC XML schema has three economically distinct repeated groups: securitiesInformation (proposed sale tranches, 1–40); securitiesToBeSold (how/when the securities were acquired, 1–40); and securitiesSoldInPast3Months (realized sales in the prior three months, 0–200). The audit extracts each group separately and never treats acquisition lots or prior realized sales as the proposed sale. Numeric/date parsing is measured separately from raw field presence. See the SEC Form 144 XML technical specifications: https://www.sec.gov/submit-filings/technical-specifications.
 
 ## 4. Identity and lineage rules
 
