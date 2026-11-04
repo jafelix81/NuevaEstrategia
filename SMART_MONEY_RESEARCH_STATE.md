@@ -596,3 +596,13 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - Report: research/PHASE74_13DG_ARCHIVE_PATH_AND_UTC_CORRECTION_2026-11-04.md.
 - Full 8,294-document Phase 72 corpus remains blocked until corrected 80-filing pilot passes parsing, identity, form/date, timezone-normalized acceptance, reporting-person and lineage gates. Phase 35 remains a filer-side sample, not a subject-issuer census.
 - No forward returns or economic tests. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## 2026-11-04 — Phase 75 corrected MOM120 incremental reconciliation
+
+- Re-examined Phase 30 run 40126095357 / commit 09bbc836c27cd3558d9a5f2037a861b3765e69f8 and downloaded artifact 12573378046 (SHA-256 d9d56696e0d7051a527b2f84c31cebaa18bb9674b5fba4d880de8833f4726d28). This is the later corrected artifact; do not rely on the earlier run 40105776797 artifact, whose DailyReturn omitted the close-to-open component by dividing close equity by same-day open pre-equity.
+- Direct artifact recheck: latest ledger DailyReturn matches Equity.pct_change() to max absolute error <5.3e-16 for both MOM120 and LTM; cash never negative; marked gross exposure <=1 within floating-point tolerance. PARTIAL50 creates a diffuse residual book (MOM120 avg 193.28/max 201 positions; LTM avg 198.03/max 209), which is consistent with the explicit halfway-to-target rebalance rule but is not a literal 20-position portfolio.
+- OOS 2024-01-02–2026-10-23, 706 sessions, C20: MOM120 3.5765x / CAGR 57.60% / Sharpe 1.227 / MaxDD -38.45%; LTM 3.5962x / CAGR 57.91% / Sharpe 1.242 / MaxDD -39.01%. High absolute performance is conditional on the fixed current 335-name snapshot and does not resolve survivorship bias.
+- Paired MOM120-LTM mean daily excess +6.3259e-7; circular 20-session block-bootstrap 95% interval [-0.00023151,+0.00022853]; positive LOO fraction 56.94%. Decision: KILL MOM120 as an incremental signal versus LTM under this protocol. The small drawdown difference is not sufficient to establish an edge.
+- Report: research/PHASE75_MOM120_INCREMENTAL_RECONCILIATION_2026-11-04.md.
+- No forward alpha promotion, no parameter tuning and no production changes. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
