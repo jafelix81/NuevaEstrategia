@@ -53,6 +53,7 @@ jobs:
           python -u -m research.phase89_phase84_offline_replay
           --artifact-dir phase84_original_artifact
           --target-cik-file research/phase82_current_candidate_ciks.csv
+          --phase83-roles-file research/phase83_role_counts_by_stratum.csv
           --outdir phase89_phase84_offline_replay
           --source-run-id 41914491120
           --source-artifact-id 13364856424

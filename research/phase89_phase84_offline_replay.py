@@ -209,14 +209,14 @@ def run(args):
 
     weighted_source = prior_summary.get("weighted_role_estimate", {})
     population = Counter()
-    phase83_roles = {}
     for item in weighted_source.get("strata", []):
-        key = item["sample_stratum"]
-        population[key] = int(item["population_n"])
-        phase83_roles[key] = {
-            "n83": int(item["phase83_n"]),
-            "subject_target_n": int(item["phase83_subject_target_n"]),
-            "filer_only_n": int(item["phase83_filer_only_n"]),
+        population[item["sample_stratum"]] = int(item["population_n"])
+    phase83_roles = {}
+    for item in load_csv(args.phase83_roles_file):
+        phase83_roles[item["sample_stratum"]] = {
+            "n83": int(item["n83"]),
+            "subject_target_n": int(item["subject_target_n"]),
+            "filer_only_n": int(item["filer_only_n"]),
         }
     weighted = weighted_role_estimate(parsed_rows, population, phase83_roles)
 
@@ -310,6 +310,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--artifact-dir", type=Path, required=True)
     parser.add_argument("--target-cik-file", type=Path, required=True)
+    parser.add_argument("--phase83-roles-file", type=Path, required=True)
     parser.add_argument("--outdir", type=Path, default=Path("phase89_phase84_offline_replay"))
     parser.add_argument("--source-run-id", default="41914491120")
     parser.add_argument("--source-artifact-id", default="13364856424")

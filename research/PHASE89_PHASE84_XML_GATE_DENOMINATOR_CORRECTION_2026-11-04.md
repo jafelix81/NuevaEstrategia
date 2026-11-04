@@ -62,3 +62,8 @@ No forward returns, feature tuning, alpha inference, vendor purchases or product
 ## Reproduction
 
 The Phase 89 workflow downloads the immutable Phase 84 artifact and replays all 600 saved raw submissions offline. It verifies raw SHA-256 hashes, parser reproducibility, header/XML concordance and the corrected XML denominator. It performs no SEC network requests and uses no forward returns.
+
+
+## Replay implementation note
+
+The first offline replay attempt passed all 27 regression tests and verified the source artifact digest, but stopped before producing a summary because the prior weighted-estimate summary stores combined Phase 83/84 counts rather than the Phase 83-only fields. The replay now reads the frozen Phase 83 per-stratum role-count file directly and the Phase 82 population stratum counts from the original summary. No SEC requests were repeated; this was a replay-input schema correction only.
