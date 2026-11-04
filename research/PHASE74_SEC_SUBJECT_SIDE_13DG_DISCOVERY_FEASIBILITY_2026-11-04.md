@@ -136,3 +136,7 @@ Consequences:
 - It can contain filer/subject misattributions; no row is eligible for an economic test until reconciled against SEC header SUBJECT COMPANY and XML issuer CIK.
 - It misses filings by filers outside the 335 CIK query universe.
 - Phase 73's role-concordance output is required to quantify and correct the mixed source field; Phase 74 subject-CIK full-text search is intended to discover the missing external-filer filings.
+
+## 10. Phase 35 source-CIK diagnostic
+
+The immutable 20,265-row artifact was checked locally. Its issuer_cik field equals the accession-prefix CIK in 10,085 rows (49.7656%) and differs in 10,180 (50.2344%). Equality rates are 8.84% for SC 13D, 14.31% for SC 13D/A, 64.57% for SC 13G and 47.52% for SC 13G/A. These are not accuracy rates: equality can be a parser fallback to the filer or a genuine same-CIK case; inequality can be a correctly extracted subject CIK. Phase 73 must compare the source field with SEC header SUBJECT COMPANY and FILED BY plus XML issuer/filer before any row is retained.
