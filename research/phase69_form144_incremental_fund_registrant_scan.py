@@ -15,7 +15,9 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 from research.phase50_form144_global_index_pilot import (
-    current_cik_candidates, fetch_bytes, load_universe, parse_master_index,
+    MAPPER_URL, SEC_TICKERS_URL, SEC_EXCHANGE_URL, SEC_MUTUAL_FUNDS_URL,
+    current_cik_candidates, fetch_bytes, fetch_json, load_universe,
+    norm_cik, parse_master_index, records, ticker_variants,
 )
 from research.phase64_form144_master_pair_cross_quarter_audit import (
     build_pair_rows, parse_quarter,
@@ -70,12 +72,65 @@ def load_base(base_dir: Path):
     return summary, rows, events
 
 
-def derive_new_ciks(expanded_ciks: set[str]) -> set[str]:
-    if len(expanded_ciks) != 319 or not NEW_FUND_REGISTRANT_CIKS.issubset(expanded_ciks):
-        raise ValueError("Expected exactly 319 expanded CIKs including all ten preregistered fund CIKs")
-    if len(expanded_ciks - NEW_FUND_REGISTRANT_CIKS) != 309:
-        raise ValueError("Expanded CIK set does not reduce to the 309-CIK Phase 67 baseline")
-    return set(NEW_FUND_REGISTRANT_CIKS)
+def legacy_cik_candidates(tickers: list[str]):
+    """Recreate the pre-Phase-68 mapper, intentionally excluding the SEC 'symbol' field."""
+    mapping = {}
+    source_errors = []
+
+    def add(ticker, cik):
+        if not ticker or not cik:
+            return
+        ticker = str(ticker).strip().upper()
+        cik = norm_cik(cik)
+        if ticker and cik:
+            mapping.setdefault(ticker, set()).add(cik)
+
+    for url, source in (
+        (SEC_TICKERS_URL, "company_tickers"),
+        (SEC_EXCHANGE_URL, "company_tickers_exchange"),
+        (SEC_MUTUAL_FUNDS_URL, "company_tickers_mf"),
+    ):
+        try:
+            for row in records(fetch_json(url, sec=True)):
+                # Deliberately reproduce the old Phase 67 field list; do not read 'symbol'.
+                ticker = row.get("ticker") or row.get("classTicker") or row.get("class_ticker")
+                add(ticker, row.get("cik_str") or row.get("cik"))
+        except Exception as exc:
+            source_errors.append({"source": source, "error": str(exc)})
+    try:
+        mapper = fetch_json(MAPPER_URL, sec=False)
+        for ticker, cik in mapper.items():
+            add(ticker, cik)
+    except Exception as exc:
+        source_errors.append({"source": "sec_cik_mapper_fallback", "error": str(exc)})
+
+    cik_to_tickers = {}
+    unresolved = []
+    for ticker in tickers:
+        found = None
+        for alias in ticker_variants(ticker):
+            if mapping.get(alias):
+                found = mapping[alias]
+                break
+        if not found:
+            unresolved.append(ticker)
+            continue
+        for cik in found:
+            cik_to_tickers.setdefault(cik, set()).add(ticker)
+    return {cik: sorted(values) for cik, values in cik_to_tickers.items()}, unresolved, source_errors
+
+
+def derive_new_ciks(expanded_ciks: set[str], legacy_ciks: set[str]) -> set[str]:
+    if len(expanded_ciks) != 319 or len(legacy_ciks) != 309:
+        raise ValueError("Expected 319 expanded and 309 legacy candidate CIKs")
+    if legacy_ciks - expanded_ciks:
+        raise ValueError("Legacy Phase 67 CIKs missing from expanded Phase 68 map")
+    difference = expanded_ciks - legacy_ciks
+    if difference != NEW_FUND_REGISTRANT_CIKS:
+        raise ValueError("Live CIK-set difference does not equal the ten preregistered fund registrants: "
+                         + json.dumps({"actual": sorted(difference),
+                                       "expected": sorted(NEW_FUND_REGISTRANT_CIKS)}))
+    return difference
 
 
 def audit_overlap(base: dict, expanded: dict) -> dict:
@@ -166,11 +221,12 @@ def main():
     tickers = load_universe()
     details, cik_to_tickers, unresolved, source_errors = current_cik_candidates(tickers)
     expanded_ciks = set(cik_to_tickers)
-    new_ciks = derive_new_ciks(expanded_ciks)
+    legacy_cik_to_tickers, legacy_unresolved, legacy_errors = legacy_cik_candidates(tickers)
+    new_ciks = derive_new_ciks(expanded_ciks, set(legacy_cik_to_tickers))
     if len(tickers) != 335 or unresolved or source_errors:
         raise ValueError("Phase 68 current map must resolve 335/335 with zero source errors")
-    if len(expanded_ciks) != 319:
-        raise ValueError("Phase 68 expanded CIK count must equal 319")
+    if len(legacy_unresolved) != 27 or legacy_errors:
+        raise ValueError("Legacy Phase 67 mapper must reproduce 27 unresolved tickers with zero source errors")
 
     all_accessions, quarter_data = set(), []
     for token in [x.strip() for x in args.quarters.split(",") if x.strip()]:
@@ -246,6 +302,10 @@ def main():
         "current_universe_335_mapped": len(tickers)==335 and not unresolved,
         "expanded_cik_count_319": len(expanded_ciks)==319,
         "ten_preregistered_new_fund_ciks_present": len(new_ciks)==10,
+        "legacy_309_cik_set_exactly_reproduced": len(legacy_cik_to_tickers)==309
+            and not (set(legacy_cik_to_tickers)-expanded_ciks)
+            and (expanded_ciks-set(legacy_cik_to_tickers))==NEW_FUND_REGISTRANT_CIKS
+            and len(legacy_unresolved)==27 and not legacy_errors,
         "incremental_xml_fetch_success_ge_99_5pct": not attempted or (len(attempted)-failed)/len(attempted)>=0.995,
         "incremental_role_resolution_ge_99_9pct": not inc_rows or resolved/len(inc_rows)>=0.999,
         "incremental_pair_concordance_ge_99_9pct": not parsed or pair_ok/len(parsed)>=0.999,
@@ -292,6 +352,8 @@ def main():
         "control_concordance_rate":sum(r.get("candidate_role_status")=="control_pair_concordant" for r in controls)/len(controls) if controls else None,
         "gate_checks":gates,
         "mapping_source_errors":source_errors,
+        "legacy_mapping_unresolved_count":len(legacy_unresolved),
+        "legacy_mapping_source_errors":legacy_errors,
         "historical_pit_f80_universe_gate":"NOT_TESTED",
         "fund_series_class_to_security_class_gate":"NOT_TESTED",
         "accepted_timestamp_gate":"NOT_TESTED; filing-date conservative rule only",
