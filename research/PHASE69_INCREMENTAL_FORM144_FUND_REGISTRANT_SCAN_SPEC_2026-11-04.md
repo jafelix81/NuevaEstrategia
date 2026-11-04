@@ -83,7 +83,7 @@ Any gate failure is preserved in the artifact; do not relax thresholds or drop d
 
 A manual-only workflow will download the completed Phase 67 artifact by run ID and execute the incremental script. It must not be dispatched while run 41828179718 remains active. This avoids unnecessary overlap with the SEC request workload and respects the existing Phase 67 concurrency state.
 
-The Phase 69 code has six local regression tests covering exact CIK-set expansion, incomplete-map rejection, overlap reclassification, identity mismatch detection, event removal/addition and strict baseline validation. All six pass in a local isolated test harness; hosted tests remain pending.
+The Phase 69 code has seven regression tests covering exact CIK-set expansion, incomplete-map rejection, rejection of a wrong legacy set with matching counts, overlap reclassification, identity mismatch detection, event removal/addition and strict baseline validation. The script also reconstructs the old mapper without the SEC symbol field to verify the exact 309-CIK baseline before any SEC index scan. Hosted unit tests are queued; the full SEC scan remains held.
 
 ## 6. Remaining limitations
 
