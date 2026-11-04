@@ -1,6 +1,7 @@
 import unittest
 
 from research.phase72_13dg_structured_xml_parser import parse_schedule13_xml
+from research.phase73_13dg_submission_text_pilot import complete_submission_url
 from research.phase73_sec_submission_text_extractor import (
     extract_primary_doc_xml,
     normalize_acceptance_datetime,
@@ -8,6 +9,14 @@ from research.phase73_sec_submission_text_extractor import (
 
 
 class Phase73SubmissionTextExtractorTests(unittest.TestCase):
+    def test_complete_submission_path_uses_subject_party_cik_not_accession_prefix(self):
+        url = complete_submission_url("0001754301", "0000950157-25-000788")
+        self.assertEqual(
+            url,
+            "https://www.sec.gov/Archives/edgar/data/1754301/"
+            "000095015725000788/0000950157-25-000788.txt",
+        )
+
     def test_13g_submission_separates_subject_filer_and_xml(self):
         raw = """<SEC-DOCUMENT>0000019617-25-000296.txt : 20250306
 <SEC-HEADER>
