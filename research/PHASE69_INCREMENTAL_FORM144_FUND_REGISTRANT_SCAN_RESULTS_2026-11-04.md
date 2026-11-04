@@ -49,10 +49,18 @@ SEC seriesId/classId values are preserved in `ticker_mapping.csv`. They are not 
 
 ## Execution integrity note
 
-The job log reaches the complete summary and successful artifact upload at 2026-11-04 15:56:19 UTC. The GitHub REST run/job status endpoint nevertheless continued to report `queued` during this audit. The finalized artifact and decoded job log establish that the scan executed; no duplicate was started. The separate Phase 69 unit-test job log reports 8/8 tests passed.
+The first job log reaches the complete summary and artifact upload at 2026-11-04 15:56:19 UTC. A documentation-only update inadvertently queued a second run (41863703923) because the specification file was included in the workflow's push path filter. That second job also completed and uploaded artifact 13340957307 at 16:04:44 UTC. Its expanded candidate-role and issuer-event CSVs are byte-for-byte identical to the first artifact; its control-validation rows are set-equivalent, with row ordering differing. Both REST run objects still report `queued` despite complete logs and artifacts. The workflow path filter has since been narrowed to the script file only, and the concurrency group is shared with other SEC data scans. No further scan is intended. The separate Phase 69 unit-test job log reports 8/8 tests passed.
 
 ## Decision
 
 Phase 69 is complete as a negative incremental result: the ten newly mapped fund registrants contributed no Form 144 candidates/events in the tested 14-quarter window. The expanded panel is exactly the same as Phase 67. Stop this incremental CIK scan; retain the 335/335 ticker map, and redirect effort to historical PIT security identity, fund series/class-to-security reconciliation, filing accepted-time availability and exact amendment lineage.
 
 No forward returns or alpha tests were run. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+
+## Duplicate-run reconciliation
+
+- Second run: [41863703923](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41863703923), job `126692245930`, artifact `13340957307` (7,334,163 bytes; SHA-256 `b0afe0b9d77f685cfb88a6961671cf4beb000d33fd94f4e789bc98cf32892119`). The job log shows the same zero-candidate result for all quarters and successful artifact upload.
+- The second artifact's `summary.json`, `expanded_candidate_role_resolution.csv`, `expanded_issuer_event_raw.csv` and `ticker_mapping.csv` are byte-for-byte identical to the first run. The candidate and issuer-event hashes remain `a2f4f73130da13dcbe63e1963298eae1102580a418a41a932b3e43bc8548ca87` and `fd20e338bd3624e7c1e85c39ab911f9fd5d1d78e8a20ed185e42db299a868b20`. The 280-row control-validation file contains the same rows, though serialized order differs.
+- Cause: the documentation path was mistakenly included in the push trigger. It has been removed; the workflow now triggers only when the scan script changes. The Phase 69 concurrency group was also unified under `sec-public-data-research` for future SEC scans.
+- This duplicate adds no research information and should not be repeated. No manual dispatch was issued.
