@@ -1,1 +1,1 @@
-Phase 73 test trigger: normalize SEC acceptanceDateTime and verify accession identity.
+Phase 73 test trigger: corrected acceptance timestamp digit normalization regex.
