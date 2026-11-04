@@ -127,3 +127,7 @@ I independently counted primary_doc.xml rows in the downloaded immutable Phase 3
 The 88 voluntary rows comprise 2 13D/A, 39 13G originals and 47 13G/A; no 13D original was present in that voluntary-period subset. The 8,206 mandatory rows comprise 49 13D originals, 386 13D/A, 2,569 13G originals and 5,202 13G/A.
 
 This is coverage within the immutable Phase 35 filer-side retrieval artifact only, not a subject-issuer census or universe coverage estimate. The Phase 73 stratified sample should preserve the voluntary/mandatory schema split, while future economic tests must additionally split the separate 13D (2024-02-05) and 13G (2024-09-30) deadline regimes.
+
+## 10. Phase 73 data-pilot execution
+
+Run 41868352940 was triggered after the corrected Phase 73 regression suite passed. The run has completed dependency installation, all parser regression tests, Python compilation, immutable Phase 35 artifact download and source-file validation. Its stratified 80-filing complete-submission retrieval/parse step is currently in progress; no pilot artifact or data-gate result is available yet. Do not start a second SEC data crawl while this run is active.
