@@ -597,3 +597,10 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - Run 41868352940 is active on the isolated Phase 73 branch.
 - Dependency install, all parser tests, py_compile, immutable Phase 35 artifact download and source validation passed.
 - The 80-filing complete-submission fetch/parse step is still in progress; no artifact or data-gate result yet. Do not duplicate the SEC crawl.
+
+### Phase 74 — subject-side SEC 13D/13G discovery candidate
+- Phase 35 is a filer-side retrieval sample, not a subject-issuer census. The Phase 73 parser pilot does not repair that coverage limitation.
+- New feasibility candidate: SEC EDGAR Full-Text Search / Entity Landing Page subject-side discovery. The SEC states full text is searchable since 2001 and XML content is indexed (element names are not); the entity landing page has a dedicated beneficial-ownership section.
+- EFTS JSON endpoint is undocumented/experimental. Phase 74A is preregistered to test exact subject-CIK searches and ciks-filter semantics against two known cross-filer controls (Revance/JPM 13G/A; Osisko/Double Zero 13D) plus at least 20 additional controls.
+- Wait until Phase 73 run 41868352940 finishes before any Phase 74 SEC requests. No Phase 74 data crawl has started.
+- If subject-side discovery passes, build a 335-CIK plus historical-CIK candidate panel and parse complete submission text, validating subject vs filer roles. No alpha test before PIT security master/universe gates.
