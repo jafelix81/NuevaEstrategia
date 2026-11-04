@@ -1,8 +1,10 @@
+import gzip
 import unittest
 
 from research.phase50_form144_pilot_v2 import (
     archive_path_candidates,
     classify_sale_date,
+    decode_http_body,
     hit_accession,
     normalize_accession,
     parse_accepted_timestamp,
@@ -47,6 +49,12 @@ XML = """<?xml version="1.0" encoding="UTF-8"?>
 """
 
 class Form144PilotV2Tests(unittest.TestCase):
+
+    def test_gzip_http_body_is_decoded(self):
+        payload = b'{"ticker":"TEST"}'
+        self.assertEqual(decode_http_body(gzip.compress(payload), "gzip"), payload)
+        self.assertEqual(decode_http_body(payload, ""), payload)
+
     def test_accession_normalization(self):
         self.assertEqual(normalize_accession("000195004724000080"), "0001950047-24-000080")
         self.assertEqual(hit_accession({"_id": "0001950047-24-000080:primary_doc.xml"}), "0001950047-24-000080")
