@@ -315,3 +315,12 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - Added `research/phase61_orats_near_eod_sample_audit.py`, four parser/coverage tests, workflow and specification to inspect ORATS' public 2024-01-03 Near-EOD ZIP without purchasing data.
 - Run [41787946992](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41787946992) is queued. It will report schema, 335-name sample coverage, field completeness/zero rates, and whether multiplier/deliverable fields exist. A single-date sample cannot validate delisted retention or long-run historical coverage.
 - No forward returns, alpha tests, data purchase or strategy change. F80 remains frozen.
+
+
+## 2026-11-04 — Phase 61 ORATS public sample result
+- Run [41787946992](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41787946992) completed successfully; artifact 13301409440 was downloaded and independently inspected.
+- Public ORATS sample 2024-01-03: 716,822 rows, 5,787 underlyings, 39 columns, 324/335 current candidate tickers present (96.72%). This is one-date coverage against today's list, not historical PIT F80 coverage; 11 absent names may not have been listed/optionable on that date.
+- Core trade-date/expiry/strike, call/put volume and prior-night OI, bid/ask, IV and Greeks fields were present and 100% non-null. Zero values are common and must be distinguished from missingness: call/put volume positive in 16.41%/13.36% of rows; call/put OI positive in 50.61%/41.45%; smoothed IV positive in 100%.
+- `cOpra`/`pOpra` identifiers exist, but no explicit multiplier/deliverable field exists. `stkPx`/`spot_px` are derived option-implied values, not independent stock prices. External OCC contract-reference mapping is required.
+- ORATS passes one-date schema and indicative coverage only. Delisted/expired continuity, historical PIT publication, historical F80 coverage and multipliers remain untested. The sample's Last-Modified header is a hosting timestamp, not historical availability evidence.
+- Added `research/PHASE61_ORATS_NEAR_EOD_PUBLIC_SAMPLE_AUDIT_RESULTS_2026-11-04.md`. No data purchased or forward returns tested. F80 remains frozen.
