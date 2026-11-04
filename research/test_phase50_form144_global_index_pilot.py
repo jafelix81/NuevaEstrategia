@@ -13,6 +13,7 @@ from research.phase50_form144_global_index_pilot import (
     parse_index_page,
     parse_master_index,
     select_xml_sample,
+    ticker_from_sec_row,
 )
 
 INDEX_HTML = b"""<html><body>
@@ -63,6 +64,15 @@ class Form144GlobalIndexTests(unittest.TestCase):
     def test_gzip_magic_byte_decode(self):
         payload = b'{"ok":true}'
         self.assertEqual(decode_http_body(gzip.compress(payload)), payload)
+
+    def test_sec_mutual_fund_ticker_uses_symbol_field(self):
+        row = {
+            "cik": 36405, "seriesId": "S000002839",
+            "classId": "C000092055", "symbol": "VOO",
+        }
+        self.assertEqual(ticker_from_sec_row(row), "VOO")
+        self.assertEqual(ticker_from_sec_row({"ticker": "AAPL"}), "AAPL")
+        self.assertEqual(ticker_from_sec_row({"classTicker": "VFIAX"}), "VFIAX")
 
     def test_form_normalization(self):
         self.assertEqual(normalize_form("144"), "144")
