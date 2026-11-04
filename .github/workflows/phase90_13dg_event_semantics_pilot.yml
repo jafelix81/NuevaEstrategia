@@ -1,0 +1,59 @@
+name: Phase 90 - Offline SEC 13D/13G event semantics pilot
+
+on:
+  push:
+    branches:
+      - phase90-13dg-event-semantics-pilot
+    paths:
+      - research/phase90_13dg_event_semantics_pilot.py
+      - research/test_phase90_13dg_event_semantics_pilot.py
+      - research/PHASE90_13DG_EVENT_SEMANTICS_PILOT_2026-11-04.md
+      - .github/workflows/phase90_13dg_event_semantics_pilot.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  offline_event_semantics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install parser dependency
+        run: python -m pip install requests
+      - name: Download immutable Phase 84 raw artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: phase84-13dg-role-aware-identity-validation
+          path: phase84_original_artifact
+          repository: jafelix81/NuevaEstrategia
+          run-id: 41914491120
+          github-token: ${{ github.token }}
+      - name: Run parser and event-semantics regression tests
+        run: >-
+          python -m unittest
+          research.test_phase72_13dg_structured_xml_parser
+          research.test_phase73_sec_submission_text_extractor
+          research.test_phase74_13dg_global_subject_audit
+          research.test_phase84_13dg_role_aware_identity_audit
+          research.test_phase90_13dg_event_semantics_pilot
+          -v
+      - name: Parse reporting persons and predecessor links offline
+        run: >-
+          python -u -m research.phase90_13dg_event_semantics_pilot
+          --artifact-dir phase84_original_artifact
+          --outdir phase90_13dg_event_semantics
+          --source-run-id 41914491120
+      - name: Upload Phase 90 event-semantics artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase90-13dg-event-semantics
+          path: phase90_13dg_event_semantics/
+          if-no-files-found: warn
+          retention-days: 90
