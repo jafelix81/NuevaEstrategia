@@ -1,0 +1,39 @@
+name: Phase 55 - Cboe Option EOD Summary sample feasibility
+
+on:
+  push:
+    branches: [phase55-cboe-option-eod-summary-feasibility]
+    paths:
+      - 'research/phase55_cboe_option_eod_summary_feasibility.py'
+      - 'research/test_phase55_cboe_option_eod_summary_feasibility.py'
+      - 'research/PHASE55_CBOE_OPTION_EOD_SUMMARY_FEASIBILITY_SPEC_2026-11-04.md'
+      - '.github/workflows/phase55_cboe_option_eod_summary_feasibility.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: phase55-cboe-option-eod-summary-feasibility
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  sample:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run Option EOD parser tests
+        run: python -m unittest research.test_phase55_cboe_option_eod_summary_feasibility -v
+      - name: Download and inspect public Option EOD sample
+        run: python -u research/phase55_cboe_option_eod_summary_feasibility.py
+      - name: Upload Option EOD sample audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase55-option-eod-summary-sample
+          path: phase55_cboe_option_eod_summary_feasibility/
+          if-no-files-found: warn
