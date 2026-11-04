@@ -88,9 +88,16 @@ def inspect_file(name,raw,universe):
     parsed=parse_csv_bytes(raw)
     headers,rows=parsed["headers"],parsed["rows"]
     normalized={norm(h):h for h in headers}
-    underlying_col=normalized.get("underlyingsymbol")
+    underlying_col=normalized.get("underlyingsymbol") or normalized.get("underlying")
     industry_col=normalized.get("totalindustryvol")
-    exchange_col=normalized.get("totalexchangevol")
+    exchange_col=normalized.get("totalexchangevol") or normalized.get("totalcboevol")
+    file_type="EOD" if normalized.get("quotedate") else (
+        "INTRADAY_1M" if "1m" in name.lower() else (
+            "INTRADAY_10M" if "10m" in name.lower() else (
+                "INTRADAY" if normalized.get("tradedatetime") else "UNKNOWN"
+            )
+        )
+    )
     underlying_values=sorted({str(row.get(underlying_col,"")).strip().upper() for row in rows if underlying_col and row.get(underlying_col)})
     target=sorted(set(underlying_values).intersection(universe))
     shares=[]
@@ -99,19 +106,20 @@ def inspect_file(name,raw,universe):
             industry=to_num(row.get(industry_col)); exchange=to_num(row.get(exchange_col))
             if industry and industry>0 and exchange is not None:
                 shares.append(exchange/industry)
-    participant_fields=[h for h in headers if re.search(r"(firm|bd_|mm_|cust_|procust_).*(open|close).*(buy|sell).*vol",h,re.I)]
+    participant_fields=[h for h in headers if re.search(r"(firm|bd_|mm_|cust_|procust_).*(open|close|buy|sell).*(buy|sell)?.*vol",h,re.I)]
     participant_nonzero=0
     for row in rows:
         if any((to_num(row.get(field)) or 0)>0 for field in participant_fields):
             participant_nonzero+=1
     return {
         "member":name,
+        "file_type":file_type,
         "bytes":len(raw),
         "sha256":hashlib.sha256(raw).hexdigest(),
         "row_count":len(rows),
         "headers":headers,
         "header_count":len(headers),
-        "quote_dates":sorted({str(row.get(normalized.get("quotedate"),"")) for row in rows if normalized.get("quotedate")}),
+        "quote_dates":sorted({str(row.get(normalized.get("quotedate") or normalized.get("tradedatetime"),"")) for row in rows if normalized.get("quotedate") or normalized.get("tradedatetime")}),
         "unique_underlyings":len(underlying_values),
         "target_tickers_observed":target,
         "target_ticker_count":len(target),
@@ -136,14 +144,17 @@ def main():
         raise RuntimeError("Sample response is not a ZIP archive; prefix={!r}".format(raw[:300]))
     members=extract_zip_csvs(raw)
     files=[inspect_file(name,data,universe) for name,data in members]
+    eod_files=[item for item in files if item["file_type"]=="EOD"]
+    intraday_files=[item for item in files if item["file_type"].startswith("INTRADAY")]
     key_passes=[]
-    for item in files:
+    for item in eod_files:
         rates=item["field_coverage"]
         key_passes.append(
             item["row_count"]>0
+            and item["target_universe_coverage"]>=0.70
             and all(rates[field]["present"] and rates[field]["nonnull_rate"]>=0.95 for field in (
                 "quote_date","underlying_symbol","expiration_date","strike_price","call_put_flag",
-                "total_exchange_vol","open_interest","firm_open_buy_vol","firm_open_sell_vol",
+                "total_exchange_vol","open_interest","previous_open_interest","firm_open_buy_vol","firm_open_sell_vol",
                 "mm_buy_vol","mm_sell_vol","cust_lt_100_open_buy_vol","cust_lt_100_open_sell_vol",
                 "procust_lt_100_open_buy_vol","procust_lt_100_open_sell_vol",
             ))
@@ -159,10 +170,15 @@ def main():
         "zip_sha256":hashlib.sha256(raw).hexdigest(),
         "zip_members":[name for name,_ in members],
         "parsed_csv_files":len(files),
+        "eod_csv_files":len(eod_files),
+        "intraday_csv_files":len(intraday_files),
         "frozen_universe_size":len(universe),
         "file_summaries":files,
-        "schema_gate":"PASS" if files and all(key_passes) else "FAIL_OR_PARTIAL",
-        "schema_gate_by_file":key_passes,
+        "eod_file_summaries":eod_files,
+        "intraday_file_summaries":intraday_files,
+        "schema_gate":"PASS" if eod_files and all(key_passes) else "FAIL_OR_PARTIAL",
+        "schema_gate_by_eod_file":key_passes,
+        "intraday_schema":"Recorded separately; not used to gate the EOD product.",
         "historical_coverage":"DOCUMENTED_NOT_YET_PURCHASED",
         "pit_delivery":"Cboe EOD specification says final subscription files are typically delivered 00:30-01:00 US Eastern next morning; use next trading session as conservative KnowledgeDate.",
         "economic_caution":"Participant categories and buy/sell/open/close fields are observed classifications, not proof of informed trading. Cboe exchanges are only part of OPRA; total_industry_vol is a best-effort third-party value and historical conventions must be audited.",
