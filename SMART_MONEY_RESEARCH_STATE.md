@@ -597,3 +597,9 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - Run 41868352940 is active on the isolated Phase 73 branch.
 - Dependency install, all parser tests, py_compile, immutable Phase 35 artifact download and source validation passed.
 - The 80-filing complete-submission fetch/parse step is still in progress; no artifact or data-gate result yet. Do not duplicate the SEC crawl.
+
+### Phase 35 source-field role correction
+- The Phase 28D generator enumerates submissions for CIKs in the F80 filer/query universe, then heuristically extracts a CIK from the fetched document and maps that CIK to a ticker.
+- The resulting Phase 35 issuer_cik/ticker fields are mixed/ambiguous: they can represent the filer/query CIK or the subject issuer CIK depending on the fetched representation. Example: JPM/Revance accession 0000019617-25-000296 is mapped to JPM in the raw artifact, while the SEC header/XML identify Revance (CIK 0001479290) as subject.
+- Thus Phase 35 is a filer-universe-limited crawl with possible filer/subject misattribution, not a clean subject-side census. External filers outside F80 are also missing.
+- Phase 73 must quantify source-CIK role by comparing it separately with SEC header SUBJECT COMPANY and FILED BY, then correct/drop misassigned Phase 35 rows before any ownership event test.
