@@ -86,7 +86,7 @@ def sec_ticker_map():
 
 def decode_http_body(raw, content_encoding=""):
     encoding = (content_encoding or "").lower()
-    if encoding == "gzip" or raw[:2] == b"\\x1f\\x8b":
+    if encoding == "gzip" or raw[:2] == b"\x1f\x8b":
         return gzip.decompress(raw)
     return raw
 
