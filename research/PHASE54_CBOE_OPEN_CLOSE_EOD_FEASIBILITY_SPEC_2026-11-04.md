@@ -62,3 +62,7 @@ Do not label Firm or Professional Customer as institutional smart money by defau
 6. Only then test incremental information versus frozen LTM/F80 with chronological OOS, identical exposure/costs, bootstrap, issuer-clustered inference and LOO.
 
 No forward returns or alpha test is authorized by this sample-schema pilot. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## 2026-11-04 sample result addendum
+The public sample ZIP contains 1-minute, 10-minute and EOD files. The EOD sample is a 20% C1 sample for 2025-03-28 with 23,179 rows and 288/335 frozen-universe tickers (85.97%). All required EOD and participant fields were present with 100% non-null rates. The schema gate passed. See `research/PHASE54_CBOE_OPEN_CLOSE_SAMPLE_RESULTS_2026-11-04.md` and run 41762583602 / artifact 13291147097. This is a sample-schema/coverage result, not full historical coverage or alpha.
