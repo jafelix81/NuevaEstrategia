@@ -83,7 +83,7 @@ The latest successful artifacts were downloaded and inspected, not just their ru
 | C1 1-minute sample | 87,322 | 305/335 | 91.04% |
 | C1 10-minute sample | 78,468 | 302/335 | 90.15% |
 
-The EOD sample has non-null underlying, series, expiry, strike, call/put, total exchange volume, total industry volume, current/previous OI, and participant-volume fields. This is a promising one-date schema/coverage result, not a historical-coverage pass.
+The EOD sample has non-null underlying, series, expiry, strike, call/put, total exchange volume, total industry volume, current/previous OI, and participant-volume fields. This is a promising one-date schema/coverage result, not a historical-coverage pass. Independently recomputing the 34 participant-volume columns showed their sum equals `total_exchange_vol` exactly on all 23,179 rows (100% reconciliation), which validates the participant-bucket partition for this sample.
 
 Two issues were recorded:
 1. The sample header contains the typo `cust_gt_199_clsoe_buy_qty`; its volume counterpart is correctly named. Preserve raw headers and map this alias explicitly rather than silently dropping the field.
