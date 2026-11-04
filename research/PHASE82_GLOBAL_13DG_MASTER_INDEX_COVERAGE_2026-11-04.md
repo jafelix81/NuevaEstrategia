@@ -67,3 +67,18 @@ No CIK role may be inferred from another.
 ## Economic boundary
 
 No return data, forward returns, signal construction, alpha tests, feature tuning, production changes, or changes to F80_TOP20_PARTIAL50_BASELINE_C20 are authorized. Even a successful global index and identity audit is a data-feasibility result, not evidence of informed trading or predictive value.
+
+## 2026-11-04 — first hosted execution and parser correction
+
+Run [41891043331](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41891043331) retrieved all 43 quarterly indexes (2016Q1–2026Q3) with HTTP 200, 43/43 requests, no retrieval errors and zero accession duplicates across quarters. It found 324,964 unique 13D/13G accessions and 34,400 accessions with at least one of the 319 current candidate CIKs in the master-index/archive-path identity set. Those candidate hits are locators only, not subject-issuer coverage.
+
+The first parser version incorrectly treated any accession with more than one archive-path CIK as a metadata conflict. The raw index shows that two rows and two distinct archive paths are a normal paired-CIK representation: 323,132 accessions had two master-index rows/two archive paths, while 1,832 had one row/one path. The 323,132 were therefore false-positive conflicts, not SEC data corruption. The initial 120-row pilot manifest was consequently biased toward single-row filings and is **not valid for sampling**.
+
+The parser has been corrected to:
+- accept multiple master-index CIK rows and one or more corresponding archive-path CIKs without assigning roles;
+- flag only unexplained row/form/date/path inconsistencies;
+- distinguish single-CIK, multi-CIK/single-path and multi-CIK/multiple-path accessions;
+- try all archive-path CIK candidates in deterministic order for a later sample;
+- preserve complete-submission raw bytes, SHA-256 and UTC retrieval time in pilot mode.
+
+Offline regression runs 41892207563 and 41892228391 are checking this correction. The original run/artifact remains preserved for auditability, but its metadata-conflict and clean-sample counts must not be used. A corrected 43-quarter run is required before the subject-identity pilot. No filing-level crawl, forward returns or economic test has been run.
