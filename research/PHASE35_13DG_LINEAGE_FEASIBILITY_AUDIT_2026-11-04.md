@@ -3,11 +3,11 @@
 **Date:** 2026-11-04  
 **Inputs:** frozen SEC XML artifacts from 2025Q2, 2025Q3, 2025Q4 and 2026Q1.  
 **Coverage:** 1,278 unique target-subject accessions (111 13D; 1,167 13G).  
-**Code:** \`phase35_13dg_lineage_feasibility_audit.py\`; four local unit tests passed.
+**Code:** `phase35_13dg_lineage_feasibility_audit.py`; four local unit tests passed.
 
 ## Cross-quarter identity validation
 
-The latest Q4/Q1 workflow [41742690656](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41742690656) completed successfully. Its artifact is \`13282921575\`.
+The latest Q4/Q1 workflow [41742690656](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41742690656) completed successfully. Its artifact is `13282921575`.
 
 Across the four quarter tests, the unique exact-name filer-to-reporting-person crosswalk produced **468/468 exact matches** against explicit reporting-person CIKs in 13D filings (237/237 in Q2/Q3 and 231/231 in Q4/Q1). This is conditional precision among matched 13D cases, not a universal guarantee.
 
@@ -25,7 +25,7 @@ The 13G figures are **coverage only**, not precision: the tested XMLs did not pr
 |---|---:|---:|
 | Filings | 111 | 1,167 |
 | Amendments | 98 | 925 |
-| Amendments with \`previousAccessionNumber\` | 57 | 331 |
+| Amendments with `previousAccessionNumber` | 57 | 331 |
 | Pointer coverage | 58.2% | 35.8% |
 | Referenced accession found in four-quarter panel | 23 | 94 |
 | Same subject CIK / form family | 23 / 23 | 94 / 94 |
@@ -36,7 +36,7 @@ The 13G figures are **coverage only**, not precision: the tested XMLs did not pr
 | Pointer references an older candidate | 4/23 | 13/90 |
 | Same-day pointer; ordering unresolved | 0/23 | 2/90 |
 
-**Critical correction:** \`previousAccessionNumber\` must be preserved as an explicit prior-filing reference, but it is **not a guaranteed immediate-predecessor edge**. In the comparable in-panel subset, four 13D references and thirteen 13G references point to an older accession even though a later same-subject/person/CUSIP filing exists. Two additional 13G references are same-day and cannot be ordered using filing date alone. Two 13G cases have person/CUSIP identity conflicts and are quarantined.
+**Critical correction:** `previousAccessionNumber` must be preserved as an explicit prior-filing reference, but it is **not a guaranteed immediate-predecessor edge**. In the comparable in-panel subset, four 13D references and thirteen 13G references point to an older accession even though a later same-subject/person/CUSIP filing exists. Two additional 13G references are same-day and cannot be ordered using filing date alone. Two 13G cases have person/CUSIP identity conflicts and are quarantined.
 
 For amendments with no explicit pointer, the bounded panel found:
 - **13D:** 11 unique earlier candidates, 8 multiple-candidate cases, 19 with no in-panel candidate, 3 unmatched-person/missing-CUSIP cases.
@@ -46,9 +46,9 @@ These are not assignments. The panel is left-censored before 2025Q2; a zero-cand
 
 ## Decision
 
-- Keep \`previousAccessionNumber\` as a validated reference/chain anchor, not an assumed sequential edge.
+- Keep `previousAccessionNumber` as a validated reference/chain anchor, not an assumed sequential edge.
 - Reconstruct chronological snapshots separately by subject issuer, uniquely identified reporting person, security class/CUSIP and filing KnowledgeDate. Use accepted timestamps to resolve same-day filings; otherwise quarantine them.
-- Use \`amendmentNo\` only as a diagnostic/order field after validating uniqueness and monotonicity within a fully reconstructed identity key.
+- Use `amendmentNo` only as a diagnostic/order field after validating uniqueness and monotonicity within a fully reconstructed identity key.
 - Do not infer multi-person groups from incomplete reporting-person CIK sets or name matches.
 - Do not assign missing predecessor edges from a single candidate in this left-censored panel.
 - **No forward returns, event-direction labels, thresholds, or alpha tests were run.** F80 remains frozen.
