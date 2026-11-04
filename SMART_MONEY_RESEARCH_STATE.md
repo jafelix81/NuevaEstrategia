@@ -606,3 +606,5 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - If subject-side discovery passes, build a 335-CIK plus historical-CIK candidate panel and parse complete submission text, validating subject vs filer roles. No alpha test before PIT security master/universe gates.
 
 - Primary Phase 74 test is the SEC-documented exact-phrase CIK text query (both zero-padded and unpadded) with 13D/G form and date filters. XML content is indexed; element names are not. Treat the undocumented EFTS ciks parameter as secondary until its filer/subject semantics are measured.
+
+- Source correction: Phase 35 queries submissions by CIKs in the F80 filer universe, then heuristically extracts/remaps a CIK from the document. Its issuer_cik/ticker fields can be filer or subject depending on the fetched representation. JPM/Revance accession 0000019617-25-000296 is demonstrably misattributed to JPM in the raw artifact; SEC header/XML identify Revance as subject. Phase 73 must quantify and correct these rows; Phase 74 subject-CIK search must add external filers outside F80.
