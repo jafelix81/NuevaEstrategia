@@ -100,7 +100,7 @@ class Phase72StructuredXmlParserTests(unittest.TestCase):
 
     def test_original_13g_without_predecessor_is_not_misclassified(self):
         xml = b'''<edgarSubmission xmlns="http://www.sec.gov/edgar/schedule13g">
-          <headerData><submissionType>SCHEDULE 13G</submissionType><filerInfo><filer><filerCredentials><cik>0002081473</cik></filerCredentials></filer></filerInfo></headerData>
+          <headerData><submissionType>SCHEDULE 13G</submissionType><filerInfo><cik>0002081473</cik></filerInfo></headerData>
           <formData><coverPageHeader><issuerInfo><issuerCik>1130166</issuerCik></issuerInfo></coverPageHeader>
             <coverPageHeaderReportingPersonDetails><reportingPersonName>Investor</reportingPersonName>
               <reportingCikNotPresentInEdgarFlag>Y</reportingCikNotPresentInEdgarFlag></coverPageHeaderReportingPersonDetails>
