@@ -1,7 +1,10 @@
 import unittest
 
 from research.phase72_13dg_structured_xml_parser import parse_schedule13_xml
-from research.phase73_sec_submission_text_extractor import extract_primary_doc_xml
+from research.phase73_sec_submission_text_extractor import (
+    extract_primary_doc_xml,
+    normalize_acceptance_datetime,
+)
 
 
 class Phase73SubmissionTextExtractorTests(unittest.TestCase):
@@ -86,6 +89,11 @@ FILED BY:
         self.assertEqual(parsed["issuer_cik"], "0001431852")
         self.assertEqual(parsed["filer_cik_xml"], "0002083861")
         self.assertEqual(parsed["reporting_person_count"], 1)
+
+    def test_acceptance_datetime_normalizes_header_and_submissions_formats(self):
+        self.assertEqual(normalize_acceptance_datetime("20250306105250"), "20250306105250")
+        self.assertEqual(normalize_acceptance_datetime("2025-03-06T10:52:50.000Z"), "20250306105250")
+        self.assertEqual(normalize_acceptance_datetime(""), "")
 
     def test_missing_primary_xml_fails_closed(self):
         raw = """<SEC-HEADER>CONFORMED SUBMISSION TYPE: SCHEDULE 13G</SEC-HEADER>
