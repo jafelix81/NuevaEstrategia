@@ -8,7 +8,7 @@
 
 **Promote Cboe Open-Close EOD to the first options-flow source for a controlled sample audit. Keep OptionMetrics IvyDB Signed Volume as a parallel high-priority candidate. Do not purchase full Cboe Trade-by-Trade (TBT) history yet.**
 
-A material update appeared on 2026-11-03: Cboe filed proposals to extend TBT to C2, BZX and EDGX. Those filings specify historical availability beginning 2019-03-01 and free July 2022 samples, but the DataShop product page still describes TBT as C1-only with the other venues planned for future release. The C2 and BZX fee exhibits show a 2027-01-07 effective schedule date. Treat the multi-venue product as announced/planned, not as currently verified live access.
+A material update appeared on 2026-11-03: Cboe filed proposals to extend TBT to C2, BZX and EDGX. Those filings specify historical availability beginning 2019-03-01 and free July 2022 samples, but the DataShop product page still describes TBT as C1-only with the other venues planned for future release. The SEC notices state that the fee changes are effective upon filing but become operative 30 days after filing (C2 filed 2026-10-27; BZX and EDGX filed 2026-10-21), subject to possible SEC suspension. The DataShop page still lists the other venues as future releases, so actual product launch/access timing is not verified. Treat the multi-venue product as announced/planned, not as currently verified live access.
 
 ## 1. Cboe Open-Close Volume Summary — first practical candidate
 
