@@ -23,7 +23,10 @@ from research.phase72_13dg_structured_xml_corpus_audit import (
     stratified_sample,
 )
 from research.phase72_13dg_structured_xml_parser import parse_schedule13_xml
-from research.phase73_sec_submission_text_extractor import extract_primary_doc_xml
+from research.phase73_sec_submission_text_extractor import (
+    extract_primary_doc_xml,
+    normalize_acceptance_datetime,
+)
 
 
 SEC_ARCHIVE_TEXT = "https://www.sec.gov/Archives/edgar/data/{filer_cik}/{accession_key}/{accession}.txt"
@@ -117,6 +120,10 @@ def run_pilot(
             submission_date = str(submission.get("filing_date", ""))
             header_acceptance = str(header.get("acceptance_datetime", ""))
             submission_acceptance = str(submission.get("acceptance_datetime", ""))
+            header_acceptance_normalized = normalize_acceptance_datetime(header_acceptance)
+            submission_acceptance_normalized = normalize_acceptance_datetime(submission_acceptance)
+            header_accession = normalize_accession(header.get("accession", ""))
+            accession_match = bool(header_accession and header_accession == key)
             filing_rows.append({
                 "ticker": row.get("ticker", ""),
                 "legacy_source_cik": normalize_cik(row.get("issuer_cik", "")),
@@ -143,7 +150,12 @@ def run_pilot(
                 "knowledge_date_rule": "SEC submissions filingDate; date-level conservative; XML eventDate is descriptive only",
                 "accepted_datetime": submission_acceptance,
                 "header_acceptance_datetime": header_acceptance,
-                "acceptance_datetime_match": bool(header_acceptance and header_acceptance == submission_acceptance),
+                "acceptance_datetime_normalized": header_acceptance_normalized,
+                "submission_acceptance_datetime_raw": submission_acceptance,
+                "submission_acceptance_datetime_normalized": submission_acceptance_normalized,
+                "acceptance_datetime_match": bool(header_acceptance_normalized and header_acceptance_normalized == submission_acceptance_normalized),
+                "header_accession": header.get("accession", ""),
+                "accession_match": accession_match,
                 "accession": accession,
                 "accession_key": key,
                 "source_primary_document": row.get("primary_document", ""),
@@ -203,6 +215,7 @@ def run_pilot(
         lineage_rows = []
 
     issuer_rate = float(filing_frame["issuer_cik_match"].astype(str).str.lower().eq("true").mean()) if not filing_frame.empty else 0.0
+    accession_rate = float(filing_frame["accession_match"].astype(str).str.lower().eq("true").mean()) if not filing_frame.empty else 0.0
     filer_rate = float(filing_frame["filer_cik_match"].astype(str).str.lower().eq("true").mean()) if not filing_frame.empty else 0.0
     form_rate = float(filing_frame["form_match"].astype(str).str.lower().eq("true").mean()) if not filing_frame.empty else 0.0
     filing_date_rate = float(filing_frame["filing_date_match"].astype(str).str.lower().eq("true").mean()) if not filing_frame.empty else 0.0
@@ -215,6 +228,7 @@ def run_pilot(
     gates = {
         "xml_parse_rate_ge_99_5pct": parse_rate >= 0.995,
         "xml_issuer_matches_sec_header_subject_ge_99_5pct": issuer_rate >= 0.995,
+        "xml_accession_matches_sec_header_ge_99_5pct": accession_rate >= 0.995,
         "xml_filer_matches_sec_header_and_accession_ge_99_5pct": filer_rate >= 0.995,
         "form_concordance_ge_99_5pct": form_rate >= 0.995,
         "filing_date_concordance_ge_99_5pct": filing_date_rate >= 0.995,
@@ -237,6 +251,7 @@ def run_pilot(
         "parse_errors": int(len(errors)),
         "reporting_person_rows": int(len(person_frame)),
         "issuer_xml_vs_sec_header_subject_rate": issuer_rate,
+        "accession_vs_sec_header_rate": accession_rate,
         "filer_xml_vs_sec_header_and_accession_rate": filer_rate,
         "form_concordance_rate": form_rate,
         "filing_date_concordance_rate": filing_date_rate,
