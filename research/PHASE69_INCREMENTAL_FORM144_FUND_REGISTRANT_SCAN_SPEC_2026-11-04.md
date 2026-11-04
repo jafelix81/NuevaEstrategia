@@ -1,12 +1,12 @@
 # Phase 69 — Incremental Form 144 scan for newly mapped fund registrants
 
 **Date:** 2026-11-04  
-**Branch:** \`phase69-incremental-form144-fund-registrants\`  
-**Status:** Code and regression tests committed; hosted execution intentionally held until the active Phase 67 duplicate run is reconciled.
+**Branch:** \`phase71-original-universe-rule-trace\`  
+**Status:** Code and 8 hosted regression tests passed; latest Phase 67 rerun reconciled SUCCESS; incremental SEC scan is now authorized.
 
 ## 1. Completed Phase 67 baseline
 
-The completed Phase 67 run 41828139052 produced artifact 13327123059 (SHA-256 \`4d5660e6c9edd9fe40a3557919e28890a25971fcff8faf393ca500145e94eedb\`). Its full 14-quarter census (2023Q2–2026Q3) passed the predeclared XML identity gate:
+The latest successful Phase 67 run 41828179718 produced artifact 13334881835 (artifact digest SHA-256 \`939d5564b14ce0f41df23a2c9ab681977cfde141cd0ea2b3c1213b1c5bfaf613\`). The earlier successful run 41828139052 / artifact 13327123059 produced the same core counts; the later run is the pinned baseline for Phase 69. Its full 14-quarter census (2023Q2–2026Q3) passed the predeclared XML identity gate:
 
 - 21,648 current-CIK candidate accessions processed.
 - 21,634 issuer-event rows: 21,438 Form 144 originals and 196 Form 144/A amendments.
@@ -18,7 +18,7 @@ The completed Phase 67 run 41828139052 produced artifact 13327123059 (SHA-256 \`
 
 This is a current-CIK issuer-role identity pass, not historical F80 membership, PIT security identity, accepted-time availability, fund-series attribution or economic evidence. No returns were calculated.
 
-A later Phase 67 run 41828179718 is still marked in progress in the same workflow concurrency group. Its job-log download currently returns BlobNotFound. It uses the same Phase 67 production script commit as the completed artifact, with a later test-only commit. Do not dispatch another Phase 67 or Phase 69 run until the active status is reconciled. The completed artifact is already available for code/test preparation.
+The later Phase 67 run 41828179718 has now completed successfully (job 126605281463); all tests, the 14-quarter XML resolution step and artifact upload completed. Its artifact 13334881835 is available and is the pinned Phase 69 baseline. No Phase 67 or Phase 69 data scan is currently active.
 
 ## 2. Phase 68 mapping expansion
 
@@ -53,7 +53,7 @@ Tests: \`research/test_phase69_form144_incremental_fund_registrant_scan.py\`
 
 The script:
 
-1. Requires the exact Phase 67 completed baseline artifact (run 41828139052 / artifact 13327123059) and validates its summary and row counts before using it.
+1. Requires the exact Phase 67 completed baseline output from run 41828179718 / artifact 13334881835 and validates its summary and row counts before using it.
 2. Rebuilds the live Phase 68 current mapping and fails closed unless all 335 tickers map, there are exactly 319 CIKs, all ten new CIKs are present, and the remaining old set is exactly 309 CIKs.
 3. Reads the same 14 quarterly master indexes (2023Q2–2026Q3).
 4. Fetches XML only for accessions whose master-index pair contains at least one of the ten new CIKs. The candidate set for each selected pair includes **all 319** current CIKs, so any old/new overlap is reclassified as unique or ambiguous using the expanded set.
@@ -81,9 +81,9 @@ Any gate failure is preserved in the artifact; do not relax thresholds or drop d
 
 ## 5. Workflow coordination
 
-A manual-only workflow will download the completed Phase 67 artifact by run ID and execute the incremental script. It must not be dispatched while run 41828179718 remains active. This avoids unnecessary overlap with the SEC request workload and respects the existing Phase 67 concurrency state.
+The latest Phase 67 run 41828179718 is complete; the former concurrency hold is removed. A dedicated Actions workflow now downloads artifact 13334881835 by run ID, runs the incremental scan once, and uploads the expanded panel. The workflow uses a non-cancelling concurrency group so duplicate Phase 69 scans cannot overlap.
 
-The Phase 69 code has seven regression tests covering exact CIK-set expansion, incomplete-map rejection, rejection of a wrong legacy set with matching counts, overlap reclassification, identity mismatch detection, event removal/addition and strict baseline validation. The script also reconstructs the old mapper without the SEC symbol field to verify the exact 309-CIK baseline before any SEC index scan. Hosted Actions run 41847627672 (job 126635192916) passed all eight tests after adding an exact 27-name legacy-unresolved snapshot check; earlier run 41847339213 passed the initial seven-test suite. The full SEC scan remains held.
+The Phase 69 code has seven regression tests covering exact CIK-set expansion, incomplete-map rejection, rejection of a wrong legacy set with matching counts, overlap reclassification, identity mismatch detection, event removal/addition and strict baseline validation. The script also reconstructs the old mapper without the SEC symbol field to verify the exact 309-CIK baseline before any SEC index scan. Hosted Actions run 41847627672 (job 126635192916) passed all eight tests after adding an exact 27-name legacy-unresolved snapshot check; earlier run 41847339213 passed the initial seven-test suite. The full SEC scan is launched by the dedicated Phase 69 data workflow; results remain pending until its artifact is inspected.
 
 ## 6. Remaining limitations
 
@@ -101,3 +101,11 @@ Form 144 remains a selective proposed Rule 144 sale-order notice, not proof of e
 No forward returns, feature selection or alpha tests are authorized in Phase 69. The historical security-master/universe PIT gate from Phase 70 remains a hard blocker before broad alpha promotion.
 
 \`F80_TOP20_PARTIAL50_BASELINE_C20\` remains frozen.
+
+
+## 7. Latest execution reconciliation (2026-11-04)
+
+- GitHub Actions run 41828179718 completed SUCCESS at 2026-11-04T14:46:06Z; job 126605281463 completed the full 14-quarter resolution and uploaded artifact 13334881835 (14,656,596 bytes; SHA-256 digest `939d5564b14ce0f41df23a2c9ab681977cfde141cd0ea2b3c1213b1c5bfaf613`).
+- The artifact was downloaded and independently inspected. `summary.json` reports 21,648 candidate rows, 21,634 issuer-event rows, 14 filer-only false positives, zero unresolved rows/errors/duplicates, 280/280 controls, and 100% XML/index/form concordance. It still uses the pre-Phase-68 309-CIK / 308-of-335 ticker map; 27 tickers are unresolved in that baseline.
+- The newer Phase 67 artifact is the pinned baseline for this scan. The Phase 69 script constants now identify run 41828179718 and artifact 13334881835. The data workflow is separate from the unit-test workflow; the latter's run 41847627672 passed all 8 tests but performed no SEC requests.
+- Phase 67 is no longer active. No forward returns or alpha tests are authorized by this scan.
