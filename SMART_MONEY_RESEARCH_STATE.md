@@ -216,3 +216,9 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - Official Cboe factsheet defines Customer/Individual as retail **and institutional** clients; Pro Customer as professional traders and institutional participants; Firm as proprietary trading firms/market participants; Market Maker as designated liquidity providers. Do not equate these labels with investor identity.
 - Opening Buy initiates/increases a long option position; Opening Sell initiates/increases a short; Closing Buy reduces/eliminates a short; Closing Sell reduces/eliminates a long. The factsheet's ~98% classification figure is for activity included within Cboe exchange data, not 98% of total OPRA market volume.
 - Candidate hypothesis: participant-specific net opening delta, separately from closing flow and calls/puts, joined to full-OPRA 15:45 delta/IV. Normalize only after OI/volume convention reconciliation; control for prior returns/volatility to test prediction versus chasing. No alpha test yet.
+
+
+## 2026-11-04 — Phase 56 Cboe integration design
+- Added `research/PHASE56_CBOE_OPEN_CLOSE_OPTION_EOD_INTEGRATION_SPEC_2026-11-04.md`.
+- Pre-registers participant-specific net opening delta, closing flow separately, call/put and size buckets, full-OPRA IV/OI join, controls for prior returns/volatility, chronological OOS, identical exposure/costs, block bootstrap, ticker-clustered inference and LOO.
+- No return test until 335-ticker historical coverage, PIT KnowledgeDate, option-root mapping, field conventions and licensing pass. F80 remains frozen.
