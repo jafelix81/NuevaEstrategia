@@ -373,3 +373,13 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - ORATS remains the lower-cost EOD context candidate; Cboe/MIAX Open-Close remain venue-specific open/close complements.
 - SEC Form 144 subject attribution should pivot toward the master-index pair + XML confirmation route only after cross-quarter validation.
 - `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen. No source has passed an economic alpha test.
+
+
+## 2026-11-04 — Phase 50 run 7 artifact reanalysis and Phase 64 master-pair validation
+- Supersedes the earlier note that run 41793724389 was still in progress: run 7 completed with failure at 2026-11-04 09:11 UTC. Job 126477286538; artifact 13309238537 (SHA-256 \`7171bb25407517256345298bcf1d630fff1286b7d8073fd04d9f63f8cb1e45e3\`).
+- Run 7 fetched/parsed all 9,104 2025Q1 Form 144/144-A accessions with zero index-page errors. Accepted timestamps, index form and filing-date agreement were 100%. Subject/Reporting CIK parsing remained 0%, so target selection yielded zero target accessions and the 50 XML sample consisted entirely of non-target rows; the gate correctly failed. All 10 parser tests passed.
+- Independently reanalyzed the downloaded artifact using the master-index pair + XML identity method. All 9,104 accessions had exactly two master-index CIKs. Of these, 1,618 had exactly one current candidate CIK in the pair (1,608 Form 144; 10 Form 144/A), 7,486 had none, and none had two. In the 50 XML sample, issuerCik and filer CIK were both present in the pair and distinct in 50/50. Nine rows had exactly one current candidate CIK in the pair; all 9 were the XML issuer (6/6 Form 144; 3/3 Form 144/A), none was the filer.
+- This is an encouraging diagnostic, not a universal precision estimate: n=9 unique-candidate XML rows, the sample was not designed as a target-stratified sample, and current CIK/ticker mappings are not PIT historical issuer mappings.
+- Added Phase 64 deterministic cross-quarter validation for 2023Q2, 2024Q1, 2024Q4, 2025Q1, 2025Q4 and 2026Q1. It samples unique-candidate pairs, zero-candidate controls and ambiguous pairs separately by form; fetches primary XML directly under both CIK archive paths; distinguishes issuerCik from filer CIK; and reports Wilson confidence bounds. It is a data gate only, not an economic test.
+- Phase 64 requires at least 100 Form 144 and 20 Form 144/A target XML rows, high issuer-role concordance, pair/form concordance and zero XML fetch errors. Current ticker/CIK mappings, 27 unmapped names, historical active-universe membership, amendment lineage and accepted-time publication remain limitations.
+- F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No forward returns or alpha tests were run.
