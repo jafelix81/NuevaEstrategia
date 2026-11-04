@@ -584,3 +584,15 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - Run 41867865628 passed 16 tests (5 Phase 72 parser, 7 Phase 72 audit-helper, 4 Phase 73 extractor).
 - Timestamp normalization for SEC submissions API ISO acceptanceDateTime and explicit accession-header concordance were added afterward. Run 41868094850 is the corrected-revision regression run and remains queued; 41868027603 is an earlier queued revision.
 - The separate 80-filing SEC data-pilot trigger has not been pushed. No Phase 73 SEC crawl is active.
+
+
+## 2026-11-04 — Phase 74 SEC 13D/13G retrieval-path and acceptance-time correction
+
+- Reconciled latest Actions before further work. Phase 73 pilot run 41868352940 completed FAILURE (job 126708353783; artifact 13342854701). No workflow remained active in the latest run list before the Phase 74 trigger.
+- Inspected the actual artifact (80 sampled filings): 54 parsed, 26 HTTP 404 retrieval failures; issuer/header subject, filer/header and accession, form and filing-date checks were 100% among parsed rows. Acceptance timestamp concordance was 0%.
+- Diagnosed the 26 retrieval errors: the pilot constructed the archive directory from the accession prefix (submitting account CIK). For agent-filed submissions this is not necessarily the archive CIK directory. Reproduced with accession 0000950157-25-000788: subject-CIK path /data/1754301/.../0000950157-25-000788.txt returns the complete submission, while the prefix-CIK path /data/950157/... returned 404. SEC header distinguishes SUBJECT COMPANY Fox Corp CIK 0001754301 from FILED BY MFT SH Family Trust CIK 0002080603. The corrected resolver tries the source subject CIK first, then accession-prefix fallback; records archive_path_cik and still validates XML issuer against SEC header subject. Path CIK is not identity evidence.
+- Diagnosed 0% acceptance timestamp concordance: SEC-HEADER ACCEPTANCE-DATETIME is Eastern wall time without offset; submissions API acceptanceDateTime is ISO UTC. Corrected normalization converts header values using America/New_York (DST-aware) and both sources to UTC before comparing.
+- Added regression tests for EST, EDT and UTC conversion and agent-filed archive URL construction. Added one isolated 80-filing pilot trigger on branch phase74-13dg-archive-path-and-utc-fix under shared sec-public-data-research concurrency. Corrected pilot has not yet returned a hosted result; do not claim validation PASS until the run and artifact are inspected.
+- Report: research/PHASE74_13DG_ARCHIVE_PATH_AND_UTC_CORRECTION_2026-11-04.md.
+- Full 8,294-document Phase 72 corpus remains blocked until corrected 80-filing pilot passes parsing, identity, form/date, timezone-normalized acceptance, reporting-person and lineage gates. Phase 35 remains a filer-side sample, not a subject-issuer census.
+- No forward returns or economic tests. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
