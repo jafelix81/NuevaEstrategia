@@ -542,3 +542,8 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - Compared its normalized ticker set with the Phase 9D Library script and Phase 11 repository `DEFAULT_UNIVERSE`: exact set equality, 335/335, no additions or omissions. Phase 21C imports the frozen list from Phase 11; it does not reconstruct the selection rule.
 - Phase 21C's audit confirms the 335 snapshot was used in a Form 4 PIT diagnostic through 2026-09-29, but that hypothesis was killed for now (no robust standalone/incremental edge; no production change). This establishes snapshot existence/content/use, not original selection provenance.
 - The original upstream universe, screening date, selection thresholds, replacement rules and PIT membership ledger remain undocumented. Phase 71 stays open; do not claim a survivorship-bias-free historical cross-section.
+
+
+## 2026-11-04 — Phase 69 duplicate-run control correction
+- A documentation-only push accidentally matched the Phase 69 data workflow path filter and queued run 41863703923. It completed (job 126692245930, artifact 13340957307); candidate-role, issuer-event, summary and ticker-mapping outputs are byte-for-byte identical to the first scan. The control-validation set is identical but row order differs.
+- Cause corrected: Phase 69 push filter now watches only the scan script, not the spec/workflow documentation. Its concurrency group is now `sec-public-data-research`, shared with the Phase 72 SEC corpus audit. The duplicate adds no research information and is not to be repeated.
