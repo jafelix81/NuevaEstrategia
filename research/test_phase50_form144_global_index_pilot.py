@@ -23,6 +23,14 @@ INDEX_HTML = b"""<html><body>
 <p>CONRADES GEORGE H (Reporting) CIK: 0001106231</p>
 </body></html>"""
 
+INDEX_HTML_ANCHORED = b"""<html><body>
+<h1>Form 144 - Report of proposed sale of securities:</h1>
+<p>SEC Accession No. 0001959173-25-004176</p>
+<p>Filing Date 2025-06-17</p><p>Accepted 2025-06-17 16:04:03</p>
+<p><a href="/Archives/edgar/data/1341439">ORACLE CORP</a> (<a href="/Archives/edgar/data/1341439">Subject</a>) CIK: <a href="/Archives/edgar/data/1341439">0001341439 (see all company filings)</a></p>
+<p>CONRADES GEORGE H (<a href="/Archives/edgar/data/1106231">Reporting</a>) CIK: <a href="/Archives/edgar/data/1106231">0001106231 (see all company filings)</a></p>
+</body></html>"""
+
 XML = """<?xml version="1.0" encoding="UTF-8"?>
 <edgarSubmission xmlns="http://www.sec.gov/edgar/ownership">
   <headerData>
@@ -82,6 +90,12 @@ class Form144GlobalIndexTests(unittest.TestCase):
         parsed = parse_index_page(INDEX_HTML)
         self.assertEqual(parsed["accession"], "0001959173-25-004176")
         self.assertEqual(parsed["form"], "144")
+        self.assertEqual(parsed["subject_cik"], "0001341439")
+        self.assertEqual(parsed["reporting_cik"], "0001106231")
+        self.assertEqual(parsed["accepted_at"], "2025-06-17 16:04:03")
+
+    def test_index_page_role_labels_survive_anchor_markup_whitespace(self):
+        parsed = parse_index_page(INDEX_HTML_ANCHORED)
         self.assertEqual(parsed["subject_cik"], "0001341439")
         self.assertEqual(parsed["reporting_cik"], "0001106231")
         self.assertEqual(parsed["accepted_at"], "2025-06-17 16:04:03")
