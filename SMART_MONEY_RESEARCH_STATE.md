@@ -592,3 +592,8 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - Source: SEC Release 33-11253 / 34-98704 (88 FR 76896) and SEC Corporation Finance Interpretations (updated 2025-07-11).
 
 - Phase 35 immutable artifact XML coverage: 8,294/20,265 rows have primary_doc.xml (2024-01-26 to 2026-09-30): 88 voluntary XML (2023-12-18 to 2024-12-17), 8,206 mandatory XML (from 2024-12-18), zero before voluntary XML authorization. This is filer-side artifact coverage only, not subject-issuer coverage.
+
+### Phase 73 data-pilot execution
+- Run 41868352940 is active on the isolated Phase 73 branch.
+- Dependency install, all parser tests, py_compile, immutable Phase 35 artifact download and source validation passed.
+- The 80-filing complete-submission fetch/parse step is still in progress; no artifact or data-gate result yet. Do not duplicate the SEC crawl.
