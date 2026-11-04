@@ -393,3 +393,8 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - Decision: PASS for the sampled master-index CIK-pair + XML issuerCik identity mechanism. Do not infer that all 9,508 candidate accessions are confirmed or that current CIK/ticker mappings are PIT. Full event-panel XML confirmation, historical F80 membership/CIK mapping, amendments and timestamp gates remain open.
 - Regulatory timing review: eCFR 17 CFR 230.144(h)(3) requires Form 144 concurrently with sell-order placement/direct market-maker execution; SEC CFI 120.01 (Apr. 25, 2025) says 10b5-1 plan adoption does not change the trigger and the notice is effective for at most three months. SEC permits Form 144 EDGAR filings until 10 p.m. ET. Treat original Form 144 as a proposed-supply/order-placement event, not proof of execution; keep 144/A amendments separate. Use first full trading-session close after filing date until accepted-time timing is validated.
 - Added research/PHASE65_FORM144_EVENT_PANEL_PIT_AND_SUPPLY_HYPOTHESIS_SPEC_2026-11-04.md. No forward returns or alpha tests were run; F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## 2026-11-04 — Form 144 coverage qualification
+- Added the SEC's explicit coverage limitation: non-affiliates no longer need to file Form 144; the relevant electronic feed is therefore a selective record of qualifying affiliate proposed sales, not all insider sales and not all affiliate sales. The source is the SEC's Rule 144/145 small-entity compliance guide: https://www.sec.gov/resources-small-businesses/small-business-compliance-guides/revisions-rules-144-145
+- This reinforces the Phase 65 design: treat Form 144 as a potential affiliate-supply/order-placement feature, not a general insider sentiment measure.

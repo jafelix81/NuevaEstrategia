@@ -118,12 +118,13 @@ The regulatory timing makes Form 144 more interesting than a generic retrospecti
 - Rule 144(h)(3) requires Form 144 to be transmitted concurrently with placing a sell order with a broker or executing directly with a market maker. The filer must have a bona fide intention to sell within a reasonable time after filing; filing is not proof that the proposed quantity was actually sold.
 - SEC staff CFI 120.01 (updated April 25, 2025) clarifies that adopting a Rule 10b5-1 plan does not change the Form 144 filing trigger; the filing is tied to order placement. It also states that the notice is effective for a maximum of three months.
 - The SEC extended the EDGAR Form 144 filing window to 10:00 p.m. ET on Commission business days (effective March 20, 2023). A filing can therefore become public after the regular market close.
-- Form 144 applies to sales relying on Rule 144 above the applicable threshold (more than 5,000 shares/units or more than $50,000 over three months for reporting issuers). It is not a complete record of all insider sales or all affiliate sales.
+- Form 144 is required for affiliates' proposed sales relying on Rule 144 above the applicable threshold (more than 5,000 shares/units or more than $50,000 over three months). Non-affiliates no longer need to file Form 144. It is therefore a selective large-affiliate-supply feed, not a complete record of all insider or affiliate sales.
 
 Sources:
 - eCFR 17 CFR 230.144(h): https://www.ecfr.gov/current/title-17/chapter-II/part-230/section-230.144
 - SEC Exchange Act Rules CFI 120.01: https://www.sec.gov/rules-regulations/staff-guidance/corporation-finance-interpretations/exchange-act-rules
 - SEC final rule on filing hours: https://www.sec.gov/rules-regulations/2023/02/extending-form-144-edgar-filing-hours
+- SEC small-entity guide (non-affiliates no longer required to file Form 144): https://www.sec.gov/resources-small-businesses/small-business-compliance-guides/revisions-rules-144-145
 - Investor.gov Form 144 overview: https://www.investor.gov/introduction-investing/investing-basics/glossary/form-144
 
 Implications for event construction:
