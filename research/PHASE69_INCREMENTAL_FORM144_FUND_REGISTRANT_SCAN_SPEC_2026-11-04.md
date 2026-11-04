@@ -113,7 +113,7 @@ No forward returns, feature selection or alpha tests are authorized in Phase 69.
 
 ## 8. Phase 69 execution result (2026-11-04)
 
-The dedicated data scan ran against Phase 67 run 41828179718 / artifact 13334881835 and reached `status=COMPLETE`, `data_gate=PASS`. Job log 126687859505 reports every quarter complete with zero request/processing errors and uploads artifact 13340097937 (7,334,167 bytes; SHA-256 `7bc8dcdb583f166df410a1202f67bcccfacce263511b6867f0eeb3498e6bbcc8`). The REST run/job status endpoint still reports `queued` despite the completed log and finalized artifact; treat the log plus artifact as the execution evidence and do not dispatch a duplicate.
+The dedicated data scan ran against Phase 67 run 41828179718 / artifact 13334881835 and reached `status=COMPLETE`, `data_gate=PASS`. Job log 126687859505 reports every quarter complete with zero request/processing errors and uploads artifact 13340097937 (7,334,167 bytes; SHA-256 `7bc8dcdb583f166df410a1202f67bcccfacce263511b6867f0eeb3498e6bbcc8`). The REST run/job status endpoint still reports `queued` despite the completed log and finalized artifact. A second run 41863703923 was inadvertently queued by a documentation-only push (the spec path was in the push filter); it completed with byte-identical candidate/event outputs. The path filter is now script-only and the shared SEC concurrency group is in place. Do not repeat the scan.
 
 - 10 new current fund registrant CIKs were incorporated, expanding the map from 309 to 319 unique CIKs while retaining 335/335 ticker mappings.
 - Across the 14-quarter Form 144 index window, the ten added CIKs generated **zero candidate accessions**, zero overlaps, zero new events and zero XML errors.
@@ -122,3 +122,8 @@ The dedicated data scan ran against Phase 67 run 41828179718 / artifact 13334881
 - The 27 newly mapped ETF tickers now carry SEC series/class IDs, but those identifiers have not yet been reconciled to Form 144 security-class descriptions. A registrant-level CIK is not a security-level identity.
 
 **Decision:** Phase 69's incremental registrant scan is complete and adds no Form 144 events. Do not repeat it. The 335/335 mapping repair is useful, but the Form 144 issuer-event panel is unchanged. Historical F80 membership, fund series/class attribution, accepted-time availability and amendment lineage remain open. No forward returns or alpha test were run.
+
+
+## 9. Duplicate-run control correction
+
+Run 41863703923 / job 126692245930 / artifact 13340957307 completed the same scan due to a documentation-only push matching the workflow path filter. Its candidate-role and issuer-event outputs are byte-for-byte identical to run 41862496090; no incremental events were found. The path filter now includes only the scan script, not the spec or workflow file, and the workflow uses the shared `sec-public-data-research` concurrency group. The duplicate is recorded as an execution-control error with no research impact.
