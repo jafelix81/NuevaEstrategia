@@ -253,3 +253,28 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - [Run 41761510120](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41761510120) remains in progress in the global-index/Form 144 pilot; its XML-sample selection step is still running and no artifact is available.
 - [Run 41761577180](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41761577180) is pending on a newer commit that fixes sample selection to use `master_index_form` rather than a missing `form` key. The two commits between the runs are `b3a391f` and `5b94e2f`.
 - Do not launch another Phase 50 run while either existing execution is active/pending. Review both outcomes and use the latest corrected commit for any future rerun.
+
+
+## 2026-11-04 — Phase 50 correction; MIAX 1-minute archive; Intrinio candidate
+
+### Phase 50 — Form 144
+- Run 41754622148 / artifact 13287867124 technically completed, but its 50-document sample contained 50 Form 144/A and zero original Form 144 notices. It is a parser/field pilot for amendments only, not a source-wide coverage pass.
+- All 50 `approxSaleDate` values were incorrectly classified as unknown because the parser accepted ISO dates only; SEC XML values are MM/DD/YYYY. Independent reparse: 34/50 dates precede filing date, 16/50 same day. This does not establish execution.
+- Global master-index pilot run 41761510120 remains in progress at the 2025Q1 global-index step; run 41761577180 is queued under the same concurrency group. Do not start another run. No artifact or source-coverage conclusion is available yet.
+- Keep Form 144 conditional; no return test.
+
+### Phase 57 — MIAX Open-Close
+- Corrected historical-depth statement: EOD history starts at exchange inception (June 2021 for Options/Pearl/Emerald; August 2024 for Sapphire), but the newly announced 1-minute intraday archive reaches back to January 2013 (MIAX Options), March 2017 (Pearl), March 2019 (Emerald), and August 2024 (Sapphire).
+- 1-minute history is materially more expensive: MIAX Options current 2026-11-01 schedule lists $4,000 per request per month historically and $9,000/month subscription. Its 10-minute history is $1,000 per request per month; EOD is $500 per request per month. A 1-minute historical request includes 10-minute and EOD data for the same range.
+- For this daily EOD strategy, prefer EOD feasibility first; 1-minute history is conditional and not cost-justified without a specific intraday hypothesis.
+
+### Phase 58 — Intrinio U.S. EOD Historical Options
+- Status: CONDITIONAL LOW-COST FULL-OPRA CONTEXT; sample required.
+- Official product page advertises OPRA-sourced daily full chains, bid/ask, volume, OI/OI change, IV change and Greeks; standard history from 2021-09-27, bulk history to 2008-01-02, and Individual plan from $150/month with free trial.
+- The 3:00 a.m. ET delivery version suggests a conservative next-session KnowledgeDate, but actual historical delivery evidence is still required.
+- Critical risk: the by-ticker API is described as returning contracts currently associated with a ticker. Expired contracts, delisted underlyings and historical option roots must be tested before any use; no historical coverage is inferred from marketing claims.
+- Intrinio and Cboe Option EOD are both OPRA-sourced and therefore are vendor alternatives/cross-checks, not independent market venues. Intrinio does not identify participant origin or opening/closing status.
+- No data purchased/downloaded, no forward returns, no alpha claim.
+
+### Frozen control
+- `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen. No source in Phases 50, 57 or 58 is promoted to alpha.
