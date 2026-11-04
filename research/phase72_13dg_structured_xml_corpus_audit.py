@@ -251,6 +251,7 @@ def _filing_row(source: dict, parsed: dict, submission: dict, fetch_url: str) ->
         "group_members_narrative": parsed.get("group_members_narrative", ""),
         "purpose_text": parsed.get("purpose_text", ""),
         "parser_version": parsed.get("parser_version", ""),
+        "schema_version": parsed.get("schema_version", ""),
         "parse_status": "success",
     }
 
@@ -475,6 +476,7 @@ def run_audit(
     people_positive = int((pd.to_numeric(filing_frame["reporting_person_count"], errors="coerce").fillna(0) > 0).sum()) if parsed_n else 0
     acceptance_n = int(filing_frame["accepted_datetime"].astype(str).ne("").sum()) if parsed_n else 0
 
+    schema_versions = Counter(filing_frame.get("schema_version", pd.Series(dtype=str)).fillna("").astype(str))
     cik_status = Counter(person_frame.get("person_cik_status", pd.Series(dtype=str)).fillna("").astype(str))
     group_flags = Counter(person_frame.get("member_of_group", pd.Series(dtype=str)).fillna("").astype(str))
     type_codes = Counter()
@@ -526,6 +528,7 @@ def run_audit(
         "acceptance_datetime_coverage": acceptance_n / parsed_n if parsed_n else 0.0,
         "submission_index_matches": int(len(submission_index)),
         "submission_index_errors": int(len(submission_errors)),
+        "schema_version_counts": dict(schema_versions),
         "person_cik_status_counts": dict(cik_status),
         "member_group_flag_counts": dict(group_flags),
         "type_code_counts": dict(type_codes),
