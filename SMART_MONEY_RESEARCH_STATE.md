@@ -302,3 +302,10 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - OCC artifact confirms 95.52–97.01% recent ticker coverage but a 24-month retention boundary and no aggressor-side/open-close/strike-level position data.
 - Added `research/PHASE59_ORATS_TRADEFLOW_AND_CBOE_ARTIFACT_REVIEW_2026-11-04.md` and `research/PHASE59_VENDOR_SAMPLE_REQUEST_AND_ACCEPTANCE_CHECKLIST_2026-11-04.md`.
 - Revised priority: ORATS Near-EOD for affordable historical context; OptionMetrics TradeFlow for directional/proxy flow; Databento OPRA for optional independent reconstruction; Cboe Open-Close for exchange-specific opening/closing. No data purchased, no vendor contacted, no forward returns or alpha tests. F80 baseline remains frozen.
+
+
+## 2026-11-04 — Phase 60 OptionMetrics DOOD hypothesis preregistered
+- Reviewed OptionMetrics' 2023 DOOD research note. It reports a 32 bp weekly high-minus-low spread, long/short Sharpe ~1.03 and weekly three-factor alpha ~0.26% over Jan 2016–Mar 2022. The study filters to optionable, top-90%-market-cap, >$5 stocks, excludes ETFs/indices, requires IV <300% and ask volume >=1,000, and rebalances weekly. This is vendor-produced prior evidence, not independent OOS validation for F80.
+- The paper explicitly offers both informed-trading and dealer-hedging/momentum explanations; DOOD is autocorrelated. We will require the signal to survive controls for prior 1/5/20/60-session returns, volatility, liquidity, earnings and F80/LTM.
+- Added `research/PHASE60_OPTIONMETRICS_DOOD_REPLICATION_PREREGISTRATION_2026-11-04.md` with a fixed data gate, signed delta-demand formula using historical contract multipliers, separate ambiguous/midpoint volume, competing hypotheses, chronological splits, horizon-decay tests and kill criteria.
+- Phase 60 is preregistration only. No vendor sample acquired, no forward returns calculated, no alpha claim, no strategy change. F80 baseline remains frozen.
