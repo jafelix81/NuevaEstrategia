@@ -200,3 +200,10 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - Added public sample ZIP schema audit: `research/phase55_cboe_option_eod_summary_feasibility.py`, `research/test_phase55_cboe_option_eod_summary_feasibility.py`, `research/PHASE55_CBOE_OPTION_EOD_SUMMARY_FEASIBILITY_SPEC_2026-11-04.md`.
 - Exact quote for 335 symbols and optional Calcs is not documented on the product page and must be confirmed in DataShop. PIT release timestamp, historical option-root mapping and full universe coverage remain gates.
 - No forward returns. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## 2026-11-04 — Phase 55 Option EOD sample review
+- Initial run [41762853231](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41762853231) downloaded artifact 13291312151; tests passed. The run failed only because a 70% ticker-coverage gate was incorrectly applied to a four-underlying demonstration sample. The gate is corrected; a rerun is pending.
+- Sample has 32,672 rows per variant on 2023-08-25 across ^SPX, SPY, TSLA and ^VIX. All base EOD and Calcs fields are present/non-null. Positive IV rate is 92.75% (no-CGI) / 91.26% (CGI/historical); zero values require explicit validity filters.
+- Sample is not representative of 335-ticker coverage. Product page states Jan 2012 history, while FAQ lists Jan 2010; use Jan 2012 until Cboe confirms. Price, Calcs licensing and PIT release timestamp remain open.
+- No alpha test; F80 remains frozen.
