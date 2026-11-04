@@ -222,3 +222,34 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - Added `research/PHASE56_CBOE_OPEN_CLOSE_OPTION_EOD_INTEGRATION_SPEC_2026-11-04.md`.
 - Pre-registers participant-specific net opening delta, closing flow separately, call/put and size buckets, full-OPRA IV/OI join, controls for prior returns/volatility, chronological OOS, identical exposure/costs, block bootstrap, ticker-clustered inference and LOO.
 - No return test until 335-ticker historical coverage, PIT KnowledgeDate, option-root mapping, field conventions and licensing pass. F80 remains frozen.
+
+
+## 2026-11-04 — Phase 53B OCC Volume Query corrected post-run
+- Canonical corrected run [41763113005](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41763113005), job 126356693552, artifact 13292225481: 3 parser tests PASS; 670 ticker/date queries; zero query errors.
+- Valid/schema responses: 325/335 (97.01%) on 2025-01-03 and 320/335 (95.52%) on 2026-11-02; 645/670 combined (96.27%). ActivityDate matched the requested date in 100% of valid rows.
+- Account-type presence: Customer C 325/325 and 318/320; Firm F 229/325 and 222/320; Market Maker M 325/325 and 320/320.
+- OCC explicitly rejected 2024-01-03 as older than its 24-month retention. Data depth gate FAIL_FOR_LONG_OOS; PIT publication timestamp NOT VERIFIED.
+- The response is underlying/root-level call/put volume by account type and exchange, with no strike, expiry, buy/sell, open/close or OI. Retain only as a recent complementary feature; no forward returns. Updated report: `research/PHASE53B_OCC_VOLUME_QUERY_FULL_UNIVERSE_RESULTS_2026-11-04.md` on branch `phase53-occ-daily-open-interest-audit`.
+
+## 2026-11-04 — Phase 54/55 Cboe sample gates clarified
+- Phase 54 run [41762583602](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41762583602), artifact 13291147097: C1 EOD sample for 2025-03-28 is a 20% sample, 23,179 rows, 288/335 current symbols (85.97%); EOD schema gate PASS. The same ZIP has separate 10m/1m samples (78,468 rows, 302/335; 87,322 rows, 305/335). None establishes full historical or all-exchange coverage.
+- Phase 55 run [41763011186](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41763011186), artifact 13290668468: 32,672 rows per variant, four underlyings (^SPX, SPY, TSLA, ^VIX), only TSLA overlaps current 335 (1/335). Base schema and Calcs gates PASS; universe coverage explicitly NOT TESTED. Positive IV 92.75%/91.26%, positive OI 77.20%, positive volume 40.35%; zero Greeks/IV require validity filters.
+- Do not treat either public sample as evidence of full F80 universe coverage. Build denominator from point-in-time F80 members with OPRA-listed/traded options.
+
+## 2026-11-04 — Phase 56 options panel methodology correction
+- Added `research/PHASE56_CBOE_OPTIONS_PANEL_METHOD_CORRECTIONS_2026-11-04.md`.
+- Net delta must use PIT contract multiplier/deliverable (no blanket 100 multiplier); 15:45 Delta is a common mark, not exact trade-time Delta for all-day Open-Close volume.
+- Cboe participant flow is venue-specific, not all OPRA. Use full-OPRA volume and prior-available OI for normalization; retain Cboe venue share and optionability coverage separately. Use exact OCC series mapping and adjusted-root/deliverable controls.
+- For the end-of-day strategy, use conservative next-session KnowledgeDate and next-session close execution for both baseline and augmented portfolios. No return test authorized.
+
+## 2026-11-04 — Phase 57 MIAX Open-Close EOD candidate
+- Added `research/PHASE57_MIAX_OPEN_CLOSE_EOD_FEASIBILITY_2026-11-04.md`.
+- MIAX Options, Pearl and Emerald EOD reports start June 2021; Sapphire starts August 2024. MIAX says EOD files are available around 06:00 ET on the calendar date after trade date. Fields include origin, buy/sell and open/close by option series; EOD also includes first/high/low/close, industry volume and OI.
+- MIAX origin labels differ from Cboe and must remain separate. The feed is venue-specific and requires a data agreement/Schedule B; no sample was acquired.
+- Published historical EOD price is $500 per request/month per exchange; monthly EOD subscription $600 per exchange. The 20% discount through 2026-12-31 is subject to existing-subscriber/size conditions (Sapphire has no minimum purchase size). No purchase authorized.
+- Decision: conditional independent venue-replication source, lower priority than completing Cboe full-OPRA and Cboe Open-Close gates. No forward returns.
+
+## 2026-11-04 — Phase 50 Form 144 execution status
+- [Run 41761510120](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41761510120) remains in progress in the global-index/Form 144 pilot; its XML-sample selection step is still running and no artifact is available.
+- [Run 41761577180](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41761577180) is pending on a newer commit that fixes sample selection to use `master_index_form` rather than a missing `form` key. The two commits between the runs are `b3a391f` and `5b94e2f`.
+- Do not launch another Phase 50 run while either existing execution is active/pending. Review both outcomes and use the latest corrected commit for any future rerun.
