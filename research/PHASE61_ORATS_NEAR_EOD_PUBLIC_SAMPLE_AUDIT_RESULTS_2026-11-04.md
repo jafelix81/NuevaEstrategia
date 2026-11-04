@@ -90,3 +90,11 @@ Before any purchase:
 5. Verify file corrections and historical delivery timestamps.
 
 No data purchased, no forward returns or alpha tests run, and no strategy change. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+## 6. TradeFlow classification caution
+
+OptionMetrics' September 28, 2026 research note on SPX/SPY 0DTE retail activity reports that public-OPRA-based estimates can differ materially from exchange estimates: its own method estimates roughly 30–35% retail share for SPX 0DTE, while a cited Cboe proprietary method using non-public broker/account information estimates 50–60%. The note says methodologies can yield estimates ranging roughly 10–60% for the same market. This is a specific 0DTE index-options example, not a transferable estimate for single-name swing-trading options.
+
+Accordingly, TradeFlow's retail/institutional labels must be treated as vendor-derived proxies based on trade conditions, venue, lot size and execution characteristics unless the vendor demonstrates actual account-level identification. Any future signal must survive alternative thresholds and be reported separately from raw signed buy/sell pressure.
+
+Source: https://optionmetrics.com/blog/how-much-of-0-dte-is-really-retail-evidence-from-spx-and-spy-options/
