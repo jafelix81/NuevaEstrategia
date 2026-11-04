@@ -207,3 +207,10 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - Sample has 32,672 rows per variant on 2023-08-25 across ^SPX, SPY, TSLA and ^VIX. All base EOD and Calcs fields are present/non-null. Positive IV rate is 92.75% (no-CGI) / 91.26% (CGI/historical); zero values require explicit validity filters.
 - Sample is not representative of 335-ticker coverage. Product page states Jan 2012 history, while FAQ lists Jan 2010; use Jan 2012 until Cboe confirms. Price, Calcs licensing and PIT release timestamp remain open.
 - No alpha test; F80 remains frozen.
+
+
+## 2026-11-04 — Phase 55 corrected Option EOD sample gate
+- Corrected run [41763011186](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41763011186), job 126354812938, succeeded; artifact 13290668468. Base schema gate PASS and optional Calcs gate PASS.
+- The two sample variants each contain 32,672 rows for 2023-08-25 across SPY, TSLA, ^SPX and ^VIX. The sample is deliberately narrow; ticker coverage is NOT TESTED (one of the 335 frozen tickers appears).
+- Positive IV rate: 92.75% no-CGI and 91.26% CGI/historical. OI positive rate 77.20%; volume positive rate 40.35%. Zero IV/Greek values need explicit validity filters.
+- Report updated at `research/PHASE55_OPTION_EOD_SAMPLE_POSTRUN_AUDIT_2026-11-04.md`. No alpha test; F80 remains frozen.
