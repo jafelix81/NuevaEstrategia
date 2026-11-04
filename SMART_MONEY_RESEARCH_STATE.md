@@ -398,3 +398,12 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 ## 2026-11-04 — Form 144 coverage qualification
 - Added the SEC's explicit coverage limitation: non-affiliates no longer need to file Form 144; the relevant electronic feed is therefore a selective record of qualifying affiliate proposed sales, not all insider sales and not all affiliate sales. The source is the SEC's Rule 144/145 small-entity compliance guide: https://www.sec.gov/resources-small-businesses/small-business-compliance-guides/revisions-rules-144-145
 - This reinforces the Phase 65 design: treat Form 144 as a potential affiliate-supply/order-placement feature, not a general insider sentiment measure.
+
+
+## 2026-11-04 — Phase 65 Form 144 event-field coverage audit added
+- Created branch \`phase65-form144-event-field-coverage-audit\` from Phase 64. Added a 14-quarter sample audit covering 2023Q2–2026Q3, after the 2023-04-13 electronic filing start.
+- The audit samples each quarter/form separately (up to 50 unique-candidate, 20 ambiguous and 10 zero-candidate control accessions), fetches primary XML and measures issuer identity, core event fields, numeric/date parseability, 10b5-1/plan fields, multi-tranche blocks and previousAccessionNumber references.
+- The parser extracts each securitiesToBeSold block separately rather than collapsing multi-tranche filings to the first quantity/class. In-window previousAccessionNumber only means the referenced accession is present in the census; it does not imply immediate-predecessor lineage.
+- The phase is a schema/data-feasibility sample only. It does not estimate population completeness, establish PIT F80 membership or accepted-time availability, or authorize returns. Current ticker/CIK mappings remain candidate-only; 27 current tickers remain unresolved.
+- Unit tests cover EDGAR/ISO dates, numeric parsing, accession normalization, deterministic stratification and multi-tranche extraction. Hosted Actions execution will run after the workflow file is added.
+- F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
