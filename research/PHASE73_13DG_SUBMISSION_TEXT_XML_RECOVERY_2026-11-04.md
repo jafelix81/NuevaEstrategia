@@ -53,7 +53,7 @@ Official SEC examples:
 - https://www.sec.gov/Archives/edgar/data/1431852/000106299325015044/0001062993-25-015044.txt
 
 Design rules:
-1. The old Phase 35 issuer_cik column is a filer/query-side key for this source artifact; it must not be compared with XML issuerCik as if it were the subject issuer.
+1. The Phase 35 issuer_cik field is mixed/ambiguous: the generator seeds it with the query/filer CIK and may overwrite it using a heuristic CIK extraction from the fetched document. It is not a certified subject issuer CIK and must be reconciled against the complete-submission SEC header.
 2. Use the complete submission .txt as the transport container, extract only the primary_doc.xml document's inner XML payload, and validate XML issuer against SEC header SUBJECT COMPANY CIK.
 3. Validate XML filer against SEC header FILED BY CIK and the accession-prefix CIK. Preserve all three identities separately.
 
@@ -131,3 +131,11 @@ This is coverage within the immutable Phase 35 filer-side retrieval artifact onl
 ## 10. Phase 73 data-pilot execution
 
 Run 41868352940 was triggered after the corrected Phase 73 regression suite passed. The run has completed dependency installation, all parser regression tests, Python compilation, immutable Phase 35 artifact download and source-file validation. Its stratified 80-filing complete-submission retrieval/parse step is currently in progress; no pilot artifact or data-gate result is available yet. Do not start a second SEC data crawl while this run is active.
+
+## 11. Phase 35 source-field role correction
+
+Inspection of the actual Phase 28D generator on main shows that the Phase 35 artifact is built by enumerating submissions for the 307 CIKs selected from the 335-name universe (the filer/query universe), then parsing a CIK from the fetched document and remapping that CIK to a ticker. The parser initially seeds issuer_cik with the query/filer CIK and overwrites it only if its heuristic finds a CENTRAL INDEX KEY in the fetched document.
+
+Therefore the artifact's issuer_cik/ticker fields are **not certified subject-issuer identities**: depending on the fetched document representation, the value can be the submitting filer CIK or the subject issuer CIK. The JPM/Revance example is a concrete filer-vs-subject false attribution in the raw artifact: the row is mapped to JPM (CIK 0000019617), while the SEC header/XML identify Revance (CIK 0001479290) as subject. Other rows can correctly map to the subject, as shown by rows whose subject CIK differs from the accession-prefix filer CIK.
+
+This refines the prior description: Phase 35 is a filer-universe-limited crawl with a mixed, heuristic subject-CIK field, not a clean filer-only table and not a complete subject-side census. It misses filings by filers outside the 335 CIK query universe and may misattribute some rows to the filer. The Phase 73 pilot's source_cik/header_subject/header_filer columns are intended to quantify this role mix and identify misassigned rows. No Phase 35 event row is accepted for economic testing until subject identity is confirmed against the complete-submission SEC header and XML.
