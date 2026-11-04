@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - phase73-13dg-submission-text-xml-recovery
+      - phase74-13dg-archive-path-and-utc-fix
     paths:
       - research/phase73_13dg_submission_text_pilot_trigger.txt
 
