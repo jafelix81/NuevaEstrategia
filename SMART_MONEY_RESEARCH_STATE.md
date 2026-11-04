@@ -584,3 +584,9 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - Run 41867865628 passed 16 tests (5 Phase 72 parser, 7 Phase 72 audit-helper, 4 Phase 73 extractor).
 - Timestamp normalization for SEC submissions API ISO acceptanceDateTime and explicit accession-header concordance were added afterward. Run 41868094850 is the corrected-revision regression run and remains queued; 41868027603 is an earlier queued revision.
 - The separate 80-filing SEC data-pilot trigger has not been pushed. No Phase 73 SEC crawl is active.
+
+### Phase 73 regulatory timing control
+- Do not collapse the 13D deadline regime, 13G deadline regime and XML-schema regime into one cutoff.
+- 13D revised deadlines apply from 2024-02-05; 13G revised deadlines from 2024-09-30; structured XML mandatory from 2024-12-18 (voluntary from 2023-12-18).
+- Carry filer rule designation (13d-1(b)/(c)/(d)), form family, rule regime and XML regime separately. Public KnowledgeDate remains filing/acceptance, never XML eventDate or quarter-end.
+- Source: SEC Release 33-11253 / 34-98704 (88 FR 76896) and SEC Corporation Finance Interpretations (updated 2025-07-11).
