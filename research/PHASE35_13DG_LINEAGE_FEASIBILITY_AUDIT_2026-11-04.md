@@ -9,7 +9,7 @@
 
 The latest Q4/Q1 workflow [41742690656](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41742690656) completed successfully. Its artifact is `13282921575`.
 
-The Q2/Q3 development sample produced 237/237 exact matches against explicit 13D reporting-person CIKs. The frozen rule then passed the later Q4/Q1 held-out validation at **231/231 exact matches** (zero mismatches). The pooled count is 468/468, but only the 231 Q4/Q1 cases are the later validation sample. This is conditional precision among unique matched 13D cases, not a universal guarantee.
+The Q1 pilot was the development sample. The frozen rule then passed the first Q2/Q3 held-out validation at 237/237 exact matches against explicit 13D reporting-person CIKs, followed by a second Q4/Q1 held-out validation at **231/231 exact matches** (zero mismatches). The pooled two-holdout count is 468/468. This is conditional precision among unique matched 13D cases, not a universal guarantee.
 
 For 13G, target-sample name-match coverage was:
 - 2025Q2/Q3: 461/480 (95.96%).
