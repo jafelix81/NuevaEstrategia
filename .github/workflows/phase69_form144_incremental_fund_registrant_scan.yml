@@ -1,0 +1,59 @@
+name: Phase 69 - Incremental Form 144 fund registrant scan
+
+on:
+  push:
+    branches:
+      - phase69-incremental-form144-fund-registrants
+    paths:
+      - research/phase69_form144_trigger.txt
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: phase69-form144-incremental-fund-registrant-scan
+  cancel-in-progress: false
+
+jobs:
+  incremental_scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install test dependency
+        run: python -m pip install requests
+      - name: Run Form 144 parser and identity regression tests
+        run: >-
+          python -m unittest
+          research.test_phase50_form144_global_index_pilot
+          research.test_phase64_form144_master_pair_cross_quarter_audit
+          research.test_phase65_form144_event_field_coverage_audit
+          research.test_phase67_form144_full_candidate_role_resolution
+          research.test_phase69_form144_incremental_fund_registrant_scan
+          -v
+      - name: Download the exact completed Phase 67 baseline artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: phase67-form144-full-candidate-role-resolution
+          run-id: 41828139052
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          path: phase67_baseline
+      - name: Run incremental ten-CIK Form 144 scan and strict merge audit
+        run: >-
+          python -u -m research.phase69_form144_incremental_fund_registrant_scan
+          --base-dir phase67_baseline
+          --workers 5
+      - name: Upload Phase 69 incremental and expanded outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase69-form144-incremental-fund-registrant-scan
+          path: phase69_form144_fund_registrant_scan/
+          if-no-files-found: warn
+          retention-days: 90
