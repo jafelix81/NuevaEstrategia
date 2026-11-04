@@ -210,3 +210,9 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - Cboe exchange-to-industry volume ratio median 0.5, p90 2.0; not accepted as market share until units/conventions are reconciled.
 - Result recorded in `research/PHASE54_CBOE_OPEN_CLOSE_SAMPLE_RESULTS_2026-11-04.md`. This is sample schema/initial reach only, not full historical coverage or alpha.
 - Cboe Open-Close EOD is now a high-priority options-flow candidate, paired with full-OPRA Option EOD Summary for IV/Greeks/OI. Licensing and PIT mapping remain gates. F80 remains frozen.
+
+
+## 2026-11-04 — Cboe participant taxonomy / signal design
+- Official Cboe factsheet defines Customer/Individual as retail **and institutional** clients; Pro Customer as professional traders and institutional participants; Firm as proprietary trading firms/market participants; Market Maker as designated liquidity providers. Do not equate these labels with investor identity.
+- Opening Buy initiates/increases a long option position; Opening Sell initiates/increases a short; Closing Buy reduces/eliminates a short; Closing Sell reduces/eliminates a long. The factsheet's ~98% classification figure is for activity included within Cboe exchange data, not 98% of total OPRA market volume.
+- Candidate hypothesis: participant-specific net opening delta, separately from closing flow and calls/puts, joined to full-OPRA 15:45 delta/IV. Normalize only after OI/volume convention reconciliation; control for prior returns/volatility to test prediction versus chasing. No alpha test yet.
