@@ -100,13 +100,16 @@ def inspect_file(name,raw,universe):
         "bytes":len(raw),"sha256":hashlib.sha256(raw).hexdigest(),
         "row_count":len(rows),"header_count":len(headers),"headers":headers,
         "quote_dates":sorted({str(row.get(quote_col,"")) for row in rows if quote_col}),
-        "unique_underlyings":len(underlyings),"target_ticker_count":len(targets),
+        "unique_underlyings":len(underlyings),"sample_underlyings":underlyings,"target_ticker_count":len(targets),
         "target_universe_coverage":len(targets)/len(universe),
         "target_tickers_observed":targets,"unique_option_roots":len(roots),
         "unique_expirations":len(expiries),"option_type_counts":dict(call_put),
         "iv_nonnull_rows":len(iv_values),"iv_nonnull_rate":len(iv_values)/len(rows) if rows else 0.0,
+        "iv_positive_rate":sum(v>0 for v in iv_values)/len(iv_values) if iv_values else 0.0,
         "open_interest_nonnull_rows":len(oi_values),"open_interest_nonnull_rate":len(oi_values)/len(rows) if rows else 0.0,
+        "open_interest_positive_rate":sum(v>0 for v in oi_values)/len(oi_values) if oi_values else 0.0,
         "trade_volume_nonnull_rows":len(vol_values),"trade_volume_nonnull_rate":len(vol_values)/len(rows) if rows else 0.0,
+        "trade_volume_positive_rate":sum(v>0 for v in vol_values)/len(vol_values) if vol_values else 0.0,
         "total_trade_volume_sample":sum(vol_values) if vol_values else None,
         "total_open_interest_sample":sum(oi_values) if oi_values else None,
         "base_field_coverage":{field:field_stats(headers,rows,field) for field in BASE_FIELDS},
@@ -126,7 +129,7 @@ def main():
     base_pass=[]
     calc_pass=[]
     for item in eod:
-        base_pass.append(item["row_count"]>0 and item["target_universe_coverage"]>=0.70 and all(v["present"] and v["nonnull_rate"]>=0.95 for v in item["base_field_coverage"].values()))
+        base_pass.append(item["row_count"]>0 and all(v["present"] and v["nonnull_rate"]>=0.95 for v in item["base_field_coverage"].values()))
         calc_pass.append(all(v["present"] and v["nonnull_rate"]>=0.95 for v in item["calc_field_coverage"].values()))
     summary={
         "phase":"55_Cboe_Option_EOD_Summary_sample_feasibility",
@@ -138,6 +141,7 @@ def main():
         "file_summaries":files,"option_eod_summaries":eod,
         "base_schema_gate":"PASS" if eod and all(base_pass) else "FAIL_OR_PARTIAL",
         "base_schema_gate_by_file":base_pass,
+        "ticker_coverage_gate":"NOT_TESTED_SAMPLE_IS_NOT_REPRESENTATIVE",
         "calcs_gate":"PASS" if eod and all(calc_pass) else "NOT_IN_SAMPLE_OR_FAIL",
         "calcs_gate_by_file":calc_pass,
         "historical_availability":"Cboe product page states January 2012 to present; sample is not a full historical coverage audit.",
