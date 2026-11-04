@@ -71,3 +71,12 @@ No return tests, purchases or baseline changes. `F80_TOP20_PARTIAL50_BASELINE_C2
 - Corrected the fixture to include filer CIK `0002081473` while retaining `reportingCikNotPresentInEdgarFlag=Y`. The test now explicitly asserts that the filer CIK is present but the reporting-person CIK remains empty and is classified `declared_no_cik`.
 - Rerun 41863595467, job 126691849721, executed all five tests successfully (`Ran 5 tests ... OK`). The REST run object still reports `queued`, but the decoded job log contains the complete successful test output and cleanup. This workflow makes no SEC requests.
 - The parser is unit-tested against representative schema-shaped 13D/13G XML fixtures. Full-file validation against the 8,294 actual XML documents in the Phase 35 artifact remains the next data gate; no claim of corpus-wide parser accuracy is made yet.
+
+
+## 7. Full-corpus audit preparation and pilot gate
+
+- Extended the corpus audit script to build the SEC submissions accession index and preserve `acceptanceDateTime` separately from the conservative date-only `filing_date` KnowledgeDate. It downloads only `primary_doc.xml` rows from the immutable Phase 35 artifact, throttles requests to 0.6 seconds, checkpoints every 100 documents, resumes successful records, and emits filing/person/lineage tables plus errors and summary.
+- Added deterministic stratified sampling across 13D/13G, original/amendment and voluntary-pre-mandate/mandatory-era strata. The data workflow is deliberately gated by a separate trigger file so code/documentation pushes cannot launch an 8,294-document SEC crawl accidentally.
+- Hosted CI run 41864876578 / job 126696436238 passed 11 tests: five structured XML parser tests and six corpus-audit helper tests, including the stratified sample and same-/cross-issuer predecessor cases.
+- The data workflow is prepared to run an 80-filing stratified pilot first. It has not yet been triggered; no new SEC requests were made by Phase 72 in this run. Only after the pilot's actual XML parse, issuer/form concordance and predecessor results pass will the trigger be changed to the full 8,294-document corpus.
+- The parser now supports both observed SEC `filerInfo/cik` and nested `filerInfo/filer/filerCredentials/cik` layouts. This field is kept separate from reporting-person CIKs.
