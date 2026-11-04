@@ -109,3 +109,16 @@ No forward returns, feature selection or alpha tests are authorized in Phase 69.
 - The artifact was downloaded and independently inspected. `summary.json` reports 21,648 candidate rows, 21,634 issuer-event rows, 14 filer-only false positives, zero unresolved rows/errors/duplicates, 280/280 controls, and 100% XML/index/form concordance. It still uses the pre-Phase-68 309-CIK / 308-of-335 ticker map; 27 tickers are unresolved in that baseline.
 - The newer Phase 67 artifact is the pinned baseline for this scan. The Phase 69 script constants now identify run 41828179718 and artifact 13334881835. The data workflow is separate from the unit-test workflow; the latter's run 41847627672 passed all 8 tests but performed no SEC requests.
 - Phase 67 is no longer active. No forward returns or alpha tests are authorized by this scan.
+
+
+## 8. Phase 69 execution result (2026-11-04)
+
+The dedicated data scan ran against Phase 67 run 41828179718 / artifact 13334881835 and reached `status=COMPLETE`, `data_gate=PASS`. Job log 126687859505 reports every quarter complete with zero request/processing errors and uploads artifact 13340097937 (7,334,167 bytes; SHA-256 `7bc8dcdb583f166df410a1202f67bcccfacce263511b6867f0eeb3498e6bbcc8`). The REST run/job status endpoint still reports `queued` despite the completed log and finalized artifact; treat the log plus artifact as the execution evidence and do not dispatch a duplicate.
+
+- 10 new current fund registrant CIKs were incorporated, expanding the map from 309 to 319 unique CIKs while retaining 335/335 ticker mappings.
+- Across the 14-quarter Form 144 index window, the ten added CIKs generated **zero candidate accessions**, zero overlaps, zero new events and zero XML errors.
+- Expanded candidate panel: 21,648 rows, exactly identical to the Phase 67 candidate-role file (SHA-256 `a2f4f73130da13dcbe63e1963298eae1102580a418a41a932b3e43bc8548ca87`). Expanded issuer-event panel: 21,634 rows, byte-for-byte identical to Phase 67 (67,014,714 bytes; SHA-256 `fd20e338bd3624e7e1c85c39ab911f9fd5d1d78e8a20ed185e42db299a868b20`).
+- Role counts remain 21,633 issuer matches, 14 filer-only false positives excluded, and one ambiguous-pair issuer match; 280/280 controls reconcile.
+- The 27 newly mapped ETF tickers now carry SEC series/class IDs, but those identifiers have not yet been reconciled to Form 144 security-class descriptions. A registrant-level CIK is not a security-level identity.
+
+**Decision:** Phase 69's incremental registrant scan is complete and adds no Form 144 events. Do not repeat it. The 335/335 mapping repair is useful, but the Form 144 issuer-event panel is unchanged. Historical F80 membership, fund series/class attribution, accepted-time availability and amendment lineage remain open. No forward returns or alpha test were run.
