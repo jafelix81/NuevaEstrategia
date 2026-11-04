@@ -82,3 +82,11 @@ This may be the broader historical flow series, while Cboe capacity data provide
 ## Research boundary
 
 No vendor contact, trial request, purchase, data download, signal construction, forward-return test or production change was made. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## Primary source filings
+
+- C1 TBT fee filing, SR-CBOE-2026-010: https://www.sec.gov/rules-regulations/self-regulatory-organization-rulemaking/sr-cboe-2026-010
+- C2 TBT expansion/fee filing, SR-C2-2026-029: https://www.sec.gov/rules-regulations/self-regulatory-organization-rulemaking/sr-c2-2026-029
+- BZX TBT expansion/fee filing, SR-CboeBZX-2026-089: https://www.sec.gov/rules-regulations/self-regulatory-organization-rulemaking/sr-cboebzx-2026-089
+- EDGX TBT expansion/fee filing, SR-CboeEDGX-2026-074: https://www.sec.gov/rules-regulations/self-regulatory-organization-rulemaking/sr-cboeedgx-2026-074
