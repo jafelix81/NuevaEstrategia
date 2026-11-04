@@ -31,7 +31,7 @@ jobs:
       - name: Run Phase 64 identity tests
         run: python -m unittest research.test_phase64_form144_master_pair_cross_quarter_audit -v
       - name: Audit six independent quarters
-        run: python -u research/phase64_form144_master_pair_cross_quarter_audit.py --quarters 2023Q2,2024Q1,2024Q4,2025Q1,2025Q4,2026Q1 --target-per-form 25 --control-per-form 25 --workers 5
+        run: python -u -m research.phase64_form144_master_pair_cross_quarter_audit --quarters 2023Q2,2024Q1,2024Q4,2025Q1,2025Q4,2026Q1 --target-per-form 25 --control-per-form 25 --workers 5
       - name: Upload Phase 64 outputs
         if: always()
         uses: actions/upload-artifact@v4
