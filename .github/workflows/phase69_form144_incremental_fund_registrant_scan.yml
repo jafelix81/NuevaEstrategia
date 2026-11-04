@@ -6,6 +6,10 @@ on:
       - phase69-incremental-form144-fund-registrants
     paths:
       - research/phase69_form144_trigger.txt
+      - research/phase69_form144_incremental_fund_registrant_scan.py
+      - research/test_phase69_form144_incremental_fund_registrant_scan.py
+      - research/PHASE69_INCREMENTAL_FORM144_FUND_REGISTRANT_SCAN_SPEC_2026-11-04.md
+      - .github/workflows/phase69_form144_incremental_fund_registrant_scan.yml
   workflow_dispatch:
 
 permissions:
@@ -17,9 +21,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  incremental_scan:
+  offline_tests:
     runs-on: ubuntu-latest
-    timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -36,6 +39,19 @@ jobs:
           research.test_phase67_form144_full_candidate_role_resolution
           research.test_phase69_form144_incremental_fund_registrant_scan
           -v
+
+  incremental_scan:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, 'Trigger Phase 69 incremental Form 144 fund registrant scan')
+    needs: offline_tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install test dependency
+        run: python -m pip install requests
       - name: Download the exact completed Phase 67 baseline artifact
         uses: actions/download-artifact@v4
         with:
