@@ -202,3 +202,11 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - Added sample-schema audit and tests: `research/phase54_cboe_open_close_eod_feasibility.py`, `research/test_phase54_cboe_open_close_eod_feasibility.py`, `research/PHASE54_CBOE_OPEN_CLOSE_EOD_FEASIBILITY_SPEC_2026-11-04.md`.
 - No forward returns. Participant categories are capacity labels, not proof of institutional/informed behavior. Cboe exchange coverage, historical PIT mapping and price/licensing gates remain.
 - F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## 2026-11-04 — Phase 54 Cboe Open-Close sample result
+- Run [41762583602](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41762583602) passed; artifact 13291147097.
+- Public ZIP contains 1m, 10m and EOD samples. EOD C1 20% sample for 2025-03-28: 23,179 rows, 288/335 current frozen tickers (85.97%), all required EOD/participant fields present and 100% non-null. EOD schema gate PASS.
+- Cboe exchange-to-industry volume ratio median 0.5, p90 2.0; not accepted as market share until units/conventions are reconciled.
+- Result recorded in `research/PHASE54_CBOE_OPEN_CLOSE_SAMPLE_RESULTS_2026-11-04.md`. This is sample schema/initial reach only, not full historical coverage or alpha.
+- Cboe Open-Close EOD is now a high-priority options-flow candidate, paired with full-OPRA Option EOD Summary for IV/Greeks/OI. Licensing and PIT mapping remain gates. F80 remains frozen.
