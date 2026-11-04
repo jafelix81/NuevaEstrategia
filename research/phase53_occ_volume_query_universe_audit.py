@@ -21,7 +21,7 @@ DATES=("2025-01-03","2026-11-02")
 BOUNDARY_DATE="2024-01-03"
 BOUNDARY_SYMBOLS=("AAPL","NVDA","TSLA")
 OUT_DIR=Path("phase53_occ_volume_query_universe_audit")
-REQUIRED=("quantity","underlying","symbol","actype","porc","exchange","actdate","contractdate")
+REQUIRED=("quantity","underlying","symbol","actype","porc","exchange","actdate")
 
 def fetch_bytes(url,retries=5):
     last=None
@@ -199,8 +199,8 @@ def main():
         "documented_retention":"OCC Volume Query UI states data available for past 24 months; 2024-01-03 probe tests the boundary.",
         "pit_publication_timestamp":"NOT_VERIFIED",
         "pit_rule":"Do not use reportDate as KnowledgeDate; OCC does not provide a historical publication timestamp in the reviewed docs. If retained for a later test, use a conservative next-session availability rule.",
-        "economic_interpretation":"Volume is reported by account type and call/put, exchange, underlying/root and series/contract date. It does not disclose buy/sell aggressor side, open/close status, strike-level position changes or actual OI.",
-        "contract_date_filter":"Omitted intentionally to include all series/contract dates; the prior pilot passed contractDt=reportDate and therefore sampled only that date's series (mostly 0DTE).",
+        "economic_interpretation":"Volume is reported by account type and call/put, exchange and underlying/root, aggregated across series because no contractDate, expiry or strike field is returned when the filter is omitted. It does not disclose buy/sell aggressor side, open/close status, strike-level position changes or actual OI.",
+        "contract_date_filter":"Omitted intentionally to aggregate across all series; the response does not return contractDate, expiry or strike. The prior pilot passed contractDt=reportDate and therefore sampled only that date's series (mostly 0DTE).",
         "forward_returns_used":False,
         "audit_timestamp_utc":datetime.now(timezone.utc).isoformat(),
     }
