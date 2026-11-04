@@ -633,3 +633,39 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - **Phase 84 prepared:** branch `phase84-13dg-role-aware-identity-validation` defines a new, preregistered 600-filing disjoint sample. It tests target-subject recall and header role resolution while reporting filer-only false positives rather than assuming every unique candidate is an issuer. It also validates mandatory XML, acceptance-time conversion and raw-source reproducibility. Phase 83 is not retroactively reclassified.
 - Latest Phase 82 follow-up offline run 41893973070 passed tests; its live index job was skipped. Phase 69 offline tests passed in run 41892649381; the incremental live scan was skipped. Phase 35 PIT crosswalk run 41878429289 remained in progress at the last status check, so no new SEC live crawl is triggered in this update.
 - F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No forward returns, alpha tests, purchases, feature tuning or production changes were made.
+
+
+---
+
+## 2026-11-04 — Phase 84/89/90: role-aware 13D/13G feasibility passed; event semantics normalized
+
+### Phase 84 live sample and Phase 89 corrected replay
+
+- Phase 84 live run: 41914491120; immutable raw artifact 13364856424 (600 complete SEC submissions, 0 fetch errors).
+- The original Phase 84 failure was a denominator defect: one master-index row inherited form_family=13D but the actual SEC-HEADER was SC TO-T/A. It was incorrectly counted as mandatory Schedule 13D/G XML.
+- Phase 89 corrected the denominator using actual SEC-HEADER form/date, while retaining index-form expectations for unretrieved rows. Offline replay run 41927219290 passed; subsequent independent replay run 41927283851 also passed. Final Phase 89 artifact: 13370655163.
+- Corrected mandatory XML: 192/192 present (100%); XML subject/header and filer/header concordance: 200/200; raw SHA-256/retrieval UTC and acceptance timestamps: 600/600.
+- Target subject CIK coverage in the 600-filing sample: 224/224; zero subject-candidate misses. There were 367 candidate-target rows: 232 unique and 135 index-ambiguous. Of the unique rows, 89/232 resolved to target subject; 135/135 ambiguous rows contained a target subject hit. Filer-only candidate false positives: 143/367 (38.96%); unresolved candidate roles: 0.
+- Phase 83/84 post-stratified descriptive estimate: approximately 52.06% subject-target and 47.94% filer-only among 34,400 candidate accessions. No inferential confidence interval; feasibility diagnostic only.
+
+### Phase 90 event-semantics pilot
+
+- Offline run 41928027309 passed 35 regression tests and reparsed all 600 raw submissions / 200 structured XML documents. Artifact 13368994005 (SHA-256 4919ae0593ef49f046d65e18eb54489b7ac561383f7ef387d803629bcbcfe849).
+- Mandatory XML 192/192; XML issuer/subject, filer and form each match SEC-HEADER 200/200; acceptance timestamps and raw hashes 600/600.
+- XML sample: 79 Schedule 13D, 121 Schedule 13G; 103 originals, 97 amendments.
+- Amendment lineage: 46/97 amendments contain a direct previousAccessionNumber; 51/97 do not (50 omit the element, one has it empty). Missing by family: 12/39 13D amendments (30.8%) and 39/58 13G amendments (67.2%). Of the 46 direct links, 44 predecessors are outside the small sample and 2 are internally consistent. No amendmentNo or accession-prefix heuristic is used to manufacture predecessor links.
+- Reporting persons: 470 total, mean 2.35 per XML filing, maximum 31. 13D: 260 persons, 158 with CIK and 102 explicitly declaring no CIK. 13G: 210 persons; no reportingCik or reportingCikNotPresentInEdgarFlag elements were observed in any of the 121 sampled 13G XML documents, so all 210 are name/type-based in this sample. Never substitute the submission filer CIK for a 13G reporting-person CIK.
+- Reported event dates: 200/200 present; none after filing date. Filing-minus-event lag median 17 calendar days (range 0–290); 13D median 3 days, 13G median 34 days. This is a descriptive filing lag only. SEC-HEADER ACCEPTANCE-DATETIME remains the conservative knowledge timestamp.
+- 13D purpose text present in 67/79; 13G rule designations present in 121/121.
+
+### Research interpretation
+
+13D is currently the more feasible event-level candidate: better reporting-person CIK resolution in this sample, shorter event-date lag, and more direct predecessor links. It still requires historical issuer/security continuity and complete event-chain validation. 13G is downgraded to a slower issuer-ownership/context hypothesis until name-to-entity mapping and amendment-chain coverage pass a separate feasibility gate. Neither is an alpha result.
+
+### Operational state and next gates
+
+- Phase 35 run 41915300321 remains in progress at the corrected historical-CIK PIT audit step (job 126874047512). GitHub's log blob is unavailable (BlobNotFound) and no artifact has yet been produced. Do not launch another SEC retrieval/crawl until this run completes.
+- Phase 69 Form 144 incremental scan run 41892649381 completed its offline tests but skipped the live scan because its explicit trigger was absent.
+- Phase 22C/13F run 41915300417 completed successfully, but historical issuer mapping coverage remains insufficient for a point-in-time universe.
+- Cboe Open-Close and OptionMetrics Signed Volume remain the leading options candidates; no vendor data purchased. CFTC TFF remains a market-regime candidate with historical publication-time gaps.
+- No forward returns, feature tuning, alpha inference or production changes. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
