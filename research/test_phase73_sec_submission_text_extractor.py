@@ -1,7 +1,12 @@
 import unittest
 
 from research.phase72_13dg_structured_xml_parser import parse_schedule13_xml
-from research.phase73_13dg_submission_text_pilot import complete_submission_url
+from research.phase73_13dg_submission_text_pilot import (
+    complete_submission_url,
+    compare_acceptance_datetimes,
+    compare_filer_identity,
+    compare_filing_dates,
+)
 from research.phase73_sec_submission_text_extractor import (
     extract_primary_doc_xml,
     normalize_acceptance_datetime,
@@ -115,6 +120,40 @@ FILED BY:
             "20260116163134",
         )
         self.assertEqual(normalize_acceptance_datetime(""), "")
+
+
+
+    def test_third_party_submitter_cik_is_not_filed_by_identity(self):
+        result = compare_filer_identity(
+            "0002080603",  # XML filerInfo CIK
+            "0002080603",  # SEC header FILED BY CIK
+            "0000950157",  # accession-prefix submitter account
+        )
+        self.assertTrue(result["xml_filer_matches_header_filed_by"])
+        self.assertFalse(result["header_filer_matches_accession_prefix"])
+
+    def test_filing_date_does_not_fail_when_secondary_submissions_metadata_is_absent(self):
+        result = compare_filing_dates("2025-09-12", "2025-09-12", "")
+        self.assertTrue(result["source_header_filing_date_match"])
+        self.assertFalse(result["submission_filing_date_available"])
+        self.assertIsNone(result["submission_filing_date_match"])
+        self.assertTrue(result["filing_date_match"])
+
+    def test_submission_filing_date_is_checked_when_available(self):
+        good = compare_filing_dates("2025-09-12", "2025-09-12", "2025-09-12")
+        bad = compare_filing_dates("2025-09-12", "2025-09-12", "2025-09-11")
+        self.assertTrue(good["filing_date_match"])
+        self.assertFalse(bad["filing_date_match"])
+
+    def test_acceptance_time_comparison_is_conditional_on_api_metadata(self):
+        matched = compare_acceptance_datetimes(
+            "20250912213915", "2025-09-13T01:39:15.000Z"
+        )
+        missing = compare_acceptance_datetimes("20250912213915", "")
+        self.assertTrue(matched["submission_acceptance_available"])
+        self.assertTrue(matched["acceptance_datetime_match"])
+        self.assertFalse(missing["submission_acceptance_available"])
+        self.assertIsNone(missing["acceptance_datetime_match"])
 
     def test_missing_primary_xml_fails_closed(self):
         raw = """<SEC-HEADER>CONFORMED SUBMISSION TYPE: SCHEDULE 13G</SEC-HEADER>
