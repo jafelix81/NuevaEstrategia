@@ -26,8 +26,8 @@ from research.phase67_form144_full_candidate_role_resolution import (
     DEFAULT_QUARTERS, FORMS, START_DATE, index_row_invalid, process_row, stable_key, write_csv,
 )
 
-BASE_RUN_ID = 41828139052
-BASE_ARTIFACT_ID = 13327123059
+BASE_RUN_ID = 41828179718
+BASE_ARTIFACT_ID = 13334881835
 BASE_ROWS = 21648
 BASE_EVENTS = 21634
 NEW_FUND_REGISTRANT_CIKS = {
