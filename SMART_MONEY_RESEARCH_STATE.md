@@ -498,3 +498,11 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - Added an exact snapshot check for the 27 ticker names that were unresolved under the pre-Phase-68 parser, in addition to the exact 309-CIK legacy set and ten-CIK expansion checks.
 - Hosted Actions run 41847627672 / job 126635192916 completed SUCCESS; all 8 Phase 69 unit tests passed.
 - The full incremental SEC scan remains held because Phase 67 run 41828179718 is still in_progress and has no artifact. The completed baseline from 41828139052 is available; the active run uses the same production script with a later test-only commit. No second full census or Phase 69 data scan has been started.
+
+
+## Phase 71 supplement — Phase 9D provenance trace
+
+- Phase 9's accessible portfolio-persistence file contains the same 335-name list and comments that it is the exact frozen universe used by the preceding phase. Its empty-list error explicitly refers to a preceding “Phase 9D research file”.
+- That referenced Phase 9D file was not found in the inspected repository tree or the matching Library search. The Phase 9 file itself has no selection source/date/criteria or historical membership ledger.
+- In the 2026-10-14 prior conversation, the user's only stated provenance was that the script needed the frozen 335-ticker universe from the current project. A prior assistant asserted a Phase 9/9D origin but did not establish the actual selection methodology. Treat that prior assertion as unverified.
+- This narrows the recovery target: locate the original Phase 9D artifact or contemporaneous screen/export; otherwise the 335 list remains a curated snapshot with unknown selection rule.
