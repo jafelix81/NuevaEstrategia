@@ -1,0 +1,45 @@
+name: Phase 67 - Full Form 144 candidate issuer-role resolution
+
+on:
+  push:
+    branches: [phase67-form144-full-candidate-role-resolution]
+    paths:
+      - 'research/phase67_form144_full_candidate_role_resolution.py'
+      - 'research/test_phase67_form144_full_candidate_role_resolution.py'
+      - 'research/PHASE67_FORM144_FULL_CANDIDATE_ROLE_RESOLUTION_2026-11-04.md'
+      - '.github/workflows/phase67_form144_full_candidate_role_resolution.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: phase67-form144-full-candidate-role-resolution
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  resolve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run Phase 50 parser regression tests
+        run: python -m unittest research.test_phase50_form144_global_index_pilot -v
+      - name: Run Phase 64 identity regression tests
+        run: python -m unittest research.test_phase64_form144_master_pair_cross_quarter_audit -v
+      - name: Run Phase 65 schema and role regression tests
+        run: python -m unittest research.test_phase65_form144_event_field_coverage_audit -v
+      - name: Run Phase 67 full-resolution unit tests
+        run: python -m unittest research.test_phase67_form144_full_candidate_role_resolution -v
+      - name: Resolve all candidate Form 144/144-A accessions across 14 quarters
+        run: python -u -m research.phase67_form144_full_candidate_role_resolution --workers 5
+      - name: Upload Phase 67 checkpoints and outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase67-form144-full-candidate-role-resolution
+          path: phase67_form144_full_candidate_resolution/
+          if-no-files-found: warn
