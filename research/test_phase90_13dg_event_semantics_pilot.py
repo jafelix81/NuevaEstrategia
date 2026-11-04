@@ -1,7 +1,7 @@
 import unittest
 
 from research.phase90_13dg_event_semantics_pilot import (
-    classify_predecessor, event_lag_days, previous_accession_field_status,
+    classify_predecessor, count_element_occurrences, event_lag_days, previous_accession_field_status,
 )
 
 
@@ -19,6 +19,11 @@ class Phase90EventSemanticsTests(unittest.TestCase):
             previous_accession_field_status("<previousAccessionNumber>0000000001-24-000001</previousAccessionNumber>"),
             "field_nonempty",
         )
+
+    def test_reporting_cik_tag_count_does_not_match_reporting_cik_not_present_tag(self):
+        xml = "<x><reportingCik>0000000001</reportingCik><reportingCikNotPresentInEdgarFlag>N</reportingCikNotPresentInEdgarFlag></x>"
+        self.assertEqual(count_element_occurrences(xml, "reportingCik"), 1)
+        self.assertEqual(count_element_occurrences(xml, "reportingCikNotPresentInEdgarFlag"), 1)
 
     def test_predecessor_must_match_subject_family_and_be_earlier(self):
         prior = {

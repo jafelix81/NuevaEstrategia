@@ -63,6 +63,12 @@ def previous_accession_field_status(raw):
     return "field_absent"
 
 
+def count_element_occurrences(raw, element_name):
+    text = raw.decode("utf-8-sig", errors="replace") if isinstance(raw, bytes) else str(raw)
+    tag = re.escape(element_name)
+    return len(re.findall(rf"<(?:[A-Za-z0-9_.-]+:)?{tag}\\b", text, re.I))
+
+
 def lag_summary(records):
     values = [r["event_date_lag_days"] for r in records if r.get("event_date_lag_days") is not None]
     if not values:
@@ -169,6 +175,10 @@ def run(args):
         header_form_match = bool(xml_submission_type and xml_submission_type == base["header_form"])
         persons = parsed.get("reporting_persons") or []
         person_status = Counter(p.get("person_cik_status", "") for p in persons)
+        cik_element_counts = {
+            tag: count_element_occurrences(raw, tag)
+            for tag in ("reportingPersonCIK", "reportingPersonNoCIK", "reportingCik", "reportingCikNotPresentInEdgarFlag")
+        }
         person_ciks = [p.get("person_cik") for p in persons if p.get("person_cik")]
         previous = parsed.get("previous_accession_number", "")
         event_date = parsed.get("event_date", "")
@@ -196,6 +206,7 @@ def run(args):
             "reporting_person_cik_count": len(person_ciks),
             "reporting_person_cik_unique_count": len(set(person_ciks)),
             "reporting_person_cik_status_counts": dict(person_status),
+            "reporting_cik_element_counts": cik_element_counts,
             "reporting_persons": persons,
             "cusips": parsed.get("cusips", []),
             "rule_designations": parsed.get("rule_designations", []),
@@ -251,6 +262,30 @@ def run(args):
     amendment_field_status_counts = Counter(
         r.get("previous_accession_field_status", "") for r in amendments
     )
+    amendment_field_status_by_family = {
+        family: dict(Counter(r.get("previous_accession_field_status", "") for r in amendments if r["form_family"] == family))
+        for family in ("13D", "13G")
+    }
+    person_status_by_family = {}
+    person_count_by_family = {}
+    cik_elements_by_family = {}
+    for family in ("13D", "13G"):
+        family_records = [r for r in xml_records if r["form_family"] == family]
+        family_persons = [p for r in family_records for p in r["reporting_persons"]]
+        person_status_by_family[family] = dict(Counter(p.get("person_cik_status", "") for p in family_persons))
+        family_counts_persons = [len(r["reporting_persons"]) for r in family_records]
+        person_count_by_family[family] = {
+            "filings": len(family_records),
+            "reporting_persons": len(family_persons),
+            "mean_per_filing": sum(family_counts_persons) / len(family_counts_persons) if family_counts_persons else 0.0,
+            "max_per_filing": max(family_counts_persons) if family_counts_persons else 0,
+        }
+        cik_elements_by_family[family] = dict(Counter(
+            tag
+            for r in family_records
+            for tag, count in r["reporting_cik_element_counts"].items()
+            for _ in range(count)
+        ))
     event_lag_by_family = {
         family: lag_summary([r for r in xml_records if r["form_family"] == family])
         for family in ("13D", "13G")
@@ -285,8 +320,12 @@ def run(args):
         "amendments_missing_predecessor_by_family": amendment_missing_by_family,
         "amendments_total_by_family": amendment_total_by_family,
         "amendment_previous_accession_field_status_counts": dict(amendment_field_status_counts),
+        "amendment_previous_accession_field_status_by_family": amendment_field_status_by_family,
         "predecessor_status_counts": dict(predecessor_counts),
         "reporting_person_total": sum(person_counts),
+        "reporting_person_count_by_family": person_count_by_family,
+        "reporting_person_cik_status_by_family": person_status_by_family,
+        "reporting_cik_element_occurrences_by_family": cik_elements_by_family,
         "reporting_person_count_mean": sum(person_counts) / len(person_counts) if person_counts else 0.0,
         "reporting_person_count_max": max(person_counts) if person_counts else 0,
         "reporting_person_cik_status_counts": dict(person_status_counts),
