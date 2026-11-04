@@ -535,3 +535,10 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - The expanded candidate-role CSV is byte-for-byte identical to Phase 67 (SHA-256 a2f4f73130da13dcbe63e1963298eae1102580a418a41a932b3e43bc8548ca87). The expanded issuer-event CSV is also byte-for-byte identical (67,014,714 bytes; SHA-256 fd20e338bd3624e7e1c85c39ab911f9fd5d1d78e8a20ed185e42db299a868b20). Counts remain 21,648 candidates, 21,634 issuer events, 14 filer-only false positives excluded, one ambiguous-pair issuer match, and 280/280 controls.
 - Decision: stop the incremental fund-CIK Form 144 scan; it adds no events. Preserve the 335/335 mapping, but do not equate registrant CIK with ETF security identity. Series/class-to-security and PIT history remain untested. No forward returns or alpha tests.
 - Report: `research/PHASE69_INCREMENTAL_FORM144_FUND_REGISTRANT_SCAN_RESULTS_2026-11-04.md`.
+
+
+## 2026-11-04 — Phase 21C frozen-universe artifact reconciled
+- Recovered Phase 21C run 39362237089 / artifact 12238056805 (2026-10-20). Its `phase21c_signal_panel.csv` contains 10,050 rows, 30 signal dates and exactly 335 unique tickers.
+- Compared its normalized ticker set with the Phase 9D Library script and Phase 11 repository `DEFAULT_UNIVERSE`: exact set equality, 335/335, no additions or omissions. Phase 21C imports the frozen list from Phase 11; it does not reconstruct the selection rule.
+- Phase 21C's audit confirms the 335 snapshot was used in a Form 4 PIT diagnostic through 2026-09-29, but that hypothesis was killed for now (no robust standalone/incremental edge; no production change). This establishes snapshot existence/content/use, not original selection provenance.
+- The original upstream universe, screening date, selection thresholds, replacement rules and PIT membership ledger remain undocumented. Phase 71 stays open; do not claim a survivorship-bias-free historical cross-section.
