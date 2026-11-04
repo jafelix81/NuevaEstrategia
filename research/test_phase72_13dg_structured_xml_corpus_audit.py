@@ -2,6 +2,7 @@ import unittest
 import pandas as pd
 
 from research.phase72_13dg_structured_xml_corpus_audit import (
+    archive_document_path,
     build_lineage_edge,
     expected_submission_type,
     stratified_sample,
@@ -24,6 +25,11 @@ class Phase72CorpusAuditHelperTests(unittest.TestCase):
     def test_accession_normalization(self):
         self.assertEqual(normalize_accession("0001493152-25-012122"), "000149315225012122")
         self.assertEqual(normalize_accession(" 000149315225012122 "), "000149315225012122")
+
+    def test_xsl_view_path_is_rewritten_to_root_raw_xml(self):
+        self.assertEqual(archive_document_path("xslSCHEDULE_13G_X01/primary_doc.xml"), "primary_doc.xml")
+        self.assertEqual(archive_document_path("xslSCHEDULE_13D_X01/primary_doc.xml"), "primary_doc.xml")
+        self.assertEqual(archive_document_path("primary_doc.xml"), "primary_doc.xml")
 
     def test_form_normalization(self):
         self.assertEqual(expected_submission_type("SC 13G/A"), "SCHEDULE 13G/A")
