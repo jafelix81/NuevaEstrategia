@@ -265,7 +265,7 @@ def summarize(rows, events, errors, controls, index_summaries, candidate_counts,
     pair_ok = sum(bool(row.get("xml_both_ciks_in_master_pair")) for row in parsed)
     distinct_ok = sum(bool(row.get("xml_ciks_distinct")) for row in parsed)
     form_ok = sum(bool(row.get("xml_form_matches_index")) for row in parsed)
-    attempted = [row for row in rows if row.get("candidate_role_status") != "unresolved_index_metadata_conflict"]
+    attempted = [row for row in rows if row.get("candidate_role_status") != "unresolved_index_metadata_invalid"]
     failed_statuses = {"unresolved_xml_fetch_error", "unresolved_processing_error"}
     fetch_success = len(attempted) - sum(row.get("candidate_role_status") in failed_statuses for row in attempted)
     duplicates = len(rows) - len({row.get("accession") for row in rows})
