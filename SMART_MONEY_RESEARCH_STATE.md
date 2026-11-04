@@ -555,3 +555,26 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - Corpus audit now compares XML filerInfo CIK to accession-prefix CIK separately from issuer CIK and reporting-person CIK, and reports submission filingDate concordance, acceptanceDateTime, event-date and amendment-number coverage, and schema-version distribution.
 - Latest hosted run 41865309350 / job 126697927454 passed all 11 tests (5 parser + 6 corpus helper) with parser v2.
 - The 80-filing pilot run 41865034118 / job 126696988419 remains queued/no logs; it predates parser v2 and will be treated only as a preliminary schema smoke test. No full 8,294-document corpus request has been launched.
+
+## 2026-11-04 — Phase 69 incremental fund registrant scan / Phase 72 13D/G XML pilot
+
+### Phase 69 — Form 144 incremental fund registrant scan
+- Run 41863703923, artifact 13340957307: data gate PASS.
+- Current ticker map: 335/335; 319 current candidate registrant CIKs.
+- Ten newly mapped fund registrant CIKs produced zero incremental candidate accessions and zero incremental issuer events across the audited 14-quarter Form 144 candidate panel.
+- Expanded panel remains 21,648 candidate accessions / 21,634 issuer-matched events, with 14 filer-only false positives excluded, 289 distinct issuer CIKs, and 280/280 control-pair concordance.
+- This is a zero-incremental-coverage result for this sample, not proof that the registrants have no filings or historical series/class activity. Fund series/class-to-security mapping and historical F80 membership remain unresolved.
+
+### Phase 72 — structured 13D/13G XML pilot
+- Run 41865034118, artifact 13341118476: 80-filing stratified pilot executed; data gate FAIL.
+- SEC submissions metadata matched all 80 accessions with zero submissions-index errors, but the direct primary_doc.xml retrieval/parser path produced 0/80 parses; all 80 failed with ElementTree mismatched-tag errors around repeated generated-document line locations.
+- Do not interpret this as missing SEC filings or zero ownership. No reporting-person or lineage metrics are valid from the failed pilot.
+- The source Phase 35 artifact is explicitly a filer-side retrieval sample, not a subject-issuer census. Its legacy issuer_cik field must not be treated as subject issuer identity.
+
+### Phase 73 — complete-submission text XML recovery
+- New isolated branch: phase73-13dg-submission-text-xml-recovery.
+- SEC filing-detail and complete-submission examples confirm that the complete submission text file exposes separate SUBJECT COMPANY and FILED BY identities and contains the source primary_doc.xml XML payload within DOCUMENT/TEXT/XML markers.
+- New fail-closed extractor and stratified 80-filing pilot use the complete-submission text file, compare XML issuer CIK to SEC header subject CIK, and compare XML filer CIK to SEC header filer CIK plus accession prefix.
+- Unit-test workflow is triggered separately from the SEC data-pilot workflow. The 80-filing Phase 73 data pilot has not yet been triggered; wait for hosted tests and SEC public-data concurrency availability.
+- Do not run the 8,294-document corpus until the 80-filing pilot passes all identity, form, filing-date, acceptance-time, reporting-person and lineage gates.
+- No forward returns, alpha tests, purchases or production changes. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
