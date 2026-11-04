@@ -47,7 +47,7 @@ def norm(value):
     return re.sub(r"[^a-z0-9]","",str(value or "").lower())
 
 def parse_csv_bytes(raw):
-    text=raw.decode("utf-8-sig","replace")
+    text=raw.decode("utf-8-sig","replace") if isinstance(raw,bytes) else str(raw)
     lines=[line for line in text.splitlines() if line.strip()]
     if not lines: return {"headers":[],"rows":[],"text_prefix":text[:300]}
     header_idx=0
