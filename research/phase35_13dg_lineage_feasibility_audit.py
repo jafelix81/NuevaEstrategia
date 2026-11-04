@@ -17,6 +17,9 @@ def norm_name(value):
 def family(form):
     return "13D" if "13D" in (form or "").upper() else "13G"
 
+def pointer_is_latest(pointer_accession, latest_accession):
+    return bool(latest_accession and pointer_accession == latest_accession)
+
 def classify_candidate_count(n):
     if n == 0: return "zero_in_panel_candidates"
     if n == 1: return "one_in_panel_candidate_unassigned"
@@ -82,7 +85,7 @@ def audit(rows, details, quarters):
                 "cusip_overlap": overlap,
                 "comparable_person_cusip": bool(rn and pn and rn == pn and overlap),
                 "same_day": r["filing_date"] == p["filing_date"],
-                "latest_match": bool(latest and latest["accession"] == p["accession"]),
+                "latest_match": pointer_is_latest(p["accession"], latest["accession"] if latest else None),
                 "older_reference": bool(latest and latest["accession"] != p["accession"] and p["filing_date"] < r["filing_date"]),
             })
         missing = Counter()
