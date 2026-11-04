@@ -9,6 +9,7 @@ import ast
 import csv
 import hashlib
 import html
+import gzip
 import json
 import os
 import re
@@ -83,12 +84,19 @@ def sec_ticker_map():
         for row in payload.values() if row.get("ticker")
     }
 
+def decode_http_body(raw, content_encoding=""):
+    encoding = (content_encoding or "").lower()
+    if encoding == "gzip" or raw[:2] == b"\\x1f\\x8b":
+        return gzip.decompress(raw)
+    return raw
+
 def get_bytes(url, retries=6, timeout=45):
     last_error = None
     for attempt in range(retries):
         try:
             with urlopen(Request(url, headers=HEADERS), timeout=timeout) as response:
-                return response.read()
+                raw = response.read()
+                return decode_http_body(raw, response.headers.get("Content-Encoding", ""))
         except HTTPError as error:
             last_error = error
             if error.code in (429, 500, 502, 503, 504):
