@@ -23,6 +23,15 @@ File: \`Nueva_Estrategia_Fase0_Descubrimiento.py\`
 - It then selects factor directions using 12 discovery dates and applies the frozen directions to later dates.
 - No upstream rule in this file defines why a security enters or leaves the 335-name list, and no historical membership dates are produced.
 
+### Phase 9 — portfolio persistence
+
+File: `Nueva_Estrategia_Fase9_PortfolioPersistence_LTM.py`
+
+- Contains the same hard-coded 335-name list.
+- Its comment calls it the exact frozen universe used by the preceding research phase.
+- Its empty-universe error says to replace the list with the exact 335-ticker universe from a preceding “Phase 9D research file”.
+- The Phase 9 file itself does not explain how the 335 were selected or provide dated membership. The referenced Phase 9D source file was not found in the inspected repository tree or the Library search results; the accessible Phase 9 artifact is the portfolio-persistence script itself.
+
 ### Phase 5 — momentum validation
 
 File: \`Nueva_Estrategia_Fase5_LongTermMomentum.py\`
@@ -51,7 +60,7 @@ File: \`Nueva_Estrategia_Fase8_Portfolio_LTM.py\`
 
 ## 2. Git-history trace
 
-The repository history shows the Phase 0 discovery file was uploaded on 2026-10-14 and Phase 6/8 files were uploaded on 2026-10-15. The available commit messages are generic “Add files via upload”/rename messages; they do not document the universe source, screening date, inclusion thresholds or replacement process.
+The repository history shows the Phase 0 discovery file was uploaded on 2026-10-14, and Phase 9/Phase 6/Phase 8 files were uploaded on 2026-10-15. The Phase 9 file contains the list and refers to a preceding Phase 9D research file, but that referenced file is not present in the inspected repository tree or the matching Library search results. Available commit messages are generic “Add files via upload”/rename messages; they do not document the universe source, screening date, inclusion thresholds or replacement process. In the 2026-10-14 prior conversation, the user supplied only that the script required the frozen 335-ticker universe from the current project; the earlier assistant asserted a Phase 9/9D origin but did not establish selection provenance or criteria.
 
 The Phase 0 comment is the strongest direct provenance statement found: the list was copied from the current project. No dated input file, screen export, index-membership source or universe-change ledger appears in the inspected repository tree.
 
@@ -90,7 +99,8 @@ The Phase 68 335/335 SEC ticker-to-registrant-CIK map addresses neither historic
 
 ## 6. Status
 
-- Original 335-universe rule: **NOT FOUND in inspected repository history/code**.
+- Original 335-universe rule: **NOT FOUND in inspected repository history/code or the matching Library search**.
+- Phase 9 contains the 335-name list and references a preceding Phase 9D file, but the referenced Phase 9D artifact and its selection criteria are unavailable.
 - Fixed-list membership history: **NOT AVAILABLE in repository**.
 - Phase 68 current ticker-to-CIK map: 335/335, but current-only.
 - Phase 67 Form 144 issuer-role census: identity gate passed for the old 309-CIK candidate set; Phase 69 incremental fund scan is prepared but not yet run.
