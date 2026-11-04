@@ -82,8 +82,8 @@ def build_page_url(page):
 
 def extract_candidate_endpoints(text):
     patterns = [
-        r"https?://[^\\s\\\"'<>]+",
-        r"/(?:api|edgar|browse|submissions|filings|ownership)[^\\s\\\"'<>]*",
+        r"https?://[^\s\"'<>]+",
+        r"/(?:api|edgar|browse|submissions|filings|ownership)[^\s\"'<>]*",
     ]
     values = []
     for pattern in patterns:
@@ -145,7 +145,7 @@ def run_audit(outdir: Path, sleep_seconds=0.6, max_js=8):
             })
             for src in parser.scripts:
                 absolute = urljoin(url, src)
-                if urlparse(absolute).netloc.endswith("sec.gov") and absolute.lower().endswith(".js"):
+                if urlparse(absolute).netloc.endswith("sec.gov") and urlparse(absolute).path.lower().endswith(".js"):
                     script_urls.add(absolute)
         except Exception as exc:
             row.update({"status_code": 0, "content_length": 0, "sha256": "",
