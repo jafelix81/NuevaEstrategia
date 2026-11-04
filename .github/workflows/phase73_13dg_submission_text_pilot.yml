@@ -31,6 +31,8 @@ jobs:
           python -m unittest research.test_phase72_13dg_structured_xml_parser -v
           python -m unittest research.test_phase72_13dg_structured_xml_corpus_audit -v
           python -m unittest research.test_phase73_sec_submission_text_extractor -v
+      - name: Compile Phase 73 pilot modules
+        run: python -m py_compile research/phase73_sec_submission_text_extractor.py research/phase73_13dg_submission_text_pilot.py
       - name: Download immutable Phase 35 source artifact
         uses: actions/download-artifact@v4
         with:
