@@ -64,13 +64,20 @@ CIK|Company Name|Form Type|Date Filed|Filename
         self.assertEqual(timing_regime("13G", "2024-09-30"), "13g_revised_deadline_pre_xml")
         self.assertEqual(timing_regime("13G", "2024-12-18"), "13g_mandatory_xml")
 
-    def test_complete_submission_url_uses_accession_prefix_cik(self):
+    def test_complete_submission_url_uses_master_index_archive_path_cik(self):
         self.assertEqual(
-            complete_submission_url("0000315066-25-001108"),
-            "https://www.sec.gov/Archives/edgar/data/315066/000031506625001108/0000315066-25-001108.txt",
+            complete_submission_url("0000315066-25-001108", "0001061736"),
+            "https://www.sec.gov/Archives/edgar/data/1061736/000031506625001108/0000315066-25-001108.txt",
+        )
+        # Agent-filed example: submitting account 950157, subject/archive path 1754301.
+        self.assertEqual(
+            complete_submission_url("0000950157-25-000788", "0001754301"),
+            "https://www.sec.gov/Archives/edgar/data/1754301/000095015725000788/0000950157-25-000788.txt",
         )
         with self.assertRaises(ValueError):
-            complete_submission_url("invalid")
+            complete_submission_url("invalid", "0001061736")
+        with self.assertRaisesRegex(ValueError, "Missing archive-path CIK"):
+            complete_submission_url("0000950157-25-000788", "")
 
     def test_sample_is_deterministic_and_preserves_form_strata(self):
         rows = parse_master_index_13dg(self.master, "2025Q2")
