@@ -50,3 +50,13 @@ The partial checkpoint is diagnostic/recovery output only; it does not turn an i
 - Current CIK mapping is discovery-only, not historical PIT F80 membership.
 - `approxSaleDate` remains descriptive only; it is not evidence of execution or a KnowledgeDate.
 - `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+
+## 2026-11-04 — Role-label parser failure isolated and repaired
+
+- Canonical run [41787233183](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41787233183) completed with `data_gate=FAIL` after all 9,104 filing-detail pages were retrieved with zero HTTP errors. The nine parser/PIT tests passed. The failure is specifically role-label extraction: `subject_cik_parse_rate=0.0` and `reporting_cik_parse_rate=0.0`, while accepted timestamp, form, filing-date and XML field-presence rates were 100%.
+- Root cause: SEC filing-detail HTML wraps the words `Subject` and `Reporting` in anchor tags. The HTML-to-text adapter replaces tags with spaces, producing text such as `( Subject ) CIK:`; the parser required exact `(Subject) CIK:` and `(Reporting) CIK:` strings. The original synthetic fixture had no anchor-wrapped role labels and therefore missed this representation.
+- Independent inspection of artifact `13303248503` confirmed that all 50 XML samples parsed and each exposed issuer CIK and filer CIK separately. Rejoining the XML issuer CIKs to the 309 current candidate CIKs found 9 target-CIK observations (6 original 144, 3 amendments) in the deterministic 50-row global sample. This is a parser diagnostic only, not a universe coverage estimate.
+- Patched `parse_index_page()` to tolerate whitespace inside role-label parentheses and added an anchor-wrapped SEC HTML regression fixture/test. The parser and test updates were pushed to this isolated branch in commits `65a5930dc0095efdf883cd532805de1046c6d0a7` and `5001cb1aa5caeb34a4d9e7e531cac446e51fea6c`.
+- Local regression check of the exact HTML-to-text transformation now extracts Subject CIK `0001341439` and Reporting CIK `0001106231` from anchor-wrapped markup. The hosted regression workflow must still pass before treating the repair as verified.
+- All earlier runs (41761510120, 41761577180, 41787228798, 41787233183) are now completed/cancelled/failed; no Phase 50 run remained active when the correction was made. No return or alpha test was run. The corrected branch remains isolated and F80 remains frozen.
