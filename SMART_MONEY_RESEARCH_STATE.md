@@ -578,3 +578,9 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - Unit-test workflow is triggered separately from the SEC data-pilot workflow. The 80-filing Phase 73 data pilot has not yet been triggered; wait for hosted tests and SEC public-data concurrency availability.
 - Do not run the 8,294-document corpus until the 80-filing pilot passes all identity, form, filing-date, acceptance-time, reporting-person and lineage gates.
 - No forward returns, alpha tests, purchases or production changes. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+### Phase 73 hosted test checkpoint — 2026-11-04 16:31 UTC
+- Run 41867865628 passed 16 tests (5 Phase 72 parser, 7 Phase 72 audit-helper, 4 Phase 73 extractor).
+- Timestamp normalization for SEC submissions API ISO acceptanceDateTime and explicit accession-header concordance were added afterward. Run 41868094850 is the corrected-revision regression run and remains queued; 41868027603 is an earlier queued revision.
+- The separate 80-filing SEC data-pilot trigger has not been pushed. No Phase 73 SEC crawl is active.
