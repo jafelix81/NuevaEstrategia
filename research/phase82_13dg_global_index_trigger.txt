@@ -1,1 +1,1 @@
-Explicitly authorize the bounded 43-quarter SEC EDGAR master-index-only feasibility audit for 2016Q1–2026Q3. Candidate overlap must use research/phase82_current_candidate_ciks.csv. No filing-level crawl or economic test is authorized.
+Corrected Phase 82 trigger: run the 43-quarter SEC EDGAR master-index-only audit using the frozen 319-CIK candidate file. The parser now accepts normal multi-CIK/multi-path accession rows and fails only on unexplained metadata conflicts. No filing-level crawl or economic test is authorized.
