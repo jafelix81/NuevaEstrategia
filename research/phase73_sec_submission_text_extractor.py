@@ -16,7 +16,7 @@ def normalize_cik(value: str) -> str:
 
 def normalize_acceptance_datetime(value: str) -> str:
     """Normalize SEC header 14-digit and submissions-API ISO timestamps."""
-    digits = re.sub(r"\\D", "", str(value or ""))
+    digits = re.sub(r"\D", "", str(value or ""))
     return digits[:14] if len(digits) >= 14 else ""
 
 
