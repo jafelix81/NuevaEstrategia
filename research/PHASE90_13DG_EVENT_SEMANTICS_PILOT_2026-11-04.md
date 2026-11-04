@@ -22,3 +22,21 @@ After Phase 84's role-aware subject/filer gate passed, can the structured 13D/13
 This is a parser and event-normalization feasibility test, not an informed-trading test. A predecessor outside the 600-row sample is not a broken link. A missing predecessor in an amendment is a data-quality issue, but should not be silently repaired using accession-prefix CIK or nearest-date heuristics. No forward returns, feature construction, alpha inference or production changes are authorized.
 
 The historical 319-CIK candidate set is not a point-in-time F80 security master. Even a clean event panel cannot be tested against the strategy until historical issuer/security continuity and eligible-universe membership are reconstructed.
+
+
+## Phase 90 execution result — run 41927541088
+
+The offline parser/lineage gate passed. All 600 raw submissions replayed with valid SHA-256; all 200 XML documents were reparsed; XML subject, filer and form each matched SEC-HEADER 200/200; mandatory XML coverage was 192/192; acceptance timestamps were valid 600/600.
+
+The first report showed null event-date lags because the XML stores dates as MM/DD/YYYY while the first diagnostic accepted ISO only. This was a diagnostic parsing defect, not missing source data. The rerun accepts both formats and reports the following from the 200 XML rows:
+
+- 79 Schedule 13D and 121 Schedule 13G filings.
+- 103 originals and 97 amendments.
+- 470 reporting-person rows; mean 2.35 per filing, maximum 31.
+- Reporting-person CIK status: 158 present, 210 unreported, 102 explicitly declared no CIK.
+- 46/97 amendments have a direct previousAccessionNumber; 51/97 do not. Of the 51 missing, 50 XML documents omit the field entirely and one contains an empty element.
+- Among the 46 direct links, 44 predecessors are outside this small sample and 2 are internally consistent. No heuristic predecessor links are created.
+- Event dates are present in 200/200, none occur after filing date in this sample. Filing-minus-event lag has median 17 calendar days (range 0–290); 13D median 3 days, 13G median 34 days. This is descriptive only, not the knowledge timestamp.
+- 13D purpose text is present in 67/79; 13G rule designations are present in 121/121.
+
+The 51 missing predecessor fields are a genuine source-level limitation in this sample, not a parser failure. AmendmentNo is retained but is not used to infer a predecessor. The 13D and 13G panels therefore need separate event/lineage treatment before any economic hypothesis.

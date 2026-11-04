@@ -8,7 +8,8 @@ import hashlib
 import json
 import re
 from collections import Counter
-from datetime import date
+from datetime import date, datetime
+import statistics
 from pathlib import Path
 
 from research.phase72_13dg_structured_xml_parser import parse_schedule13_xml
@@ -36,12 +37,42 @@ def parse_json(value, default):
 
 
 def event_lag_days(event_date, filing_date):
-    try:
-        event = date.fromisoformat(str(event_date))
-        filing = date.fromisoformat(str(filing_date))
-    except (TypeError, ValueError):
+    def parse_date(value):
+        value = str(value or "").strip()
+        for fmt in ("%Y-%m-%d", "%m/%d/%Y"):
+            try:
+                return datetime.strptime(value, fmt).date()
+            except ValueError:
+                pass
+        return None
+    event = parse_date(event_date)
+    filing = parse_date(filing_date)
+    if event is None or filing is None:
         return None
     return (filing - event).days
+
+
+def previous_accession_field_status(raw):
+    text = raw.decode("utf-8-sig", errors="replace") if isinstance(raw, bytes) else str(raw)
+    tag = r"(?:[A-Za-z0-9_.-]+:)?previousAccessionNumber"
+    match = re.search(rf"<{tag}\b[^>]*>(.*?)</{tag}\s*>", text, re.I | re.S)
+    if match:
+        return "field_nonempty" if match.group(1).strip() else "field_empty"
+    if re.search(rf"<{tag}\b[^>]*/>", text, re.I | re.S):
+        return "field_empty"
+    return "field_absent"
+
+
+def lag_summary(records):
+    values = [r["event_date_lag_days"] for r in records if r.get("event_date_lag_days") is not None]
+    if not values:
+        return {"n": 0, "min": None, "median": None, "max": None}
+    return {
+        "n": len(values),
+        "min": min(values),
+        "median": statistics.median(values),
+        "max": max(values),
+    }
 
 
 def classify_predecessor(current, previous_accession, all_by_accession):
@@ -159,6 +190,7 @@ def run(args):
             "amendment_number": parsed.get("amendment_number", ""),
             "previous_accession_number": normalize_accession(previous),
             "previous_accession_format_valid": not previous or bool(normalize_accession(previous)),
+            "previous_accession_field_status": previous_accession_field_status(raw),
             "predecessor_status": "",
             "reporting_person_count": len(persons),
             "reporting_person_cik_count": len(person_ciks),
@@ -208,6 +240,25 @@ def run(args):
 
     event_lags = [r["event_date_lag_days"] for r in xml_records if r["event_date_lag_days"] is not None]
     family_counts = Counter(r["form_family"] for r in xml_records)
+    amendment_missing_by_family = {
+        family: sum(not bool(r.get("previous_accession_number")) for r in amendments if r["form_family"] == family)
+        for family in ("13D", "13G")
+    }
+    amendment_total_by_family = {
+        family: sum(1 for r in amendments if r["form_family"] == family)
+        for family in ("13D", "13G")
+    }
+    amendment_field_status_counts = Counter(
+        r.get("previous_accession_field_status", "") for r in amendments
+    )
+    event_lag_by_family = {
+        family: lag_summary([r for r in xml_records if r["form_family"] == family])
+        for family in ("13D", "13G")
+    }
+    event_lag_by_amendment = {
+        str(flag): lag_summary([r for r in xml_records if r["is_amendment"] == flag])
+        for flag in (False, True)
+    }
     summary = {
         "phase": "90-13dg-event-semantics-pilot",
         "status": "COMPLETE" if len(base_rows) == len(manifest) else "PARTIAL",
@@ -231,6 +282,9 @@ def run(args):
         "originals_with_xml": len(originals),
         "amendments_with_predecessor": sum(bool(r.get("previous_accession_number")) for r in amendments),
         "amendments_missing_predecessor": sum(not bool(r.get("previous_accession_number")) for r in amendments),
+        "amendments_missing_predecessor_by_family": amendment_missing_by_family,
+        "amendments_total_by_family": amendment_total_by_family,
+        "amendment_previous_accession_field_status_counts": dict(amendment_field_status_counts),
         "predecessor_status_counts": dict(predecessor_counts),
         "reporting_person_total": sum(person_counts),
         "reporting_person_count_mean": sum(person_counts) / len(person_counts) if person_counts else 0.0,
@@ -240,8 +294,10 @@ def run(args):
         "event_date_missing_rows": sum(bool(r["event_date_missing"]) for r in xml_records),
         "event_date_after_filing_rows": sum(bool(r["event_date_after_filing"]) for r in xml_records),
         "event_date_lag_days_min": min(event_lags) if event_lags else None,
-        "event_date_lag_days_median": sorted(event_lags)[len(event_lags)//2] if event_lags else None,
+        "event_date_lag_days_median": statistics.median(event_lags) if event_lags else None,
         "event_date_lag_days_max": max(event_lags) if event_lags else None,
+        "event_date_lag_by_family": event_lag_by_family,
+        "event_date_lag_by_amendment": event_lag_by_amendment,
         "purpose_text_present_13d": sum(bool(r["purpose_text_present"]) for r in xml_records if r["form_family"] == "13D"),
         "rule_designations_present_13g": sum(bool(r["rule_designations"]) for r in xml_records if r["form_family"] == "13G"),
         "gate_checks": {
