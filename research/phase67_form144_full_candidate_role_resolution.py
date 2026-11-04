@@ -255,7 +255,9 @@ def summarize(rows, events, errors, controls, index_summaries, candidate_counts,
     pair_ok = sum(bool(row.get("xml_both_ciks_in_master_pair")) for row in parsed)
     distinct_ok = sum(bool(row.get("xml_ciks_distinct")) for row in parsed)
     form_ok = sum(bool(row.get("xml_form_matches_index")) for row in parsed)
-    fetch_success = len(rows) - sum(row.get("candidate_role_status") == "unresolved_xml_fetch_error" for row in rows)
+    attempted = [row for row in rows if row.get("candidate_role_status") != "unresolved_index_metadata_conflict"]
+    failed_statuses = {"unresolved_xml_fetch_error", "unresolved_processing_error"}
+    fetch_success = len(attempted) - sum(row.get("candidate_role_status") in failed_statuses for row in attempted)
     duplicates = len(rows) - len({row.get("accession") for row in rows})
     by_form = {}
     for form in FORMS:
@@ -277,7 +279,7 @@ def summarize(rows, events, errors, controls, index_summaries, candidate_counts,
             "event_rows_sale_value_numeric": sum(bool(row.get("sale_value_all_numeric")) for row in subevents),
         }
     gates = {
-        "candidate_xml_fetch_success_ge_99_5pct": bool(rows) and fetch_success / len(rows) >= 0.995,
+        "candidate_xml_fetch_success_ge_99_5pct": bool(attempted) and fetch_success / len(attempted) >= 0.995,
         "candidate_role_resolution_ge_99_9pct": bool(rows) and role_resolved / len(rows) >= 0.999,
         "xml_pair_concordance_ge_99_9pct": bool(parsed) and pair_ok / len(parsed) >= 0.999,
         "xml_ciks_distinct_ge_99_9pct": bool(parsed) and distinct_ok / len(parsed) >= 0.999,
@@ -303,7 +305,8 @@ def summarize(rows, events, errors, controls, index_summaries, candidate_counts,
         "candidate_rows_processed": len(rows),
         "candidate_role_status_counts": dict(status_counts),
         "candidate_role_resolution_rate": role_resolved / len(rows) if rows else None,
-        "xml_fetch_success_rate": fetch_success / len(rows) if rows else None,
+        "xml_fetch_attempted_rows": len(attempted),
+        "xml_fetch_success_rate": fetch_success / len(attempted) if attempted else None,
         "xml_pair_concordance_rate": pair_ok / len(parsed) if parsed else None,
         "xml_ciks_distinct_rate": distinct_ok / len(parsed) if parsed else None,
         "xml_form_match_rate": form_ok / len(parsed) if parsed else None,
