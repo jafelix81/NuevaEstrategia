@@ -15,12 +15,22 @@ class Phase69IncrementalFundRegistrantTests(unittest.TestCase):
         old = {f"{i:010d}" for i in range(1, 310)}
         expanded = old | NEW_FUND_REGISTRANT_CIKS
         self.assertEqual(len(NEW_FUND_REGISTRANT_CIKS), 10)
-        self.assertEqual(derive_new_ciks(expanded), NEW_FUND_REGISTRANT_CIKS)
+        self.assertEqual(derive_new_ciks(expanded, old), NEW_FUND_REGISTRANT_CIKS)
 
     def test_rejects_incomplete_expanded_cik_map(self):
         old = {f"{i:010d}" for i in range(1, 310)}
         with self.assertRaises(ValueError):
-            derive_new_ciks(old | (NEW_FUND_REGISTRANT_CIKS - {"0001174610"}))
+            derive_new_ciks(old | (NEW_FUND_REGISTRANT_CIKS - {"0001174610"}), old)
+
+
+    def test_rejects_wrong_legacy_set_even_when_counts_match(self):
+        old = {f"{i:010d}" for i in range(1, 310)}
+        expanded = old | NEW_FUND_REGISTRANT_CIKS
+        wrong_legacy = set(old)
+        wrong_legacy.remove("0000000001")
+        wrong_legacy.add("0009999999")
+        with self.assertRaises(ValueError):
+            derive_new_ciks(expanded, wrong_legacy)
 
     def test_merge_replaces_overlap_and_adds_new_accession(self):
         base = [
