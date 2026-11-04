@@ -63,3 +63,11 @@ Next:
 6. Only after deterministic issuer/person lineage and historical F80 membership gates pass, build ownership-state changes and compare against frozen LTM/F80.
 
 No return tests, purchases or baseline changes. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+
+## 6. Hosted regression execution (2026-11-04)
+
+- Initial run 41863446169 failed one assertion because the no-CIK test fixture omitted a filer CIK, so both the reporting-person CIK and filer CIK were empty. The parser correctly preserved the reporting-person CIK as empty; the assertion did not test the intended non-substitution case.
+- Corrected the fixture to include filer CIK `0002081473` while retaining `reportingCikNotPresentInEdgarFlag=Y`. The test now explicitly asserts that the filer CIK is present but the reporting-person CIK remains empty and is classified `declared_no_cik`.
+- Rerun 41863595467, job 126691849721, executed all five tests successfully (`Ran 5 tests ... OK`). The REST run object still reports `queued`, but the decoded job log contains the complete successful test output and cleanup. This workflow makes no SEC requests.
+- The parser is unit-tested against representative schema-shaped 13D/13G XML fixtures. Full-file validation against the 8,294 actual XML documents in the Phase 35 artifact remains the next data gate; no claim of corpus-wide parser accuracy is made yet.
