@@ -98,3 +98,5 @@ class Phase84RoleAwareIdentityTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+# Trigger note: live 600-filing SEC pilot; no test logic changed (2026-11-04).
