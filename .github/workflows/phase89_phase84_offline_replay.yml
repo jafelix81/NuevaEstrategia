@@ -17,10 +17,6 @@ permissions:
   contents: read
   actions: read
 
-concurrency:
-  group: sec-public-data-research
-  cancel-in-progress: false
-
 jobs:
   offline_replay:
     runs-on: ubuntu-latest
