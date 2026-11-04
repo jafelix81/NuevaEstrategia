@@ -158,18 +158,11 @@ def complete_submission_url(archive_cik, accession):
 
 def submission_url_candidates(row):
     accession = row.get("accession", "")
-    key = normalize_accession(accession)
-    if not key: raise ValueError(f"Invalid accession: {accession}")
-    candidates = list(row.get("archive_path_ciks") or [])
-    candidates.extend(row.get("master_index_ciks") or [])
-    candidates.append(normalize_cik(key[:10]))
-    ordered, seen = [], set()
-    for value in candidates:
-        cik = normalize_cik(value)
-        if cik and cik not in seen:
-            seen.add(cik)
-            ordered.append((cik, complete_submission_url(cik, accession)))
-    return ordered
+    path_ciks = sorted(set(row.get("archive_path_ciks") or []))
+    if len(path_ciks) != 1:
+        raise ValueError("archive path CIK is missing or non-unique; quarantine accession")
+    cik = normalize_cik(path_ciks[0])
+    return [(cik, complete_submission_url(cik, accession))]
 
 
 def classify_candidate_role(row, header):
