@@ -328,3 +328,20 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - Added a classification caution: OptionMetrics' 2026 SPX/SPY 0DTE study reports retail-share estimates ranging roughly 10–60% across methodologies (its public-OPRA method ~30–35% SPX versus a cited Cboe proprietary ~50–60%). This is not generalizable to single names, but reinforces that TradeFlow retail/institutional categories are vendor proxies, not actual account identity. See `research/PHASE61_ORATS_NEAR_EOD_PUBLIC_SAMPLE_AUDIT_RESULTS_2026-11-04.md`.
 
 - Concurrent SEC Form 144 global-index runner [41787233183](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41787233183) remains the only active Actions run. Its parser/PIT tests passed and the 2025Q1 detail-page census is still in progress; no artifact is available and the job-log endpoint currently returns BlobNotFound. No further Phase 50 execution was started.
+
+
+## 2026-11-04 — Phase 62 IVolatility options data feasibility
+
+- New highest-priority conditional vendor candidate: IVolatility EOD + Option Trades. Current official managed-DB documentation lists EOD NBBO/Raw IV, a 15:45 ET snapshot, non-standard options with adjusted deliverables, stable option IDs across corporate actions, full symbol history including listings/delistings, and trade-level price/size/exchange/condition with option NBBO and underlying quotes at trade time.
+- US EOD options history is advertised from 2005 across 5,500+ underlyings. A legacy intraday guide (last updated June 2020) documents option trade history from 2014-03-13, daily updates, trade-condition codes, contemporaneous quotes and IV/Greeks. Exact current intraday depth, field schema and delivery schedule require written confirmation.
+- This could allow a transparent buyer/seller aggressor-side reconstruction from execution price versus contemporaneous NBBO, while retaining midpoint/inside-spread/ambiguous trades as unknown. Complex, multi-leg, auction, late/out-of-sequence and cancellation conditions must be separated using date-aware condition-code versions.
+- Current docs say daily updates include corrections to past history. A corrected backfill is not a PIT vintage. Require archived daily deliveries/correction history; until then use next-session KnowledgeDate conservatively and do not authorize returns.
+- Important product-scope conflict: FAQ says listed and delisted names; Data Download page says currently listed; managed DB describes full listing/delisting history. Confirm per product and sample.
+- Data Download retail indicative prices: $0.40 per ticker-day for NBBO/options prices + historical volatility; $0.60 for Raw IV/IV surface/IV index. At 335 symbols x 252 sessions, indicative cost is $33,768/$50,652 per year; five years $168,840/$253,260. Professional use and intraday trades are custom quote/contract. No purchase or vendor contact authorized.
+- Phase 62 report: research/PHASE62_IVOLATILITY_OPTIONS_DATA_FEASIBILITY_2026-11-04.md. No sample downloaded, no forward returns, no alpha test. Phase 60 DOOD preregistration unchanged; F80 remains frozen.
+
+## 2026-11-04 — Phase 50 role-label parser correction
+
+- Run 41787233183 completed with all 9,104 index pages fetched and zero HTTP errors but failed the data gate because Subject/Reporting CIK extraction was 0%. The HTML-to-text adapter removes anchor tags and leaves spaces inside role labels, e.g. "( Subject ) CIK".
+- Updated the parser to tolerate whitespace inside role-label parentheses and added an anchor-wrapped HTML regression test. Commits: 65a5930dc0095efdf883cd532805de1046c6d0a7 and 5001cb1aa5caeb34a4d9e7e531cac446e51fea6c.
+- The correction is not yet considered hosted-verified. The next Phase 50 Actions result must pass the new regression test and recompute subject/reporting identity. No economic test authorized.
