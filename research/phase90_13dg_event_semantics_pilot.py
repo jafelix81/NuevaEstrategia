@@ -66,7 +66,7 @@ def previous_accession_field_status(raw):
 def count_element_occurrences(raw, element_name):
     text = raw.decode("utf-8-sig", errors="replace") if isinstance(raw, bytes) else str(raw)
     tag = re.escape(element_name)
-    return len(re.findall(rf"<(?:[A-Za-z0-9_.-]+:)?{tag}\\b", text, re.I))
+    return len(re.findall(rf"<(?:[A-Za-z0-9_.-]+:)?{tag}\b", text, re.I))
 
 
 def lag_summary(records):
