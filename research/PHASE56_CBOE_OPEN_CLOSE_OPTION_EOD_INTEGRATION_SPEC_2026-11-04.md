@@ -74,3 +74,16 @@ These are hypotheses only. Customer includes both retail and institutional clien
 Cboe Open-Close EOD and Option EOD Summary are the highest-priority options-data candidates after sample-schema passes. They are not yet alpha signals. OCC Volume Query remains a recent 24-month, account-type call/put aggregate with no buy/sell/open/close; it is secondary only. No forward-return test is authorized until all data, PIT, coverage and licensing gates pass.
 
 F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## 2026-11-04 methodology addendum — superseding corrections
+
+Before any panel construction or return test, apply the stricter requirements in [PHASE56_CBOE_OPTIONS_PANEL_METHOD_CORRECTIONS_2026-11-04.md](PHASE56_CBOE_OPTIONS_PANEL_METHOD_CORRECTIONS_2026-11-04.md). In particular:
+- use point-in-time contract multiplier/deliverables (never assume 100);
+- treat 15:45 Delta as a common mark for all-day flow, not trade-time Delta;
+- keep Cboe venue flow separate from full-OPRA volume and measure venue share;
+- normalize against prior-available OI, and use PIT optionability as the coverage denominator;
+- use conservative next-session KnowledgeDate and next-session close execution to match the existing end-of-day strategy;
+- do not infer beneficial-owner identity or "smart money" from capacity labels.
+
+The public Option EOD sample covers only four underlyings (one current frozen-universe name), so its schema pass does not satisfy the 335-name coverage gate. The Cboe Open-Close EOD sample is a 20% C1 sample for one date, not full all-exchange history. No forward returns are authorized.
