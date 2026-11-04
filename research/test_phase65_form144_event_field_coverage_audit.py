@@ -9,6 +9,7 @@ from research.phase65_form144_event_field_coverage_audit import (
     parse_date,
     parse_number,
     select_sample,
+    resolve_candidate_role,
 )
 
 
@@ -116,6 +117,59 @@ class TestPhase65Form144FieldCoverage(unittest.TestCase):
         self.assertEqual(extract_sale_tranches(root), [])
         self.assertEqual(len(extract_acquisition_lots(root)), 1)
 
+
+
+    def test_unique_candidate_filer_only_is_resolved_but_excluded_as_issuer(self):
+        examples = [
+            ("0001549802", "0001857816", "0001549802"),
+            ("0000804328", "0001891027", "0000804328"),
+        ]
+        for candidate, issuer, filer in examples:
+            identity = {
+                "xml_issuer_cik": issuer,
+                "xml_filer_cik": filer,
+                "both_xml_ciks_in_pair": True,
+                "unique_candidate_role": "filer",
+            }
+            result = resolve_candidate_role("unique_candidate", identity, [candidate])
+            self.assertTrue(result["identity_resolved"])
+            self.assertFalse(result["candidate_is_issuer"])
+            self.assertTrue(result["candidate_is_filer_only"])
+
+    def test_unique_candidate_issuer_is_target(self):
+        identity = {
+            "xml_issuer_cik": "0000000001",
+            "xml_filer_cik": "0000000002",
+            "both_xml_ciks_in_pair": True,
+            "unique_candidate_role": "issuer",
+        }
+        result = resolve_candidate_role("unique_candidate", identity, ["0000000001"])
+        self.assertTrue(result["identity_resolved"])
+        self.assertTrue(result["candidate_is_issuer"])
+        self.assertFalse(result["candidate_is_filer_only"])
+
+    def test_ambiguous_pair_is_resolved_by_xml_roles(self):
+        identity = {
+            "xml_issuer_cik": "0000000001",
+            "xml_filer_cik": "0000000002",
+            "both_xml_ciks_in_pair": True,
+            "unique_candidate_role": "ambiguous",
+        }
+        result = resolve_candidate_role("ambiguous", identity, ["0000000001", "0000000002"])
+        self.assertTrue(result["identity_resolved"])
+        self.assertTrue(result["candidate_is_issuer"])
+        self.assertTrue(result["candidate_is_filer"])
+
+    def test_unresolved_candidate_pair_does_not_pass(self):
+        identity = {
+            "xml_issuer_cik": "0000000003",
+            "xml_filer_cik": "0000000004",
+            "both_xml_ciks_in_pair": False,
+            "unique_candidate_role": "unresolved",
+        }
+        result = resolve_candidate_role("unique_candidate", identity, ["0000000001"])
+        self.assertFalse(result["identity_resolved"])
+        self.assertFalse(result["candidate_is_issuer"])
 
 if __name__ == "__main__":
     unittest.main()

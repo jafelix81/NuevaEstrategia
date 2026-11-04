@@ -143,3 +143,13 @@ Implications for event construction:
 5. Only then preregister a proposed-sale-pressure hypothesis and compare it incrementally with frozen LTM/F80.
 
 No forward returns were used, no alpha test was run, no data vendor was purchased, and no production strategy was changed. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## Post-Phase65 clarification — candidate CIK role is not implied by pair membership
+
+The larger Phase 65 sample found two unique-candidate master-index pairs in which the sole current-universe candidate CIK was the XML **filer**, not the XML issuer. These are validly resolved non-target filings, not parser errors:
+
+- `0001970673-23-000004`: candidate JD CIK 0001549802 is XML filer/seller JD.com, Inc.; XML issuer is GigaCloud Technology Inc. (CIK 0001857816).
+- `0001104659-26-005774`: candidate QCOM CIK 0000804328 is XML filer/seller QUALCOMM INC; XML issuer is MNTN, Inc. (CIK 0001891027).
+
+Phase 64's 150/150 Form 144 and 76/76 Form 144/A issuer matches remain correct for that sample only. They do not justify assuming that every unique candidate CIK in a master-index pair is the issuer. The robust rule is: fetch primary XML, separately parse issuerCik and filer CIK, retain an event only when issuerCik belongs to the candidate issuer set, and classify filer-only candidate matches as false positives. Phase 65's 99.714% unique-candidate issuer match in its Form 144 sample is descriptive only because the sample is deterministic/stratified.

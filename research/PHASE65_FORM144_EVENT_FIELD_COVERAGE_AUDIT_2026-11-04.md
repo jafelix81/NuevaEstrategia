@@ -1,7 +1,7 @@
 # Phase 65 — SEC Form 144 event-field coverage and amendment-lineage audit
 
 **Date:** 2026-11-04  
-**Status:** New data-feasibility sample registered; hosted execution pending. No forward returns are calculated.
+**Status:** Hosted sample completed (run 41814314002) with XML/schema parsing successful but the original identity gate too strict. Two unique candidate CIKs were correctly identified by XML as filer-only, not issuer. No forward returns are calculated.
 
 ## 1. Why this phase follows Phase 64
 
@@ -46,7 +46,7 @@ The workflow will report per-form field-presence, numeric/date parse rates, cand
 Provisional sample gate:
 - At least 100 candidate Form 144 XML rows and 20 candidate Form 144/A XML rows;
 - zero XML fetch errors;
-- every sampled unique/ambiguous candidate identity confirmed by XML;
+- every sampled candidate role resolved by XML (issuer, filer-only, or ambiguous-pair issuer); filer-only matches are excluded from issuer events;
 - all sampled XML form types agree with the master index;
 - core field presence at least 95% for Form 144 and 90% for Form 144/A.
 
@@ -65,3 +65,25 @@ Form 144 is a proposed Rule 144 sale-order notice, not proof of an executed sale
 No forward returns, alpha tests, strategy changes, vendor purchases or production changes are part of Phase 65.
 
 F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## 8. Hosted run 41814314002 — artifact review and gate correction (2026-11-04)
+
+The run completed with conclusion `failure`, but the failure was the candidate-identity gate, not a parser, HTTP, XML-form, or economic-field failure. Job 126522128404 passed all three unit-test suites, parsed all 1,177 sampled XML documents, recorded zero XML fetch errors, and uploaded artifact 13313159631.
+
+The artifact was independently downloaded and inspected. Key results:
+
+- 14-quarter census: 56,167 Form 144/144-A accessions (55,558 originals; 609 amendments).
+- Current candidate-pair discovery: 21,451 unique-candidate Form 144 accessions, 196 unique-candidate Form 144/A accessions, plus one ambiguous Form 144 pair. These are candidate-pair accessions, **not** confirmed issuer events.
+- Current mapping: 308/335 tickers mapped to 309 candidate CIKs; 27 tickers remain unresolved.
+- XML sample: 1,177 documents, zero fetch errors; 841 Form 144 and 336 Form 144/A.
+- Form 144 unique-candidate sample: 698 XML issuer matches and two filer-only matches (700 unique-candidate rows). The one ambiguous Form 144 pair had both CIKs in the candidate set; XML resolved the issuer as one candidate and the filer as the other.
+- Form 144/A unique-candidate sample: 196/196 XML issuer matches.
+- All sampled XML CIK pairs reconciled to the master index; all XML form types matched the index.
+- All core sale fields were present in 100% of the sample; numeric parsing and approximate-sale-date parsing were 100%.
+- Form 144/A previousAccessionNumber was syntactically valid in 100%; 99.70% of valid references were found inside the 14-quarter census. This is reference coverage, not proof of immediate-predecessor lineage.
+- The two filer-only false positives were accession `0001970673-23-000004` (ticker candidate JD; XML issuer GigaCloud Technology Inc; filer/seller JD.com, Inc.) and `0001104659-26-005774` (ticker candidate QCOM; XML issuer MNTN, Inc.; filer/seller QUALCOMM INC).
+
+The original gate required every unique candidate CIK to equal XML issuerCik. That incorrectly treated a correctly resolved filer-only candidate as an identity failure. The corrected gate requires the XML issuer/filer roles to be resolved against the unlabelled master-index pair, while separately reporting issuer matches and filer-only false positives. Only XML issuerCik enters the target-issuer event panel.
+
+This does **not** validate historical F80 membership, current-to-historical ticker/CIK continuity, accepted-time publication, or economic value. The sample is deterministic/stratified, not a random population sample. No forward returns or alpha tests were run.

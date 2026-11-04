@@ -1,6 +1,6 @@
 # Smart Money Research State
 
-Updated: 2026-11-04 (Phase 35 cross-quarter lineage audit; Phase 50 review)
+Updated: 2026-11-04 (Phase 65 Form 144 role/schema audit; Phase 66 correction)
 
 ## Frozen control
 - `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
@@ -415,3 +415,14 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - Obsolete run 41814071603 uses the old parser and must not be used for tranche results. Corrected run 41814314002 is queued behind it. Do not dispatch another run while either remains active/queued.
 - Official SEC reference: https://www.sec.gov/submit-filings/technical-specifications.
 - No forward returns or alpha tests; F80 remains frozen.
+
+
+## Phase 64–66 — SEC Form 144 candidate-role and event-schema audit (2026-11-04)
+- Phase 64 run 41809802277 passed its six-quarter sample: XML issuerCik and filer CIK were distinct and both present in the master-index pair. Its 150/150 Form 144 and 76/76 Form 144/A unique-candidate matches were sample-specific, not a universal rule.
+- Phase 65 run 41814314002 parsed 1,177 XML documents across 14 quarters with zero fetch errors. All XML form types and CIK-pair checks reconciled. All core proposed-sale fields were present, numeric fields parsed, and approximate-sale dates parsed in 100% of the sample. Acquisition lots and prior realized sales are extracted separately from proposed-sale tranches.
+- Critical role finding: two unique current-candidate CIKs were XML filer-only matches, not issuer matches: JD (accession 0001970673-23-000004; issuer GigaCloud, filer/seller JD.com) and QCOM (0001104659-26-005774; issuer MNTN, filer/seller Qualcomm). One ambiguous AMT/ASTS pair was resolved by XML to ASTS as issuer and AMT as filer.
+- Form 144 unique-candidate sample: 698/700 issuer matches (99.714%) and 2 filer-only false positives. Form 144/A: 196/196 issuer matches. These deterministic/stratified sample rates are diagnostics, not population estimates.
+- The hosted run failed only because its gate incorrectly required every candidate CIK to be XML issuerCik. Phase 66 changes the gate to require complete XML role resolution, reports issuer matches separately, and excludes filer-only candidates from target issuer events.
+- Across 14 quarterly master indexes (2023Q2–2026Q3), 56,167 Form 144/144-A accessions were found. Current CIK-pair discovery produced 21,451 unique-candidate original filings, 196 unique-candidate amendments, and one ambiguous original. These are not yet confirmed issuer events.
+- Next: run corrected schema/role gate, then resolve every candidate-pair accession by primary XML issuerCik/filer CIK. Only then build an amendment-aware event panel. Historical F80 membership, 27 unmapped current tickers, historical CIK continuity, accepted timestamps, and economic value remain untested.
+- No forward returns or alpha tests. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.

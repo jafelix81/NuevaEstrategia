@@ -230,6 +230,46 @@ def audit_quarter(token, candidate_ciks, cik_to_tickers, workers):
     return census, sample, pair_rows
 
 
+def resolve_candidate_role(sample_stratum, identity, candidates):
+    """Resolve candidate roles without treating a filer-only hit as an issuer."""
+    candidate_set = set(candidates or [])
+    issuer = str(identity.get("xml_issuer_cik") or "")
+    filer = str(identity.get("xml_filer_cik") or "")
+    both_in_pair = bool(identity.get("both_xml_ciks_in_pair"))
+
+    if sample_stratum == "unique_candidate":
+        role = identity.get("unique_candidate_role") or "unresolved"
+        resolved = role in ("issuer", "filer") and both_in_pair
+        return {
+            "candidate_role_status": role,
+            "identity_resolved": resolved,
+            "candidate_is_issuer": role == "issuer",
+            "candidate_is_filer": role == "filer",
+            "candidate_is_filer_only": role == "filer",
+        }
+
+    if sample_stratum == "ambiguous":
+        issuer_match = bool(issuer and issuer in candidate_set)
+        filer_match = bool(filer and filer in candidate_set)
+        resolved = issuer_match and both_in_pair
+        return {
+            "candidate_role_status": "ambiguous_pair_issuer_resolved" if resolved else "ambiguous_pair_unresolved",
+            "identity_resolved": resolved,
+            "candidate_is_issuer": issuer_match,
+            "candidate_is_filer": filer_match,
+            "candidate_is_filer_only": filer_match and not issuer_match,
+        }
+
+    resolved = both_in_pair
+    return {
+        "candidate_role_status": "control_pair_concordant" if resolved else "control_pair_mismatch",
+        "identity_resolved": resolved,
+        "candidate_is_issuer": False,
+        "candidate_is_filer": False,
+        "candidate_is_filer_only": False,
+    }
+
+
 def audit_sample(rows, census_accessions, workers):
     details, sale_rows, acquisition_rows, past_sale_rows, errors = [], [], [], [], []
     with ThreadPoolExecutor(max_workers=workers) as pool:
@@ -252,12 +292,8 @@ def audit_sample(rows, census_accessions, workers):
 
             identity = classify_xml_identity(row, parsed)
             candidates = row.get("candidate_ciks_in_pair") or []
-            if row["sample_stratum"] == "unique_candidate":
-                identity_ok = identity["unique_candidate_role"] == "issuer"
-            elif row["sample_stratum"] == "ambiguous":
-                identity_ok = identity["xml_issuer_cik"] in candidates
-            else:
-                identity_ok = identity["both_xml_ciks_in_pair"]
+            role_info = resolve_candidate_role(row["sample_stratum"], identity, candidates)
+            identity_ok = role_info["identity_resolved"]
 
             sale_tranches = extract_sale_tranches(root)
             acquisition_lots = extract_acquisition_lots(root)
@@ -284,7 +320,9 @@ def audit_sample(rows, census_accessions, workers):
                 "xml_url": xml_url,
                 "xml_issuer_cik": identity["xml_issuer_cik"],
                 "xml_filer_cik": identity["xml_filer_cik"],
-                "identity_ok": identity_ok,
+                "identity_ok": identity_ok,  # backwards-compatible role-resolution alias
+                **role_info,
+                "xml_both_ciks_in_master_pair": identity["both_xml_ciks_in_pair"],
                 "xml_form_matches_index": identity["xml_form_matches_index"],
                 "issuer_name": parsed.get("issuer_name") or "",
                 "seller_name": parsed.get("seller_name") or "",
@@ -349,11 +387,24 @@ def summarize(details, errors, census):
     for form in FORMS:
         sub = [row for row in details if row["form"] == form]
         targets = [row for row in sub if row["sample_stratum"] in ("unique_candidate", "ambiguous")]
+        unique_targets = [row for row in targets if row["sample_stratum"] == "unique_candidate"]
+        ambiguous_targets = [row for row in targets if row["sample_stratum"] == "ambiguous"]
+        control_rows = [row for row in sub if row["sample_stratum"] == "control"]
+        role_statuses = sorted({row["candidate_role_status"] for row in targets})
         item = {
             "sample_rows": len(sub),
             "candidate_rows": len(targets),
-            "candidate_identity_rate": rate(targets, lambda row: row["identity_ok"]),
-            "control_pair_concordance": rate([row for row in sub if row["sample_stratum"] == "control"], lambda row: row["identity_ok"]),
+            "candidate_role_resolution_rate": rate(targets, lambda row: row["identity_resolved"]),
+            "candidate_issuer_match_rate": rate(targets, lambda row: row["candidate_is_issuer"]),
+            "unique_candidate_issuer_match_rate": rate(unique_targets, lambda row: row["candidate_is_issuer"]),
+            "unique_candidate_filer_only_count": sum(row["candidate_is_filer_only"] for row in unique_targets),
+            "ambiguous_pair_issuer_resolved_count": sum(row["candidate_is_issuer"] for row in ambiguous_targets),
+            "candidate_role_status_counts": {
+                status: sum(row["candidate_role_status"] == status for row in targets)
+                for status in role_statuses
+            },
+            "control_pair_concordance": rate(control_rows, lambda row: row["identity_resolved"]),
+            "xml_pair_concordance": rate(sub, lambda row: row["xml_both_ciks_in_master_pair"]),
             "xml_form_match_rate": rate(sub, lambda row: row["xml_form_matches_index"]),
             "core_field_presence": {},
             "numeric_parse_rates": {},
@@ -404,12 +455,14 @@ def summarize(details, errors, census):
     candidate_144a = sum(row["unique_candidate_144a"] for row in census)
     sampled_144 = by_form["144"]["candidate_rows"]
     sampled_144a = by_form["144/A"]["candidate_rows"]
-    identity_ok = all(
-        row["identity_ok"] for row in details
+    candidate_rows = [
+        row for row in details
         if row["sample_stratum"] in ("unique_candidate", "ambiguous")
-    )
+    ]
+    identity_ok = all(row["identity_resolved"] for row in candidate_rows)
     controls = [row for row in details if row["sample_stratum"] == "control"]
-    controls_ok = all(row["identity_ok"] for row in controls)
+    controls_ok = all(row["identity_resolved"] for row in controls)
+    pair_ok = all(row["xml_both_ciks_in_master_pair"] for row in details)
     xml_ok = all(row["xml_form_matches_index"] for row in details)
     core_144 = by_form["144"]["core_field_presence"]
     core_144a = by_form["144/A"]["core_field_presence"]
@@ -419,8 +472,9 @@ def summarize(details, errors, census):
         "at_least_100_candidate_form144_xml_rows": sampled_144 >= 100,
         "at_least_20_candidate_form144a_xml_rows": sampled_144a >= 20,
         "zero_xml_fetch_errors": len(errors) == 0,
-        "all_sampled_candidate_identities_confirmed": identity_ok,
+        "all_sampled_candidate_roles_resolved": identity_ok,
         "all_sampled_controls_confirm_master_pair": controls_ok,
+        "all_sampled_xml_ciks_in_master_pair": pair_ok,
         "all_sampled_xml_forms_match_index": xml_ok,
         "form144_core_fields_each_ge_95pct": core_required_144,
         "form144a_core_fields_each_ge_90pct": core_required_144a,
@@ -444,11 +498,12 @@ def summarize(details, errors, census):
         "economic_test_authorized": False,
         "forward_returns_used": False,
         "knowledge_date_rule": "Use first full trading-session close after SEC filing_date; never use approximate sale date or same-date close.",
-        "identity_rule": "Current CIK pair discovers candidates; primary XML issuerCik confirms issuer. Current mappings are not historical F80 membership.",
+        "identity_rule": "The master-index CIK pair is unlabelled. A unique current candidate CIK may be XML issuer or XML filer; only issuerCik is a target issuer. Filer-only matches are excluded. Ambiguous pairs are resolved only when XML issuerCik is in the candidate set. Both XML CIKs must reconcile to the pair.",
         "schema_rule": "securitiesInformation contains proposed-sale tranches; securitiesToBeSold contains acquisition-lot history; securitiesSoldInPast3Months contains realized prior sales. Never mix these three groups.",
         "limitations": [
             "Deterministic stratified sample is a schema diagnostic, not a population-random field-completeness estimate.",
             "Current ticker/CIK mapping does not resolve historical issuer predecessors, delistings or F80 membership.",
+            "A current candidate CIK in the master-index pair can be the filer rather than the issuer; XML role resolution is mandatory. Two filer-only false positives were found in the expanded sample.",
             "PreviousAccessionNumber is a prior-filing reference, not necessarily the immediately preceding amendment.",
             "Accepted timestamps are not collected in this phase.",
             "No forward returns or alpha tests are performed.",

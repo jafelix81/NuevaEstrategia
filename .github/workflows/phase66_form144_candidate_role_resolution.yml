@@ -1,0 +1,42 @@
+name: Phase 66 - Form 144 candidate issuer-role resolution gate
+
+on:
+  push:
+    branches: [phase66-form144-candidate-role-resolution]
+    paths:
+      - 'research/phase65_form144_event_field_coverage_audit.py'
+      - 'research/test_phase65_form144_event_field_coverage_audit.py'
+      - '.github/workflows/phase66_form144_candidate_role_resolution.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: phase66-form144-candidate-role-resolution
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run Phase 50 parser regression tests
+        run: python -m unittest research.test_phase50_form144_global_index_pilot -v
+      - name: Run Phase 64 identity tests
+        run: python -m unittest research.test_phase64_form144_master_pair_cross_quarter_audit -v
+      - name: Run Phase 65 event-field and candidate-role tests
+        run: python -m unittest research.test_phase65_form144_event_field_coverage_audit -v
+      - name: Audit Form 144 event-field coverage across 14 quarters
+        run: python -u -m research.phase65_form144_event_field_coverage_audit --workers 5
+      - name: Upload Phase 66 outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase66-form144-candidate-role-resolution
+          path: phase65_form144_field_coverage/
+          if-no-files-found: warn
