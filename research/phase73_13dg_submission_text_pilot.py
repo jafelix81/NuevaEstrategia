@@ -44,6 +44,42 @@ def complete_submission_url(archive_cik: str, accession: str) -> str:
     )
 
 
+def compare_filer_identity(xml_filer_cik: str, header_filer_cik: str, accession_prefix_cik: str) -> dict:
+    """Separate the FILED BY identity from the accession submitter account."""
+    xml_filer, header_filer = normalize_cik(xml_filer_cik), normalize_cik(header_filer_cik)
+    accession_prefix = normalize_cik(accession_prefix_cik)
+    return {
+        "xml_filer_matches_header_filed_by": bool(xml_filer and header_filer and xml_filer == header_filer),
+        "header_filer_matches_accession_prefix": bool(header_filer and header_filer == accession_prefix),
+    }
+
+
+def compare_filing_dates(source_date: str, header_date: str, submission_date: str) -> dict:
+    source, header, submission = str(source_date or ""), str(header_date or ""), str(submission_date or "")
+    source_header_match = bool(source and header and source == header)
+    submission_available = bool(submission)
+    submission_match = bool(submission and header and submission == header) if submission_available else None
+    return {
+        "source_header_filing_date_match": source_header_match,
+        "submission_filing_date_available": submission_available,
+        "submission_filing_date_match": submission_match,
+        "filing_date_match": bool(source_header_match and submission_match is not False),
+    }
+
+
+def compare_acceptance_datetimes(header_value: str, submission_value: str) -> dict:
+    header_utc = normalize_acceptance_datetime(header_value, source_timezone="America/New_York")
+    submission_utc = normalize_acceptance_datetime(submission_value)
+    available = bool(submission_utc)
+    match = bool(header_utc and header_utc == submission_utc) if available else None
+    return {
+        "header_acceptance_datetime_utc": header_utc,
+        "submission_acceptance_datetime_utc": submission_utc,
+        "submission_acceptance_available": available,
+        "acceptance_datetime_match": match,
+    }
+
+
 def _person_rows(source: dict, parsed: dict, submission: dict) -> list[dict]:
     rows = []
     for index, person in enumerate(parsed.get("reporting_persons", []), 1):
@@ -146,16 +182,18 @@ def run_pilot(
             submission_date = str(submission.get("filing_date", ""))
             header_acceptance = str(header.get("acceptance_datetime", ""))
             submission_acceptance = str(submission.get("acceptance_datetime", ""))
-            header_acceptance_normalized = normalize_acceptance_datetime(
-                header_acceptance, source_timezone="America/New_York"
-            )
-            submission_acceptance_normalized = normalize_acceptance_datetime(submission_acceptance)
+            filer_identity = compare_filer_identity(xml_filer, header_filer, accession_filer_cik)
+            date_identity = compare_filing_dates(row.get("filing_date", ""), header_date, submission_date)
+            acceptance_identity = compare_acceptance_datetimes(header_acceptance, submission_acceptance)
+            legacy_source_cik = normalize_cik(row.get("issuer_cik", ""))
             header_accession = normalize_accession(header.get("accession", ""))
             accession_match = bool(header_accession and header_accession == key)
             filing_rows.append({
                 "ticker": row.get("ticker", ""),
-                "legacy_source_cik": normalize_cik(row.get("issuer_cik", "")),
-                "legacy_source_cik_matches_filer": normalize_cik(row.get("issuer_cik", "")) == accession_filer_cik,
+                "legacy_source_cik": legacy_source_cik,
+                "legacy_source_cik_matches_filer": legacy_source_cik == header_filer,
+                "legacy_source_cik_matches_subject": legacy_source_cik == header_subject,
+                "legacy_source_cik_matches_accession_prefix": legacy_source_cik == accession_filer_cik,
                 "issuer_cik_xml": xml_issuer,
                 "header_subject_cik": header_subject,
                 "issuer_cik_match": bool(xml_issuer and xml_issuer == header_subject),
@@ -164,7 +202,8 @@ def run_pilot(
                 "filer_cik_xml": xml_filer,
                 "header_filer_cik": header_filer,
                 "accession_prefix_cik": accession_filer_cik,
-                "filer_cik_match": bool(xml_filer and xml_filer == header_filer == accession_filer_cik),
+                "filer_cik_match": filer_identity["xml_filer_matches_header_filed_by"],
+                "header_filer_matches_accession_prefix": filer_identity["header_filer_matches_accession_prefix"],
                 "header_filer_name": header.get("filer_name", ""),
                 "form_source": row.get("form", ""),
                 "submission_type_xml": xml_form,
@@ -173,15 +212,16 @@ def run_pilot(
                 "filing_date": row.get("filing_date", ""),
                 "header_filing_date": header_date,
                 "submission_filing_date": submission_date,
-                "filing_date_match": bool(row.get("filing_date", "") == header_date == submission_date),
-                "knowledge_date": row.get("filing_date", ""),
-                "knowledge_date_rule": "SEC submissions filingDate; date-level conservative; XML eventDate is descriptive only",
+                **date_identity,
+                "knowledge_date": header_date or row.get("filing_date", ""),
+                "knowledge_date_rule": "SEC header FILED AS OF DATE; date-level conservative; execute no earlier than next complete session; acceptance time retained separately; XML eventDate is descriptive only",
                 "accepted_datetime": submission_acceptance,
                 "header_acceptance_datetime": header_acceptance,
-                "acceptance_datetime_normalized": header_acceptance_normalized,
+                "acceptance_datetime_normalized": acceptance_identity["header_acceptance_datetime_utc"],
                 "submission_acceptance_datetime_raw": submission_acceptance,
-                "submission_acceptance_datetime_normalized": submission_acceptance_normalized,
-                "acceptance_datetime_match": bool(header_acceptance_normalized and header_acceptance_normalized == submission_acceptance_normalized),
+                "submission_acceptance_datetime_normalized": acceptance_identity["submission_acceptance_datetime_utc"],
+                "acceptance_api_available": acceptance_identity["submission_acceptance_available"],
+                "acceptance_datetime_match": acceptance_identity["acceptance_datetime_match"],
                 "header_accession": header.get("accession", ""),
                 "accession_match": accession_match,
                 "accession": accession,
@@ -247,11 +287,19 @@ def run_pilot(
     issuer_rate = float(filing_frame["issuer_cik_match"].astype(str).str.lower().eq("true").mean()) if not filing_frame.empty else 0.0
     accession_rate = float(filing_frame["accession_match"].astype(str).str.lower().eq("true").mean()) if not filing_frame.empty else 0.0
     filer_rate = float(filing_frame["filer_cik_match"].astype(str).str.lower().eq("true").mean()) if not filing_frame.empty else 0.0
+    filer_prefix_rate = float(filing_frame["header_filer_matches_accession_prefix"].astype(str).str.lower().eq("true").mean()) if not filing_frame.empty else 0.0
     form_rate = float(filing_frame["form_match"].astype(str).str.lower().eq("true").mean()) if not filing_frame.empty else 0.0
     filing_date_rate = float(filing_frame["filing_date_match"].astype(str).str.lower().eq("true").mean()) if not filing_frame.empty else 0.0
+    source_header_date_rate = float(filing_frame["source_header_filing_date_match"].astype(str).str.lower().eq("true").mean()) if not filing_frame.empty else 0.0
+    submission_date_rows = filing_frame[filing_frame["submission_filing_date_available"].astype(str).str.lower().eq("true")] if not filing_frame.empty else filing_frame
+    submission_date_rate = float(submission_date_rows["submission_filing_date_match"].astype(str).str.lower().eq("true").mean()) if len(submission_date_rows) else 0.0
     acceptance_present = int(filing_frame["header_acceptance_datetime"].astype(str).ne("").sum()) if not filing_frame.empty else 0
-    acceptance_match = int(filing_frame["acceptance_datetime_match"].astype(str).str.lower().eq("true").sum()) if not filing_frame.empty else 0
-    acceptance_rate = acceptance_match / acceptance_present if acceptance_present else 0.0
+    acceptance_api_rows = filing_frame[filing_frame["acceptance_api_available"].astype(str).str.lower().eq("true")] if not filing_frame.empty else filing_frame
+    acceptance_rate = float(acceptance_api_rows["acceptance_datetime_match"].astype(str).str.lower().eq("true").mean()) if len(acceptance_api_rows) else 0.0
+    acceptance_api_coverage = len(acceptance_api_rows) / len(filing_frame) if not filing_frame.empty else 0.0
+    source_filer_rate = float(filing_frame["legacy_source_cik_matches_filer"].astype(str).str.lower().eq("true").mean()) if not filing_frame.empty else 0.0
+    source_subject_rate = float(filing_frame["legacy_source_cik_matches_subject"].astype(str).str.lower().eq("true").mean()) if not filing_frame.empty else 0.0
+    source_prefix_rate = float(filing_frame["legacy_source_cik_matches_accession_prefix"].astype(str).str.lower().eq("true").mean()) if not filing_frame.empty else 0.0
     people_rate = float((pd.to_numeric(filing_frame["reporting_person_count"], errors="coerce").fillna(0) > 0).mean()) if not filing_frame.empty else 0.0
     parse_rate = len(filing_frame) / len(sample) if len(sample) else 0.0
     cross_issuer = sum(1 for r in lineage_rows if r.get("lineage_status") == "predecessor_in_panel_cross_issuer")
@@ -259,10 +307,12 @@ def run_pilot(
         "xml_parse_rate_ge_99_5pct": parse_rate >= 0.995,
         "xml_issuer_matches_sec_header_subject_ge_99_5pct": issuer_rate >= 0.995,
         "xml_accession_matches_sec_header_ge_99_5pct": accession_rate >= 0.995,
-        "xml_filer_matches_sec_header_and_accession_ge_99_5pct": filer_rate >= 0.995,
+        "xml_filer_matches_sec_header_filed_by_ge_99_5pct": filer_rate >= 0.995,
         "form_concordance_ge_99_5pct": form_rate >= 0.995,
-        "filing_date_concordance_ge_99_5pct": filing_date_rate >= 0.995,
-        "acceptance_datetime_concordance_ge_99_5pct_when_present": acceptance_rate >= 0.995 if acceptance_present else False,
+        "source_filing_date_matches_sec_header_ge_99_5pct": source_header_date_rate >= 0.995,
+        "submission_filing_date_concordance_ge_99_5pct_when_available": submission_date_rate >= 0.995 if len(submission_date_rows) else False,
+        "header_acceptance_datetime_present_ge_99_5pct": acceptance_present / len(filing_frame) >= 0.995 if len(filing_frame) else False,
+        "acceptance_datetime_concordance_ge_99_5pct_when_api_available": acceptance_rate >= 0.995 if len(acceptance_api_rows) else False,
         "reporting_person_count_positive_ge_99_5pct": people_rate >= 0.995,
         "no_cross_issuer_predecessor_edges": cross_issuer == 0,
     }
@@ -282,13 +332,21 @@ def run_pilot(
         "reporting_person_rows": int(len(person_frame)),
         "issuer_xml_vs_sec_header_subject_rate": issuer_rate,
         "accession_vs_sec_header_rate": accession_rate,
-        "filer_xml_vs_sec_header_and_accession_rate": filer_rate,
+        "filer_xml_vs_sec_header_filed_by_rate": filer_rate,
+        "header_filer_vs_accession_prefix_rate": filer_prefix_rate,
         "form_concordance_rate": form_rate,
         "filing_date_concordance_rate": filing_date_rate,
-        "acceptance_datetime_rows": acceptance_present,
+        "source_header_filing_date_concordance_rate": source_header_date_rate,
+        "submission_filing_date_concordance_rate_when_available": submission_date_rate,
+        "submission_filing_date_comparison_rows": int(len(submission_date_rows)),
+        "acceptance_datetime_header_rows": acceptance_present,
+        "acceptance_datetime_api_comparison_rows": int(len(acceptance_api_rows)),
+        "acceptance_datetime_api_coverage_rate": acceptance_api_coverage,
         "acceptance_datetime_concordance_rate_when_present": acceptance_rate,
         "reporting_person_count_positive_rate": people_rate,
-        "legacy_source_cik_matches_filer_rate": float(filing_frame["legacy_source_cik_matches_filer"].astype(str).str.lower().eq("true").mean()) if not filing_frame.empty else 0.0,
+        "legacy_source_cik_matches_filer_rate": source_filer_rate,
+        "legacy_source_cik_matches_subject_rate": source_subject_rate,
+        "legacy_source_cik_matches_accession_prefix_rate": source_prefix_rate,
         "submission_index_matches": int(len(submission_index)),
         "submission_index_errors": int(len(submission_errors)),
         "amendments": int(filing_frame["is_amendment"].astype(str).str.lower().eq("true").sum()) if not filing_frame.empty else 0,
