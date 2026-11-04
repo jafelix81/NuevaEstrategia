@@ -527,3 +527,11 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - Updated `research/PHASE71_ORIGINAL_UNIVERSE_RULE_TRACE_2026-11-04.md` with this correction. Do not reverse-engineer selection thresholds from returns; keep a separate PIT broad-universe benchmark if the original rule cannot be recovered.
 - Phase 67 latest run 41828179718 is SUCCESS with artifact 13334881835. Phase 69 incremental scan run 41862496090 and its unit-test run 41862477486 were queued after the pinned-baseline workflow commit; do not start another scan while either remains active.
 - No forward returns or alpha tests; F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## 2026-11-04 — Phase 72 SEC 13D/13G structured XML parser
+- Discovered that the SEC's mandatory schedule-specific XML requirement began 2024-12-18 (voluntary from 2023-12-18). The existing Phase 35 artifact contains 8,294 `primary_doc.xml` filings (40.91% of 20,265), including 88 voluntary pre-mandate filings and 8,206 on/after the mandate date.
+- Directly audited the old flattened-regex fields on the 8,206 mandatory-era XML rows: reporting_person only 435/8,206 (5.30%), all 435 with a trailing numeric `2`; reporting_person_type 1,254/8,206 (15.28%), with 943/1,254 (75.20%) invalid values. This makes the current reporting-person/group normalization unusable as parsed, despite high numeric field presence.
+- Added schema-aware parser `research/phase72_13dg_structured_xml_parser.py`. It handles distinct 13D vs 13G tags, multiple reporting persons, explicit no-CIK flags, group membership flags, repeated type codes, and exact `previousAccessionNumber` amendment edges. It never substitutes filer/accession-prefix CIK for a missing reporting-person CIK and does not infer KnowledgeDate from eventDate.
+- Added five regression tests and a tests-only Actions workflow; no SEC requests are made by this workflow. The full 8,294-document parse is held until the Phase 69 incremental Form 144 scan finishes, to avoid concurrent SEC request load.
+- Structured XML feasibility PASS; legacy HTML/group lineage and full historical universe remain open. No forward returns or alpha tests; `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
