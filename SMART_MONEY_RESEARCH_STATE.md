@@ -1,6 +1,6 @@
 # Smart Money Research State
 
-Updated: 2026-11-04 (Phase 70 PIT security-master feasibility audit)
+Updated: 2026-11-04 (Phase 71 universe provenance; Phase 67 run reconciled; Phase 69 scan prepared)
 
 ## Frozen control
 - `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
@@ -509,3 +509,12 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 
 
 - The Phase 9D reference is absent not only from the default/Phase 70 trees but also from all 104 current branch names and the matching Library search results. The Phase 9 file is the only accessible artifact that contains the 335 list and points to Phase 9D.
+
+
+## 2026-11-04 — Phase 67 latest rerun reconciled; Phase 69 data scan released
+- Refreshed Actions runs/jobs/artifacts/branches before starting new work. No workflow is currently active. Phase 67 run 41828179718 completed SUCCESS (job 126605281463) at 2026-11-04T14:46:06Z and uploaded artifact 13334881835 (14.66 MB; SHA-256 digest 939d5564b14ce0f41df23a2c9ab681977cfde141cd0ea2b3c1213b1c5bfaf613). This resolves the stale "in_progress" entries above.
+- Downloaded and inspected the actual artifact. Summary: 56,167 broad-index accessions; 21,648 candidate rows; 21,634 issuer-event rows (21,438 Form 144 + 196 Form 144/A); 14 filer-only false positives excluded; zero unresolved, XML errors or duplicate accessions; 280/280 controls; XML pair/form/role concordance 100%. The artifact still uses the pre-Phase-68 309-CIK set and maps 308/335 tickers, leaving the 27 known fund/ETF names unresolved. It is an issuer-role census, not PIT security membership or alpha evidence.
+- Recomputed tranche-date diagnostics directly from the full CSV: across 21,863 proposed-sale tranches, 568 approximate sale dates precede filing date, 20,781 equal filing date and 514 follow it. Approximate sale date remains distinct from public KnowledgeDate. Original Form 144 rows include 1 zero aggregate-value record; amendments include 2 zero-unit/zero-value records. Preserve these as invalid/zero-size observations; do not impute.
+- Phase 69 unit-test run 41847627672 passed all 8 tests but did not perform SEC requests. Updated the Phase 69 script to pin the latest successful baseline (run 41828179718 / artifact 13334881835), corrected the stale spec and added a dedicated Actions data-scan workflow. The scan is incremental: it requests XML only for accessions whose quarterly master-index CIK pair contains one of the ten new fund registrants, then reclassifies overlaps against all 319 current CIKs.
+- Phase 71 remains a material blocker: the original 335-name selection rule / Phase 9D artifact was not found. Fixed-335 results remain conditional diagnostics; do not claim broad survivorship-bias-free evidence. Do not reverse-engineer eligibility thresholds from historical returns.
+- No forward returns, alpha tests, purchases or strategy changes. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
