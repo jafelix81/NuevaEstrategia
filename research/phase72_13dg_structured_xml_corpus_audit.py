@@ -293,6 +293,33 @@ def _write_csv(path: Path, rows: list[dict], columns: list[str] | None = None) -
     frame.to_csv(path, index=False)
 
 
+def stratified_sample(xml: pd.DataFrame, limit: int | None) -> pd.DataFrame:
+    if limit is None or limit >= len(xml):
+        return xml.copy()
+    frame = xml.copy()
+    frame["_form_family"] = frame["form"].str.upper().apply(lambda x: "13D" if "13D" in x else ("13G" if "13G" in x else "OTHER"))
+    frame["_is_amendment"] = frame["form"].str.upper().str.endswith("/A")
+    frame["_period"] = frame["filing_date"].apply(lambda x: "voluntary_xml_pre_mandate" if str(x) < "2024-12-18" else "mandatory_era")
+    groups = [g for _, g in frame.groupby(["_form_family", "_is_amendment", "_period"], sort=True)]
+    quota = max(1, limit // max(1, len(groups)))
+    selected = []
+    remaining = limit
+    for group in groups:
+        if remaining <= 0:
+            break
+        n = min(quota, len(group), remaining)
+        if n:
+            selected.append(group.sample(n=n, random_state=42))
+            remaining -= n
+    if remaining > 0:
+        selected_keys = {str(x) for g in selected for x in g["accession"].tolist()}
+        rest = frame[~frame["accession"].astype(str).isin(selected_keys)]
+        if not rest.empty:
+            selected.append(rest.sample(n=min(remaining, len(rest)), random_state=43))
+    result = pd.concat(selected, ignore_index=True) if selected else frame.head(0)
+    return result.drop(columns=["_form_family", "_is_amendment", "_period"]).sort_values("accession").reset_index(drop=True)
+
+
 def run_audit(
     input_csv: Path,
     outdir: Path,
@@ -300,6 +327,7 @@ def run_audit(
     max_retries: int = 5,
     checkpoint_every: int = 100,
     resume: bool = True,
+    limit: int | None = None,
 ) -> dict:
     outdir.mkdir(parents=True, exist_ok=True)
     started = datetime.now(timezone.utc).isoformat()
@@ -312,6 +340,8 @@ def run_audit(
     xml = source[source["primary_document"].str.lower().str.endswith(".xml")].copy()
     xml = xml[xml["primary_document"].str.lower().str.contains("primary_doc\\.xml", regex=True)].copy()
     xml = xml.drop_duplicates(subset=["accession"]).reset_index(drop=True)
+    xml_rows_available = len(xml)
+    xml = stratified_sample(xml, limit)
     if xml.empty:
         raise RuntimeError("no structured primary_doc.xml rows found in input artifact")
 
@@ -482,7 +512,10 @@ def run_audit(
         "source_artifact_id": 13212292743,
         "source_artifact_sha256": "1ba55129f8a2f2365b37e20f557759fbccd2ab2f22781f03930065c11f16337f",
         "source_input_rows": int(len(source)),
+        "xml_rows_available": int(xml_rows_available),
         "xml_rows_expected": total_n,
+        "sample_limit": limit,
+        "sample_strata_counts": (xml.assign(form_family=xml["form"].str.upper().apply(lambda x: "13D" if "13D" in x else ("13G" if "13G" in x else "OTHER")), is_amendment=xml["form"].str.upper().str.endswith("/A"), period=xml["filing_date"].apply(lambda x: "voluntary_xml_pre_mandate" if str(x) < "2024-12-18" else "mandatory_era")).groupby(["form_family", "is_amendment", "period"]).size().reset_index(name="rows").to_dict("records")) if not xml.empty else [],
         "parsed_filings": parsed_n,
         "parse_errors": int(total_n - parsed_n),
         "reporting_person_rows": int(len(person_frame)),
@@ -532,6 +565,7 @@ def main():
     parser.add_argument("--max-retries", type=int, default=5)
     parser.add_argument("--checkpoint-every", type=int, default=100)
     parser.add_argument("--no-resume", action="store_true")
+    parser.add_argument("--limit", type=int, default=None, help="Deterministic stratified sample size; omit for full corpus")
     args = parser.parse_args()
     summary = run_audit(
         input_csv=args.input_csv,
@@ -540,6 +574,7 @@ def main():
         max_retries=args.max_retries,
         checkpoint_every=args.checkpoint_every,
         resume=not args.no_resume,
+        limit=args.limit,
     )
     if summary["status"] != "COMPLETE" or summary["data_gate"] != "PASS":
         raise SystemExit(2)
