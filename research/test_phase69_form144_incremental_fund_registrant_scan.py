@@ -2,11 +2,13 @@ import unittest
 
 from research.phase69_form144_incremental_fund_registrant_scan import (
     NEW_FUND_REGISTRANT_CIKS,
+    EXPECTED_LEGACY_UNRESOLVED_TICKERS,
     audit_overlap,
     derive_new_ciks,
     merge_events,
     merge_rows,
     validate_base,
+    validate_legacy_snapshot,
 )
 
 
@@ -31,6 +33,16 @@ class Phase69IncrementalFundRegistrantTests(unittest.TestCase):
         wrong_legacy.add("0009999999")
         with self.assertRaises(ValueError):
             derive_new_ciks(expanded, wrong_legacy)
+
+
+    def test_legacy_snapshot_requires_exact_unresolved_names(self):
+        legacy_map = {f"{i:010d}": ["T"] for i in range(309)}
+        validate_legacy_snapshot(legacy_map, sorted(EXPECTED_LEGACY_UNRESOLVED_TICKERS), [])
+        wrong = set(EXPECTED_LEGACY_UNRESOLVED_TICKERS)
+        wrong.remove("ARKF")
+        wrong.add("OTHER")
+        with self.assertRaises(ValueError):
+            validate_legacy_snapshot(legacy_map, sorted(wrong), [])
 
     def test_merge_replaces_overlap_and_adds_new_accession(self):
         base = [
