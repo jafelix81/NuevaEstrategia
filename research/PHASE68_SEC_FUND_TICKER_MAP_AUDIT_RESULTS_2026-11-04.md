@@ -29,7 +29,7 @@ Six CIKs map to multiple tickers:
 - 0001064642: KRE, XBI.
 - 0001137360: OIH, SMH.
 - 0001064641: XLB, XLE, XLF, XLI, XLK, XLP, XLRE, XLU, XLV, XLY.
-- 0001064640: Z, ZG.
+- 0001617640: Z, ZG.
 
 The output reports six shared CIKs; two tickers have multiple CIK candidates in the source union. Use the artifact CSV as the exact row-level source of truth.
 
