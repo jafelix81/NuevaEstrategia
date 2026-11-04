@@ -101,3 +101,9 @@ Form 144 remains a selective proposed Rule 144 sale-order notice, not proof of e
 No forward returns, feature selection or alpha tests are authorized in Phase 69. The historical security-master/universe PIT gate from Phase 70 remains a hard blocker before broad alpha promotion.
 
 \`F80_TOP20_PARTIAL50_BASELINE_C20\` remains frozen.
+
+## 2026-11-04 — execution gate reconciliation
+
+The previously active duplicate Phase 67 run 41828179718 has now completed successfully (artifact 13334881835; job 126605281463). The exact baseline required by this script remains run 41828139052 / artifact 13327123059; that artifact was downloaded and independently rechecked: `data_gate=PASS`, 21,648 candidate rows, 21,634 issuer events, 14 filer-only false positives, zero unresolved rows and zero XML errors. Its SHA-256 is the one recorded above.
+
+A guarded Phase 69 workflow is now prepared. It downloads that exact cross-run artifact by run ID, runs the Phase 50/64/65/67/69 regression suites, and then performs the ten-CIK incremental scan. It has not been triggered yet; the corrected Phase 82 global-index run is being allowed to finish first to avoid overlapping SEC retrieval work. No Phase 69 data or returns have been generated.
