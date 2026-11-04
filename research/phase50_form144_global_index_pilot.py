@@ -564,10 +564,14 @@ def select_xml_sample(index_rows, target_ciks, sample_per_form=25):
     selected = []
     for form in ("144", "144/A"):
         target_pool = sorted(
-            [row for row in target if row.get("form") == form], key=stable_key
+            [row for row in target
+             if (row.get("master_index_form") or row.get("form")) == form],
+            key=stable_key,
         )
         non_target_pool = sorted(
-            [row for row in non_target if row.get("form") == form], key=stable_key
+            [row for row in non_target
+             if (row.get("master_index_form") or row.get("form")) == form],
+            key=stable_key,
         )
         selected.extend(target_pool[:sample_per_form])
         selected.extend(non_target_pool[:sample_per_form])
