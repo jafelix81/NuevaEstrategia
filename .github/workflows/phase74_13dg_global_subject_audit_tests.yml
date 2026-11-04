@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - phase74-13dg-global-subject-discovery-audit
+      - phase76-global-13dg-archive-path-correction
     paths:
       - research/phase74_13dg_global_subject_audit.py
       - research/test_phase74_13dg_global_subject_audit.py
