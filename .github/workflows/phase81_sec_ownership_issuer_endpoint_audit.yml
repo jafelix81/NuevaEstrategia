@@ -1,0 +1,43 @@
+name: Phase 81 - SEC ownership issuer endpoint audit
+
+on:
+  push:
+    branches:
+      - phase81-sec-ownership-issuer-endpoint-audit
+    paths:
+      - research/phase81_sec_ownership_issuer_endpoint_audit.py
+      - research/test_phase81_sec_ownership_issuer_endpoint_audit.py
+      - research/phase81_sec_ownership_issuer_endpoint_trigger.txt
+      - .github/workflows/phase81_sec_ownership_issuer_endpoint_audit.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sec-public-data-research
+  cancel-in-progress: false
+
+jobs:
+  tests_and_guarded_audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install test dependency
+        run: python -m pip install requests
+      - name: Run Phase 81 offline tests
+        run: python -m unittest research.test_phase81_sec_ownership_issuer_endpoint_audit -v
+      - name: Compile Phase 81 module
+        run: python -m py_compile research/phase81_sec_ownership_issuer_endpoint_audit.py
+      - name: Run bounded SEC ownership endpoint audit only on explicit trigger commit
+        if: contains(github.event.head_commit.message, 'Trigger Phase 81 bounded SEC ownership issuer endpoint audit')
+        run: python -u -m research.phase81_sec_ownership_issuer_endpoint_audit --outdir phase81_sec_ownership_issuer_endpoint_audit --sleep-seconds 0.8
+      - name: Upload Phase 81 audit outputs
+        if: always() && contains(github.event.head_commit.message, 'Trigger Phase 81 bounded SEC ownership issuer endpoint audit')
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase81-sec-ownership-issuer-endpoint-audit
+          path: phase81_sec_ownership_issuer_endpoint_audit/
+          retention-days: 90
