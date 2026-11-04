@@ -1,7 +1,7 @@
 # Phase 82 — Global SEC 13D/13G master-index coverage audit
 
 **Date:** 2026-11-04  
-**Branch:** `phase82-13dg-global-index-coverage-audit`  
+**Branch:** phase82-13dg-global-index-coverage-audit  
 **Scope:** global index-only feasibility; no complete-submission crawl and no economic test.
 
 ## Why this phase is necessary
@@ -10,15 +10,23 @@ Phase 35's original 20,265-row artifact is filer-side retrieval from CIKs associ
 
 Phase 74 already contains a global master-index parser. Phase 82 expands its index-only feasibility window to every completed quarter from **2016Q1 through 2026Q3** (43 quarters). The incomplete current quarter, 2026Q4, is excluded.
 
+## Frozen current-universe candidate CIK input
+
+The Phase 68 hosted artifact 13321546076 contains the current 335-row ticker mapping (ticker_mapping.csv): 335/335 tickers mapped, 319 distinct candidate CIKs, six registrant CIKs shared by multiple tickers, and two tickers with multiple CIK candidates. Phase 82 freezes the 319 distinct values extracted from that CSV's ciks column in:
+
+- research/phase82_current_candidate_ciks.csv
+
+This is a candidate-locator crosswalk only. It is not historical PIT identity, does not resolve fund series/class security identity, and must not be used as a tradable-security master. The current 335-name universe's original eligibility rule/membership history remains unresolved (Phase 71).
+
 ## Bounded retrieval plan
 
-- Exactly 43 quarterly SEC master-index files: `/Archives/edgar/full-index/{year}/QTR{q}/master.idx`.
+- Exactly 43 quarterly SEC master-index files: /Archives/edgar/full-index/{year}/QTR{q}/master.idx.
 - No filing-level .txt, XML, HTML or exhibit downloads.
 - Parse only SC 13D, SC 13D/A, SC 13G and SC 13G/A.
 - Group duplicate master-index rows by accession while preserving all master-index CIKs/names, archive-path CIKs, forms, filing dates and filenames separately.
-- Preserve each raw quarterly index in the artifact under `raw_master_indexes/`.
+- Preserve each raw quarterly index in the artifact under raw_master_indexes/.
 - Record URL, HTTP status, content type, byte count, retrieval timestamp (UTC) and SHA-256 for every quarter.
-- Emit quarterly and form-family counts, unique CIK counts, duplicate accessions, malformed/metadata-conflict records, and a deterministic pilot manifest.
+- Emit quarterly and form-family counts, unique CIK counts, duplicate accessions, malformed/metadata-conflict records, candidate CIK overlap and a deterministic pilot manifest.
 
 The SEC request throttle is 0.8 seconds with the existing bounded retry policy. The job is guarded by an explicit commit-message trigger so code/documentation pushes run tests only.
 
@@ -35,7 +43,7 @@ A failure is archived with exact quarters and errors; no automatic retries or ho
 
 ## What a pass would and would not establish
 
-A pass establishes the size and basic reproducibility of the global 13D/13G accession population for 2016Q1–2026Q3. It does **not** establish that the master-index CIK or archive-path CIK is the subject issuer. The following remain separate identities:
+A pass establishes the size and basic reproducibility of the global 13D/13G accession population for 2016Q1–2026Q3. Candidate overlap against the 319 current CIKs is only a locator diagnostic. It does **not** establish that the master-index CIK or archive-path CIK is the subject issuer. The following remain separate identities:
 
 - master-index CIK / company name;
 - archive-path CIK;
@@ -50,12 +58,12 @@ No CIK role may be inferred from another.
 
 ## Next gate, only if Gate A passes
 
-1. Join the current 335-name CIK map (including fund registrant mappings) as a *candidate locator only*; retain the known limitations around fund series/class identity.
-2. Select a deterministic stratified sample across 13D/13D-A/13G/13G-A, original/amendment, timing regime, candidate/control/ambiguous identity and legacy HTML/structured XML.
+1. Use the 319 current CIKs to stratify candidate/control/ambiguous index rows, but do not treat a CIK hit as subject identity.
+2. Select a deterministic sample across 13D/13D-A/13G/13G-A, original/amendment, timing regime, candidate/control/ambiguous identity and legacy HTML/structured XML.
 3. Download only the sample's complete-submission text and verify SEC header subject/filer, accession, form/date, and XML issuer/filer roles.
 4. Measure candidate-index recall and filer-only false positives. Do not run the full global document corpus until these gates pass.
 5. Reconstruct historical F80 security identity/membership separately; Phase 71 found that the original 335-name eligibility rule and dated membership ledger are not documented in the repository.
 
 ## Economic boundary
 
-No return data, forward returns, signal construction, alpha tests, feature tuning, production changes, or changes to `F80_TOP20_PARTIAL50_BASELINE_C20` are authorized. Even a successful global index and identity audit is a data-feasibility result, not evidence of informed trading or predictive value.
+No return data, forward returns, signal construction, alpha tests, feature tuning, production changes, or changes to F80_TOP20_PARTIAL50_BASELINE_C20 are authorized. Even a successful global index and identity audit is a data-feasibility result, not evidence of informed trading or predictive value.
