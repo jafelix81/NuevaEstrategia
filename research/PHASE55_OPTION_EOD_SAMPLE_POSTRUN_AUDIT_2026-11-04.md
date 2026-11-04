@@ -2,9 +2,9 @@
 Date: 2026-11-04
 
 ## Execution
-- Initial run: [41762853231](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41762853231).
-- Job: 126354308966. Unit tests passed; sample download and parsing completed, but the run exited nonzero because the first schema gate incorrectly required 70% of the 335-ticker universe in a deliberately limited demonstration sample.
-- Artifact: 13291312151 — `phase55-option-eod-summary-sample`.
+- Initial run: [41762853231](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41762853231) exposed an overly strict sample-coverage gate.
+- Corrected canonical run: [41763011186](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41763011186), job 126354812938 — success; artifact 13290668468 — `phase55-option-eod-summary-sample`.
+- Parser tests and corrected base-schema/Calcs gates: PASS. The 335-ticker coverage gate is explicitly not tested by this four-underlying demonstration sample.
 - The sample contains two product variants: `no_cgi_subscription` and `cgi_or_historical`. Both carry the same 2023-08-25 sample option universe.
 
 ## Actual sample facts
@@ -34,7 +34,7 @@ The current Option EOD product page states historical availability from January 
 
 ## Decision
 
-- Schema: PASS after removing the inappropriate sample-coverage gate; the corrected workflow is running.
+- Schema: PASS in corrected run 41763011186.
 - Calcs/IV: PASS for field presence, but valid-IV rate must exclude zero/invalid rows.
 - Universe coverage: NOT TESTED.
 - Historical depth: documented, but exact floor needs confirmation.
