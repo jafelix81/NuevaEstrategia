@@ -590,3 +590,5 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - 13D revised deadlines apply from 2024-02-05; 13G revised deadlines from 2024-09-30; structured XML mandatory from 2024-12-18 (voluntary from 2023-12-18).
 - Carry filer rule designation (13d-1(b)/(c)/(d)), form family, rule regime and XML regime separately. Public KnowledgeDate remains filing/acceptance, never XML eventDate or quarter-end.
 - Source: SEC Release 33-11253 / 34-98704 (88 FR 76896) and SEC Corporation Finance Interpretations (updated 2025-07-11).
+
+- Phase 35 immutable artifact XML coverage: 8,294/20,265 rows have primary_doc.xml (2024-01-26 to 2026-09-30): 88 voluntary XML (2023-12-18 to 2024-12-17), 8,206 mandatory XML (from 2024-12-18), zero before voluntary XML authorization. This is filer-side artifact coverage only, not subject-issuer coverage.
