@@ -6,7 +6,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from research.phase74_13dg_global_subject_audit import run_index_audit
+from research.phase74_13dg_global_subject_audit import SecClient, run_index_audit
 
 
 SAMPLE_INDEX = (
@@ -127,6 +127,16 @@ class Phase82IndexSnapshotTests(unittest.TestCase):
             self.assertEqual(row["candidate_role"], "subject")
             self.assertEqual(row["xml_subject_matches_header"], "True")
             self.assertEqual(row["xml_filer_matches_header"], "True")
+
+
+    def test_sec_archive_404_is_terminal_so_next_path_can_be_tried(self):
+        client = SecClient(sleep_seconds=0, max_retries=5)
+        fake_404 = SimpleNamespace(status_code=404)
+        with patch.object(client.session, "get", return_value=fake_404) as mocked:
+            with self.assertRaisesRegex(FileNotFoundError, "404"):
+                client.get_response("https://www.sec.gov/Archives/edgar/data/1/test.txt")
+        self.assertEqual(mocked.call_count, 1)
+        self.assertEqual(client.request_count, 1)
 
 
 if __name__ == "__main__":
