@@ -314,12 +314,16 @@ def run_index_audit(quarters, target_ciks, outdir, mode="index-only", sample_lim
     duplicates = len(accessions) - len(set(accessions))
     evidence_rows = [{**r, **candidate_evidence(r, target_ciks),
                       "timing_regime": timing_regime(r["form_family"], r["filing_date"])} for r in all_rows]
-    sample = stratified_sample(all_rows, target_ciks, sample_limit)
+    metadata_conflicts = [r for r in evidence_rows if r.get("metadata_conflict")]
+    clean_rows = [r for r in all_rows if not r.get("metadata_conflict")]
+    sample = stratified_sample(clean_rows, target_ciks, sample_limit)
     summary = {
         "phase": "74-global-13dg-subject-discovery-audit",
         "status": "COMPLETE" if not errors else "PARTIAL", "mode": mode,
         "quarters_requested": quarters, "quarters_retrieved": len(quarter_rows),
         "global_13dg_accessions": len(all_rows), "duplicate_accessions_across_quarters": duplicates,
+        "index_metadata_conflicts_quarantined": len(metadata_conflicts),
+        "clean_accessions_available_for_pilot": len(clean_rows),
         "unique_master_index_ciks": len({c for r in all_rows for c in r["master_index_ciks"]}),
         "unique_archive_path_ciks": len({c for r in all_rows for c in r["archive_path_ciks"]}),
         "target_cik_count": len(target_ciks),
@@ -342,6 +346,7 @@ def run_index_audit(quarters, target_ciks, outdir, mode="index-only", sample_lim
     write_csv(outdir / "candidate_accessions.csv", evidence_rows)
     write_csv(outdir / "quarterly_counts.csv", quarter_rows)
     write_csv(outdir / "index_errors.csv", errors)
+    write_csv(outdir / "index_metadata_conflicts_quarantined.csv", metadata_conflicts)
     write_csv(outdir / "pilot_manifest.csv", sample)
     (outdir / "summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(summary, indent=2), flush=True)
