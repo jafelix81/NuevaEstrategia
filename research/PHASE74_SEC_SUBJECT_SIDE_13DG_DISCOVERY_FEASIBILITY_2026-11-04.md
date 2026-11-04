@@ -126,3 +126,13 @@ For each positive control, test both zero-padded and unpadded CIK text:
 Filter the query by the four ownership forms and narrow dates. Dedupe document-level hits to accession-level records. Compare the Entity facet and ciks parameter only as secondary controls; their semantics must be inferred from the known cross-filer examples, not assumed.
 
 The SEC search FAQ states that results can include all data in the filing and attachments, and that search relevance can rank documents rather than guarantee a complete accession listing. Accordingly, exact-CIK search results must be reconciled by accession and followed by source-native XML validation; an exhibit-only hit does not count as a primary ownership filing.
+
+## 9. Correction to the Phase 35 source description
+
+The Phase 35 generator (on main) queries submissions for the CIKs selected from the 335-name universe as filers, then heuristically extracts a CIK from the retrieved primary document and remaps it to a ticker. The artifact's issuer_cik field is therefore mixed/ambiguous: it may remain the query/filer CIK or be overwritten with a subject CIK, depending on the document representation. It is not a certified subject-issuer identity. For example, the raw Phase 35 row for accession 0000019617-25-000296 is mapped to JPM/CIK 0000019617, but the SEC complete-submission header and XML identify Revance/CIK 0001479290 as the subject.
+
+Consequences:
+- Phase 35 is a filer-universe-limited crawl, not a complete subject-side census.
+- It can contain filer/subject misattributions; no row is eligible for an economic test until reconciled against SEC header SUBJECT COMPANY and XML issuer CIK.
+- It misses filings by filers outside the 335 CIK query universe.
+- Phase 73's role-concordance output is required to quantify and correct the mixed source field; Phase 74 subject-CIK full-text search is intended to discover the missing external-filer filings.
