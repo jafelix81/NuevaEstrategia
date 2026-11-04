@@ -1,4 +1,4 @@
-name: Phase 78 - EFTS subject CIK query helper tests
+name: Phase 78 - EFTS subject CIK query helper tests and guarded pilot
 
 on:
   push:
@@ -7,13 +7,18 @@ on:
     paths:
       - research/phase78_efts_subject_cik_pilot.py
       - research/test_phase78_efts_subject_cik_pilot.py
+      - research/phase78_efts_subject_cik_pilot_trigger.txt
       - .github/workflows/phase78_efts_subject_cik_tests.yml
 
 permissions:
   contents: read
 
+concurrency:
+  group: sec-public-data-research
+  cancel-in-progress: false
+
 jobs:
-  tests:
+  tests_and_guarded_pilot:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -26,3 +31,13 @@ jobs:
         run: python -m unittest research.test_phase78_efts_subject_cik_pilot -v
       - name: Compile Phase 78 module
         run: python -m py_compile research/phase78_efts_subject_cik_pilot.py
+      - name: Run bounded EFTS pilot only on explicit trigger commit
+        if: contains(github.event.head_commit.message, 'Trigger bounded SEC EFTS subject-CIK positive-control pilot')
+        run: python -u -m research.phase78_efts_subject_cik_pilot --outdir phase78_efts_subject_cik_pilot --sleep-seconds 0.6 --page-size 100 --max-pages 10
+      - name: Upload Phase 78 pilot outputs
+        if: always() && contains(github.event.head_commit.message, 'Trigger bounded SEC EFTS subject-CIK positive-control pilot')
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase78-efts-subject-cik-pilot
+          path: phase78_efts_subject_cik_pilot/
+          retention-days: 90
