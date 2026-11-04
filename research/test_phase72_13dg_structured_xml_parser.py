@@ -7,6 +7,7 @@ class Phase72StructuredXmlParserTests(unittest.TestCase):
     def test_13d_amendment_multiple_reporting_persons_and_direct_lineage(self):
         xml = b'''<?xml version="1.0"?>
         <edgarSubmission xmlns="http://www.sec.gov/edgar/schedule13d">
+          <schemaVersion>X0202</schemaVersion>
           <headerData>
             <submissionType>SCHEDULE 13D/A</submissionType>
             <previousAccessionNumber>0001683168-24-001211</previousAccessionNumber>
@@ -15,7 +16,7 @@ class Phase72StructuredXmlParserTests(unittest.TestCase):
           <formData>
             <coverPageHeader>
               <amendmentNo>1</amendmentNo><dateOfEvent>12/19/2024</dateOfEvent>
-              <issuerInfo><issuerCIK>0001289850</issuerCIK><issuerName>NEUROMETRIX, INC.</issuerName><issuerCUSIP>641255880</issuerCUSIP></issuerInfo>
+              <issuerInfo><issuerCIK>0001289850</issuerCIK><issuerName>NEUROMETRIX, INC.</issuerName><issuerCusips><issuerCusipNumber>641255880</issuerCusipNumber><issuerCusipNumber>641255881</issuerCusipNumber></issuerCusips></issuerInfo>
             </coverPageHeader>
             <reportingPersons>
               <reportingPersonInfo>
@@ -41,6 +42,8 @@ class Phase72StructuredXmlParserTests(unittest.TestCase):
         self.assertEqual(parsed["previous_accession_number"], "0001683168-24-001211")
         self.assertEqual(parsed["lineage_status"], "direct_predecessor_present")
         self.assertEqual(parsed["issuer_cik"], "0001289850")
+        self.assertEqual(parsed["schema_version"], "X0202")
+        self.assertEqual(parsed["cusips"], ["641255880", "641255881"])
         self.assertEqual(parsed["filer_cik_xml"], "0001510865")
         self.assertEqual(parsed["reporting_person_count"], 2)
         self.assertEqual(parsed["reporting_persons"][0]["person_cik"], "0001510865")
@@ -53,6 +56,7 @@ class Phase72StructuredXmlParserTests(unittest.TestCase):
     def test_13g_amendment_uses_distinct_schema_and_preserves_group_flags(self):
         xml = b'''<?xml version="1.0"?>
         <edgarSubmission xmlns="http://www.sec.gov/edgar/schedule13g">
+          <schemaVersion>X0202</schemaVersion>
           <headerData><submissionType>SCHEDULE 13G/A</submissionType>
             <previousAccessionNumber>0001493152-25-012122</previousAccessionNumber>
             <filerInfo><filer><filerCredentials><cik>0002081473</cik></filerCredentials></filer></filerInfo>
@@ -88,6 +92,7 @@ class Phase72StructuredXmlParserTests(unittest.TestCase):
         self.assertEqual(parsed["form_family"], "13G")
         self.assertEqual(parsed["previous_accession_number"], "0001493152-25-012122")
         self.assertEqual(parsed["issuer_cik"], "0001130166")
+        self.assertEqual(parsed["schema_version"], "X0202")
         self.assertEqual(parsed["cusips"], ["23254L876"])
         self.assertEqual(parsed["rule_designations"], ["Rule 13d-1(c)"])
         self.assertEqual(parsed["reporting_person_count"], 2)
