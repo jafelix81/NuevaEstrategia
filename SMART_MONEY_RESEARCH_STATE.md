@@ -302,3 +302,5 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - OCC artifact confirms 95.52–97.01% recent ticker coverage but a 24-month retention boundary and no aggressor-side/open-close/strike-level position data.
 - Added `research/PHASE59_ORATS_TRADEFLOW_AND_CBOE_ARTIFACT_REVIEW_2026-11-04.md` and `research/PHASE59_VENDOR_SAMPLE_REQUEST_AND_ACCEPTANCE_CHECKLIST_2026-11-04.md`.
 - Revised priority: ORATS Near-EOD for affordable historical context; OptionMetrics TradeFlow for directional/proxy flow; Databento OPRA for optional independent reconstruction; Cboe Open-Close for exchange-specific opening/closing. No data purchased, no vendor contacted, no forward returns or alpha tests. F80 baseline remains frozen.
+
+- Additional Cboe EOD integrity check: the 34 participant-volume fields sum exactly to `total_exchange_vol` on all 23,179 rows in the 2025-03-28 20% sample (100% row-level reconciliation). This supports use of the participant buckets within the Cboe sample, but does not resolve the separate `total_exchange_vol / total_industry_vol` anomaly or establish market-wide coverage.
