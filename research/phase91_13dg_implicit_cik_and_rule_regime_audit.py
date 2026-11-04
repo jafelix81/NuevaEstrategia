@@ -17,8 +17,8 @@ from pathlib import Path
 
 from research.phase72_13dg_structured_xml_parser import parse_schedule13_xml
 from research.phase73_sec_submission_text_extractor import extract_primary_doc_xml, normalize_cik
-from research.phase74_13dg_global_subject_audit import parse_pilot_record
-from research.phase84_13dg_role_aware_identity_audit import acceptance_to_utc
+from research.phase74_13dg_global_subject_audit import normalize_form, parse_pilot_record
+from research.phase84_13dg_role_aware_identity_audit import acceptance_to_utc, mandatory_xml_expected
 
 
 def parse_json(value, default):
@@ -75,6 +75,10 @@ def parse_sample_stratum(value):
         "timing_regime": parts[2].strip(),
         "candidate_class": parts[3].strip(),
     }
+
+
+def is_structured_xml_filing(header, family):
+    return family in {"13D", "13G"} and bool(header.get("xml_present"))
 
 
 def classify_13g_person_identity(person, person_index, filer_cik, filer_name):
@@ -159,6 +163,14 @@ def run(args):
     header_by_accession = {r.get("accession", ""): r for r in header_rows}
     raw_dir = artifact / "raw_submissions"
     errors, filing_rows, person_rows = [], [], []
+    raw_rows_verified = 0
+    mandatory_xml_rows = 0
+    mandatory_xml_present = 0
+    xml_subject_matches = 0
+    xml_filer_matches = 0
+    xml_form_matches = 0
+    acceptance_valid = 0
+    header_form_mismatches = 0
 
     for sample in manifest:
         accession = sample.get("accession", "")
@@ -180,9 +192,32 @@ def run(args):
         except Exception as exc:
             errors.append({"accession": accession, "error": f"header_parse:{exc!r}"})
             continue
+        raw_rows_verified += 1
         form = str(header.get("header_form", "")).upper()
         family = "13D" if "13D" in form else ("13G" if "13G" in form else "")
-        if not family:
+        if not header.get("accession_match") or not header.get("filing_date_match"):
+            errors.append({"accession": accession, "error": "header_accession_or_date_mismatch"})
+        if not header.get("subject_cik") or not header.get("filer_cik"):
+            errors.append({"accession": accession, "error": "header_subject_or_filer_cik_missing"})
+        acceptance_utc_all = acceptance_to_utc(header.get("acceptance_datetime", ""))
+        if acceptance_utc_all:
+            acceptance_valid += 1
+        else:
+            errors.append({"accession": accession, "error": "acceptance_timestamp_invalid"})
+        if not header.get("form_match"):
+            header_form_mismatches += 1
+        mandatory = mandatory_xml_expected(form, header.get("header_filing_date", ""))
+        if mandatory:
+            mandatory_xml_rows += 1
+            if header.get("xml_present"):
+                mandatory_xml_present += 1
+            else:
+                errors.append({"accession": accession, "error": "mandatory_xml_missing_by_actual_header"})
+        prior_xml = str(prior.get("xml_present", "")).strip().lower() == "true"
+        if bool(header.get("xml_present")) != prior_xml:
+            errors.append({"accession": accession, "error": "xml_presence_manifest_mismatch"})
+        # Legacy pre-mandate 13D/G submissions may be HTML/TXT. They are not XML parse errors.
+        if not is_structured_xml_filing(header, family):
             continue
         try:
             extracted = extract_primary_doc_xml(raw)
@@ -195,6 +230,20 @@ def run(args):
             continue
 
         filing_date = header.get("header_filing_date", "")
+        xml_subject_cik = normalize_cik(parsed.get("issuer_cik", ""))
+        xml_filer_cik = normalize_cik(parsed.get("filer_cik_xml", ""))
+        subject_match = bool(xml_subject_cik and xml_subject_cik == normalize_cik(header.get("subject_cik", "")))
+        filer_match = bool(xml_filer_cik and xml_filer_cik == normalize_cik(header.get("filer_cik", "")))
+        form_match = normalize_form(parsed.get("submission_type", "")) == normalize_form(form)
+        xml_subject_matches += int(subject_match)
+        xml_filer_matches += int(filer_match)
+        xml_form_matches += int(form_match)
+        if not subject_match:
+            errors.append({"accession": accession, "error": "xml_subject_header_mismatch"})
+        if not filer_match:
+            errors.append({"accession": accession, "error": "xml_filer_header_mismatch"})
+        if not form_match:
+            errors.append({"accession": accession, "error": "xml_form_header_mismatch"})
         event_date = parsed.get("event_date", "")
         event_dt, filing_dt = parse_date(event_date), parse_date(filing_date)
         lag = (filing_dt - event_dt).days if event_dt and filing_dt else None
@@ -209,9 +258,6 @@ def run(args):
             errors.append({"accession": accession, "error": "sample_stratum_amendment_mismatch"})
 
         filer_cik = normalize_cik(header.get("filer_cik", ""))
-        xml_filer_cik = normalize_cik(parsed.get("filer_cik_xml", ""))
-        if not filer_cik or filer_cik != xml_filer_cik:
-            errors.append({"accession": accession, "error": "xml_header_filer_cik_mismatch"})
         persons = parsed.get("reporting_persons") or []
         rule_designations = parsed.get("rule_designations") or []
         acceptance_utc = acceptance_to_utc(header.get("acceptance_datetime", ""))
@@ -223,8 +269,11 @@ def run(args):
             "rule_designations": rule_designations,
             "subject_cik": normalize_cik(header.get("subject_cik", "")),
             "filer_cik": filer_cik, "filer_name": header.get("filer_name", ""),
-            "xml_subject_cik": normalize_cik(parsed.get("issuer_cik", "")),
+            "xml_subject_cik": xml_subject_cik,
             "xml_filer_cik": xml_filer_cik,
+            "xml_subject_header_match": subject_match,
+            "xml_filer_header_match": filer_match,
+            "xml_form_header_match": form_match,
             "acceptance_datetime_et": header.get("acceptance_datetime", ""),
             "acceptance_utc": acceptance_utc,
             "reporting_person_count": len(persons),
@@ -257,8 +306,11 @@ def run(args):
                 "percent_of_class": person.get("percent_of_class", ""),
             })
 
-    if errors:
-        # Any integrity/identity parse error fails closed; ordinary non-13D/G index rows are skipped.
+    expected_xml_rows = sum(str(r.get("xml_present", "")).strip().lower() == "true" for r in header_rows)
+    if (errors or raw_rows_verified != len(manifest) or len(filing_rows) != expected_xml_rows
+            or mandatory_xml_present != mandatory_xml_rows or
+            xml_subject_matches != len(filing_rows) or xml_filer_matches != len(filing_rows)
+            or xml_form_matches != len(filing_rows) or acceptance_valid != len(manifest)):
         summary_status = "FAIL"
     else:
         summary_status = "COMPLETE"
@@ -286,7 +338,16 @@ def run(args):
         "phase": "91-13dg-implicit-cik-and-rule-regime-audit",
         "status": summary_status,
         "raw_submissions_requested": len(manifest),
+        "raw_rows_verified": raw_rows_verified,
+        "header_form_mismatch_rows": header_form_mismatches,
+        "acceptance_timestamps_valid": acceptance_valid,
+        "mandatory_xml_rows_by_actual_header": mandatory_xml_rows,
+        "mandatory_xml_present_by_actual_header": mandatory_xml_present,
+        "xml_rows_expected_from_phase84_header_validation": expected_xml_rows,
         "filings_parsed": len(filing_rows),
+        "xml_subject_header_concordance": xml_subject_matches / len(filing_rows) if filing_rows else 0.0,
+        "xml_filer_header_concordance": xml_filer_matches / len(filing_rows) if filing_rows else 0.0,
+        "xml_form_header_concordance": xml_form_matches / len(filing_rows) if filing_rows else 0.0,
         "xml_reporting_person_rows": len(person_rows),
         "errors": errors,
         "family_counts": dict(Counter(r["family"] for r in filing_rows)),

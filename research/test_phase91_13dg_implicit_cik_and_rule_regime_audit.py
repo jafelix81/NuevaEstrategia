@@ -2,8 +2,8 @@ import unittest
 from datetime import date
 
 from research.phase91_13dg_implicit_cik_and_rule_regime_audit import (
-    classify_13g_person_identity, expected_timing_regime, lag_stats,
-    normalize_name, parse_sample_stratum,
+    classify_13g_person_identity, expected_timing_regime, is_structured_xml_filing,
+    lag_stats, normalize_name, parse_sample_stratum,
 )
 
 
@@ -31,6 +31,12 @@ class Phase91IdentityTimingTests(unittest.TestCase):
             "timing_regime": "13g_mandatory_xml", "candidate_class": "ambiguous",
         })
         self.assertIsNone(parse_sample_stratum("bad")["is_amendment"])
+
+    def test_legacy_13dg_html_txt_is_not_counted_as_xml_parse_failure(self):
+        self.assertFalse(is_structured_xml_filing({"xml_present": False}, "13D"))
+        self.assertFalse(is_structured_xml_filing({"xml_present": False}, "13G"))
+        self.assertFalse(is_structured_xml_filing({"xml_present": True}, ""))
+        self.assertTrue(is_structured_xml_filing({"xml_present": True}, "13D"))
 
     def test_first_13g_person_filer_cik_is_only_a_candidate_on_exact_name_match(self):
         person = {"name": "Rubric Capital Management, L.P.", "person_cik": "",

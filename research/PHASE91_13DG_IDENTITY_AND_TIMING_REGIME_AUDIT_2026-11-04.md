@@ -66,3 +66,12 @@ The Phase 90 pooled medians (13D 3 days versus 13G 34 days) are not comparable a
 - `phase91_reporting_person_identity.csv`
 
 The workflow is offline and consumes only the immutable Phase 84 artifact.
+
+
+## Phase 91 first execution — run 41933908787 (failed gate, diagnostic retained)
+
+- The 9 new unit tests and the existing parser regression suites passed.
+- The first audit script incorrectly attempted XML extraction from all 600 13D/13G submissions. Four hundred legacy HTML/TXT submissions correctly had no primary_doc.xml; the script misclassified those expected legacy rows as parse errors. This is an implementation defect, not a source-coverage failure.
+- Despite the false failure status, 200 structured XML filings were parsed and all 470 reporting-person rows were retained. Diagnostic results: 86/121 first 13G reporting-person names (71.07%) exactly matched SEC-HEADER FILED BY after conservative normalization; 35/121 did not. All 89 additional 13G reporting-person rows remained unresolved because no explicit CIK/no-CIK tag was present. The 86 CIKs remain candidates, not verified identities.
+- The first run's 19 lag strata are descriptive only. They show why the pooled Phase 90 medians should not be interpreted as comparable signal latency: in mandatory-XML 13G Rule 13d-1(b) originals, sample medians were 31–38 days by candidate class; Rule 13d-1(c) originals had a control-sample median of 7 days (n=7); mandatory-XML 13D amendments had medians of 1–2 calendar days (n=19 per candidate class). These cells are small, unweighted, and not compliance tests or alpha evidence.
+- Root cause fixed in the next commit: skip non-XML legacy 13D/G after verifying their raw hash and SEC header; only parse rows marked XML-present by the immutable Phase 84 header-validation manifest. The corrected replay also checks 600/600 raw hashes/header timestamps, 192/192 mandatory XML by actual SEC-HEADER form/date, and 200/200 XML subject/filer/form concordance.

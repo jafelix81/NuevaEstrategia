@@ -679,3 +679,10 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - Phase 84 original live gate remains FAIL (192/193 mandatory XML under the erroneous index-form denominator); Phase 89 corrected replay changes the denominator to actual SEC-HEADER form/date and passes 192/192. Phase 90 then passes 35 tests and its offline 600-row/200-XML replay. Do not rewrite the original Phase 84 result as a pass.
 - Phase 35 run 41915300321 was still in progress at the last poll; its active historical-CIK PIT audit job must finish before any new SEC retrieval or Form 144 crawl.
 - F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No production changes.
+
+
+### Phase 91 first execution — implementation defect corrected
+- Run 41933908787 downloaded the immutable Phase 84 artifact and passed all 9 new tests plus existing parser suites. The audit step then failed because the script tried to extract primary_doc.xml from all 600 filings; 400 pre-mandate legacy HTML/TXT 13D/G rows have no XML and were incorrectly counted as errors. This is a script defect, not a failed source coverage gate.
+- The 200 structured XML rows still parsed and produced diagnostics: 86/121 first 13G reporting-person names (71.07%) exactly matched SEC-HEADER FILED BY after case/punctuation normalization; 35/121 did not. The 89 additional 13G persons remain unresolved. Filer-CIK candidates are not promoted to verified identities.
+- Lag strata were generated but are provisional until corrected replay. Initial diagnostics: mandatory-XML 13G Rule 13d-1(b) originals had sample medians 31–38 calendar days by candidate class; Rule 13d-1(c) originals had a control median 7 days (n=7); mandatory-XML 13D amendments had medians 1–2 days (n=19 each). These are unweighted small cells, not compliance or alpha tests.
+- Corrected script skips legacy non-XML rows after validating their hashes and headers, and enforces actual-header mandatory XML 192/192 plus XML subject/filer/form concordance 200/200. Rerun is isolated to Phase 91; no SEC requests.
