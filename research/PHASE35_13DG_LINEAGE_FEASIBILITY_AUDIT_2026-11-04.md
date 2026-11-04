@@ -3,7 +3,7 @@
 **Date:** 2026-11-04  
 **Inputs:** frozen SEC XML artifacts from 2025Q2, 2025Q3, 2025Q4 and 2026Q1.  
 **Coverage:** 1,278 unique target-subject accessions (111 13D; 1,167 13G).  
-**Code:** `phase35_13dg_lineage_feasibility_audit.py`; four local unit tests passed.
+**Code:** `phase35_13dg_lineage_feasibility_audit.py`; four helper tests are included. The local prototype test harness passed; the repository test file has not yet been run by GitHub Actions.
 
 ## Cross-quarter identity validation
 
