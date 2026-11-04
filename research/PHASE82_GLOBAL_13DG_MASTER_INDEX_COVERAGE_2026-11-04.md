@@ -105,7 +105,7 @@ A guarded 120-filing pilot is prepared. It will stratify by 13D/13G family, orig
 
 Passing Gate A establishes index history and reproducibility only. The 120-filing identity pilot must pass before a full global subject-side census is authorized. No forward returns, feature selection or economic test has been run.
 
-The deterministic 120-row manifest in artifact 13353118959 is balanced across the six form-specific timing regimes: 60 13D / 60 13G, 62 originals / 58 amendments, and 44 unique-candidate / 32 ambiguous / 44 control accessions. The regression suite now also verifies that pilot mode saves the exact complete-submission bytes, SHA-256 and UTC retrieval timestamp; offline run [41893467636](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41893467636) passed. The live identity pilot is run [41893546069](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41893546069), currently in progress.
+The deterministic 120-row manifest in artifact 13353118959 is balanced across the six form-specific timing regimes: 60 13D / 60 13G, 62 originals / 58 amendments, and 44 unique-candidate / 32 ambiguous / 44 control accessions. The regression suite now also verifies that pilot mode saves the exact complete-submission bytes, SHA-256 and UTC retrieval timestamp; offline run [41893467636](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41893467636) passed. The live identity pilot [41893546069](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41893546069) completed with a failed preregistered subject-role gate; see the final Phase 83 outcome below.
 
 
 ## Final Phase 83 outcome — 2026-11-04
