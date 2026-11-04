@@ -1,0 +1,24 @@
+name: Phase 72 - SEC 13D/13G structured XML parser tests
+
+on:
+  push:
+    branches:
+      - phase72-13dg-structured-xml-parser
+    paths:
+      - research/phase72_13dg_structured_xml_parser.py
+      - research/test_phase72_13dg_structured_xml_parser.py
+      - .github/workflows/phase72_13dg_structured_xml_parser_tests.yml
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run structured XML parser regression tests
+        run: python -m unittest research.test_phase72_13dg_structured_xml_parser -v
