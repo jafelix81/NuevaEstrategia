@@ -41,3 +41,7 @@ Together they could test whether Cboe-observed participant imbalances lead chang
 - No forward returns or alpha test.
 
 F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## 2026-11-04 sample addendum
+The public sample contains two variants for 2023-08-25, each with 32,672 rows across four underlyings (^SPX, SPY, TSLA, ^VIX). All base EOD and optional Calcs fields are present/non-null. Positive IV rates are 92.75% (no-CGI) and 91.26% (CGI/historical); zero IV/Greek values require validity filters. The sample is not representative for 335-ticker coverage. See `research/PHASE55_OPTION_EOD_SAMPLE_POSTRUN_AUDIT_2026-11-04.md`. The product page says Jan 2012 history while the FAQ lists Jan 2010; use Jan 2012 until Cboe confirms.
