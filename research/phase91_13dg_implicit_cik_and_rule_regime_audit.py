@@ -372,6 +372,7 @@ def run(args):
     }
     (outdir / "phase91_summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     write_csv(outdir / "phase91_filing_lag_strata.csv", lag_rows)
+    write_csv(outdir / "phase91_filing_events.csv", filing_rows)
     write_csv(outdir / "phase91_reporting_person_identity.csv", person_rows)
     print(json.dumps(summary, indent=2), flush=True)
     if summary_status != "COMPLETE" or len(filing_rows) != 200:

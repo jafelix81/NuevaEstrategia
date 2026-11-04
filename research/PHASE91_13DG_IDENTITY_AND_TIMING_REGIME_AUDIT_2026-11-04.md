@@ -63,6 +63,7 @@ The Phase 90 pooled medians (13D 3 days versus 13G 34 days) are not comparable a
 
 - `phase91_summary.json`
 - `phase91_filing_lag_strata.csv`
+- `phase91_filing_events.csv` (filing-level accession, event date, lag, acceptance UTC and identity fields; used to review long-lag outliers)
 - `phase91_reporting_person_identity.csv`
 
 The workflow is offline and consumes only the immutable Phase 84 artifact.
@@ -157,3 +158,8 @@ The 13D original control stratum contains one 290-calendar-day outlier (n=20); t
 - 13D/13G event-date lag: legal-regime-confounded; do not use pooled lag as an information-speed signal.
 - Amendment-chain completeness: still fails the Phase 90 feasibility threshold (51/97 amendments lacked explicit previousAccessionNumber).
 - No forward returns, no alpha test, no economic inference, no purchases, no production changes.
+
+
+## Filing-level outlier review preparation
+
+The corrected replay now exports `phase91_filing_events.csv` in addition to grouped lag strata. This is required to identify and inspect the 290-day 13D original control outlier and the 13G long-lag observations without inferring their accessions from aggregate statistics. The export preserves accession, subject/filer CIK, event date, filing date, acceptance UTC, rule designation and candidate class. No outlier is dropped or winsorized.

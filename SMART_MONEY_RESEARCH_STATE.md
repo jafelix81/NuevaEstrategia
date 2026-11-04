@@ -697,3 +697,7 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - Amendment-chain completeness remains limited: 51/97 amendments in Phase 90 lack explicit previousAccessionNumber. Phase 91 does not infer missing links.
 - Phase 35 run 41915300321 is still in progress on main at the last poll, with its corrected historical-CIK PIT audit step active and logs returning BlobNotFound. No new SEC retrieval was launched.
 - No forward returns, alpha test, purchases or production changes. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+### Phase 91 filing-level auditability
+- Added `phase91_filing_events.csv` to the offline artifact so long event-date/filing-date lags can be inspected by accession and subject/filer identity rather than inferred from group summaries. This specifically supports review of the 290-day 13D original control outlier and long-lag 13G cases. No rows are dropped/winsorized and no alpha test is authorized.
