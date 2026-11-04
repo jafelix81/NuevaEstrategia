@@ -535,3 +535,9 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - Added schema-aware parser `research/phase72_13dg_structured_xml_parser.py`. It handles distinct 13D vs 13G tags, multiple reporting persons, explicit no-CIK flags, group membership flags, repeated type codes, and exact `previousAccessionNumber` amendment edges. It never substitutes filer/accession-prefix CIK for a missing reporting-person CIK and does not infer KnowledgeDate from eventDate.
 - Added five regression tests and a tests-only Actions workflow; no SEC requests are made by this workflow. The full 8,294-document parse is held until the Phase 69 incremental Form 144 scan finishes, to avoid concurrent SEC request load.
 - Structured XML feasibility PASS; legacy HTML/group lineage and full historical universe remain open. No forward returns or alpha tests; `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+
+## 2026-11-04 — Phase 72 parser tests corrected and passed
+- The first hosted test run 41863446169 had one flawed assertion: its no-CIK fixture lacked a filer CIK, so it compared two empty strings. The parser correctly left reporting-person CIK empty. Corrected the fixture to include filer CIK 0002081473 and assert that no substitution occurs.
+- Rerun 41863595467 / job 126691849721 executed all five structured-XML parser tests successfully. Its decoded log shows `Ran 5 tests ... OK`; REST run metadata remains stale `queued`. No SEC requests were made.
+- This validates the parser against representative schema-shaped 13D/13G fixtures only. The full 8,294-document XML corpus parse remains pending until Phase 69 SEC workflow queue/status is reconciled.
