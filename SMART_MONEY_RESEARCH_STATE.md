@@ -608,3 +608,5 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - Primary Phase 74 test is the SEC-documented exact-phrase CIK text query (both zero-padded and unpadded) with 13D/G form and date filters. XML content is indexed; element names are not. Treat the undocumented EFTS ciks parameter as secondary until its filer/subject semantics are measured.
 
 - Source correction: Phase 35 queries submissions by CIKs in the F80 filer universe, then heuristically extracts/remaps a CIK from the document. Its issuer_cik/ticker fields can be filer or subject depending on the fetched representation. JPM/Revance accession 0000019617-25-000296 is demonstrably misattributed to JPM in the raw artifact; SEC header/XML identify Revance as subject. Phase 73 must quantify and correct these rows; Phase 74 subject-CIK search must add external filers outside F80.
+
+- Phase 35 source-CIK diagnostic: 10,085/20,265 rows (49.7656%) equal the accession-prefix filer CIK; 10,180 (50.2344%) differ. Equality rates: 13D 8.84%, 13D/A 14.31%, 13G 64.57%, 13G/A 47.52%. This is not an accuracy measure; Phase 73 header/XML role concordance is required.
