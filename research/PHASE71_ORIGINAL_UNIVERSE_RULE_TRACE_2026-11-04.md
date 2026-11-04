@@ -108,3 +108,17 @@ The Phase 68 335/335 SEC ticker-to-registrant-CIK map addresses neither historic
 - No forward returns or alpha tests were run.
 
 \`F80_TOP20_PARTIAL50_BASELINE_C20\` remains frozen.
+
+
+## 7. Phase 9D artifact recovered from Library — provenance narrowed, not resolved (2026-11-04)
+
+A second search of the user's Library surfaced the previously referenced `CERE_Phase9D_Reconciliacion_Economica_FIXED.py` (created 2026-10-14 00:19:38 UTC), along with earlier and later copies named `CERE_Phase9D_Reconciliacion_Economica.py` and `CERE_Phase9D_Reconciliacion_Economica_CORREGIDO.py`. This corrects the earlier statement that no Phase 9D file was available anywhere: a Phase 9D reconciliation script does exist in the Library, although it is not in the GitHub repository.
+
+- The recovered script contains a 335-symbol `DEFAULT_UNIVERSE` with 335 unique tickers.
+- Its sorted 335-symbol set matches exactly the 335-symbol lists embedded in repository Phase 0, Phase 6 and Phase 9 (independent normalized set comparison; all counts 335, no duplicates).
+- The script labels it only as a “frozen backup universe” and enforces `MIN_UNIVERSE = 335`. It can alternatively load `CERE_UNIVERSE`, `CERE_UNIVERSE_FILE`, or a common local ticker file; the runtime audit would record `UniverseSource`.
+- The recovered source does **not** state the screening date, source universe, market-cap/liquidity filters, inclusion/exclusion criteria, replacement policy or dated membership history. No corresponding Phase 9D runtime audit/artifact showing the actual `UniverseSource` was found in the Library search.
+
+Therefore the recovered Phase 9D file confirms the historical existence and exact contents of the frozen 335-name snapshot by 2026-10-14, but it does not establish how the names were selected or whether they were selected without hindsight. The Phase 71 hard blocker remains: no reproducible historical eligibility rule or membership ledger has been recovered. Do not infer that the list was selected using future returns; equally, do not claim survivorship-bias-free cross-sectional coverage.
+
+Library files inspected: `CERE_Phase9D_Reconciliacion_Economica_FIXED.py`, `CERE_Phase9D_Reconciliacion_Economica_CORREGIDO.py`, and `CERE_Phase9D_Reconciliacion_Economica.py`. The fixed and corrected copies contain the same 335 unique default symbols.
