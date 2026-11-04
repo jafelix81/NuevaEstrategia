@@ -53,3 +53,37 @@ It does not reveal the entire OPRA market, identify beneficial owners, or prove 
 - Priority: after Cboe's full-OPRA/Cboe sample gates and pricing are clarified. Avoid spending on multi-year MIAX history before a Cboe hypothesis survives an initial preregistered test.
 - No return test, no feature selection, and no alpha claim until coverage, PIT, reference-data and licensing gates pass.
 - `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+
+## 2026-11-04 addendum — 1-minute historical depth and current fee schedule
+
+The earlier report described EOD history only. A later official MIAX alert identifies a deeper historical archive for the **1-minute intraday** Open-Close report:
+
+- MIAX Options: January 2013.
+- MIAX Pearl: March 2017.
+- MIAX Emerald: March 2019.
+- MIAX Sapphire: August 2024.
+
+The 1-minute files are cumulative snapshots generated from 09:31 through 16:20 ET (410 files on a full session). A 1-minute subscription includes 10-minute and EOD reports. The last cumulative interval may be usable as a session aggregate, but this must be confirmed against the delivered file specification and an actual sample; do not assume it contains the EOD-only price/industry-volume/OI fields.
+
+Official launch/history alert (2026-01-23):  
+https://www.miaxglobal.com/alert/2026/01/23/miax-exchange-group-options-markets-introducing-availability-1-minute
+
+Official fee establishment alert (2026-01-30):  
+https://www.miaxglobal.com/alert/2026/01/30/miax-exchange-group-options-markets-fee-changes-establish-fees-1-minute
+
+The current MIAX Options fee schedule as of 2026-11-01 confirms for MIAX Options:
+- EOD subscription: $600/month; historical EOD: $500 per request per month of history, from June 2021.
+- 10-minute subscription: $3,000/month; historical 10-minute: $1,000 per request per month of history, from January 2013.
+- 1-minute subscription: $9,000/month; historical 1-minute: $4,000 per request per month of history, from January 2013.
+- A 1-minute historical request includes the same date range of 10-minute and EOD historical data at no extra charge; a 10-minute request includes EOD.
+- Qualifying academic historical 1-minute pricing is separately stated; eligibility is not assumed.
+
+Current official MIAX Options fee schedule (2026-11-01):  
+https://www.miaxglobal.com/sites/default/files/fee_schedule-files/MIAX_Options_Fee_Schedule_11012026.pdf
+
+The January 30, 2026 alert lists the 1-minute subscription at $6,000/month and historical ad-hoc 1-minute data at $2,500 per request per month for Pearl, Emerald and Sapphire. Confirm each exchange's current fee schedule before any order.
+
+### Research priority correction
+
+For a daily end-of-day strategy, 1-minute history is not automatically worth its materially higher price. Prefer an EOD pilot first; consider 10-minute data only if the hypothesis requires intraday timing. The 1-minute archive is a valuable historical option, not a purchase recommendation. MIAX remains a secondary venue replication source, not full OPRA and not beneficial-owner identity.
