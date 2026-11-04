@@ -40,7 +40,7 @@ Participant labels are exchange capacity categories, not proof of informed tradi
 
 ## Cost and licensing
 
-The official April 21, 2026 Cboe fee schedule lists EOD Open-Close historical pricing of $600 per month of history for 1–4 years and $300 per month of history for 5+ years, with daily updates listed at $600/month. It also lists a first-time free trial of up to six months, subject to eligibility. The total for a 335-symbol pick-list and multi-year order must be confirmed with Cboe/DataShop. Raw data is licensed for internal use; external redistribution of derived data requires additional approval/licensing.
+The current official Cboe fee schedule (November 2, 2026) lists daily EOD updates at $600/month and historical EOD download rates of $600 per month of history for 1–4 years and $300 per month of history for 5+ years. It also lists a free historical sample for July 1–December 31, 2022 for first-time recipients who have not previously purchased or received a sample. This is a six-month sample, not a six-month subscription trial. The total for a 335-symbol pick-list and multi-year order must be confirmed with Cboe/DataShop. Raw data is licensed for internal use; external redistribution of derived data requires additional approval/licensing.
 
 ## Decision
 
