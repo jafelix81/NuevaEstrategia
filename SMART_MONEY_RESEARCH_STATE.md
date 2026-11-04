@@ -326,3 +326,5 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - Added `research/PHASE61_ORATS_NEAR_EOD_PUBLIC_SAMPLE_AUDIT_RESULTS_2026-11-04.md`. No data purchased or forward returns tested. F80 remains frozen.
 
 - Added a classification caution: OptionMetrics' 2026 SPX/SPY 0DTE study reports retail-share estimates ranging roughly 10–60% across methodologies (its public-OPRA method ~30–35% SPX versus a cited Cboe proprietary ~50–60%). This is not generalizable to single names, but reinforces that TradeFlow retail/institutional categories are vendor proxies, not actual account identity. See `research/PHASE61_ORATS_NEAR_EOD_PUBLIC_SAMPLE_AUDIT_RESULTS_2026-11-04.md`.
+
+- Concurrent SEC Form 144 global-index runner [41787233183](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41787233183) remains the only active Actions run. Its parser/PIT tests passed and the 2025Q1 detail-page census is still in progress; no artifact is available and the job-log endpoint currently returns BlobNotFound. No further Phase 50 execution was started.
