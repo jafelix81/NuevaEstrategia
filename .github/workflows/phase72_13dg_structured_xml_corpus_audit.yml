@@ -1,0 +1,57 @@
+name: Phase 72 - SEC 13D/13G structured XML corpus audit
+
+on:
+  push:
+    branches:
+      - phase72-13dg-structured-xml-parser
+    paths:
+      - research/phase72_13dg_structured_xml_audit_trigger.txt
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: sec-public-data-research
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install audit dependencies
+        run: python -m pip install --upgrade pip pandas requests
+      - name: Run Phase 72 parser and corpus-helper tests
+        run: |
+          python -m unittest research.test_phase72_13dg_structured_xml_parser -v
+          python -m unittest research.test_phase72_13dg_structured_xml_corpus_audit -v
+      - name: Download immutable Phase 35 source artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: phase35-13dg-pit-event-crosswalk-audit
+          run-id: 41575083622
+          github-token: ${{ github.token }}
+          path: phase35_input
+      - name: Validate source artifact
+        run: test -s phase35_input/phase28d_events.csv
+      - name: Parse and reconcile all structured XML filings
+        run: |
+          python -u -m research.phase72_13dg_structured_xml_corpus_audit \
+            --input-csv phase35_input/phase28d_events.csv \
+            --outdir phase72_13dg_structured_xml_corpus_audit \
+            --sleep-seconds 0.6 \
+            --max-retries 5 \
+            --checkpoint-every 100
+      - name: Upload Phase 72 full-corpus outputs and checkpoints
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase72-13dg-structured-xml-corpus-audit
+          path: phase72_13dg_structured_xml_corpus_audit/
+          if-no-files-found: warn
+          retention-days: 90
