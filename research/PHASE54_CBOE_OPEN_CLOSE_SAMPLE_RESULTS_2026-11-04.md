@@ -49,3 +49,11 @@ The current official Cboe fee schedule (November 2, 2026) lists daily EOD update
 - Next complementary source: Option EOD Summary (full OPRA, Jan 2012 onward, optional 15:45 IV/Greeks) for quotes/OI/volatility, joined to Open-Close EOD for Cboe participant flow.
 - No forward returns or alpha tests.
 - F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## Participant definitions and signal design implications
+Cboe's official factsheet clarifies that Customer/Individual includes both retail investors and institutional clients; Professional Customer includes professional traders and institutional participants; Firm denotes proprietary trading firms/market participants; Market Maker denotes designated market makers/liquidity providers. These are capacity categories, not investor identities.
+
+Cboe defines Opening Buy as initiating/increasing a long option position, Opening Sell as initiating/increasing a short option position, Closing Buy as reducing/eliminating a short, and Closing Sell as reducing/eliminating a long. The factsheet's approximately 98% figure refers to trading activity included in the Cboe exchange classification, not 98% of all U.S. OPRA volume.
+
+A defensible first hypothesis is participant-specific net opening delta, computed separately from closing flow and separately for calls/puts. Join Open-Close to Option EOD 15:45 delta/IV, normalize by OI and exchange/industry volume only after convention reconciliation, and control for prior returns/volatility to distinguish predictive positioning from return-chasing. This remains a hypothesis; no backtest is authorized until full history, PIT and licensing gates pass.
