@@ -633,3 +633,12 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - **Phase 84 prepared:** branch `phase84-13dg-role-aware-identity-validation` defines a new, preregistered 600-filing disjoint sample. It tests target-subject recall and header role resolution while reporting filer-only false positives rather than assuming every unique candidate is an issuer. It also validates mandatory XML, acceptance-time conversion and raw-source reproducibility. Phase 83 is not retroactively reclassified.
 - Latest Phase 82 follow-up offline run 41893973070 passed tests; its live index job was skipped. Phase 69 offline tests passed in run 41892649381; the incremental live scan was skipped. Phase 35 PIT crosswalk run 41878429289 remained in progress at the last status check, so no new SEC live crawl is triggered in this update.
 - F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No forward returns, alpha tests, purchases, feature tuning or production changes were made.
+
+
+## 2026-11-04 options-flow source update — Phase 85
+
+- Cboe Open-Close EOD is now the first practical options-flow candidate: participant capacity × buy/sell × open/close × size buckets across C1/C2/BZX/EDGX; EOD history starts 2005 for C1 and 2018 for the other three. Its OI/industry-volume vendor fields and historical convention breaks require normalization. Phase 54's 288/335 one-date C1 sample is not a full multi-venue coverage audit.
+- Cboe TBT is richer but expensive: C1 history from 2019-10-07 at $8,000 per historical month; C2/BZX/EDGX filings dated 2026-11-03 propose historical data from 2019-03-01, with $3,000/$4,000/$4,000 per historical month and July 2022 samples. Current DataShop still describes C1-only TBT; C2/BZX fee exhibits show 2027-01-07 effective schedules. No trial or purchase requested. Estimated full-history four-venue TBT cost is roughly $1.71M before discounts/other charges.
+- OptionMetrics IvyDB Signed Volume remains a high-priority broad flow candidate: every option since 2016-01, daily and 5/30-minute signed volume using trade price versus bid/ask; it has no participant-capacity identity. Pricing, inactive/delisted coverage and exact publication timestamps remain unknown.
+- Phase 84 offline regression run 41896309456 passed; its live 600-filing SEC pilot has not been triggered while Phase 35 PIT audit run 41878429289 remains in progress. No duplicate SEC crawl started.
+- No data purchase, vendor contact, forward-return test, alpha claim or production change. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
