@@ -92,3 +92,10 @@ https://www.sec.gov/edgar/browse/?CIK=1479290
 ## 13. Updated next action
 
 Wait for run 41872288761 to finish and inspect its artifact. Then run only a tiny EFTS positive-control probe (two known cross-filer filings plus controls) before any global subject-side crawl. Do not launch the 14-quarter master-index pilot or full 8,294-row filer-side corpus until archive path, timezone and subject discovery gates are resolved.
+
+
+## 14. Phase 76 archive-path rule adopted
+
+A separate offline branch (phase76-global-13dg-archive-path-correction; run 41872762613 PASS) confirmed the agent-filed FOXA example: accession 0000950157-25-000788 is archived under CIK 0001754301, while the accession prefix 0000950157 is the submitting account. The SEC header identifies Fox Corp as SUBJECT COMPANY (CIK 0001754301) and MFT SH Family Trust as FILED BY (CIK 0002080603).
+
+Phase 74 now uses only the unique archive-path CIK parsed from the master index to construct the complete-submission URL. It quarantines records with missing or multiple archive-path CIKs. The path remains a locator, not identity proof; the SEC header and XML still decide subject/filer roles. Regression tests cover the FOXA path and prove that the accession-prefix directory is not guessed.
