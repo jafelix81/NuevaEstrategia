@@ -6,7 +6,9 @@ payload and the SEC-HEADER's separate SUBJECT COMPANY and FILED BY identities.
 from __future__ import annotations
 
 import re
+from datetime import datetime, timezone
 from pathlib import PurePosixPath
+from zoneinfo import ZoneInfo
 
 
 def normalize_cik(value: str) -> str:
@@ -14,10 +16,26 @@ def normalize_cik(value: str) -> str:
     return digits.zfill(10) if digits and len(digits) <= 10 else digits
 
 
-def normalize_acceptance_datetime(value: str) -> str:
-    """Normalize SEC header 14-digit and submissions-API ISO timestamps."""
-    digits = re.sub(r"\D", "", str(value or ""))
-    return digits[:14] if len(digits) >= 14 else ""
+def normalize_acceptance_datetime(value: str, source_timezone: str = "UTC") -> str:
+    """Return YYYYMMDDHHMMSS in UTC.
+
+    SEC-HEADER ACCEPTANCE-DATETIME is an Eastern wall-clock timestamp without
+    an offset. submissions[].acceptanceDateTime is ISO-8601 UTC. Callers must
+    pass America/New_York for the former; ISO timestamps retain their offset.
+    """
+    raw = str(value or "").strip()
+    if not raw:
+        return ""
+    if re.fullmatch(r"\d{14}", raw):
+        local = datetime.strptime(raw, "%Y%m%d%H%M%S").replace(tzinfo=ZoneInfo(source_timezone))
+        return local.astimezone(timezone.utc).strftime("%Y%m%d%H%M%S")
+    try:
+        parsed = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+    except ValueError:
+        return ""
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=ZoneInfo(source_timezone))
+    return parsed.astimezone(timezone.utc).strftime("%Y%m%d%H%M%S")
 
 
 def _first(pattern: str, text: str) -> str:
