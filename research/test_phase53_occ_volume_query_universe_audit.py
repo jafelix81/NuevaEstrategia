@@ -10,6 +10,16 @@ class OCCVolumeQueryTests(unittest.TestCase):
         self.assertIn("porc=BOTH",url)
         self.assertNotIn("contractDt",url)
 
+    def test_all_series_response_without_contract_date_is_valid(self):
+        raw=(
+            "quantity,underlying,symbol,actype,porc,exchange,actdate\n"
+            "100,AAPL,AAPL,C,C,CBOE,11/02/2026\n"
+            "50,AAPL,2AAPL,F,P,PHLX,11/02/2026\n"
+        )
+        result=inspect_response(raw,"AAPL","2026-11-02")
+        self.assertTrue(result["schema_valid"])
+        self.assertEqual(result["account_types"],["C","F"])
+
     def test_schema_and_account_type_parsing(self):
         raw=(
             "quantity,underlying,symbol,actype,porc,exchange,actdate,contractDate\n"
