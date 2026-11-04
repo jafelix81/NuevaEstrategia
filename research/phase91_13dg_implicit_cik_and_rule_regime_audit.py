@@ -359,6 +359,19 @@ def run(args):
         "13g_additional_person_unresolved_count": status_counts.get("additional_person_cik_unresolved", 0),
         "lag_group_count": len(lag_rows),
         "lag_groups": lag_rows,
+        "event_lag_outliers_gt_45": [
+            {k: row.get(k) for k in (
+                "accession", "family", "form", "filing_date", "event_date",
+                "event_date_lag_days", "timing_regime", "sample_candidate_class",
+                "rule_designations", "subject_cik", "filer_cik", "acceptance_utc"
+            )}
+            for row in filing_rows
+            if row.get("event_date_lag_days") is not None and row["event_date_lag_days"] > 45
+        ],
+        "event_lag_negative_count": sum(
+            1 for row in filing_rows
+            if row.get("event_date_lag_days") is not None and row["event_date_lag_days"] < 0
+        ),
         "interpretation": {
             "first_person_filer_cik": "Candidate only when SEC-HEADER FILED BY name exactly matches the first reporting-person name after conservative punctuation/case normalization. This is not promoted to a verified CIK without an independent entity check.",
             "additional_reporting_persons": "Require explicit reportingCik or an explicit no-CIK flag; do not inherit the submission filer CIK.",

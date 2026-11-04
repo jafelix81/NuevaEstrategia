@@ -701,3 +701,7 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 
 ### Phase 91 filing-level auditability
 - Added `phase91_filing_events.csv` to the offline artifact so long event-date/filing-date lags can be inspected by accession and subject/filer identity rather than inferred from group summaries. This specifically supports review of the 290-day 13D original control outlier and long-lag 13G cases. No rows are dropped/winsorized and no alpha test is authorized.
+
+
+### Phase 91 long-lag review output
+- The Phase 91 summary now exports accession-level details for every event-date/filing-date lag above 45 calendar days, plus a negative-lag count. This supports review of the 290-day 13D control observation and any long-lag 13G rows without dropping or winsorizing them.

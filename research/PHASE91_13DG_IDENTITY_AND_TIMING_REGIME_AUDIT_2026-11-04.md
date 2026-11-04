@@ -163,3 +163,6 @@ The 13D original control stratum contains one 290-calendar-day outlier (n=20); t
 ## Filing-level outlier review preparation
 
 The corrected replay now exports `phase91_filing_events.csv` in addition to grouped lag strata. This is required to identify and inspect the 290-day 13D original control outlier and the 13G long-lag observations without inferring their accessions from aggregate statistics. The export preserves accession, subject/filer CIK, event date, filing date, acceptance UTC, rule designation and candidate class. No outlier is dropped or winsorized.
+
+
+The summary JSON now also contains the full accession-level list of observations with event-date/filing-date lag greater than 45 calendar days and a count of negative lags. This enables a deterministic outlier review without needing to unpack the ZIP artifact manually.
