@@ -18,35 +18,33 @@ SAMPLE_INDEX = (
 
 
 
-SAMPLE_SUBMISSION = (
-    "<SEC-DOCUMENT>0000092230-25-000015.txt : 20250206\\n"
-    "<SEC-HEADER>\\n"
-    "<ACCEPTANCE-DATETIME>20250206105250\\n"
-    "CONFORMED SUBMISSION TYPE: SCHEDULE 13G/A\\n"
-    "FILED AS OF DATE: 20250206\\n"
-    "SUBJECT COMPANY:\\n"
-    "    COMPANY CONFORMED NAME: Federated Hermes ETF Trust\\n"
-    "    CENTRAL INDEX KEY: 0001849998\\n"
-    "FILED BY:\\n"
-    "    COMPANY CONFORMED NAME: Truist Financial Corp.\\n"
-    "    CENTRAL INDEX KEY: 0000092230\\n"
-    "</SEC-HEADER>\\n"
-    "<DOCUMENT>\\n"
-    "<TYPE>SCHEDULE 13G/A\\n"
-    "<SEQUENCE>1\\n"
-    "<FILENAME>primary_doc.xml\\n"
-    "<TEXT><XML>\\n"
-    "<?xml version=\\"1.0\\" encoding=\\"UTF-8\\"?>\\n"
-    "<edgarSubmission xmlns=\\"http://www.sec.gov/edgar/schedule13g\\">\\n"
-    "  <headerData><submissionType>SCHEDULE 13G/A</submissionType>"
-    "<filerInfo><filer><filerCredentials><cik>0000092230</cik></filerCredentials></filer></filerInfo></headerData>\\n"
-    "  <formData><coverPageHeader><issuerInfo><issuerCik>0001849998</issuerCik>"
-    "<issuerName>Federated Hermes ETF Trust</issuerName></issuerInfo></coverPageHeader>"
-    "<coverPageHeaderReportingPersonDetails><reportingPersonName>Truist Financial Corp.</reportingPersonName>"
-    "<reportingCik>0000092230</reportingCik></coverPageHeaderReportingPersonDetails></formData>\\n"
-    "</edgarSubmission>\\n"
-    "</XML></TEXT></DOCUMENT></SEC-DOCUMENT>"
-).encode("utf-8")
+SAMPLE_SUBMISSION = b"""<SEC-DOCUMENT>0000092230-25-000015.txt : 20250206
+<SEC-HEADER>
+<ACCEPTANCE-DATETIME>20250206105250
+CONFORMED SUBMISSION TYPE: SCHEDULE 13G/A
+FILED AS OF DATE: 20250206
+SUBJECT COMPANY:
+    COMPANY CONFORMED NAME: Federated Hermes ETF Trust
+    CENTRAL INDEX KEY: 0001849998
+FILED BY:
+    COMPANY CONFORMED NAME: Truist Financial Corp.
+    CENTRAL INDEX KEY: 0000092230
+</SEC-HEADER>
+<DOCUMENT>
+<TYPE>SCHEDULE 13G/A
+<SEQUENCE>1
+<FILENAME>primary_doc.xml
+<TEXT>
+<XML>
+<?xml version="1.0" encoding="UTF-8"?>
+<edgarSubmission xmlns="http://www.sec.gov/edgar/schedule13g">
+  <headerData><submissionType>SCHEDULE 13G/A</submissionType><filerInfo><filer><filerCredentials><cik>0000092230</cik></filerCredentials></filer></filerInfo></headerData>
+  <formData><coverPageHeader><issuerInfo><issuerCik>0001849998</issuerCik><issuerName>Federated Hermes ETF Trust</issuerName></issuerInfo></coverPageHeader><coverPageHeaderReportingPersonDetails><reportingPersonName>Truist Financial Corp.</reportingPersonName><reportingCik>0000092230</reportingCik></coverPageHeaderReportingPersonDetails></formData>
+</edgarSubmission>
+</XML>
+</TEXT>
+</DOCUMENT>
+</SEC-DOCUMENT>"""
 
 class Phase82IndexSnapshotTests(unittest.TestCase):
     def test_index_only_audit_preserves_raw_index_and_retrieval_metadata(self):
