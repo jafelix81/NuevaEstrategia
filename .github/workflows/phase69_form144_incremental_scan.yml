@@ -12,7 +12,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: sec-form144-phase69-incremental-scan
+  group: sec-public-data-research
   cancel-in-progress: false
 
 jobs:
