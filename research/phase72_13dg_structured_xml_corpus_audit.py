@@ -48,6 +48,15 @@ def expected_submission_type(form: str) -> str:
     return value
 
 
+def archive_document_path(primary_document: str) -> str:
+    """Use the root raw XML document, not SEC's XSL-rendered HTML view."""
+    value = str(primary_document or "").strip().lstrip("/")
+    low = value.lower()
+    if low.startswith("xslschedule_13d_x01/") or low.startswith("xslschedule_13g_x01/"):
+        return "primary_doc.xml"
+    return value
+
+
 def build_lineage_edge(
     current: dict,
     previous_accession: str,
@@ -240,7 +249,8 @@ def _filing_row(source: dict, parsed: dict, submission: dict, fetch_url: str) ->
         "event_date_xml": parsed.get("event_date", ""),
         "accession": source.get("accession", ""),
         "accession_key": normalize_accession(source.get("accession", "")),
-        "primary_document": source.get("primary_document", ""),
+        "primary_document_source_path": source.get("primary_document", ""),
+        "primary_document_archive_path": archive_document_path(source.get("primary_document", "")),
         "primary_document_url": fetch_url,
         "accession_prefix_cik": accession_prefix_cik,
         "filer_cik_xml": filer_cik_xml,
@@ -411,7 +421,8 @@ def run_audit(
                 continue
             cik_path = str(int(normalize_cik(row["issuer_cik"])))
             acc_path = key
-            document = quote(str(row["primary_document"]), safe="/._-")
+            document_path = archive_document_path(row["primary_document"])
+            document = quote(document_path, safe="/._-")
             url = SEC_ARCHIVE.format(cik=cik_path, accession=acc_path, document=document)
             submission = submission_index.get(key, {})
             try:
