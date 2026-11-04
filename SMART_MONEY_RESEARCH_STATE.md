@@ -548,3 +548,10 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - Added deterministic stratified sampling across 13D/13G, original/amendment and voluntary/mandatory XML periods. The data workflow is gated by a dedicated sentinel file; code and documentation pushes cannot launch a full SEC crawl.
 - Hosted run 41864876578 / job 126696436238 passed all 11 tests (5 parser + 6 corpus-helper tests). The workflow supports an 80-filing pilot first; no Phase 72 SEC corpus requests have yet been made.
 - Parser supports flat and nested filerInfo CIK schema layouts while keeping filer CIK separate from each reporting person's CIK. Full-corpus accuracy remains unproven until the actual XML sample is fetched and parsed.
+
+
+## 2026-11-04 — Phase 72 parser v2: schemaVersion, multiple CUSIPs and filer identity
+- SEC's current technical-specification index lists Schedule 13D/13G XML v2.3 (2026-04-15); the version history records multiple-CUSIP support from 2026-03-16. Parser upgraded to `phase72-v2`, recording root `schemaVersion` and supporting both current `issuerCusips/issuerCusipNumber` and legacy single-CUSIP fields for 13D and 13G.
+- Corpus audit now compares XML filerInfo CIK to accession-prefix CIK separately from issuer CIK and reporting-person CIK, and reports submission filingDate concordance, acceptanceDateTime, event-date and amendment-number coverage, and schema-version distribution.
+- Latest hosted run 41865309350 / job 126697927454 passed all 11 tests (5 parser + 6 corpus helper) with parser v2.
+- The 80-filing pilot run 41865034118 / job 126696988419 remains queued/no logs; it predates parser v2 and will be treated only as a preliminary schema smoke test. No full 8,294-document corpus request has been launched.
