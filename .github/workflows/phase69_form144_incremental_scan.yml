@@ -1,0 +1,51 @@
+name: Phase 69 - Incremental Form 144 fund registrant data scan
+
+on:
+  push:
+    branches:
+      - phase71-original-universe-rule-trace
+    paths:
+      - research/phase69_form144_incremental_fund_registrant_scan.py
+      - research/PHASE69_INCREMENTAL_FORM144_FUND_REGISTRANT_SCAN_SPEC_2026-11-04.md
+      - .github/workflows/phase69_form144_incremental_scan.yml
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: sec-form144-phase69-incremental-scan
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run Phase 69 regression tests
+        run: python -m unittest research.test_phase69_form144_incremental_fund_registrant_scan -v
+      - name: Download pinned Phase 67 baseline artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: phase67-form144-full-candidate-role-resolution
+          run-id: 41828179718
+          github-token: ${{ github.token }}
+          path: phase67_baseline
+      - name: Validate baseline files
+        run: |
+          test -s phase67_baseline/summary.json
+          test -s phase67_baseline/candidate_role_resolution.csv
+          test -s phase67_baseline/issuer_event_raw.csv
+      - name: Run incremental Phase 69 SEC scan
+        run: python -u -m research.phase69_form144_incremental_fund_registrant_scan --base-dir phase67_baseline --workers 5 --controls-per-form-quarter 10
+      - name: Upload Phase 69 incremental and expanded outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase69-form144-incremental-fund-registrant-scan
+          path: phase69_form144_fund_registrant_scan/
+          if-no-files-found: warn
