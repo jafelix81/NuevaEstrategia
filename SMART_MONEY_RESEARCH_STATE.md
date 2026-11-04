@@ -491,3 +491,10 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - Strengthened the scan before any SEC index work: it replays the pre-Phase-68 ticker mapper with the old field list (excluding SEC mutual-fund symbol) and requires the exact 309-CIK legacy set, 27 previously unresolved ticker names and exact ten-CIK difference to the expanded 319-CIK map. This avoids accepting a changed CIK set merely because counts happen to match.
 - The Phase 69 data scan has not been dispatched. Phase 67 run 41828179718 remains in_progress with its XML resolution step active and its job log unavailable (BlobNotFound). The completed Phase 67 run 41828139052 already provides the validated baseline artifact, but the redundant active run is left untouched because no cancellation action is available through the connected GitHub interface. Do not start the incremental SEC scan while it remains active.
 - Phase 69 workflow coordination remains manual: after the active Phase 67 run is reconciled, download the completed Phase 67 artifact by run ID and run the incremental scan. The unit-test workflow does not make SEC requests.
+
+
+## 2026-11-04 — Phase 69 strengthened legacy-map regression PASS
+
+- Added an exact snapshot check for the 27 ticker names that were unresolved under the pre-Phase-68 parser, in addition to the exact 309-CIK legacy set and ten-CIK expansion checks.
+- Hosted Actions run 41847627672 / job 126635192916 completed SUCCESS; all 8 Phase 69 unit tests passed.
+- The full incremental SEC scan remains held because Phase 67 run 41828179718 is still in_progress and has no artifact. The completed baseline from 41828139052 is available; the active run uses the same production script with a later test-only commit. No second full census or Phase 69 data scan has been started.
