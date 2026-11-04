@@ -527,3 +527,11 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - Updated `research/PHASE71_ORIGINAL_UNIVERSE_RULE_TRACE_2026-11-04.md` with this correction. Do not reverse-engineer selection thresholds from returns; keep a separate PIT broad-universe benchmark if the original rule cannot be recovered.
 - Phase 67 latest run 41828179718 is SUCCESS with artifact 13334881835. Phase 69 incremental scan run 41862496090 and its unit-test run 41862477486 were queued after the pinned-baseline workflow commit; do not start another scan while either remains active.
 - No forward returns or alpha tests; F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## 2026-11-04 — Phase 69 completed: no incremental Form 144 fund events
+- Job log 126687859505 for run 41862496090 reached COMPLETE and uploaded artifact 13340097937 (7,334,167 bytes; SHA-256 7bc8dcdb583f166df410a1202f67bcccfacce263511b6867f0eeb3498e6bbcc8). The REST run/job status endpoint still showed `queued`; the completed log and finalized artifact are authoritative evidence. No duplicate was dispatched.
+- The expanded map contains 335/335 tickers and 319 registrant CIKs, including the ten new fund registrants and 27 ETF series/class mappings. Those ten CIKs produced zero candidate accessions, overlaps, new events or XML errors in the 14-quarter Form 144 window.
+- The expanded candidate-role CSV is byte-for-byte identical to Phase 67 (SHA-256 a2f4f73130da13dcbe63e1963298eae1102580a418a41a932b3e43bc8548ca87). The expanded issuer-event CSV is also byte-for-byte identical (67,014,714 bytes; SHA-256 fd20e338bd3624e7e1c85c39ab911f9fd5d1d78e8a20ed185e42db299a868b20). Counts remain 21,648 candidates, 21,634 issuer events, 14 filer-only false positives excluded, one ambiguous-pair issuer match, and 280/280 controls.
+- Decision: stop the incremental fund-CIK Form 144 scan; it adds no events. Preserve the 335/335 mapping, but do not equate registrant CIK with ETF security identity. Series/class-to-security and PIT history remain untested. No forward returns or alpha tests.
+- Report: `research/PHASE69_INCREMENTAL_FORM144_FUND_REGISTRANT_SCAN_RESULTS_2026-11-04.md`.
