@@ -1,0 +1,33 @@
+name: Phase 77 - SEC 13D/13G filer-role and PIT metric tests
+
+on:
+  push:
+    branches:
+      - phase77-13dg-agent-filer-identity-correction
+    paths:
+      - research/phase73_13dg_submission_text_pilot.py
+      - research/phase73_sec_submission_text_extractor.py
+      - research/test_phase73_sec_submission_text_extractor.py
+      - .github/workflows/phase77_13dg_identity_metric_tests.yml
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install test dependencies
+        run: python -m pip install pandas requests
+      - name: Run Phase 72 XML parser tests
+        run: python -m unittest research.test_phase72_13dg_structured_xml_parser -v
+      - name: Run Phase 72 corpus helper tests
+        run: python -m unittest research.test_phase72_13dg_structured_xml_corpus_audit -v
+      - name: Run Phase 73/77 identity and timestamp tests
+        run: python -m unittest research.test_phase73_sec_submission_text_extractor -v
+      - name: Compile Phase 73 pilot and extractor
+        run: python -m py_compile research/phase73_13dg_submission_text_pilot.py research/phase73_sec_submission_text_extractor.py
