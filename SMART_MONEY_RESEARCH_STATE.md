@@ -1,6 +1,6 @@
 # Smart Money Research State
 
-Updated: 2026-11-04 (Phase 71 universe provenance; Phase 67 run reconciled; Phase 69 scan prepared)
+Updated: 2026-11-04 (Phase 69 incremental scan complete; Phase 72 XML pilot failed; Phase 73 submission-text repair prepared)
 
 ## Frozen control
 - `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
