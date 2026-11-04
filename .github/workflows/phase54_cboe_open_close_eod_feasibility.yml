@@ -1,0 +1,39 @@
+name: Phase 54 - Cboe Open-Close EOD sample feasibility
+
+on:
+  push:
+    branches: [phase54-cboe-open-close-eod-feasibility]
+    paths:
+      - 'research/phase54_cboe_open_close_eod_feasibility.py'
+      - 'research/test_phase54_cboe_open_close_eod_feasibility.py'
+      - 'research/PHASE54_CBOE_OPEN_CLOSE_EOD_FEASIBILITY_SPEC_2026-11-04.md'
+      - '.github/workflows/phase54_cboe_open_close_eod_feasibility.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: phase54-cboe-open-close-eod-feasibility
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  sample:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run Cboe Open-Close parser tests
+        run: python -m unittest research.test_phase54_cboe_open_close_eod_feasibility -v
+      - name: Download and inspect public Cboe sample
+        run: python -u research/phase54_cboe_open_close_eod_feasibility.py
+      - name: Upload sample audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase54-cboe-open-close-eod-sample
+          path: phase54_cboe_open_close_eod_feasibility/
+          if-no-files-found: warn
