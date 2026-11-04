@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 
 from research.phase84_13dg_role_aware_identity_audit import (
-    acceptance_to_utc, build_manifest, candidate_role_resolved, target_role_flags,
+    acceptance_to_utc, build_manifest, candidate_role_resolved, mandatory_xml_expected, target_role_flags,
 )
 
 
@@ -16,6 +16,13 @@ class Phase84RoleAwareIdentityTests(unittest.TestCase):
             "2026-11-04T15:00:00+00:00",
         )
         self.assertEqual(acceptance_to_utc("bad"), "")
+
+    def test_mandatory_xml_gate_uses_actual_schedule13_header_form(self):
+        self.assertTrue(mandatory_xml_expected("SC 13D/A", "2024-12-18"))
+        self.assertTrue(mandatory_xml_expected("SC 13G", "2024-12-18"))
+        self.assertFalse(mandatory_xml_expected("SC 13D/A", "2024-12-17"))
+        # Tender-offer filings are not Schedule 13D/13G XML submissions.
+        self.assertFalse(mandatory_xml_expected("SC TO-T/A", "2026-05-07"))
 
     def test_filer_only_candidate_is_resolved_but_not_a_subject_event(self):
         flags = target_role_flags(

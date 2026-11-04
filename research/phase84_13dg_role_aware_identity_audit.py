@@ -14,7 +14,7 @@ from zoneinfo import ZoneInfo
 
 from research.phase73_sec_submission_text_extractor import normalize_cik
 from research.phase74_13dg_global_subject_audit import (
-    SecClient, parse_pilot_record, submission_url_candidates, timing_regime,
+    SecClient, normalize_form, parse_pilot_record, submission_url_candidates, timing_regime,
 )
 
 JSON_FIELDS = (
@@ -80,6 +80,15 @@ def candidate_role_resolved(row):
     if not candidates:
         return True
     return not unresolved and row.get("candidate_role") in {"subject", "filer", "ambiguous_subject"}
+
+
+def mandatory_xml_expected(header_form, filing_date):
+    """Use the actual SEC-HEADER form/date, not only the master-index family."""
+    form = normalize_form(header_form)
+    if form not in {"SC 13D", "SC 13D/A", "SC 13G", "SC 13G/A"}:
+        return False
+    family = "13D" if "13D" in form else "13G"
+    return timing_regime(family, filing_date).endswith("mandatory_xml")
 
 
 def target_role_flags(parsed, target_ciks, candidate_target):
@@ -328,13 +337,31 @@ def run(args):
     ambiguous_rows = [r for r in candidate_rows if r["candidate_class"] == "ambiguous"]
     target_subject_rows = [r for r in filing_rows if r["subject_target_hit"]]
     xml_rows = [r for r in filing_rows if r.get("xml_present") is True]
+    parsed_by_accession = {r["accession"]: r for r in filing_rows}
+    xml_required_accessions = set()
+    for sample_row in sample:
+        accession = sample_row["accession"]
+        parsed = parsed_by_accession.get(accession)
+        if parsed is not None:
+            expected = mandatory_xml_expected(
+                parsed.get("header_form", ""), parsed.get("header_filing_date", "")
+            )
+        else:
+            # A failed retrieval remains in the denominator under its index-form expectation.
+            expected = mandatory_xml_expected(
+                sample_row.get("form", ""), sample_row.get("filing_date", "")
+            )
+        if expected:
+            xml_required_accessions.add(accession)
     xml_required_rows = [
-        r for r in sample if str(r["timing_regime"]).endswith("mandatory_xml")
+        r for r in filing_rows if r["accession"] in xml_required_accessions
     ]
     xml_required_fetched = [
-        r for r in filing_rows
-        if str(r["timing_regime"]).endswith("mandatory_xml") and r.get("xml_present") is True
+        r for r in xml_required_rows if r.get("xml_present") is True
     ]
+    xml_required_missing_accessions = sorted(
+        xml_required_accessions - {r["accession"] for r in xml_required_fetched}
+    )
 
     def rate(rows, field, denominator=None):
         denom = denominator if denominator is not None else len(rows)
@@ -348,7 +375,7 @@ def run(args):
     candidate_role_rate = rate(candidate_rows, "candidate_role_resolved")
     xml_subject_rate = rate(xml_rows, "xml_subject_matches_header")
     xml_filer_rate = rate(xml_rows, "xml_filer_matches_header")
-    xml_required_rate = len(xml_required_fetched) / len(xml_required_rows) if xml_required_rows else 0.0
+    xml_required_rate = len(xml_required_fetched) / len(xml_required_accessions) if xml_required_accessions else 0.0
     acceptance_rate = rate(filing_rows, "acceptance_timestamp_valid", n_sample)
     raw_integrity_rate = sum(
         bool(r.get("raw_submission_saved") and r.get("source_sha256_valid") and r.get("retrieval_timestamp_valid"))
@@ -410,7 +437,9 @@ def run(args):
         "xml_rows": len(xml_rows),
         "xml_subject_header_concordance": xml_subject_rate,
         "xml_filer_header_concordance": xml_filer_rate,
-        "mandatory_xml_rows": len(xml_required_rows),
+        "mandatory_xml_rows": len(xml_required_accessions),
+        "mandatory_xml_present_rows": len(xml_required_fetched),
+        "mandatory_xml_missing_accessions": xml_required_missing_accessions,
         "mandatory_xml_presence_rate": xml_required_rate,
         "acceptance_timestamp_valid_rate": acceptance_rate,
         "raw_hash_and_retrieval_utc_rate": raw_integrity_rate,
