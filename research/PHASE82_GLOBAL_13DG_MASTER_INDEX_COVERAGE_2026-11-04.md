@@ -82,3 +82,25 @@ The parser has been corrected to:
 - preserve complete-submission raw bytes, SHA-256 and UTC retrieval time in pilot mode.
 
 Offline regression runs 41892207563 and 41892228391 are checking this correction. The original run/artifact remains preserved for auditability, but its metadata-conflict and clean-sample counts must not be used. A corrected 43-quarter run is required before the subject-identity pilot. No filing-level crawl, forward returns or economic test has been run.
+
+## Corrected Gate A result — 2026-11-04
+
+Run [41892370262](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41892370262) completed successfully after the pair-semantics correction. Job 126792849392 passed the Phase 74/82 offline tests, compiled the audit module, retrieved all 43 quarters and uploaded artifact [13353118959](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41892370262/artifacts/13353118959). Artifact ZIP SHA-256: `e925ad8fe9792f27e570b9e882dff772bb67d9edd67f1c93404a198faab80985`.
+
+**Gate A: PASS.**
+
+- 43/43 quarter indexes returned HTTP 200; zero retrieval errors.
+- 324,964 distinct 13D/13G accessions; zero cross-quarter accession duplicates.
+- Zero unexplained metadata conflicts and zero malformed index rows.
+- 1,832 single-CIK accessions and 323,132 multi-CIK accessions with two archive paths. The latter are valid paired index records, not duplicate accessions.
+- Form counts: 13D 13,340; 13D/A 45,729; 13G 78,953; 13G/A 186,942. Amendments are 71.60% of the observed accession population, so amendment lineage is a major part of the eventual event model.
+- 34,400 accessions have at least one of the 319 current candidate CIKs in the unlabelled index/path identity set: 32,805 unique-CIK hits and 1,595 multi-CIK ambiguous hits; 290,564 are controls. These are candidate locators, **not** subject-issuer counts or historical F80 coverage.
+- Raw quarterly snapshots total 1,064,707,960 bytes. An independent post-download check recomputed all 43 SHA-256 hashes with zero mismatches.
+
+The initial v1 artifact from run 41891043331 remains preserved but its 323,132 false-positive metadata conflicts and 120-row single-CIK-only sample are invalid for inference. The corrected artifact is the sole accepted Gate A snapshot.
+
+## Next gate — Phase 83 stratified identity pilot
+
+A guarded 120-filing pilot is prepared. It will stratify by 13D/13G family, original/amendment, regulatory timing regime and candidate/control/ambiguous CIK class; try every archive-path CIK without inferring its role; validate SEC-HEADER SUBJECT COMPANY and FILED BY against primary XML where available; and preserve each retrieved complete submission, SHA-256 and UTC retrieval timestamp.
+
+Passing Gate A establishes index history and reproducibility only. The 120-filing identity pilot must pass before a full global subject-side census is authorized. No forward returns, feature selection or economic test has been run.
