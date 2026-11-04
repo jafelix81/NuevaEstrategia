@@ -265,6 +265,10 @@ class SecClient:
             try:
                 response = self.session.get(url, timeout=self.timeout)
                 self.request_count += 1
+                # A 404 is a permanent archive-path miss, not a transient SEC outage.
+                # In paired-CIK records the caller must immediately try the next path.
+                if response.status_code == 404:
+                    raise FileNotFoundError(f"SEC archive path not found (404): {url}")
                 if response.status_code in {429, 500, 502, 503, 504} and attempt < self.max_retries:
                     try: wait = float(response.headers.get("Retry-After", ""))
                     except (TypeError, ValueError): wait = min(60.0, 2.0 ** attempt)
