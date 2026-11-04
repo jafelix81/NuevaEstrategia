@@ -506,3 +506,6 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - That referenced Phase 9D file was not found in the inspected repository tree or the matching Library search. The Phase 9 file itself has no selection source/date/criteria or historical membership ledger.
 - In the 2026-10-14 prior conversation, the user's only stated provenance was that the script needed the frozen 335-ticker universe from the current project. A prior assistant asserted a Phase 9/9D origin but did not establish the actual selection methodology. Treat that prior assertion as unverified.
 - This narrows the recovery target: locate the original Phase 9D artifact or contemporaneous screen/export; otherwise the 335 list remains a curated snapshot with unknown selection rule.
+
+
+- The Phase 9D reference is absent not only from the default/Phase 70 trees but also from all 104 current branch names and the matching Library search results. The Phase 9 file is the only accessible artifact that contains the 335 list and points to Phase 9D.
