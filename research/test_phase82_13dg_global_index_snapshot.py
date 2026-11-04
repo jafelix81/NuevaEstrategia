@@ -12,7 +12,8 @@ from research.phase74_13dg_global_subject_audit import run_index_audit
 SAMPLE_INDEX = (
     "Description: Master Index of EDGAR Dissemination Feed\n"
     "CIK|Company Name|Form Type|Date Filed|Filename\n"
-    "0001479290|REVANCE THERAPEUTICS INC|SC 13G/A|2025-03-06|edgar/data/1479290/000001961725000296/0000019617-25-000296.txt\n"
+    "0001849998|FEDERATED HERMES ETF TRUST|SC 13G/A|2025-02-06|edgar/data/1849998/000009223025000015/0000092230-25-000015.txt\n"
+    "0000092230|TRUIST FINANCIAL CORP|SC 13G/A|2025-02-06|edgar/data/92230/000009223025000015/0000092230-25-000015.txt\n"
 ).encode("latin-1")
 
 
@@ -30,7 +31,7 @@ class Phase82IndexSnapshotTests(unittest.TestCase):
             ):
                 summary = run_index_audit(
                     ["2025Q1"],
-                    {"0001479290"},
+                    {"0001849998"},
                     Path(tmp),
                     mode="index-only",
                     sample_limit=5,
@@ -38,7 +39,11 @@ class Phase82IndexSnapshotTests(unittest.TestCase):
                 )
 
             self.assertEqual(summary["status"], "COMPLETE")
+            self.assertEqual(summary["data_gate"], "PASS")
             self.assertEqual(summary["global_13dg_accessions"], 1)
+            self.assertEqual(summary["index_metadata_conflicts_quarantined"], 0)
+            self.assertEqual(summary["multi_cik_accessions"], 1)
+            self.assertEqual(summary["index_pair_type_counts"]["multi_cik_multiple_archive_paths"], 1)
             raw_path = Path(tmp) / "raw_master_indexes" / "master_2025Q1.idx"
             self.assertTrue(raw_path.exists())
             self.assertEqual(raw_path.read_bytes(), SAMPLE_INDEX)
