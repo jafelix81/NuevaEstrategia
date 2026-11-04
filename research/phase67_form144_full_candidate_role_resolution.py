@@ -41,6 +41,13 @@ def stable_key(row):
     return hashlib.sha256(token.encode("utf-8")).hexdigest()
 
 
+def index_row_invalid(row):
+    # parse_master_index sets metadata_conflict when archive paths differ too.
+    # Multiple archive-path CIKs are expected for this two-entity master-index design;
+    # only unresolved form/date metadata prevents XML role resolution.
+    return row.get("form") not in FORMS or not row.get("filing_date")
+
+
 def classify_candidate_identity(pair_class, candidate_ciks, identity, metadata_conflict=False):
     """Return an explicit issuer/filer/unresolved classification; never infer issuer from filer."""
     candidates = set(candidate_ciks or [])
@@ -145,7 +152,7 @@ def build_quarter_data(tokens, candidate_ciks, cik_to_tickers):
         for form in FORMS:
             pool = [row for row in pair_rows
                     if row["pair_class"] == "control" and row.get("form") == form
-                    and not row.get("metadata_conflict")]
+                    and not index_row_invalid(row)]
             for row in sorted(pool, key=stable_key)[:10]:
                 controls.append(dict(row))
         quarter_data.append({
@@ -172,10 +179,13 @@ def process_row(row, all_accessions, is_control=False):
         "candidate_ciks_in_pair": ";".join(row.get("candidate_ciks_in_pair") or []),
         "candidate_tickers": ";".join(row.get("candidate_tickers") or []),
         "pair_class": row.get("pair_class") or "",
-        "metadata_conflict": bool(row.get("metadata_conflict")),
+        "parser_metadata_conflict_flag": bool(row.get("metadata_conflict")),
+        "archive_path_cik_conflict": bool(row.get("archive_path_cik_conflict")),
+        "index_metadata_invalid": index_row_invalid(row),
     }
-    if row.get("metadata_conflict") or row.get("form") not in FORMS:
-        status = "control_index_metadata_conflict" if is_control else "unresolved_index_metadata_conflict"
+    index_invalid = index_row_invalid(row)
+    if index_invalid:
+        status = "control_index_metadata_invalid" if is_control else "unresolved_index_metadata_invalid"
         return {"row": {**base, "candidate_role_status": status, "role_resolved": False},
                 "event": None, "error": None, "control": is_control}
     parsed, root, xml_url, error = fetch_and_parse(row)
@@ -189,7 +199,7 @@ def process_row(row, all_accessions, is_control=False):
 
     identity = classify_xml_identity(row, parsed)
     if is_control:
-        status = classify_control(identity, bool(row.get("metadata_conflict")))
+        status = classify_control(identity, index_invalid)
         return {"row": {**base, "xml_url": xml_url or "",
                         "xml_issuer_cik": identity["xml_issuer_cik"],
                         "xml_filer_cik": identity["xml_filer_cik"],
@@ -202,7 +212,7 @@ def process_row(row, all_accessions, is_control=False):
 
     role = classify_candidate_identity(
         row.get("pair_class"), row.get("candidate_ciks_in_pair") or [],
-        identity, bool(row.get("metadata_conflict"))
+        identity, index_invalid
     )
     result = {
         **base, "xml_url": xml_url or "",
@@ -363,7 +373,7 @@ def main():
         for form in FORMS:
             pool = [row for row in item["pair_rows"]
                     if row["pair_class"] == "control" and row.get("form") == form
-                    and not row.get("metadata_conflict")]
+                    and not index_row_invalid(row)]
             controls.extend(sorted(pool, key=stable_key)[:args.controls_per_form_quarter])
         work = [(row, False) for row in candidate_rows] + [(row, True) for row in controls]
         quarter_rows, quarter_events, quarter_errors, quarter_controls = [], [], [], []
