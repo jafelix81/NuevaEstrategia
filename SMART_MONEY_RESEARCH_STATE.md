@@ -1,6 +1,6 @@
 # Smart Money Research State
 
-Updated: 2026-11-04 (Phase 65 Form 144 role/schema audit; Phase 66 correction)
+Updated: 2026-11-04 (Phase 70 PIT security-master feasibility audit)
 
 ## Frozen control
 - `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
@@ -448,3 +448,14 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - No forward returns or alpha tests. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
 
 - Scope note: Phase 67 run 41828139052 was triggered before the Phase 68 mapping fix and therefore uses the old 309-CIK candidate set. Once it completes, do not rerun the entire 21,648-row census solely for this mapping change. Scan the 14 quarter indexes incrementally for the ten newly added registrant CIKs, revisit any accessions whose pair also contains an old candidate CIK, and keep fund series/class attribution unresolved until matched.
+
+
+## 2026-11-04 — Phase 70 historical security-master and universe PIT audit
+- Inspected Phase 6/8 source: the research code embeds a fixed current 335-ticker DEFAULT_UNIVERSE and requests 10 years of prices by ticker; no effective-dated historical eligible-universe panel was found in the repository tree.
+- This is a material limitation for general cross-sectional alpha claims: even perfect mapping of today's 335 tickers cannot recover names omitted from the current list because they delisted, were acquired or otherwise left the curated universe. Recover the original universe-selection rule or label fixed-335 historical results as conditional on a present-day survivor set.
+- Phase 68's 335/335 mapping is current ticker-to-registrant-CIK only. CIK is not a tradable security/share-class ID; retain security/listing IDs and fund series/class IDs.
+- Added research/PHASE70_PIT_EQUITY_SECURITY_MASTER_FEASIBILITY_2026-11-04.md. Databento is the leading PIT candidate because public schema documents both ts_record and ts_effective; AlgoSeek is a strong lifecycle alternative with SecId/ASID and ticker effective ranges but record-known timestamp semantics need confirmation. CRSP is the research-grade benchmark if WRDS access exists. Sharadar and Norgate are useful secondary lifecycle/listing-status checks but are not yet PIT-certified for historical vendor knowledge.
+- No data purchase or vendor contact occurred. No forward returns or alpha tests were run.
+- Phase 67 run 41828139052 remains in progress; run 41828179718 remains pending in the same concurrency group. Do not dispatch another full census. Active job log download returned BlobNotFound; no conclusion about progress/failure is inferred from the missing log object.
+- Hard gate before promotion: recover the original 335-universe selection rule and/or reconstruct the broad historical eligible universe including delisted names; a historical security master for current symbols alone is insufficient.
+- F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
