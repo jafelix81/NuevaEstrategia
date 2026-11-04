@@ -11,7 +11,7 @@ import xml.etree.ElementTree as ET
 from typing import Any
 
 
-PARSER_VERSION = "phase72-v1"
+PARSER_VERSION = "phase72-v2"
 
 
 def _local(tag: str) -> str:
@@ -101,10 +101,17 @@ def _parse_13d(form_data: ET.Element, header: ET.Element) -> dict[str, Any]:
     items = _child(form_data, "items1To7")
     item2 = _child(items, "item2")
     item4 = _child(items, "item4")
+    cusips = []
+    direct_cusip = _value(issuer, "issuerCUSIP")
+    if direct_cusip:
+        cusips.append(direct_cusip)
+    cusips.extend(_values(_child(issuer, "issuerCusips"), "issuerCusipNumber"))
+    cusips.extend(_values(_child(issuer, "issuerCusips"), "issuerCUSIPNumber"))
+    cusips.extend(_values(_child(issuer, "issuerCUSIPS"), "issuerCUSIPNumber"))
     return {
         "issuer_cik": _cik(_value(issuer, "issuerCIK")),
         "issuer_name": _value(issuer, "issuerName"),
-        "cusips": [_value(issuer, "issuerCUSIP")] if _value(issuer, "issuerCUSIP") else [],
+        "cusips": list(dict.fromkeys(cusips)),
         "event_date": _value(cover, "dateOfEvent"),
         "amendment_number": _value(cover, "amendmentNo"),
         "previous_accession_number": _value(header, "previousAccessionNumber"),
@@ -120,7 +127,7 @@ def _parse_13g(form_data: ET.Element, header: ET.Element) -> dict[str, Any]:
     cover = _child(form_data, "coverPageHeader")
     issuer = _child(cover, "issuerInfo")
     cusips = []
-    direct_cusip = _value(issuer, "issuerCusip")
+    direct_cusip = _value(issuer, "issuerCusip") or _value(issuer, "issuerCUSIP")
     if direct_cusip:
         cusips.append(direct_cusip)
     cusips.extend(_values(_child(issuer, "issuerCusips"), "issuerCusipNumber"))
@@ -215,6 +222,7 @@ def parse_schedule13_xml(raw: bytes | str) -> dict[str, Any]:
     )
     return {
         "parser_version": PARSER_VERSION,
+        "schema_version": _value(root, "schemaVersion"),
         "form_family": family,
         "submission_type": submission_type,
         "is_amendment": is_amendment,
