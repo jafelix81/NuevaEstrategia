@@ -1,1 +1,1 @@
-Phase 73 data pilot trigger: tests passed; run the stratified 80-filing complete-submission XML pilot only.
+Phase 74 data pilot trigger: archive path uses subject CIK first with accession-prefix fallback; SEC header acceptance time converted from America/New_York to UTC. Run one stratified 80-filing pilot after regression tests.
