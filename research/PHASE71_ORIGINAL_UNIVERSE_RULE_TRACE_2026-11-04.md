@@ -122,3 +122,14 @@ A second search of the user's Library surfaced the previously referenced `CERE_P
 Therefore the recovered Phase 9D file confirms the historical existence and exact contents of the frozen 335-name snapshot by 2026-10-14, but it does not establish how the names were selected or whether they were selected without hindsight. The Phase 71 hard blocker remains: no reproducible historical eligibility rule or membership ledger has been recovered. Do not infer that the list was selected using future returns; equally, do not claim survivorship-bias-free cross-sectional coverage.
 
 Library files inspected: `CERE_Phase9D_Reconciliacion_Economica_FIXED.py`, `CERE_Phase9D_Reconciliacion_Economica_CORREGIDO.py`, and `CERE_Phase9D_Reconciliacion_Economica.py`. The fixed and corrected copies contain the same 335 unique default symbols.
+
+
+## 8. Phase 21C snapshot independently recovered and reconciled (2026-11-04)
+
+The prior Phase 21C artifact is still available: run 39362237089, artifact 12238056805, created 2026-10-20. Its `phase21c_signal_panel.csv` contains 10,050 rows across 30 signal dates and exactly 335 unique tickers. I compared the normalized ticker set against the recovered Phase 9D `DEFAULT_UNIVERSE` and the repository Phase 11 list: all three sets are exactly identical (335/335; no additions or omissions).
+
+The Phase 21C script imports `DEFAULT_UNIVERSE` from `Nueva_Estrategia_Fase11_Real1000_LTM_v4.py` and then uses that frozen list. Phase 11 labels it “Exact frozen 335-ticker universe”; Phase 21C's artifact demonstrates that the snapshot was actually used in a point-in-time Form 4 diagnostic through 2026-09-29. The Phase 21C audit also records that the Form 4 hypothesis was killed for now: no robust standalone or incremental edge was demonstrated, and no production change was made.
+
+This is stronger provenance for the **existence, exact contents and continued use** of the 335-name snapshot, but it is not independent evidence about the snapshot's original selection. Phase 21C consumes the Phase 11 list; Phase 11 embeds the list; the Phase 9D script calls the same list a frozen backup. None records the upstream eligible universe, screening date, thresholds, replacement policy or point-in-time membership history. The original universe-generation rule therefore remains unrecovered.
+
+Artifact: `phase21c-sec-form4-predictability` from run 39362237089. The signal panel itself is the source of the 335-ticker snapshot; no separate dated membership ledger is present in the artifact.
