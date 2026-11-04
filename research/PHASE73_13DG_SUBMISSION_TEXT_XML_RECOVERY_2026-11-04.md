@@ -115,3 +115,15 @@ Consequently the event panel must carry separate fields for (a) form family, (b)
 Sources: SEC Release 33-11253 / 34-98704, 88 FR 76896 (Nov. 7, 2023), especially compliance dates and shortened 13G deadlines: https://www.sec.gov/files/rules/final/2023/33-11253.pdf ; SEC Corporation Finance Interpretations, Regulation 13D-G (updated July 11, 2025): https://www.sec.gov/rules-regulations/staff-guidance/corporation-finance-interpretations/exchange-act-sections-13d-13g-regulation-13d-g-beneficial-ownership-reporting
 
 Research implication: 13D filings/amendments and 13G QII/passive/exempt filings must be tested as separate event families. A 13G report's event date/quarter-end is not its public KnowledgeDate; no event is actionable before EDGAR filing/acceptance. Do not infer actual trade date or institutional information advantage from the reported ownership snapshot alone.
+
+## 9. Immutable Phase 35 artifact — XML schema-era coverage
+
+I independently counted primary_doc.xml rows in the downloaded immutable Phase 35 artifact (20,265 source rows). It contains 8,294 XML rows, dated 2024-01-26 through 2026-09-30:
+
+- Before voluntary XML authorization (pre-2023-12-18): 0.
+- Voluntary XML period (2023-12-18 through 2024-12-17): 88.
+- Mandatory XML period (from 2024-12-18): 8,206.
+
+The 88 voluntary rows comprise 2 13D/A, 39 13G originals and 47 13G/A; no 13D original was present in that voluntary-period subset. The 8,206 mandatory rows comprise 49 13D originals, 386 13D/A, 2,569 13G originals and 5,202 13G/A.
+
+This is coverage within the immutable Phase 35 filer-side retrieval artifact only, not a subject-issuer census or universe coverage estimate. The Phase 73 stratified sample should preserve the voluntary/mandatory schema split, while future economic tests must additionally split the separate 13D (2024-02-05) and 13G (2024-09-30) deadline regimes.
