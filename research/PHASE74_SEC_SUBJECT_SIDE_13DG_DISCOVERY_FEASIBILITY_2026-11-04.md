@@ -114,3 +114,15 @@ Do not infer a trade from a reported ownership snapshot. Use filing/acceptance a
 No forward returns, alpha tests, production changes or data purchases are authorized by this specification.
 
 F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+## 8. Search semantics and query controls
+
+The documented SEC UI supports CIK searches in the main full-text query field and exact-phrase matching; its FAQ says the search covers electronic filings since 2001. The Webmaster FAQ separately confirms that XML element content is indexed but element names are not. Therefore the primary feasibility test is an exact quoted CIK value as a text query, not an assumption about the undocumented ciks filter.
+
+For each positive control, test both zero-padded and unpadded CIK text:
+- "0001479290" and "1479290";
+- "0001431852" and "1431852".
+
+Filter the query by the four ownership forms and narrow dates. Dedupe document-level hits to accession-level records. Compare the Entity facet and ciks parameter only as secondary controls; their semantics must be inferred from the known cross-filer examples, not assumed.
+
+The SEC search FAQ states that results can include all data in the filing and attachments, and that search relevance can rank documents rather than guarantee a complete accession listing. Accordingly, exact-CIK search results must be reconciled by accession and followed by source-native XML validation; an exhibit-only hit does not count as a primary ownership filing.
