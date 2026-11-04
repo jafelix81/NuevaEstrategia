@@ -1,0 +1,2 @@
+sample_limit=80
+Run the deterministic 80-filing pilot only. Do not run the full 8,294-document corpus in this workflow invocation.
