@@ -473,3 +473,13 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - Run 41828179718 is still marked in_progress in the Phase 67 concurrency group (job 126605281463); its test suites passed but the XML resolution step remains active and its job-log download currently returns BlobNotFound. The completed run 41828139052 already provides the validated baseline. Do not dispatch Phase 69 until the active duplicate run is reconciled.
 - Phase 70 remains the hard blocker for broad alpha promotion: recover the original 335-universe selection rule and/or reconstruct a broad historical eligible universe including delisted securities, with PIT effective and record-known timestamps. Phase 68's current CIK map does not solve this.
 - No forward returns or alpha tests were run. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## 2026-11-04 — Phase 71 original 335-name universe provenance trace
+
+- Direct source inspection confirms Phase 0 says the 335-name DEFAULT_UNIVERSE must be copied from the current project; Phase 0, 5, 6 and 8 each hard-code/count-check the same 335 names and request ten years of price history by ticker. No dated inclusion/exclusion ledger or historical eligible-universe construction rule was found in the inspected repository tree.
+- Git history for the Phase 0 file begins with a generic upload on 2026-10-14; Phase 6/8 were uploaded 2026-10-15. The inspected commit messages do not document the universe's source, screen date, thresholds or replacement process.
+- This confirms Phase 70's limitation. A PIT security master can resolve lifecycle for known securities but cannot restore omitted names that were absent from the curated 335 list. Fixed-335 results remain conditional diagnostics; do not describe them as a general survivorship-bias-free cross-sectional test.
+- If the original selection rule cannot be recovered from contemporaneous evidence, a new broad-universe benchmark must be a separate research line with predeclared PIT eligibility, permanent security/listing IDs, delisted names and terminal-return handling. Do not silently substitute it into F80 or tune the rule against historical returns.
+- Report: research/PHASE71_ORIGINAL_UNIVERSE_RULE_TRACE_2026-11-04.md.
+- No forward returns or alpha tests were run. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
