@@ -336,7 +336,7 @@ def parse_index_page(raw):
     }
     for label, prefix in (("Subject", "subject"), ("Reporting", "reporting"), ("Filed by", "filed_by")):
         pattern = re.compile(
-            r"(?i)^(.{1,220}?)\s*\(" + re.escape(label) + r"\)\s*CIK:\s*(\d{6,10})"
+            r"(?i)^(.{1,220}?)\s*\(\s*" + re.escape(label) + r"\s*\)\s*CIK:\s*(\d{6,10})"
         )
         for line in lines:
             match = pattern.search(line)
@@ -346,7 +346,7 @@ def parse_index_page(raw):
                 break
         if not output[prefix + "_cik"]:
             match = re.search(
-                r"(?i)(.{1,220}?)\s*\(" + re.escape(label) + r"\)\s*CIK:\s*(\d{6,10})",
+                r"(?i)(.{1,220}?)\s*\(\s*" + re.escape(label) + r"\s*\)\s*CIK:\s*(\d{6,10})",
                 flat,
             )
             if match:
