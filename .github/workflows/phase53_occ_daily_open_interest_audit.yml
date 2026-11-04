@@ -1,0 +1,39 @@
+name: Phase 53 - OCC Daily Open Interest feasibility audit
+
+on:
+  push:
+    branches: [phase53-occ-daily-open-interest-audit]
+    paths:
+      - 'research/phase53_occ_daily_open_interest_audit.py'
+      - 'research/test_phase53_occ_daily_open_interest_audit.py'
+      - 'research/PHASE53_OCC_DAILY_OPEN_INTEREST_AUDIT_SPEC_2026-11-04.md'
+      - '.github/workflows/phase53_occ_daily_open_interest_audit.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: phase53-occ-daily-open-interest-audit
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  feasibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run OCC parser tests
+        run: python -m unittest research.test_phase53_occ_daily_open_interest_audit -v
+      - name: Audit OCC Daily Open Interest and Volume Query
+        run: python -u research/phase53_occ_daily_open_interest_audit.py
+      - name: Upload OCC feasibility outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase53-occ-daily-open-interest-audit
+          path: phase53_occ_daily_open_interest_audit/
+          if-no-files-found: warn
