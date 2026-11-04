@@ -80,3 +80,14 @@ No return tests, purchases or baseline changes. `F80_TOP20_PARTIAL50_BASELINE_C2
 - Hosted CI run 41864876578 / job 126696436238 passed 11 tests: five structured XML parser tests and six corpus-audit helper tests, including the stratified sample and same-/cross-issuer predecessor cases.
 - The data workflow is prepared to run an 80-filing stratified pilot first. It has not yet been triggered; no new SEC requests were made by Phase 72 in this run. Only after the pilot's actual XML parse, issuer/form concordance and predecessor results pass will the trigger be changed to the full 8,294-document corpus.
 - The parser now supports both observed SEC `filerInfo/cik` and nested `filerInfo/filer/filerCredentials/cik` layouts. This field is kept separate from reporting-person CIKs.
+
+
+## 8. Current SEC XML schema versioning and CUSIP change
+
+The SEC technical-specification index currently lists Schedule 13D/13G XML version 2.3 (updated 2026-04-15). Its version history records a 2026-03-16 change allowing multiple CUSIP numbers for Schedule 13D and 13G. The parser was therefore upgraded to `phase72-v2`: it records the root `schemaVersion` and preserves multiple CUSIPs for both form families, while retaining legacy single-CUSIP elements for older structured filings. Official reference: https://www.sec.gov/submit-filings/technical-specifications.
+
+The full-corpus audit now also compares the XML `filerInfo` CIK against the first ten digits of the SEC accession (the submitting filer identity), separately from the XML issuer CIK and each reporting-person CIK. It records filing-date concordance with SEC submissions metadata, acceptanceDateTime coverage, event-date coverage, amendment-number coverage and schema-version counts. This explicitly guards against the earlier filer/issuer/reporting-person role confusion.
+
+Hosted run 41865309350 / job 126697927454 passed all 11 tests (5 parser tests + 6 corpus-helper tests) against parser v2 and the expanded audit metrics.
+
+The 80-filing pilot is queued as run 41865034118 / job 126696988419. It was created immediately before parser v2 and therefore checks the preceding parser revision; its result will be treated as a preliminary schema smoke test only. The full corpus run, if authorized by the pilot gates, will use parser v2. No full-corpus request has been made yet.
