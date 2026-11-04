@@ -52,7 +52,7 @@ Current product page: https://datashop.cboe.com/enhanced-us-options-trade-by-tra
 - 2026-11-03 C2 filing (SR-C2-2026-029): historical start 2019-03-01, $5,000/month subscription, $3,000 per historical month, free July 2022 sample.
 - 2026-11-03 BZX filing (SR-CboeBZX-2026-089): historical start 2019-03-01, $6,000/month subscription, $4,000 per historical month, free July 2022 sample.
 - 2026-11-03 EDGX filing (SR-CboeEDGX-2026-074): historical start 2019-03-01, $6,000/month subscription, $4,000 per historical month, free July 2022 sample.
-- The C2 and BZX fee exhibits state 2027-01-07 effective schedules; the live DataShop page still identifies C1 as the current venue and the others as future releases.
+- The SEC notices state that the fee changes are effective upon filing but become operative 30 days after filing (C2 filed 2026-10-27; BZX and EDGX filed 2026-10-21), subject to possible SEC suspension. The live DataShop page still identifies C1 as the current venue and the others as future releases, so actual product launch/access timing is not verified.
 
 A rough full-history ad-hoc estimate across the four venues from their respective starts through 2026-11 is about **$1.71 million** before any discounts or other charges (assuming the quoted fee applies per historical month: C1 86 months × $8k; C2 93 × $3k; BZX 93 × $4k; EDGX 93 × $4k). This is not a purchase recommendation. Use only eligible free samples or a narrowly scoped quote unless a demonstrated economic benefit justifies more.
 
