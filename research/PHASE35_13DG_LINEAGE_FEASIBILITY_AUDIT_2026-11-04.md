@@ -9,13 +9,14 @@
 
 The latest Q4/Q1 workflow [41742690656](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41742690656) completed successfully. Its artifact is `13282921575`.
 
-Across the four quarter tests, the unique exact-name filer-to-reporting-person crosswalk produced **468/468 exact matches** against explicit reporting-person CIKs in 13D filings (237/237 in Q2/Q3 and 231/231 in Q4/Q1). This is conditional precision among matched 13D cases, not a universal guarantee.
+The Q2/Q3 development sample produced 237/237 exact matches against explicit 13D reporting-person CIKs. The frozen rule then passed the later Q4/Q1 held-out validation at **231/231 exact matches** (zero mismatches). The pooled count is 468/468, but only the 231 Q4/Q1 cases are the later validation sample. This is conditional precision among unique matched 13D cases, not a universal guarantee.
 
 For 13G, target-sample name-match coverage was:
 - 2025Q2/Q3: 461/480 (95.96%).
 - 2025Q4: 219/224 (97.77%).
 - 2026Q1: 457/463 (98.70%).
-- Combined: 1,137/1,167 (97.43%).
+- Q4/Q1 held-out combined: 676/687 (98.40%).
+- Combined development + held-out: 1,137/1,167 (97.43%).
 
 The 13G figures are **coverage only**, not precision: the tested XMLs did not provide explicit reporting-person CIKs to validate the matches. Neither the crosswalk nor its candidate CIK is a reporting-group identity.
 
