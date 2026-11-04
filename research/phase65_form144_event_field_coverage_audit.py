@@ -13,23 +13,15 @@ import hashlib
 import json
 import re
 import xml.etree.ElementTree as ET
-from collections import Counter
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from pathlib import Path
 
 from research.phase50_form144_global_index_pilot import (
-    current_cik_candidates,
-    fetch_bytes,
-    load_universe,
-    norm_cik,
-    parse_form144_xml,
+    current_cik_candidates, fetch_bytes, load_universe, parse_form144_xml
 )
 from research.phase64_form144_master_pair_cross_quarter_audit import (
-    build_pair_rows,
-    classify_xml_identity,
-    parse_quarter,
-    primary_xml_urls,
+    build_pair_rows, classify_xml_identity, parse_quarter, primary_xml_urls
 )
 
 DEFAULT_QUARTERS = (
@@ -39,19 +31,10 @@ DEFAULT_QUARTERS = (
 START_DATE = "2023-04-13"
 OUT_DIR = Path("phase65_form144_field_coverage")
 FORMS = ("144", "144/A")
-SAMPLE_LIMITS = {
-    "unique_candidate": 50,
-    "ambiguous": 20,
-    "control": 10,
-}
+SAMPLE_LIMITS = {"unique_candidate": 50, "ambiguous": 20, "control": 10}
 CORE_FIELDS = (
-    "issuer_cik",
-    "seller_name",
-    "relationships",
-    "security_class",
-    "units_to_be_sold",
-    "aggregate_market_value",
-    "approx_sale_date",
+    "issuer_cik", "seller_name", "relationships", "sale_tranche_count",
+    "sale_security_class", "sale_units", "sale_value", "approx_sale_date",
     "notice_date",
 )
 
@@ -66,15 +49,6 @@ def first_text(node, wanted):
         if local_name(element.tag) == wanted and element.text and element.text.strip():
             return element.text.strip()
     return None
-
-
-def all_text(node, wanted):
-    wanted = wanted.lower()
-    return [
-        element.text.strip()
-        for element in node.iter()
-        if local_name(element.tag) == wanted and element.text and element.text.strip()
-    ]
 
 
 def parse_date(value):
@@ -136,7 +110,34 @@ def select_sample(rows):
     ))
 
 
-def extract_tranches(root, parsed):
+def extract_sale_tranches(root):
+    """securitiesInformation blocks describe proposed sales (not acquisition lots)."""
+    nodes = [
+        element for element in root.iter()
+        if local_name(element.tag) == "securitiesinformation"
+    ]
+    result = []
+    for index, node in enumerate(nodes, start=1):
+        item = {
+            "sale_tranche_index": index,
+            "security_class": first_text(node, "securitiesClassTitle"),
+            "units_to_be_sold": first_text(node, "noOfUnitsSold"),
+            "aggregate_market_value": first_text(node, "aggregateMarketValue"),
+            "units_outstanding": first_text(node, "noOfUnitsOutstanding"),
+            "approx_sale_date": first_text(node, "approxSaleDate"),
+            "exchange": first_text(node, "securitiesExchangeName"),
+            "broker_or_market_maker": first_text(node, "name"),
+        }
+        item["units_numeric"] = parse_number(item["units_to_be_sold"])
+        item["value_numeric"] = parse_number(item["aggregate_market_value"])
+        item["outstanding_numeric"] = parse_number(item["units_outstanding"])
+        item["approx_sale_date_iso"] = parse_date(item["approx_sale_date"])
+        result.append(item)
+    return result
+
+
+def extract_acquisition_lots(root):
+    """securitiesToBeSold blocks describe how/when the seller acquired the securities."""
     nodes = [
         element for element in root.iter()
         if local_name(element.tag) == "securitiestobesold"
@@ -144,28 +145,42 @@ def extract_tranches(root, parsed):
     result = []
     for index, node in enumerate(nodes, start=1):
         item = {
-            "tranche_index": index,
+            "acquisition_lot_index": index,
             "security_class": first_text(node, "securitiesClassTitle"),
-            "units_to_be_sold": first_text(node, "noOfUnitsSold"),
-            "aggregate_market_value": first_text(node, "aggregateMarketValue"),
-            "approx_sale_date": first_text(node, "approxSaleDate"),
+            "acquired_date": first_text(node, "acquiredDate"),
+            "nature_of_acquisition": first_text(node, "natureOfAcquisitionTransaction"),
+            "acquired_from": first_text(node, "nameOfPersonfromWhomAcquired"),
+            "gift_flag": first_text(node, "isGiftTransaction"),
+            "amount_acquired": first_text(node, "amountOfSecuritiesAcquired"),
+            "payment_date": first_text(node, "paymentDate"),
+            "nature_of_payment": first_text(node, "natureOfPayment"),
         }
-        item["units_numeric"] = parse_number(item["units_to_be_sold"])
-        item["value_numeric"] = parse_number(item["aggregate_market_value"])
-        item["approx_sale_date_iso"] = parse_date(item["approx_sale_date"])
+        item["amount_acquired_numeric"] = parse_number(item["amount_acquired"])
+        item["acquired_date_iso"] = parse_date(item["acquired_date"])
+        item["payment_date_iso"] = parse_date(item["payment_date"])
         result.append(item)
+    return result
 
-    if not result:
+
+def extract_prior_sales(root):
+    """securitiesSoldInPast3Months blocks are realized historical sales, not the proposed sale."""
+    nodes = [
+        element for element in root.iter()
+        if local_name(element.tag) == "securitiessoldinpast3months"
+    ]
+    result = []
+    for index, node in enumerate(nodes, start=1):
         item = {
-            "tranche_index": 1,
-            "security_class": ";".join(parsed.get("security_class") or []) or None,
-            "units_to_be_sold": parsed.get("units_to_be_sold"),
-            "aggregate_market_value": parsed.get("aggregate_market_value"),
-            "approx_sale_date": parsed.get("approx_sale_date"),
+            "past_sale_index": index,
+            "seller": first_text(node, "name"),
+            "security_class": first_text(node, "securitiesClassTitle"),
+            "sale_date": first_text(node, "saleDate"),
+            "amount_sold": first_text(node, "amountOfSecuritiesSold"),
+            "gross_proceeds": first_text(node, "grossProceeds"),
         }
-        item["units_numeric"] = parse_number(item["units_to_be_sold"])
-        item["value_numeric"] = parse_number(item["aggregate_market_value"])
-        item["approx_sale_date_iso"] = parse_date(item["approx_sale_date"])
+        item["amount_sold_numeric"] = parse_number(item["amount_sold"])
+        item["gross_proceeds_numeric"] = parse_number(item["gross_proceeds"])
+        item["sale_date_iso"] = parse_date(item["sale_date"])
         result.append(item)
     return result
 
@@ -194,9 +209,7 @@ def audit_quarter(token, candidate_ciks, cik_to_tickers, workers):
         if row.get("form") in FORMS and row.get("filing_date")
         and row["filing_date"] >= START_DATE
     ]
-    pair_rows = build_pair_rows(
-        index_rows, candidate_ciks, cik_to_tickers, year, quarter
-    )
+    pair_rows = build_pair_rows(index_rows, candidate_ciks, cik_to_tickers, year, quarter)
     sample = select_sample(pair_rows)
     census = {
         "quarter": token,
@@ -209,13 +222,16 @@ def audit_quarter(token, candidate_ciks, cik_to_tickers, workers):
         "ambiguous_144a": sum(row.get("form") == "144/A" and row["pair_class"] == "ambiguous" for row in pair_rows),
         "control_144": sum(row.get("form") == "144" and row["pair_class"] == "control" for row in pair_rows),
         "control_144a": sum(row.get("form") == "144/A" and row["pair_class"] == "control" for row in pair_rows),
+        "sampled_unique_candidate": sum(row["sample_stratum"] == "unique_candidate" for row in sample),
+        "sampled_ambiguous": sum(row["sample_stratum"] == "ambiguous" for row in sample),
+        "sampled_controls": sum(row["sample_stratum"] == "control" for row in sample),
         "xml_sample_requested": len(sample),
     }
     return census, sample, pair_rows
 
 
 def audit_sample(rows, census_accessions, workers):
-    details, tranches, errors = [], [], []
+    details, sale_rows, acquisition_rows, past_sale_rows, errors = [], [], [], [], []
     with ThreadPoolExecutor(max_workers=workers) as pool:
         futures = {pool.submit(fetch_and_parse, row): row for row in rows}
         for future in as_completed(futures):
@@ -243,10 +259,20 @@ def audit_sample(rows, census_accessions, workers):
             else:
                 identity_ok = identity["both_xml_ciks_in_pair"]
 
-            tranche_rows = extract_tranches(root, parsed)
+            sale_tranches = extract_sale_tranches(root)
+            acquisition_lots = extract_acquisition_lots(root)
+            past_sales = extract_prior_sales(root)
             previous = normalize_accession(parsed.get("previous_accession"))
-            relationship = parsed.get("relationships") or []
-            security_classes = parsed.get("security_class") or []
+            relationships = parsed.get("relationships") or []
+            sale_units = [item["units_numeric"] for item in sale_tranches]
+            sale_values = [item["value_numeric"] for item in sale_tranches]
+            sale_outstanding = [item["outstanding_numeric"] for item in sale_tranches]
+            sale_dates = [item["approx_sale_date_iso"] for item in sale_tranches]
+            sale_units_raw = [item["units_to_be_sold"] for item in sale_tranches]
+            sale_values_raw = [item["aggregate_market_value"] for item in sale_tranches]
+            sale_dates_raw = [item["approx_sale_date"] for item in sale_tranches]
+            units_total = sum(sale_units) if sale_units and all(v is not None for v in sale_units) else None
+            value_total = sum(sale_values) if sale_values and all(v is not None for v in sale_values) else None
             record = {
                 "quarter": "{}Q{}".format(row["year"], row["quarter"]),
                 "accession": row["accession"],
@@ -262,38 +288,56 @@ def audit_sample(rows, census_accessions, workers):
                 "xml_form_matches_index": identity["xml_form_matches_index"],
                 "issuer_name": parsed.get("issuer_name") or "",
                 "seller_name": parsed.get("seller_name") or "",
-                "relationships": ";".join(relationship),
-                "security_class": ";".join(security_classes),
-                "units_to_be_sold": parsed.get("units_to_be_sold") or "",
-                "units_numeric": parse_number(parsed.get("units_to_be_sold")),
-                "aggregate_market_value": parsed.get("aggregate_market_value") or "",
-                "value_numeric": parse_number(parsed.get("aggregate_market_value")),
-                "approx_sale_date": parsed.get("approx_sale_date") or "",
-                "approx_sale_date_iso": parse_date(parsed.get("approx_sale_date")),
+                "relationships": ";".join(relationships),
+                "sale_tranche_count": len(sale_tranches),
+                "sale_security_class_present": bool(sale_tranches) and all(item["security_class"] for item in sale_tranches),
+                "sale_units_present": bool(sale_tranches) and all(sale_units_raw),
+                "sale_value_present": bool(sale_tranches) and all(sale_values_raw),
+                "approx_sale_date_present": bool(sale_tranches) and all(sale_dates_raw),
+                "sale_units_all_numeric": bool(sale_tranches) and all(value is not None for value in sale_units),
+                "sale_value_all_numeric": bool(sale_tranches) and all(value is not None for value in sale_values),
+                "sale_outstanding_all_numeric": bool(sale_tranches) and all(value is not None for value in sale_outstanding),
+                "sale_dates_all_parse": bool(sale_tranches) and all(value is not None for value in sale_dates),
+                "sale_units_total": units_total,
+                "sale_value_total": value_total,
+                "sale_tranches_json": json.dumps(sale_tranches, sort_keys=True),
+                "acquisition_lot_count": len(acquisition_lots),
+                "acquisition_lots_json": json.dumps(acquisition_lots, sort_keys=True),
+                "past_sales_count": len(past_sales),
+                "past_sales_json": json.dumps(past_sales, sort_keys=True),
                 "notice_date": parsed.get("notice_date") or "",
                 "notice_date_iso": parse_date(parsed.get("notice_date")),
                 "previous_accession": parsed.get("previous_accession") or "",
                 "previous_accession_normalized": previous or "",
-                "previous_accession_in_sample_window": bool(previous and previous in census_accessions),
+                "previous_accession_in_census": bool(previous and previous in census_accessions),
                 "previous_accession_valid_format": bool(previous),
                 "plan_adoption_dates": ";".join(parsed.get("plan_adoption_dates") or []),
                 "mentions_10b5_1": bool(parsed.get("mentions_10b5_1")),
                 "remarks_present": bool(parsed.get("remarks")),
-                "tranche_count_xml": len(tranche_rows),
-                "tranche_count_parser": parsed.get("tranche_count", 0),
+                "no_prior_sales_flag": first_text(root, "nothingToReportFlagOnSecuritiesSoldInPast3Months") or "",
                 "field_presence": json.dumps(parsed.get("field_presence") or {}, sort_keys=True),
             }
             details.append(record)
-            for tranche in tranche_rows:
-                tranches.append({
-                    "quarter": record["quarter"],
-                    "accession": record["accession"],
-                    "form": record["form"],
-                    "sample_stratum": record["sample_stratum"],
-                    "xml_issuer_cik": record["xml_issuer_cik"],
-                    **tranche,
+
+            for item in sale_tranches:
+                sale_rows.append({
+                    "quarter": record["quarter"], "accession": record["accession"],
+                    "form": record["form"], "sample_stratum": record["sample_stratum"],
+                    "xml_issuer_cik": record["xml_issuer_cik"], **item,
                 })
-    return details, tranches, errors
+            for item in acquisition_lots:
+                acquisition_rows.append({
+                    "quarter": record["quarter"], "accession": record["accession"],
+                    "form": record["form"], "sample_stratum": record["sample_stratum"],
+                    "xml_issuer_cik": record["xml_issuer_cik"], **item,
+                })
+            for item in past_sales:
+                past_sale_rows.append({
+                    "quarter": record["quarter"], "accession": record["accession"],
+                    "form": record["form"], "sample_stratum": record["sample_stratum"],
+                    "xml_issuer_cik": record["xml_issuer_cik"], **item,
+                })
+    return details, sale_rows, acquisition_rows, past_sale_rows, errors
 
 
 def rate(rows, predicate):
@@ -309,41 +353,51 @@ def summarize(details, errors, census):
             "sample_rows": len(sub),
             "candidate_rows": len(targets),
             "candidate_identity_rate": rate(targets, lambda row: row["identity_ok"]),
+            "control_pair_concordance": rate([row for row in sub if row["sample_stratum"] == "control"], lambda row: row["identity_ok"]),
             "xml_form_match_rate": rate(sub, lambda row: row["xml_form_matches_index"]),
             "core_field_presence": {},
-            "numeric_parse_rates_when_present": {},
-            "date_parse_rates_when_present": {},
+            "numeric_parse_rates": {},
+            "date_parse_rates": {},
             "amendment_previous_accession_valid_rate": None,
-            "amendment_previous_accession_in_window_rate": None,
+            "amendment_previous_accession_in_census_rate": None,
             "tenb5_1_mention_rate": rate(sub, lambda row: row["mentions_10b5_1"]),
-            "median_tranche_count": None,
+            "multi_sale_tranche_rate": rate(sub, lambda row: row["sale_tranche_count"] > 1),
+            "median_sale_tranche_count": None,
+            "median_acquisition_lot_count": None,
         }
         for field in CORE_FIELDS:
-            if field == "relationships":
+            if field == "issuer_cik":
+                item["core_field_presence"][field] = rate(sub, lambda row: bool(row["xml_issuer_cik"]))
+            elif field == "seller_name":
+                item["core_field_presence"][field] = rate(sub, lambda row: bool(row["seller_name"]))
+            elif field == "relationships":
                 item["core_field_presence"][field] = rate(sub, lambda row: bool(row["relationships"]))
-            elif field == "security_class":
-                item["core_field_presence"][field] = rate(sub, lambda row: bool(row["security_class"]))
-            else:
-                item["core_field_presence"][field] = rate(sub, lambda row: row.get(field) not in (None, ""))
-        for field, source in (
-            ("units_numeric", "units_to_be_sold"),
-            ("value_numeric", "aggregate_market_value"),
-        ):
-            present = [row for row in sub if row.get(source) not in (None, "")]
-            item["numeric_parse_rates_when_present"][field] = rate(present, lambda row: row.get(field) is not None)
-        for field, source in (
-            ("approx_sale_date_iso", "approx_sale_date"),
-            ("notice_date_iso", "notice_date"),
-        ):
-            present = [row for row in sub if row.get(source) not in (None, "")]
-            item["date_parse_rates_when_present"][field] = rate(present, lambda row: row.get(field) is not None)
+            elif field == "sale_tranche_count":
+                item["core_field_presence"][field] = rate(sub, lambda row: row["sale_tranche_count"] > 0)
+            elif field == "sale_security_class":
+                item["core_field_presence"][field] = rate(sub, lambda row: row["sale_security_class_present"])
+            elif field == "sale_units":
+                item["core_field_presence"][field] = rate(sub, lambda row: row["sale_units_present"])
+            elif field == "sale_value":
+                item["core_field_presence"][field] = rate(sub, lambda row: row["sale_value_present"])
+            elif field == "approx_sale_date":
+                item["core_field_presence"][field] = rate(sub, lambda row: row["approx_sale_date_present"])
+            elif field == "notice_date":
+                item["core_field_presence"][field] = rate(sub, lambda row: bool(row["notice_date"]))
+        for field in ("sale_units_all_numeric", "sale_value_all_numeric", "sale_outstanding_all_numeric"):
+            item["numeric_parse_rates"][field] = rate(sub, lambda row, f=field: row[f])
+        item["date_parse_rates"]["sale_dates_all_parse"] = rate(sub, lambda row: row["sale_dates_all_parse"])
+        item["date_parse_rates"]["notice_date_iso"] = rate(sub, lambda row: bool(row["notice_date_iso"]))
         if form == "144/A":
             item["amendment_previous_accession_valid_rate"] = rate(sub, lambda row: row["previous_accession_valid_format"])
             valid = [row for row in sub if row["previous_accession_valid_format"]]
-            item["amendment_previous_accession_in_window_rate"] = rate(valid, lambda row: row["previous_accession_in_sample_window"])
-        counts = sorted(int(row["tranche_count_xml"] or 0) for row in sub)
-        if counts:
-            item["median_tranche_count"] = counts[len(counts)//2]
+            item["amendment_previous_accession_in_census_rate"] = rate(valid, lambda row: row["previous_accession_in_census"])
+        sale_counts = sorted(int(row["sale_tranche_count"] or 0) for row in sub)
+        acq_counts = sorted(int(row["acquisition_lot_count"] or 0) for row in sub)
+        if sale_counts:
+            item["median_sale_tranche_count"] = sale_counts[len(sale_counts)//2]
+        if acq_counts:
+            item["median_acquisition_lot_count"] = acq_counts[len(acq_counts)//2]
         by_form[form] = item
 
     candidate_144 = sum(row["unique_candidate_144"] for row in census)
@@ -354,6 +408,8 @@ def summarize(details, errors, census):
         row["identity_ok"] for row in details
         if row["sample_stratum"] in ("unique_candidate", "ambiguous")
     )
+    controls = [row for row in details if row["sample_stratum"] == "control"]
+    controls_ok = all(row["identity_ok"] for row in controls)
     xml_ok = all(row["xml_form_matches_index"] for row in details)
     core_144 = by_form["144"]["core_field_presence"]
     core_144a = by_form["144/A"]["core_field_presence"]
@@ -364,6 +420,7 @@ def summarize(details, errors, census):
         "at_least_20_candidate_form144a_xml_rows": sampled_144a >= 20,
         "zero_xml_fetch_errors": len(errors) == 0,
         "all_sampled_candidate_identities_confirmed": identity_ok,
+        "all_sampled_controls_confirm_master_pair": controls_ok,
         "all_sampled_xml_forms_match_index": xml_ok,
         "form144_core_fields_each_ge_95pct": core_required_144,
         "form144a_core_fields_each_ge_90pct": core_required_144a,
@@ -375,8 +432,7 @@ def summarize(details, errors, census):
         "quarters": [row["quarter"] for row in census],
         "quarter_census": census,
         "current_candidate_unique_accessions": {
-            "form144": candidate_144,
-            "form144a": candidate_144a,
+            "form144": candidate_144, "form144a": candidate_144a,
         },
         "sampled_by_form": by_form,
         "xml_sample_rows": len(details),
@@ -389,6 +445,7 @@ def summarize(details, errors, census):
         "forward_returns_used": False,
         "knowledge_date_rule": "Use first full trading-session close after SEC filing_date; never use approximate sale date or same-date close.",
         "identity_rule": "Current CIK pair discovers candidates; primary XML issuerCik confirms issuer. Current mappings are not historical F80 membership.",
+        "schema_rule": "securitiesInformation contains proposed-sale tranches; securitiesToBeSold contains acquisition-lot history; securitiesSoldInPast3Months contains realized prior sales. Never mix these three groups.",
         "limitations": [
             "Deterministic stratified sample is a schema diagnostic, not a population-random field-completeness estimate.",
             "Current ticker/CIK mapping does not resolve historical issuer predecessors, delistings or F80 membership.",
@@ -429,7 +486,9 @@ def main():
         print(json.dumps({"stage": "QUARTER_COMPLETE", "summary": summary}, sort_keys=True), flush=True)
 
     census_accessions = {row["accession"] for row in all_pair_rows}
-    details, tranches, errors = audit_sample(sample_rows, census_accessions, args.workers)
+    details, sale_rows, acquisition_rows, past_sale_rows, errors = audit_sample(
+        sample_rows, census_accessions, args.workers
+    )
     summary = summarize(details, errors, census)
     summary.update({
         "frozen_universe_size": len(tickers),
@@ -440,14 +499,18 @@ def main():
         "sample_limits_per_quarter_form": SAMPLE_LIMITS,
         "sample_accessions_requested": len(sample_rows),
         "xml_field_rows_parsed": len(details),
-        "tranche_rows_parsed": len(tranches),
+        "sale_tranche_rows_parsed": len(sale_rows),
+        "acquisition_lot_rows_parsed": len(acquisition_rows),
+        "past_sale_rows_parsed": len(past_sale_rows),
     })
     output = Path(args.output)
     output.mkdir(parents=True, exist_ok=True)
     (output / "summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     write_csv(output / "quarter_census.csv", census)
     write_csv(output / "filing_field_coverage.csv", details)
-    write_csv(output / "tranche_rows.csv", tranches)
+    write_csv(output / "sale_tranche_rows.csv", sale_rows)
+    write_csv(output / "acquisition_lot_rows.csv", acquisition_rows)
+    write_csv(output / "past_sales_rows.csv", past_sale_rows)
     write_csv(output / "xml_fetch_errors.csv", errors)
     print(json.dumps(summary, indent=2), flush=True)
     if summary["sample_schema_gate"] != "PASS":
