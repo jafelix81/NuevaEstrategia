@@ -53,3 +53,13 @@ Updated: 2026-10-25
 
 ## Research principle
 "Smart money" is a hypothesis, not an assumption. Candidate sources must pass historical coverage, ex-ante availability, timestamp/PIT, universe overlap, incremental-information, chronological OOS, bootstrap and LOO tests before portfolio promotion.
+
+
+## Phase 50 — SEC Form 144 v2 redesign (2026-11-03)
+- Previous pilot 40961563763 is not a valid coverage result: 132 HTTP 403 query errors, 6/25 XML samples classified as downloaded, and false-negative field/root checks. The 54.8% raw hit rate is not a subject-issuer coverage estimate.
+- Key identity correction: Form 144 is filed by the selling security holder, not the issuer. EFTS CIK hits are candidate associations only. The XML issuerCik is authoritative for the subject; XML filer CIK, accession prefix and archive-path CIK are kept separate.
+- Added a new parser/search pilot in research/phase50_form144_pilot_v2.py, tests in research/test_phase50_form144_pilot_v2.py, and a preregistered specification in research/PHASE50_FORM144_REDESIGNED_PILOT_SPEC_2026-11-03.md.
+- v2 includes both 144 and 144/A, sequential rate-limited CIK queries, pagination/cap detection, archive-path candidates from EFTS metadata before accession-prefix fallback, actual edgarSubmission XML parsing, seller/issuer/filer separation, accepted timestamp capture, prospective-vs-sale-date-before-filing classification, and original-accession references for amendments.
+- Source boundary: electronic filing for Exchange Act reporting-issuer securities is substantially complete from 2023-04-13; earlier paper filing makes history incomplete. Form 144 covers Rule 144 restricted/control securities, not all insider sales, and a notice is not proof of execution. Third-party schema cross-check: https://sec-api.io/datasets/form-144-files.
+- Next: run parser tests and the v2 sample audit. A completed data-gate failure is recorded as a research result, not an Actions technical failure. No forward returns or alpha tests. Historical PIT F80 membership remains mandatory.
+- F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
