@@ -6,8 +6,6 @@ on:
       - phase71-original-universe-rule-trace
     paths:
       - research/phase69_form144_incremental_fund_registrant_scan.py
-      - research/PHASE69_INCREMENTAL_FORM144_FUND_REGISTRANT_SCAN_SPEC_2026-11-04.md
-      - .github/workflows/phase69_form144_incremental_scan.yml
 
 permissions:
   actions: read
