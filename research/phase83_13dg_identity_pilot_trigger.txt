@@ -1,0 +1,1 @@
+Run the pre-registered 120-filing stratified SEC 13D/13G subject/filer identity pilot using the corrected Phase 82 index parser. Preserve every complete submission, SHA-256 and UTC retrieval time. No forward-return or alpha test is authorized.
