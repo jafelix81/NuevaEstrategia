@@ -1,0 +1,59 @@
+name: Phase 91 - SEC 13G identity semantics and timing-regime audit
+
+on:
+  push:
+    branches:
+      - phase91-13dg-implicit-cik-and-regime-audit
+    paths:
+      - research/phase91_13dg_implicit_cik_and_rule_regime_audit.py
+      - research/test_phase91_13dg_implicit_cik_and_rule_regime_audit.py
+      - research/PHASE91_13DG_IDENTITY_AND_TIMING_REGIME_AUDIT_2026-11-04.md
+      - .github/workflows/phase91_13dg_implicit_cik_and_rule_regime_audit.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  offline_identity_timing_audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install parser dependency
+        run: python -m pip install requests
+      - name: Download immutable Phase 84 raw submissions
+        uses: actions/download-artifact@v4
+        with:
+          name: phase84-13dg-role-aware-identity-validation
+          path: phase84_original_artifact
+          repository: jafelix81/NuevaEstrategia
+          run-id: 41914491120
+          github-token: ${{ github.token }}
+      - name: Run parser and Phase 91 regression tests
+        run: >-
+          python -m unittest
+          research.test_phase72_13dg_structured_xml_parser
+          research.test_phase73_sec_submission_text_extractor
+          research.test_phase74_13dg_global_subject_audit
+          research.test_phase84_13dg_role_aware_identity_audit
+          research.test_phase90_13dg_event_semantics_pilot
+          research.test_phase91_13dg_implicit_cik_and_rule_regime_audit
+          -v
+      - name: Run offline identity and timing-regime audit
+        run: >-
+          python -u -m research.phase91_13dg_implicit_cik_and_rule_regime_audit
+          --artifact-dir phase84_original_artifact
+          --outdir phase91_13dg_audit
+      - name: Upload Phase 91 audit artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase91-13dg-identity-timing-audit
+          path: phase91_13dg_audit/
+          if-no-files-found: warn
+          retention-days: 90
