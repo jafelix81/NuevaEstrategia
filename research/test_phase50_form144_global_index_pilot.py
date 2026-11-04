@@ -129,8 +129,8 @@ class Form144GlobalIndexTests(unittest.TestCase):
                     "subject_cik": "0000000001" if i < 15 else "0000000002",
                 })
         sample = select_xml_sample(rows, {"0000000001"}, sample_per_form=5)
-        self.assertEqual(sum(row["form"] == "144" for row in sample), 10)
-        self.assertEqual(sum(row["form"] == "144/A" for row in sample), 10)
+        self.assertEqual(sum(row["master_index_form"] == "144" for row in sample), 10)
+        self.assertEqual(sum(row["master_index_form"] == "144/A" for row in sample), 10)
         self.assertEqual(sum(row["subject_cik"] == "0000000001" for row in sample), 10)
         self.assertEqual(sum(row["subject_cik"] == "0000000002" for row in sample), 10)
 
