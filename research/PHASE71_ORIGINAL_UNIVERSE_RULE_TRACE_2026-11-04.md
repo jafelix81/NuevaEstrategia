@@ -30,7 +30,7 @@ File: `Nueva_Estrategia_Fase9_PortfolioPersistence_LTM.py`
 - Contains the same hard-coded 335-name list.
 - Its comment calls it the exact frozen universe used by the preceding research phase.
 - Its empty-universe error says to replace the list with the exact 335-ticker universe from a preceding “Phase 9D research file”.
-- The Phase 9 file itself does not explain how the 335 were selected or provide dated membership. The referenced Phase 9D source file was not found in the inspected repository tree or the Library search results; the accessible Phase 9 artifact is the portfolio-persistence script itself.
+- The Phase 9 file itself does not explain how the 335 were selected or provide dated membership. The referenced Phase 9D source file was not found in the inspected repository tree, the 104 current branch names, or the Library search results; the accessible Phase 9 artifact is the portfolio-persistence script itself.
 
 ### Phase 5 — momentum validation
 
@@ -60,7 +60,7 @@ File: \`Nueva_Estrategia_Fase8_Portfolio_LTM.py\`
 
 ## 2. Git-history trace
 
-The repository history shows the Phase 0 discovery file was uploaded on 2026-10-14, and Phase 9/Phase 6/Phase 8 files were uploaded on 2026-10-15. The Phase 9 file contains the list and refers to a preceding Phase 9D research file, but that referenced file is not present in the inspected repository tree or the matching Library search results. Available commit messages are generic “Add files via upload”/rename messages; they do not document the universe source, screening date, inclusion thresholds or replacement process. In the 2026-10-14 prior conversation, the user supplied only that the script required the frozen 335-ticker universe from the current project; the earlier assistant asserted a Phase 9/9D origin but did not establish selection provenance or criteria.
+The repository history shows the Phase 0 discovery file was uploaded on 2026-10-14, and Phase 9/Phase 6/Phase 8 files were uploaded on 2026-10-15. The Phase 9 file contains the list and refers to a preceding Phase 9D research file, but that referenced file is not present in the inspected repository tree, current branch names (104 branches checked), or matching Library search results. Available commit messages are generic “Add files via upload”/rename messages; they do not document the universe source, screening date, inclusion thresholds or replacement process. In the 2026-10-14 prior conversation, the user supplied only that the script required the frozen 335-ticker universe from the current project; the earlier assistant asserted a Phase 9/9D origin but did not establish selection provenance or criteria.
 
 The Phase 0 comment is the strongest direct provenance statement found: the list was copied from the current project. No dated input file, screen export, index-membership source or universe-change ledger appears in the inspected repository tree.
 
