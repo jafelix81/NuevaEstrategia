@@ -208,7 +208,11 @@ def parse_schedule13_xml(raw: bytes | str) -> dict[str, Any]:
     else:
         lineage_status = "original_no_predecessor"
 
-    filer_cik = _cik(_value(header, "filerInfo", "filer", "filerCredentials", "cik"))
+    filer_info = _child(header, "filerInfo")
+    filer_cik = _cik(
+        _value(filer_info, "cik")
+        or _value(filer_info, "filer", "filerCredentials", "cik")
+    )
     return {
         "parser_version": PARSER_VERSION,
         "form_family": family,
