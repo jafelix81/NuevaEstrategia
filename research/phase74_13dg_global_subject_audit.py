@@ -148,21 +148,44 @@ def stratified_sample(rows, target_ciks, limit=120):
     return selected
 
 
-def complete_submission_url(accession):
+def complete_submission_url(archive_cik, accession):
+    key = normalize_accession(accession)
+    cik = normalize_cik(archive_cik)
+    if not key: raise ValueError(f"Invalid accession: {accession}")
+    if not cik: raise ValueError(f"Invalid archive CIK: {archive_cik}")
+    return f"{SEC_BASE}/Archives/edgar/data/{int(cik)}/{key.replace('-', '')}/{key}.txt"
+
+
+def submission_url_candidates(row):
+    accession = row.get("accession", "")
     key = normalize_accession(accession)
     if not key: raise ValueError(f"Invalid accession: {accession}")
-    filer_cik = normalize_cik(key[:10])
-    return f"{SEC_BASE}/Archives/edgar/data/{int(filer_cik)}/{key.replace('-', '')}/{key}.txt"
+    candidates = list(row.get("archive_path_ciks") or [])
+    candidates.extend(row.get("master_index_ciks") or [])
+    candidates.append(normalize_cik(key[:10]))
+    ordered, seen = [], set()
+    for value in candidates:
+        cik = normalize_cik(value)
+        if cik and cik not in seen:
+            seen.add(cik)
+            ordered.append((cik, complete_submission_url(cik, accession)))
+    return ordered
 
 
 def classify_candidate_role(row, header):
     subject, filer = normalize_cik(header.get("subject_cik", "")), normalize_cik(header.get("filer_cik", ""))
-    candidates = set(row.get("all_candidate_ciks") or [])
-    if len(candidates) == 1:
-        candidate = next(iter(candidates))
-        role = "subject" if candidate == subject else ("filer" if candidate == filer else "unresolved")
-    elif len(candidates) > 1:
-        candidate, role = "", "ambiguous"
+    candidates = sorted(set(row.get("all_candidate_ciks") or []))
+    subject_hits = [c for c in candidates if c == subject]
+    filer_hits = [c for c in candidates if c == filer]
+    unresolved_hits = [c for c in candidates if c not in {subject, filer}]
+    if len(subject_hits) == 1:
+        candidate, role = subject_hits[0], "subject"
+    elif len(subject_hits) > 1:
+        candidate, role = "", "ambiguous_subject"
+    elif filer_hits:
+        candidate, role = ";".join(filer_hits), "filer"
+    elif candidates:
+        candidate, role = "", "unresolved"
     else:
         candidate, role = "", "none"
     master, path = set(row.get("master_index_ciks") or []), set(row.get("archive_path_ciks") or [])
@@ -173,6 +196,8 @@ def classify_candidate_role(row, header):
         "subject_in_archive_path_ciks": bool(subject and subject in path),
         "filer_in_archive_path_ciks": bool(filer and filer in path),
         "candidate_cik": candidate, "candidate_role": role,
+        "subject_candidate_ciks": subject_hits, "filer_candidate_ciks": filer_hits,
+        "unresolved_candidate_ciks": unresolved_hits,
     }
 
 
@@ -324,12 +349,24 @@ def run_index_audit(quarters, target_ciks, outdir, mode="index-only", sample_lim
         if not target_ciks: raise ValueError("pilot mode requires a non-empty target CIK file")
         filing_rows, fetch_errors = [], []
         for row in sample:
-            url = complete_submission_url(row["accession"])
-            try:
-                raw = client.get(url)
-                filing_rows.append({**row, **parse_pilot_record(row, raw), "source_url": url})
-            except Exception as exc:
-                fetch_errors.append({"accession": row["accession"], "url": url, "error": repr(exc)})
+            resolved = None
+            path_errors = []
+            for archive_cik, url in submission_url_candidates(row):
+                try:
+                    raw = client.get(url)
+                    resolved = (archive_cik, url, raw)
+                    break
+                except Exception as path_exc:
+                    path_errors.append({"archive_cik": archive_cik, "url": url, "error": repr(path_exc)})
+            if resolved is None:
+                fetch_errors.append({"accession": row["accession"], "path_errors": path_errors})
+                continue
+            archive_cik, url, raw = resolved
+            filing_rows.append({
+                **row, **parse_pilot_record(row, raw),
+                "source_url": url, "resolved_archive_path_cik": archive_cik,
+                "archive_path_attempt_errors_json": json.dumps(path_errors, sort_keys=True),
+            })
         n = len(filing_rows)
         rate = lambda key: sum(bool(r[key]) for r in filing_rows) / n if n else 0.0
         xml_rows = [r for r in filing_rows if r.get("xml_present")]
