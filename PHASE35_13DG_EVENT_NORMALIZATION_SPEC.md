@@ -34,14 +34,14 @@ Never substitute query CIK, archive-path CIK, accession prefix, or Filed-by CIK 
 A schema-aware parser prototype and unit tests are stored in research/phase35_13dg_parser_v2.py and research/test_phase35_13dg_parser_v2.py. Five synthetic-fixture tests pass; this is not yet a full-artifact validation.
 
 ## Amendment lineage
-- For structured XML, previousAccessionNumber is an exact predecessor edge. Follow it recursively, validate that the predecessor exists, and retain cross-form transitions (13G to 13D) as explicit transitions rather than silently pooling families.
+- For structured XML, preserve previousAccessionNumber as an explicit prior-filing reference. It is not guaranteed to identify the immediately preceding amendment and may point to an original/root accession. Validate subject issuer, reporting-person identity, form family and security class/CUSIP; do not treat the pointer as a sequential edge without independent chronological validation. Retain cross-form transitions (13G to 13D) explicitly rather than silently pooling families.
 - For legacy filings, use only explicit accession references or a separately validated deterministic linkage. If no exact predecessor can be established, classify the chain as ambiguous/left-censored; do not infer from accession prefixes or amendment counts.
 - An initial filing is not a true first event unless the predecessor/history census establishes that earlier relevant filings are absent from the covered history.
 
 ## Event construction rules
 1. Separate 13D and 13G families initially; never pool them without independent evidence.
 2. Each accession is a disclosure update, not automatically a new economic event.
-3. Link amendments only through exact predecessor edges or validated deterministic legacy evidence.
+3. Preserve explicit previousAccessionNumber references as lineage anchors, not assumed immediate-predecessor edges. Link sequential states only after identity and chronology are independently validated; missing or ambiguous links remain unresolved.
 4. A first-observable event requires complete enough history; otherwise mark left-censored and exclude from initiation tests.
 5. Directional ownership changes require two sequential states for the same verified subject issuer and reporting group. Missing/ambiguous prior state means unknown.
 6. Do not infer a buy/sell from price movement, market capitalization, or subsequent filings.
@@ -92,7 +92,7 @@ The structured 13G schema uses:
 - memberGroup (not memberOfGroup);
 - reportingPersonBeneficiallyOwnedNumberOfShares with nested voting/dispositive fields;
 - reportingPersonBeneficiallyOwnedAggregateNumberOfShares, classPercent and repeated typeOfReportingPerson;
-- headerData/previousAccessionNumber for exact amendment predecessor links.
+- headerData/previousAccessionNumber as an explicit prior-filing reference; it is not guaranteed to be the immediately preceding amendment.
 
 A reporting-person-set hash is not an economic-group identifier. Group continuity must use exact predecessor links plus explicit reporting-person and legal/group evidence. Missing CIKs or incomplete sets remain ambiguous.
 
