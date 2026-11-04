@@ -2,7 +2,9 @@ import unittest
 import xml.etree.ElementTree as ET
 
 from research.phase65_form144_event_field_coverage_audit import (
-    extract_tranches,
+    extract_acquisition_lots,
+    extract_prior_sales,
+    extract_sale_tranches,
     normalize_accession,
     parse_date,
     parse_number,
@@ -47,54 +49,73 @@ class TestPhase65Form144FieldCoverage(unittest.TestCase):
             [row["accession"] for row in first],
             [row["accession"] for row in second],
         )
-        self.assertEqual(len(first), 2 * (7 + 7 + 7))
+        self.assertEqual(len(first), 42)
         self.assertEqual(
             sum(row["sample_stratum"] == "unique_candidate" for row in first),
             14,
         )
 
-    def test_extracts_multiple_tranches_without_collapsing(self):
+    def test_sale_tranches_are_separate_from_acquisition_lots(self):
         xml = """<edgarSubmission>
-          <securitiesToBeSold>
-            <securitiesClassTitle>Common Stock</securitiesClassTitle>
-            <noOfUnitsSold>1,000</noOfUnitsSold>
-            <aggregateMarketValue>$50,000</aggregateMarketValue>
-            <approxSaleDate>11/10/2026</approxSaleDate>
-          </securitiesToBeSold>
-          <securitiesToBeSold>
-            <securitiesClassTitle>Class B</securitiesClassTitle>
-            <noOfUnitsSold>250</noOfUnitsSold>
-            <aggregateMarketValue>$12,500</aggregateMarketValue>
-            <approxSaleDate>2026-11-12</approxSaleDate>
-          </securitiesToBeSold>
+          <formData>
+            <securitiesInformation>
+              <securitiesClassTitle>Common Stock</securitiesClassTitle>
+              <brokerOrMarketmakerDetails><name>Broker A</name></brokerOrMarketmakerDetails>
+              <noOfUnitsSold>1,000</noOfUnitsSold>
+              <aggregateMarketValue>50000.00</aggregateMarketValue>
+              <noOfUnitsOutstanding>1000000</noOfUnitsOutstanding>
+              <approxSaleDate>11/10/2026</approxSaleDate>
+              <securitiesExchangeName>NASDAQ</securitiesExchangeName>
+            </securitiesInformation>
+            <securitiesInformation>
+              <securitiesClassTitle>Class B</securitiesClassTitle>
+              <brokerOrMarketmakerDetails><name>Broker B</name></brokerOrMarketmakerDetails>
+              <noOfUnitsSold>250</noOfUnitsSold>
+              <aggregateMarketValue>12500.00</aggregateMarketValue>
+              <noOfUnitsOutstanding>500000</noOfUnitsOutstanding>
+              <approxSaleDate>11/12/2026</approxSaleDate>
+              <securitiesExchangeName>NYSE</securitiesExchangeName>
+            </securitiesInformation>
+            <securitiesToBeSold>
+              <securitiesClassTitle>Common Stock</securitiesClassTitle>
+              <acquiredDate>01/01/2020</acquiredDate>
+              <natureOfAcquisitionTransaction>Stock Award</natureOfAcquisitionTransaction>
+              <nameOfPersonfromWhomAcquired>Issuer</nameOfPersonfromWhomAcquired>
+              <isGiftTransaction>N</isGiftTransaction>
+              <amountOfSecuritiesAcquired>1000</amountOfSecuritiesAcquired>
+              <paymentDate>01/01/2020</paymentDate>
+              <natureOfPayment>Cash</natureOfPayment>
+            </securitiesToBeSold>
+            <securitiesSoldInPast3Months>
+              <sellerDetails><name>Seller A</name></sellerDetails>
+              <securitiesClassTitle>Common Stock</securitiesClassTitle>
+              <saleDate>10/01/2026</saleDate>
+              <amountOfSecuritiesSold>100</amountOfSecuritiesSold>
+              <grossProceeds>4900.00</grossProceeds>
+            </securitiesSoldInPast3Months>
+          </formData>
         </edgarSubmission>"""
         root = ET.fromstring(xml)
-        parsed = {
-            "security_class": ["Common Stock", "Class B"],
-            "units_to_be_sold": "1,000",
-            "aggregate_market_value": "$50,000",
-            "approx_sale_date": "11/10/2026",
-        }
-        rows = extract_tranches(root, parsed)
-        self.assertEqual(len(rows), 2)
-        self.assertEqual(rows[0]["units_numeric"], 1000.0)
-        self.assertEqual(rows[1]["value_numeric"], 12500.0)
-        self.assertEqual(rows[1]["approx_sale_date_iso"], "2026-11-12")
+        sales = extract_sale_tranches(root)
+        acquisitions = extract_acquisition_lots(root)
+        prior = extract_prior_sales(root)
+        self.assertEqual(len(sales), 2)
+        self.assertEqual(sales[0]["units_numeric"], 1000.0)
+        self.assertEqual(sales[1]["value_numeric"], 12500.0)
+        self.assertEqual(sales[1]["broker_or_market_maker"], "Broker B")
+        self.assertEqual(len(acquisitions), 1)
+        self.assertEqual(acquisitions[0]["amount_acquired_numeric"], 1000.0)
+        self.assertEqual(len(prior), 1)
+        self.assertEqual(prior[0]["amount_sold_numeric"], 100.0)
 
-    def test_fallback_single_tranche_when_wrapper_absent(self):
-        root = ET.fromstring("<edgarSubmission/>")
-        parsed = {
-            "security_class": ["Common Stock"],
-            "units_to_be_sold": "100",
-            "aggregate_market_value": "2000",
-            "approx_sale_date": "11/10/2026",
-        }
-        rows = extract_tranches(root, parsed)
-        self.assertEqual(len(rows), 1)
-        self.assertEqual(rows[0]["units_numeric"], 100.0)
+    def test_no_sale_information_does_not_fallback_to_acquisition_lots(self):
+        root = ET.fromstring("""<edgarSubmission><securitiesToBeSold>
+          <securitiesClassTitle>Common Stock</securitiesClassTitle>
+          <amountOfSecuritiesAcquired>100</amountOfSecuritiesAcquired>
+        </securitiesToBeSold></edgarSubmission>""")
+        self.assertEqual(extract_sale_tranches(root), [])
+        self.assertEqual(len(extract_acquisition_lots(root)), 1)
 
 
 if __name__ == "__main__":
     unittest.main()
-
-# Regression suite for deterministic PIT-safe Form 144 sample auditing.
