@@ -1,6 +1,6 @@
 # Smart Money Research State
 
-Updated: 2026-11-03 (Phase 35 global XML subject-census repair)
+Updated: 2026-11-04 (Phase 35 cross-quarter lineage audit; Phase 50 review)
 
 ## Frozen control
 - `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
@@ -170,7 +170,7 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 
 ## 2026-11-03 — Next frozen-rule validation queued
 - Added manual/push-scoped workflow `.github/workflows/phase35_q4q1_crossquarter_validation.yml` to validate the unchanged crosswalk on 2025Q4 and 2026Q1 and run the explicit-13D-CIK precision check. It is isolated to this research branch and uses a distinct concurrency group.
-- Run [41742690656](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41742690656) is queued on commit `fd7bf942634801fac9f4430e75e34ea81dc38f7f`. Do not launch another run until it completes.
+- Run [41742690656](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41742690656) completed successfully on commit `fd7bf942634801fac9f4430e75e34ea81dc38f7f` (artifact 13282921575). No further Q4/Q1 run is needed.
 - The Q2/Q3 crosswalk and precision rule are frozen; no aliases or fuzzy matching will be added after seeing those results.
 
 
