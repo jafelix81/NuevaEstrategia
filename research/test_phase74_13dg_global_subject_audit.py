@@ -32,7 +32,22 @@ CIK|Company Name|Form Type|Date Filed|Filename
         self.assertEqual(row["archive_path_ciks"], ["0001061736"])
         self.assertEqual(row["form"], "SC 13G")
         self.assertEqual(row["raw_rows"], 2)
+        self.assertEqual(row["index_pair_type"], "multi_cik_single_archive_path")
         self.assertFalse(row["metadata_conflict"])
+
+    def test_master_index_accepts_two_archive_paths_for_one_accession(self):
+        raw = """Description: SEC Master Index
+CIK|Company Name|Form Type|Date Filed|Filename
+0001849998|FEDERATED HERMES ETF TRUST|SC 13G/A|2025-02-06|edgar/data/1849998/000009223025000015/0000092230-25-000015.txt
+0000092230|TRUIST FINANCIAL CORP|SC 13G/A|2025-02-06|edgar/data/92230/000009223025000015/0000092230-25-000015.txt
+"""
+        row = parse_master_index_13dg(raw, "2025Q1")[0]
+        self.assertEqual(row["raw_rows"], 2)
+        self.assertEqual(row["master_index_ciks"], ["0000092230", "0001849998"])
+        self.assertEqual(row["archive_path_ciks"], ["0000092230", "0001849998"])
+        self.assertEqual(row["index_pair_type"], "multi_cik_multiple_archive_paths")
+        self.assertFalse(row["metadata_conflict"])
+        self.assertEqual(row["metadata_conflict_reasons"], [])
 
     def test_candidate_role_uses_header_not_index_assumption(self):
         row = {"master_index_ciks": ["0000315066", "0001061736"],
@@ -72,16 +87,16 @@ CIK|Company Name|Form Type|Date Filed|Filename
         with self.assertRaises(ValueError):
             complete_submission_url("0001061736", "invalid")
 
-    def test_submission_url_uses_unique_archive_path_cik_only(self):
+    def test_submission_url_candidates_preserve_both_archive_paths(self):
         row = {
-            "accession": "0000315066-25-001108",
-            "archive_path_ciks": ["0001061736"],
-            "master_index_ciks": ["0000315066", "0001061736"],
+            "accession": "0000092230-25-000015",
+            "archive_path_ciks": ["0001849998", "0000092230"],
+            "master_index_ciks": ["0001849998", "0000092230"],
         }
         candidates = submission_url_candidates(row)
-        self.assertEqual(len(candidates), 1)
-        self.assertEqual(candidates[0][0], "0001061736")
-        self.assertIn("/1061736/", candidates[0][1])
+        self.assertEqual([c for c, _ in candidates], ["0000092230", "0001849998"])
+        self.assertIn("/92230/000009223025000015/", candidates[0][1])
+        self.assertIn("/1849998/000009223025000015/", candidates[1][1])
 
     def test_fox_archive_path_does_not_guess_from_accession_prefix(self):
         row = {
@@ -94,10 +109,9 @@ CIK|Company Name|Form Type|Date Filed|Filename
         self.assertIn("/1754301/000095015725000788/", url)
         self.assertNotIn("/950157/", url)
 
-    def test_missing_or_nonunique_archive_path_is_quarantined(self):
-        for paths in ([], ["0001061736", "0000315066"]):
-            with self.assertRaisesRegex(ValueError, "archive path CIK"):
-                submission_url_candidates({"accession": "0000315066-25-001108", "archive_path_ciks": paths})
+    def test_missing_archive_path_is_quarantined(self):
+        with self.assertRaisesRegex(ValueError, "archive path CIK"):
+            submission_url_candidates({"accession": "0000315066-25-001108", "archive_path_ciks": []})
 
     def test_ambiguous_pair_can_be_resolved_as_one_subject_and_one_filer(self):
         row = {
