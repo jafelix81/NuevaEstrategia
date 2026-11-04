@@ -54,8 +54,8 @@ class Form144PilotV2Tests(unittest.TestCase):
     def test_xml_schema_and_identity_separation(self):
         parsed = parse_form144_xml(XML)
         self.assertEqual(parsed["submission_type"], "144/A")
-        self.assertEqual(parsed["issuer_cik"], "0000126133")
-        self.assertEqual(parsed["filer_cik"], "0000165730")
+        self.assertEqual(parsed["issuer_cik"], "0001261333")
+        self.assertEqual(parsed["filer_cik"], "0001657309")
         self.assertNotEqual(parsed["issuer_cik"], parsed["filer_cik"])
         self.assertEqual(parsed["previous_accession"], "0001950047-24-000080")
         self.assertEqual(parsed["seller_name"], "Allan C. Thygesen")
