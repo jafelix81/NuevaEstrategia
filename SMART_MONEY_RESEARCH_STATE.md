@@ -197,7 +197,14 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 ## 2026-11-04 — Phase 53 OCC first-pilot interpretation
 - Run [41762027453](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41762027453) completed successfully; artifact 13290557109. All six parser tests passed.
 - The dedicated OCC Daily Open Interest download returned monthly market-wide totals by asset class (Equity, Index/Other, Debt, Futures, OCC Total), not per-ticker/contract OI. It is not a per-stock Smart Money source; retain only as a possible broad regime control.
-- The OCC Volume Query endpoint returned valid schema and rows for all 18 recent sample probes (AAPL/NVDA/TSLA × 2025-01-03/2026-11-02 × Customer/Firm/Market Maker). The 2024-01-03 probes returned the explicit 2-year retention error. The initial pilot included `contractDt=reportDate`, so it restricted output to that date's series (largely 0DTE); do not use those rows as full-chain coverage.
+- The OCC Volume Query endpoint returned valid schema and rows for all 18 recent sample probes. The 2024-01-03 probes returned the explicit 2-year retention error. A 335-ticker all-series audit (contractDt omitted) preliminarily found 325/335 tickers on 2025-01-03 and 320/335 on 2026-11-02. The returned schema is quantity/underlying/root/account type/call-put/exchange/activity date; no strike, expiry, buy/sell, open/close or OI. Corrected parser/gate run remains in progress.
 - Added a full-expiry 335-ticker audit that omits `contractDt`, uses `accountType=ALL`, and validates Quantity, Underlying, Options Symbol/root, Account Type, Call/Put, Exchange, Activity Date and Series/Contract Date. Files: `research/phase53_occ_volume_query_universe_audit.py`, `research/test_phase53_occ_volume_query_universe_audit.py`, `research/PHASE53B_OCC_VOLUME_QUERY_UNIVERSE_AUDIT_SPEC_2026-11-04.md`.
 - OCC Volume Query remains a recent (24-month) call/put-by-account-type volume source; it has no buy/sell side, strike-level OI or open/close status, and PIT publication timestamp is not verified. No alpha test.
 - F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## 2026-11-04 — Phase 53B OCC Volume Query preliminary coverage
+- Artifact 13291422118 (run [41762473953](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41762473953)) independently re-parsed: 325/335 exact ticker coverage on 2025-01-03 (97.01%) and 320/335 on 2026-11-02 (95.52%); 645/670 ticker-date responses (96.27%) were valid.
+- All-series query returns quantity, underlying, root, account type, call/put, exchange and activity date only. It omits strike/expiry, buy/sell, open/close and OI. 2024-01-03 boundary probes confirm the 2-year retention limit.
+- Corrected parser/gate run [41763109144](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41763109144) is in progress; run 41763113005 is queued for the latest test commit. No alpha test.
+- Keep as a recent complementary feature only; PIT publication timestamp is unverified. F80 remains frozen.
