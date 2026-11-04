@@ -36,7 +36,7 @@ FILED BY:
 </SEC-DOCUMENT>"""
         extracted = extract_primary_doc_xml(raw)
         parsed = parse_schedule13_xml(extracted["xml_bytes"])
-        self.assertEqual(extracted["subject_cik"], "00001479290")
+        self.assertEqual(extracted["subject_cik"], "0001479290")
         self.assertEqual(extracted["filer_cik"], "0000019617")
         self.assertEqual(extracted["form"], "SCHEDULE 13G/A")
         self.assertEqual(extracted["filing_date"], "2025-03-06")
@@ -81,8 +81,8 @@ FILED BY:
 </SEC-DOCUMENT>"""
         extracted = extract_primary_doc_xml(raw)
         parsed = parse_schedule13_xml(extracted["xml_bytes"])
-        self.assertEqual(extracted["subject_cik"], "00001431852")
-        self.assertEqual(extracted["filer_cik"], "00002083861")
+        self.assertEqual(extracted["subject_cik"], "0001431852")
+        self.assertEqual(extracted["filer_cik"], "0002083861")
         self.assertEqual(parsed["issuer_cik"], "00001431852")
         self.assertEqual(parsed["filer_cik_xml"], "00002083861")
         self.assertEqual(parsed["reporting_person_count"], 1)
