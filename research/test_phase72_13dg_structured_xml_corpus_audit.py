@@ -17,7 +17,7 @@ class Phase72CorpusAuditHelperTests(unittest.TestCase):
         self.assertEqual(expected_submission_type("SC 13D"), "SCHEDULE 13D")
 
     def test_lineage_edge_same_issuer(self):
-        current = {"accession": "0001213902-25-012345", "issuer_cik": "00001130166", "form": "SC 13G/A", "filing_date": "2025-09-01"}
+        current = {"accession": "0001213902-25-012345", "issuer_cik": "0001130166", "form": "SC 13G/A", "filing_date": "2025-09-01"}
         index = {"000149315225012122": {"issuer_cik": "0001130166", "form": "SC 13G", "filing_date": "2025-08-01"}}
         edge = build_lineage_edge(current, "0001493152-25-012122", index)
         self.assertEqual(edge["lineage_status"], "predecessor_in_panel_same_issuer")
