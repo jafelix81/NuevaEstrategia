@@ -1,0 +1,63 @@
+name: Phase 92 - SEC 13D/G deadline and event-semantics audit
+
+on:
+  push:
+    branches:
+      - phase92-sec-13dg-deadline-event-semantics
+    paths:
+      - research/phase92_13dg_deadline_and_event_semantics_audit.py
+      - research/test_phase92_13dg_deadline_and_event_semantics_audit.py
+      - research/PHASE92_13DG_DEADLINE_AND_EVENT_SEMANTICS_2026-11-04.md
+      - .github/workflows/phase92_13dg_deadline_and_event_semantics_audit.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  offline_deadline_event_audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install audit dependencies
+        run: python -m pip install requests holidays
+      - name: Download immutable Phase 84 raw submissions
+        uses: actions/download-artifact@v4
+        with:
+          name: phase84-13dg-role-aware-identity-validation
+          path: phase84_original_artifact
+          repository: jafelix81/NuevaEstrategia
+          run-id: 41914491120
+          github-token: ${{ github.token }}
+      - name: Download corrected Phase 91 event records
+        uses: actions/download-artifact@v4
+        with:
+          name: phase91-13dg-identity-timing-audit
+          path: phase91_artifact
+          repository: jafelix81/NuevaEstrategia
+          run-id: 41934402354
+          github-token: ${{ github.token }}
+      - name: Run Phase 92 regression tests
+        run: >-
+          python -m unittest
+          research.test_phase92_13dg_deadline_and_event_semantics_audit
+          -v
+      - name: Run offline deadline and event-semantics audit
+        run: >-
+          python -u -m research.phase92_13dg_deadline_and_event_semantics_audit
+          --raw-artifact-dir phase84_original_artifact
+          --phase91-artifact-dir phase91_artifact
+          --outdir phase92_audit
+      - name: Upload Phase 92 audit artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase92-13dg-deadline-event-semantics
+          path: phase92_audit/
+          if-no-files-found: warn
+          retention-days: 90

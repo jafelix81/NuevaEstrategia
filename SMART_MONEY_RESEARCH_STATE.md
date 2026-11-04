@@ -705,3 +705,11 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 
 ### Phase 91 long-lag review output
 - The Phase 91 summary now exports accession-level details for every event-date/filing-date lag above 45 calendar days, plus a negative-lag count. This supports review of the 290-day 13D control observation and any long-lag 13G rows without dropping or winsorizing them.
+
+
+## 2026-11-04 — Phase 92: legal-deadline and event-semantics audit prepared
+- Phase 92 uses only the immutable Phase 84 raw sample and Phase 91 filing-level event artifact; no SEC requests. It calculates candidate statutory due dates by form family, initial/amendment, 13G rule category, quarter/month-end and US federal holidays, and separates these from SEC acceptance time.
+- It adds narrative triage for employee equity awards, business combinations, capital reorganizations, activist/governance intent, litigation, parent/adviser aggregate client holdings, open-market purchases and gifts/transfers. These are transparent keyword tags, not 'smart money' labels.
+- Key case-study checks: INLIF Ltd / Chen Yanting 13D (event date 2025-06-09, filed 2026-03-26) describes an employee award and capital reorganization; it also references Rule 13d-1(d) in narrative despite Schedule 13D form. CID HoldCo / William Tremaine Reny 13D (event date 2025-06-18, filed 2025-11-14) describes business-combination shares and later activist/governance litigation. Invesco / Microchip 13G (event date 2025-12-31, filed 2026-07-15) reports 5.2% aggregated holdings but says no single client has >5% economic ownership. These cases show why form/date alone is not a smart-money signal.
+- 13G event-date lags are not equivalent to lateness: 45 days after 2025Q4 ended on Saturday 2026-02-14; Monday 2026-02-16 was Presidents Day, so Rule 0-3 moves the deadline to Tuesday 2026-02-17. A 48-calendar-day lag can be timely.
+- Phase 92 outputs are candidate deadline diagnostics, not legal compliance opinions; exact threshold trigger dates may be unavailable. No forward returns or production changes.
