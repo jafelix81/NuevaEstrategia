@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import ast
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import csv
 import gzip
 import hashlib
@@ -25,6 +26,7 @@ from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.parse import urljoin
 from urllib.request import Request, urlopen
+from threading import Lock
 
 BASE_SOURCE = "Nueva_Estrategia_Fase0_Descubrimiento.py"
 SEC_TICKERS_URL = "https://www.sec.gov/files/company_tickers.json"
@@ -32,12 +34,14 @@ SEC_EXCHANGE_URL = "https://www.sec.gov/files/company_tickers_exchange.json"
 SEC_MUTUAL_FUNDS_URL = "https://www.sec.gov/files/company_tickers_mf.json"
 MAPPER_URL = "https://raw.githubusercontent.com/jadchaar/sec-cik-mapper/main/mappings/stocks/ticker_to_cik.json"
 SEC_ARCHIVES = "https://www.sec.gov/Archives/edgar/data"
-SEC_INTERVAL = 0.16
+SEC_INTERVAL = 0.20
+SEC_WORKERS = 5
 FORMS = {"144", "144/A"}
 START_DATE = "2023-04-13"
 OUT_DIR = Path("phase50_form144_global_index_pilot")
 SEC_UA = "NuevaEstrategia quantitative research jose.felix@felixsarmiento.com"
 _last_sec_request = 0.0
+_sec_request_lock = Lock()
 REQUIRED_FIELDS = (
     "issuer_cik", "issuer_name", "seller_name", "security_class",
     "units_to_be_sold", "aggregate_market_value", "approx_sale_date",
@@ -79,10 +83,13 @@ def fetch_bytes(url, sec=True, timeout=60, retries=6):
     last_error = None
     for attempt in range(retries):
         if sec:
-            wait = SEC_INTERVAL - (time.monotonic() - _last_sec_request)
-            if wait > 0:
-                time.sleep(wait)
-            _last_sec_request = time.monotonic()
+            # Reserve globally spaced request slots before network I/O. Multiple
+            # workers improve latency hiding without exceeding the SEC request rate.
+            with _sec_request_lock:
+                wait = SEC_INTERVAL - (time.monotonic() - _last_sec_request)
+                if wait > 0:
+                    time.sleep(wait)
+                _last_sec_request = time.monotonic()
         request = Request(url, headers={
             "User-Agent": SEC_UA,
             "Accept-Encoding": "gzip, deflate",
@@ -576,7 +583,7 @@ def select_xml_sample(index_rows, target_ciks, sample_per_form=25):
         selected.extend(target_pool[:sample_per_form])
         selected.extend(non_target_pool[:sample_per_form])
     unique = {row["accession"]: row for row in selected}
-    return sorted(unique.values(), key=lambda row: (row.get("form") or "", row["accession"]))
+    return sorted(unique.values(), key=lambda row: (row.get("master_index_form") or row.get("form") or "", row["accession"]))
 
 
 def write_csv(path, rows, fields=None):
@@ -611,18 +618,19 @@ def main():
 
     groups = parse_master_index(master)
     form_counts = Counter(row["form"] for row in groups)
-    index_rows, index_errors = [], []
-    for number, group in enumerate(groups, 1):
+    index_rows_by_position = [None] * len(groups)
+    index_errors = []
+
+    def fetch_index_job(position, group):
         parsed, error = fetch_index_page(group)
         if error:
-            index_errors.append({
+            return position, None, {
                 "accession": group["accession"],
                 "form": group["form"],
                 "filing_date": group["filing_date"],
                 "archive_path_cik": group.get("archive_path_cik"),
                 "error": error,
-            })
-            continue
+            }
         row = {
             "accession": group["accession"],
             "master_index_form": group["form"],
@@ -654,15 +662,37 @@ def main():
                 (parsed.get("reporting_cik") or parsed.get("filed_by_cik")) in target_ciks
             ),
         }
-        index_rows.append(row)
-        if number % 250 == 0:
-            print(json.dumps({
-                "stage": "INDEX_PROGRESS",
-                "processed": number,
-                "total": len(groups),
-                "parsed": len(index_rows),
-                "errors": len(index_errors),
-            }), flush=True)
+        return position, row, None
+
+    # SEC index pages are independent. A small worker pool hides network latency;
+    # the shared lock still spaces all SEC requests at the configured global rate.
+    with ThreadPoolExecutor(max_workers=SEC_WORKERS) as executor:
+        futures = [
+            executor.submit(fetch_index_job, position, group)
+            for position, group in enumerate(groups)
+        ]
+        for completed, future in enumerate(as_completed(futures), 1):
+            position, row, error_row = future.result()
+            if row is not None:
+                index_rows_by_position[position] = row
+            if error_row is not None:
+                index_errors.append(error_row)
+            if completed % 500 == 0 or completed == len(groups):
+                partial_rows = [item for item in index_rows_by_position if item is not None]
+                write_csv(output / "global_index_census.partial.csv", partial_rows)
+                write_csv(output / "index_fetch_errors.partial.csv", index_errors)
+                print(json.dumps({
+                    "stage": "INDEX_PROGRESS",
+                    "completed": completed,
+                    "total": len(groups),
+                    "parsed": len(partial_rows),
+                    "errors": len(index_errors),
+                    "workers": SEC_WORKERS,
+                    "sec_min_interval_seconds": SEC_INTERVAL,
+                }), flush=True)
+
+    index_rows = [item for item in index_rows_by_position if item is not None]
+    index_errors.sort(key=lambda row: row["accession"])
 
     target_rows = [row for row in index_rows if row["subject_is_target_candidate"]]
     xml_sample = select_xml_sample(index_rows, target_ciks, args.sample_per_form)
