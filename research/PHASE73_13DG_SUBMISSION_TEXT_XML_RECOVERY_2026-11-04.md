@@ -101,3 +101,17 @@ The first hosted Phase 73 test attempts exposed fixture-only CIK zero-padding mi
 - A further test adds normalization of SEC submissions API ISO acceptanceDateTime values to the SEC header's 14-digit timestamp and an explicit accession-number concordance gate.
 - Run 41868027603 was queued with the first timestamp-normalization revision; run 41868094850 was queued with the corrected digit-normalization regex. The latter is the current code revision to verify.
 - The separate SEC data-pilot trigger has not been created or pushed. No SEC crawl is running from Phase 73.
+
+## 8. Regulatory timing regimes — separate from XML schema regime
+
+The SEC's 2023 final rule creates three distinct timing cutovers that must not be collapsed into one XML-era flag:
+
+- Schedule 13D revised deadlines apply from February 5, 2024: initial filings within five business days after the >5% acquisition; material amendments within two business days.
+- Revised Schedule 13G deadlines apply from September 30, 2024. The filing category matters: QIIs and Exempt Investors generally file initial 13Gs within 45 days after quarter-end when >5% at quarter-end; QIIs crossing >10% have a five-business-day month-end deadline; Passive Investors file within five business days after crossing >5%. Material amendments generally follow a 45-calendar-day quarter-end deadline, with additional monthly thresholds for QIIs/Passive Investors.
+- Structured XML becomes mandatory only from December 18, 2024; voluntary XML began December 18, 2023.
+
+Consequently the event panel must carry separate fields for (a) form family, (b) filer rule designation (13d-1(b)/(c)/(d)), (c) 13D vs 13G deadline regime, and (d) XML submission regime. A single "pre/post-2024-12-18" flag is appropriate only for schema availability, not for expected filing lag or economic interpretation.
+
+Sources: SEC Release 33-11253 / 34-98704, 88 FR 76896 (Nov. 7, 2023), especially compliance dates and shortened 13G deadlines: https://www.sec.gov/files/rules/final/2023/33-11253.pdf ; SEC Corporation Finance Interpretations, Regulation 13D-G (updated July 11, 2025): https://www.sec.gov/rules-regulations/staff-guidance/corporation-finance-interpretations/exchange-act-sections-13d-13g-regulation-13d-g-beneficial-ownership-reporting
+
+Research implication: 13D filings/amendments and 13G QII/passive/exempt filings must be tested as separate event families. A 13G report's event date/quarter-end is not its public KnowledgeDate; no event is actionable before EDGAR filing/acceptance. Do not infer actual trade date or institutional information advantage from the reported ownership snapshot alone.
