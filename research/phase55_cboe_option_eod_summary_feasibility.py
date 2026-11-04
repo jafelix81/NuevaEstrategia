@@ -2,6 +2,7 @@
 """Inspect Cboe Option EOD Summary sample for OPRA schema and ticker coverage."""
 from __future__ import annotations
 import ast,csv,gzip,hashlib,io,json,re,zipfile
+from collections import Counter
 from datetime import datetime,timezone
 from pathlib import Path
 from urllib.error import HTTPError,URLError
@@ -37,7 +38,7 @@ def norm(value):
     return re.sub(r"[^a-z0-9]","",str(value or "").lower())
 
 def parse_csv(raw):
-    text=raw.decode("utf-8-sig","replace")
+    text=raw.decode("utf-8-sig","replace") if isinstance(raw,bytes) else str(raw)
     lines=[line for line in text.splitlines() if line.strip()]
     if not lines:return {"headers":[],"rows":[],"prefix":text[:300]}
     header_idx=0
