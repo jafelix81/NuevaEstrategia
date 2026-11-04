@@ -1,6 +1,6 @@
 import unittest
 from research.phase74_13dg_global_subject_audit import (
-    candidate_evidence, classify_candidate_role, complete_submission_url,
+    candidate_evidence, classify_candidate_role, complete_submission_url, submission_url_candidates,
     normalize_form, normalize_accession, parse_master_index_13dg,
     stratified_sample, timing_regime,
 )
@@ -64,13 +64,35 @@ CIK|Company Name|Form Type|Date Filed|Filename
         self.assertEqual(timing_regime("13G", "2024-09-30"), "13g_revised_deadline_pre_xml")
         self.assertEqual(timing_regime("13G", "2024-12-18"), "13g_mandatory_xml")
 
-    def test_complete_submission_url_uses_accession_prefix_cik(self):
+    def test_complete_submission_url_uses_explicit_archive_cik(self):
         self.assertEqual(
-            complete_submission_url("0000315066-25-001108"),
-            "https://www.sec.gov/Archives/edgar/data/315066/000031506625001108/0000315066-25-001108.txt",
+            complete_submission_url("0001061736", "0000315066-25-001108"),
+            "https://www.sec.gov/Archives/edgar/data/1061736/000031506625001108/0000315066-25-001108.txt",
         )
         with self.assertRaises(ValueError):
-            complete_submission_url("invalid")
+            complete_submission_url("0001061736", "invalid")
+
+    def test_submission_url_candidates_try_archive_path_then_master_ciks_then_accession_prefix(self):
+        row = {
+            "accession": "0000315066-25-001108",
+            "archive_path_ciks": ["0001061736"],
+            "master_index_ciks": ["0000315066", "0001061736"],
+        }
+        candidates = submission_url_candidates(row)
+        self.assertEqual([c for c, _ in candidates], ["0001061736", "0000315066"])
+        self.assertIn("/1061736/", candidates[0][1])
+        self.assertIn("/315066/", candidates[1][1])
+
+    def test_ambiguous_pair_can_be_resolved_as_one_subject_and_one_filer(self):
+        row = {
+            "master_index_ciks": ["0000315066", "0001061736"],
+            "archive_path_ciks": ["0001061736"],
+            "all_candidate_ciks": ["0000315066", "0001061736"],
+        }
+        role = classify_candidate_role(row, {"subject_cik": "0001061736", "filer_cik": "0000315066"})
+        self.assertEqual(role["candidate_role"], "subject")
+        self.assertEqual(role["candidate_cik"], "0001061736")
+        self.assertEqual(role["filer_candidate_ciks"], ["0000315066"])
 
     def test_sample_is_deterministic_and_preserves_form_strata(self):
         rows = parse_master_index_13dg(self.master, "2025Q2")
