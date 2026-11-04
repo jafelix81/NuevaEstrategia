@@ -148,11 +148,20 @@ def stratified_sample(rows, target_ciks, limit=120):
     return selected
 
 
-def complete_submission_url(accession):
+def complete_submission_url(accession, archive_path_cik):
+    """Build the complete-submission URL from the master-index archive path CIK.
+
+    The accession prefix is the submitting account CIK and may differ from
+    the archive directory CIK for agent-filed submissions. Do not infer the
+    directory from the accession prefix when the global index supplies it.
+    """
     key = normalize_accession(accession)
-    if not key: raise ValueError(f"Invalid accession: {accession}")
-    filer_cik = normalize_cik(key[:10])
-    return f"{SEC_BASE}/Archives/edgar/data/{int(filer_cik)}/{key.replace('-', '')}/{key}.txt"
+    path_cik = normalize_cik(archive_path_cik)
+    if not key:
+        raise ValueError(f"Invalid accession: {accession}")
+    if not path_cik:
+        raise ValueError("Missing archive-path CIK; refusing accession-prefix guess")
+    return f"{SEC_BASE}/Archives/edgar/data/{int(path_cik)}/{key.replace('-', '')}/{key}.txt"
 
 
 def classify_candidate_role(row, header):
@@ -324,7 +333,15 @@ def run_index_audit(quarters, target_ciks, outdir, mode="index-only", sample_lim
         if not target_ciks: raise ValueError("pilot mode requires a non-empty target CIK file")
         filing_rows, fetch_errors = [], []
         for row in sample:
-            url = complete_submission_url(row["accession"])
+            path_ciks = row.get("archive_path_ciks") or []
+            if len(path_ciks) != 1:
+                fetch_errors.append({
+                    "accession": row.get("accession", ""),
+                    "url": "",
+                    "error": f"archive_path_cik_not_unique:{path_ciks!r}",
+                })
+                continue
+            url = complete_submission_url(row["accession"], path_ciks[0])
             try:
                 raw = client.get(url)
                 filing_rows.append({**row, **parse_pilot_record(row, raw), "source_url": url})
