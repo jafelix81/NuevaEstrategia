@@ -91,8 +91,20 @@ FILED BY:
         self.assertEqual(parsed["reporting_person_count"], 1)
 
     def test_acceptance_datetime_normalizes_header_and_submissions_formats(self):
-        self.assertEqual(normalize_acceptance_datetime("20250306105250"), "20250306105250")
-        self.assertEqual(normalize_acceptance_datetime("2025-03-06T10:52:50.000Z"), "20250306105250")
+        self.assertEqual(
+            normalize_acceptance_datetime("20250306105250", source_timezone="America/New_York"),
+            "20250306155250",
+        )
+        self.assertEqual(normalize_acceptance_datetime("2025-03-06T15:52:50.000Z"), "20250306155250")
+        # Verify both US daylight-saving regimes rather than applying a fixed offset.
+        self.assertEqual(
+            normalize_acceptance_datetime("20251017135535", source_timezone="America/New_York"),
+            "20251017175535",
+        )
+        self.assertEqual(
+            normalize_acceptance_datetime("20260116113134", source_timezone="America/New_York"),
+            "20260116163134",
+        )
         self.assertEqual(normalize_acceptance_datetime(""), "")
 
     def test_missing_primary_xml_fails_closed(self):
