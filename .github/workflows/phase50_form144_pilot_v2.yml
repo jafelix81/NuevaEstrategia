@@ -1,0 +1,39 @@
+name: Phase 50 v2 - SEC Form 144 PIT feasibility pilot
+
+on:
+  push:
+    branches: [phase50-sec-form144-feasibility]
+    paths:
+      - 'research/phase50_form144_pilot_v2.py'
+      - 'research/test_phase50_form144_pilot_v2.py'
+      - 'research/PHASE50_FORM144_REDESIGNED_PILOT_SPEC_2026-11-03.md'
+      - '.github/workflows/phase50_form144_pilot_v2.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: phase50-form144-pilot-v2
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  feasibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run parser and PIT regression tests
+        run: python -m unittest research.test_phase50_form144_pilot_v2 -v
+      - name: Run SEC Form 144 and 144-A feasibility pilot
+        run: python -u research/phase50_form144_pilot_v2.py
+      - name: Upload audit outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase50-form144-pit-feasibility-v2
+          path: phase50_form144_pilot_v2/
+          if-no-files-found: warn
