@@ -81,6 +81,8 @@ Official sources:
 - Historical Near-EOD options data advertised from 2007, with full US equity option chains and 5,000+ symbols.
 - Snapshot is gathered 14 minutes before the close.
 - Example historical records include call/put volume and OI, NBBO bid/ask prices and sizes, bid/mid/ask IV, smoothed IV (`smvVol`), Greeks, theoretical values, `quoteDate` and `updatedAt`.
+- Field definitions say call/put volume is the total traded **at the time observed** (the 14-minute pre-close snapshot), while call/put OI is updated by OCC the night before. Treat volume as a partial-day snapshot and OI as prior-night OI; do not relabel either as final same-day volume or same-day OI.
+- `quoteDate` is the option-quote snapshot timestamp; `updatedAt` may reflect a later data update/correction and is not automatically the original release timestamp.
 - ORATS explicitly says its underlying stock/ETF/index prices are derived from options using put-call parity and are for internal reference only; use the project's independent equity-price source for returns, execution and ADTV.
 - Historical Near-EOD data is available as a one-time purchase through an ORATS-hosted S3 archive. Access to the historical download lasts 14 days.
 - Recurring Near-EOD files are delivered nightly at midnight for OPRA compliance. The recurring subscription does not include pre-purchase history.
