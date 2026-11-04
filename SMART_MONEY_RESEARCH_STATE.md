@@ -604,3 +604,5 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - EFTS JSON endpoint is undocumented/experimental. Phase 74A is preregistered to test exact subject-CIK searches and ciks-filter semantics against two known cross-filer controls (Revance/JPM 13G/A; Osisko/Double Zero 13D) plus at least 20 additional controls.
 - Wait until Phase 73 run 41868352940 finishes before any Phase 74 SEC requests. No Phase 74 data crawl has started.
 - If subject-side discovery passes, build a 335-CIK plus historical-CIK candidate panel and parse complete submission text, validating subject vs filer roles. No alpha test before PIT security master/universe gates.
+
+- Primary Phase 74 test is the SEC-documented exact-phrase CIK text query (both zero-padded and unpadded) with 13D/G form and date filters. XML content is indexed; element names are not. Treat the undocumented EFTS ciks parameter as secondary until its filer/subject semantics are measured.
