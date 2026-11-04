@@ -94,7 +94,7 @@ The structured 13G schema uses:
 - reportingPersonBeneficiallyOwnedAggregateNumberOfShares, classPercent and repeated typeOfReportingPerson;
 - headerData/previousAccessionNumber as an explicit prior-filing reference; it is not guaranteed to be the immediately preceding amendment.
 
-A reporting-person-set hash is not an economic-group identifier. Group continuity must use exact predecessor links plus explicit reporting-person and legal/group evidence. Missing CIKs or incomplete sets remain ambiguous.
+A reporting-person-set hash is not an economic-group identifier. Group continuity must use validated prior-filing references plus explicit reporting-person and legal/group evidence; a reference alone does not establish the immediately preceding state or group continuity. Missing CIKs or incomplete sets remain ambiguous.
 
 ### Pilot and gates
 - Pilot quarter: 2025Q1.
