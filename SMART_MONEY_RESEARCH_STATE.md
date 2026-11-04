@@ -309,3 +309,9 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - The paper explicitly offers both informed-trading and dealer-hedging/momentum explanations; DOOD is autocorrelated. We will require the signal to survive controls for prior 1/5/20/60-session returns, volatility, liquidity, earnings and F80/LTM.
 - Added `research/PHASE60_OPTIONMETRICS_DOOD_REPLICATION_PREREGISTRATION_2026-11-04.md` with a fixed data gate, signed delta-demand formula using historical contract multipliers, separate ambiguous/midpoint volume, competing hypotheses, chronological splits, horizon-decay tests and kill criteria.
 - Phase 60 is preregistration only. No vendor sample acquired, no forward returns calculated, no alpha claim, no strategy change. F80 baseline remains frozen.
+
+
+## 2026-11-04 — Phase 61 ORATS public sample audit launched
+- Added `research/phase61_orats_near_eod_sample_audit.py`, four parser/coverage tests, workflow and specification to inspect ORATS' public 2024-01-03 Near-EOD ZIP without purchasing data.
+- Run [41787946992](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41787946992) is queued. It will report schema, 335-name sample coverage, field completeness/zero rates, and whether multiplier/deliverable fields exist. A single-date sample cannot validate delisted retention or long-run historical coverage.
+- No forward returns, alpha tests, data purchase or strategy change. F80 remains frozen.
