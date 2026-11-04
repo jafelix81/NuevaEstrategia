@@ -59,7 +59,7 @@ jobs:
           path: phase82_global_13dg_index_audit
           repository: jafelix81/NuevaEstrategia
           run-id: 41892370262
-          github-token: \${{ github.token }}
+          github-token: ${{ github.token }}
       - name: Run disjoint 600-filing role-aware identity pilot
         run: >-
           python -u -m research.phase84_13dg_role_aware_identity_audit

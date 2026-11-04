@@ -4,7 +4,7 @@
 **Branch:** phase82-13dg-global-index-coverage-audit  
 **Run:** [41893546069](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41893546069)  
 **Artifact:** [13353988656](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41893546069/artifacts/13353988656)  
-**Artifact ZIP SHA-256:** \`8257ee70811f07ab5ae933c1a86e524b290622e832594b69d0b53f3ec0fdf74d\`
+**Artifact ZIP SHA-256:** `8257ee70811f07ab5ae933c1a86e524b290622e832594b69d0b53f3ec0fdf74d`
 
 ## Decision
 
