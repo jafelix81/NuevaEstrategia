@@ -194,9 +194,10 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - Review: research/PHASE50_FORM144_FEASIBILITY_REVIEW_2026-11-04.md. No forward returns or alpha test.
 
 
-## 2026-11-04 — Phase 53 OCC Daily Open Interest feasibility
-- Reopened the OCC options-data line for a narrowly defined audit. The dedicated Daily Open Interest endpoint is documented separately from the Volume Query UI, whose stated availability window is 24 months. The Daily OI page documents a reportDate CSV download but does not state historical retention or a reproducible historical publication timestamp.
-- Added a fixed-date audit for 2018, 2020, 2022, 2023, 2024, 2025 and 2026; it measures contract-level OI, exact frozen-335 ticker overlap, and Customer/Firm/Market-Maker Volume Query probes.
-- Files: `research/phase53_occ_daily_open_interest_audit.py`, `research/test_phase53_occ_daily_open_interest_audit.py`, `research/PHASE53_OCC_DAILY_OPEN_INTEREST_AUDIT_SPEC_2026-11-04.md`.
-- No forward returns. OI is inventory, not direction or informed trade initiation; volume by account type lacks aggressor side. PIT publication timing and historical active-universe membership remain mandatory gates.
+## 2026-11-04 — Phase 53 OCC first-pilot interpretation
+- Run [41762027453](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41762027453) completed successfully; artifact 13290557109. All six parser tests passed.
+- The dedicated OCC Daily Open Interest download returned monthly market-wide totals by asset class (Equity, Index/Other, Debt, Futures, OCC Total), not per-ticker/contract OI. It is not a per-stock Smart Money source; retain only as a possible broad regime control.
+- The OCC Volume Query endpoint returned valid schema and rows for all 18 recent sample probes (AAPL/NVDA/TSLA × 2025-01-03/2026-11-02 × Customer/Firm/Market Maker). The 2024-01-03 probes returned the explicit 2-year retention error. The initial pilot included `contractDt=reportDate`, so it restricted output to that date's series (largely 0DTE); do not use those rows as full-chain coverage.
+- Added a full-expiry 335-ticker audit that omits `contractDt`, uses `accountType=ALL`, and validates Quantity, Underlying, Options Symbol/root, Account Type, Call/Put, Exchange, Activity Date and Series/Contract Date. Files: `research/phase53_occ_volume_query_universe_audit.py`, `research/test_phase53_occ_volume_query_universe_audit.py`, `research/PHASE53B_OCC_VOLUME_QUERY_UNIVERSE_AUDIT_SPEC_2026-11-04.md`.
+- OCC Volume Query remains a recent (24-month) call/put-by-account-type volume source; it has no buy/sell side, strike-level OI or open/close status, and PIT publication timestamp is not verified. No alpha test.
 - F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
