@@ -642,3 +642,15 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - OptionMetrics IvyDB Signed Volume remains a high-priority broad flow candidate: every option since 2016-01, daily and 5/30-minute signed volume using trade price versus bid/ask; it has no participant-capacity identity. Pricing, inactive/delisted coverage and exact publication timestamps remain unknown.
 - Phase 84 offline regression run 41896309456 passed; its live 600-filing SEC pilot has not been triggered while Phase 35 PIT audit run 41878429289 remains in progress. No duplicate SEC crawl started.
 - No data purchase, vendor contact, forward-return test, alpha claim or production change. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## 2026-11-04 options-flow semantics and hypothesis update — Phase 86
+
+- Added Phase 86 after reviewing the official Cboe EOD specification/factsheet and OptionMetrics Signed Volume brochure, plus independent options-flow literature.
+- Cboe Open-Close and OptionMetrics Signed Volume are now explicitly treated as distinct constructs: Cboe provides capacity × position-side × open/close on four Cboe venues; OptionMetrics estimates aggressor direction relative to bid/ask. Cboe buy/sell must not be mislabeled as aggressor flow.
+- Cboe EOD final files are typically delivered 00:30–01:00 ET next morning; preliminary OI/industry-volume values are OPRA-sourced while final values are OCC-sourced. Canonical PIT design uses final files and next-session KnowledgeDate/execution.
+- Participant taxonomy is not beneficial-owner identity: Customer includes retail and institutional clients; Pro-Customer includes professional traders and institutional participants; Market Maker flow can reflect inventory/hedging. Size buckets are per-trade contract sizes, not account size.
+- Recorded historical schema/convention breaks: C1 OI shift through 2019-10-04, C2 through 2018-05-11; C2 total-industry-volume doubled through 2018-05-11; C1 total-exchange-volume formula changed through 2019-10-04; nonstandard/FLEX series and adjusted deliverables require OCC resolution.
+- Literature motivates specific competing mechanisms, not a smart-money assumption: Pan–Poteshman opening buyer-initiated put/call volume; Ge–Lin–Pearson opening call purchases and embedded leverage; Han–Kim skew interaction; Muravyev dealer inventory-risk confound; Bernile–Gao–Hu volume-weighted strike/spot distribution.
+- Preregistered candidate constructs and data gates are documented in research/PHASE86_OPTIONS_FLOW_ECONOMIC_HYPOTHESES_AND_PIT_DESIGN_2026-11-04.md. Full-OPRA joins, historical OCC multiplier/deliverables, sample/coverage, exact PIT publication, licensing and Phase 70 point-in-time optionable-universe gates remain open.
+- No vendor was contacted, no data were purchased, no forward returns or alpha tests were run, and no production change was made. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
