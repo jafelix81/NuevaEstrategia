@@ -1,7 +1,7 @@
 import unittest
 
 from research.phase67_form144_full_candidate_role_resolution import (
-    classify_candidate_identity, classify_control,
+    classify_candidate_identity, classify_control, index_row_invalid,
 )
 
 
@@ -71,6 +71,15 @@ class CandidateRoleTests(unittest.TestCase):
             "unique_candidate", ["0000000001"], bad_form
         )
         self.assertFalse(result["include_as_issuer_event"])
+
+    def test_expected_archive_path_multiplicity_is_not_a_form_or_date_conflict(self):
+        row = {
+            "form": "144", "filing_date": "2025-01-02",
+            "metadata_conflict": True, "archive_path_cik_conflict": True,
+        }
+        self.assertFalse(index_row_invalid(row))
+        self.assertTrue(index_row_invalid(dict(row, form=None)))
+        self.assertTrue(index_row_invalid(dict(row, filing_date=None)))
 
     def test_control_pair_requires_both_distinct_ciks_and_form_match(self):
         self.assertEqual(classify_control(self.identity), "control_pair_concordant")
