@@ -1,0 +1,40 @@
+name: Phase 68 - SEC fund ticker mapping repair audit
+
+on:
+  push:
+    branches: [phase68-sec-fund-ticker-map-repair]
+    paths:
+      - 'research/phase50_form144_global_index_pilot.py'
+      - 'research/test_phase50_form144_global_index_pilot.py'
+      - 'research/phase68_sec_fund_ticker_map_audit.py'
+      - 'research/PHASE68_SEC_FUND_TICKER_MAP_REPAIR_2026-11-04.md'
+      - '.github/workflows/phase68_sec_fund_ticker_map_repair.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: phase68-sec-fund-ticker-map-repair
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run SEC parser and mapping regression tests
+        run: python -m unittest research.test_phase50_form144_global_index_pilot -v
+      - name: Audit corrected ticker/CIK coverage for the frozen universe
+        run: python -u -m research.phase68_sec_fund_ticker_map_audit
+      - name: Upload Phase 68 mapping outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase68-sec-fund-ticker-map-audit
+          path: phase68_sec_fund_ticker_map_audit/
+          if-no-files-found: warn
