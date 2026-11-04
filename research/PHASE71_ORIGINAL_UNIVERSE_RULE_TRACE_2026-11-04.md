@@ -1,0 +1,100 @@
+# Phase 71 — Trace of the original 335-name universe rule
+
+**Date:** 2026-11-04  
+**Branch:** \`phase71-original-universe-rule-trace\`  
+**Scope:** source-code and Git-history trace only. No return calculations or alpha tests.
+
+## Executive result
+
+The repository does not document a reproducible rule that generated the 335-name universe. The original discovery code explicitly says the 335-symbol \`DEFAULT_UNIVERSE\` must be copied from the current project; it does not construct the universe from a historical screen, index membership file or dated security master.
+
+This confirms the Phase 70 hard blocker: historical tests over the fixed list are conditional on a curated present-day symbol set, not a proven point-in-time eligible cross-section.
+
+## 1. Direct code evidence
+
+### Phase 0 — discovery
+
+File: \`Nueva_Estrategia_Fase0_Descubrimiento.py\`
+
+- Header describes factor discovery across future returns at 5/10/20/40 sessions.
+- The source comment says: “El universo DEFAULT_UNIVERSE debe copiarse desde el proyecto vigente.”
+- The code embeds 335 ticker strings and aborts unless the count is exactly 335.
+- It downloads ten years of prices by ticker through yfinance.
+- It then selects factor directions using 12 discovery dates and applies the frozen directions to later dates.
+- No upstream rule in this file defines why a security enters or leaves the 335-name list, and no historical membership dates are produced.
+
+### Phase 5 — momentum validation
+
+File: \`Nueva_Estrategia_Fase5_LongTermMomentum.py\`
+
+- \`PERIOD="10y"\`.
+- The same 335-name list is hard-coded and count-checked.
+- Prices are downloaded by ticker; no effective-dated listing/security identifier is used in the loader.
+- The phase tests momentum windows and forward returns within that fixed list.
+
+### Phase 6 — walk-forward LTM
+
+File: \`Nueva_Estrategia_Fase6_WalkForward_LTM.py\`
+
+- The same fixed 335-name list is embedded.
+- The loader requests ten years by ticker.
+- The ETF/index classification is a hard-coded allowlist; all other symbols fall through to EQUITY. It is not a complete historical security-type master and does not resolve share classes, ADR status or fund series.
+- The LTM ranking is cross-sectional only over the names returned by the current hard-coded list at each historical date.
+
+### Phase 8 — portfolio construction
+
+File: \`Nueva_Estrategia_Fase8_Portfolio_LTM.py\`
+
+- Again embeds the same 335 names.
+- Again requests ten years of prices by ticker.
+- Portfolio selection is downstream of that fixed list; it does not rebuild the eligible security pool as of each formation date.
+
+## 2. Git-history trace
+
+The repository history shows the Phase 0 discovery file was uploaded on 2026-10-14 and Phase 6/8 files were uploaded on 2026-10-15. The available commit messages are generic “Add files via upload”/rename messages; they do not document the universe source, screening date, inclusion thresholds or replacement process.
+
+The Phase 0 comment is the strongest direct provenance statement found: the list was copied from the current project. No dated input file, screen export, index-membership source or universe-change ledger appears in the inspected repository tree.
+
+This does not prove the list was selected using future returns. It means the repository cannot currently establish when or by what rule each name became eligible.
+
+## 3. Why a security master alone is insufficient
+
+A PIT security master can resolve the identity and lifecycle of securities that are known to the universe, including ticker changes and delistings. It cannot restore names that were never included in the 335-name list because they later failed, delisted, were acquired or otherwise left a curated screen.
+
+Therefore two separate tasks are required:
+
+1. **Identity/lifecycle:** map each ticker to a permanent security/listing identifier with effective dates and record-known timestamps.
+2. **Universe membership:** reconstruct the actual eligibility rule and every security that satisfied it at each historical formation date, including securities that later disappeared.
+
+The Phase 68 335/335 SEC ticker-to-registrant-CIK map addresses neither historical listing identity nor historical membership. CIK is an issuer/registrant cross-check, not a tradable security ID.
+
+## 4. Research decision
+
+- Do not describe fixed-335 historical results as a general survivorship-bias-free cross-sectional test.
+- Keep those results as conditional diagnostics on the present-day curated set.
+- Do not modify or invalidate the frozen control solely from this audit; the audit identifies an evidence limitation, not a measured performance error.
+- Recover the original selection rule only from contemporaneous source material. Do not reverse-engineer thresholds by optimizing historical performance.
+- If the original rule cannot be recovered, create a **separate** broad-universe research line with a predeclared PIT eligibility rule, permanent security IDs, delisted coverage and terminal-return handling. Do not silently substitute that universe into F80.
+- A broad-universe reconstruction should include common stocks and other instrument types only according to an explicit rule; ETFs/ETNs, ADRs, preferreds, warrants, multiple share classes and OTC transitions must be classified consistently and separately.
+
+## 5. Minimum requirements for a future broad-universe benchmark
+
+1. A reproducible historical eligible universe on every formation date.
+2. Permanent security/listing IDs, exchange/MIC and security type.
+3. Effective dates plus record-known/publication timestamps or archived contemporaneous snapshots.
+4. Active and inactive securities, including acquired, bankrupt and delisted names.
+5. Corporate-action and terminal delisting return treatment.
+6. Historical price/volume data that join on permanent IDs rather than ticker alone.
+7. Exact replication of the frozen strategy's ranking, exposure, rebalance and cost rules before comparing any alternative universe.
+8. Chronological OOS, block bootstrap and leave-one-issuer-out after the universe/data gates pass.
+
+## 6. Status
+
+- Original 335-universe rule: **NOT FOUND in inspected repository history/code**.
+- Fixed-list membership history: **NOT AVAILABLE in repository**.
+- Phase 68 current ticker-to-CIK map: 335/335, but current-only.
+- Phase 67 Form 144 issuer-role census: identity gate passed for the old 309-CIK candidate set; Phase 69 incremental fund scan is prepared but not yet run.
+- Databento / AlgoSeek / CRSP: vendor feasibility candidates only; no data purchased and no vendor contacted.
+- No forward returns or alpha tests were run.
+
+\`F80_TOP20_PARTIAL50_BASELINE_C20\` remains frozen.
