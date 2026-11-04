@@ -1,0 +1,1 @@
+Phase 73 data pilot trigger: tests passed; run the stratified 80-filing complete-submission XML pilot only.
