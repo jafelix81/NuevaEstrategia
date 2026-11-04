@@ -58,3 +58,25 @@ A PASS proves that exact-CIK search can retrieve these known cross-filer control
 If exact-text queries find all four controls with correct form/date and complete pagination, proceed to a capped recall audit across a small stratified sample of current target CIKs and legacy/structured periods. If they fail, inspect the SEC Entity Landing Page Beneficial Ownership section and the global master-index archive-path approach before any broader scan.
 
 No forward returns, alpha tests, data purchases or production changes. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## 2026-11-04 pilot result — FAIL, no positive controls found
+
+The bounded 13-query pilot ran twice due an already-queued push event (runs 41874223573 and 41874376222; first artifact 13345621813). Both runs used the same query construction.
+
+- 13/13 HTTP requests returned 200.
+- 0/13 queries returned document hits.
+- 0/4 known cross-filer accessions were found by padded or unpadded exact-CIK queries.
+- 0 results from the diagnostic ciks=subject and ciks=filer filters.
+- Pagination was complete for all queries and there were no HTTP/API exceptions.
+
+This is a FAIL for the current EFTS request construction, not proof that the SEC index lacks the filings. The API response body/query echo was not preserved in this first run, so we cannot yet distinguish a bad parameter combination from a query-tokenization or index-coverage issue.
+
+Decision: do not scale EFTS or use its ciks filter. Phase 79 will run a smaller diagnostic matrix with:
+- a generic known-positive query to confirm the endpoint returns any results;
+- company-name terms (Revance, Osisko, Fox) with and without form/date filters;
+- zero-padded and unpadded CIK text without quotes;
+- root-form filters (SC 13D / SC 13G, rather than amendment strings);
+- full response body and query echo hashes.
+
+If company-name controls also fail while generic controls work, exact CIK tokenization is unsuitable. If generic controls fail, stop using this endpoint and move to the SEC filing-detail index / Entity Landing Page route. No further EFTS crawl until Phase 79 diagnostics are reviewed.
