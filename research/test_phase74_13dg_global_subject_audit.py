@@ -72,16 +72,32 @@ CIK|Company Name|Form Type|Date Filed|Filename
         with self.assertRaises(ValueError):
             complete_submission_url("0001061736", "invalid")
 
-    def test_submission_url_candidates_try_archive_path_then_master_ciks_then_accession_prefix(self):
+    def test_submission_url_uses_unique_archive_path_cik_only(self):
         row = {
             "accession": "0000315066-25-001108",
             "archive_path_ciks": ["0001061736"],
             "master_index_ciks": ["0000315066", "0001061736"],
         }
         candidates = submission_url_candidates(row)
-        self.assertEqual([c for c, _ in candidates], ["0001061736", "0000315066"])
+        self.assertEqual(len(candidates), 1)
+        self.assertEqual(candidates[0][0], "0001061736")
         self.assertIn("/1061736/", candidates[0][1])
-        self.assertIn("/315066/", candidates[1][1])
+
+    def test_fox_archive_path_does_not_guess_from_accession_prefix(self):
+        row = {
+            "accession": "0000950157-25-000788",
+            "archive_path_ciks": ["0001754301"],
+            "master_index_ciks": ["0000950157", "0001754301"],
+        }
+        cik, url = submission_url_candidates(row)[0]
+        self.assertEqual(cik, "0001754301")
+        self.assertIn("/1754301/000095015725000788/", url)
+        self.assertNotIn("/950157/", url)
+
+    def test_missing_or_nonunique_archive_path_is_quarantined(self):
+        for paths in ([], ["0001061736", "0000315066"]):
+            with self.assertRaisesRegex(ValueError, "archive path CIK"):
+                submission_url_candidates({"accession": "0000315066-25-001108", "archive_path_ciks": paths})
 
     def test_ambiguous_pair_can_be_resolved_as_one_subject_and_one_filer(self):
         row = {
