@@ -759,12 +759,24 @@ def main():
         }
 
     field_rates = {}
+    field_rates_by_form = {}
     for field in REQUIRED_FIELDS:
         values = []
         for row in parsed_xml:
             presence = json.loads(row.get("field_presence") or "{}")
             values.append(bool(presence.get(field)))
         field_rates[field] = sum(values) / len(values) if values else 0.0
+    for form in ("144", "144/A"):
+        form_parsed = [row for row in parsed_xml if row["form"] == form]
+        field_rates_by_form[form] = {}
+        for field in REQUIRED_FIELDS:
+            values = [
+                bool(json.loads(row.get("field_presence") or "{}").get(field))
+                for row in form_parsed
+            ]
+            field_rates_by_form[form][field] = (
+                sum(values) / len(values) if values else 0.0
+            )
 
     index_success_rate = len(index_rows) / len(groups) if groups else 0.0
     subject_rate = (
@@ -811,10 +823,26 @@ def main():
         "accepted_timestamp_rate_at_least_95pct": accepted_rate >= 0.95,
         "index_form_agreement_at_least_95pct": index_form_rate >= 0.95,
         "index_filing_date_agreement_at_least_95pct": index_date_rate >= 0.95,
-        "xml_parse_rate_at_least_95pct": xml_parse_rate >= 0.95,
-        "xml_subject_match_at_least_95pct": xml_subject_rate >= 0.95,
-        "xml_form_match_at_least_95pct": xml_form_rate >= 0.95,
-        "required_xml_fields_at_least_95pct": all(rate >= 0.95 for rate in field_rates.values()),
+        "xml_parse_rate_at_least_95pct_each_form": all(
+            by_form[form]["xml_parse_rate"] is not None
+            and by_form[form]["xml_parse_rate"] >= 0.95
+            for form in ("144", "144/A")
+        ),
+        "xml_subject_match_at_least_95pct_each_form": all(
+            by_form[form]["xml_subject_match_rate"] is not None
+            and by_form[form]["xml_subject_match_rate"] >= 0.95
+            for form in ("144", "144/A")
+        ),
+        "xml_form_match_at_least_95pct_each_form": all(
+            by_form[form]["xml_form_match_rate"] is not None
+            and by_form[form]["xml_form_match_rate"] >= 0.95
+            for form in ("144", "144/A")
+        ),
+        "required_xml_fields_at_least_95pct_each_form": all(
+            rate >= 0.95
+            for form_rates in field_rates_by_form.values()
+            for rate in form_rates.values()
+        ),
     }
     passed = all(gates.values())
 
@@ -858,6 +886,7 @@ def main():
         "xml_subject_match_rate": xml_subject_rate,
         "xml_form_match_rate": xml_form_rate,
         "required_xml_field_presence_rates": field_rates,
+        "required_xml_field_presence_rates_by_form": field_rates_by_form,
         "gate_checks": gates,
         "historical_pit_universe_gate": "NOT_TESTED",
         "economic_test_authorized": False,
