@@ -130,7 +130,7 @@ def inspect_csv(payload: bytes, filename: str) -> dict:
                 invalid_conf += 1
             elif 0.0 <= value <= 1.0 or value in NEGATIVE_CONFIDENCE_CODES:
                 valid_conf += 1
-                if value < 0.5:
+                if 0.0 <= value < 0.5:
                     low_conf += 1
                 if value in NEGATIVE_CONFIDENCE_CODES:
                     negative_codes += 1
