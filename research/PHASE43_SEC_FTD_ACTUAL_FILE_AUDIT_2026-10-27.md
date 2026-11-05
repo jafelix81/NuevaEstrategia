@@ -57,3 +57,35 @@ The Phase 43 workflow is present on `main` and a fresh main-branch content commi
 ## 2026-11-05 execution reconciliation
 
 The latest Actions history contained no completed or active run for this workflow, despite the earlier state note saying the actual-file gate had been triggered. That note was premature. The workflow is being made branch-runnable and re-executed from the Phase 99/100 research branch. This remains a parser/schema audit only; no forward-return test is included.
+
+
+## 2026-11-05 — Actual-file revalidation completed (Phase 101)
+
+Final successful run: [41970505481](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41970505481)  
+Artifact: [SEC FTD parser audit](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41970505481/artifacts/13389273464)
+
+The first download attempt was blocked with HTTP 403 because the request did not identify the organization/contact. The SEC request was updated to use the firm's existing contact identity. The next attempt exposed a changed path for the 2026 archive; the exact official page link was followed and the URL corrected. The final run downloaded and parsed both samples.
+
+| Sample | Valid records | Unique symbols | Settlement dates | Trailer record count | Trailer quantity total | Result |
+|---|---:|---:|---|---:|---:|---|
+| Jan 2018 first half | 43,567 | 9,824 | 2018-01-02 to 2018-01-12 | exact match | exact match | PASS |
+| Sep 2026 second half | 66,693 | 13,394 | 2026-09-15 to 2026-09-30 | exact match | exact match | PASS |
+
+Both files had:
+- Exact six-field header and one TXT member in the ZIP.
+- Zero malformed data records after recognizing the two documented trailer lines.
+- Zero invalid settlement dates, fail quantities, or prices.
+- Trailer record counts equal to parsed record counts.
+- Trailer total share quantities equal to the calculated sum of row quantities.
+
+This validates the actual ZIP path, parser schema and internal record/quantity controls at two distant dates. It does not yet validate all intervening files, CUSIP lifecycle mapping, delisted return linkage, or point-in-time publication timestamps.
+
+## Source interpretation and gates
+
+The SEC's official page reports data from February 2004 through September 2026. Before September 16, 2008, only balances of at least 10,000 shares were included; from that date, all securities with a positive fail balance are included. Treat this as a structural break and do not pool the pre-2008 threshold regime without an explicit regime treatment.
+
+The file contains the aggregate net fail-to-deliver balance as of each settlement date, not a daily flow and not the age of the fails. The SEC explicitly warns that fails can occur on both long and short sales and are not evidence by themselves of abusive or naked short selling. The series is therefore a settlement-pressure hypothesis, not a direct short-interest or informed-trading measure.
+
+The stated release convention is first-half data at month-end and second-half data about the 15th of the next month; the SEC does not guarantee exact posting dates. A backtest must use an independently validated publication timestamp or a conservative lag after the scheduled release, not the settlement date.
+
+Next gate: sample additional periods around 2008-09, 2018 and 2026; measure CUSIP/symbol collisions and ticker changes; link to a PIT security master including inactive securities; only then preregister a settlement-pressure hypothesis. No forward-return test or production feature is authorized by this audit.
