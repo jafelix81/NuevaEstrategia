@@ -43,9 +43,9 @@ jobs:
         with:
           name: phase120-sec-13dg-predecessor-content-audit
           path: inputs/phase120
-          repository: REPO_TOKEN
+          repository: ${{ github.repository }}
           run-id: 42058411930
-          github-token: TOKEN_TOKEN
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Reparse and adjudicate security identity
         run: >-
