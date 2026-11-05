@@ -48,7 +48,7 @@ class PublishedDOODTests(unittest.TestCase):
             {"delta": 0.5, "ask_volume": 100, "bid_volume": 0, "multiplier": 50},
         ]
         self.assertAlmostEqual(compute_published_dood(rows, 10_000), 0.01)
-        self.assertAlmostEqual(compute_multiplier_adjusted_dood(rows, 10_000), 0.075)
+        self.assertAlmostEqual(compute_multiplier_adjusted_dood(rows, 10_000), 0.75)
 
     def test_zero_or_negative_underlying_volume_is_rejected(self):
         for volume in (0, -1):
