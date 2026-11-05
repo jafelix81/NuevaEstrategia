@@ -7,6 +7,7 @@ from research.phase103_sec_midas_security_audit import (
     ROUND_LOT_BREAK,
     SAMPLES,
     detect_delimiter,
+    normalize_name,
     parse_date,
 )
 
@@ -15,8 +16,14 @@ class Phase103MidasTests(unittest.TestCase):
     def test_required_columns_match_sec_page_schema(self):
         self.assertIn("ticker", REQUIRED)
         self.assertIn("date", REQUIRED)
-        self.assertIn("hiddenvol", REQUIRED)
-        self.assertIn("tradevolforhidden", REQUIRED)
+        self.assertIn("hiddenvol('000)", REQUIRED)
+        self.assertIn("tradevolforhidden('000)", REQUIRED)
+        self.assertIn("tradesforodd lots".replace(" ", ""), REQUIRED)
+        self.assertNotIn("trades", REQUIRED)
+
+    def test_header_normalization_preserves_unit_suffix(self):
+        self.assertEqual(normalize_name("LitVol('000)"), "litvol('000)")
+        self.assertEqual(normalize_name("TradeVolForOddLots('000)"), "tradevolforoddlots('000)")
 
     def test_delimiter_detection(self):
         self.assertEqual(detect_delimiter("Ticker,Date,Security"), ",")

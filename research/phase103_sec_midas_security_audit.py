@@ -26,16 +26,26 @@ UNIVERSE_SOURCE = Path("Nueva_Estrategia_Fase11_Real1000_LTM_v4.py")
 OUT = Path("phase103_sec_midas_security_audit")
 USER_AGENT = "Felix and Sarmiento Abogados S.C. research jose.felix@felixsarmiento.com"
 REQUIRED = {
+    "date", "security", "ticker", "mcaprank", "turnrank", "volatilityrank",
+    "pricerank", "litvol('000)", "ordervol('000)", "hidden", "tradesforhidden",
+    "hiddenvol('000)", "tradevolforhidden('000)", "cancels", "littrades",
+    "oddlots", "tradesforoddlots", "oddlotvol('000)", "tradevolforoddlots('000)",
+}
+PAGE_ADVERTISED_FIELDS = {
     "ticker", "date", "security", "mcaprank", "turnrank", "volatilityrank",
     "pricerank", "cancels", "trades", "littrades", "oddlots", "hidden",
     "tradesforhidden", "ordervol", "tradevol", "litvol", "oddlotvol",
     "hiddenvol", "tradevolforhidden",
 }
 NUMERIC_FIELDS = [
-    "McapRank", "TurnRank", "VolatilityRank", "PriceRank", "Cancels", "Trades",
-    "LitTrades", "OddLots", "Hidden", "TradesForHidden", "OrderVol", "TradeVol",
-    "LitVol", "OddLotVol", "HiddenVol", "TradeVolForHidden",
+    "McapRank", "TurnRank", "VolatilityRank", "PriceRank", "LitVol('000)",
+    "OrderVol('000)", "Hidden", "TradesForHidden", "HiddenVol('000)",
+    "TradeVolForHidden('000)", "Cancels", "LitTrades", "OddLots",
+    "TradesForOddLots", "OddLotVol('000)", "TradeVolForOddLots('000)",
 ]
+
+def normalize_name(value: str) -> str:
+    return value.strip().lower().replace(" ", "")
 SAMPLES = [
     {"key": "2012q1", "url": "https://www.sec.gov/files/opa/data/market-structure/metrics-individual-security/individual_security_2012_q10.zip",
      "start": "2012-01-01", "end": "2012-03-31", "regime": "earliest_catalogued_quarter"},
@@ -99,7 +109,7 @@ def parse_csv_member(raw_stream, member_name: str, legacy: set[str], spec: dict)
         raise ValueError(f"{member_name}: empty member")
     delimiter = detect_delimiter(first)
     header = next(csv.reader([first], delimiter=delimiter))
-    normalized = [x.strip().lower().replace(" ", "") for x in header]
+    normalized = [normalize_name(x) for x in header]
     missing = sorted(REQUIRED - set(normalized))
     if missing:
         raise ValueError(f"{member_name}: missing columns {missing}; header={header!r}")
@@ -121,6 +131,8 @@ def parse_csv_member(raw_stream, member_name: str, legacy: set[str], spec: dict)
     out_of_range = 0
     duplicates = Counter()
     security_samples = []
+    cusip_like_security_values = set()
+    nonblank_security = 0
     row_samples = []
     rows_before_feed = rows_after_feed = 0
     rows_before_round = rows_after_round = 0
@@ -150,10 +162,13 @@ def parse_csv_member(raw_stream, member_name: str, legacy: set[str], spec: dict)
         date_tickers[dt].add(ticker)
         ticker_security_pairs.add((ticker, security))
         if security:
+            nonblank_security += 1
             security_values[security] += 1
+            if re.fullmatch(r"[A-Z0-9]{9}", security.upper()):
+                cusip_like_security_values.add(security.upper())
         duplicates[(ticker, dt.isoformat(), security)] += 1
         for field in NUMERIC_FIELDS:
-            value = row.get(field.lower(), "")
+            value = row.get(normalize_name(field), "")
             if value in ("", ".", "NA", "N/A", "NULL"):
                 continue
             numeric_nonnull[field] += 1
@@ -173,7 +188,7 @@ def parse_csv_member(raw_stream, member_name: str, legacy: set[str], spec: dict)
             rows_after_round += 1
         if len(row_samples) < 5:
             row_samples.append({
-                k: row.get(k.lower(), "")
+                k: row.get(normalize_name(k), "")
                 for k in ["Ticker", "Date", "Security", "McapRank", "TurnRank", "VolatilityRank", "PriceRank"]
             })
         if security and len(security_samples) < 20 and security not in security_samples:
@@ -208,6 +223,9 @@ def parse_csv_member(raw_stream, member_name: str, legacy: set[str], spec: dict)
         "duplicate_rows_beyond_first": duplicate_rows,
         "ticker_security_pairs": len(ticker_security_pairs),
         "unique_security_field_values": len(security_values),
+        "security_field_nonblank_pct": round(100 * nonblank_security / rows, 2) if rows else 0.0,
+        "security_field_cusip_like_unique_values": len(cusip_like_security_values),
+        "security_field_cusip_like_pct_of_unique_values": round(100 * len(cusip_like_security_values) / len(security_values), 2) if security_values else 0.0,
         "security_field_sample": security_samples,
         "numeric_nonnull_counts": dict(numeric_nonnull),
         "numeric_invalid_counts": dict(numeric_invalid),
@@ -298,6 +316,10 @@ def main():
         "source_page": SEC_PAGE,
         "data_catalog": CATALOG_URL,
         "data_catalog_resource_count": 58,
+        "page_advertised_fields_missing_in_actual_file_schema": sorted(PAGE_ADVERTISED_FIELDS - REQUIRED),
+        "actual_file_fields_not_advertised_on_page": sorted(REQUIRED - PAGE_ADVERTISED_FIELDS),
+        "volume_columns_with_explicit_thousands_unit": sorted(x for x in REQUIRED if "('000)" in x),
+
         "data_catalog_temporal_range": "2012-01-01 through 2026-06-30",
         "data_catalog_last_modified": "2017-10-30T17:43:20Z (stale catalog metadata; not a file publication timestamp)",
         "source_page_last_reviewed": page_reviewed,
