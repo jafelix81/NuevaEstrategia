@@ -329,3 +329,5 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - Added research/phase94_dood.py, research/test_phase94_dood.py, .github/workflows/phase94_dood_formula.yml and research/PHASE94_DOOD_EXACT_FORMULA_AND_REPLICATION_GATE_2026-11-04.md on isolated branch phase94-dood-exact-replication-spec. The helper implements exact published DOOD and a separately named multiplier-adjusted sensitivity; tests cover signed puts, seller flow, midpoint exclusion, adjusted multipliers and invalid inputs.
 - Phase 94 is methodology and synthetic-test work only. No OptionMetrics sample or license, no vendor contact, no forward returns, no alpha test. The data gate remains NOT PASSED.
 - F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+- Phase 94 deterministic implementation check: first CI attempt exposed one incorrect synthetic expected value (0.075 instead of 0.75) for the multiplier-adjusted sensitivity; no calculation code change was needed. Corrected fixture; run 41950153878 passed 12/12 tests. This is arithmetic validation only, not vendor-data validation or alpha evidence.
