@@ -7,6 +7,7 @@ class Phase126Tests(unittest.TestCase):
     def test_clean_name_rejects_cover_page_boilerplate(self):
         self.assertIsNone(clean_issuer_candidate("§ 240.13d-2(a)"))
         self.assertIsNone(clean_issuer_candidate("Formerly United Mobile Homes, Inc."))
+        self.assertIsNone(clean_issuer_candidate("COMMISSION"))
         self.assertEqual(clean_issuer_candidate("01)* StoneCastle Financial Corp."), "StoneCastle Financial Corp.")
         self.assertEqual(clean_issuer_candidate("COMMISSION StoneCastle Financial Corp."), "StoneCastle Financial Corp.")
 

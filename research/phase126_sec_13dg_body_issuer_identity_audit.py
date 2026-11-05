@@ -64,6 +64,8 @@ def normalize_name(value):
 
 def clean_issuer_candidate(value):
     value = re.sub(r"^\s*\d+\s*\)\s*\*?\s*", "", str(value or ""))
+    if normalize_name(value) == "COMMISSION":
+        return None
     value = re.sub(r"^\s*\d+\s*\(a\)\s*[-:]?\s*", "", value, flags=re.I)
     value = re.sub(r"^\s*(?:INITIAL\s+FILING|FINAL\s+AMENDMENT)\s+", "", value, flags=re.I)
     value = re.sub(r"^\s*COMMISSION\s+", "", value, flags=re.I)
