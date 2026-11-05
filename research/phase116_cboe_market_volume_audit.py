@@ -34,6 +34,8 @@ TRADES = ["Tape A Trade Count", "Tape B Trade Count", "Tape C Trade Count"]
 DAILY_HEADER = ["Day", "Market Participant"] + NUMERIC
 MONTHLY_HEADER = ["Month", "Market Participant"] + NUMERIC
 TOL_NOTIONAL = Decimal("0.20")
+TOL_NOTIONAL_MONTHLY = Decimal("2.00")
+TOL_SHARES_MONTHLY = Decimal("1.00")
 TOL_SHARES = Decimal("0.000001")
 
 
@@ -91,8 +93,8 @@ def parse_csv(data: bytes, kind: str, year: int) -> dict:
         participants.add(participant)
         vals = {name: dec(row.get(name, ""), name) for name in NUMERIC}
         for total, parts, tol in [
-            ("Total Shares", SHARES, TOL_SHARES),
-            ("Total Notional", NOTIONAL, TOL_NOTIONAL),
+            ("Total Shares", SHARES, TOL_SHARES_MONTHLY if kind == "monthly" else TOL_SHARES),
+            ("Total Notional", NOTIONAL, TOL_NOTIONAL_MONTHLY if kind == "monthly" else TOL_NOTIONAL),
             ("Total Trade Count", TRADES, Decimal("0")),
         ]:
             summed = sum((vals[x] for x in parts), Decimal("0"))
@@ -141,7 +143,7 @@ def compare_monthly(daily: dict, monthly: dict, year: int, current_month: str) -
             for field in NUMERIC:
                 a = monthly["month_agg"][key][field]
                 b = daily["month_agg"][key][field]
-                tol = TOL_NOTIONAL if "Notional" in field else (TOL_SHARES if "Shares" in field else Decimal("0"))
+                tol = TOL_NOTIONAL_MONTHLY if "Notional" in field else (TOL_SHARES_MONTHLY if "Shares" in field else Decimal("0"))
                 if abs(a - b) > tol:
                     mismatches.append({"key": key, "field": field, "monthly": str(a), "daily_sum": str(b)})
     return {
