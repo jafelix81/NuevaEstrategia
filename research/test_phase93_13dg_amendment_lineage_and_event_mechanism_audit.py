@@ -6,6 +6,7 @@ from research.phase93_13dg_amendment_lineage_and_event_mechanism_audit import (
     normalize_accession,
     normalize_cik,
     normalize_name,
+    normalize_form,
     validate_explicit_predecessor,
 )
 
@@ -31,6 +32,8 @@ class Phase93NormalizationTests(unittest.TestCase):
         self.assertEqual(normalize_accession("0000000001-24-000001"), "0000000001-24-000001")
         self.assertEqual(normalize_accession("bad"), "")
         self.assertEqual(normalize_name("Alpha Holdings, LLC"), "ALPHAHOLDINGSLLC")
+        self.assertEqual(normalize_form("Schedule 13D / A"), "SC 13D/A")
+        self.assertEqual(normalize_form("SC 13G"), "SC 13G")
 
     def test_business_combination_and_litigation_are_not_called_open_market_buying(self):
         text = "The reporting person received shares in a business combination and later filed a complaint in district court."
