@@ -84,3 +84,8 @@ Official references:
 ## Research boundary
 
 This phase is data feasibility only. It does not claim that customer/firm/MM composition predicts returns, that any account category is informed, or that the data improves F80. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## Hosted execution
+
+A guarded live audit was triggered after the parser and offline tests were committed. Results will be appended only after the run and artifact are inspected. The workflow does not purchase data, authenticate to a paid service, or accept any terms on the user's behalf.
