@@ -1,4 +1,0 @@
-name: Retired Phase 128 SEC 13F list audit (renumbered to Phase 129)
-
-on:
-  workflow_dispatch:
