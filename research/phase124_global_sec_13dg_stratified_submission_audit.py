@@ -6,12 +6,13 @@ immutable prior pilot/predecessor accessions. Downloads only the selected 600.
 No returns, features, alpha tests, or production changes.
 """
 from __future__ import annotations
-import argparse, csv, hashlib, heapq, json, time
+import argparse, csv, hashlib, heapq, json, time, sys
 from collections import Counter, defaultdict
 from datetime import date
 from pathlib import Path
 
-from research.phase120_sec_13dg_predecessor_content_audit import (
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from phase120_sec_13dg_predecessor_content_audit import (
     choose_mirror, fetch_url, form_family, norm_cik, parse_submission, tag_values, xml_root
 )
 
