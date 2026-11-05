@@ -159,8 +159,18 @@ def compare_monthly(daily: dict, monthly: dict, year: int, current_month: str) -
 
 def parse_download_payload(data: bytes, kind: str, year: int) -> dict:
     text = data.decode("utf-8-sig")
-    header = next(csv.reader(io.StringIO(text)), [])
-    if kind == "monthly" and header == DAILY_HEADER:
+    reader = csv.reader(io.StringIO(text))
+    header = next(reader, [])
+    first_row = next(reader, [])
+    if kind == "monthly" and header == DAILY_HEADER and first_row:
+        first_value = (first_row[0] or "").strip()
+        if len(first_value) == 7 and first_value[4] == "-":
+            lines = text.splitlines()
+            lines[0] = lines[0].replace("Day,", "Month,", 1)
+            normalized = ("\\n".join(lines) + "\\n").encode("utf-8")
+            parsed = parse_csv(normalized, "monthly", year)
+            parsed["source_schema"] = "legacy_monthly_day_header"
+            return parsed
         parsed = parse_csv(data, "daily", year)
         parsed["source_schema"] = "daily_header_on_monthly_url"
         return parsed
