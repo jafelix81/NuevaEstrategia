@@ -226,3 +226,11 @@ F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No forward-return test or produ
 ## 2026-11-05 — FINRA historical archive user-certification gate
 - FINRA OTC Transparency Website User Guide v6.0 states the user must affirmatively certify on each visit and click "I AGREE" before accessing OTC Transparency data. The guide's screenshots show 2016 weekly data, but the current historical download route has not been verified.
 - Do not automate the affirmative certification or accept terms on the user's behalf. FINRA's developer API remains the already-audited rolling historical/production path; older website archives are blocked until the user personally reviews and accepts the terms. No certification was made.
+
+
+### Phase 111 completion — OCC Volume by Account Type
+- Run 42020739832 completed successfully; artifact 13411995693. Four daily dates (2024-11-04/05/06 and 2026-11-03) passed fixed-width/header/exchange/key/numeric checks. Row counts: 37,750; 37,481; 42,266; 41,847. Unique option symbols: 4,207; 4,206; 4,537; 4,631. Group keys: 4,051; 4,069; 4,342; 4,393. Exchange counts: 18; 18; 18; 20.
+- 2016-05-31, 2019-05-31 and 2023-11-03 returned identical 41-byte non-data responses. Valid daily data was found from 2024-11-04 through 2026-11-03. This is consistent with a rolling ~24-month window; exact earliest cutoff not exhaustively searched.
+- Decision: park OCC as recent participant-composition context only. It lacks direction, opening/closing status and beneficial-owner identity, and does not supply the long daily history needed for a robust independent OOS test. No alpha test.
+- Cboe Option Sentiment remains the most information-rich documented options candidate (FAQ says Jan 2012 and OPRA U.S. stock/ETF/index coverage), but the old URL redirects and the current Options catalog omits it. Do not assume orderability; no vendor contact or purchase.
+- FINRA historical website archive remains blocked pending the user's affirmative certification. No acceptance was made.
