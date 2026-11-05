@@ -29,7 +29,7 @@ jobs:
       - name: Offline parser tests
         run: python -m unittest -v research/test_phase111_occ_options_account_type_audit.py
       - name: Live OCC historical-access audit
-        run: python research/phase111_occ_options_account_type_audit.py --output phase111_occ_output
+        run: python research/phase111_occ_options_account_type_audit.py --dates 20241104 20241105 20241106 20261103 --output phase111_occ_output
       - name: Upload audit artifact
         uses: actions/upload-artifact@v4
         with:
