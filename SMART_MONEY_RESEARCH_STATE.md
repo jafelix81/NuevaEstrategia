@@ -788,3 +788,14 @@ F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No source from Phases 112–113
 - Scope: 2015Q3–2026Q3 official 13(f) lists, including 2015Q3 as a pre-sample anchor for early 2016 filings. The audit uses the Phase 127 corrected 13D/G CUSIPs and SEC acceptance dates, tests 1- and 5-calendar-day buffers after the later of PDF Run Date and HTTP Last-Modified, and separately records same-quarter lookahead matches.
 - The official 13(f) list is only a 13F-reportable security reference, not a complete security master. PDF Run Date/Time is a generation timestamp, not verified public-release time; no predictive use is permitted until publication availability is independently verified.
 - Raw 13(f) list rows, CUSIPs sourced from the list, issuer names and descriptions are not uploaded. The artifact retains only source hashes/metadata and match booleans against CUSIPs already present in SEC 13D/G filings. No alpha test, vendor purchase or production change.
+
+
+## 2026-11-05 — Phase 130 SEC 13(f) list and Form 13F PIT/scope adjudication
+
+- Added `research/PHASE130_SEC_13F_LIST_AND_FILING_PIT_SCOPE_AUDIT_2026-11-05.md` after reviewing current SEC official documentation.
+- The SEC Official List page exposes quarterly archives from 1996 through 2026Q3 and documents CUSIP, option indicator, issuer name/description and add/delete status. It is a Section 13(f)-eligible list, not a complete security master; the eligible population excludes open-end mutual funds and does not establish ticker continuity.
+- SEC Form 13F data sets cover July 2013–August 2026 as flattened as-filed extracts. Use individual EDGAR accessions and acceptance timestamps for PIT, not quarter-end or data-set batch dates. The normal 45-day reporting lag, long-only scope, unreported written options, confidential treatment and later amendments/restatements make 13F holdings delayed and incomplete.
+- Phase 129 run 42081987897 remains in progress; compilation, regression suites and both immutable input-artifact downloads passed, but the 45-quarter live list audit has not produced an artifact/result yet.
+- Phase 129's +2/+6 calendar-day list-availability fields remain sensitivity proxies only. PDF Run Date is generation time, not verified first publication; HTTP Last-Modified is retrieval metadata, not proof of public dissemination. Same-quarter overlap remains a lookahead diagnostic.
+- Decision: the official 13(f) list may be used only as a conditional eligibility cross-check. Do not use it as a security master, ownership signal or PIT feature. Do not revive the previously killed N-PORT dose-response hypothesis under a 13F label. No return/alpha test, paid data, vendor contact or production change.
+- `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
