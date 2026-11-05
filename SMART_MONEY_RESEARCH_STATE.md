@@ -851,3 +851,13 @@ F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No source from Phases 112–113
 - OptionMetrics IvyDB US + Signed Volume remains the leading external signed-flow candidate from Phase 59, conditional on a sample, permanent-ID/PIT validation, license and price. No vendor contact, purchase, cart action or terms acceptance occurred.
 - No forward-return/alpha test, code/model/production change or universe change. Keep all source hypotheses separate and test only after historical coverage, permanent identity, ex-ante availability and licensing gates. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
 - Report: `research/PHASE134_CBOE_OPTIONS_SURFACE_AND_SENTIMENT_SOURCE_RETRIAGE_2026-11-05.md`.
+
+
+## 2026-11-05 — Phase 135 Cboe Options PITCH microstructure feasibility
+
+- Added [Phase 135 report](research/PHASE135_CBOE_OPTIONS_PITCH_MICROSTRUCTURE_FEASIBILITY_2026-11-05.md) after reviewing the current Cboe product page and Titanium Multicast PITCH specification.
+- Cboe Options PITCH advertises daily historical archives from October 2019 for C1/C2/BZX/EDGX, partitioned by exchange and Matching Engine, with RTH/GTH depth-of-book and execution events. The protocol supplies per-unit sequence numbers, Time/Time Reference and nanosecond offsets, order lifecycle events, and options symbol mapping to OSI/underlying.
+- PITCH is promoted as a conditional venue-specific microstructure candidate, not participant identity or proof of smart money. The feed is anonymous; Add Order side is resting side, and Trade side is not an aggressor label. Hidden executions, order-book state, trade breaks, sequence gaps and GTH segments require careful handling.
+- No public historical sample is exposed on the product page. Archive completeness, file size, historical symbol-map retention, inactive/delisted underlying coverage, exact first-publication timing, and price remain unverified. Current product guidance says daily files typically appear after 8 p.m. ET; this is not historical delivery evidence.
+- Cboe Complex Order Flow currently exposes subscription only (no historical purchase type on the page); classify as prospective-only until archive history is confirmed. Databento remains the broader multi-venue L2/L3 concept from Phase 32; Cboe PITCH is a narrower alternative, not a replacement.
+- No alpha/return test, purchase, cart action, vendor contact, terms acceptance, code/production change or universe change. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
