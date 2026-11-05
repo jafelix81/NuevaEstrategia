@@ -476,6 +476,11 @@ def main():
         "Content-Type": "application/json",
         "User-Agent": "SmartMoneyResearch-Phase100/1.0",
     })
+    token = os.getenv("FINRA_API_TOKEN", "").strip()
+    if token:
+        session.headers["Authorization"] = f"Bearer {token}"
+    request_mode = "async" if token else "sync"
+    print(f"[FINRA ATS] request_mode={request_mode} token_present={bool(token)}", flush=True)
 
     partition_summaries, page_hashes, errors, sample_rows = [], [], [], []
     week_ats_symbols = {week: set() for week in WEEKS}
@@ -484,7 +489,7 @@ def main():
         for tier in TIERS:
             try:
                 print(f"[FINRA ATS] start week={week} tier={tier}", flush=True)
-                rows, pages = fetch_partition(session, week, tier, use_async=bool(token))
+                rows, pages = fetch_partition(session, week, tier, use_async=(request_mode == "async"))
                 page_hashes.extend(pages)
                 record_total = pages[0]["record_total"] if pages else 0
                 retrieved_total = len(rows)
@@ -500,7 +505,7 @@ def main():
                 week_ats_symbols[week].update(ats_symbols)
                 week_otc_symbols[week].update(otc_symbols)
                 summary["row_partition_mismatch_count"] = len(mismatches)
-                summary["request_mode"] = "async" if token else "sync"
+                summary["request_mode"] = request_mode
                 summary["api_record_total"] = record_total
                 summary["api_records_retrieved"] = retrieved_total
                 summary["api_record_total_match"] = record_total == retrieved_total
@@ -560,6 +565,8 @@ def main():
         "source": "FINRA OTCMarket weeklySummaryHistoric",
         "audit_timestamp_utc": datetime.now(timezone.utc).isoformat(),
         "sample_weeks": list(WEEKS),
+        "request_mode": request_mode,
+        "finra_api_token_present": bool(token),
         "tiers": list(TIERS),
         "legacy_f80_universe_size": len(legacy),
         "partitions_expected": len(WEEKS) * len(TIERS),
