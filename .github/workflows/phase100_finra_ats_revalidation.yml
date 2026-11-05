@@ -1,0 +1,42 @@
+name: Phase 100 - FINRA weekly ATS/off-exchange revalidation
+
+on:
+  push:
+    branches: [phase99-broad-pit-universe-charter]
+    paths:
+      - 'research/phase100_finra_ats_revalidation.py'
+      - 'research/test_phase100_finra_ats_revalidation.py'
+      - 'research/PHASE100_FINRA_ATS_REVALIDATION_SPEC_2026-11-05.md'
+      - '.github/workflows/phase100_finra_ats_revalidation.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: phase100-finra-ats-revalidation
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  revalidation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependency
+        run: pip install requests
+      - name: Run offline parser and validation tests
+        run: python -m unittest research.test_phase100_finra_ats_revalidation -v
+      - name: Revalidate FINRA weekly ATS/off-exchange partitions
+        run: python -u research/phase100_finra_ats_revalidation.py
+      - name: Upload audit outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase100-finra-ats-revalidation
+          path: phase100_finra_ats_revalidation/
+          retention-days: 90
+          if-no-files-found: warn
