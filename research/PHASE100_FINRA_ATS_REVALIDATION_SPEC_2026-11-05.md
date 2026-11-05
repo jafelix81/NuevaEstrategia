@@ -74,3 +74,8 @@ are introduced.
 \`lastReportedDate\` is the date a firm last sent an update to underlying data
 contributing to the aggregate. It is not a trade/activity date. It is reported
 separately from \`initialPublishedDate\` and \`lastUpdateDate\`.
+
+
+## FINRA authentication and pagination correction
+
+The async endpoint's status URL requires a Bearer token. The workflow now passes the optional repository secret FINRA_API_TOKEN to the job. If it is present, the audit uses async requests and polls at the documented one-minute maximum. If it is absent, the audit uses synchronous requests and requires both Record-Total and Total-Records-On-Page headers on every page. In either mode, retrieved row counts must reconcile exactly; no short page is treated as complete merely because it contains fewer than the requested limit.

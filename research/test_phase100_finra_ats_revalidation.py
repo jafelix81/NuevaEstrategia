@@ -6,6 +6,7 @@ from research.phase100_finra_ats_revalidation import (
     NON_SYMBOL_TYPES,
     SYMBOL_BEARING_TYPES,
     build_async_payload,
+    build_sync_payload,
     parse_response,
     parse_date,
     parse_nonnegative_number,
@@ -48,6 +49,16 @@ class Phase100FinraTests(unittest.TestCase):
         ]
         self.assertEqual(NON_SYMBOL_TYPES, {"ATS_W_FIRM", "OTC_W_FIRM", "ATS_W_VOL_STATS", "OTC_W_VOL_STATS"})
         self.assertEqual(validate_partition_rows(rows, "2025-01-06", "T1"), [])
+
+    def test_sync_payload_uses_historical_week_and_tier(self):
+        payload = build_sync_payload("2025-01-06", "T2", 5000)
+        self.assertNotIn("async", payload)
+        self.assertEqual(payload["limit"], 5000)
+        self.assertEqual(payload["offset"], 5000)
+        self.assertEqual(
+            [(x["fieldName"], x["fieldValue"]) for x in payload["compareFilters"]],
+            [("historicalWeek", "2025-01-06"), ("tierIdentifier", "T2")],
+        )
 
     def test_async_payload_uses_historical_week_and_tier(self):
         payload = build_async_payload("2025-01-06", "T2", 100000)

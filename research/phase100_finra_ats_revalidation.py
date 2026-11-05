@@ -9,6 +9,7 @@ import ast
 import csv
 import hashlib
 import json
+import os
 import time
 from urllib.parse import urljoin
 from collections import Counter
@@ -23,8 +24,10 @@ OUT = Path("phase100_finra_ats_revalidation")
 WEEKS = ("2022-01-03", "2023-01-09", "2024-01-08", "2025-01-06", "2025-10-20")
 TIERS = ("T1", "T2")
 ASYNC_PAGE_SIZE = 100000
+SYNC_PAGE_SIZE = 5000
 MAX_OFFSET = 500000
-MAX_PAGES = 6
+MAX_ASYNC_PAGES = 6
+MAX_SYNC_PAGES = 200
 POLL_INTERVAL_SECONDS = 60
 MAX_POLL_CYCLES = 10
 FIELDS = [
@@ -114,15 +117,22 @@ def validate_partition_rows(rows: list[dict], week: str, tier: str) -> list[str]
     return problems
 
 
-def build_async_payload(week: str, tier: str, offset: int = 0) -> dict:
+def build_sync_payload(week: str, tier: str, offset: int = 0) -> dict:
     return {
         "fields": FIELDS,
         "compareFilters": [
             {"compareType": "equal", "fieldName": "historicalWeek", "fieldValue": week},
             {"compareType": "equal", "fieldName": "tierIdentifier", "fieldValue": tier},
         ],
-        "limit": ASYNC_PAGE_SIZE,
+        "limit": SYNC_PAGE_SIZE,
         "offset": offset,
+    }
+
+
+def build_async_payload(week: str, tier: str, offset: int = 0) -> dict:
+    return {
+        **build_sync_payload(week, tier, offset),
+        "limit": ASYNC_PAGE_SIZE,
         "async": True,
     }
 
@@ -211,13 +221,14 @@ def _download_async_result(session: requests.Session, week: str, tier: str, offs
     return rows, record_total, meta
 
 
-def fetch_partition(session: requests.Session, week: str, tier: str):
+def fetch_partition_async(session: requests.Session, week: str, tier: str):
     rows, pages = [], []
     offset = 0
     expected_total = None
-    for page in range(MAX_PAGES):
+    for page in range(MAX_ASYNC_PAGES):
         page_rows, record_total, meta = _download_async_result(session, week, tier, offset)
         meta["page"] = page
+        meta["request_mode"] = "async"
         pages.append(meta)
         if expected_total is None:
             expected_total = record_total
@@ -250,6 +261,71 @@ def fetch_partition(session: requests.Session, week: str, tier: str):
             f"FINRA incomplete partition {week}/{tier}: retrieved={len(rows)}, total={expected_total}"
         )
     return rows, pages
+
+
+def fetch_partition_sync(session: requests.Session, week: str, tier: str):
+    rows, pages = [], []
+    offset = 0
+    expected_total = None
+    for page in range(MAX_SYNC_PAGES):
+        response = session.post(
+            BASE, json=build_sync_payload(week, tier, offset), timeout=(20, 120)
+        )
+        response.raise_for_status()
+        page_rows = parse_response(response.json())
+        record_total_raw = response.headers.get("Record-Total")
+        page_count_raw = response.headers.get("Total-Records-On-Page")
+        if record_total_raw is None or page_count_raw is None:
+            raise RuntimeError(
+                f"FINRA sync response lacks Record-Total/Total-Records-On-Page "
+                f"for {week}/{tier} offset={offset}; headers={dict(response.headers)}"
+            )
+        record_total = int(record_total_raw)
+        page_count = int(page_count_raw)
+        if page_count != len(page_rows):
+            raise RuntimeError(
+                f"FINRA Total-Records-On-Page mismatch for {week}/{tier} offset={offset}: "
+                f"header={page_count}, parsed={len(page_rows)}"
+            )
+        if expected_total is None:
+            expected_total = record_total
+        elif record_total != expected_total:
+            raise RuntimeError(
+                f"FINRA Record-Total changed across pages for {week}/{tier}: "
+                f"{record_total} vs {expected_total}"
+            )
+        pages.append({
+            "week": week, "tier": tier, "page": page, "offset": offset,
+            "rows": len(page_rows), "record_total": record_total,
+            "total_records_on_page": page_count, "status_polls": 0,
+            "request_id": response.headers.get("FINRA-api-request-id"),
+            "async_status": "sync", "request_mode": "sync",
+            "sha256": hashlib.sha256(response.content).hexdigest(),
+        })
+        rows.extend(page_rows)
+        offset += page_count
+        if offset >= record_total:
+            break
+        if page_count == 0:
+            raise RuntimeError(
+                f"FINRA returned an empty page before Record-Total={record_total} for {week}/{tier}"
+            )
+        if offset > MAX_OFFSET:
+            raise RuntimeError(f"FINRA sync offset ceiling exceeded for {week}/{tier}")
+    else:
+        raise RuntimeError(f"Sync pagination guard exceeded for {week}/{tier}")
+    if expected_total is None or len(rows) != expected_total:
+        raise RuntimeError(
+            f"FINRA incomplete sync partition {week}/{tier}: "
+            f"retrieved={len(rows)}, total={expected_total}"
+        )
+    return rows, pages
+
+
+def fetch_partition(session: requests.Session, week: str, tier: str, use_async: bool):
+    if use_async:
+        return fetch_partition_async(session, week, tier)
+    return fetch_partition_sync(session, week, tier)
 def summarize_partition(rows: list[dict], week: str, tier: str, legacy: set[str]):
     type_counts = Counter(str(r.get("summaryTypeCode") or "MISSING").upper() for r in rows)
     missing_symbol_by_type = Counter(
@@ -408,7 +484,7 @@ def main():
         for tier in TIERS:
             try:
                 print(f"[FINRA ATS] start week={week} tier={tier}", flush=True)
-                rows, pages = fetch_partition(session, week, tier)
+                rows, pages = fetch_partition(session, week, tier, use_async=bool(token))
                 page_hashes.extend(pages)
                 record_total = pages[0]["record_total"] if pages else 0
                 retrieved_total = len(rows)
@@ -424,6 +500,7 @@ def main():
                 week_ats_symbols[week].update(ats_symbols)
                 week_otc_symbols[week].update(otc_symbols)
                 summary["row_partition_mismatch_count"] = len(mismatches)
+                summary["request_mode"] = "async" if token else "sync"
                 summary["api_record_total"] = record_total
                 summary["api_records_retrieved"] = retrieved_total
                 summary["api_record_total_match"] = record_total == retrieved_total
@@ -516,7 +593,8 @@ def main():
             f,
             fieldnames=[
                 "week", "tier", "page", "offset", "rows", "record_total",
-                "status_polls", "request_id", "async_status", "result_expires", "sha256",
+                "total_records_on_page", "status_polls", "request_id", "async_status",
+                "request_mode", "result_expires", "sha256",
             ],
         )
         writer.writeheader()
