@@ -58,3 +58,16 @@ class Phase112OptionTradesTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+    def test_empty_or_non_csv_payload_is_not_misidentified(self):
+        from research.phase112_cboe_option_trades_sample_audit import collect_csv_payloads
+        import io
+        import zipfile
+
+        buffer = io.BytesIO()
+        with zipfile.ZipFile(buffer, "w") as archive:
+            archive.writestr("readme.txt", "sample only")
+        found, entries = collect_csv_payloads(buffer.getvalue())
+        self.assertEqual(found, [])
+        self.assertEqual(len(entries), 1)
