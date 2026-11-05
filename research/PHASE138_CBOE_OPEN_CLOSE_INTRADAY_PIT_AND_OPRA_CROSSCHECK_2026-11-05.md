@@ -93,7 +93,7 @@ Official 2025 history/normalization announcement: https://www.databento.tech/blo
 Original 2023 product launch: https://databento.com/blog/opra-data
 
 Established from the vendor's public documentation:
-- OPRA.PILLAR covers 18 U.S. equity-options venues and has normalized trade/quote/definition schemas from 2013-04-01; schema availability differs by date.
+- OPRA.PILLAR covers 20 U.S. options venues (as of September 2026) and has normalized trade/quote/definition schemas from 2013-04-01; schema availability differs by date.
 - The TCBBO schema provides the NBBO immediately before each trade for historical event dates from 2023-03-28 onward. However, Databento's own May 14, 2025 announcement says TCBBO/CMBP-1 were introduced in 2025: historical availability and live staging began May 21, and the production schema migration replaced TBBO/MBP-1 on May 27, 2025. Thus 2023-03-28 through 2025-05-26 is a retrospective TCBBO backfill, not proof that this exact consolidated schema was available to a trader then.
 - Before 2023-03-28, data are explicitly described as subsampled rather than packet-capture generated. TCBBO, CMBP-1 and CBBO-1s are unavailable; CBBO-1m is the highest BBO granularity. `ts_recv` equals the event timestamp and carries `F_BAD_TS_RECV`; the venue showing the NBBO is not identified, and Statistics contains only aggregated open interest.
 
@@ -127,7 +127,7 @@ Before any alpha test:
 
 Promote Cboe Open-Close intraday/EOD to the **top-tier conditional participant-capacity and opening/closing activity candidate**. It is more useful than the prior EOD-only framing, especially for prospective 1-minute/10-minute capture. Keep strict historical PIT and coverage gates closed until immutable snapshots, delivery timestamps and historical security identity are demonstrated.
 
-Databento OPRA is the strongest broad multi-venue route for independent trade/NBBO reconstruction; strict TCBBO PIT begins no earlier than the 2025-05-27 production cutover. TCBBO backfill from 2023-03-28 to 2025-05-26 is retrospective, and pre-2023-03-28 data are not suitable for event-level signing. IVolatility's new 2015 signed-flow history remains a retrospective backfill until historical knowledge-time/vintages are shown. Cboe Volatility Surfaces remains a separate volatility-context candidate.
+Databento OPRA is the strongest broad multi-venue route for independent trade/quote reconstruction. OPRA does not disseminate aggressor side (the trade `side` field is always N); the analyst must infer it from trade price versus TCBBO NBBO, leaving midpoint trades ambiguous. Strict TCBBO PIT begins no earlier than the 2025-05-27 production cutover. TCBBO backfill from 2023-03-28 to 2025-05-26 is retrospective, and pre-2023-03-28 data are not suitable for event-level signing. The strict live window is currently only about 18 months, too short by itself for a robust multi-regime OOS claim; it is best used prospectively and as an overlapping methodology cross-check against IVolatility. IVolatility's new 2015 signed-flow history remains a retrospective backfill until historical knowledge-time/vintages are shown. Cboe Volatility Surfaces remains a separate volatility-context candidate.
 
 No raw data purchase, account/trial, vendor contact, terms acceptance, return test, portfolio change or production change occurred. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
 
@@ -137,3 +137,8 @@ No raw data purchase, account/trial, vendor contact, terms acceptance, return te
 - Phase 138 report and state updates are committed on the working branch; final branch head at this verification: `f6cf1b206064eb22f039f4c91913023a6381e87c`.
 - PR #13 is open/unmerged and GitHub reports `mergeable=true`, `mergeable_state=clean`; compare shows 257 commits ahead and 1 behind `main`.
 - Repository Actions queries after the documentation commits still show zero in-progress and zero queued runs. No workflow was started by this audit.
+
+
+### Additional correction — OPRA venue count and trade-side semantics
+
+The current Databento OPRA feed specification lists **20 options venues as of September 2026** (the earlier product launch page described 17 national exchanges and older catalog copy showed 18). It also states explicitly that OPRA does not disseminate trade side: the trade `side` field is always `N`. TCBBO supplies the NBBO at the trade time, so buy/sell aggressor direction must be inferred from trade price relative to bid/ask; midpoint prints remain ambiguous. The strict live TCBBO window from 2025-05-27 to this audit date is only about 18 months, so it is not enough by itself to support a robust multi-regime OOS conclusion. Use it prospectively and as an overlapping methodology cross-check, not as a stand-alone long-history alpha panel.
