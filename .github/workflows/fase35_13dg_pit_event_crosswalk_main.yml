@@ -1,32 +1,23 @@
 name: Fase 35 - SEC 13D/13G PIT crosswalk audit runner
+
+# Disabled after Phase 96: the CIK-specific submissions panel failed a known
+# subject/filer positive control. Do not repeat this SEC crawl.
 on:
   push:
     branches: [main]
-  workflow_dispatch:
+    paths:
+      - .github/workflows/fase35_13dg_pit_event_crosswalk_main.yml
+
 concurrency:
   group: fase35-13dg-pit-crosswalk-main
   cancel-in-progress: true
+
 jobs:
   audit:
+    if: false
     runs-on: ubuntu-latest
     timeout-minutes: 240
     steps:
       - uses: actions/checkout@v4
-      - name: Fetch Phase 35 repaired research branch
-        run: git fetch --force origin phase35-13dg-parser-repair:refs/remotes/origin/phase35-13dg-parser-repair
-      - name: Verify repaired branch head
-        run: git rev-parse origin/phase35-13dg-parser-repair
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - name: Materialize and run corrected historical-CIK PIT audit
-        run: |
-          git show origin/phase35-13dg-parser-repair:Nueva_Estrategia_Fase28D_SEC_13DG_PIT_Event_Audit.py > /tmp/phase35_audit.py
-          git show origin/phase35-13dg-parser-repair:Nueva_Estrategia_Fase28D_SEC_13DG_PIT_Event_Audit_v2.py > /tmp/phase35_audit_v2.py
-          python -u /tmp/phase35_audit_v2.py
-      - name: Upload audit
-        uses: actions/upload-artifact@v4
-        with:
-          name: phase35-13dg-pit-event-crosswalk-audit
-          path: nueva_estrategia_phase28d_sec_13dg_pit_event_audit/
-          if-no-files-found: error
+      - name: Disabled — see Phase 96 identity revalidation
+        run: echo "Phase 35 is closed as an issuer-event panel."

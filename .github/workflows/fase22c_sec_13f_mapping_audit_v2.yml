@@ -3,6 +3,10 @@ name: Fase 22C v2 - SEC 13F Mapping Feasibility Audit
 on:
   push:
     branches: [main, phase22c-sec13f-mapping-audit-fix]
+    paths:
+      - .github/workflows/fase22c_sec_13f_mapping_audit_v2.yml
+      - Nueva_Estrategia_Fase22C_SEC_13F_Fuzzy_Mapping_Audit_v2.py
+      - research/phase22c_trigger.txt
   workflow_dispatch:
 
 concurrency:
@@ -11,6 +15,9 @@ concurrency:
 
 jobs:
   audit:
+    # Avoid repeating a low-priority SEC mapping crawl on unrelated research-state commits.
+    # Manual dispatch is retained for an explicitly approved future feasibility review.
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
