@@ -236,6 +236,15 @@ def sum_field(rows, field):
     return sum(valid, Decimal("0")), len(values) - len(valid)
 
 
+def has_negative_numeric(rows):
+    for row in rows:
+        for field in ("totalWeeklyShareQuantity", "totalWeeklyTradeCount"):
+            value = parse_decimal(row.get(field))
+            if value is not None and value < 0:
+                return True
+    return False
+
+
 def family_for(summary_type):
     value = clean(summary_type).upper()
     if value.startswith("ATS_"):
@@ -340,7 +349,10 @@ def cohort_reconcile(rows, week: str, tier: str):
                 trade_match = (
                     a_trade_invalid == 0 and f_trade_invalid == 0 and a_trades == f_trades
                 )
-                cohort_match = qty_match and trade_match and bool(cohort_firms)
+                cohort_match = (
+                    qty_match and trade_match and bool(cohort_firms)
+                    and not has_negative_numeric(cohort_aggs + cohort_firms)
+                )
                 cohort_count += 1
                 if cohort_match:
                     cohort_matches += 1
@@ -394,6 +406,7 @@ def cohort_reconcile(rows, week: str, tier: str):
                 and not firm_missing_date
                 and agg_qty_invalid == 0 and firm_qty_invalid == 0
                 and agg_trade_invalid == 0 and firm_trade_invalid == 0
+                and not has_negative_numeric(agg_rows + firm_rows)
             )
             if fully_reconciled:
                 stats["fully_reconciled_keys"] += 1
@@ -475,7 +488,7 @@ def analyze_partition(rows, week: str, tier: str, record_total: int, pages: list
         published = parse_date(row.get("initialPublishedDate"))
         if start and published:
             pub_lags.append((published - start).days)
-    key_collisions = grouped_collisions(rows, expanded_candidate_key)
+    key_collisions = grouped_collisions(symbol_rows, expanded_candidate_key)
     aggregate_key_collisions = grouped_collisions(
         aggregate_rows,
         lambda r: (
