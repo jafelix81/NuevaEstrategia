@@ -26,6 +26,8 @@ This control is important: body/header name differences must not be counted as e
 
 ## Decision
 
+> The manual legacy cases and Seritage cross-filing remain valid. Phase 126 used the pre-correction Phase 125 artifact; Phase 127 subsequently corrected XML CUSIP extraction. The XML issuerCik checks in Phase 126 are unaffected, and all hand-adjudicated CUSIPs are legacy cover-page values unchanged by Phase 127.
+
 - Do not use legacy SEC-HEADER SUBJECT COMPANY CIK as an authoritative issuer CIK or as issuer-universe coverage.
 - For legacy HTML, use body cover-page issuer name plus cover-page CUSIP as the starting identity; retain header subject/filer CIKs as separate provenance fields.
 - For XML, use structured issuerCik only where present and validated.

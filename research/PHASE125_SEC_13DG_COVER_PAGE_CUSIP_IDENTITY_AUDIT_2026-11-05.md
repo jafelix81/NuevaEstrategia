@@ -4,6 +4,8 @@
 **Status:** PASS — artifact-only feasibility audit  
 **Workflow:** [42077788015](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42077788015)
 
+> **Superseded for XML coverage by Phase 127.** The legacy HTML figures below remain unchanged; the XML parser was extended to issuerCusipNumber, raising XML valid coverage to 97.38% and overall coverage to 96.94%. See the [Phase 127 report](PHASE127_SEC_13DG_XML_CUSIP_SCHEMA_CORRECTION_2026-11-05.md).
+
 ## Scope and method
 
 Re-audited the 599 actual 13D/G submissions from the Phase 124 hash-stratified sample; the one SEC TO-T/A index alias was excluded. The workflow consumed immutable Phase 124 artifacts and made no new SEC requests.
