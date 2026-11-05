@@ -1,0 +1,54 @@
+name: Phase 125 SEC 13D-G exact CUSIP identity audit
+
+on:
+  push:
+    branches:
+      - phase99-broad-pit-universe-charter
+    paths:
+      - research/phase125_sec_13dg_exact_cusip_audit.py
+      - research/test_phase125_sec_13dg_exact_cusip_audit.py
+      - research/phase124_global_sec_13dg_stratified_submission_audit.py
+      - research/test_phase124_global_sec_13dg_stratified_submission_audit.py
+      - .github/workflows/phase125_sec_13dg_exact_cusip_audit.yml
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  exact-cusip-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile auditors
+        run: |
+          python -m py_compile research/phase124_global_sec_13dg_stratified_submission_audit.py
+          python -m py_compile research/phase125_sec_13dg_exact_cusip_audit.py
+      - name: Run offline regression tests
+        run: |
+          python -m unittest -v research.test_phase124_global_sec_13dg_stratified_submission_audit
+          python -m unittest -v research.test_phase125_sec_13dg_exact_cusip_audit
+      - name: Download immutable Phase 124 global sample artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: phase124-global-sec-13dg-stratified-submission-audit
+          path: inputs/phase124
+          repository: ${{ github.repository }}
+          run-id: 42073725379
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Re-audit exact CUSIP identity without new SEC requests
+        run: >-
+          python research/phase125_sec_13dg_exact_cusip_audit.py
+          --input-dir inputs/phase124 --output-dir out
+      - name: Upload immutable Phase 125 exact CUSIP audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase125-sec-13dg-exact-cusip-audit
+          path: out/
+          if-no-files-found: warn
+          retention-days: 90

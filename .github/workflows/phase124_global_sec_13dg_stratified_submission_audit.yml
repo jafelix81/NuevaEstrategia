@@ -1,13 +1,7 @@
 name: Phase 124 Global SEC 13D-G stratified submission audit
 
 on:
-  push:
-    branches:
-      - phase99-broad-pit-universe-charter
-    paths:
-      - research/phase124_global_sec_13dg_stratified_submission_audit.py
-      - research/test_phase124_global_sec_13dg_stratified_submission_audit.py
-      - .github/workflows/phase124_global_sec_13dg_stratified_submission_audit.yml
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -22,13 +16,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-
       - name: Compile auditor
         run: python -m py_compile research/phase124_global_sec_13dg_stratified_submission_audit.py
-
       - name: Run offline regression tests
         run: python -m unittest -v research.test_phase124_global_sec_13dg_stratified_submission_audit
-
       - name: Download immutable Phase 82 global index artifact
         uses: actions/download-artifact@v4
         with:
@@ -37,7 +28,6 @@ jobs:
           repository: ${{ github.repository }}
           run-id: 41892370262
           github-token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Download immutable Phase 84 current pilot artifact
         uses: actions/download-artifact@v4
         with:
@@ -46,7 +36,6 @@ jobs:
           repository: ${{ github.repository }}
           run-id: 41914491120
           github-token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Download immutable Phase 120 predecessor audit artifact
         uses: actions/download-artifact@v4
         with:
@@ -55,15 +44,11 @@ jobs:
           repository: ${{ github.repository }}
           run-id: 42058411930
           github-token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Build global hash-stratified sample and fetch SEC submissions
         run: >-
           python research/phase124_global_sec_13dg_stratified_submission_audit.py
-          --phase82-dir inputs/phase82
-          --phase84-dir inputs/phase84
-          --phase120-dir inputs/phase120
-          --output-dir out
-
+          --phase82-dir inputs/phase82 --phase84-dir inputs/phase84
+          --phase120-dir inputs/phase120 --output-dir out
       - name: Upload immutable global 13D/G feasibility audit
         if: always()
         uses: actions/upload-artifact@v4

@@ -6,6 +6,7 @@ from pathlib import Path
 from research.phase124_global_sec_13dg_stratified_submission_audit import (
     allocate_strata, exclusion_set, parse_json_list, parse_rule_designations,
     sample_hash, weighted_rate, classify_sampled_submission,
+    cusip_source_label, is_success_status,
 )
 
 class Phase124Tests(unittest.TestCase):
@@ -102,6 +103,17 @@ FILED AS OF DATE: 20260105
             "SC 13D/A", header, raw, accession, "2026-01-05"
         )
         self.assertEqual(status, "VALID_13DG")
+
+    def test_cusip_source_label_uses_actual_presence_and_source(self):
+        self.assertEqual(cusip_source_label(True, "037833100"), "13DG_XML")
+        self.assertEqual(cusip_source_label(False, "037833100"), "LEGACY_HTML_HEURISTIC")
+        self.assertEqual(cusip_source_label(False, None), "NONE")
+        self.assertEqual(cusip_source_label(True, None), "NONE")
+
+    def test_alias_quarantine_status_is_a_successful_audit_status(self):
+        self.assertTrue(is_success_status("PASS_WITH_INDEX_ALIAS_QUARANTINE"))
+        self.assertTrue(is_success_status("PASS_GLOBAL_STRATIFIED_SAMPLE_WITH_CAVEATS"))
+        self.assertFalse(is_success_status("INCOMPLETE"))
 
     def test_form_conflict_with_13dg_document_is_not_silently_quarantined(self):
         accession = "0000000000-26-000002"

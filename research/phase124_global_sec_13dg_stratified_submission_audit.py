@@ -302,12 +302,7 @@ def download_sample(sample, output_dir, sleep_seconds=0.18):
         xml_subject = parsed.get("xml_issuer_cik") if xml_present else None
         xml_filer = parsed.get("xml_filer_cik") if xml_present else None
         cusip = parsed.get("cusip")
-        if not cusip and not xml_present:
-            cusip_source = "LEGACY_HTML_HEURISTIC"
-        elif cusip:
-            cusip_source = "13DG_XML"
-        else:
-            cusip_source = "NONE"
+        cusip_source = cusip_source_label(xml_present, cusip)
         rules = parse_rule_designations(raw, family)
         expected_xml = row["filing_date"] >= MANDATORY_XML_DATE
         results.append({
@@ -357,6 +352,19 @@ def weighted_rate(rows, field):
     if denom <= 0:
         return None
     return sum(float(r["sample_weight"]) for r in usable if r.get(field) is True) / denom
+
+
+def cusip_source_label(xml_present, cusip):
+    if not cusip:
+        return "NONE"
+    return "13DG_XML" if xml_present else "LEGACY_HTML_HEURISTIC"
+
+
+def is_success_status(status):
+    return status in {
+        "PASS_GLOBAL_STRATIFIED_SAMPLE_WITH_CAVEATS",
+        "PASS_WITH_INDEX_ALIAS_QUARANTINE",
+    }
 
 def main():
     p = argparse.ArgumentParser()
@@ -453,7 +461,7 @@ def main():
             "The sample is a deterministic hash-stratified sample of the 2016Q1-2026Q3 global master-index 13D/G accession population after excluding prior pilot accessions; no formal inferential confidence interval is claimed.",
             "This is a filing-index sample, not a complete historical eligible-security universe or historical active/delisted membership ledger.",
             "SEC header subject/filer roles are authoritative for the filing; index CIKs and archive-path CIKs are candidate locators, not semantic roles.",
-            "Legacy HTML CUSIP extraction is a heuristic probe only; no legacy reporting-person/ownership parser is validated by this phase.",
+            "Legacy HTML CUSIP extraction remains heuristic and is superseded by the exact-token/checksum audit in Phase 125; no legacy reporting-person/ownership parser is validated by this phase.",
             "A CUSIP and class title are not a permanent security identifier without effective-dated corporate-action and issuer mapping.",
             "Acceptance timestamp is retained but not independently proven to equal public dissemination time; use conservative next-session availability.",
             "SEC index aliases whose raw header and document types prove a non-13D/G submission are quarantined and excluded from actual-form coverage denominators; unresolved form conflicts remain failures.",
@@ -462,7 +470,7 @@ def main():
     }
     (a.output_dir / "phase124_global_13dg_summary.json").write_text(json.dumps(summary,indent=2),encoding="utf-8")
     print(json.dumps(summary,indent=2))
-    if summary["status"] != "PASS_GLOBAL_STRATIFIED_SAMPLE_WITH_CAVEATS":
+    if not is_success_status(summary["status"]):
         raise SystemExit(2)
 
 if __name__ == "__main__":
