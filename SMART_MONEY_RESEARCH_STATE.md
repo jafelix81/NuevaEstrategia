@@ -343,3 +343,22 @@ The Phase 100 FINRA ATS revalidation run 41969978743 remained active at the last
 - No returns, alpha test, vendor purchase/contact, data acquisition or F80 change.
 
 
+
+
+### 2026-11-05 — Phase 100 final FINRA ATS live result (supersedes prior in-progress notes)
+
+- Corrected Phase 100 run 41978867803 completed successfully; artifact 13394110956, SHA-256 `803c58a5301df8b505b487c5367a449696c6bc467cab39121c50eda762d1f3e9`. All 10 week/tier partitions and 199 pages completed; every partition reconciled exactly to FINRA `Record-Total`.
+- 968,139 rows retrieved; 108,444 symbol-level aggregates (52,007 ATS; 56,437 OTC). All sampled week/tier partitions had both ATS and OTC symbol aggregates; no negative/invalid quantity fields.
+- Research gates did **not** pass fully: two missing-symbol rows in 2022-01-03/T2 (one `OTC_W_SMBL_FIRM`, one `OTC_W_SMBL`); two LND coarse-key collision groups in 2025-01-06/T2 (ATS and OTC `_SMBL` rows) have different quantities and `lastReportedDate` values. The current audit key omitted MPID, firmCRDNumber and lastReportedDate, so these are not yet proven true duplicates.
+- The Phase100 validator incorrectly labels missing-symbol rows as `ROW_PARTITION_MISMATCH`; its exact-week/tier gate conflates separate checks. The returned examples do not show actual week/tier disagreement. This needs a targeted correction, not a false assertion of partition mismatch.
+- `initialPublishedDate`, `lastUpdateDate`, and `lastReportedDate` were 100% populated; publication lags were 21 days T1 / 35 days T2. 1,882/108,444 (1.735%) symbol aggregates had `lastUpdateDate` later than first publication. Current values do not prove original historical vintages; PIT remains conditional.
+- Legacy 335 overlap is diagnostic only (the names were arbitrary/manual); broad-universe coverage is not established. FINRA historic weeklySummaryHistoric is a rolling four-year window one to five years before the current date, combined with a 12-month production window—not a complete 2016-present series.
+- Full decision: `research/PHASE107_FINRA_ATS_FINAL_LIVE_REVALIDATION_2026-11-05.md`. No forward returns or alpha test; F80 unchanged.
+
+### 2026-11-05 — Phase 108 targeted FINRA ATS anomaly resolution
+
+- Added `research/phase108_finra_ats_anomaly_resolution.py`, offline tests and workflow `.github/workflows/phase108_finra_ats_anomaly_resolution.yml`.
+- The targeted probe re-queries only 2022-01-03/T2 and 2025-01-06/T2 with expanded FINRA fields: MPID, firmCRDNumber, marketParticipantName, issueName, tierDescription and lastReportedDate.
+- It separates week/tier mismatches from missing-symbol anomalies and compares coarse collisions with a candidate key including participant identifiers and lastReportedDate. This expanded key is diagnostic only until FINRA's natural-key/revision semantics are confirmed.
+- Latest run 41983989795 is in progress. Do not duplicate while active.
+- No forward returns, alpha test, vendor purchase/contact, data acquisition or F80 change.
