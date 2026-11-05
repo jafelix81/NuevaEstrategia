@@ -1,57 +1,68 @@
 # Phase 116 — Cboe U.S. Equities Historical Market Volume public archive audit
 
 **Date:** 2026-11-05  
-**Status:** PUBLIC SOURCE / MARKET-REGIME CONTEXT CANDIDATE ONLY  
-**Scope:** verify annual daily and monthly public CSV availability from 2009–2026, validate arithmetic, keys and daily-to-monthly reconciliation. No symbol-level feature, forward return, alpha test, vendor contact or purchase.
+**Status:** <PASS> public archive coverage and daily/monthly reconciliation; <CONDITIONAL> marketwide regime-context candidate; <NOT PIT> historical availability  
+**Live run:** [42033472218](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42033472218)  
+**Artifact:** [phase116-cboe-historical-market-volume-audit](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42033472218/artifacts/13416659256) (5,940,729 bytes)
 
-## Why this source was added
+## Result
 
-The Cboe public historical market-volume page says its files cover **all U.S. equity exchanges and trade-reporting facilities (TRFs) from January 2009**. Daily and monthly CSV links are listed for every calendar year 2009–2026. Each market-center row is broken down by Tape A/B/C and includes shares, notional value and trade counts. The page says the source is based on UTDF and CTS consolidated data feeds and cautions that accuracy is not guaranteed.
+The audit successfully downloaded all 18 annual daily files and all 18 annual monthly files listed by Cboe for 2009–2026.
 
-Official page: https://www.cboe.com/markets/us/equities/market-statistics/historical-market-volume/
+| Metric | Result |
+|---|---:|
+| Annual file pairs | 18/18 |
+| Daily rows | 72,103 |
+| Monthly rows | 3,395 |
+| First daily date | 2009-01-02 |
+| Last daily date | 2026-11-04 |
+| Daily trading dates | 4,488 |
+| Completed participant-month comparisons | 55,865 |
+| Offline parser/regression tests | 13/13 |
+| Live workflow | PASS |
 
-This is a useful independent, long-history **marketwide off-exchange activity context** source. It is not a substitute for FINRA ATS symbol-level data and cannot identify which individual stock experienced off-exchange activity.
+For every completed month available in both daily and monthly files, all participant-month comparisons passed across all 12 numeric measures (shares, notional and trade counts for Tapes A/B/C and totals) within explicit output-precision tolerances. Duplicate date/market-center and month/market-center keys, invalid numeric values, wrong-year dates and tape-total discrepancies beyond tolerance fail the audit.
 
-## Data model and intended use
+The live run confirms a usable public time series from January 2009 through November 4, 2026. This is materially longer than the FINRA ATS symbol-level API window, but its unit of observation is the market center, not the individual issuer.
 
-The daily/monthly files have 14 columns:
-- Day/Month and Market Participant;
-- Tape A/B/C Shares and Total Shares;
-- Tape A/B/C Notional and Total Notional;
-- Tape A/B/C Trade Count and Total Trade Count.
+## Important legacy conventions discovered
 
-Rows are market-center aggregates. The public schema has no ticker, security identifier, MPID, buy/sell side, opening/closing status, customer classification, order identifier or beneficial-owner identity.
+1. The 2009 monthly URL uses a first-column header of `Day`, while its values are monthly keys in `YYYY-MM` format. The auditor normalizes that legacy header to `Month` without changing the source bytes or recorded SHA-256.
+2. Older daily/monthly files round some notional fields at different precisions; current monthly aggregates can also differ from sums of daily tape shares by a very small relative amount. The parser therefore uses conservative scale-aware tolerances rather than falsely demanding bitwise arithmetic equality:
+   - daily notional: max($0.20, 1e-10 × absolute total);
+   - monthly notional: max($2.00, 1e-9 × absolute total);
+   - monthly shares: max(1 share, 1e-7 × absolute total);
+   - trade counts remain exact.
+3. The official Cboe market-volume summary labels the TRFs as **DQ, DN and DB**. Historical files may label these rows `NASDAQ (DQ)`, `NYSE (DN)` or `NASDAQ (DB)`, while current files spell out FINRA/TRF names. The final auditor maps both naming conventions; it does not rely solely on the literal string `TRF`.
 
-A potential derived market-regime descriptor is the aggregate TRF share/notional fraction:
-- all FINRA TRF market-center shares divided by total shares across market centers;
-- all FINRA TRF notional divided by total notional across market centers.
+Official sources:
+- Cboe historical archive and field definitions: https://www.cboe.com/markets/us/equities/market-statistics/historical-market-volume/
+- Cboe current market summary showing `TRFs (DQ,DN,DB)`: https://www.cboe.com/us/equities/market_share/market/
 
-These are aggregate market structure measures. They should not be described as institutional or informed flow. If later used, they belong in a market-regime/control layer, not in a per-stock ranking feature. They may be correlated with volatility, market stress, venue mix and the broad market return itself.
+Cboe states that the files cover all U.S. equity exchanges and TRFs from January 2009, report daily shares/notional/trade counts by market center and Tape A/B/C, and are based on UTDF/CTS consolidated feeds. Cboe also says the data are believed reliable but not guaranteed.
 
-## Audit protocol
+## Derived context extract
 
-The live audit attempts all 18 annual daily CSVs and all 18 annual monthly CSVs from 2009 through 2026. It checks:
-1. Exact column schema and UTF-8 decoding.
-2. Nonempty date/market-center keys, correct year and unique date/market-center or month/market-center keys.
-3. Nonnegative finite numeric fields.
-4. Tape A+B+C arithmetic against total shares, notional and trade counts.
-5. For completed months, daily-to-monthly reconciliation by market participant and all 12 numeric fields.
-6. First/last date, number of daily dates, market-center labels, long calendar gaps, raw-file byte counts and SHA-256 hashes.
-7. A deterministic daily marketwide TRF share/notional context extract, without forward returns.
+The artifact includes `marketwide_daily_trf_context.csv` with 4,488 daily observations:
+- total consolidated shares and notional across all listed market centers;
+- shares and notional attributed to TRF centers DQ/DN/DB;
+- TRF share and notional fractions.
 
-The current calendar month is excluded from daily/monthly reconciliation because the daily file may contain a partial month while the monthly file may not yet be final.
+This is a marketwide venue-mix descriptor. It cannot identify the stock traded, the side of the trade, an MPID, account type, opening/closing status or beneficial owner. It is not a ticker-level off-exchange feature and does not establish informed/institutional activity.
 
-## Point-in-time and economic limitations
+## PIT decision
 
-The public page documents historical coverage but does not expose first-publication timestamps, archived file vintages or a correction/revision history. A current historical CSV is not proof of what a trader knew on each historical date. Therefore strict PIT is **not established**. A conservative next-session lag can be evaluated only as a sensitivity after publication/update timing is independently documented; it cannot be mislabeled as strict PIT.
+**Strict historical point-in-time availability is not established.** The public page and current files do not provide historical first-publication timestamps, immutable historical file vintages, or a correction/revision history. The current copy of a 2009 or 2016 file is not proof that the same values were available on the corresponding historical trading date.
 
-The data are aggregate across all symbols and all market centers. It cannot support a ticker-level off-exchange feature or identify informed participants. At most, it may later serve as a marketwide regime covariate, benchmark or control alongside stock-level features from other sources.
+A conservative next-session lag may be studied as a future sensitivity only after publication timing and revision behavior are documented. It must not be represented as strict PIT. Prospective capture of daily file snapshots can establish a clean forward archive but cannot repair the historical vintage gap.
 
-No return test is authorized by this audit. Do not merge it into F80 or change F80_TOP20_PARTIAL50_BASELINE_C20. No vendor purchase or contact is required or authorized.
+## Research decision
 
-## Decision rules
+- Retain as a **long-history marketwide off-exchange/venue-regime context candidate**.
+- Do not call it Smart Money or institutional flow.
+- Do not use it for stock ranking or issuer-level event studies.
+- Do not run historical alpha/return tests until the availability/vintage gate is resolved.
+- Do not modify or unfreeze `F80_TOP20_PARTIAL50_BASELINE_C20`.
+- No vendor purchase, account creation, contact or data acquisition was performed or requested.
 
-- If all years/files are accessible and monthly/daily totals reconcile, retain as a public long-history market-regime candidate.
-- If historical years or reconciliation fail, document exact gaps and downgrade accordingly.
-- Regardless of file-access success, keep strict PIT as pending because the public source does not supply historical publication/correction vintages.
-- Do not run stock-level alpha tests with this marketwide series.
+The highest-information options candidate remains Cboe C1 Open-Close EOD (Phase 114/115), still conditional on paid historical archive access, PIT underlying mapping and final-file availability. Phase 116 is a separate public market-regime control, not a replacement for that options dataset.
