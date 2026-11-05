@@ -11,6 +11,7 @@ import io
 import json
 import re
 import zipfile
+from openpyxl import load_workbook
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
@@ -92,6 +93,7 @@ def parse_trade_csv(payload: bytes) -> dict[str, Any]:
     full_datetime_count = 0
     quote_time_formats = Counter()
     market_date_formats = Counter()
+    compact_clock_values = []
 
     for row_no, raw in enumerate(reader, start=2):
         row = {str(k).strip().lower(): (v or "").strip() for k, v in raw.items() if k is not None}
@@ -103,6 +105,12 @@ def parse_trade_csv(payload: bytes) -> dict[str, Any]:
             quote_raw = row["quote_datetime"]
             quote_format, quote_dt = classify_quote_datetime(quote_raw)
             quote_time_formats[quote_format] += 1
+            clock_match = re.fullmatch(r"(\\d+):(\\d+(?:\\.\\d+)?)", quote_raw)
+            if clock_match:
+                major_component = int(clock_match.group(1))
+                seconds_component = float(clock_match.group(2))
+                if 0 <= seconds_component < 60:
+                    compact_clock_values.append((major_component, seconds_component, major_component * 60.0 + seconds_component, sequence if "sequence" in locals() else None))
             sequence = to_int(row["sequence_number"])
             root = row["root"]
             expiration = row["expiration"]
@@ -198,6 +206,8 @@ def parse_trade_csv(payload: bytes) -> dict[str, Any]:
         rows.append(row)
 
     duplicate_count = len(sequence_keys) - len(set(sequence_keys))
+    ordered_clock = sorted((x for x in compact_clock_values if x[3] is not None), key=lambda x: x[3])
+    clock_nonmonotonic = sum(1 for left, right in zip(ordered_clock, ordered_clock[1:]) if right[2] < left[2])
     key_text = "\n".join(sorted(f"{d}|{seq}|{ex}" for d, seq, ex in sequence_keys))
     sequence_key_sha256 = hashlib.sha256(key_text.encode("utf-8")).hexdigest()
     return {
@@ -213,6 +223,12 @@ def parse_trade_csv(payload: bytes) -> dict[str, Any]:
         "quote_datetime_full_parseable_count": full_datetime_count,
         "quote_datetime_format_counts": dict(quote_time_formats),
         "market_date_format_counts": dict(market_date_formats),
+        "compact_clock_major_min": min((x[0] for x in compact_clock_values), default=None),
+        "compact_clock_major_max": max((x[0] for x in compact_clock_values), default=None),
+        "compact_clock_seconds_min": min((x[1] for x in compact_clock_values), default=None),
+        "compact_clock_seconds_max": max((x[1] for x in compact_clock_values), default=None),
+        "sequence_clock_pairs": max(0, len(ordered_clock) - 1),
+        "sequence_clock_nonmonotonic_count": clock_nonmonotonic,
         "exchange_id_counts": dict(exchanges),
         "trade_condition_counts": dict(conditions),
         "quote_state_counts": dict(quote_states),
@@ -314,12 +330,14 @@ def main() -> int:
             zip_error = type(exc).__name__
 
     mapping_results = {}
+    mapping_payloads = {}
     for label, url, filename in (
         ("exchange_mapping", EXCHANGE_MAP_URL, "livevol_exchange_ids.csv"),
         ("trade_condition_mapping", CONDITION_MAP_URL, "livevol_trade_condition_ids.xlsx"),
     ):
         status, headers, data, error = download(session, url)
         (raw_dir / filename).write_bytes(data)
+        mapping_payloads[label] = data
         mapping_results[label] = {
             "url": url,
             "http_status": status,
@@ -328,6 +346,47 @@ def main() -> int:
             "sha256": sha256(data),
             "error": error,
         }
+
+    observed_exchange_ids = set()
+    observed_condition_ids = set()
+    for item in csv_results:
+        observed_exchange_ids.update(item["audit"]["exchange_id_counts"].keys())
+        observed_condition_ids.update(item["audit"]["trade_condition_counts"].keys())
+
+    def normalize_code(value):
+        text_value = str(value).strip()
+        return str(int(text_value)) if text_value.isdigit() else text_value
+
+    def matching_rows(rows, observed):
+        matched = []
+        for row_values in rows:
+            values = [str(v).strip() for v in row_values if v is not None and str(v).strip()]
+            if any(normalize_code(v) in observed for v in values):
+                matched.append(values)
+        return matched
+
+    exchange_rows = []
+    if mapping_payloads.get("exchange_mapping"):
+        exchange_text = mapping_payloads["exchange_mapping"].decode("utf-8-sig", errors="replace")
+        exchange_rows = list(csv.reader(io.StringIO(exchange_text)))
+        mapping_results["exchange_mapping"]["preview"] = exchange_rows[:8]
+        mapping_results["exchange_mapping"]["observed_id_matches"] = matching_rows(exchange_rows, observed_exchange_ids)
+
+    condition_sheets = []
+    if mapping_payloads.get("trade_condition_mapping"):
+        try:
+            workbook = load_workbook(io.BytesIO(mapping_payloads["trade_condition_mapping"]), read_only=True, data_only=True)
+            for sheet in workbook.worksheets:
+                rows = list(sheet.iter_rows(values_only=True))
+                condition_sheets.append({
+                    "sheet": sheet.title,
+                    "preview": [[str(v) if v is not None else None for v in row] for row in rows[:8]],
+                    "observed_id_matches": matching_rows(rows, observed_condition_ids),
+                })
+            workbook.close()
+        except Exception as exc:
+            mapping_results["trade_condition_mapping"]["parse_error"] = type(exc).__name__
+    mapping_results["trade_condition_mapping"]["sheets"] = condition_sheets
 
     variant_match = None
     if len(csv_results) >= 2:
@@ -360,6 +419,8 @@ def main() -> int:
         "zip_entries": zip_entries,
         "csv_results": csv_results,
         "calcs_vs_base_variant_match": variant_match,
+        "observed_exchange_ids": sorted(observed_exchange_ids, key=lambda x: int(x)),
+        "observed_trade_condition_ids": sorted(observed_condition_ids, key=lambda x: int(x)),
         "mappings": mapping_results,
         "data_gate": "PASS_SAMPLE_SCHEMA" if schema_pass else "FAIL_OR_INCOMPLETE_SAMPLE",
         "limitations": [
