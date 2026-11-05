@@ -59,7 +59,7 @@ def dec(value: str, field: str) -> Decimal:
 
 def is_trf_market_center(participant: str) -> bool:
     name = (participant or "").upper()
-    match = re.search(r"\\(([A-Z0-9]+)\\)\\s*$", name)
+    match = re.search(r"\(([A-Z0-9]+)\)\s*$", name)
     code = match.group(1) if match else None
     return "TRF" in name or code in {"DQ", "DN", "DB"}
 
