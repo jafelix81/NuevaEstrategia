@@ -98,3 +98,10 @@ This remains a hypothesis. The 45-day filing lag, incomplete short/options discl
 - SEC EDGAR, [0001275218-26-000008](https://www.sec.gov/Archives/edgar/data/1275218/000127521826000008/0001275218-26-000008-index.htm) — accepted 10 Aug 2026 18:34:09 ET; filing date 11 Aug 2026; 2024Q1 restatement.
 - SEC EDGAR, [0001635409-25-000005](https://www.sec.gov/Archives/edgar/data/1635409/000163540925000005/0001635409-25-000005-index.htm) — accepted 13 Aug 2025 19:30:14 ET; filing date 14 Aug 2025.
 - SEC EDGAR, [0001011438-25-000243](https://www.sec.gov/Archives/edgar/data/1654111/0001011438-25-000243-index.html) — 2025Q1 example with accepted timestamp and filing date on the same calendar date.
+
+
+## 7. Post-run execution correction (2026-11-05)
+
+Phase 129 run [42081987897](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42081987897) is no longer active. Its only job was cancelled at 18:57:42 UTC after the 45-minute job timeout, during the live 45-quarter official-list audit. Compilation, regression suites and immutable Phase 124/127 artifact downloads had passed; the live audit produced no completed manifest/summary and the run has no artifacts.
+
+Do not describe Phase 129 as in progress or as a failed data-coverage test. It is **incomplete due to execution timeout**. No Phase 129 CUSIP-overlap result exists. Do not rerun unchanged: the official 13(f) list remains a partial eligibility reference, not a complete security master, and its public-release timestamp is still unverified.
