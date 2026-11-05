@@ -70,3 +70,6 @@ No raw sample or derived data will be redistributed. F80_TOP20_PARTIAL50_BASELIN
 ## Hosted execution
 
 The guarded sample audit has been triggered. It downloads only the public sample and public reference mappings; it does not add a product to cart, purchase data, contact Cboe or authenticate to a paid account.
+
+
+The first workflow attempt stopped at the offline tests because the fixture's 1.05 trade price was exactly the NBBO midpoint (1.00/1.10), while the test expected the generic inside-spread bucket. The parser correctly classified it as exact_midpoint. The test was corrected and a new run triggered; no live download occurred in the failed attempt.
