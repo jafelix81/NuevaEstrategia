@@ -1,7 +1,7 @@
 # Phase 127 — SEC 13D/G XML CUSIP schema correction
 
 **Date:** 5 November 2026  
-**Status before CI:** Independent artifact re-adjudication complete; repository workflow validation pending.
+**Status:** PASS — artifact-only re-adjudication validated by GitHub Actions.
 
 ## Root cause
 
@@ -44,3 +44,8 @@ A valid check digit does not prove that the CUSIP is the correct security identi
 - [Phase 125 prior audit run](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42077788015)
 - [Corrected auditor](phase125_sec_13dg_exact_cusip_audit.py)
 - [Regression tests](test_phase125_sec_13dg_exact_cusip_audit.py)
+
+
+- [Phase 127 Actions run](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42079517644)
+- Artifact: `13438903901` (90-day retention).
+- Final CI: 15 Phase 124 tests and 21 Phase 125 tests passed; 600/600 raw submission hashes/identity checks verified; no audit errors.
