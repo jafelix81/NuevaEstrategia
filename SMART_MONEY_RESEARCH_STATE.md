@@ -827,10 +827,14 @@ F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No source from Phases 112–113
 - No forward-return/alpha test or production change. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
 
 
-## 2026-11-05 — Phase 133 OCC Flex Reports contract-level OI audit (running)
+## 2026-11-05 — Phase 133 OCC Flex Reports contract-level OI audit (complete; long-history gate failed)
 
 - Added the preregistered Phase 133 audit of the OCC Flex Reports endpoint (reportType=OI, optionType=E) across seven fixed dates from 2018-01-03 through 2026-11-04. It uses the full returned file and reports unique option contracts/underlying roots; it does not hard-code the original 335 ticker universe.
-- Workflow [42097577204](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42097577204) is active. Compilation and all seven offline regression tests passed. The seven-date live source audit is running; no artifact/result yet. Do not duplicate it.
+- Workflow [42097577204](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42097577204) completed successfully; compilation and all seven offline tests passed, and artifact 13448395010 was uploaded. Four dates (2018, 2020, 2022, 2024) returned 'File requested does not exist'; 2025-01-03, 2026-01-05 and 2026-11-04 returned non-empty fixed-width report files.
 - This follows Phase 53B: OCC Volume Query passed recent 335-list diagnostics (645/670 valid ticker-date responses, 96.27%) but the OCC UI confirms a 24-month retention boundary; the endpoint aggregates call/put volume by Customer/Firm/Market Maker and exchange, without buy/sell side, open/close, strike/expiry or OI. It fails long-horizon OOS feasibility and is not a standalone Smart Money signal.
 - Phase 133 tests whether the separate Flex Reports OI endpoint exposes a longer contract-level history. Its result will still require independent public-release timing, revision, effective-dated underlying identity and economic-incrementality gates. No alpha test is authorized.
 - F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+- Phase 133 result report: research/PHASE133_OCC_FLEX_OI_HISTORICAL_FEASIBILITY_RESULT_2026-11-05.md. The OCC Flex Reports page explicitly limits the UI to the past 24 months. The old-date probes agree. The current files are fixed-width/page-formatted; the generic CSV parser did not validate contract rows or OI values. The official record layout confirms eight contract-level fields and a strike-format break on 2017-03-25, but does not provide a PIT release timestamp.
+- Decision: close OCC Flex Reports as FAIL_FOR_LONG_OOS / RECENT_CROSSCHECK_ONLY. Do not spend effort on a fixed-width parser absent a new use case. OCC Volume Query is also 24-month-only and lacks buy/sell and open/close. Cboe C1 Open-Close EOD remains the highest-priority options candidate, conditional on paid archive, PIT identity and final-file timing.
