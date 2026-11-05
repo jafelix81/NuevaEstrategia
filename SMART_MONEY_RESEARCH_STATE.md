@@ -273,3 +273,15 @@ F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No source from Phases 112–113
 - Next gates: actual 2005 archive and 2011 format boundary/missing dates; broad PIT security crosswalk including inactive/delisted underlyings; T+1 final-file publication/correction timing; historical sample coverage and license estimate. No purchase/contact or returns test without explicit authorization.
 - Phase 111 OCC Volume by Account Type remains parked (only ~24-month live history, no side/open-close). Phase 112 Option Trades remains conditional daily context only because its sample timestamp format does not conform to v1.3. Phase 113 TBT remains secondary pending convention resolution.
 - F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen; no alpha test or production change.
+
+
+## 2026-11-05 — Phase 116 Cboe U.S. Equities Historical Market Volume public archive completed
+- Live run 42033472218 succeeded; artifact 13416659256 (5,940,729 bytes). All 13 offline parser/regression tests passed.
+- Downloaded all 18 annual daily and 18 annual monthly files listed by Cboe for 2009–2026: 72,103 daily rows, 3,395 monthly rows, 4,488 trading dates from 2009-01-02 through 2026-11-04. Completed participant-month daily-vs-monthly reconciliation passed for 55,865 comparisons across all 12 numeric fields within explicit scale-aware source-rounding tolerances.
+- Legacy 2009 monthly URL uses header `Day` but YYYY-MM values; normalized in parser. Some legacy monthly notional and share totals are rounded differently from daily sums; parser now uses documented conservative tolerances (daily notional max($0.20, 1e-10 relative); monthly notional max($2, 1e-9 relative); monthly shares max(1 share, 1e-7 relative); trade counts exact).
+- Correctly mapped historical/current FINRA TRF market-center codes DQ, DN and DB. The Cboe current market summary explicitly labels `TRFs (DQ,DN,DB)`; older historical CSV names include NASDAQ (DQ), NYSE (DN) and NASDAQ (DB), so string-only "TRF" matching would have silently missed historical data. The artifact includes 4,488 daily marketwide TRF share/notional fractions.
+- This source is market-center/tape aggregate only, with no ticker, side, MPID, capacity, order or beneficial-owner identity. Retain as marketwide venue-regime context candidate, not a Smart Money signal or per-stock feature.
+- Strict PIT remains unproven: Cboe's public archive page/files provide no historical first-publication timestamps, immutable file vintages or correction history. No historical alpha/return test authorized. Prospective snapshotting can build a clean future archive but cannot backfill historical knowledge times.
+- Official references: https://www.cboe.com/markets/us/equities/market-statistics/historical-market-volume/ and https://www.cboe.com/us/equities/market_share/market/.
+- Cboe C1 Open-Close EOD remains the highest-information conditional options candidate (Phases 114/115); Phase 116 is a separate public market-regime control.
+- No data purchase/contact, no alpha test, no F80 changes. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
