@@ -13,6 +13,9 @@ from research.phase100_finra_ats_revalidation import (
     parse_nonnegative_number,
     validate_partition_rows,
     summarize_partition,
+    PAGE_HASH_FIELDS,
+    record_totals_reconciled,
+    weekly_coverage_passes,
 )
 
 
@@ -111,6 +114,52 @@ class Phase100FinraTests(unittest.TestCase):
         rows = [{"weekStartDate": "2025-01-06", "tierIdentifier": "T1", "summaryTypeCode": "NEW_CODE"}]
         errors = validate_partition_rows(rows, "2025-01-06", "T1")
         self.assertTrue(any("unknown or missing summaryTypeCode" in x for x in errors))
+
+    def test_page_hash_csv_schema_covers_sync_metadata(self):
+        sync_meta = {
+            "week", "tier", "page", "offset", "rows", "record_total",
+            "total_records_on_page_header", "page_count_source", "record_limit",
+            "record_offset", "request_attempts", "status_polls", "request_id",
+            "async_status", "request_mode", "sha256",
+        }
+        self.assertTrue(sync_meta.issubset(set(PAGE_HASH_FIELDS)))
+        self.assertIn("result_expires", PAGE_HASH_FIELDS)
+
+    def test_record_total_reconciliation_requires_every_partition(self):
+        self.assertTrue(record_totals_reconciled([
+            {"api_record_total_match": True},
+            {"api_record_total_match": True},
+        ]))
+        self.assertFalse(record_totals_reconciled([
+            {"api_record_total_match": True},
+            {"api_record_total_match": False},
+        ]))
+        self.assertFalse(record_totals_reconciled([]))
+
+    def test_legacy_335_overlap_is_not_a_coverage_gate(self):
+        self.assertTrue(weekly_coverage_passes([{
+            "tier_partition_count": 2,
+            "all_tiers_have_symbol_aggregates": True,
+            "legacy_335_union_coverage_pct": 1.0,
+        }]))
+        self.assertFalse(weekly_coverage_passes([{
+            "tier_partition_count": 1,
+            "all_tiers_have_symbol_aggregates": True,
+            "legacy_335_union_coverage_pct": 100.0,
+        }]))
+
+    def test_duplicate_group_counts_include_all_groups(self):
+        rows = [
+            {"issueSymbolIdentifier":"AAPL","weekStartDate":"2025-01-06","tierIdentifier":"T1","summaryTypeCode":"ATS_W_SMBL","productTypeCode":"CTS","initialPublishedDate":"2025-01-27","lastUpdateDate":"2025-01-27","totalWeeklyShareQuantity":"100","totalWeeklyTradeCount":"10"},
+            {"issueSymbolIdentifier":"AAPL","weekStartDate":"2025-01-06","tierIdentifier":"T1","summaryTypeCode":"ATS_W_SMBL","productTypeCode":"CTS","initialPublishedDate":"2025-01-27","lastUpdateDate":"2025-01-27","totalWeeklyShareQuantity":"100","totalWeeklyTradeCount":"10"},
+            {"issueSymbolIdentifier":"MSFT","weekStartDate":"2025-01-06","tierIdentifier":"T1","summaryTypeCode":"OTC_W_SMBL","productTypeCode":"CTS","initialPublishedDate":"2025-01-27","lastUpdateDate":"2025-01-27","totalWeeklyShareQuantity":"200","totalWeeklyTradeCount":"20"},
+            {"issueSymbolIdentifier":"MSFT","weekStartDate":"2025-01-06","tierIdentifier":"T1","summaryTypeCode":"OTC_W_SMBL","productTypeCode":"CTS","initialPublishedDate":"2025-01-27","lastUpdateDate":"2025-01-27","totalWeeklyShareQuantity":"201","totalWeeklyTradeCount":"21"},
+        ]
+        summary, _, _ = summarize_partition(rows, "2025-01-06", "T1", {"AAPL","MSFT"})
+        self.assertEqual(summary["duplicate_aggregate_key_groups"], 2)
+        self.assertEqual(summary["duplicate_aggregate_keys"], 2)
+        self.assertEqual(summary["exact_duplicate_key_groups"], 1)
+        self.assertEqual(summary["conflicting_duplicate_key_groups"], 1)
 
     def test_only_symbol_level_rows_count_as_aggregate(self):
         self.assertEqual(SYMBOL_AGGREGATES, {"ATS_W_SMBL", "OTC_W_SMBL"})
