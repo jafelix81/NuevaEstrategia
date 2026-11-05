@@ -14,52 +14,40 @@ import time
 import zipfile
 from collections import Counter, defaultdict
 from datetime import date, datetime
-from html.parser import HTMLParser
 from pathlib import Path
-from urllib.parse import urljoin
 
 import requests
 
-SEC_PAGE = "https://www.sec.gov/data-research/sec-markets-data/fails-deliver-data"
+CATALOG_URL = "https://catalog.data.gov/dataset/fails-to-deliver-data"
 OUT = Path("phase102_sec_ftd_multiperiod")
 USER_AGENT = "Felix and Sarmiento Abogados S.C. jose.felix@felixsarmiento.com"
 EXPECTED_HEADER = [
     "SETTLEMENT DATE", "CUSIP", "SYMBOL", "QUANTITY (FAILS)", "DESCRIPTION", "PRICE"
 ]
 SAMPLES = [
-    {"key": "2004q1", "filename": "cnsfails2004q1.zip", "label": "2004, first quarter",
-     "start": "2004-02-01", "end": "2004-03-31", "regime": "pre_threshold"},
-    {"key": "2008q3", "filename": "cnsfails2008q3.zip", "label": "2008, third quarter",
-     "start": "2008-07-01", "end": "2008-09-30", "regime": "threshold_transition"},
-    {"key": "2008q4", "filename": "cnsfails2008q4.zip", "label": "2008, fourth quarter",
-     "start": "2008-10-01", "end": "2008-12-31", "regime": "post_threshold_quarterly"},
-    {"key": "2009q2", "filename": "cnsfails2009q2.zip", "label": "2009, second quarter",
-     "start": "2009-04-01", "end": "2009-06-30", "regime": "last_quarterly_archive"},
-    {"key": "200907a", "filename": "cnsfails200907a.zip", "label": "July 2009, first half",
-     "start": "2009-07-01", "end": "2009-07-15", "regime": "first_half_monthly_archive"},
-    {"key": "201801a", "filename": "cnsfails201801a.zip", "label": "January 2018, first half",
-     "start": "2018-01-01", "end": "2018-01-15", "regime": "modern_half_monthly"},
-    {"key": "202609b", "filename": "cnsfails202609b.zip", "label": "September 2026, second half",
-     "start": "2026-09-16", "end": "2026-09-30", "regime": "current_half_monthly"},
+    {"key": "2004q2", "filename": "cnsp_sec_fails_2004q2.zip",
+     "url": "https://www.sec.gov/files/data/frequently-requested-foia-document-fails-deliver-data/cnsp_sec_fails_2004q2.zip",
+     "label": "2004, second quarter", "start": "2004-04-01", "end": "2004-06-30", "regime": "earliest_catalogued_quarterly_archive"},
+    {"key": "2008q3", "filename": "cnsp_sec_fails_2008q3.zip",
+     "url": "https://www.sec.gov/files/data/frequently-requested-foia-document-fails-deliver-data/cnsp_sec_fails_2008q3.zip",
+     "label": "2008, third quarter", "start": "2008-07-01", "end": "2008-09-30", "regime": "threshold_transition"},
+    {"key": "2008q4", "filename": "cnsp_sec_fails_2008q4.zip",
+     "url": "https://www.sec.gov/files/data/frequently-requested-foia-document-fails-deliver-data/cnsp_sec_fails_2008q4.zip",
+     "label": "2008, fourth quarter", "start": "2008-10-01", "end": "2008-12-31", "regime": "post_threshold_quarterly"},
+    {"key": "2009q2", "filename": "cnsp_sec_fails_2009q2.zip",
+     "url": "https://www.sec.gov/files/data/frequently-requested-foia-document-fails-deliver-data/cnsp_sec_fails_2009q2.zip",
+     "label": "2009, second quarter", "start": "2009-04-01", "end": "2009-06-30", "regime": "last_quarterly_archive"},
+    {"key": "200907a", "filename": "cnsfails200907a.zip",
+     "url": "https://www.sec.gov/files/data/frequently-requested-foia-document-fails-deliver-data/cnsfails200907a.zip",
+     "label": "July 2009, first half", "start": "2009-07-01", "end": "2009-07-15", "regime": "first_half_monthly_archive"},
+    {"key": "201801a", "filename": "cnsfails201801a.zip",
+     "url": "https://www.sec.gov/files/data/fails-deliver-data/cnsfails201801a.zip",
+     "label": "January 2018, first half", "start": "2018-01-01", "end": "2018-01-15", "regime": "modern_half_monthly"},
+    {"key": "202609b", "filename": "cnsfails202609b.zip",
+     "url": "https://www.sec.gov/files/data/other/fails-deliver-data/cnsfails202609b.zip",
+     "label": "September 2026, second half", "start": "2026-09-15", "end": "2026-09-30", "regime": "current_half_monthly"},
 ]
 BREAK = date(2008, 9, 16)
-
-
-class ZipLinkParser(HTMLParser):
-    def __init__(self):
-        super().__init__()
-        self.links = []
-    def handle_starttag(self, tag, attrs):
-        if tag.lower() == "a":
-            href = dict(attrs).get("href", "")
-            if href.lower().endswith(".zip"):
-                self.links.append(href)
-
-
-def parse_page_links(html: str, base_url: str = SEC_PAGE) -> dict[str, str]:
-    parser = ZipLinkParser()
-    parser.feed(html)
-    return {href.rsplit("/", 1)[-1].lower(): urljoin(base_url, href) for href in parser.links}
 
 
 def normalize_row(original: list[str]) -> list[str] | None:
@@ -221,17 +209,12 @@ def summarize_sample(spec: dict, downloaded: dict, members: list[dict]) -> dict:
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     session = requests.Session()
-    session.headers.update({"User-Agent": USER_AGENT, "Accept": "text/html,application/zip,*/*"})
-    page = session.get(SEC_PAGE, timeout=60)
-    page.raise_for_status()
-    links = parse_page_links(page.text)
+    session.headers.update({"User-Agent": USER_AGENT, "Accept": "application/zip,*/*"})
     results, downloads, member_summaries, errors = [], [], [], []
     all_rows = []
     for spec in SAMPLES:
         try:
-            url = links.get(spec["filename"].lower())
-            if not url:
-                raise RuntimeError(f"Official SEC page did not expose {spec['filename']}")
+            url = spec["url"]
             response = session.get(url, timeout=120)
             response.raise_for_status()
             payload = response.content
@@ -274,6 +257,8 @@ def main():
     summary = {
         "phase": 102,
         "source": "SEC official Fails-to-Deliver Data",
+        "catalog_url": CATALOG_URL,
+        "archive_note": "Data.gov SEC catalog lists quarterly archives from 2004 Q2; SEC page states overall coverage begins February 2004.",
         "audit_timestamp_utc": datetime.utcnow().isoformat() + "Z",
         "samples_expected": len(SAMPLES),
         "samples_completed": len(results),

@@ -52,3 +52,25 @@ Phase 20C's completed walk-forward diagnostic is reviewed in the accompanying Ph
 ## Frozen control and scope
 
 F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. The 335-name list is used here only to reproduce the legacy coverage statistic. No forward returns, strategy changes, broad-universe claims, vendor purchase, or data acquisition are authorized by this phase.
+
+
+## Implementation clarification from the FINRA schema audit
+
+The FINRA API schema distinguishes four symbol-bearing summary types
+(\`ATS_W_SMBL\`, \`ATS_W_SMBL_FIRM\`, \`OTC_W_SMBL\`, \`OTC_W_SMBL_FIRM\`)
+from firm-level and volume-statistic types
+(\`ATS_W_FIRM\`, \`OTC_W_FIRM\`, \`ATS_W_VOL_STATS\`, \`OTC_W_VOL_STATS\`).
+The latter legitimately omit \`issueSymbolIdentifier\`; their absence of a
+symbol is not a row-integrity error. Unknown summary types remain a hard error.
+
+The historic endpoint is large. The implementation uses FINRA asynchronous
+requests, polls no more than once per minute, downloads the expiring result
+immediately, and reconciles retrieved rows to the API \`Record-Total\` header.
+This avoids silently treating a 3 MB synchronous payload truncation as a
+complete page. The historic endpoint's supported query keys remain only the
+historical-week and tier partition values; no sorting or additional filters
+are introduced.
+
+\`lastReportedDate\` is the date a firm last sent an update to underlying data
+contributing to the aggregate. It is not a trade/activity date. It is reported
+separately from \`initialPublishedDate\` and \`lastUpdateDate\`.

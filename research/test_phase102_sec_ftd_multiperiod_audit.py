@@ -5,16 +5,21 @@ from research.phase102_sec_ftd_multiperiod_audit import (
     BREAK,
     EXPECTED_HEADER,
     normalize_row,
-    parse_page_links,
+    SAMPLES,
     parse_text_member,
 )
 
 
 class Phase102FtdTests(unittest.TestCase):
-    def test_page_links_extract_exact_zip_names(self):
-        html = '<a href="/files/data/other/fails-deliver-data/cnsfails2008q3.zip">Q3</a>'
-        links = parse_page_links(html)
-        self.assertIn("cnsfails2008q3.zip", links)
+    def test_sample_urls_use_official_sec_distribution_paths(self):
+        urls = {x["filename"]: x["url"] for x in SAMPLES}
+        self.assertIn("cnsp_sec_fails_2008q3.zip", urls)
+        self.assertTrue(all(url.startswith("https://www.sec.gov/") for url in urls.values()))
+        self.assertEqual(urls["cnsp_sec_fails_2008q3.zip"].rsplit("/", 1)[-1], "cnsp_sec_fails_2008q3.zip")
+
+    def test_second_half_archive_includes_observed_fifteenth(self):
+        sample = next(x for x in SAMPLES if x["key"] == "202609b")
+        self.assertEqual(sample["start"], "2026-09-15")
 
     def test_normalize_pipe_row_with_extra_delimiter_in_description(self):
         row = ["20260915", "123456789", "ABC", "10000", "Issuer|Class A", "12.5"]
