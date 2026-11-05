@@ -56,7 +56,19 @@ jobs:
               assert header == required, f'{path}: unexpected header {header}'
               raw_records = rows[1:]
               records, malformed = [], []
+              trailer_record_count = trailer_total_quantity = None
+              trailer_lines = 0
               for line_no, original in enumerate(raw_records, start=2):
+                  if len(original) == 1:
+                      footer = original[0].strip()
+                      if footer.startswith('Trailer record count '):
+                          trailer_record_count = int(footer.rsplit(' ', 1)[1])
+                          trailer_lines += 1
+                          continue
+                      if footer.startswith('Trailer total quantity of shares '):
+                          trailer_total_quantity = int(footer.rsplit(' ', 1)[1])
+                          trailer_lines += 1
+                          continue
                   r = list(original)
                   while len(r) > 6 and not r[-1].strip():
                       r.pop()
@@ -70,6 +82,7 @@ jobs:
                   records.append(r)
               bad_date = bad_qty = bad_price = 0
               symbols, dates = set(), []
+              quantity_sum = 0
               for r in records:
                   d = r[0].strip()
                   if len(d) == 8 and d.isdigit():
@@ -80,6 +93,8 @@ jobs:
                       quantity = int(r[3].strip().replace(',', ''))
                       if quantity < 0:
                           bad_qty += 1
+                      else:
+                          quantity_sum += quantity
                   except Exception:
                       bad_qty += 1
                   price = r[5].strip()
@@ -90,22 +105,29 @@ jobs:
                           bad_price += 1
                   if r[2].strip():
                       symbols.add(r[2].strip().upper())
+              trailer_count_match = trailer_record_count == len(records)
+              trailer_quantity_match = trailer_total_quantity == quantity_sum
               result = {
                   'file': path.name,
                   'zip_members': names,
-                  'raw_records': len(raw_records),
+                  'raw_records_including_trailers': len(raw_records),
                   'valid_records': len(records),
                   'unique_symbols': len(symbols),
                   'min_settlement_date': min(dates) if dates else None,
                   'max_settlement_date': max(dates) if dates else None,
-                  'malformed_record_count': len(malformed),
+                  'trailer_lines': trailer_lines,
+                  'trailer_record_count': trailer_record_count,
+                  'trailer_count_match': trailer_count_match,
+                  'trailer_total_quantity': trailer_total_quantity,
+                  'calculated_quantity_sum': quantity_sum,
+                  'trailer_quantity_match': trailer_quantity_match,
+                  'malformed_data_record_count': len(malformed),
                   'malformed_examples': malformed[:10],
                   'bad_date': bad_date,
                   'bad_quantity': bad_qty,
                   'bad_price': bad_price,
-                  'schema_status': 'PASS' if not malformed and not bad_date and not bad_qty else 'PARTIAL_OR_FAIL',
+                  'schema_status': 'PASS' if not malformed and not bad_date and not bad_qty and trailer_count_match and trailer_quantity_match else 'PARTIAL_OR_FAIL',
               }
-              out.append(result)
           Path('ftd_audit_summary.json').write_text(json.dumps(out, indent=2))
           print(json.dumps(out, indent=2))
           PY
