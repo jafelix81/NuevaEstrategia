@@ -49,3 +49,5 @@ A valid check digit does not prove that the CUSIP is the correct security identi
 - [Phase 127 Actions run](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42079517644)
 - Artifact: `13438903901` (90-day retention).
 - Final CI: 15 Phase 124 tests and 21 Phase 125 tests passed; 600/600 raw submission hashes/identity checks verified; no audit errors.
+
+- Artifact ZIP SHA-256: `b80d15d736ba6c45f4f3c5dd569604175e221414b31a28fd58a62010a805c166`.
