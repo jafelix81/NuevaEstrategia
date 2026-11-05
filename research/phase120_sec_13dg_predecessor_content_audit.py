@@ -14,10 +14,10 @@ SEC_BASE = "https://www.sec.gov/Archives/"
 DEFAULT_UA = "jafelix81 research contact jafelix@gmail.com"
 
 def norm(value: str | None) -> str:
-    return re.sub(r"\\s+", " ", str(value or "")).strip().upper()
+    return re.sub(r"\s+", " ", str(value or "")).strip().upper()
 
 def norm_cik(value: str | None) -> str | None:
-    digits = re.sub(r"\\D", "", str(value or ""))
+    digits = re.sub(r"\D", "", str(value or ""))
     return digits.zfill(10) if digits else None
 
 def norm_cusip(value: str | None) -> str | None:
@@ -62,17 +62,17 @@ def parse_header(raw: str) -> dict:
         m = re.search(pattern, header, flags=re.I | re.S)
         return m.group(1).strip() if m else None
     def section_cik(section):
-        return norm_cik(one(rf"{section}\\s*:.*?CENTRAL INDEX KEY\\s*:\\s*(\\d+)"))
-    filed = one(r"FILED AS OF DATE\\s*:\\s*(\\d{8})")
+        return norm_cik(one(rf"{section}\s*:.*?CENTRAL INDEX KEY\s*:\s*(\d+)"))
+    filed = one(r"FILED AS OF DATE\s*:\s*(\d{8})")
     return {
-        "accession": one(r"ACCESSION NUMBER\\s*:\\s*([0-9-]{20})"),
-        "form": norm_form(one(r"CONFORMED SUBMISSION TYPE\\s*:\\s*([A-Z0-9 /-]+)")),
+        "accession": one(r"ACCESSION NUMBER\s*:\s*([0-9-]{20})"),
+        "form": norm_form(one(r"CONFORMED SUBMISSION TYPE\s*:\s*([A-Z0-9 /-]+)")),
         "filed_date": f"{filed[:4]}-{filed[4:6]}-{filed[6:8]}" if filed else None,
-        "acceptance_datetime": one(r"ACCEPTANCE-DATETIME>\\s*(\\d{14})"),
+        "acceptance_datetime": one(r"ACCEPTANCE-DATETIME>\s*(\d{14})"),
         "header_subject_cik": section_cik("SUBJECT COMPANY"),
         "header_filer_cik": section_cik("FILED BY"),
-        "subject_name": one(r"SUBJECT COMPANY\\s*:.*?COMPANY CONFORMED NAME\\s*:\\s*([^\\r\\n]+)"),
-        "filer_name": one(r"FILED BY\\s*:.*?COMPANY CONFORMED NAME\\s*:\\s*([^\\r\\n]+)"),
+        "subject_name": one(r"SUBJECT COMPANY\s*:.*?COMPANY CONFORMED NAME\s*:\s*([^\r\n]+)"),
+        "filer_name": one(r"FILED BY\s*:.*?COMPANY CONFORMED NAME\s*:\s*([^\r\n]+)"),
     }
 
 def parse_xml_snapshot(raw: str, family: str | None) -> dict:
@@ -109,22 +109,22 @@ class TextExtractor(HTMLParser):
     def __init__(self):
         super().__init__(convert_charrefs=True); self.parts=[]
     def handle_data(self, data):
-        value=re.sub(r"\\s+"," ",data).strip()
+        value=re.sub(r"\s+"," ",data).strip()
         if value: self.parts.append(value)
 
 def legacy_fields(raw: str) -> dict:
     # Conservative field probe only; not a full legacy ownership-table parser.
     docs = re.findall(r"<DOCUMENT>(.*?)</DOCUMENT>", raw, flags=re.I | re.S)
-    primary = next((d for d in docs if re.search(r"<TYPE>\\s*(?:SC\\s+)?13[DG]", d, flags=re.I)), raw)
+    primary = next((d for d in docs if re.search(r"<TYPE>\s*(?:SC\s+)?13[DG]", d, flags=re.I)), raw)
     parser=TextExtractor(); parser.feed(primary)
     text=html.unescape(" ".join(parser.parts))
     cusips=[]
-    for m in re.finditer(r"CUSIP(?:\\s+(?:NO\\.?|NUMBER))?\\s*[:#]?\\s*([A-Z0-9]{6,9})", text, flags=re.I):
+    for m in re.finditer(r"CUSIP(?:\s+(?:NO\.?|NUMBER))?\s*[:#]?\s*([A-Z0-9]{6,9})", text, flags=re.I):
         c=norm_cusip(m.group(1))
         if c and c not in cusips: cusips.append(c)
     class_title=None
-    m=re.search(r"TITLE OF CLASS OF SECURITIES\\s*[:\\-]?\\s*([A-Z0-9][A-Z0-9 ,.&()/'-]{2,100})", text, flags=re.I)
-    if m: class_title=re.sub(r"\\s+"," ",m.group(1)).strip(" :-")
+    m=re.search(r"TITLE OF CLASS OF SECURITIES\s*[:\-]?\s*([A-Z0-9][A-Z0-9 ,.&()/'-]{2,100})", text, flags=re.I)
+    if m: class_title=re.sub(r"\s+"," ",m.group(1)).strip(" :-")
     return {"xml_present":False, "cusip":cusips[0] if len(cusips)==1 else None,
             "cusip_candidates":cusips, "class_title":class_title, "persons":[]}
 
