@@ -1,7 +1,7 @@
 # Phase 120 — SEC 13D/13G predecessor-content audit specification
 
 Date: 2026-11-05  
-Status: LIVE AUDIT IN PROGRESS  
+Status: COMPLETED — see Phase 122 adjudication report  
 Scope: retrieve and reconcile the 45 predecessor submissions whose explicit `previousAccessionNumber` pointers passed the Phase 119 frozen-index checks. This is a targeted content/lineage gate, not a global 13D/13G census.
 
 ## Inputs and quarantines
@@ -53,4 +53,4 @@ python research/phase120_sec_13dg_predecessor_content_audit.py \
   --output-dir out
 ```
 
-The output artifact contains raw predecessor submissions, a JSON adjudication and a row-level CSV. The live result supersedes this specification's in-progress status.
+The output artifact contains all 45 raw predecessor submissions, a JSON adjudication and a row-level CSV. Phase 120 retrieved 45/45 with no download/accession failures, but correctly returned INCOMPLETE_OR_CONFLICT because security identity remained unresolved. Phase 121 adjudicated the 45 links; Phase 122 compared ownership snapshots on 20 exact-CUSIP XML pairs. See `PHASE122_SEC_13DG_XML_OWNERSHIP_CONTINUITY_AUDIT_2026-11-05.md` for the final decisions.
