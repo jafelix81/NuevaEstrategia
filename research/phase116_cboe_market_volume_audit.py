@@ -167,7 +167,7 @@ def parse_download_payload(data: bytes, kind: str, year: int) -> dict:
         if len(first_value) == 7 and first_value[4] == "-":
             lines = text.splitlines()
             lines[0] = lines[0].replace("Day,", "Month,", 1)
-            normalized = ("\\n".join(lines) + "\\n").encode("utf-8")
+            normalized = ("\n".join(lines) + "\n").encode("utf-8")
             parsed = parse_csv(normalized, "monthly", year)
             parsed["source_schema"] = "legacy_monthly_day_header"
             return parsed
