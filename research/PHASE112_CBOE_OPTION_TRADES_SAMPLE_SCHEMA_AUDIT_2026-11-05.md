@@ -101,3 +101,6 @@ The parser now preserves and classifies these values without inventing a timezon
 
 
 The next offline test attempt exposed a missing `re` import in the new timestamp-format classifier; the parser was corrected. The live sample was not downloaded in that failed attempt. A fresh run is now triggered.
+
+
+The first sample-style timestamp test initially retained the old date prefix and therefore did not reproduce the actual time-only field. The fixture was corrected to the exact sample representation (market_date M/D/YYYY; quote_datetime HH:MM.fraction), and the next live audit is triggered. No live download occurred in the failed test run.
