@@ -18,6 +18,27 @@ class Phase125Tests(unittest.TestCase):
         raw = "<DOCUMENT><TYPE>SC 13D</TYPE><TEXT><p>037833100</p><p>(CUSIP Number)</p></TEXT></DOCUMENT>"
         self.assertEqual(extract_legacy_cusips(raw), ["037833100"])
 
+    def test_split_cover_page_cusip_and_long_separator(self):
+        raw = """<DOCUMENT><TYPE>SC 13D</TYPE><TEXT>
+        <p>505743</p><p>104</p><p>---------------------------------------------------------------</p>
+        <p>(CUSIP Number)</p><p>David Smolen</p><p>(Date of Event)</p>
+        </TEXT></DOCUMENT>"""
+        self.assertEqual(extract_legacy_cusips(raw), ["505743104"])
+
+    def test_number_s_plural_and_date_are_not_misread_as_cusip(self):
+        raw = """<DOCUMENT><TYPE>SC 13G</TYPE><TEXT>
+        <p>92535C104</p><p>---------------------------------------------------------------</p>
+        <p>(CUSIP Number(s))</p><p>August 26, 2024</p><p>(Date of Event)</p>
+        </TEXT></DOCUMENT>"""
+        self.assertEqual(extract_legacy_cusips(raw), ["92535C104"])
+
+    def test_later_page_cusip_does_not_replace_missing_cover_page_value(self):
+        raw = """<DOCUMENT><TYPE>SC 13D</TYPE><TEXT>
+        <p>None</p><p>(CUSIP Number)</p><p>(Date of Event)</p>
+        <p>CUSIP No. 037833100</p>
+        </TEXT></DOCUMENT>"""
+        self.assertEqual(extract_legacy_cusips(raw), [])
+
     def test_does_not_truncate_isin_or_ten_digit_cik(self):
         raw = """<DOCUMENT><TYPE>SC 13D</TYPE><TEXT>
         <p>CUSIP No. US12021A1079</p><p>CUSIP No. 0001875609</p>

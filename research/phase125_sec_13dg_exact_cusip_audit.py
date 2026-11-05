@@ -76,20 +76,44 @@ def normalize_cusip(value):
         return None
     return value
 
+def token_candidate(tokens, direction):
+    groups = [tokens[:k] for k in range(1, min(4, len(tokens) + 1))] if direction == "after" else [tokens[-k:] for k in range(1, min(4, len(tokens) + 1))]
+    for group in groups:
+        candidate = "".join(group)
+        if re.fullmatch(r"[A-Z0-9]{8}\d", candidate) and candidate != "000000000":
+            return candidate
+    return None
+
+
 def extract_legacy_cusips(raw):
+    """Extract only the first cover-page CUSIP; never scan later pages for a substitute."""
     parser = SimpleTextExtractor()
     parser.feed(primary_document_text(raw))
     text = " ".join(parser.parts)
-    values = []
-    patterns = (
-        r"\bCUSIP\b(?:\s+(?:NO\.?|NUMBER))?\s*[:#.]?\s*([A-Z0-9]{8}\d)(?![A-Z0-9])",
-        r"(?<![A-Z0-9])([A-Z0-9]{8}\d)(?![A-Z0-9])\s*\(CUSIP\s+(?:NUMBER|NO\.?)",
-    )
-    for pattern in patterns:
-        for match in re.finditer(pattern, text, flags=re.I):
-            value = normalize_cusip(match.group(1))
-            if value and value not in values: values.append(value)
-    return values
+    ends = []
+    for pattern in (r"DATE OF EVENT", r"CHECK THE APPROPRIATE BOX", r"THE REMAINDER OF THIS COVER PAGE"):
+        match = re.search(pattern, text, flags=re.I)
+        if match: ends.append(match.start())
+    if ends: text = text[:min(ends)]
+
+    # CUSIP labels vary between CUSIP No., CUSIP Number and CUSIP Number(s).
+    match = re.search(r"\bCUSIP\b(?:\s+(?:NOS?\.?|NUMBER(?:\s*\(S\))?))?", text, flags=re.I)
+    if not match: return []
+    before = text[max(0, match.start() - 300):match.start()]
+    after = text[match.end():match.end() + 100]
+    before_tokens = re.findall(r"[A-Z0-9]+", before.upper())
+    after_tokens = re.findall(r"[A-Z0-9]+", after.upper())
+    candidate_before = token_candidate(before_tokens, "before")
+    candidate_after = token_candidate(after_tokens, "after")
+    after_clean = after.lstrip()
+    if after_clean.startswith(")") or re.match(
+        r"^(?:DATE|JANUARY|FEBRUARY|MARCH|APRIL|MAY|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER)\b",
+        after_clean, flags=re.I
+    ):
+        candidate = candidate_before
+    else:
+        candidate = candidate_after or candidate_before
+    return [candidate] if candidate else []
 
 def extract_xml_cusip(raw):
     for block in re.findall(r"<XML>(.*?)</XML>", raw, flags=re.I | re.S):
