@@ -275,7 +275,7 @@ def audit(input_dir, output_dir):
         "limitations": [
             "CUSIP checksum validity is a syntactic quality check, not proof that the filing's identifier is correct or maps to the intended traded security.",
             "CUSIP is not a permanent security identifier; effective-dated corporate-action, share-class and issuer mapping is still required.",
-            "Legacy extraction accepts only exact nine-character tokens adjacent to a CUSIP label; ambiguous multi-CUSIP filings are quarantined and unusual layouts may be missed.",
+            "Legacy extraction uses only the first CUSIP value on the primary cover page, including split text-node values; later CUSIPs in body/exhibits are intentionally excluded and unusual cover layouts may be missed.",
             "The hash-stratified sample is drawn from the 2016Q1-2026Q3 filing-index population, not a historical active/inactive eligible-security universe; no formal inferential confidence interval is claimed.",
             "No legacy reporting-person/ownership parser was validated, and no forward returns, features, alpha tests, vendor purchases or production changes were performed."
         ],
