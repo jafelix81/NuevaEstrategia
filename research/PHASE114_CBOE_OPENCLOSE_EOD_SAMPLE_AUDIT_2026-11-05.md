@@ -77,3 +77,24 @@ A positive customer/pro-customer imbalance is not automatically bullish. Option 
 ## Hosted execution
 
 The guarded live run downloads only the public sample and public specifications. It does not purchase data, authenticate, add anything to a cart, contact Cboe, or accept terms. The artifact will be inspected before a source decision is made.
+
+
+## Final hosted result — run 42027724358
+
+The public sample and both current/legacy EOD specifications downloaded successfully. The run passed all seven offline parser tests and uploaded artifact 13415230222.
+
+- Public sample ZIP: 3,961,119 bytes; SHA-256 445cd9d658dc06028c286e09d4ac4818bd5884d7da8addd7509f3a0fa4840552.
+- Nested C1 EOD sample: trade date 2025-03-28; filename identifies a 20% sample; 5,165,163 bytes; SHA-256 1c960e9a7b8b25311d2c8f012c36ea2c43087fe756335e57ffc952699a393ff6.
+- Rows: 23,179; unique underlyings: 1,553; fields: 86.
+- Security types: Equity 15,189; ETF 4,897; Index 3,093.
+- Series types: Standard 23,080; Nonstandard 11; FLEX 88.
+- Duplicate series keys: 0; invalid/negative numeric values: 0; blank numeric cells: 0.
+- Participant buy-volume buckets: 2,253,420; sell-volume buckets: 2,253,420; total participant side volume: 4,506,840.
+- Total C1 exchange volume: 4,506,840; Total Industry Volume: 12,228,281.
+- Row-level participant bucket sum equals total_exchange_vol on all 23,179/23,179 rows (100%).
+
+The sample archive also contains C1 1-minute and 10-minute sample packages, but Phase 114 intentionally parsed only the EOD file. Intraday files have separate schemas and upcoming 2026-11-08 changes; they are not part of this EOD approval.
+
+**Decision:** PASS for public-sample schema, integrity and participant-bucket accounting. This is a material improvement over the TBT raw sample, whose side/open-close conventions remain partly unresolved. The result does not establish the actual 2005 archive boundary, complete daily availability, broad PIT security coverage, historical dissemination timestamps, or license cost. No alpha test, purchase, subscription, authentication or vendor contact occurred.
+
+A same-date C1 TBT-vs-Open-Close sample consistency audit is documented separately in Phase 115.
