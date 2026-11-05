@@ -7,11 +7,6 @@ on:
     paths:
       - research/phase119_sec_13dg_xml_lineage_audit.py
       - research/test_phase119_sec_13dg_xml_lineage_audit.py
-  pull_request:
-    paths:
-      - research/phase119_sec_13dg_xml_lineage_audit.py
-      - research/test_phase119_sec_13dg_xml_lineage_audit.py
-
 permissions:
   contents: read
 
