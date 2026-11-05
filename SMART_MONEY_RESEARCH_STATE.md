@@ -309,3 +309,23 @@ The corrected global-census pilot passed both parser test suites but stopped bef
 - The paper explicitly offers both informed-trading and dealer-hedging/momentum explanations; DOOD is autocorrelated. We will require the signal to survive controls for prior 1/5/20/60-session returns, volatility, liquidity, earnings and F80/LTM.
 - Added `research/PHASE60_OPTIONMETRICS_DOOD_REPLICATION_PREREGISTRATION_2026-11-04.md` with a fixed data gate, signed delta-demand formula using historical contract multipliers, separate ambiguous/midpoint volume, competing hypotheses, chronological splits, horizon-decay tests and kill criteria.
 - Phase 60 is preregistration only. No vendor sample acquired, no forward returns calculated, no alpha claim, no strategy change. F80 baseline remains frozen.
+
+
+
+## 2026-11-04 superseding update — Phase 93 SEC event semantics and Phase 94 DOOD correction
+
+### Phase 93 — SEC 13D/G lineage and event-mechanism audit
+- Run 41940675337 completed successfully; artifact 13375652511.
+- Reparsed 200/200 structured filings from immutable Phase 84/91 inputs; raw SHA-256 and XML identity checks had zero errors; 17 regression tests passed.
+- Among 97 amendments, 46 contained explicit previousAccessionNumber and 51 did not. In this sample, 44 explicit references pointed outside the 600-header sample, 49 missing-reference amendments had no candidate in the structured sample, two had a unique but unconfirmed candidate parent, and two had a header-consistent explicit reference with XML unavailable. Only two candidate parent edges were emitted; no link was promoted to confirmed.
+- Event-mechanism tags are non-exclusive and not investor-intent determinations: 7 activist/control-action tags, 1 open-market-acquisition tag, 15 business-combination-consideration tags, 25 aggregated client/adviser holdings tags, 126 unclassified narratives. This is a 200-filing stratified pilot, not a full issuer history; do not infer prevalence from these counts or run returns.
+- No forward returns, feature selection, alpha test, vendor purchase or production change.
+
+### Phase 94 — DOOD exact published-formula correction
+- The Phase 60 draft incorrectly included a contract multiplier in the primary DOOD equation. The original OptionMetrics paper does not include a multiplier: sum(delta × (Total Ask Volume − Total Bid Volume)) across the option chain, divided by underlying daily share volume. The multiplier-adjusted delta-equivalent-share calculation is now a separately named sensitivity, not published DOOD.
+- Preserve signed put delta (negative); do not flip the put sign again. Keep midpoint/unknown/unclassified volume separate.
+- The paper reports 1.08 Sharpe in the abstract and 1.03 in the detailed Table 2 discussion. Preserve this discrepancy; do not select one silently. Other reported results include 0.32% weekly high-minus-low spread and 0.26% weekly three-factor alpha over Jan 2016–Mar 2022.
+- Current OptionMetrics TradeFlow page describes an evolution of Signed Volume with 5/30-minute and EOD snapshots, trade-description codes, venue, VWAP and NBBO aggressiveness, and claims history from Jan 2016. The January 2020 launch announcement described Signed Volume history from March 2018. A later backfill may explain the discrepancy, but exact legacy-field continuity and new-field backfill must be confirmed in writing before acquisition.
+- Added research/phase94_dood.py, research/test_phase94_dood.py, .github/workflows/phase94_dood_formula.yml and research/PHASE94_DOOD_EXACT_FORMULA_AND_REPLICATION_GATE_2026-11-04.md on isolated branch phase94-dood-exact-replication-spec. The helper implements exact published DOOD and a separately named multiplier-adjusted sensitivity; tests cover signed puts, seller flow, midpoint exclusion, adjusted multipliers and invalid inputs.
+- Phase 94 is methodology and synthetic-test work only. No OptionMetrics sample or license, no vendor contact, no forward returns, no alpha test. The data gate remains NOT PASSED.
+- F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
