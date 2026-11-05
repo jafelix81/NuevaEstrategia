@@ -24,6 +24,10 @@ class Phase112OptionTradesTests(unittest.TestCase):
         self.assertEqual(result["row_count"], 1)
         self.assertEqual(result["unique_underlyings"], 1)
         self.assertEqual(result["quote_state_counts"]["valid_nbbo"], 1)
+        self.assertEqual(result["trade_location_counts"]["exact_midpoint"], 1)
+
+    def test_non_midpoint_inside_spread_is_unclassified(self):
+        result = parse_trade_csv((HEADER + row(price="1.06")).encode())
         self.assertEqual(result["trade_location_counts"]["inside_spread"], 1)
 
     def test_ask_touch_is_descriptive_only(self):
