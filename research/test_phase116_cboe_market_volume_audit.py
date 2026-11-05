@@ -51,6 +51,13 @@ class Phase116Tests(unittest.TestCase):
         parsed = phase116.parse_csv((header + "\n" + row + "\n").encode(), "monthly", 2009)
         self.assertEqual(parsed["rows"], 1)
 
+
+    def test_monthly_large_notional_precision(self):
+        header = ",".join(phase116.MONTHLY_HEADER)
+        row = "2009-02,NASDAQ,0,0,0,0,440253130434.0,440253130434.0,440253130434.0,1320759391300.0,0,0,0,0"
+        parsed = phase116.parse_csv((header + "\n" + row + "\n").encode(), "monthly", 2009)
+        self.assertEqual(parsed["rows"], 1)
+
     def test_negative_value_rejected(self):
         header = ",".join(phase116.DAILY_HEADER)
         row = "2026-01-02,NYSE,1,2,-3,0,10,20,30,60,1,2,3,6"
