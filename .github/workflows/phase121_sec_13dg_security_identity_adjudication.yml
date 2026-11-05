@@ -1,0 +1,65 @@
+name: Phase 121 SEC 13D-G security identity adjudication
+
+on:
+  push:
+    branches:
+      - phase99-broad-pit-universe-charter
+    paths:
+      - research/phase121_sec_13dg_security_identity_adjudication.py
+      - research/test_phase121_sec_13dg_security_identity_adjudication.py
+      - .github/workflows/phase121_sec_13dg_security_identity_adjudication.yml
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  security-identity-adjudication:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Compile adjudicator
+        run: python -m py_compile research/phase121_sec_13dg_security_identity_adjudication.py
+
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase121_sec_13dg_security_identity_adjudication
+
+      - name: Download immutable Phase 84 current-filing artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: phase84-13dg-role-aware-identity-validation
+          path: inputs/phase84
+          repository: ${{ github.repository }}
+          run-id: 41914491120
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download immutable Phase 120 predecessor archive
+        uses: actions/download-artifact@v4
+        with:
+          name: phase120-sec-13dg-predecessor-content-audit
+          path: inputs/phase120
+          repository: REPO_TOKEN
+          run-id: 42058411930
+          github-token: TOKEN_TOKEN
+
+      - name: Reparse and adjudicate security identity
+        run: >-
+          python research/phase121_sec_13dg_security_identity_adjudication.py
+          --phase84-dir inputs/phase84
+          --phase120-dir inputs/phase120
+          --manifest research/phase120_sec_13dg_predecessor_manifest.csv
+          --output-dir out
+
+      - name: Upload immutable adjudication artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase121-sec-13dg-security-identity-adjudication
+          path: out/
+          if-no-files-found: warn
+          retention-days: 90
