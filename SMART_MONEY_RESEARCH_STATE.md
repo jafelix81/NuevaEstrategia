@@ -234,3 +234,20 @@ F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No forward-return test or produ
 - Decision: park OCC as recent participant-composition context only. It lacks direction, opening/closing status and beneficial-owner identity, and does not supply the long daily history needed for a robust independent OOS test. No alpha test.
 - Cboe Option Sentiment remains the most information-rich documented options candidate (FAQ says Jan 2012 and OPRA U.S. stock/ETF/index coverage), but the old URL redirects and the current Options catalog omits it. Do not assume orderability; no vendor contact or purchase.
 - FINRA historical website archive remains blocked pending the user's affirmative certification. No acceptance was made.
+
+
+## 2026-11-05 — Phase 112 Cboe Option Trades public sample completed
+- Run 42022615770 completed successfully; artifact 13412861022 (7,095,447-byte ZIP; SHA-256 d5407f64e9e6b5bac6773293e6f760004de377282b9f240f2059d5e2bea69613). All 11 offline parser tests passed.
+- Public sample HTTP 200; 3,561,778 bytes; SHA-256 a02504e156db28b3f007d9d25a534e4c88ffd8d24ac43f3bf84885583a3d10b8. It contains two nested variants (Calcs included/excluded), each 74,999 rows with identical sequence-key hashes; do not add them. The sample covers only AAPL (one underlying, 308 option series), not full-market coverage.
+- Quote checks: 74,218 valid NBBO, 625 locked, 5 crossed, 151 zero/missing; zero duplicate sequence keys. All 15 observed trade-condition IDs and 18 exchange IDs matched the downloaded official mapping files.
+- Critical discrepancy: all sample quote_datetime values use a two-component clock such as 21:30.4, while Cboe Option Trades v1.3 specifies full U.S. Eastern trade date/time to milliseconds. Do not infer a timezone or reconstruct intraday timestamps. The adjacent-row sequence/clock monotonicity counter is not a valid acceptance metric because source row order is not established as chronological or sequence-sorted.
+- Decision: schema/quote checks pass, documented timestamp conformance remains unresolved, broad market coverage unproven. Retain only as conditional daily trade/quote/IV context; no signed-flow or intraday study. See research/PHASE112_CBOE_OPTION_TRADES_SAMPLE_SCHEMA_AUDIT_2026-11-05.md.
+
+## 2026-11-05 — Phase 113 Cboe Enhanced Options TBT candidate
+- Newly prioritized Cboe Enhanced US Options Trade-by-Trade Execution Detail (TBT), based on current official product page and v1.1 specification dated 2026-10-05. Unlike the broad OPRA Option Trades feed, TBT documents SIDE, OPEN_CLOSE, CAPACITY, TRADE_TYPE, EXEC_ID/COMPLEX_EXEC_ID, NBBO/BBO and transaction/floor timestamps.
+- Published history starts 2019-10-07; currently C1 only (BZX/C2/EDGX planned), delivered T+1, typically 00:30–01:30 ET next morning. This is materially richer for participant-capacity/position-side hypotheses but is not whole-OPRA coverage and does not identify beneficial owners.
+- Phase 113 public-sample audit workflow run 42023567791 is in progress after 8 offline tests were added. It downloads only the public sample and official spec; no purchase, subscription, contact, or authentication. Do not start a duplicate while it runs.
+- Before any return test: sample schema and key semantics, actual historical archive boundary/completeness, broad PIT underlying coverage including inactive/delisted names, C1 TBT vs C1 Open-Close reconciliation, T+1/late-file knowledge time, and preregistered handling of complex/auction/floor/routed/provisional trades must pass.
+- Official docs: https://datashop.cboe.com/enhanced-us-options-trade-by-trade-execution-detail and https://datashop.cboe.com/documents/TBT_Spec_v1.1.pdf.
+
+F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. Phases 112–113 are source-feasibility work only; no alpha test or production change.
