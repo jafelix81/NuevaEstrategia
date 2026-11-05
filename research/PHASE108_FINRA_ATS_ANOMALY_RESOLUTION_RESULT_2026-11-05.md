@@ -8,7 +8,7 @@
 
 ## Execution
 
-- Actions job `audit`: success; offline regression tests passed.
+- Actions job `audit`: success; seven offline regression tests passed.
 - Two complete partitions re-queried with 16 fields, including MPID, firm CRD, participant name, first publication, last update and last-reported dates.
 - 56 pages downloaded; both partitions reconciled exactly to FINRA `Record-Total`.
 - No request errors and no requested-week/tier mismatches.
