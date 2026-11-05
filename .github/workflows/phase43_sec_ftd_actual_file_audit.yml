@@ -3,9 +3,10 @@ name: Phase 43 - SEC FTD actual-file audit
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, phase99-broad-pit-universe-charter]
     paths:
       - 'research/PHASE43_SEC_FTD_ACTUAL_FILE_AUDIT_2026-10-27.md'
+      - '.github/workflows/phase43_sec_ftd_actual_file_audit.yml'
 
 permissions:
   contents: read
