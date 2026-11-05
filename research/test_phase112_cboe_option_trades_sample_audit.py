@@ -79,7 +79,7 @@ class Phase112OptionTradesTests(unittest.TestCase):
 
     def test_sample_style_date_and_clock_row_parses(self):
         sample_header = HEADER.replace("2025-03-28", "1/7/2026")
-        sample_row = row().replace("2025-03-28", "1/7/2026").replace("10:00:00.123", "21:30.4")
+        sample_row = row().replace("2025-03-28,2025-03-28 10:00:00.123", "1/7/2026,21:30.4")
         result = parse_trade_csv((sample_header + sample_row).encode())
         self.assertEqual(result["row_count"], 1)
         self.assertEqual(result["market_dates"], ["2026-01-07"])
