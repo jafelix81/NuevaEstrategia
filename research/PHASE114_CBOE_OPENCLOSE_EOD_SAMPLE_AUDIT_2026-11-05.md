@@ -72,3 +72,8 @@ A positive customer/pro-customer imbalance is not automatically bullish. Option 
 ## Initial decision
 
 **Priority candidate, conditional on the public sample and history audit.** This source is materially more promising than OCC account-type volume and more historically complete than TBT, but it is still C1-only and uses capacity buckets rather than beneficial-owner identity. No alpha test is authorized. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## Hosted execution
+
+The guarded live run downloads only the public sample and public specifications. It does not purchase data, authenticate, add anything to a cart, contact Cboe, or accept terms. The artifact will be inspected before a source decision is made.
