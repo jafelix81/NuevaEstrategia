@@ -1,7 +1,8 @@
 import unittest
 from research.phase125_sec_13dg_exact_cusip_audit import (
     classify_submission, cusip_check_digit, cusip_status,
-    classify_xml_cusip, extract_legacy_cusips, normalize_cusip, weighted_rate,
+    classify_xml_cusip, classify_xml_cusips, extract_xml_cusip,
+    extract_legacy_cusips, normalize_cusip, weighted_rate,
 )
 
 class Phase125Tests(unittest.TestCase):
@@ -56,6 +57,52 @@ class Phase125Tests(unittest.TestCase):
 
     def test_ambiguous_candidates_are_not_collapsed(self):
         self.assertEqual(cusip_status(["42234Q102", "376536603"])[0], "AMBIGUOUS")
+
+    def test_extracts_modern_issuer_cusip_number_schema(self):
+        raw = """<XML><edgarSubmission><issuerInfo><issuerCusips>
+        <issuerCusipNumber>74276R102</issuerCusipNumber>
+        </issuerCusips></issuerInfo></edgarSubmission></XML>"""
+        present, values = extract_xml_cusip(raw)
+        self.assertTrue(present)
+        self.assertEqual(values, ["74276R102"])
+        self.assertEqual(classify_xml_cusips(values)[0], "UNIQUE_CHECKSUM_VALID")
+
+    def test_extracts_legacy_issuer_cusip_schema(self):
+        raw = """<XML><edgarSubmission><issuerInfo>
+        <issuerCusip>037833100</issuerCusip>
+        </issuerInfo></edgarSubmission></XML>"""
+        self.assertEqual(extract_xml_cusip(raw), (True, ["037833100"]))
+
+    def test_distinct_xml_issuer_cusips_are_ambiguous(self):
+        raw = """<XML><edgarSubmission><issuerInfo>
+        <issuerCusip>037833100</issuerCusip>
+        <issuerCusips><issuerCusipNumber>594918104</issuerCusipNumber></issuerCusips>
+        </issuerInfo></edgarSubmission></XML>"""
+        present, values = extract_xml_cusip(raw)
+        self.assertTrue(present)
+        self.assertEqual(len(values), 2)
+        self.assertEqual(classify_xml_cusips(values)[0], "AMBIGUOUS")
+
+    def test_duplicate_xml_cusips_are_deduplicated(self):
+        raw = """<XML><edgarSubmission><issuerInfo>
+        <issuerCusip>037833100</issuerCusip>
+        <issuerCusips><issuerCusipNumber>037833100</issuerCusipNumber></issuerCusips>
+        </issuerInfo></edgarSubmission></XML>"""
+        self.assertEqual(extract_xml_cusip(raw), (True, ["037833100"]))
+
+    def test_xml_cusip_outside_issuer_info_is_ignored(self):
+        raw = """<XML><edgarSubmission>
+        <otherInfo><issuerCusipNumber>037833100</issuerCusipNumber></otherInfo>
+        <issuerInfo />
+        </edgarSubmission></XML>"""
+        present, values = extract_xml_cusip(raw)
+        self.assertTrue(present)
+        self.assertEqual(values, [])
+        self.assertEqual(classify_xml_cusips(values)[0], "MISSING")
+
+    def test_xml_plural_classifier_distinguishes_placeholder_and_bad_format(self):
+        self.assertEqual(classify_xml_cusips(["000000000"])[0], "XML_PLACEHOLDER")
+        self.assertEqual(classify_xml_cusips(["0753018100"])[0], "INVALID_XML_CUSIP_FORMAT")
 
     def test_invalid_checksum_is_flagged(self):
         status, value, valid = cusip_status(["584680106"])

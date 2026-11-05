@@ -359,3 +359,19 @@ F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No source from Phases 112–113
 - Preliminary coverage: 102/599 XML rows (17.0% unweighted; 18.20% post-stratified), including 99/99 mandatory-XML filings after 2024-12-18. CUSIP was present in 496/599 rows (85.75% weighted); class title in 349/599; 310 reporting-person nodes were parsed, almost entirely from XML. Legacy HTML ownership parsing remains unvalidated.
 - A source-provenance bug was found in the current `cusip_source` label: it classifies populated legacy HTML CUSIPs as XML and labels missing legacy CUSIPs as heuristic. The CUSIP presence count itself is unaffected, but source attribution must be corrected and regression-tested before relying on that field or finalizing Phase 124. No forward returns, alpha tests, vendor purchases, or production changes.
 - F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## 2026-11-05 — Phase 126 SEC 13D/G body-first issuer identity audit (PASS)
+
+- Corrected the legacy cover-page parser to reject a standalone SEC “COMMISSION” boilerplate line; the prior concatenation `COMMISSION StoneCastle Financial Corp.` is resolved.
+- Phase 126 run 42079214500 passed all 37 offline tests across Phases 124–126 and the artifact-only reconciliation. Artifact 13438773715 (SHA-256 `24b5795afa6cd0d858345976cfa29410c887f7ff79ababda4b0951ba86bdee53`) records 599 actual 13D/G filings, one quarantined index alias, and 600/600 raw hash/accession-date checks.
+- XML issuer CIK matched SEC-HEADER subject CIK in 102/102 sampled XML filings. Two hand-adjudicated legacy filings show genuine header/body issuer discrepancies: Dalal Street LLC vs Seritage Growth Properties (CUSIP 81752R100), and American Community Capital LP vs Nano Mobile Healthcare Inc. (CUSIP 63010B200). The same Seritage CUSIP in a 2021 filing has a different, matching header subject CIK, confirming that the legacy header role can be wrong.
+- A third legacy case, ArrowMark/StoneCastle, is a valid same-CIK historical name change (subject CIK 1578987; former name StoneCastle; filer CIK 1483859), not a mismatch. Keep it as a rename control, not an error.
+- These are hand-adjudicated examples, not a global error-rate estimate. Only four legacy cover pages were adjudicated. No broad parser, permanent crosswalk, delisted universe or dissemination-time proof yet. No returns/alpha tests or production changes.
+
+## 2026-11-05 — Phase 127 SEC 13D/G XML CUSIP schema correction (CI pending)
+
+- Phase 125's XML extractor recognized only `issuerCusip`; the raw sample also uses `issuerCusips/issuerCusipNumber`. The 32 XML rows previously marked missing were not all missing.
+- Phase 127 reprocesses the immutable Phase 124 artifact (run 42073725379; artifact 13436764625; SHA-256 `85f69e083b5af65731c9bcfe24e8c75821fc0f2c2476bfa8ba573e2e884570dc`) without new SEC requests. The corrected extractor supports both schema tags, scopes them to issuerInfo, deduplicates identical values and quarantines multiple distinct values.
+- Preliminary corrected counts: 571/599 actual filings have a unique checksum-valid CUSIP; 23 are missing (all legacy HTML), two are zero placeholders, two have invalid check digits, one has malformed 10-character format, and none are ambiguous. Post-stratified weighted valid rates: 96.94% overall, 97.38% XML, 96.84% legacy HTML. These supersede Phase 125's 91.36% overall and 66.71% XML rates.
+- The corrected sample estimates remain descriptive only (172 strata; no inferential CI) and do not establish permanent security identity or PIT universe coverage. No alpha/returns test or production change.

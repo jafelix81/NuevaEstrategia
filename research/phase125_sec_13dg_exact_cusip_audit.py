@@ -116,15 +116,34 @@ def extract_legacy_cusips(raw):
     return [candidate] if candidate else []
 
 def extract_xml_cusip(raw):
+    """Return XML presence and all distinct issuer CUSIPs under issuerInfo.
+
+    SEC 13D/G XML uses both issuerCusip and issuerCusips/issuerCusipNumber
+    structures. Preserve multiple distinct values for explicit ambiguity
+    handling instead of silently taking the first one.
+    """
     for block in re.findall(r"<XML>(.*?)</XML>", raw, flags=re.I | re.S):
-        if "edgarSubmission" not in block: continue
-        try: root = ET.fromstring(block.strip())
-        except ET.ParseError: continue
-        for node in root.iter():
-            if node.tag.split("}")[-1].lower() == "issuercusip":
-                return True, (node.text or "").strip() or None
-        return True, None
-    return False, None
+        if "edgarSubmission" not in block:
+            continue
+        try:
+            root = ET.fromstring(block.strip())
+        except ET.ParseError:
+            continue
+        issuer_infos = [
+            node for node in root.iter()
+            if node.tag.split("}")[-1].lower() == "issuerinfo"
+        ]
+        values = []
+        for issuer_info in issuer_infos:
+            for node in issuer_info.iter():
+                local_name = node.tag.split("}")[-1].lower()
+                if local_name not in {"issuercusip", "issuercusipnumber"}:
+                    continue
+                value = (node.text or "").strip()
+                if value and value not in values:
+                    values.append(value)
+        return True, values
+    return False, []
 
 def cusip_check_digit(value):
     cusip = normalize_cusip(value)
@@ -146,16 +165,28 @@ def cusip_status(candidates):
     return ("UNIQUE_CHECKSUM_VALID" if valid else "UNIQUE_CHECKSUM_INVALID"), value, valid
 
 
-def classify_xml_cusip(raw_value):
-    raw_normalized = re.sub(r"[^A-Z0-9]", "", str(raw_value or "").upper())
-    if not raw_normalized:
+def classify_xml_cusips(raw_values):
+    normalized_values = []
+    for raw_value in raw_values or []:
+        value = re.sub(r"[^A-Z0-9]", "", str(raw_value or "").upper())
+        if value and value not in normalized_values:
+            normalized_values.append(value)
+    if not normalized_values:
         return "MISSING", None, None
+    if len(normalized_values) > 1:
+        return "AMBIGUOUS", None, None
+    raw_normalized = normalized_values[0]
     if raw_normalized == "000000000":
         return "XML_PLACEHOLDER", None, None
-    candidate = normalize_cusip(raw_value)
+    candidate = normalize_cusip(raw_normalized)
     if candidate is None:
         return "INVALID_XML_CUSIP_FORMAT", None, None
     return cusip_status([candidate])
+
+
+def classify_xml_cusip(raw_value):
+    """Backward-compatible single-value classifier."""
+    return classify_xml_cusips([raw_value] if raw_value is not None else [])
 
 def weighted_rate(rows, predicate):
     denominator = sum(float(r["sample_weight"]) for r in rows)
@@ -209,11 +240,16 @@ def audit(input_dir, output_dir):
             errors.append({"accession": accession, "error": "Phase 124 status conflicts with valid filing"})
             continue
 
-        xml_present, xml_raw = extract_xml_cusip(raw)
+        xml_present, xml_values = extract_xml_cusip(raw)
         if xml_present:
             source = "13DG_XML"
-            status, cusip, checksum_valid = classify_xml_cusip(xml_raw)
-            candidates = [cusip] if cusip else []
+            status, cusip, checksum_valid = classify_xml_cusips(xml_values)
+            candidates = []
+            for value in xml_values:
+                normalized_value = re.sub(r"[^A-Z0-9]", "", str(value or "").upper())
+                if normalized_value and normalized_value not in candidates:
+                    candidates.append(normalized_value)
+            xml_raw = json.dumps(xml_values)
         else:
             candidates = extract_legacy_cusips(raw)
             source = "LEGACY_HTML_EXACT_TOKEN"
@@ -237,12 +273,12 @@ def audit(input_dir, output_dir):
     total_index_weight = sum(float(r["sample_weight"]) for r in source_rows)
     output_dir.mkdir(parents=True, exist_ok=True)
     fields = list(results[0].keys()) if results else []
-    with (output_dir / "phase125_sec_13dg_exact_cusip_audit.csv").open("w", encoding="utf-8", newline="") as f:
+    with (output_dir / "phase127_sec_13dg_xml_cusip_audit.csv").open("w", encoding="utf-8", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=fields); writer.writeheader(); writer.writerows(results)
 
     summary = {
-        "phase": "125-sec-13dg-exact-cusip-identity-audit",
-        "status": "PASS_ARTIFACT_ONLY_CUSIP_AUDIT" if not errors and len(results) == 599 and len(aliases) == 1 else "INCOMPLETE",
+        "phase": "127-sec-13dg-xml-cusip-schema-correction",
+        "status": "PASS_ARTIFACT_ONLY_XML_CUSIP_SCHEMA_CORRECTION" if not errors and len(results) == 599 and len(aliases) == 1 else "INCOMPLETE",
         "source_phase124_run_id": EXPECTED_PHASE124_RUN_ID,
         "source_phase124_artifact_id": EXPECTED_PHASE124_ARTIFACT_ID,
         "source_phase124_artifact_digest": EXPECTED_PHASE124_ARTIFACT_DIGEST,
@@ -264,11 +300,15 @@ def audit(input_dir, output_dir):
         "xml_missing_rows": sum(r["cusip_status"] == "MISSING" for r in xml),
         "xml_placeholder_rows": sum(r["cusip_status"] == "XML_PLACEHOLDER" for r in xml),
         "xml_invalid_format_rows": sum(r["cusip_status"] == "INVALID_XML_CUSIP_FORMAT" for r in xml),
-        "xml_missing_or_invalid_format_rows": sum(r["cusip_status"] in {"MISSING", "XML_PLACEHOLDER", "INVALID_XML_CUSIP_FORMAT"} for r in xml),
+        "xml_ambiguous_rows": sum(r["cusip_status"] == "AMBIGUOUS" for r in xml),
+        "xml_missing_or_invalid_format_rows": sum(r["cusip_status"] in {"MISSING", "XML_PLACEHOLDER", "INVALID_XML_CUSIP_FORMAT", "AMBIGUOUS"} for r in xml),
+        "xml_schema_tags_supported": ["issuerCusip", "issuerCusipNumber"],
         "unique_checksum_valid_rows": sum(r["cusip_status"] == "UNIQUE_CHECKSUM_VALID" for r in results),
         "weighted_legacy_unique_checksum_valid_rate": weighted_rate(legacy, lambda r: r["cusip_status"] == "UNIQUE_CHECKSUM_VALID"),
         "weighted_xml_unique_checksum_valid_rate": weighted_rate(xml, lambda r: r["cusip_status"] == "UNIQUE_CHECKSUM_VALID"),
+        "weighted_xml_cusip_field_rate": weighted_rate(xml, lambda r: r["cusip_candidate_count"] > 0),
         "weighted_all_unique_checksum_valid_rate": weighted_rate(results, lambda r: r["cusip_status"] == "UNIQUE_CHECKSUM_VALID"),
+        "weighted_all_cusip_field_rate": weighted_rate(results, lambda r: r["cusip_candidate_count"] > 0),
         "weighted_index_alias_rate": alias_weight / total_index_weight if total_index_weight else None,
         "nonempty_strata": source_summary.get("nonempty_strata"),
         "eligible_index_population": source_summary.get("eligible_population_after_exclusions"),
@@ -276,13 +316,14 @@ def audit(input_dir, output_dir):
             "CUSIP checksum validity is a syntactic quality check, not proof that the filing's identifier is correct or maps to the intended traded security.",
             "CUSIP is not a permanent security identifier; effective-dated corporate-action, share-class and issuer mapping is still required.",
             "Legacy extraction uses only the first CUSIP value on the primary cover page, including split text-node values; later CUSIPs in body/exhibits are intentionally excluded and unusual cover layouts may be missed.",
+            "Structured XML extraction supports issuerCusip and issuerCusipNumber under issuerInfo; identical values are deduplicated and multiple distinct values are quarantined as ambiguous.",
             "The hash-stratified sample is drawn from the 2016Q1-2026Q3 filing-index population, not a historical active/inactive eligible-security universe; no formal inferential confidence interval is claimed.",
             "No legacy reporting-person/ownership parser was validated, and no forward returns, features, alpha tests, vendor purchases or production changes were performed."
         ],
     }
-    (output_dir / "phase125_sec_13dg_exact_cusip_summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    (output_dir / "phase127_sec_13dg_xml_cusip_summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
     print(json.dumps(summary, indent=2))
-    if summary["status"] != "PASS_ARTIFACT_ONLY_CUSIP_AUDIT":
+    if summary["status"] != "PASS_ARTIFACT_ONLY_XML_CUSIP_SCHEMA_CORRECTION":
         raise SystemExit(2)
     return summary
 
