@@ -1,7 +1,7 @@
 # Phase 112 — Cboe Option Trades: public sample schema and market-coverage audit
 
 **Date:** 2026-11-05  
-**Status:** live sample audit pending  
+**Status:** public sample schema passed; sample timestamp representation does not match published specification  
 **Scope:** data feasibility only; no forward returns, no alpha test, no purchase or vendor contact.
 
 ## Why this candidate is now prioritized
@@ -109,3 +109,26 @@ The first sample-style timestamp test initially retained the old date prefix and
 ## Sample rows parsed — mapping and clock audit pending
 
 The corrected parser now recognizes the two nested CSV variants and the current sample's M/D/YYYY market date and compact quote-clock field. The next run will also inspect the official exchange-ID CSV and trade-condition workbook, report the observed ID-to-description mappings, and measure whether the compact clock candidate is monotonic with OPRA sequence_number. No time-zone or clock semantics will be assumed from the compact field.
+
+
+## Final hosted result — run 42022615770
+
+The run completed successfully on 2026-11-05. All 11 offline tests passed. The public sample (HTTP 200; 3,561,778 bytes; SHA-256 a02504e156db28b3f007d9d25a534e4c88ffd8d24ac43f3bf84885583a3d10b8) contained two nested CSV variants for 2026-01-07:
+
+- Calcs included: 74,999 rows, 11,287,115 bytes;
+- Calcs excluded: 74,999 rows, 7,923,505 bytes.
+
+The two variants have identical row counts and identical sequence-key hashes. They are alternate schema variants of the same sample population and must not be added together. The sample contains one underlying (AAPL), one root and 308 option series; this is not a full-market coverage test.
+
+Both variants passed required-field, numeric, quote-state and duplicate-sequence checks. Across 74,999 rows:
+- 74,218 valid NBBO, 625 locked, 5 crossed and 151 zero/missing;
+- 24,765 trades at/above ask, 27,952 at/below bid, 8,739 exact midpoint and 12,762 inside the spread; these are descriptive locations, not yet validated aggressor-side labels;
+- 15 observed trade-condition IDs all map to the downloaded official LiveVol condition workbook; 18 exchange IDs all map to the official exchange list;
+- zero duplicate sequence keys.
+
+**Critical schema discrepancy:** all 74,999 sample rows use a two-component quote_datetime such as 21:30.4. The published v1.3 specification requires the full trade date and U.S. Eastern time to milliseconds (YYYY-MM-DD hh:mm:ss.000). The sample clock is not interpretable from the available documentation and must not be converted to a time-of-day or used for intraday sequencing. The earlier adjacent-row sequence/clock nonmonotonic counter is not a valid test because file row order is not an established time or sequence order; it is not an acceptance metric.
+
+The sample therefore passes structural schema/quote checks but fails the documented timestamp-conformance gate. Retain Option Trades only as a conditional daily trade/quote/IV context source until Cboe explains the sample discrepancy or a new sample conforms to the specification. Do not use it for signed flow or intraday event studies.
+
+Artifact: https://github.com/jafelix81/NuevaEstrategia/actions/runs/42022615770/artifacts/13412861022  
+Report decision: sample schema/quote-quality PASS; timestamp conformance FAIL/UNRESOLVED; broad market coverage not established; no alpha test.
