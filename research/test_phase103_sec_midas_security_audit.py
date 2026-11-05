@@ -32,6 +32,9 @@ class Phase103MidasTests(unittest.TestCase):
     def test_date_formats(self):
         self.assertEqual(parse_date("2016-01-04"), date(2016, 1, 4))
         self.assertEqual(parse_date("20160104"), date(2016, 1, 4))
+        self.assertEqual(parse_date("01/04/16"), date(2016, 1, 4))
+        self.assertEqual(parse_date("2016-01-04T00:00:00"), date(2016, 1, 4))
+        self.assertEqual(parse_date("42373"), date(2016, 1, 4))
         self.assertIsNone(parse_date("bad-date"))
 
     def test_methodology_breaks_are_explicit(self):

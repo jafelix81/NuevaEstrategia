@@ -14,7 +14,7 @@ import re
 import time
 import zipfile
 from collections import Counter, defaultdict
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timezone, timedelta
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 
@@ -81,10 +81,26 @@ def parse_date(value: str):
     value = (value or "").strip()
     if not value:
         return None
-    for fmt in ("%Y-%m-%d", "%Y%m%d", "%m/%d/%Y", "%Y-%m-%d %H:%M:%S"):
+    formats = (
+        "%Y-%m-%d", "%Y%m%d", "%m/%d/%Y", "%m/%d/%y",
+        "%Y-%m-%d %H:%M:%S", "%m/%d/%Y %H:%M:%S",
+        "%m/%d/%y %H:%M:%S", "%m/%d/%Y %I:%M:%S %p",
+        "%m/%d/%y %I:%M:%S %p", "%m/%d/%Y %H:%M",
+    )
+    for fmt in formats:
         try:
-            return datetime.strptime(value[:19], fmt).date()
+            return datetime.strptime(value, fmt).date()
         except ValueError:
+            pass
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00")).date()
+    except ValueError:
+        pass
+    # Excel serial dates (if an older quarterly export used them).
+    if re.fullmatch(r"\d{5}(?:\.0+)?", value):
+        try:
+            return date(1899, 12, 30) + timedelta(days=int(float(value)))
+        except (ValueError, OverflowError):
             pass
     return None
 
@@ -130,6 +146,9 @@ def parse_csv_member(raw_stream, member_name: str, legacy: set[str], spec: dict)
     blank_tickers = 0
     out_of_range = 0
     duplicates = Counter()
+    duplicate_signatures = {}
+    duplicate_example_rows = defaultdict(list)
+    bad_date_samples = []
     security_samples = []
     cusip_like_security_values = set()
     nonblank_security = 0
@@ -152,6 +171,8 @@ def parse_csv_member(raw_stream, member_name: str, legacy: set[str], spec: dict)
             continue
         if dt is None:
             bad_dates += 1
+            if len(bad_date_samples) < 12:
+                bad_date_samples.append(row.get("date", ""))
             continue
         if dt < start or dt > end:
             out_of_range += 1
@@ -166,7 +187,17 @@ def parse_csv_member(raw_stream, member_name: str, legacy: set[str], spec: dict)
             security_values[security] += 1
             if re.fullmatch(r"[A-Z0-9]{9}", security.upper()):
                 cusip_like_security_values.add(security.upper())
-        duplicates[(ticker, dt.isoformat(), security)] += 1
+        key = (ticker, dt.isoformat(), security)
+        signature = tuple(raw)
+        duplicates[key] += 1
+        if key not in duplicate_signatures:
+            duplicate_signatures[key] = set()
+        duplicate_signatures[key].add(signature)
+        if duplicates[key] > 1 and len(duplicate_example_rows[key]) < 3:
+            duplicate_example_rows[key].append({
+                "ticker": ticker, "date": dt.isoformat(), "security": security,
+                "raw_row": raw,
+            })
         for field in NUMERIC_FIELDS:
             value = row.get(normalize_name(field), "")
             if value in ("", ".", "NA", "N/A", "NULL"):
@@ -194,8 +225,20 @@ def parse_csv_member(raw_stream, member_name: str, legacy: set[str], spec: dict)
         if security and len(security_samples) < 20 and security not in security_samples:
             security_samples.append(security)
 
-    duplicate_groups = sum(1 for n in duplicates.values() if n > 1)
-    duplicate_rows = sum(n - 1 for n in duplicates.values() if n > 1)
+    duplicate_keys = {k for k, n in duplicates.items() if n > 1}
+    duplicate_groups = len(duplicate_keys)
+    duplicate_rows = sum(duplicates[k] - 1 for k in duplicate_keys)
+    duplicate_conflicting_groups = sum(1 for k in duplicate_keys if len(duplicate_signatures[k]) > 1)
+    duplicate_exact_groups = duplicate_groups - duplicate_conflicting_groups
+    duplicate_examples = [
+        {
+            "key": list(k),
+            "count": duplicates[k],
+            "exact_duplicate_rows": len(duplicate_signatures[k]) == 1,
+            "rows": duplicate_example_rows.get(k, []),
+        }
+        for k in list(duplicate_keys)[:10]
+    ]
     daily_coverage = [len(legacy & date_tickers[d]) / len(legacy) for d in sorted(dates)]
     unique_legacy = legacy & tickers
     return {
@@ -209,6 +252,7 @@ def parse_csv_member(raw_stream, member_name: str, legacy: set[str], spec: dict)
         "max_date": max(dates).isoformat() if dates else None,
         "out_of_quarter_records": out_of_range,
         "bad_dates": bad_dates,
+        "bad_date_samples": bad_date_samples,
         "blank_tickers": blank_tickers,
         "malformed_rows": malformed,
         "unique_tickers": len(tickers),
@@ -221,6 +265,9 @@ def parse_csv_member(raw_stream, member_name: str, legacy: set[str], spec: dict)
         "legacy_335_full_coverage_days": sum(x == 1.0 for x in daily_coverage),
         "duplicate_key_groups": duplicate_groups,
         "duplicate_rows_beyond_first": duplicate_rows,
+        "duplicate_exact_key_groups": duplicate_exact_groups,
+        "duplicate_conflicting_key_groups": duplicate_conflicting_groups,
+        "duplicate_key_examples": duplicate_examples,
         "ticker_security_pairs": len(ticker_security_pairs),
         "unique_security_field_values": len(security_values),
         "security_field_nonblank_pct": round(100 * nonblank_security / rows, 2) if rows else 0.0,
