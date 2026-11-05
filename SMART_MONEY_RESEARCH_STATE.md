@@ -198,3 +198,12 @@ F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No forward-return test or produ
 - Source roles remain conditional: CRSP for inactive/delisted return validation; Databento for two-clock security identity; Norgate for historical index membership and delisted cross-check; AlgoSeek ASID as a lifecycle crosswalk pending record-known vintage proof. No vendor contact, purchase or data acquisition authorized.
 - Phase 99 report: `research/PHASE99_BROAD_PIT_UNIVERSE_CHARTER_2026-11-05.md`.
 - Next: recover Phase 70/71 artifacts/code to establish whether the original 335 selection rule is reproducible; if not, mark it unrecoverable and proceed only with the separately specified broad-universe feasibility gates.
+
+
+### 2026-11-05 — User clarification: original 335 selection was arbitrary
+
+- User confirms the 335 tickers were selected manually and arbitrarily; there was no formal selection methodology and the user does not recall a rule.
+- Supersedes the earlier Phase 99 next step to recover/reconstruct the 335 selection rule. **Do not spend further effort trying to reverse-engineer it.**
+- The 335-name list is a legacy F80 comparability set only. It is not a statistically defined sample, not a representative market universe, and not the primary universe for Smart Money Research.
+- F80 historical performance must be described as conditional on the manually selected 335 names. Preserve the set only for exact legacy comparison; build the broad research universe independently from point-in-time security/listing records with explicit eligibility rules and delisted coverage.
+- Phase 99 report corrected accordingly. No F80 change, data purchase, vendor contact, data acquisition or alpha test.
