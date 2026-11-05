@@ -95,3 +95,11 @@ Promote the new IVolatility OPRA signed-flow endpoint to the **highest-priority 
 Next gates: obtain/inspect the full endpoint dictionary and a representative authorized sample; validate all response fields, symbol/security IDs, delisted/adjusted options, trade conditions, corrections, classified-volume denominator, historical coverage by year and per-symbol, exact request limits and applicable license; establish historical knowledge-time or retain the strict PIT failure.
 
 No vendor was contacted, no trial/account was opened, no data was purchased, no terms were accepted, no forward returns were tested and no production settings changed. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+
+## 7. Repository execution preflight
+
+- Working branch: `phase99-broad-pit-universe-charter`; current Phase 137 head: `1dd8c69bc7e83f5d29c728b591dc3999161c2045`.
+- PR [#13](https://github.com/jafelix81/NuevaEstrategia/pull/13) remains open, unmerged and mergeable. It is 250 commits ahead of the merge base and one commit behind the current `main` head; GitHub reports mergeable=true.
+- The latest run-specific Actions execution directly inspected was Phase 136 run [42115525546](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42115525546). Its job log shows compile, six offline tests, public-sample retrieval and aggregate artifact upload completed successfully; artifact [13455975956](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42115525546/artifacts/13455975956) exists. The job is completed, not running.
+- The current head has no combined-status entries and no PR-triggered workflow runs attached. The available GitHub integration exposes run-specific jobs/logs/artifacts but not a repository-wide Actions-run listing, so this is the latest verifiable run rather than an exhaustive all-runs census. No workflow was dispatched or duplicated. Phase 136's workflow is path-filtered to its own script/tests/spec/workflow; this documentation-only Phase 137 update does not match those paths.
