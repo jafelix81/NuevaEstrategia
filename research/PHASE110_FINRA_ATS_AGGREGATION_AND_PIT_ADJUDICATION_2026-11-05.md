@@ -133,3 +133,7 @@ Run the offline adjudicator against the Phase 109 artifact ZIP:
     python research/phase110_finra_ats_artifact_adjudication.py phase109-finra-ats-full-reconciliation.zip --output phase110_summary.json
 
 The four regression tests cover product-feed total reconciliation, the valid NA ticker, genuinely missing symbols, and use of the latest update date for a final revised value.
+
+
+## 2026-11-05 addendum — explicit user certification requirement
+FINRA's OTC Transparency Website User Guide v6.0 states that the user must affirmatively certify on each visit to access OTC Transparency data and must click "I AGREE" after reviewing the Terms of Use (guide pp. 5–6). Its 2016 screenshots establish that historical weekly data existed in the interface, but they do not prove that the current download archive is still available. No acceptance was made and no attempt was made to bypass the certification. The older website archive is therefore a user-action gate; the existing Developer API audit remains separate.
