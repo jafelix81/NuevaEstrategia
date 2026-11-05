@@ -52,3 +52,8 @@ No feature will be interpreted as directional short pressure a priori.
 `ACTUAL_FILE_GATE_TRIGGERED_2026-10-30`
 
 The Phase 43 workflow is present on `main` and a fresh main-branch content commit has now been issued to trigger the actual-file audit. No alpha work is authorized until the workflow validates the representative files and universe/PIT coverage. No alpha conclusion. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## 2026-11-05 execution reconciliation
+
+The latest Actions history contained no completed or active run for this workflow, despite the earlier state note saying the actual-file gate had been triggered. That note was premature. The workflow is being made branch-runnable and re-executed from the Phase 99/100 research branch. This remains a parser/schema audit only; no forward-return test is included.
