@@ -35,8 +35,14 @@ FIELDS = [
     "totalWeeklyTradeCount",
     "initialPublishedDate",
     "lastUpdateDate",
+    "lastReportedDate",
 ]
 SYMBOL_AGGREGATES = {"ATS_W_SMBL", "OTC_W_SMBL"}
+FIRM_LEVEL_TYPES = {"ATS_W_FIRM", "OTC_W_FIRM"}
+KNOWN_SUMMARY_TYPES = {
+    "ATS_W_FIRM", "ATS_W_SMBL", "ATS_W_SMBL_FIRM", "ATS_W_VOL_STATS",
+    "OTC_W_FIRM", "OTC_W_SMBL", "OTC_W_SMBL_FIRM", "OTC_W_VOL_STATS",
+}
 
 
 def load_legacy_universe() -> set[str]:
@@ -96,8 +102,15 @@ def validate_partition_rows(rows: list[dict], week: str, tier: str) -> list[str]
             problems.append(f"row {i}: weekStartDate={actual_week!r}, expected {week}")
         if actual_tier != tier:
             problems.append(f"row {i}: tierIdentifier={actual_tier!r}, expected {tier}")
-        if not str(row.get("issueSymbolIdentifier") or "").strip():
-            problems.append(f"row {i}: missing issueSymbolIdentifier")
+        summary_type = str(row.get("summaryTypeCode") or "").strip().upper()
+        if summary_type not in KNOWN_SUMMARY_TYPES:
+            problems.append(f"row {i}: unknown or missing summaryTypeCode={summary_type!r}")
+        # FINRA firm-level totals intentionally have no security symbol.
+        # Every other known summary type must retain its exact symbol.
+        if summary_type not in FIRM_LEVEL_TYPES and not str(row.get("issueSymbolIdentifier") or "").strip():
+            problems.append(
+                f"row {i}: missing issueSymbolIdentifier for summaryTypeCode={summary_type!r}"
+            )
     return problems
 
 
@@ -181,8 +194,10 @@ def summarize_partition(rows: list[dict], week: str, tier: str, legacy: set[str]
 
     publication_dates = [parse_date(r.get("initialPublishedDate")) for r in aggregate_rows]
     update_dates = [parse_date(r.get("lastUpdateDate")) for r in aggregate_rows]
+    reported_dates = [parse_date(r.get("lastReportedDate")) for r in aggregate_rows]
     valid_publications = [x for x in publication_dates if x]
     valid_updates = [x for x in update_dates if x]
+    valid_reported = [x for x in reported_dates if x]
     week_date = date.fromisoformat(week)
     expected_delay = 14 if tier == "T1" else 28
     publication_lags = [(x - week_date).days for x in valid_publications]
@@ -191,24 +206,57 @@ def summarize_partition(rows: list[dict], week: str, tier: str, legacy: set[str]
         1 for pub, upd in zip(publication_dates, update_dates)
         if pub and upd and upd > pub
     )
+    reported_after_publish = sum(
+        1 for pub, reported in zip(publication_dates, reported_dates)
+        if pub and reported and reported > pub
+    )
 
-    duplicate_counts = Counter()
+    duplicate_groups = {}
     invalid_quantities = 0
+    missing_symbol_by_type = Counter()
+    unknown_summary_types = Counter()
     for row in aggregate_rows:
+        summary_type = str(row.get("summaryTypeCode") or "MISSING").upper()
+        if not str(row.get("issueSymbolIdentifier") or "").strip():
+            missing_symbol_by_type[summary_type] += 1
+        if summary_type not in KNOWN_SUMMARY_TYPES:
+            unknown_summary_types[summary_type] += 1
         key = (
             str(row.get("issueSymbolIdentifier") or "").strip().upper(),
             str(row.get("weekStartDate") or "")[:10],
             str(row.get("tierIdentifier") or "").upper(),
-            str(row.get("summaryTypeCode") or "").upper(),
+            summary_type,
             str(row.get("productTypeCode") or "").upper(),
         )
-        duplicate_counts[key] += 1
+        duplicate_groups.setdefault(key, []).append(row)
         if parse_nonnegative_number(row.get("totalWeeklyShareQuantity")) is None:
             invalid_quantities += 1
         if parse_nonnegative_number(row.get("totalWeeklyTradeCount")) is None:
             invalid_quantities += 1
 
-    duplicates = sum(count - 1 for count in duplicate_counts.values() if count > 1)
+    duplicate_key_groups = {k: v for k, v in duplicate_groups.items() if len(v) > 1}
+    duplicates = sum(len(v) - 1 for v in duplicate_key_groups.values())
+    exact_duplicate_groups = 0
+    conflicting_duplicate_groups = 0
+    duplicate_examples = []
+    for key, group in list(duplicate_key_groups.items())[:10]:
+        normalized = {
+            tuple(str(row.get(field) or "") for field in FIELDS)
+            for row in group
+        }
+        if len(normalized) == 1:
+            exact_duplicate_groups += 1
+        else:
+            conflicting_duplicate_groups += 1
+        duplicate_examples.append({
+            "key": list(key),
+            "row_count": len(group),
+            "exact_duplicate_rows": len(normalized) == 1,
+            "rows": [
+                {field: row.get(field) for field in FIELDS}
+                for row in group[:3]
+            ],
+        })
     union_coverage = len(legacy & aggregate_symbols) / len(legacy)
     ats_coverage = len(legacy & ats_symbols) / len(legacy)
     otc_coverage = len(legacy & otc_symbols) / len(legacy)
@@ -229,12 +277,23 @@ def summarize_partition(rows: list[dict], week: str, tier: str, legacy: set[str]
         "legacy_335_union_coverage_pct": round(100 * union_coverage, 2),
         "initial_published_date_nonnull_pct": round(100 * len(valid_publications) / len(aggregate_rows), 2) if aggregate_rows else 0.0,
         "last_update_date_nonnull_pct": round(100 * len(valid_updates) / len(aggregate_rows), 2) if aggregate_rows else 0.0,
+        "last_reported_date_nonnull_pct": round(100 * len(valid_reported) / len(aggregate_rows), 2) if aggregate_rows else 0.0,
+        "last_reported_lag_days_min": min((x - week_date).days for x in valid_reported) if valid_reported else None,
+        "last_reported_lag_days_median": sorted((x - week_date).days for x in valid_reported)[len(valid_reported)//2] if valid_reported else None,
+        "last_reported_lag_days_max": max((x - week_date).days for x in valid_reported) if valid_reported else None,
+        "last_reported_after_initial_publish_rows": reported_after_publish,
+        "missing_symbol_by_summary_type": dict(sorted(missing_symbol_by_type.items())),
+        "unknown_summary_type_counts": dict(sorted(unknown_summary_types.items())),
+        "duplicate_aggregate_key_groups": len(duplicate_key_groups),
+        "duplicate_aggregate_keys": duplicates,
+        "exact_duplicate_key_groups": exact_duplicate_groups,
+        "conflicting_duplicate_key_groups": conflicting_duplicate_groups,
+        "duplicate_aggregate_key_examples": duplicate_examples,
         "publication_lag_days_min": min(publication_lags) if publication_lags else None,
         "publication_lag_days_median": sorted(publication_lags)[len(publication_lags)//2] if publication_lags else None,
         "publication_lag_days_max": max(publication_lags) if publication_lags else None,
         "publication_before_minimum_delay_rows": early_publications,
         "last_update_after_initial_publish_rows": post_publish_updates,
-        "duplicate_aggregate_keys": duplicates,
         "invalid_or_negative_quantity_fields": invalid_quantities,
         "type_counts_json": json.dumps(dict(sorted(type_counts.items())), sort_keys=True),
     }
