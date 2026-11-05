@@ -73,3 +73,10 @@ The guarded sample audit has been triggered. It downloads only the public sample
 
 
 The first workflow attempt stopped at the offline tests because the fixture's 1.05 trade price was exactly the NBBO midpoint (1.00/1.10), while the test expected the generic inside-spread bucket. The parser correctly classified it as exact_midpoint. The test was corrected and a new run triggered; no live download occurred in the failed attempt.
+
+
+## First live attempt — run 42021426883
+
+The public sample ZIP downloaded successfully (HTTP 200, 3,561,778 bytes, SHA-256 a02504e156db28b3f007d9d25a534e4c88ffd8d24ac43f3bf84885583a3d10b8). Both reference mappings also downloaded successfully: exchange IDs (1,703 bytes) and trade-condition IDs (26,854 bytes). The sample archive did not expose a top-level CSV to the initial parser, so the schema gate remained incomplete; no live data conclusion was drawn.
+
+The parser has been extended to inspect nested ZIP/GZIP members and identify CSV payloads by their header, not merely by filename extension. Offline tests were corrected and the live audit is being retried. The first run did not fail because of Cboe data; it failed to recognize the sample's archive structure.
