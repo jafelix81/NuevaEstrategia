@@ -2,7 +2,7 @@
 
 **Date:** 2026-11-05  
 **Parent audit:** Phase 100 / 107, run 41978867803  
-**Status:** live targeted re-query running; no returns or alpha test.
+**Status:** completed successfully in Actions run 41983989795; targeted anomaly objective passed; no returns or alpha test.
 
 ## Purpose
 
@@ -67,3 +67,15 @@ FINRA symbol/firm rows can identify a reporting ATS or broker-dealer, not the be
 ## Controls
 
 No prices or forward returns are downloaded or joined. No alpha test is authorized. No vendor is contacted or purchased. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+
+## 2026-11-05 result (supersedes the in-progress status above)
+
+The full result is recorded in `research/PHASE108_FINRA_ATS_ANOMALY_RESOLUTION_RESULT_2026-11-05.md`.
+
+- Both targeted partitions completed (2022-01-03/T2: 139,176 rows; 2025-01-06/T2: 136,362 rows), 56 pages total, exact FINRA Record-Total reconciliation, zero week/tier mismatches, zero request errors.
+- Coarse-key collisions (9,653 and 8,964 groups) disappear under the expanded diagnostic key (coarse key + MPID + firmCRDNumber + lastReportedDate): zero expanded-key collision groups in either partition.
+- LND's apparent symbol-level collisions are distinct reporting-date cohorts; no row was discarded. OTC symbol-level values match the corresponding De Minimis Firm rows; ATS symbol-level rows show a cohort/cumulative relationship that must be reconciled across all ten Phase 100 partitions before feature construction.
+- The two 2022 blank-symbol rows are unallocated OTC rows (De Minimis Firms and UTP), not week/tier mismatches. Exclude from security-level features but preserve in completeness accounting.
+- 129/35,210 symbol aggregate rows (0.366%) have lastUpdateDate later than initialPublishedDate. Current records do not provide the original post-publication vintages.
+- Decision: Phase 108 objective PASS; FINRA ATS remains conditional. No alpha/returns test until expanded-key and aggregation reconciliation across all ten Phase 100 partitions, PIT/revision handling and permanent security identity pass.
