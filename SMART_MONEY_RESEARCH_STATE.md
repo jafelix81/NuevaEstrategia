@@ -251,3 +251,14 @@ F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No forward-return test or produ
 - Official docs: https://datashop.cboe.com/enhanced-us-options-trade-by-trade-execution-detail and https://datashop.cboe.com/documents/TBT_Spec_v1.1.pdf.
 
 F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. Phases 112–113 are source-feasibility work only; no alpha test or production change.
+
+
+## 2026-11-05 — Phase 113 Cboe TBT public sample completed
+- Run 42023896730 completed successfully; all 9 offline tests passed; artifact 13413280759. Sample ZIP HTTP 200, 3,807,739 bytes, SHA-256 6c99e69e43d259e81bc31334574579cf9c623f5e77ff596cacf268712cd3262c. Current TBT v1.1 PDF HTTP 200, SHA-256 e70599e0829dc5d030ac2e47b73fbd12afd6b7b31047d3ae354bbd884e65dffa.
+- Nested 2025-03-28 sample CSV has 113,018 rows, 1,250 underlyings, C1 only, sample filename says 3%. Required schema, transaction/trading-date parsing, positive sizes/prices, capacities and exact-row uniqueness passed. Gate is PASS_PARSE_WITH_UNRESOLVED_CONVENTIONS, not economic approval.
+- The sample archive embeds v1.0 spec dated 2026-01-12; current v1.1 is dated 2026-10-05. Both specify SIDE B/S, OPEN_CLOSE O/C and trading segment examples 1=prior-evening/overnight, 2=daytime. Sample has SIDE=T on 69 rows (all also blank open_close), blank open_close on 20,180 rows (17.86%), and TRADING_SEGMENT=1 on every row including RTH. Do not infer T as buy/sell, impute O/C, or rely on trading_segment. T is observed only in Complex Add/Remove, COA Initiator/Responder and Opening Cross rows; blank O/C spans 19 trade types.
+- 306 calendar-date mismatches between transact_time and TRADING_DT are all GTH; no RTH/Curb mismatch. NBBO: 111,756 valid, 45 locked, 12 crossed, 1,205 zero/missing. BBO: 109,410 valid, 3,608 zero/missing. Floor-action timestamp on 618 rows: 61 >=90s late, 557 under 90s, zero negative. EXEC_ID has 1,685 repeated groups, all with both B/S sides; these are linkage pairs, not duplicates. COMPLEX_EXEC_ID has 2,875 repeated groups; exact duplicate rows zero.
+- Decision: retain C1 TBT as the highest-information conditional options candidate (explicit side/open-close/capacity/trade-type, history advertised from 2019-10-07, T+1), but do not use a directional/open-close feature until sample conventions are explained and C1 Open-Close reconciliation passes. C1-only and a 3% sample do not prove whole-OPRA or broad PIT coverage. See research/PHASE113_CBOE_TBT_SAMPLE_FEASIBILITY_2026-11-05.md.
+- Next: same-date/same-series C1 TBT vs C1 Open-Close reconciliation, historical 2019-10-07 boundary/missingness, broad PIT underlying crosswalk including delisted names, and historical T+1/correction availability. No forward returns or alpha test.
+
+F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No source from Phases 112–113 is promoted to an investment signal.
