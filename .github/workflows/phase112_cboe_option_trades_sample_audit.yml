@@ -25,7 +25,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install dependency
-        run: python -m pip install --upgrade requests
+        run: python -m pip install --upgrade requests openpyxl
       - name: Offline parser tests
         run: python -m unittest -v research/test_phase112_cboe_option_trades_sample_audit.py
       - name: Download and audit public sample
