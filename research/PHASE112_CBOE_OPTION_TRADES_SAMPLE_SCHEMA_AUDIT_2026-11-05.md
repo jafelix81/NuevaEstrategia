@@ -89,3 +89,12 @@ The second attempt identified two nested ZIP variants for the same sample date, 
 - Calcs excluded: nested ZIP 1,471,241 bytes; CSV 7,923,505 bytes; 74,999 data records.
 
 These are alternative schema variants for the same trade date, not independent trade populations and must not be added together. The current sample omits the legacy number_of_exchanges field described in the v1.3 PDF; the parser no longer requires that legacy field and now accepts ISO-formatted trade timestamps. A third run will validate the actual records and compare sequence-key hashes between the two variants.
+
+
+## Sample schema discrepancy discovered
+
+The nested CSVs expose two deviations from the published v1.3 layout:
+- market_date is formatted as M/D/YYYY (for example, 1/7/2026), not yyyy-mm-dd;
+- quote_datetime is represented in the sample as a compact two-component clock string (for example, 21:30.4), not the documented full YYYY-MM-DD HH:MM:SS.000 timestamp.
+
+The parser now preserves and classifies these values without inventing a timezone or timestamp interpretation. This is a material schema/version issue: daily market-date research may still be feasible, but intraday sequencing/time-of-day analysis is not approved until the representation is explained or independently validated. OPRA sequence_number may provide an ordering key, but that too must be tested rather than assumed.
