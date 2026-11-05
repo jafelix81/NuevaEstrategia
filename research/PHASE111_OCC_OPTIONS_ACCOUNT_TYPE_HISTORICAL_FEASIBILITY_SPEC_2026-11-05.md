@@ -100,3 +100,23 @@ The first live audit completed successfully and uploaded artifact 13411093545 (3
 - The initial run's summary incorrectly marked the 2026 date as not matching because the OCC header is MMDDYYYY while the request parameter is YYYYMMDD. The fixed-width parser itself recovered all rows. The date normalization has been corrected before any pass/fail conclusion.
 
 A second, non-duplicative boundary audit is being run for 2024-11-04, 2024-11-05 and 2024-11-06, plus the same recent reference date 2026-11-03. This will identify whether the effective cutoff aligns with the page's 24-month statement.
+
+
+## Boundary audit result — run 42020739832
+
+The second run completed successfully. Artifact 13411995693 (1,226,160 bytes; ZIP SHA-256 bfb73265e210c9a46c49981442534a24be662ad321747d56e85fd2af0764580c). The offline parser tests and live download job both passed.
+
+| Activity date | Rows | Unique option symbols | Group keys | Exchanges | Customer volume | Firm volume | Market-maker volume |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| 2024-11-04 | 37,750 | 4,207 | 4,051 | 18 | 38,347,734 | 6,127,697 | 42,396,869 |
+| 2024-11-05 | 37,481 | 4,206 | 4,069 | 18 | 39,890,114 | 6,821,068 | 45,511,042 |
+| 2024-11-06 | 42,266 | 4,537 | 4,342 | 18 | 62,212,903 | 9,143,552 | 66,613,063 |
+| 2026-11-03 | 41,847 | 4,631 | 4,393 | 20 | 50,334,339 | 5,339,753 | 58,497,402 |
+
+All four dates had matching report-header dates, zero duplicate Group/Symbol/Exchange keys, zero unknown exchange codes, zero malformed rows, zero invalid numeric rows and zero negative volume values.
+
+Together with the first run, 2016-05-31, 2019-05-31 and 2023-11-03 returned identical 41-byte non-data responses, while 2024-11-04 through 2026-11-03 returned valid daily files. This is consistent with the UI's stated rolling 24-month availability; it does **not** establish a longer daily history. The exact earliest cutoff was not exhaustively searched.
+
+**Decision:** park OCC Volume by Account Type as a recent participant-composition/context dataset, not a primary long-history alpha source. The four-date sample is a feasibility check, not a continuous-history or survivorship audit. It lacks buy/sell direction, opening/closing classification and beneficial-owner identity; account-type volume must not be called institutional flow. No returns test is justified.
+
+The OCC annual report mode was not pursued: an annual aggregate would not solve the missing daily point-in-time history needed for the intended signal. Any future use must first establish the exact report release time and a historical security crosswalk.
