@@ -4,6 +4,7 @@ from research.phase69_form144_incremental_fund_registrant_scan import (
     NEW_FUND_REGISTRANT_CIKS,
     audit_overlap,
     derive_new_ciks,
+    incremental_data_gate_status,
     merge_events,
     merge_rows,
     validate_base,
@@ -60,6 +61,26 @@ class Phase69IncrementalFundRegistrantTests(unittest.TestCase):
         incremental_events = [{"accession":"C","value":3}]
         merged = merge_events(base_events, incremental_rows, incremental_events)
         self.assertEqual({e["accession"] for e in merged}, {"B","C"})
+
+    def test_zero_candidate_scan_is_not_mislabeled_as_xml_validated(self):
+        gates = {
+            "mapping": True,
+            "controls": True,
+            "incremental_xml_fetch_success_ge_99_5pct": None,
+            "incremental_role_resolution_ge_99_9pct": None,
+            "incremental_pair_concordance_ge_99_9pct": None,
+        }
+        self.assertEqual(incremental_data_gate_status(gates, 0),
+                         "PASS_NO_INCREMENTAL_CANDIDATES")
+        gates["controls"] = False
+        self.assertEqual(incremental_data_gate_status(gates, 0), "FAIL")
+
+    def test_nonempty_candidate_scan_requires_evaluated_xml_gates(self):
+        gates = {
+            "mapping": True,
+            "incremental_xml_fetch_success_ge_99_5pct": None,
+        }
+        self.assertEqual(incremental_data_gate_status(gates, 1), "FAIL")
 
     def test_base_artifact_requires_pass_and_exact_counts(self):
         summary = {
