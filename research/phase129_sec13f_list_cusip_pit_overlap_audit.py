@@ -224,7 +224,7 @@ def select_latest(snapshots, filing_date, available_field):
 
 def audit(phase124_dir: Path, phase127_dir: Path, output_dir: Path):
     s124 = json.loads((phase124_dir / "phase124_global_13dg_summary.json").read_text(encoding="utf-8"))
-    s127 = json.loads((phase127_dir / "phase127_sec_13dg_cusip_summary.json").read_text(encoding="utf-8"))
+    s127 = json.loads((phase127_dir / "phase127_sec_13dg_xml_cusip_summary.json").read_text(encoding="utf-8"))
     rows124 = read_csv(phase124_dir / "phase124_global_13dg_submission_audit.csv")
     rows127 = read_csv(phase127_dir / "phase127_sec_13dg_xml_cusip_audit.csv")
     if len(rows124) != 600 or len(rows127) != 599:
