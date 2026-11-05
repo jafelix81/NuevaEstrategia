@@ -329,3 +329,14 @@ F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No source from Phases 112–113
 - Phase 122 report: `research/PHASE122_SEC_13DG_XML_OWNERSHIP_CONTINUITY_AUDIT_2026-11-05.md`; auditor `research/phase122_sec_13dg_xml_ownership_continuity_audit.py`; seven tests; workflow `.github/workflows/phase122_sec_13dg_xml_ownership_continuity_audit.yml`.
 - Decision: 13D/G remains conditional, not alpha-ready. The 45-link stratified pilot is not a global census; still required are historical subject-issuer discovery, effective-dated CUSIP/security mapping, inactive/delisted coverage, legacy HTML parsing and independently verified dissemination timing. No forward returns, feature selection, alpha test, paid data, or production changes.
 - F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## 2026-11-05 — Phase 123 SEC 13D/13G regulatory PIT regime audit
+
+- Added research/PHASE123_SEC_13DG_REGULATORY_PIT_REGIME_AUDIT_2026-11-05.md from the SEC final rule Release Nos. 33-11253 / 34-98704.
+- Do not use one 2024 break for all filings: Schedule 13D deadline amendments apply from 2024-02-05; revised Schedule 13G deadlines apply only from 2024-09-30; mandatory 13D/G XML compliance begins 2024-12-18 (voluntary XML from 2023-12-18).
+- Schedule 13D initial >5% deadline changed from 10 calendar days to five business days; material amendments changed from “promptly” to two business days. Schedule 13G QII/exempt, passive and accelerated >10%/5%-change rules differ and must be classified separately.
+- EDGAR transmissions by 10 p.m. Eastern can be assigned the same business-day filing date. Preserve SEC acceptance datetime, filing date, event date and first tradable session as separate fields.
+- Event date is not public knowledge time. Use the first regular U.S. equity session whose open occurs after verified acceptance as the conservative tradable-availability convention; do not backdate ownership snapshots.
+- SEC economic analysis notes possible pre-filing anticipation by other traders around Schedule 13D. This is a hypothesis about foreknowledge/run-up, not evidence that public filing signals have post-publication alpha. Separate pre-filing return-chasing from post-publication incremental information.
+- Decision: regulatory timing/schema breaks are now explicit, but 13D/G remains not alpha-ready until global subject-issuer discovery, effective-dated security identity, delisted coverage and legacy HTML parsing pass. No returns/alpha tests or F80 changes.
