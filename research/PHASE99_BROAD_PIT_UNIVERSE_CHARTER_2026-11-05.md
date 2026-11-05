@@ -6,6 +6,8 @@
 
 ## Executive decision
 
+**User clarification (2026-11-05):** the 335 tickers were selected manually and arbitrarily by the user; there was no remembered or documented selection methodology. Therefore there is no historical selection rule to recover. Do not spend further research effort trying to reverse-engineer a nonexistent rule, and do not imply the 335 represent a statistically designed sample.
+
 The 335 tickers are a frozen **F80 comparability universe**, not the ceiling of Smart Money Research. All future source audits and candidate-signal research may cover a broader historical population. A new broad-universe strategy must have its own name, immutable universe specification, point-in-time security identities and independent validation. It must never silently rewrite F80's historical universe or retroactively assign today's constituents to earlier dates.
 
 The research should maintain distinct universe tracks rather than select one universe after seeing returns:
@@ -124,9 +126,10 @@ A signal that works only in F80 is not automatically generalizable. A signal tha
 
 ## 7. Immediate next steps
 
-1. Recover and inspect the exact Phase 70/71 artifacts and code to determine whether the 335 selection rule can be reconstructed; if not, formally classify it as unrecoverable rather than guessing.
-2. Run a non-purchase feasibility design for CRSP, Databento and Norgate against the gates above. Do not infer a vendor's coverage from marketing headline counts.
-3. Create a small, stratified, locally reproducible identity test plan covering IPOs, delistings, symbol reuse, share classes, ADRs, REITs, BDCs, mergers and relistings. Actual vendor sample acquisition/contact still requires user authorization.
-4. Keep all current signal hypotheses gated from broad-universe returns until the population and security-identity gates pass.
+1. Stop attempts to reconstruct the original 335 selection rule; the user confirms it was arbitrary/manual and no formal rule existed.
+2. Treat F80's historical results as conditional on this manually selected set. Preserve the 335 only to reproduce and compare the legacy F80 strategy; do not use it as the primary sample for claims about the US equity market.
+3. Run a non-purchase feasibility design for CRSP, Databento and Norgate against the gates above. Do not infer a vendor's coverage from marketing headline counts.
+4. Create a small, stratified, locally reproducible identity test plan covering IPOs, delistings, symbol reuse, share classes, ADRs, REITs, BDCs, mergers and relistings. Actual vendor sample acquisition/contact still requires user authorization.
+5. Keep all current signal hypotheses gated from broad-universe returns until the population and security-identity gates pass.
 
 **Phase 99 decision:** Smart Money Research is no longer restricted to the 335 F80 tickers. The 335 remains a frozen legacy comparison set. The broad-universe track is authorized for specification and public-documentation/data-feasibility work only; no vendor purchase or return test is authorized.
