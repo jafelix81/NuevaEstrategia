@@ -1,0 +1,32 @@
+name: Phase 119 SEC 13D-G XML lineage audit tests
+
+on:
+  push:
+    branches:
+      - phase99-broad-pit-universe-charter
+    paths:
+      - research/phase119_sec_13dg_xml_lineage_audit.py
+      - research/test_phase119_sec_13dg_xml_lineage_audit.py
+      - research/PHASE119_SEC_13DG_XML_SCHEMA_AND_LINEAGE_FEASIBILITY_2026-11-05.md
+      - .github/workflows/phase119_sec_13dg_xml_lineage_audit.yml
+  pull_request:
+    paths:
+      - research/phase119_sec_13dg_xml_lineage_audit.py
+      - research/test_phase119_sec_13dg_xml_lineage_audit.py
+      - .github/workflows/phase119_sec_13dg_xml_lineage_audit.yml
+
+permissions:
+  contents: read
+
+jobs:
+  offline-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile lineage auditor
+        run: python -m py_compile research/phase119_sec_13dg_xml_lineage_audit.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase119_sec_13dg_xml_lineage_audit
