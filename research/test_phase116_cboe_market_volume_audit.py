@@ -35,6 +35,15 @@ class Phase116Tests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "arithmetic"):
             phase116.parse_csv((header + "\n" + row + "\n").encode(), "daily", 2026)
 
+
+    def test_notional_rounding_tolerance(self):
+        header = ",".join(phase116.DAILY_HEADER)
+        # The source rounds each tape and the total to one decimal; independent
+        # rounding can leave a 0.11 difference without a substantive mismatch.
+        row = "2009-01-09,NYSE Arca (P),0,0,0,0,1,1,1,2.89,0,0,0,0"
+        parsed = phase116.parse_csv((header + "\\n" + row + "\\n").encode(), "daily", 2009)
+        self.assertEqual(parsed["rows"], 1)
+
     def test_negative_value_rejected(self):
         header = ",".join(phase116.DAILY_HEADER)
         row = "2026-01-02,NYSE,1,2,-3,0,10,20,30,60,1,2,3,6"
