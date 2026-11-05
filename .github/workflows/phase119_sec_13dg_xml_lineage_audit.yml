@@ -7,13 +7,10 @@ on:
     paths:
       - research/phase119_sec_13dg_xml_lineage_audit.py
       - research/test_phase119_sec_13dg_xml_lineage_audit.py
-      - research/PHASE119_SEC_13DG_XML_SCHEMA_AND_LINEAGE_FEASIBILITY_2026-11-05.md
-      - .github/workflows/phase119_sec_13dg_xml_lineage_audit.yml
   pull_request:
     paths:
       - research/phase119_sec_13dg_xml_lineage_audit.py
       - research/test_phase119_sec_13dg_xml_lineage_audit.py
-      - .github/workflows/phase119_sec_13dg_xml_lineage_audit.yml
 
 permissions:
   contents: read
