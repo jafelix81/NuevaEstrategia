@@ -47,7 +47,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Reconcile body issuer identity and header CIK roles
         run: >-
-          python research/phase126_sec_13dg_body_issuer_identity_audit.py
+          python -m research.phase126_sec_13dg_body_issuer_identity_audit
           --phase124-dir inputs/phase124 --phase125-dir inputs/phase125 --output-dir out
       - name: Upload immutable Phase 126 body-first identity audit
         if: always()
