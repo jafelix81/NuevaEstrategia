@@ -7,14 +7,10 @@ on:
     paths:
       - research/phase118_sec_13dg_phase84_adjudication.py
       - research/test_phase118_sec_13dg_phase84_adjudication.py
-      - research/PHASE118_SEC_13DG_PHASE84_ARTIFACT_ADJUDICATION_2026-11-05.md
-      - SMART_MONEY_RESEARCH_STATE.md
-      - .github/workflows/phase118_sec_13dg_phase84_adjudication.yml
   pull_request:
     paths:
       - research/phase118_sec_13dg_phase84_adjudication.py
       - research/test_phase118_sec_13dg_phase84_adjudication.py
-      - .github/workflows/phase118_sec_13dg_phase84_adjudication.yml
 
 permissions:
   contents: read
