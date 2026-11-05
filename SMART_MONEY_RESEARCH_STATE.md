@@ -157,7 +157,7 @@ F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No forward-return test or produ
 ### Form 144 — incremental current-CIK extension
 - Phase 67 completed current-CIK census for 14 quarters (2023Q2–2026Q3): 21,648 candidates, 21,634 issuer-event rows, 14 filer-only false positives excluded, zero unresolved rows, zero XML processing errors, and 280/280 controls concordant.
 - Phase 68 expanded the current map to 335/335 tickers and 319 candidate registrant CIKs; fund series/class identity must not be fanned out across every ticker under a trust.
-- Phase 69 run 41959603351 is currently in progress on branch `phase69-incremental-form144-fund-registrants`; offline regression tests passed. The incremental ten-CIK SEC scan is running. Do not launch a duplicate while this run is active. No economic test is authorized.
+- Phase 69 run 41959603351 completed successfully; artifact 13385365595. The ten newly mapped fund-registrant CIKs added zero Form 144/144-A candidates in the 14-quarter 2023Q2–2026Q3 census. Phase 98 closed this same-set/same-period extension; do not repeat without a materially changed CIK set, period, or source. XML identity sub-gates are not applicable on the zero-candidate denominator, not validated passes.
 
 ### Binding blocker and current priority
 - Phase 70/71 did not recover the original 335-name universe-selection rule or dated historical membership. Fixed-335 results remain conditional on a present-day curated set; a security master alone cannot restore omitted delisted/failed names.
@@ -285,3 +285,14 @@ F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No source from Phases 112–113
 - Official references: https://www.cboe.com/markets/us/equities/market-statistics/historical-market-volume/ and https://www.cboe.com/us/equities/market_share/market/.
 - Cboe C1 Open-Close EOD remains the highest-information conditional options candidate (Phases 114/115); Phase 116 is a separate public market-regime control.
 - No data purchase/contact, no alpha test, no F80 changes. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## 2026-11-05 — Phase 117 FINRA ATS/OTC revision-impact and PIT eligibility
+
+- Replayed the immutable Phase 109 raw artifact (968,139 rows; 108,444 symbol aggregates across five weeks and T1/T2). The raw compressed-row SHA-256 was verified as `45b6b169c1d57a1874438362295a656c5bc6499b2c29d6e3be8bd10a48425231`.
+- In all 108,444 aggregate rows, `lastUpdateDate = max(initialPublishedDate, lastReportedDate)`. 1,882 rows (1.735%) have an update marker later than first publication.
+- Revisions are concentrated in T1 OTC non-ATS: 1,428/10,668 rows (13.386%). Dropping revised rows would retain only 66.76% of shares and 63.79% of trades in that family. Overall it retains 89.92% of shares and 88.56% of trades; this is not a neutral exclusion.
+- Critical PIT ruling: filtering out rows because the current extract shows they were eventually revised is itself future-informed selection. Do not call that an unbiased PIT subset. Do not backdate current final values to `initialPublishedDate`. `lastUpdateDate` is an underlying firm-update marker, not a documented public dissemination timestamp; +1/+5 session buffers remain sensitivities only.
+- FINRA ATS/OTC remains conditional, not alpha-ready. Need verified public update timing or actual vintages/prospective immutable captures, plus permanent security identity and delisted coverage. No forward-return test or F80 change.
+- Reproducible audit: `research/phase117_finra_ats_pit_revision_impact.py`; six offline tests pass. Full report: `research/PHASE117_FINRA_ATS_PIT_REVISION_IMPACT_2026-11-05.md`.
+- Phase 69 state corrected: run 41959603351 completed with zero incremental Form 144 candidates for the ten-CIK extension; do not repeat unchanged scan.
