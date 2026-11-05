@@ -18,7 +18,7 @@ The audit successfully downloaded all 18 annual daily files and all 18 annual mo
 | Last daily date | 2026-11-04 |
 | Daily trading dates | 4,488 |
 | Completed participant-month comparisons | 55,865 |
-| Offline parser/regression tests | 13/13 |
+| Offline parser/regression tests | 14/14 |
 | Live workflow | PASS |
 
 For every completed month available in both daily and monthly files, all participant-month comparisons passed across all 12 numeric measures (shares, notional and trade counts for Tapes A/B/C and totals) within explicit output-precision tolerances. Duplicate date/market-center and month/market-center keys, invalid numeric values, wrong-year dates and tape-total discrepancies beyond tolerance fail the audit.
@@ -66,3 +66,8 @@ A conservative next-session lag may be studied as a future sensitivity only afte
 - No vendor purchase, account creation, contact or data acquisition was performed or requested.
 
 The highest-information options candidate remains Cboe C1 Open-Close EOD (Phase 114/115), still conditional on paid historical archive access, PIT underlying mapping and final-file availability. Phase 116 is a separate public market-regime control, not a replacement for that options dataset.
+
+
+## 2026-11-05 execution-log correction
+
+The final successful run 42033472218 executed **14** offline regression tests (not 13); all 14 passed. The earlier failed attempt 42033447324 had one failing legacy TRF-code assertion and did not produce an audit artifact. The final run produced artifact 13416659256. The report's test count is corrected to match the successful job log.
