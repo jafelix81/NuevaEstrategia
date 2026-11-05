@@ -264,3 +264,16 @@ FINRA documentation describes initialPublishedDate as the first Monday or next b
 4. Keep OCC Volume Query as recent-only and SEC FTD/MIDAS as public candidates pending their actual-file/PIT gates.
 
 F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No production change, alpha claim, vendor contact, purchase, or data acquisition has occurred.
+
+
+### 2026-11-05 correction — SEC FTD actual-file gate now passed
+
+The prior note that the SEC FTD actual-file gate was pending is superseded. Phase 101 re-ran the existing Phase 43 parser audit successfully in Actions run 41970505481 (artifact 13389273464):
+
+- January 2018 first-half file: 43,567 valid records, 9,824 unique symbols, settlement dates 2018-01-02 through 2018-01-12.
+- September 2026 second-half file: 66,693 valid records, 13,394 unique symbols, settlement dates 2026-09-15 through 2026-09-30.
+- Both files passed header/schema checks, date/quantity/price validation, and exact trailer record-count and total-quantity reconciliation. The two trailer lines are metadata, not malformed data rows.
+
+SEC FTD is now a **public actual-file/schema feasibility pass**, not an alpha pass. The series is a cumulative net fail balance, not daily fails flow; the SEC warns it can arise from both long and short sales. Pre-2008-09-16 coverage has a 10,000-share threshold; later data includes all positive balances. The stated release schedule is approximate (first half at month-end; second half about the 15th of the next month) and the SEC does not guarantee exact posting dates. Next gates are multi-period continuity, CUSIP/symbol lifecycle mapping, PIT publication timing, and inactive-security return linkage. No forward-return test is authorized yet.
+
+The Phase 100 FINRA ATS revalidation run 41969978743 remained active at the last status check; its seven offline tests passed and its live historical partition audit had not yet completed. Do not duplicate it.
