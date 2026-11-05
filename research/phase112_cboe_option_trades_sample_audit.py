@@ -105,13 +105,16 @@ def parse_trade_csv(payload: bytes) -> dict[str, Any]:
             quote_raw = row["quote_datetime"]
             quote_format, quote_dt = classify_quote_datetime(quote_raw)
             quote_time_formats[quote_format] += 1
-            clock_match = re.fullmatch(r"(\\d+):(\\d+(?:\\.\\d+)?)", quote_raw)
+            clock_match = re.fullmatch(r"(\d+):(\d+(?:\.\d+)?)", quote_raw)
+            clock_components = None
             if clock_match:
                 major_component = int(clock_match.group(1))
                 seconds_component = float(clock_match.group(2))
                 if 0 <= seconds_component < 60:
-                    compact_clock_values.append((major_component, seconds_component, major_component * 60.0 + seconds_component, sequence if "sequence" in locals() else None))
+                    clock_components = (major_component, seconds_component, major_component * 60.0 + seconds_component)
             sequence = to_int(row["sequence_number"])
+            if clock_components is not None and sequence is not None:
+                compact_clock_values.append((*clock_components, sequence))
             root = row["root"]
             expiration = row["expiration"]
             strike = to_float(row["strike"])
