@@ -825,3 +825,12 @@ F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No source from Phases 112–113
 - Cboe C1 Open-Close EOD remains the leading options-flow candidate based on Phases 114/115 sample/accounting audits, but paid historical coverage, broad PIT underlying identity and final-file availability remain unresolved. No data purchase, vendor contact or terms acceptance.
 - Existing standalone Form 4, FINRA short-flow × short-interest, CFTC equity-index positioning and N-PORT dose-response hypotheses remain killed; do not retune them without a materially new preregistered mechanism.
 - No forward-return/alpha test or production change. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## 2026-11-05 — Phase 133 OCC Flex Reports contract-level OI audit (running)
+
+- Added the preregistered Phase 133 audit of the OCC Flex Reports endpoint (reportType=OI, optionType=E) across seven fixed dates from 2018-01-03 through 2026-11-04. It uses the full returned file and reports unique option contracts/underlying roots; it does not hard-code the original 335 ticker universe.
+- Workflow [42097577204](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42097577204) is active. Compilation and all seven offline regression tests passed. The seven-date live source audit is running; no artifact/result yet. Do not duplicate it.
+- This follows Phase 53B: OCC Volume Query passed recent 335-list diagnostics (645/670 valid ticker-date responses, 96.27%) but the OCC UI confirms a 24-month retention boundary; the endpoint aggregates call/put volume by Customer/Firm/Market Maker and exchange, without buy/sell side, open/close, strike/expiry or OI. It fails long-horizon OOS feasibility and is not a standalone Smart Money signal.
+- Phase 133 tests whether the separate Flex Reports OI endpoint exposes a longer contract-level history. Its result will still require independent public-release timing, revision, effective-dated underlying identity and economic-incrementality gates. No alpha test is authorized.
+- F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
