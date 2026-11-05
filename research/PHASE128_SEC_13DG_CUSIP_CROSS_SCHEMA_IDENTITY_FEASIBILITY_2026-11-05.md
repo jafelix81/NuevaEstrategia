@@ -1,7 +1,7 @@
 # Phase 128 — SEC 13D/G CUSIP cross-schema identity feasibility
 
 **Date:** 5 November 2026  
-**Status before CI:** Deterministic re-adjudication of immutable artifacts; workflow validation pending.
+**Status:** PASS — artifact-only cross-schema identity audit validated by GitHub Actions.
 
 ## Question
 
@@ -49,3 +49,8 @@ No forward returns, alpha tests, vendor purchases, vendor contacts or production
 - [Phase 127 corrected CUSIP audit](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42079517644)
 - [Phase 128 auditor](phase128_sec_13dg_cusip_cross_schema_identity_audit.py)
 - [Regression tests](test_phase128_sec_13dg_cusip_cross_schema_identity_audit.py)
+
+
+- [Phase 128 Actions run](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42080440140)
+- Artifact: `13439559366`; ZIP SHA-256 `aed19dba803bd47f9ac6a846807d93a778b05bad3cf637c18936e1d3593fb22b`.
+- Final CI: 15 Phase 124 tests, 21 Phase 125 tests, 7 Phase 126 tests and 9 Phase 128 tests passed; 600/600 raw hashes verified; no audit errors.
