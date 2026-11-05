@@ -40,6 +40,18 @@ def read_csv(path: Path) -> list[dict]:
         return list(csv.DictReader(handle))
 
 
+def incremental_data_gate_status(gates: dict, candidate_count: int) -> str:
+    """Do not call empty-denominator XML checks a validation pass."""
+    evaluated = [value for value in gates.values() if value is not None]
+    if not all(evaluated):
+        return "FAIL"
+    if candidate_count == 0:
+        return "PASS_NO_INCREMENTAL_CANDIDATES"
+    if any(value is None for value in gates.values()):
+        return "FAIL"
+    return "PASS"
+
+
 def validate_base(summary: dict, rows: list[dict], events: list[dict]) -> None:
     expected = {
         "data_gate": "PASS",
@@ -241,16 +253,17 @@ def main():
     pair_ok = sum(str(r.get("xml_both_ciks_in_master_pair","")).lower()=="true" for r in parsed)
     distinct_ok = sum(str(r.get("xml_ciks_distinct","")).lower()=="true" for r in parsed)
     form_ok = sum(str(r.get("xml_form_matches_index","")).lower()=="true" for r in parsed)
+    has_candidates = len(inc_rows) > 0
     gates = {
         "phase67_baseline_pass": base_summary.get("data_gate")=="PASS",
         "current_universe_335_mapped": len(tickers)==335 and not unresolved,
         "expanded_cik_count_319": len(expanded_ciks)==319,
         "ten_preregistered_new_fund_ciks_present": len(new_ciks)==10,
-        "incremental_xml_fetch_success_ge_99_5pct": not attempted or (len(attempted)-failed)/len(attempted)>=0.995,
-        "incremental_role_resolution_ge_99_9pct": not inc_rows or resolved/len(inc_rows)>=0.999,
-        "incremental_pair_concordance_ge_99_9pct": not parsed or pair_ok/len(parsed)>=0.999,
-        "incremental_distinct_ciks_ge_99_9pct": not parsed or distinct_ok/len(parsed)>=0.999,
-        "incremental_form_match_ge_99_9pct": not parsed or form_ok/len(parsed)>=0.999,
+        "incremental_xml_fetch_success_ge_99_5pct": ((len(attempted)-failed)/len(attempted)>=0.995) if attempted else None,
+        "incremental_role_resolution_ge_99_9pct": (resolved/len(inc_rows)>=0.999) if inc_rows else None,
+        "incremental_pair_concordance_ge_99_9pct": (pair_ok/len(parsed)>=0.999) if parsed else None,
+        "incremental_distinct_ciks_ge_99_9pct": (distinct_ok/len(parsed)>=0.999) if parsed else None,
+        "incremental_form_match_ge_99_9pct": (form_ok/len(parsed)>=0.999) if parsed else None,
         "overlap_xml_identity_unchanged": overlaps_ok,
         "control_pair_concordance_100pct": controls_ok,
         "no_duplicate_expanded_accessions": len(expanded_rows)==len({r["accession"] for r in expanded_rows}),
@@ -258,13 +271,15 @@ def main():
             e.get("candidate_role_status") not in {"filer_only_false_positive","ambiguous_pair_filer_only_false_positive"}
             for e in expanded_events),
         "no_incremental_xml_processing_errors": len(errors)==0,
-        "all_incremental_rows_classified": all(bool(r.get("candidate_role_status")) for r in inc_rows),
+        "all_incremental_rows_classified": all(bool(r.get("candidate_role_status")) for r in inc_rows) if has_candidates else None,
         "mapping_source_errors_zero": not source_errors,
     }
+    data_gate = incremental_data_gate_status(gates, len(inc_rows))
     summary = {
         "phase":"69-incremental-form144-fund-registrant-scan",
         "status":"COMPLETE",
-        "data_gate":"PASS" if all(gates.values()) else "FAIL",
+        "incremental_identity_validation_status":"VALIDATED" if has_candidates else "NOT_APPLICABLE_NO_CANDIDATES",
+        "data_gate":data_gate,
         "base_run_id":BASE_RUN_ID,
         "base_artifact_id":BASE_ARTIFACT_ID,
         "base_candidate_rows":len(base_rows),
@@ -321,7 +336,7 @@ def main():
     write_csv(out/"control_validation.csv",controls)
     (out/"summary.json").write_text(json.dumps(summary,indent=2)+"\n",encoding="utf-8")
     print(json.dumps(summary,indent=2),flush=True)
-    if summary["data_gate"]!="PASS":
+    if summary["data_gate"] not in {"PASS","PASS_NO_INCREMENTAL_CANDIDATES"}:
         raise RuntimeError("Phase 69 incremental fund registrant gate failed; inspect artifacts")
 
 
