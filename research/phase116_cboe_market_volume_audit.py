@@ -34,6 +34,7 @@ TRADES = ["Tape A Trade Count", "Tape B Trade Count", "Tape C Trade Count"]
 DAILY_HEADER = ["Day", "Market Participant"] + NUMERIC
 MONTHLY_HEADER = ["Month", "Market Participant"] + NUMERIC
 TOL_NOTIONAL = Decimal("0.20")
+TOL_NOTIONAL_DAILY_REL = Decimal("1e-10")
 TOL_NOTIONAL_MONTHLY = Decimal("2.00")
 TOL_NOTIONAL_MONTHLY_REL = Decimal("1e-9")
 TOL_SHARES_MONTHLY = Decimal("1.00")
@@ -99,8 +100,9 @@ def parse_csv(data: bytes, kind: str, year: int) -> dict:
             ("Total Trade Count", TRADES, Decimal("0")),
         ]:
             summed = sum((vals[x] for x in parts), Decimal("0"))
-            if kind == "monthly" and total == "Total Notional":
-                tol = max(tol, abs(vals[total]) * TOL_NOTIONAL_MONTHLY_REL)
+            if total == "Total Notional":
+                rel = TOL_NOTIONAL_MONTHLY_REL if kind == "monthly" else TOL_NOTIONAL_DAILY_REL
+                tol = max(tol, abs(vals[total]) * rel)
             if abs(vals[total] - summed) > tol:
                 anomalies.append({"line": line_no, "key": key, "check": total,
                                   "reported": str(vals[total]), "sum": str(summed)})
