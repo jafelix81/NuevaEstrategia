@@ -98,3 +98,6 @@ The nested CSVs expose two deviations from the published v1.3 layout:
 - quote_datetime is represented in the sample as a compact two-component clock string (for example, 21:30.4), not the documented full YYYY-MM-DD HH:MM:SS.000 timestamp.
 
 The parser now preserves and classifies these values without inventing a timezone or timestamp interpretation. This is a material schema/version issue: daily market-date research may still be feasible, but intraday sequencing/time-of-day analysis is not approved until the representation is explained or independently validated. OPRA sequence_number may provide an ordering key, but that too must be tested rather than assumed.
+
+
+The next offline test attempt exposed a missing `re` import in the new timestamp-format classifier; the parser was corrected. The live sample was not downloaded in that failed attempt. A fresh run is now triggered.
