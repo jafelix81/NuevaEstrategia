@@ -31,7 +31,7 @@ jobs:
           path: phase84_artifact
           repository: jafelix81/NuevaEstrategia
           run-id: 41914491120
-          github-token: \${{ github.token }}
+          github-token: ${{ github.token }}
       - name: Download corrected Phase 91 event and person records
         uses: actions/download-artifact@v4
         with:
@@ -39,7 +39,7 @@ jobs:
           path: phase91_artifact
           repository: jafelix81/NuevaEstrategia
           run-id: 41934402354
-          github-token: \${{ github.token }}
+          github-token: ${{ github.token }}
       - name: Validate immutable inputs
         run: |
           test -s phase84_artifact/pilot_header_validation.csv
