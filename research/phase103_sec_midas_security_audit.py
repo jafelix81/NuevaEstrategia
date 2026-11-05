@@ -81,6 +81,8 @@ def parse_date(value: str):
     value = (value or "").strip()
     if not value:
         return None
+    if re.fullmatch(r"\d{8}\.0+", value):
+        value = value.split(".", 1)[0]
     formats = (
         "%Y-%m-%d", "%Y%m%d", "%m/%d/%Y", "%m/%d/%y",
         "%Y-%m-%d %H:%M:%S", "%m/%d/%Y %H:%M:%S",
@@ -192,12 +194,12 @@ def parse_csv_member(raw_stream, member_name: str, legacy: set[str], spec: dict)
         duplicates[key] += 1
         if key not in duplicate_signatures:
             duplicate_signatures[key] = set()
-        duplicate_signatures[key].add(signature)
-        if duplicates[key] > 1 and len(duplicate_example_rows[key]) < 3:
+        if len(duplicate_example_rows[key]) < 3:
             duplicate_example_rows[key].append({
                 "ticker": ticker, "date": dt.isoformat(), "security": security,
                 "raw_row": raw,
             })
+        duplicate_signatures[key].add(signature)
         for field in NUMERIC_FIELDS:
             value = row.get(normalize_name(field), "")
             if value in ("", ".", "NA", "N/A", "NULL"):
@@ -237,7 +239,7 @@ def parse_csv_member(raw_stream, member_name: str, legacy: set[str], spec: dict)
             "exact_duplicate_rows": len(duplicate_signatures[k]) == 1,
             "rows": duplicate_example_rows.get(k, []),
         }
-        for k in list(duplicate_keys)[:10]
+        for k in sorted(duplicate_keys)[:10]
     ]
     daily_coverage = [len(legacy & date_tickers[d]) / len(legacy) for d in sorted(dates)]
     unique_legacy = legacy & tickers
