@@ -58,10 +58,10 @@ def normalize_name(value: str) -> str:
 
 
 def normalize_form(value: str) -> str:
-    form = re.sub(r"\\s+", " ", str(value or "").strip().upper())
+    form = re.sub(r"\s+", " ", str(value or "").strip().upper())
     form = form.replace("SCHEDULE 13D", "SC 13D").replace("SCHEDULE 13G", "SC 13G")
-    form = re.sub(r"^SC\\s*13([DG])\\s*/\\s*A$", r"SC 13\\1/A", form)
-    return re.sub(r"^SC\\s*13([DG])$", r"SC 13\\1", form)
+    form = re.sub(r"^SC\s*13([DG])\s*/\s*A$", r"SC 13\1/A", form)
+    return re.sub(r"^SC\s*13([DG])$", r"SC 13\1", form)
 
 
 def normalize_cusip(value: str) -> str:
