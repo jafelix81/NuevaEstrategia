@@ -771,3 +771,12 @@ F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No source from Phases 112–113
 - Decision: pass the CUSIP extraction feasibility gate for this sample, not the permanent-identity or tradable-universe gate. An effective-dated security master remains mandatory; no returns/alpha test.
 - Artifact 13438903901 (90-day retention), ZIP SHA-256 b80d15d736ba6c45f4f3c5dd569604175e221414b31a28fd58a62010a805c166. [Phase 127 report](research/PHASE127_SEC_13DG_XML_CUSIP_SCHEMA_CORRECTION_2026-11-05.md).
 
+
+
+## 2026-11-05 — Phase 128 SEC 13D/G CUSIP cross-schema identity feasibility (CI pending)
+
+- Reconciles immutable Phase 124 (600 index rows; 599 actual filings; one alias) and Phase 127 corrected CUSIP artifacts. No new SEC requests.
+- Preliminary repeated-CUSIP structure: 553 unique checksum-valid CUSIPs; 18 repeated groups (14 legacy-only, 2 XML-only, 2 cross-schema). Only two cross-schema links exist: 90290N109 (USA Compression Partners, CIK 1522727) and G38644103 (GigaCloud Technology, CIK 1857816); both have matching issuer/subject CIK and normalized issuer name across schemas.
+- 81752R100 reproduces the Seritage legacy header-CIK conflict: same body issuer name and CUSIP across two filings, but subject CIKs 1549575 and 1628063.
+- The legacy body-name heuristic yielded 442/497 apparent candidates; 82 contain obvious separators/boilerplate, and the remaining 360 are unvalidated. It is not promoted as an identity source.
+- Decision: internal cross-schema CUSIP overlap (2/553 = 0.36%) is far too sparse to build a historical security master. Need effective-dated permanent security mapping before return tests. No alpha/production changes; F80 remains frozen.
