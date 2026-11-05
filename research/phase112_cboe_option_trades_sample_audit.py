@@ -166,7 +166,7 @@ def parse_trade_csv(payload: bytes) -> dict[str, Any]:
         rows.append(row)
 
     duplicate_count = len(sequence_keys) - len(set(sequence_keys))
-    key_text = "\\n".join(sorted(f"{d}|{seq}|{ex}" for d, seq, ex in sequence_keys))
+    key_text = "\n".join(sorted(f"{d}|{seq}|{ex}" for d, seq, ex in sequence_keys))
     sequence_key_sha256 = hashlib.sha256(key_text.encode("utf-8")).hexdigest()
     return {
         "fields": fields,
