@@ -1,0 +1,64 @@
+name: Phase 93 - SEC 13D/G conservative lineage and event-mechanism audit
+
+on:
+  push:
+    branches:
+      - phase93-13dg-amendment-lineage-and-event-mechanism-audit
+    paths:
+      - research/phase93_13dg_amendment_lineage_and_event_mechanism_audit.py
+      - research/test_phase93_13dg_amendment_lineage_and_event_mechanism_audit.py
+      - research/PHASE93_13DG_AMENDMENT_LINEAGE_AND_EVENT_MECHANISM_AUDIT_2026-11-04.md
+      - .github/workflows/phase93_13dg_amendment_lineage_and_event_mechanism_audit.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  offline_lineage_event_audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Download immutable Phase 84 raw submissions
+        uses: actions/download-artifact@v4
+        with:
+          name: phase84-13dg-role-aware-identity-validation
+          path: phase84_artifact
+          repository: jafelix81/NuevaEstrategia
+          run-id: 41914491120
+          github-token: \${{ github.token }}
+      - name: Download corrected Phase 91 event and person records
+        uses: actions/download-artifact@v4
+        with:
+          name: phase91-13dg-identity-timing-audit
+          path: phase91_artifact
+          repository: jafelix81/NuevaEstrategia
+          run-id: 41934402354
+          github-token: \${{ github.token }}
+      - name: Validate immutable inputs
+        run: |
+          test -s phase84_artifact/pilot_header_validation.csv
+          test -d phase84_artifact/raw_submissions
+          test -s phase91_artifact/phase91_filing_events.csv
+          test -s phase91_artifact/phase91_reporting_person_identity.csv
+      - name: Run Phase 93 regression tests
+        run: python -m unittest research.test_phase93_13dg_amendment_lineage_and_event_mechanism_audit -v
+      - name: Run offline Phase 93 audit
+        run: >-
+          python -u -m research.phase93_13dg_amendment_lineage_and_event_mechanism_audit
+          --phase84-artifact-dir phase84_artifact
+          --phase91-artifact-dir phase91_artifact
+          --outdir phase93_audit
+      - name: Upload Phase 93 audit artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase93-13dg-lineage-event-mechanism-audit
+          path: phase93_audit/
+          if-no-files-found: warn
+          retention-days: 90
