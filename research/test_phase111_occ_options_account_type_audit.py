@@ -61,7 +61,7 @@ class Phase111OccParserTests(unittest.TestCase):
         self.assertEqual(result["duplicate_key_count"], 1)
 
     def test_exchange_dictionary_matches_documented_codes(self):
-        self.assertTrue({"A", "B", "C", "D", "E", "I", "M", "Q", "W", "X", "Z"}.issubset(EXCHANGE_CODES))
+        self.assertTrue({"A", "B", "C", "D", "E", "I", "J", "M", "Q", "W", "X", "Z"}.issubset(EXCHANGE_CODES))
 
 
 if __name__ == "__main__":
