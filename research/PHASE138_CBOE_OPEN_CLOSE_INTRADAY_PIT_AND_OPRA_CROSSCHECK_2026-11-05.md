@@ -41,7 +41,7 @@ C1 Global Trading Hours coverage begins 2023-12-11. Before that, C1 intraday his
 Official product page and file specifications:
 - Product: https://datashop.cboe.com/cboe-options-open-close-volume-summary
 - EOD specification: https://datashop.cboe.com/documents/Open_Close_EOD_Spec_v1.3.pdf
-- 10-minute specification (announced effective 2026-11-08): https://datashop.cboe.com/documents/Open_Close_10m_Spec_v1.8.pdf
+- 10-minute specification v1.7 (announced effective 2026-11-08): https://datashop.cboe.com/documents/Open_Close_10m_Spec_v1.8.pdf
 - 1-minute specification (announced effective 2026-11-08): https://datashop.cboe.com/documents/Open_Close_1m_Spec_v1.8.pdf
 
 ## 3. Critical data semantics — cumulative snapshots, not interval increments
