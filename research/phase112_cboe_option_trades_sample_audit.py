@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import gzip
 import hashlib
 import io
 import json
@@ -191,6 +192,38 @@ def download(session: requests.Session, url: str, timeout: int = 120) -> tuple[i
         return None, {}, b"", type(exc).__name__
 
 
+def collect_csv_payloads(payload: bytes, prefix: str = "", depth: int = 0) -> tuple[list[tuple[str, bytes]], list[dict[str, Any]]]:
+    found: list[tuple[str, bytes]] = []
+    entries: list[dict[str, Any]] = []
+    if depth > 3:
+        return found, entries
+    try:
+        with zipfile.ZipFile(io.BytesIO(payload)) as zf:
+            for info in zf.infolist():
+                if info.is_dir():
+                    continue
+                data = zf.read(info.filename)
+                name = f"{prefix}{info.filename}"
+                entries.append({"name": name, "bytes": len(data)})
+                if zipfile.is_zipfile(io.BytesIO(data)):
+                    nested_found, nested_entries = collect_csv_payloads(data, prefix=name + "!", depth=depth + 1)
+                    found.extend(nested_found)
+                    entries.extend(nested_entries)
+                    continue
+                if data[:2] == b"\x1f\x8b":
+                    try:
+                        data = gzip.decompress(data)
+                        name = name.removesuffix(".gz")
+                    except OSError:
+                        pass
+                first_line = data.splitlines()[0].decode("utf-8-sig", errors="replace").lower() if data.splitlines() else ""
+                if "underlying_symbol" in first_line and "," in first_line:
+                    found.append((name, data))
+    except zipfile.BadZipFile:
+        pass
+    return found, entries
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", default="phase112_cboe_option_trades_output")
@@ -222,23 +255,20 @@ def main() -> int:
 
     csv_results = []
     zip_error = None
+    zip_entries = []
     if sample_status == 200:
         try:
-            with zipfile.ZipFile(io.BytesIO(sample_bytes)) as zf:
-                for info in zf.infolist():
-                    if info.is_dir():
-                        continue
-                    data = zf.read(info.filename)
-                    target = extract_dir / Path(info.filename).name
-                    target.write_bytes(data)
-                    if target.suffix.lower() == ".csv":
-                        parsed = parse_trade_csv(data)
-                        csv_results.append({
-                            "file": info.filename,
-                            "bytes": len(data),
-                            "sha256": sha256(data),
-                            "audit": parsed,
-                        })
+            csv_payloads, zip_entries = collect_csv_payloads(sample_bytes)
+            for index, (filename, data) in enumerate(csv_payloads):
+                target = extract_dir / f"sample_{index}_{Path(filename.split('!')[-1]).name}"
+                target.write_bytes(data)
+                parsed = parse_trade_csv(data)
+                csv_results.append({
+                    "file": filename,
+                    "bytes": len(data),
+                    "sha256": sha256(data),
+                    "audit": parsed,
+                })
         except (zipfile.BadZipFile, OSError) as exc:
             zip_error = type(exc).__name__
 
@@ -274,6 +304,7 @@ def main() -> int:
         "product": "Cboe Option Trades",
         "sample": artifacts["sample_zip"],
         "zip_error": zip_error,
+        "zip_entries": zip_entries,
         "csv_results": csv_results,
         "mappings": mapping_results,
         "data_gate": "PASS_SAMPLE_SCHEMA" if schema_pass else "FAIL_OR_INCOMPLETE_SAMPLE",
