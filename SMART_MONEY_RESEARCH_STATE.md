@@ -342,36 +342,38 @@ F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No source from Phases 112–113
 - Decision: regulatory timing/schema breaks are now explicit, but 13D/G remains not alpha-ready until global subject-issuer discovery, effective-dated security identity, delisted coverage and legacy HTML parsing pass. No returns/alpha tests or F80 changes.
 
 
-## 2026-11-05 — Phase 124 global 13D/13G sample in progress
+## 2026-11-05 — Phase 124 global 13D/13G sample — final disposition
 
-- Workflow run 42063309365 is active; do not launch a duplicate. The initial run 42063200612 failed before any SEC requests because the direct-script import path omitted the research directory; this was corrected in commit 990fa31d500d78e5f959651048d1329bda036fd2.
-- The corrected run passed compilation and all 9 offline regression tests and downloaded the immutable Phase 82, Phase 84 and Phase 120 artifacts successfully.
-- The live step is currently building a 600-filing deterministic hash-stratified sample across 172 quarter × form-family × amendment strata from 324,964 global 13D/G index accessions (2016Q1–2026Q3), excluding 762 accessions already covered by prior pilots/predecessor work. SEC raw-submission retrieval and role/security coverage adjudication are still running; no results yet.
-- No return/alpha test or production change is part of Phase 124. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+- Corrected run 42073725379 produced a complete immutable artifact, but GitHub Actions concluded failure because the exit gate did not accept the intentional PASS_WITH_INDEX_ALIAS_QUARANTINE status. This was a workflow-status gate defect, not a raw-download or identity-reconciliation failure. The corrected status logic and regression tests are now exercised by downstream Phase 125/126 CI; no duplicate live SEC pull was launched.
+- The deterministic sample contains 600 index rows: 599 actual 13D/G submissions plus one confirmed SC TO-T/A index alias quarantined from the 13D/G population. The source index contains 324,964 unique accessions across 43 quarters (2016Q1–2026Q3); after 762 prior-pilot/predecessor exclusions, 324,202 remained eligible across 172 quarter × form-family × amendment strata.
+- All 600 raw files passed SHA-256 and accession/date checks; 599 actual 13D/G submissions matched header accession, form family and filing date. There were zero transport/mirror failures. The sample is a filing-index sample, not a historical tradable-security universe.
+- The 102 XML rows include all 99/99 mandatory-XML rows after 2024-12-18. Header subject/filer CIK presence in 599/599 rows is only header metadata presence; Phase 126 shows it must not be described as verified issuer coverage for legacy HTML filings.
+- No forward-return, alpha, or production test was part of Phase 124. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
 
+## 2026-11-05 — Phase 125 SEC 13D/G cover-page CUSIP audit
 
-## 2026-11-05 — Phase 124 alias-gate correction and revalidation
+- Phase 125 run 42077788015 completed successfully using only immutable Phase 124 artifacts; it made no new SEC requests.
+- The legacy HTML parser was tightened to use only the first CUSIP value on the primary cover page, including values split across HTML text nodes. Later CUSIPs in narrative/exhibits are intentionally excluded and cannot substitute for a missing cover-page value. The parser distinguishes 000000000 as an XML placeholder rather than an invalid-format CUSIP.
+- Across 599 actual filings: 541 rows have a unique checksum-valid CUSIP, two have checksum-invalid CUSIPs (584680106 in legacy HTML and 50214C200 in XML), 55 have no usable CUSIP (23 legacy, 32 XML), and one XML row contains the all-zero placeholder.
+- Weighted valid cover-page CUSIP coverage is 96.84% for legacy HTML (473/497 rows), 66.71% for XML (68/102), and 91.36% overall. These are post-stratified descriptive coverage estimates, not inferential confidence intervals.
+- The audit found 524 distinct checksum-valid CUSIP strings and 525 (header_subject_cik, CUSIP) pairs; CUSIP 81752R100 appears under two different header subject CIKs. Phase 126 adjudicates that conflict.
+- Decision: the cover-page CUSIP is a useful security identifier candidate, but it is not permanent and does not by itself resolve issuer CIK, share class, corporate actions, delistings or ticker history. No returns/alpha test.
 
-- The first live Phase 124 run (42063309365) retrieved and validated 599/600 sampled submissions. The sole non-valid row was not a transport failure: accession 0001104659-25-001464 is indexed as SC 13D/A but its SEC header says SC TO-T/A. The raw header accession and filing date match the index; this is an index alias candidate, consistent with the earlier Phase 118 alias pattern.
-- Corrected the auditor in commit 458fc77ee06a7b282d34a2025df97df8e3436c16 to reuse Phase 118's conservative header/document-type adjudication. A non-13D/G alias is quarantined only when the SEC header and all document types establish a non-13D/G filing; mixed or conflicting 13D/G document types remain unresolved failures. Added four regression tests for alias, true-form, mixed-form and identity-mismatch cases.
-- Corrected Phase 124 run 42073725379 is in progress. Compilation, offline regression tests and all three immutable artifact downloads passed; do not launch another Phase 124 run while it is active.
-- Preliminary artifact-only inspection of the first run: 324,964 unique global index accessions, 762 prior-pilot/predecessor exclusions, 324,202 eligible, 43 quarters and 172 quarter × form × amendment strata. The 600-row hash-stratified sample had 1,193 archive-path attempts; all 599 actual 13D/G submissions had header accession/form-family/filing-date matches, and subject/filer CIKs were both present in index and archive-path candidate lists (599/599). The sample is a filing-index sample, not a historical eligible-security universe.
-- Preliminary coverage: 102/599 XML rows (17.0% unweighted; 18.20% post-stratified), including 99/99 mandatory-XML filings after 2024-12-18. CUSIP was present in 496/599 rows (85.75% weighted); class title in 349/599; 310 reporting-person nodes were parsed, almost entirely from XML. Legacy HTML ownership parsing remains unvalidated.
-- A source-provenance bug was found in the current `cusip_source` label: it classifies populated legacy HTML CUSIPs as XML and labels missing legacy CUSIPs as heuristic. The CUSIP presence count itself is unaffected, but source attribution must be corrected and regression-tested before relying on that field or finalizing Phase 124. No forward returns, alpha tests, vendor purchases, or production changes.
+## 2026-11-05 — Phase 126 SEC 13D/G body-first issuer identity audit
+
+- Phase 126 run 42079214500 passed. It reconciled the immutable Phase 124/125 artifacts, verified 600 raw SHA-256/accession/date checks, retained 599 actual 13D/G rows and quarantined one index alias. No SEC network requests were made.
+- Structured XML issuer CIK matched the SEC-HEADER subject CIK in 102/102 XML rows in this sample. This is a useful conditional result, not proof of universal correctness.
+- Two legacy header/body issuer-role discrepancies were hand-adjudicated:
+  1. Accession 0001549575-20-000008: SEC-HEADER subject and filer both say Dalal Street, LLC (CIK 1549575); the 13G cover page says Seritage Growth Properties, CUSIP 81752R100.
+  2. Accession 0001903596-22-000671: SEC-HEADER subject says American Community Capital, LP (CIK 1626837), filer is Igwealor Frank I (CIK 1945609); the 13D cover page says Nano Mobile Healthcare, Inc., CUSIP 63010B200.
+- The Seritage discrepancy is independently reinforced by accession 0001193125-21-208169: the same body issuer and CUSIP 81752R100 appear with header subject CIK 1628063. The two filings therefore carry different header subject CIKs for the same body issuer/CUSIP.
+- A third name difference was deliberately not counted as an error: accession 0001172661-24-001310 has header subject ArrowMark Financial Corp (CIK 1578987), a FORMER COMPANY entry for StoneCastle Financial Corp, and a StoneCastle cover page/CUSIP 861780104. This is a valid historical issuer-name change with the same CIK, not a role mismatch. The filer CIK is 1483859.
+- Decision: do not use legacy SEC-HEADER SUBJECT COMPANY CIK as an authoritative issuer CIK or as issuer-universe coverage. For legacy 13D/G, start from body cover-page issuer name plus cover-page CUSIP; preserve former-name fields and require an effective-dated CUSIP/security master before joining returns. XML issuerCik can be used conditionally where present and validated.
+- Only the two discrepancies and one rename control were manually adjudicated; they are concrete examples, not an estimated global error rate. No broad body-issuer parser was promoted. No forward returns, alpha tests, vendor purchases or production changes.
+
+## Next 13D/G gate
+
+- Build a deterministic, effective-dated CUSIP-to-security/issuer crosswalk with share-class, ETF-series, ADR, rename, split, merger and delisting handling; retain unresolved mappings rather than fuzzy-assigning them.
+- Verify mapping against an independent historical security master and preserve acceptance timestamp separately from event date. Only then define a preregistered 13D activist/passive event hypothesis and test incremental information versus frozen LTM/F80 with chronological OOS, identical exposure/costs, bootstrap and LOO.
+- Continue Cboe Open-Close EOD as the leading options-flow feasibility candidate in parallel; no vendor purchase or licensing commitment without explicit authorization.
 - F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
-
-
-## 2026-11-05 — Phase 126 SEC 13D/G body-first issuer identity audit (PASS)
-
-- Corrected the legacy cover-page parser to reject a standalone SEC “COMMISSION” boilerplate line; the prior concatenation `COMMISSION StoneCastle Financial Corp.` is resolved.
-- Phase 126 run 42079214500 passed all 37 offline tests across Phases 124–126 and the artifact-only reconciliation. Artifact 13438773715 (SHA-256 `24b5795afa6cd0d858345976cfa29410c887f7ff79ababda4b0951ba86bdee53`) records 599 actual 13D/G filings, one quarantined index alias, and 600/600 raw hash/accession-date checks.
-- XML issuer CIK matched SEC-HEADER subject CIK in 102/102 sampled XML filings. Two hand-adjudicated legacy filings show genuine header/body issuer discrepancies: Dalal Street LLC vs Seritage Growth Properties (CUSIP 81752R100), and American Community Capital LP vs Nano Mobile Healthcare Inc. (CUSIP 63010B200). The same Seritage CUSIP in a 2021 filing has a different, matching header subject CIK, confirming that the legacy header role can be wrong.
-- A third legacy case, ArrowMark/StoneCastle, is a valid same-CIK historical name change (subject CIK 1578987; former name StoneCastle; filer CIK 1483859), not a mismatch. Keep it as a rename control, not an error.
-- These are hand-adjudicated examples, not a global error-rate estimate. Only four legacy cover pages were adjudicated. No broad parser, permanent crosswalk, delisted universe or dissemination-time proof yet. No returns/alpha tests or production changes.
-
-## 2026-11-05 — Phase 127 SEC 13D/G XML CUSIP schema correction (CI pending)
-
-- Phase 125's XML extractor recognized only `issuerCusip`; the raw sample also uses `issuerCusips/issuerCusipNumber`. The 32 XML rows previously marked missing were not all missing.
-- Phase 127 reprocesses the immutable Phase 124 artifact (run 42073725379; artifact 13436764625; SHA-256 `85f69e083b5af65731c9bcfe24e8c75821fc0f2c2476bfa8ba573e2e884570dc`) without new SEC requests. The corrected extractor supports both schema tags, scopes them to issuerInfo, deduplicates identical values and quarantines multiple distinct values.
-- Preliminary corrected counts: 571/599 actual filings have a unique checksum-valid CUSIP; 23 are missing (all legacy HTML), two are zero placeholders, two have invalid check digits, one has malformed 10-character format, and none are ambiguous. Post-stratified weighted valid rates: 96.94% overall, 97.38% XML, 96.84% legacy HTML. These supersede Phase 125's 91.36% overall and 66.71% XML rates.
-- The corrected sample estimates remain descriptive only (172 strata; no inferential CI) and do not establish permanent security identity or PIT universe coverage. No alpha/returns test or production change.
