@@ -62,3 +62,4 @@ Two offline regression tests were added for empty-denominator handling. This cod
 4. Move research effort to the binding PIT historical-universe/security-master gate described in Phase 97.
 
 No alpha test, feature selection, portfolio comparison, vendor purchase or production change occurred. F80 remains frozen.
+\n\n## 2026-11-05 code-only validation addendum\n\n- Corrected Phase 69 zero-candidate denominator semantics on branch `phase69-incremental-form144-fund-registrants` (script commit `c12e9631344d52f609743eed58599c08e36a7784`; test commit `9ef816fd4346f85edccdf3c2c542a8192afab8b8`). XML identity sub-gates now show `null` when no incremental candidate exists, and the summary reports `NOT_APPLICABLE_NO_CANDIDATES` / `PASS_NO_INCREMENTAL_CANDIDATES`.\n- Hosted offline regression run 41959973317 passed **45 tests**; the live incremental-scan job was skipped. No SEC rescan was performed.\n
