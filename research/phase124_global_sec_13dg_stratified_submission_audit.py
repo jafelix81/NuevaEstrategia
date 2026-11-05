@@ -34,6 +34,13 @@ def parse_json_list(value):
 def sha256_bytes(data):
     return hashlib.sha256(data).hexdigest()
 
+def sha256_file(path):
+    h = hashlib.sha256()
+    with path.open("rb") as f:
+        for block in iter(lambda: f.read(1024 * 1024), b""):
+            h.update(block)
+    return h.hexdigest()
+
 def sample_hash(accession):
     return hashlib.sha256((SALT + accession).encode("utf-8")).hexdigest()
 
@@ -235,7 +242,7 @@ def download_sample(sample, output_dir, sleep_seconds=0.18):
             "xml_subject_cik": xml_subject, "xml_filer_cik": xml_filer,
             "xml_subject_matches_header": xml_subject == subject if xml_present else None,
             "xml_filer_matches_header": xml_filer == filer if xml_present else None,
-            "cusip": cusip, "cusip_source": cusip_source,
+            "cusip": cusip, "cusip_present": bool(cusip), "cusip_source": cusip_source,
             "class_title": parsed.get("class_title"),
             "event_date": parsed.get("event_date"),
             "previous_accession": parsed.get("previous_accession"),
@@ -303,7 +310,7 @@ def main():
     summary = {
         "phase": "124-global-sec-13dg-stratified-submission-audit",
         "status": "PASS_GLOBAL_STRATIFIED_SAMPLE_WITH_CAVEATS" if len(successful) == SAMPLE_N and not failures else "INCOMPLETE",
-        "phase82_index_sha256": sha256_bytes(index_path.read_bytes()),
+        "phase82_index_sha256": sha256_file(index_path),
         "phase82_global_index_rows": sample_meta["index_rows"],
         "phase82_unique_accessions": sample_meta["unique_index_accessions"],
         "eligible_population_after_exclusions": sample_meta["eligible_after_exclusions"],
