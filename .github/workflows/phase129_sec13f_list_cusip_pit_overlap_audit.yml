@@ -1,0 +1,65 @@
+name: Phase 129 SEC 13F official-list CUSIP PIT overlap audit
+
+on:
+  push:
+    branches:
+      - phase99-broad-pit-universe-charter
+    paths:
+      - research/phase129_sec13f_list_cusip_pit_overlap_audit.py
+      - research/test_phase129_sec13f_list_cusip_pit_overlap_audit.py
+      - .github/workflows/phase129_sec13f_list_cusip_pit_overlap_audit.yml
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  official-list-cusip-overlap:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install PDF text utility
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils
+      - name: Compile audit
+        run: python -m py_compile research/phase129_sec13f_list_cusip_pit_overlap_audit.py
+      - name: Run regression tests
+        run: |
+          python -m unittest -v research.test_phase124_global_sec_13dg_stratified_submission_audit
+          python -m unittest -v research.test_phase125_sec_13dg_exact_cusip_audit
+          python -m unittest -v research.test_phase126_sec_13dg_body_issuer_identity_audit
+          python -m unittest -v research.test_phase128_sec_13dg_cusip_cross_schema_identity_audit
+          python -m unittest -v research.test_phase129_sec13f_list_cusip_pit_overlap_audit
+      - name: Download immutable Phase 124 global sample artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: phase124-global-sec-13dg-stratified-submission-audit
+          path: inputs/phase124
+          repository: jafelix81/NuevaEstrategia
+          run-id: 42073725379
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download immutable Phase 127 corrected CUSIP artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: phase127-sec-13dg-xml-cusip-schema-correction
+          path: inputs/phase127
+          repository: jafelix81/NuevaEstrategia
+          run-id: 42079517644
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Audit SEC 13(f) list availability and direct CUSIP overlap
+        run: >-
+          python -m research.phase129_sec13f_list_cusip_pit_overlap_audit
+          --phase124-dir inputs/phase124 --phase127-dir inputs/phase127 --output-dir out
+      - name: Upload Phase 129 aggregate audit only (no raw 13(f) list data)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase129-sec13f-list-cusip-pit-overlap-audit
+          path: out/
+          if-no-files-found: warn
+          retention-days: 90
