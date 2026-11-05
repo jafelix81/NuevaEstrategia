@@ -73,4 +73,4 @@ Therefore the schedule is useful for a conservative knowledge-date convention, b
 | Complete historical public-availability vintages | NOT ESTABLISHED |
 | Forward-return / alpha test | NOT AUTHORIZED |
 
-No return data were joined, no feature was constructed, no forward returns were inspected, no vendor was contacted, no data were purchased, and F80 was not changed.
+Official source links: SEC FTD data page and publication caveat: https://www.sec.gov/data-research/sec-markets-data/fails-deliver-data; issuer announcement of the DPW name/reincorporation transition (2017-12-29): https://www.globenewswire.com/news-release/2017/12/29/1276525/23689/en/Digital-Power-Corp-Achieves-Corporate-Milestones-During-Annual-Meeting.html; 2016 SEC 13F record using CUSIP 253862106: https://www.sec.gov/Archives/edgar/data/1450144/000091957416016544/infotable.xml; 2018 SEC 13F record using CUSIP 26140E105: https://www.sec.gov/Archives/edgar/data/1475597/000147559718000022/form13fInfoTable.20180928.xml.\n\nNo return data were joined, no feature was constructed, no forward returns were inspected, no vendor was contacted, no data were purchased, and F80 was not changed.
