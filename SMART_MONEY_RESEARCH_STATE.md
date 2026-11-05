@@ -799,3 +799,15 @@ F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No source from Phases 112–113
 - Phase 129's +2/+6 calendar-day list-availability fields remain sensitivity proxies only. PDF Run Date is generation time, not verified first publication; HTTP Last-Modified is retrieval metadata, not proof of public dissemination. Same-quarter overlap remains a lookahead diagnostic.
 - Decision: the official 13(f) list may be used only as a conditional eligibility cross-check. Do not use it as a security master, ownership signal or PIT feature. Do not revive the previously killed N-PORT dose-response hypothesis under a 13F label. No return/alpha test, paid data, vendor contact or production change.
 - `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+
+## 2026-11-05 — Phase 131 SEC Form 13F as-filed event-state and PIT feasibility
+
+- Added `research/PHASE131_SEC_13F_AS_FILED_EVENT_STATE_PIT_AUDIT_2026-11-05.md` after reviewing the current SEC bulk-data schema, Form 13F FAQs and actual EDGAR filing-detail pages.
+- The SEC Form 13F bulk archive is documented as July 2013–August 2026 and quarterly. It is flattened, as-filed structured XML; the SEC warns that it can contain redundancies/inconsistencies and omits filing metadata. The bulk SUBMISSION table has accession, filing date, type, filer CIK and report period, but no accepted time-of-day.
+- Strict PIT therefore requires accession-level EDGAR acceptance timestamps. Two examples have accepted timestamps on the prior calendar date to the displayed filing date: 0001275218-26-000008 (accepted 2026-08-10 18:34:09 ET; filing date 2026-08-11; 2024Q1 restatement) and 0001635409-25-000005 (accepted 2025-08-13 19:30:14 ET; filing date 2025-08-14). A filing-date-only join can misplace the information event.
+- Amendment handling must be event-sourced: restatements supersede the prior public state only from their own acceptance time; add-new-holdings amendments and confidentiality-release filings supplement only from their own acceptance time. Never backdate amendments to report quarter-end or original filing.
+- Manager aggregation must resolve shared discretion/other-manager relationships to avoid counting the same economic exposure multiple times. 13F remains long-only and incomplete; short equity and written options are omitted, held options use the underlying CUSIP plus put/call flag, some small positions may be omitted, and confidential treatment can delay holdings.
+- Decision: Form 13F remains a conditional delayed-holdings candidate, not transaction flow or proven informed activity. No 13F panel, return/alpha test, vendor purchase or production change. Require acceptance-time crosswalk, amendment-state tests, manager graph, effective-dated security master and broad PIT coverage before any preregistered test.
+- Phase 129 (run 42081987897) remains a separate in-progress audit of the 13(f) eligibility list; its current job has passed setup, compile, regression and both input-artifact downloads, but the live 45-quarter overlap step remains in progress and no artifact is available. Do not duplicate it.
+- `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
