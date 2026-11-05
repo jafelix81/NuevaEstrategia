@@ -1,0 +1,41 @@
+name: Phase 108 - FINRA ATS anomaly resolution
+
+on:
+  push:
+    branches: [phase99-broad-pit-universe-charter]
+    paths:
+      - 'research/phase108_finra_ats_anomaly_resolution.py'
+      - 'research/test_phase108_finra_ats_anomaly_resolution.py'
+      - '.github/workflows/phase108_finra_ats_anomaly_resolution.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: phase108-finra-ats-anomaly-resolution
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependency
+        run: pip install requests
+      - name: Run offline anomaly-resolution tests
+        run: python -m unittest research.test_phase108_finra_ats_anomaly_resolution -v
+      - name: Re-query two FINRA partitions with expanded identity fields
+        run: python -u research/phase108_finra_ats_anomaly_resolution.py
+      - name: Upload anomaly-resolution outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase108-finra-ats-anomaly-resolution
+          path: phase108_finra_ats_anomaly_resolution/
+          retention-days: 90
+          if-no-files-found: warn
