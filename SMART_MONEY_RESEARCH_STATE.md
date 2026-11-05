@@ -186,3 +186,15 @@ F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No forward-return test or produ
 - Main commit `b4bd844b567d4779b474a212c73ef37f7928c30a` changed the Phase 22C 13F audit to manual-dispatch only (unrelated pushes no longer launch it) and disabled the Phase 35 CIK-specific 13D/G crawler after the Phase 96 subject/filer failure.
 - An unrelated main-branch state update had already triggered legacy push-on-any-commit workflows before this guard landed. Phase 22C run 41960053553 was cancelled. Phase 35 run 41960053552 remains reported in progress; guarded replacement run 41960188506 is pending with the audit job disabled. The available GitHub connector does not expose a direct cancel action, so this run may require manual cancellation if it does not clear. No further Phase 35 crawl was intentionally dispatched.
 - Future research-state commits do not match the new workflow path filters and should not trigger these SEC jobs.
+
+
+## 2026-11-05 — Phase 99: broad point-in-time universe charter
+
+- User clarified that Smart Money Research must not be restricted to the current 335 F80 tickers. Adopted this distinction: **335 is the frozen F80 comparability universe, not the research universe ceiling**.
+- Authorized a separate broad-universe research line while preserving F80 unchanged. Parallel tracks: (1) broad US primary-listed operating equities built from historical listing/security records; (2) Russell 3000 effective historical membership; (3) Nasdaq Composite effective historical membership; (4) frozen 335-name F80 control.
+- Broad primary universe retains active and inactive securities, delistings, bankruptcies, mergers, relistings, IPOs after a fixed data/listing-age gate, ticker changes and multiple share classes. Common shares, ADRs, REITs and BDCs remain explicitly classified; ETFs/ETNs, funds, preferreds, warrants, rights, units, debt, options and OTC-only names are excluded from the primary operating-equity set unless studied as separate universes.
+- Required identity model distinguishes effective time, record-known/publication time, retrieval time, event time and public-availability time. Ticker-only joins and current index membership applied retrospectively are prohibited.
+- Added staged gates for historical coverage, two-clock PIT provenance, delisting/return integrity, reproducibility/licensing and final universe preregistration. **No forward-return or alpha test is authorized before all gates and a separate preregistration pass.**
+- Source roles remain conditional: CRSP for inactive/delisted return validation; Databento for two-clock security identity; Norgate for historical index membership and delisted cross-check; AlgoSeek ASID as a lifecycle crosswalk pending record-known vintage proof. No vendor contact, purchase or data acquisition authorized.
+- Phase 99 report: `research/PHASE99_BROAD_PIT_UNIVERSE_CHARTER_2026-11-05.md`.
+- Next: recover Phase 70/71 artifacts/code to establish whether the original 335 selection rule is reproducible; if not, mark it unrecoverable and proceed only with the separately specified broad-universe feasibility gates.
