@@ -65,3 +65,8 @@ A public sample can validate schema and basic quote/condition quality, but it do
 7. Preregister flow features and compare incremental information versus frozen LTM/F80 under identical exposure/costs, chronological OOS, bootstrap and issuer LOO.
 
 No raw sample or derived data will be redistributed. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## Hosted execution
+
+The guarded sample audit has been triggered. It downloads only the public sample and public reference mappings; it does not add a product to cart, purchase data, contact Cboe or authenticate to a paid account.
