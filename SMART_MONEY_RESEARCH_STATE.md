@@ -340,3 +340,11 @@ F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No source from Phases 112–113
 - Event date is not public knowledge time. Use the first regular U.S. equity session whose open occurs after verified acceptance as the conservative tradable-availability convention; do not backdate ownership snapshots.
 - SEC economic analysis notes possible pre-filing anticipation by other traders around Schedule 13D. This is a hypothesis about foreknowledge/run-up, not evidence that public filing signals have post-publication alpha. Separate pre-filing return-chasing from post-publication incremental information.
 - Decision: regulatory timing/schema breaks are now explicit, but 13D/G remains not alpha-ready until global subject-issuer discovery, effective-dated security identity, delisted coverage and legacy HTML parsing pass. No returns/alpha tests or F80 changes.
+
+
+## 2026-11-05 — Phase 124 global 13D/13G sample in progress
+
+- Workflow run 42063309365 is active; do not launch a duplicate. The initial run 42063200612 failed before any SEC requests because the direct-script import path omitted the research directory; this was corrected in commit 990fa31d500d78e5f959651048d1329bda036fd2.
+- The corrected run passed compilation and all 9 offline regression tests and downloaded the immutable Phase 82, Phase 84 and Phase 120 artifacts successfully.
+- The live step is currently building a 600-filing deterministic hash-stratified sample across 172 quarter × form-family × amendment strata from 324,964 global 13D/G index accessions (2016Q1–2026Q3), excluding 762 accessions already covered by prior pilots/predecessor work. SEC raw-submission retrieval and role/security coverage adjudication are still running; no results yet.
+- No return/alpha test or production change is part of Phase 124. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
