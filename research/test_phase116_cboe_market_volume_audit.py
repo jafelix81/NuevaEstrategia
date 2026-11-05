@@ -53,10 +53,10 @@ class Phase116Tests(unittest.TestCase):
 
     def test_monthly_url_legacy_daily_schema_detected(self):
         header = ",".join(phase116.DAILY_HEADER)
-        row = "2009-01-02,NYSE,1,2,3,6,10,20,30,60,1,2,3,6"
+        row = "2009-01,NYSE,1,2,3,6,10,20,30,60,1,2,3,6"
         parsed = phase116.parse_download_payload((header + "\n" + row + "\n").encode(), "monthly", 2009)
-        self.assertEqual(parsed["source_schema"], "daily_header_on_monthly_url")
-        self.assertIn(next(iter(parsed["dates"])).isoformat(), ["2009-01-02"])
+        self.assertEqual(parsed["source_schema"], "legacy_monthly_day_header")
+        self.assertEqual(parsed["month_agg"][("2009-01", "NYSE")]["Total Shares"], phase116.Decimal("6"))
 
     def test_monthly_daily_reconciliation(self):
         # Exercise the reconciliation function directly with parsed fixture objects.
