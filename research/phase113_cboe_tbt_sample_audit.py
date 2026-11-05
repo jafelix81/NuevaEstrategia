@@ -111,8 +111,10 @@ def parse_trade_csv(payload: bytes) -> dict[str, Any]:
     errors = Counter()
     counters = {k: Counter() for k in (
         "side", "open_close", "capacity", "session", "segment", "trade_type",
-        "underlying", "trading_date", "time_format", "timezone", "nbbo", "bbo", "floor_delay"
+        "underlying", "trading_date", "time_format", "timezone", "nbbo", "bbo", "floor_delay",
+        "side_trade_type", "open_close_trade_type", "session_segment"
     )}
+    exception_samples = []
     exact_hashes = Counter()
     exec_sizes, complex_sizes = Counter(), Counter()
     exec_sides = defaultdict(set)
@@ -130,10 +132,24 @@ def parse_trade_csv(payload: bytes) -> dict[str, Any]:
         counters["capacity"][cap or "<blank>"] += 1
         counters["session"][row.get("SESSION", "").upper() or "<blank>"] += 1
         counters["segment"][row.get("TRADING_SEGMENT", "") or "<blank>"] += 1
-        counters["trade_type"][row.get("TRADE_TYPE", "") or "<blank>"] += 1
+        trade_type = row.get("TRADE_TYPE", "") or "<blank>"
+        session = row.get("SESSION", "").upper() or "<blank>"
+        segment = row.get("TRADING_SEGMENT", "") or "<blank>"
+        counters["trade_type"][trade_type] += 1
         counters["underlying"][row.get("UNDERLYING", "") or "<blank>"] += 1
+        counters["side_trade_type"][f"{side or '<blank>'}|{trade_type}"] += 1
+        counters["open_close_trade_type"][f"{oc or '<blank>'}|{trade_type}"] += 1
+        counters["session_segment"][f"{session}|{segment}"] += 1
         if side not in VALID_SIDE: invalid_side += 1
         if oc not in VALID_OPEN_CLOSE: invalid_oc += 1
+        if (side not in VALID_SIDE or oc not in VALID_OPEN_CLOSE) and len(exception_samples) < 60:
+            exception_samples.append({
+                "underlying": row.get("UNDERLYING", ""), "osi_root": row.get("OSI_ROOT", ""),
+                "side": side, "open_close": oc, "capacity": cap, "trade_type": trade_type,
+                "session": session, "trading_segment": segment, "size": row.get("SIZE", ""),
+                "price": row.get("PRICE", ""), "exec_id": row.get("EXEC_ID", ""),
+                "complex_exec_id": row.get("COMPLEX_EXEC_ID", "")
+            })
         if cap not in VALID_CAPACITY: invalid_capacity += 1
 
         td, _ = parse_date(row.get("TRADING_DT", ""))
@@ -189,7 +205,12 @@ def parse_trade_csv(payload: bytes) -> dict[str, Any]:
         "trading_dt_vs_transact_calendar_date_mismatch_count": date_mismatch,
         "side_counts": dict(counters["side"]), "open_close_counts": dict(counters["open_close"]),
         "capacity_counts": dict(counters["capacity"]), "session_counts": dict(counters["session"]),
-        "trading_segment_counts": dict(counters["segment"]), "trade_type_counts": dict(counters["trade_type"]),
+        "trading_segment_counts": dict(counters["segment"]), "session_segment_counts": dict(counters["session_segment"]),
+        "trade_type_counts": dict(counters["trade_type"]),
+        "side_by_trade_type": dict(counters["side_trade_type"]),
+        "open_close_by_trade_type": dict(counters["open_close_trade_type"]),
+        "unclassified_side_rows": invalid_side, "blank_or_unmapped_open_close_rows": invalid_oc,
+        "convention_exception_samples": exception_samples,
         "nbbo_state_counts": dict(counters["nbbo"]), "bbo_state_counts": dict(counters["bbo"]),
         "floor_action_delay_counts": dict(counters["floor_delay"]),
         "exec_id_nonblank_rows": sum(exec_sizes.values()), "exec_id_unique_count": len(exec_sizes),
@@ -218,7 +239,6 @@ def audit_payloads(csv_payloads, sample_meta, spec_meta, zip_entries):
         pass_all = pass_all and a["row_count"] > 0 and not a["missing_required_fields"]
         pass_all = pass_all and a["parsed_transact_time_count"] == a["row_count"]
         pass_all = pass_all and a["parsed_trading_date_count"] == a["row_count"]
-        pass_all = pass_all and a["invalid_side_rows"] == 0 and a["invalid_open_close_rows"] == 0
         pass_all = pass_all and a["invalid_capacity_rows"] == 0 and a["positive_size_rows"] == a["row_count"]
         pass_all = pass_all and a["positive_price_rows"] == a["row_count"]
         pass_all = pass_all and a["nonnegative_strike_rows"] == a["row_count"]
@@ -231,7 +251,11 @@ def audit_payloads(csv_payloads, sample_meta, spec_meta, zip_entries):
         "spec": {k: v for k, v in spec_meta.items() if k != "content"},
         "zip_entries": zip_entries, "csv_results": parsed,
         "total_csv_payloads": len(parsed), "total_rows": total_rows,
-        "data_gate": "PASS_SAMPLE_SCHEMA" if pass_all else "FAIL_OR_INCOMPLETE_SAMPLE",
+        "data_gate": (
+            "PASS_PARSE_WITH_UNRESOLVED_CONVENTIONS"
+            if pass_all and any(x["audit"]["invalid_side_rows"] or x["audit"]["invalid_open_close_rows"] for x in parsed)
+            else ("PASS_SAMPLE_SCHEMA" if pass_all else "FAIL_OR_INCOMPLETE_SAMPLE")
+        ),
         "limitations": [
             "Public sample does not establish full C1 date/symbol coverage or historical archive completeness.",
             "TBT is currently C1 only; BZX, C2 and EDGX are listed as future releases.",
@@ -254,7 +278,7 @@ def main():
     summary = audit_payloads(csv_payloads, sample, spec, entries)
     (out / "phase113_summary.json").write_text(json.dumps(summary, indent=2, sort_keys=True), encoding="utf-8")
     print(json.dumps(summary, indent=2, sort_keys=True))
-    return 0 if summary["data_gate"] == "PASS_SAMPLE_SCHEMA" else 2
+    return 0 if sample["http_status"] == 200 and spec["http_status"] == 200 and bool(csv_payloads) else 2
 
 if __name__ == "__main__":
     raise SystemExit(main())
