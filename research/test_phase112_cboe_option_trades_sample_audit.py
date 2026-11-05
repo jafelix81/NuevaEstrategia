@@ -14,7 +14,7 @@ HEADER = (
 def row(symbol="AAPL", seq=1, price="1.05", bid="1.00", ask="1.10", size=10):
     return (
         f"{symbol},2025-03-28,2025-03-28 10:00:00.123,{seq},AAPL,2025-04-17,"
-        f"200,C,1,{size},{price},0,0,100,{bid},{ask},100,199.90,200.10,0\n"
+        f"200,C,1,{size},{price},0,0,100,{bid},{ask},100,199.90,200.10\n"
     )
 
 
