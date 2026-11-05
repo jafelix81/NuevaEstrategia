@@ -368,7 +368,7 @@ The Phase 100 FINRA ATS revalidation run 41969978743 remained active at the last
 
 This section supersedes the earlier Phase 108 note that said the run was in progress.
 
-- Actions run 41983989795 completed successfully; job `audit` passed, the six offline regression tests passed, and artifact 13395870951 was retained. No Actions runs were in progress at the next status check.
+- Actions run 41983989795 completed successfully; job `audit` passed, the seven offline regression tests passed, and artifact 13395870951 was retained. No Actions runs were in progress at the next status check.
 - Re-queried 2022-01-03/T2 (139,176 rows, 28 pages) and 2025-01-06/T2 (136,362 rows, 28 pages) with expanded participant/publication fields. All 56 pages reconciled exactly to FINRA Record-Total; zero week/tier mismatches and zero request errors.
 - Coarse-key collision groups were 9,653 and 8,964, but the diagnostic expanded key (symbol, week, tier, summary type, product type, MPID, firmCRDNumber, lastReportedDate) had zero collision groups in either partition. The expanded key is still not proven to be FINRA's definitive natural key.
 - The earlier LND “conflicting duplicates” are distinct participant/report-date rows, not duplicates. The symbol-level ATS/OTC and symbol-firm levels overlap; do not add them together. LND OTC symbol-only values match De Minimis Firm values by lastReportedDate. ATS symbol-only rows have a cohort/cumulative relationship that needs a full ten-partition reconciliation before deciding the correct aggregation rule.
