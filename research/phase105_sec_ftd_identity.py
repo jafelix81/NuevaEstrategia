@@ -10,6 +10,7 @@ import hashlib
 import io
 import json
 import re
+import sys
 import zipfile
 from collections import Counter, defaultdict
 from datetime import datetime
@@ -17,6 +18,7 @@ from pathlib import Path
 
 import requests
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from research.phase102_sec_ftd_multiperiod_audit import SAMPLES, USER_AGENT, parse_text_member
 
 OUT = Path("phase105_sec_ftd_identity")
