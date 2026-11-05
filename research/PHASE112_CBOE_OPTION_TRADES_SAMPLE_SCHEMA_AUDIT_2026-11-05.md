@@ -104,3 +104,8 @@ The next offline test attempt exposed a missing `re` import in the new timestamp
 
 
 The first sample-style timestamp test initially retained the old date prefix and therefore did not reproduce the actual time-only field. The fixture was corrected to the exact sample representation (market_date M/D/YYYY; quote_datetime HH:MM.fraction), and the next live audit is triggered. No live download occurred in the failed test run.
+
+
+## Sample rows parsed — mapping and clock audit pending
+
+The corrected parser now recognizes the two nested CSV variants and the current sample's M/D/YYYY market date and compact quote-clock field. The next run will also inspect the official exchange-ID CSV and trade-condition workbook, report the observed ID-to-description mappings, and measure whether the compact clock candidate is monotonic with OPRA sequence_number. No time-zone or clock semantics will be assumed from the compact field.
