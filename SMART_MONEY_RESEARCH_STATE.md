@@ -294,3 +294,22 @@ The Phase 100 FINRA ATS revalidation run 41969978743 remained active at the last
 - Phase 103 run 41974948247 exposed a documentation-versus-file schema mismatch, not a failed SEC download: all six quarterly files were retrieved, but the actual CSV headers use LitVol('000), OrderVol('000), HiddenVol('000), TradeVolForHidden('000), TradesForOddLots, OddLotVol('000), and TradeVolForOddLots('000), rather than the landing page's advertised Trades, TradeVol, LitVol, OrderVol, etc. The parser was corrected to the actual header and now records this discrepancy plus the explicit “thousands” units.
 - Phase 103 run 41975080361 is testing the corrected parser against six quarters (2012Q1, 2016Q1, 2017Q2, 2019Q4, 2025Q4, 2026Q2). It also measures legacy-335 overlap, whether the Security field is CUSIP-like, and HTTP Last-Modified metadata. PIT release vintage and inactive-security coverage remain unproven.
 - Phase 100/103 are feasibility audits only; no forward-return test or F80 change is authorized.
+
+
+### 2026-11-05 — Phase 103/104 SEC MIDAS actual-file and PIT decision
+
+- Phase 103 run 41975686235 completed successfully; artifact 13391039377 (SHA-256 `2f144b95b11badef40498d168bc1ee5297f07b58f1b4061bd68317cd3fb34d89`). Six official quarterly files (2012Q1, 2016Q1, 2017Q2, 2019Q4, 2025Q4, 2026Q2) downloaded and passed actual-schema/date checks.
+- Sample size ranged 306,238–542,295 rows; 5,064–9,216 unique tickers. Legacy-335 overlap ranged 54.33%–83.28%, but this is only a diagnostic against the user's arbitrary/manual legacy list, not broad-universe coverage.
+- Actual file schema has Ticker/Date/Security (Stock/ETF), no CUSIP-like permanent identifier. Historical security identity and inactive/delisted coverage remain unverified.
+- Duplicate audit: 2016Q1 two and 2019Q4 six duplicate keys differ only in rank fields; activity volumes/counts match in inspected rows. 2025Q4 has 355 and 2026Q2 19 exact duplicate groups. No silent deduplication; a deterministic rank-only resolution rule must be preregistered.
+- HTTP Last-Modified is not a valid PIT anchor: 2012Q1/2016Q1 files report 2020-12-19, 2017Q2 reports 1970-01-01, 2019Q4 reports 2020-12-19, 2025Q4 2026-07-17, and 2026Q2 2026-08-06. ETag absent in all six. Data.gov dataset modified date 2017-10-30 is stale; SEC page's current update date is not original quarter release time.
+- SEC methodology: stock/ETP universe sourced from CRSP daily stock records and refreshed monthly with a 3–4 week lag; 2017-05-01 NYSE Ultrabook→NIF change affects hidden-trade measures; 2025-11-03 new round-lot definition affects odd-lot measures; on-exchange continuous-trading aggregates generally exclude off-exchange volume, auctions and off-hours. MIDAS remains a microstructure hypothesis, not investor identity or signed flow.
+- Some contemporaneous SEC Market Structure bulletins establish release dates for Q3 2021 (2021-11-02), Q1 2023 (2023-05-02), and Q4 2023 (2024-01-31), but not a complete 58-quarter ledger. Phase 104 report records exact results and gates.
+- Decision: schema/sample PASS only; PIT, permanent identity and inactive/delisted gates not passed. No returns test authorized. F80 unchanged.
+
+### 2026-11-05 — Phase 100 synchronous FINRA pagination correction
+
+- Latest Phase 100 run 41975745942 failed after offline tests passed. Live FINRA responses supplied Record-Total/Record-Limit/Record-Offset but omitted Total-Records-On-Page; the implementation incorrectly required that optional/absent header, so all sampled partitions were marked errors before coverage was measured. One additional partition request returned HTTP 500.
+- The workflow had no FINRA_API_TOKEN secret and therefore used synchronous mode. The failure is an implementation/response-header mismatch, not evidence that ATS coverage failed.
+- Corrected synchronous pagination to use Total-Records-On-Page when present, otherwise the actual parsed response-body row count; require Record-Total, validate Record-Offset when supplied, advance by actual returned rows, and continue until exact Record-Total reconciliation. Added bounded retries for transient 408/429/5xx/network failures and regression tests. A single new live run will validate this correction; do not duplicate while active.
+- Phase 100 remains data-feasibility only. No returns, alpha test, vendor purchase, or F80 change.

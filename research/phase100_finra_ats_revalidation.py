@@ -263,30 +263,74 @@ def fetch_partition_async(session: requests.Session, week: str, tier: str):
     return rows, pages
 
 
+def parse_sync_page_metadata(headers, page_rows: list[dict], week: str, tier: str, offset: int):
+    """Validate FINRA pagination using headers when present and body length otherwise."""
+    normalized = {str(key).lower(): value for key, value in headers.items()}
+    record_total_raw = normalized.get("record-total")
+    if record_total_raw is None:
+        raise RuntimeError(
+            f"FINRA sync response lacks Record-Total for {week}/{tier} offset={offset}"
+        )
+    record_total = int(record_total_raw)
+    page_count_raw = normalized.get("total-records-on-page")
+    page_count_source = "header" if page_count_raw is not None else "body_length"
+    page_count = int(page_count_raw) if page_count_raw is not None else len(page_rows)
+    if page_count != len(page_rows):
+        raise RuntimeError(
+            f"FINRA page-count mismatch for {week}/{tier} offset={offset}: "
+            f"header/body={page_count}, parsed={len(page_rows)}"
+        )
+    if page_count > SYNC_PAGE_SIZE:
+        raise RuntimeError(
+            f"FINRA page exceeds synchronous limit for {week}/{tier}: "
+            f"rows={page_count}, limit={SYNC_PAGE_SIZE}"
+        )
+    record_offset_raw = normalized.get("record-offset")
+    if record_offset_raw is not None and int(record_offset_raw) != offset:
+        raise RuntimeError(
+            f"FINRA Record-Offset mismatch for {week}/{tier}: "
+            f"header={record_offset_raw}, requested={offset}"
+        )
+    return record_total, page_count, page_count_source
+
+
+def post_sync_page(session: requests.Session, week: str, tier: str, offset: int):
+    """Bounded retry for transient FINRA throttling and server/network failures."""
+    payload = build_sync_payload(week, tier, offset)
+    retryable_statuses = {408, 429, 500, 502, 503, 504}
+    for attempt in range(4):
+        try:
+            response = session.post(BASE, json=payload, timeout=(20, 120))
+        except requests.RequestException:
+            if attempt == 3:
+                raise
+            time.sleep(min(3 * (2 ** attempt), 30))
+            continue
+        if response.status_code in retryable_statuses:
+            if attempt == 3:
+                response.raise_for_status()
+            retry_after = response.headers.get("Retry-After")
+            try:
+                delay = float(retry_after) if retry_after is not None else 3 * (2 ** attempt)
+            except (TypeError, ValueError):
+                delay = 3 * (2 ** attempt)
+            time.sleep(max(0, min(delay, 60)))
+            continue
+        response.raise_for_status()
+        return response, attempt + 1
+    raise RuntimeError(f"FINRA sync request exhausted retries for {week}/{tier} offset={offset}")
+
+
 def fetch_partition_sync(session: requests.Session, week: str, tier: str):
     rows, pages = [], []
     offset = 0
     expected_total = None
     for page in range(MAX_SYNC_PAGES):
-        response = session.post(
-            BASE, json=build_sync_payload(week, tier, offset), timeout=(20, 120)
-        )
-        response.raise_for_status()
+        response, request_attempts = post_sync_page(session, week, tier, offset)
         page_rows = parse_response(response.json())
-        record_total_raw = response.headers.get("Record-Total")
-        page_count_raw = response.headers.get("Total-Records-On-Page")
-        if record_total_raw is None or page_count_raw is None:
-            raise RuntimeError(
-                f"FINRA sync response lacks Record-Total/Total-Records-On-Page "
-                f"for {week}/{tier} offset={offset}; headers={dict(response.headers)}"
-            )
-        record_total = int(record_total_raw)
-        page_count = int(page_count_raw)
-        if page_count != len(page_rows):
-            raise RuntimeError(
-                f"FINRA Total-Records-On-Page mismatch for {week}/{tier} offset={offset}: "
-                f"header={page_count}, parsed={len(page_rows)}"
-            )
+        record_total, page_count, page_count_source = parse_sync_page_metadata(
+            response.headers, page_rows, week, tier, offset
+        )
         if expected_total is None:
             expected_total = record_total
         elif record_total != expected_total:
@@ -297,7 +341,12 @@ def fetch_partition_sync(session: requests.Session, week: str, tier: str):
         pages.append({
             "week": week, "tier": tier, "page": page, "offset": offset,
             "rows": len(page_rows), "record_total": record_total,
-            "total_records_on_page": page_count, "status_polls": 0,
+            "total_records_on_page_header": response.headers.get("Total-Records-On-Page"),
+            "page_count_source": page_count_source,
+            "record_limit": response.headers.get("Record-Limit"),
+            "record_offset": response.headers.get("Record-Offset"),
+            "request_attempts": request_attempts,
+            "status_polls": 0,
             "request_id": response.headers.get("FINRA-api-request-id"),
             "async_status": "sync", "request_mode": "sync",
             "sha256": hashlib.sha256(response.content).hexdigest(),

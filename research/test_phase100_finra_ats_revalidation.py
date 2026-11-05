@@ -8,6 +8,7 @@ from research.phase100_finra_ats_revalidation import (
     build_async_payload,
     build_sync_payload,
     parse_response,
+    parse_sync_page_metadata,
     parse_date,
     parse_nonnegative_number,
     validate_partition_rows,
@@ -59,6 +60,36 @@ class Phase100FinraTests(unittest.TestCase):
             [(x["fieldName"], x["fieldValue"]) for x in payload["compareFilters"]],
             [("historicalWeek", "2025-01-06"), ("tierIdentifier", "T2")],
         )
+
+    def test_sync_page_metadata_falls_back_to_actual_body_length(self):
+        headers = {"record-total": "9", "record-limit": "5000", "record-offset": "0"}
+        rows = [{"id": 1}, {"id": 2}, {"id": 3}]
+        self.assertEqual(
+            parse_sync_page_metadata(headers, rows, "2025-01-06", "T1", 0),
+            (9, 3, "body_length"),
+        )
+
+    def test_sync_page_metadata_uses_and_checks_header_when_available(self):
+        headers = {"Record-Total": "4", "Total-Records-On-Page": "2", "Record-Offset": "2"}
+        rows = [{"id": 3}, {"id": 4}]
+        self.assertEqual(
+            parse_sync_page_metadata(headers, rows, "2025-01-06", "T1", 2),
+            (4, 2, "header"),
+        )
+        with self.assertRaises(RuntimeError):
+            parse_sync_page_metadata(
+                {**headers, "Total-Records-On-Page": "1"},
+                rows, "2025-01-06", "T1", 2,
+            )
+
+    def test_sync_page_metadata_rejects_missing_total_or_wrong_offset(self):
+        with self.assertRaises(RuntimeError):
+            parse_sync_page_metadata({}, [{"id": 1}], "2025-01-06", "T1", 0)
+        with self.assertRaises(RuntimeError):
+            parse_sync_page_metadata(
+                {"record-total": "3", "record-offset": "5"},
+                [{"id": 1}], "2025-01-06", "T1", 0,
+            )
 
     def test_async_payload_uses_historical_week_and_tier(self):
         payload = build_async_payload("2025-01-06", "T2", 100000)
