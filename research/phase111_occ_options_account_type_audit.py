@@ -15,7 +15,7 @@ from typing import Any
 import requests
 
 ENDPOINT = "https://marketdata.theocc.com/onn-volume-download"
-DATES = ("20160531", "20190531", "20231103", "20261103")
+DATES = ("20160531", "20190531", "20231103", "20241104", "20241105", "20241106", "20261103")
 EXCHANGE_CODES = set("ABCDEFGHIJKLM PQRSTUVWXZ".replace(" ", ""))
 EXPECTED_WIDTH = 40
 
@@ -184,9 +184,16 @@ def fetch_one(session: requests.Session, report_date: str, out_dir: Path) -> dic
     expected_date_match = (
         parsed["header_start"] == report_date and parsed["header_end"] == report_date
     )
+    expected_header_date = f"{report_date[4:6]}{report_date[6:8]}{report_date[0:4]}"
+    expected_date_match = (
+        parsed["header_start"] == expected_header_date
+        and parsed["header_end"] == expected_header_date
+    )
     record.update(
         {
             "available": parsed["row_count"] > 0,
+            "response_preview": payload[:200].decode("utf-8", errors="replace") if parsed["row_count"] == 0 else None,
+            "error": "non_data_response" if parsed["row_count"] == 0 and not parsed["header_start"] else None,
             "header_start": parsed["header_start"],
             "header_end": parsed["header_end"],
             "header_matches_requested_date": expected_date_match,
