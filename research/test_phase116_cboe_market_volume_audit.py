@@ -72,6 +72,14 @@ class Phase116Tests(unittest.TestCase):
         parsed = phase116.parse_csv((header + "\n" + row + "\n").encode(), "monthly", 2026)
         self.assertEqual(parsed["rows"], 1)
 
+
+    def test_legacy_trf_market_center_codes(self):
+        self.assertTrue(phase116.is_trf_market_center("NASDAQ (DQ)"))
+        self.assertTrue(phase116.is_trf_market_center("NYSE (DN)"))
+        self.assertTrue(phase116.is_trf_market_center("NASDAQ (DB)"))
+        self.assertTrue(phase116.is_trf_market_center("FINRA / Nasdaq TRF Carteret (DQ)"))
+        self.assertFalse(phase116.is_trf_market_center("NASDAQ (Q)"))
+
     def test_negative_value_rejected(self):
         header = ",".join(phase116.DAILY_HEADER)
         row = "2026-01-02,NYSE,1,2,-3,0,10,20,30,60,1,2,3,6"
