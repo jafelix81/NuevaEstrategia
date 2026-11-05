@@ -85,7 +85,7 @@ The product page documents historical convention changes:
 
 The EOD specification says preliminary files use OPRA for total-industry volume/open interest, while final files use OCC values; those fields may change between preliminary and final files. The product page also describes total-industry volume and open interest as third-party/best-effort value-adds. Treat these as a separate, versioned data family; do not mix preliminary and final OI or silently carry historical values across the documented convention changes.
 
-## 6. Databento OPRA cross-check — a useful independent reconstruction route, with a hard 2023 boundary
+## 6. Databento OPRA cross-check — broad multi-venue reconstruction with a schema-specific 2025 PIT boundary
 
 Official OPRA dataset page: https://databento.com/datasets/OPRA.PILLAR  
 Official schema documentation: https://databento.com/docs/datasets/opra-pillar  
@@ -130,3 +130,10 @@ Promote Cboe Open-Close intraday/EOD to the **top-tier conditional participant-c
 Databento OPRA is the strongest broad multi-venue route for independent trade/NBBO reconstruction; strict TCBBO PIT begins no earlier than the 2025-05-27 production cutover. TCBBO backfill from 2023-03-28 to 2025-05-26 is retrospective, and pre-2023-03-28 data are not suitable for event-level signing. IVolatility's new 2015 signed-flow history remains a retrospective backfill until historical knowledge-time/vintages are shown. Cboe Volatility Surfaces remains a separate volatility-context candidate.
 
 No raw data purchase, account/trial, vendor contact, terms acceptance, return test, portfolio change or production change occurred. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+
+## 8. Post-commit repository verification
+
+- Phase 138 report and state updates are committed on the working branch; final branch head at this verification: `f6cf1b206064eb22f039f4c91913023a6381e87c`.
+- PR #13 is open/unmerged and GitHub reports `mergeable=true`, `mergeable_state=clean`; compare shows 257 commits ahead and 1 behind `main`.
+- Repository Actions queries after the documentation commits still show zero in-progress and zero queued runs. No workflow was started by this audit.
