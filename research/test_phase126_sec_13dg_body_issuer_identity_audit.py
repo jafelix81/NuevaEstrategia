@@ -8,6 +8,17 @@ class Phase126Tests(unittest.TestCase):
         self.assertIsNone(clean_issuer_candidate("§ 240.13d-2(a)"))
         self.assertIsNone(clean_issuer_candidate("Formerly United Mobile Homes, Inc."))
         self.assertEqual(clean_issuer_candidate("01)* StoneCastle Financial Corp."), "StoneCastle Financial Corp.")
+        self.assertEqual(clean_issuer_candidate("COMMISSION StoneCastle Financial Corp."), "StoneCastle Financial Corp.")
+
+    def test_header_former_company_parser(self):
+        from research.phase126_sec_13dg_body_issuer_identity_audit import extract_header_former_company
+        raw = """<SEC-HEADER>
+FORMER COMPANY:
+FORMER CONFORMED NAME: StoneCastle Financial Corp.
+DATE OF NAME CHANGE: 20130611
+FILED BY:
+</SEC-HEADER>"""
+        self.assertEqual(extract_header_former_company(raw), "StoneCastle Financial Corp.")
 
     def test_normalize_cik(self):
         self.assertEqual(normalize_cik("0001628063"), "1628063")

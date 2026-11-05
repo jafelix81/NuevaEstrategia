@@ -30,14 +30,9 @@ MANUAL_CASES = {
         "body_issuer_name": "Nano Mobile Healthcare, Inc.", "cusip": "63010B200",
         "note": "SEC-HEADER subject company differs from the issuer named on the 13D cover page."
     },
-    "0001172661-24-001310": {
-        "subject_cik": "1578987", "filer_cik": "1837915",
-        "subject_name": "ArrowMark Financial Corp.", "filer_name": "ArrowMark Colorado Holdings LLC",
-        "body_issuer_name": "StoneCastle Financial Corp.", "cusip": "861780104",
-        "note": "SEC-HEADER subject company differs from the issuer named on the 13G cover page."
-    },
 }
 SERITAGE_ANCHOR = "0001193125-21-208169"
+RENAME_CONTROL = "0001172661-24-001310"
 
 
 def read_csv(path):
@@ -54,6 +49,14 @@ def normalize_cik(value):
     return norm_cik(value)
 
 
+def extract_header_former_company(raw):
+    match = re.search(r"FORMER COMPANY:\s*(.*?)(?=FILED BY:|</SEC-HEADER>|$)", raw, flags=re.I | re.S)
+    if not match:
+        return None
+    name = re.search(r"FORMER CONFORMED NAME:\s*([^\r\n]+)", match.group(1), flags=re.I)
+    return name.group(1).strip() if name else None
+
+
 def normalize_name(value):
     value = re.sub(r"[^A-Z0-9 ]", " ", str(value or "").upper())
     return re.sub(r"\s+", " ", value).strip()
@@ -63,6 +66,7 @@ def clean_issuer_candidate(value):
     value = re.sub(r"^\s*\d+\s*\)\s*\*?\s*", "", str(value or ""))
     value = re.sub(r"^\s*\d+\s*\(a\)\s*[-:]?\s*", "", value, flags=re.I)
     value = re.sub(r"^\s*(?:INITIAL\s+FILING|FINAL\s+AMENDMENT)\s+", "", value, flags=re.I)
+    value = re.sub(r"^\s*COMMISSION\s+", "", value, flags=re.I)
     value = re.sub(r"\s*\(the\s+[" + '"' + r"“]?Issuer[" + '"' + r"”]?\)\.?$", "", value, flags=re.I)
     value = re.sub(r"\s+", " ", value).strip(" :()")
     boilerplate = (
@@ -171,7 +175,7 @@ def audit(phase124_dir: Path, phase125_dir: Path, output_dir: Path):
 
     cusip_by_accession = {r["accession"]: r for r in rows125}
     output_rows, errors, alias_rows = [], [], []
-    manual_accessions = set(MANUAL_CASES) | {SERITAGE_ANCHOR}
+    manual_accessions = set(MANUAL_CASES) | {SERITAGE_ANCHOR, RENAME_CONTROL}
     xml_matches = 0
     xml_rows = 0
     for row in rows124:
@@ -221,6 +225,7 @@ def audit(phase124_dir: Path, phase125_dir: Path, output_dir: Path):
             "accession": accession, "family": row["family"], "filing_date": header.get("filed_date"),
             "header_subject_cik": subject_cik, "header_subject_name": row.get("subject_name"),
             "header_filer_cik": filer_cik, "header_filer_name": row.get("filer_name"),
+            "header_former_company_name": extract_header_former_company(raw),
             "body_issuer_name": body_name, "xml_issuer_name": xml_name, "xml_issuer_cik": xml_cik,
             "xml_issuer_cik_matches_header": (xml_cik == subject_cik) if xml_cik else None,
             "cusip": c.get("cusip"), "cusip_status": c.get("cusip_status"),
@@ -250,6 +255,23 @@ def audit(phase124_dir: Path, phase125_dir: Path, output_dir: Path):
             "accession": accession, **expected, "checks": checks,
             "subject_equals_filer": row["subject_equals_filer"],
         })
+
+    rename = by_accession.get(RENAME_CONTROL)
+    if rename is None:
+        errors.append({"accession": RENAME_CONTROL, "error": "historical rename control missing"})
+    else:
+        rename_checks = {
+            "subject_cik": rename["header_subject_cik"] == "1578987",
+            "filer_cik": rename["header_filer_cik"] == "1483859",
+            "subject_name": normalize_name(rename["header_subject_name"]) == normalize_name("ArrowMark Financial Corp."),
+            "filer_name": normalize_name(rename["header_filer_name"]) == normalize_name("ArrowMark Colorado Holdings LLC"),
+            "former_company_name": normalize_name(rename["header_former_company_name"]) == normalize_name("StoneCastle Financial Corp."),
+            "body_issuer_name": normalize_name(rename["body_issuer_name"]) == normalize_name("StoneCastle Financial Corp."),
+            "cusip": rename["cusip"] == "861780104",
+            "cusip_valid": rename["cusip_status"] == "UNIQUE_CHECKSUM_VALID",
+        }
+        if not all(rename_checks.values()):
+            errors.append({"accession": RENAME_CONTROL, "error": "historical rename control assertion failed", "checks": rename_checks, "row": rename})
 
     anchor = by_accession.get(SERITAGE_ANCHOR)
     if anchor is None:
@@ -301,7 +323,16 @@ def audit(phase124_dir: Path, phase125_dir: Path, output_dir: Path):
         "xml_rows": xml_rows, "xml_issuer_cik_header_matches": xml_matches,
         "header_subject_cik_present_rows": sum(bool(r["header_subject_cik"]) for r in output_rows),
         "header_subject_equals_filer_rows": sum(r["subject_equals_filer"] for r in output_rows),
-        "confirmed_legacy_header_body_issuer_mismatches": confirmed,
+        "confirmed_legacy_header_body_issuer_discrepancies": confirmed,
+        "historical_rename_control": {
+            "accession": RENAME_CONTROL,
+            "header_subject_name": rename.get("header_subject_name") if rename else None,
+            "header_former_company_name": rename.get("header_former_company_name") if rename else None,
+            "body_issuer_name": rename.get("body_issuer_name") if rename else None,
+            "header_subject_cik": rename.get("header_subject_cik") if rename else None,
+            "body_cusip": rename.get("cusip") if rename else None,
+            "interpretation": "Valid historical issuer-name change; same issuer CIK is retained, so this is not a header/body role error."
+        },
         "seritage_cusip_cross_filing": {
             "cusip": "81752R100", "filings": [r["accession"] for r in seritage_rows],
             "distinct_header_subject_ciks": sorted(seritage_subject_ciks),
@@ -311,12 +342,12 @@ def audit(phase124_dir: Path, phase125_dir: Path, output_dir: Path):
         "interpretation": [
             "SEC-HEADER SUBJECT COMPANY CIK is not a reliable issuer CIK for every legacy HTML 13D/G filing.",
             "The 81752R100 Seritage cross-filing is especially probative: two filings carry different header subject CIKs but the same body issuer name and cover-page CUSIP.",
-            "The three hand-adjudicated legacy examples are concrete exceptions, not a statistically estimated global mismatch rate.",
+            "The two hand-adjudicated legacy header/body issuer discrepancies are concrete exceptions, not a statistically estimated global mismatch rate; a third name difference is a verified historical rename and is not an error.",
             "Structured XML issuerCik matched SEC-HEADER subject CIK in all 102 XML rows in this sample; this does not prove universal correctness outside the sample.",
             "For legacy 13D/G, use body cover-page issuer name plus effective-dated CUSIP/security mapping; do not treat header subject CIK presence as issuer-universe coverage."
         ],
         "limitations": [
-            "Only four legacy cover pages were hand-adjudicated in this phase; no broad automated body-issuer parser was promoted.",
+            "Two legacy header/body issuer discrepancies and one historical-rename control were hand-adjudicated; no broad automated body-issuer parser was promoted.",
             "CUSIP is not permanent and requires effective-dated corporate-action, share-class and delisting-aware security mapping.",
             "The sample is a hash-stratified filing-index sample, not a historical tradable-security universe; no inferential confidence interval is claimed.",
             "No forward returns, features, alpha tests, vendor purchases, or production changes were performed."
