@@ -9,6 +9,7 @@ import gzip
 import hashlib
 import io
 import json
+import re
 import zipfile
 from collections import Counter
 from datetime import datetime, timezone
