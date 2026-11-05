@@ -15,6 +15,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from phase120_sec_13dg_predecessor_content_audit import (
     choose_mirror, fetch_url, form_family, norm_cik, parse_submission, tag_values, xml_root
 )
+from phase118_sec_13dg_phase84_adjudication import (
+    classify_form_relationship, parse_submission as parse_form_evidence
+)
 
 SAMPLE_N = 600
 USER_AGENT = "jafelix81 research contact jafelix@gmail.com"
@@ -41,6 +44,20 @@ def sha256_file(path):
         for block in iter(lambda: f.read(1024 * 1024), b""):
             h.update(block)
     return h.hexdigest()
+
+
+def classify_sampled_submission(index_form, header, raw, expected_accession, expected_filed_date):
+    """Separate true 13D/G filings from SEC index aliases without hiding conflicts."""
+    header_form, document_types = parse_form_evidence(raw)
+    if (header.get("accession") != expected_accession
+            or header.get("filed_date") != expected_filed_date):
+        return "INVALID_IDENTITY", header_form, document_types
+    relationship = classify_form_relationship(index_form, header_form, document_types)
+    classification = {
+        "match": "VALID_13DG",
+        "index_alias_non_13dg": "INDEX_ALIAS_NON_13DG",
+    }.get(relationship, "UNRESOLVED_FORM_CONFLICT")
+    return classification, header_form, document_types
 
 def sample_hash(accession):
     return hashlib.sha256((SALT + accession).encode("utf-8")).hexdigest()
@@ -166,8 +183,10 @@ def download_sample(sample, output_dir, sleep_seconds=0.18):
             path_attempts += 1
             time.sleep(sleep_seconds)
             valid = False
+            classification = "HTTP_OR_EMPTY"
             header = {}
             digest = None
+            document_types = []
             if status == 200 and body:
                 raw = body.decode("utf-8", errors="replace")
                 parsed = parse_submission(raw, family)
@@ -176,32 +195,100 @@ def download_sample(sample, output_dir, sleep_seconds=0.18):
                     "form": parsed.get("form"),
                     "form_family": form_family(parsed.get("form")),
                     "filed_date": parsed.get("filed_date"),
+                    "acceptance_datetime": parsed.get("acceptance_datetime"),
                     "subject_cik": parsed.get("header_subject_cik"),
+                    "subject_name": parsed.get("subject_name"),
                     "filer_cik": parsed.get("header_filer_cik"),
+                    "filer_name": parsed.get("filer_name"),
                 }
-                valid = (
-                    header["accession"] == accession
-                    and header["form_family"] == family
-                    and header["filed_date"] == row["filing_date"]
+                classification, header_form, document_types = classify_sampled_submission(
+                    row.get("form") or family, header, raw, accession, row["filing_date"]
                 )
-                if valid:
+                valid = classification == "VALID_13DG"
+                if valid or classification == "INDEX_ALIAS_NON_13DG":
                     digest = sha256_bytes(body)
             candidates.append({
                 "path": path, "http_status": status, "error": error,
-                "valid": valid, "sha256": digest, "header": header,
-                "body": body if valid else None,
+                "valid": valid, "classification": classification,
+                "document_types": document_types, "sha256": digest, "header": header,
+                "body": body if (valid or classification == "INDEX_ALIAS_NON_13DG") else None,
             })
-        chosen, mirror_status = choose_mirror(candidates)
-        if chosen is None:
+        valid_candidates = [c for c in candidates if c.get("classification") == "VALID_13DG"]
+        alias_candidates = [c for c in candidates if c.get("classification") == "INDEX_ALIAS_NON_13DG"]
+        unresolved_candidates = [c for c in candidates if c.get("classification") == "UNRESOLVED_FORM_CONFLICT"]
+
+        def append_failure(status_label):
             results.append({
                 "accession": accession, "quarter": row["quarter"], "family": family,
-                "is_amendment": row["is_amendment"], "filing_date_index": row["filing_date"],
-                "download_status": mirror_status, "valid_path_count": sum(c["valid"] for c in candidates),
+                "index_form": row.get("form"), "is_amendment": row["is_amendment"],
+                "filing_date_index": row["filing_date"], "download_status": status_label,
+                "is_index_alias": None, "valid_path_count": len(valid_candidates),
+                "index_alias_path_count": len(alias_candidates),
                 "path_attempts": len(candidates), "path_results": [
                     {k:v for k,v in c.items() if k != "body"} for c in candidates
                 ],
                 "sample_weight": row["sample_weight"], "sample_stratum": row["sample_stratum"],
+                "sample_hash": row.get("sample_hash"),
             })
+
+        # A single accession resolving to both a true 13D/G and a non-13D/G
+        # header is a mirror/content conflict, not a valid filing or alias.
+        if valid_candidates and (alias_candidates or unresolved_candidates):
+            append_failure("MIRROR_FORM_CONFLICT")
+            continue
+
+        if valid_candidates:
+            chosen, mirror_status = choose_mirror(valid_candidates)
+            if chosen is None:
+                append_failure(mirror_status)
+                continue
+        elif alias_candidates and not unresolved_candidates:
+            alias_hashes = {c["sha256"] for c in alias_candidates}
+            if len(alias_hashes) != 1:
+                append_failure("INDEX_ALIAS_MIRROR_CONTENT_CONFLICT")
+                continue
+            chosen = alias_candidates[0]
+            mirror_status = "IDENTICAL_ALIAS_MIRRORS" if len(alias_candidates) > 1 else "SINGLE_ALIAS_PATH"
+            body = chosen["body"]
+            raw_path = raw_dir / (accession.replace("-", "") + ".txt")
+            raw_path.write_bytes(body)
+            h = chosen["header"]
+            master_ciks_alias = {norm_cik(x) for x in parse_json_list(row.get("master_index_ciks"))}
+            archive_ciks_alias = {norm_cik(x) for x in parse_json_list(row.get("archive_path_ciks"))}
+            results.append({
+                "accession": accession, "quarter": row["quarter"], "family": family,
+                "index_form": row.get("form"), "form": h.get("form"),
+                "is_amendment": row["is_amendment"],
+                "filing_date_index": row["filing_date"], "filing_date_header": h.get("filed_date"),
+                "acceptance_datetime": h.get("acceptance_datetime"),
+                "subject_cik": h.get("subject_cik"), "subject_name": h.get("subject_name"),
+                "filer_cik": h.get("filer_cik"), "filer_name": h.get("filer_name"),
+                "master_index_ciks": sorted(x for x in master_ciks_alias if x),
+                "archive_path_ciks": sorted(x for x in archive_ciks_alias if x),
+                "subject_in_master_index": h.get("subject_cik") in master_ciks_alias if h.get("subject_cik") else False,
+                "filer_in_master_index": h.get("filer_cik") in master_ciks_alias if h.get("filer_cik") else False,
+                "subject_in_archive_paths": h.get("subject_cik") in archive_ciks_alias if h.get("subject_cik") else False,
+                "filer_in_archive_paths": h.get("filer_cik") in archive_ciks_alias if h.get("filer_cik") else False,
+                "xml_present": False, "cusip_present": False, "class_title": None,
+                "reporting_person_count": 0, "raw_sha256": chosen["sha256"],
+                "raw_bytes": len(body), "raw_file": str(raw_path.relative_to(output_dir)),
+                "mirror_status": mirror_status, "valid_path_count": 0,
+                "index_alias_path_count": len(alias_candidates), "path_attempts": len(candidates),
+                "path_results": [{k:v for k,v in c.items() if k != "body"} for c in candidates],
+                "download_status": "INDEX_ALIAS_NON_13DG", "is_index_alias": True,
+                "index_alias_reason": (
+                    f"SEC header form {h.get('form')} and document types "
+                    f"{chosen.get('document_types', [])} do not identify a 13D/G submission"
+                ),
+                "sample_weight": row["sample_weight"], "sample_stratum": row["sample_stratum"],
+                "sample_hash": row.get("sample_hash"),
+            })
+            continue
+        elif unresolved_candidates:
+            append_failure("UNRESOLVED_FORM_CONFLICT")
+            continue
+        else:
+            append_failure("NO_VALID_PATH")
             continue
 
         body = chosen["body"]
@@ -225,7 +312,8 @@ def download_sample(sample, output_dir, sleep_seconds=0.18):
         expected_xml = row["filing_date"] >= MANDATORY_XML_DATE
         results.append({
             "accession": accession, "quarter": row["quarter"], "family": family,
-            "form": parsed.get("form"), "is_amendment": row["is_amendment"],
+            "index_form": row.get("form"), "form": parsed.get("form"),
+            "is_index_alias": False, "is_amendment": row["is_amendment"],
             "filing_date_index": row["filing_date"], "filing_date_header": parsed.get("filed_date"),
             "acceptance_datetime": parsed.get("acceptance_datetime"),
             "subject_cik": subject, "subject_name": parsed.get("subject_name"),
@@ -300,7 +388,13 @@ def main():
                 writer.writerow(clean)
 
     successful = [r for r in results if r.get("download_status") is None]
-    failures = [r for r in results if r.get("download_status") is not None]
+    aliases = [r for r in results if r.get("download_status") == "INDEX_ALIAS_NON_13DG"]
+    failures = [r for r in results if r.get("download_status") not in (None, "INDEX_ALIAS_NON_13DG")]
+    resolved_rows = len(successful) + len(aliases)
+    if resolved_rows == SAMPLE_N and not failures:
+        final_status = "PASS_WITH_INDEX_ALIAS_QUARANTINE" if aliases else "PASS_GLOBAL_STRATIFIED_SAMPLE_WITH_CAVEATS"
+    else:
+        final_status = "INCOMPLETE"
     header_accession = sum(r.get("accession") is not None for r in successful)
     header_form = sum(form_family(r.get("form")) == r.get("family") for r in successful)
     header_date = sum(r.get("filing_date_header") == r.get("filing_date_index") for r in successful)
@@ -310,7 +404,7 @@ def main():
     subject_rows = [r for r in successful if r.get("subject_cik")]
     summary = {
         "phase": "124-global-sec-13dg-stratified-submission-audit",
-        "status": "PASS_GLOBAL_STRATIFIED_SAMPLE_WITH_CAVEATS" if len(successful) == SAMPLE_N and not failures else "INCOMPLETE",
+        "status": final_status,
         "phase82_index_sha256": sha256_file(index_path),
         "phase82_global_index_rows": sample_meta["index_rows"],
         "phase82_unique_accessions": sample_meta["unique_index_accessions"],
@@ -320,6 +414,9 @@ def main():
         "nonempty_strata": sample_meta["strata"],
         "sample_size": len(sample),
         "sampled_downloads_validated": len(successful),
+        "sampled_index_rows_resolved": resolved_rows,
+        "index_alias_non_13dg": len(aliases),
+        "weighted_index_alias_rate": weighted_rate(results, "is_index_alias"),
         "download_or_mirror_failures": len(failures),
         "archive_path_attempts": path_attempts,
         "header_accession_matches": header_accession,
@@ -359,6 +456,7 @@ def main():
             "Legacy HTML CUSIP extraction is a heuristic probe only; no legacy reporting-person/ownership parser is validated by this phase.",
             "A CUSIP and class title are not a permanent security identifier without effective-dated corporate-action and issuer mapping.",
             "Acceptance timestamp is retained but not independently proven to equal public dissemination time; use conservative next-session availability.",
+            "SEC index aliases whose raw header and document types prove a non-13D/G submission are quarantined and excluded from actual-form coverage denominators; unresolved form conflicts remain failures.",
             "No forward returns, feature engineering, alpha tests, vendor purchases or production changes."
         ]
     }
