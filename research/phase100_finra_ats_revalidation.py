@@ -56,13 +56,13 @@ def parse_response(obj) -> list[dict]:
     if isinstance(obj, list):
         return [x for x in obj if isinstance(x, dict)]
     if isinstance(obj, dict):
+        if obj.get("message") or obj.get("statusCode"):
+            raise ValueError(f"FINRA returned an error object: {obj}")
         data = obj.get("data", [])
         if isinstance(data, dict):
             data = data.get("data", [])
         if isinstance(data, list):
             return [x for x in data if isinstance(x, dict)]
-        if obj.get("message") or obj.get("statusCode"):
-            raise ValueError(f"FINRA returned an error object: {obj}")
     raise ValueError(f"Unexpected FINRA response shape: {type(obj).__name__}")
 
 
