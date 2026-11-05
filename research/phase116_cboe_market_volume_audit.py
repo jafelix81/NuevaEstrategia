@@ -12,6 +12,7 @@ import hashlib
 import io
 import json
 import math
+import re
 import os
 from collections import defaultdict
 from datetime import date, datetime
@@ -54,6 +55,13 @@ def dec(value: str, field: str) -> Decimal:
     if not x.is_finite() or x < 0:
         raise ValueError("negative or non-finite numeric value in " + field)
     return x
+
+
+def is_trf_market_center(participant: str) -> bool:
+    name = (participant or "").upper()
+    match = re.search(r"\\(([A-Z0-9]+)\\)\\s*$", name)
+    code = match.group(1) if match else None
+    return "TRF" in name or code in {"DQ", "DN", "DB"}
 
 
 def parse_csv(data: bytes, kind: str, year: int) -> dict:
@@ -114,7 +122,7 @@ def parse_csv(data: bytes, kind: str, year: int) -> dict:
         for name, value in vals.items():
             month_agg[agg_key][name] += value
         if kind == "daily":
-            if "TRF" in participant.upper():
+            if is_trf_market_center(participant):
                 for name, value in vals.items():
                     trf_summary[period][name] += value
             for name, value in vals.items():
