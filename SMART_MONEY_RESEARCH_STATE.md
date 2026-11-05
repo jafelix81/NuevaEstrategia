@@ -207,3 +207,60 @@ F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No forward-return test or produ
 - The 335-name list is a legacy F80 comparability set only. It is not a statistically defined sample, not a representative market universe, and not the primary universe for Smart Money Research.
 - F80 historical performance must be described as conditional on the manually selected 335 names. Preserve the set only for exact legacy comparison; build the broad research universe independently from point-in-time security/listing records with explicit eligibility rules and delisted coverage.
 - Phase 99 report corrected accordingly. No F80 change, data purchase, vendor contact, data acquisition or alpha test.
+
+
+---
+
+## 2026-11-05 — Phase 99/100 reconciliation and source triage
+
+This section supersedes older forward-looking notes in this file where they conflict with the latest user clarification or the Actions evidence below.
+
+### Universe correction (Phase 99)
+
+The user clarified that the legacy 335 tickers were manually and arbitrarily selected; no formal selection methodology existed and none should be reconstructed. Stop attempting to recover Phase 70/71 logic for those 335. Keep the list only for exact F80 legacy comparability. It is not representative, statistically designed, or the ceiling for Smart Money research. The Phase 99 broad point-in-time universe charter remains on PR #13; PR #13 is open and not merged.
+
+### Phase 20C — FINRA daily short-flow decision
+
+Run 40098425254 completed successfully. The diagnostic used 329 valid names, 20 eligible training signals, 12 pseudo-OOS dates and left six final holdout signals unused. Results were horizon-unstable and weak:
+
+- 5 sessions: mean replacement-minus-blocked delta +0.141%, median -0.050%, 5/12 positive, standard deviation 5.27%.
+- 10 sessions: mean -1.687%, median -1.837%, 3/12 positive, standard deviation 7.50%.
+- 20 sessions: mean -0.858%, median -0.333%, 5/12 positive, standard deviation 16.53%.
+- Training-selected factor frequency: SHORT_RATIO_Z20 6 dates, SHORT_EXEMPT_RATIO 5, SHORT_RATIO_PERSIST20 1.
+
+No bootstrap/issuer-clustered inference or LOO stability was reported. The denominator 1,382/2,020 file requests is not a valid coverage rate because the requested-date denominator includes weekends and holidays. The sample is conditional on the arbitrary legacy 335-name list.
+
+**Decision:** kill this current FINRA daily short-volume-ratio feature-selection/replacement implementation for stock selection. Do not spend the six final holdout dates after the pseudo-OOS failure. This does not kill every possible FINRA mechanism: weekly ATS/non-ATS activity is a distinct source under separate audit. Phase 31 flow × short-interest divergence remains killed as independent alpha. See research/PHASE100_FINRA_SHORTFLOW_WALKFORWARD_DECISION_2026-11-05.md.
+
+### FINRA weekly ATS / non-ATS OTC (Phase 38 and Phase 100)
+
+Phase 38 run 40466439768 completed successfully: 959,997 rows, 17,221 unique symbols, 333/335 legacy names observed across the five sampled weeks and T1/T2 tiers, no request errors, and the initialPublishedDate field was present. This is promising public security-level off-exchange data, but Phase 38 pooled coverage across weeks and counted any symbol-bearing row; it did not establish per-week coverage for symbol-level aggregates or row-level partition integrity.
+
+Phase 100 corrected revalidation was committed to the Phase 99 branch. The first run failed only an offline parser test; the error-object parser was corrected. The second run, 41969978743, passed all seven offline tests and was in progress on the live historical-partition audit at the latest check. Do not duplicate it while active. Phase 100 separately checks ATS_W_SMBL / OTC_W_SMBL aggregates, exact week/tier integrity, per-week combined legacy coverage, quantities, duplicates, publication lags and post-publication update dates. No forward returns are used.
+
+FINRA documentation describes initialPublishedDate as the first Monday or next business day after the reporting delay (two weeks for T1, four weeks for T2/OTC). weeklySummaryHistoric exposes a rolling four-year window between one and five years prior to the current date; it is not a complete 2016-present archive. Current historical values do not by themselves prove original-vintage preservation. Even if Phase 100 passes coverage/schema gates, PIT revision history and permanent security identity remain separate gates. ATS/OTC activity is not aggressor direction, beneficial ownership, or proof of informed trading.
+
+### Options source triage
+
+- OCC Daily Open Interest Phase 53 actual endpoint audit failed: eight sample dates produced only 2–23 parsed rows, zero recognized underlying symbols, and zero usable legacy-universe coverage. Do not use this endpoint as a daily OI panel without a materially corrected endpoint/schema.
+- OCC Volume Query Phase 53B is a separate source and returned usable recent account-type volume for 645/670 ticker-date probes (96.27%) across two recent sample dates. It is limited to approximately 24 months, does not provide buy/sell direction or open/close classification, and its historical publication timestamp is unverified. Retain only as a recent, secondary feasibility candidate; no long-OOS alpha test.
+- Cboe Open-Close EOD sample Phase 54 contained 23,179 rows in a 20% C1 sample and reached 288/335 legacy tickers (85.97%) on the sampled date. It has materially richer participant-capacity/open-close fields but is not full OPRA coverage and requires licensed commercial data. This remains the strongest options information-density candidate, but no vendor contact, purchase, or data acquisition is authorized.
+- Phase 95 DOOD units/history/PIT audit remains unresolved; no exact independent replication or return test is authorized.
+
+### Other public candidates and execution status
+
+- FINRA blocksSummary remains killed for stock selection because its live schema has no security/ticker identifier; aggregate market-regime use is a different, lower-priority hypothesis.
+- SEC FTD remains a public candidate with documented half-month publication conventions, but the actual-file workflow exists without a corresponding completed Actions run in the latest audit. Treat the actual-file gate as pending, not completed.
+- SEC MIDAS remains a promising public daily market-structure source, but actual quarterly-file coverage and conservative PIT release timing have not passed.
+- Phase 69 Form 144 incremental scan completed with zero new candidates for the ten newly mapped fund CIKs; its offline regression run passed 45 tests. No further scan is warranted without a materially changed candidate set.
+- Phase 93 13D/G parsing and Phase 94 DOOD formula regression tests completed successfully; these are parsing/formula validations, not alpha evidence.
+- Phase 35 and Phase 22C runs are no longer active: the latest relevant runs were cancelled and their guarded replacements skipped. There is no reason to duplicate them.
+
+### Current priority and permissions
+
+1. Finish the already-running Phase 100 FINRA weekly ATS revalidation. If it passes, proceed to a preregistered PIT/security-identity gate, not an immediate alpha test.
+2. Continue the broad PIT security-master design beyond the arbitrary 335 names. CRSP remains the preferred inactive/delisted return benchmark; Databento Security Master remains a two-clock identity candidate; Norgate remains an index-membership cross-check. Public documentation is not proof of licensed coverage.
+3. Keep Cboe Open-Close + option EOD as the highest-information options candidate pending explicit authorization for licensed access.
+4. Keep OCC Volume Query as recent-only and SEC FTD/MIDAS as public candidates pending their actual-file/PIT gates.
+
+F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No production change, alpha claim, vendor contact, purchase, or data acquisition has occurred.
