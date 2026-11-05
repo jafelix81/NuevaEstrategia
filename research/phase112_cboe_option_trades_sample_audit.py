@@ -27,7 +27,6 @@ REQUIRED = {
     "trade_size", "trade_price", "trade_condition_id",
     "canceled_trade_condition_id", "best_bid_size", "best_bid",
     "best_ask", "best_ask_size", "underlying_bid", "underlying_ask",
-    "number_of_exchanges",
 }
 
 
@@ -74,7 +73,7 @@ def parse_trade_csv(payload: bytes) -> dict[str, Any]:
         try:
             underlying = row["underlying_symbol"]
             market_date = row["market_date"]
-            quote_dt = datetime.strptime(row["quote_datetime"], "%Y-%m-%d %H:%M:%S.%f")
+            quote_dt = datetime.fromisoformat(row["quote_datetime"].replace("Z", "+00:00"))
             sequence = to_int(row["sequence_number"])
             root = row["root"]
             expiration = row["expiration"]
@@ -88,8 +87,11 @@ def parse_trade_csv(payload: bytes) -> dict[str, Any]:
             ask = to_float(row["best_ask"])
             bid_size = to_int(row["best_bid_size"])
             ask_size = to_int(row["best_ask_size"])
-        except (KeyError, ValueError, TypeError):
-            errors["parse_error"] += 1
+        except KeyError as exc:
+            errors["missing_field:" + str(exc)] += 1
+            continue
+        except (ValueError, TypeError) as exc:
+            errors["parse_error:" + str(exc)[:80]] += 1
             continue
 
         if not underlying:
@@ -166,6 +168,7 @@ def parse_trade_csv(payload: bytes) -> dict[str, Any]:
     duplicate_count = len(sequence_keys) - len(set(sequence_keys))
     return {
         "fields": fields,
+        "raw_sample_lines": text.splitlines()[:6],
         "missing_required_fields": missing,
         "row_count": len(rows),
         "unique_underlyings": len(underlyings),
