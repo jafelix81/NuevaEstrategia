@@ -56,6 +56,15 @@ class Phase113TBTTests(unittest.TestCase):
         r = parse_trade_csv(b"TRANSACT_TIME,TRADING_DT\n2026-01-07 09:30:00,2026-01-07\n")
         self.assertIn("SIDE", r["missing_required_fields"])
 
+    def test_non_directional_side_and_blank_open_close_are_preserved(self):
+        r = parse_trade_csv((HEADER + row(SIDE="T", OPEN_CLOSE="")).encode())
+        self.assertEqual(r["invalid_side_rows"], 1)
+        self.assertEqual(r["invalid_open_close_rows"], 1)
+        self.assertEqual(r["unclassified_side_rows"], 1)
+        self.assertEqual(r["blank_or_unmapped_open_close_rows"], 1)
+        self.assertIn("T|AIM Agency - Simple", r["side_by_trade_type"])
+        self.assertIn("<blank>|AIM Agency - Simple", r["open_close_by_trade_type"])
+
     def test_nested_zip_and_gzip_csv_are_found(self):
         inner = gzip.compress((HEADER + row()).encode())
         b1 = io.BytesIO()
