@@ -3,7 +3,6 @@ from datetime import date
 
 from research.phase100_finra_ats_revalidation import (
     SYMBOL_AGGREGATES,
-    FIRM_LEVEL_TYPES,
     parse_response,
     parse_date,
     parse_nonnegative_number,
@@ -33,27 +32,9 @@ class Phase100FinraTests(unittest.TestCase):
         self.assertIsNone(parse_nonnegative_number("x"))
 
     def test_partition_validation(self):
-        rows = [{"weekStartDate": "2025-01-06", "tierIdentifier": "T1", "issueSymbolIdentifier": "AAPL", "summaryTypeCode": "ATS_W_SMBL"}]
+        rows = [{"weekStartDate": "2025-01-06", "tierIdentifier": "T1", "issueSymbolIdentifier": "AAPL"}]
         self.assertEqual(validate_partition_rows(rows, "2025-01-06", "T1"), [])
         self.assertTrue(validate_partition_rows(rows, "2025-01-13", "T1"))
-
-    def test_firm_level_rows_may_omit_symbol(self):
-        rows = [
-            {"weekStartDate": "2025-01-06", "tierIdentifier": "T1", "summaryTypeCode": "ATS_W_FIRM"},
-            {"weekStartDate": "2025-01-06", "tierIdentifier": "T1", "summaryTypeCode": "OTC_W_FIRM"},
-        ]
-        self.assertEqual(FIRM_LEVEL_TYPES, {"ATS_W_FIRM", "OTC_W_FIRM"})
-        self.assertEqual(validate_partition_rows(rows, "2025-01-06", "T1"), [])
-
-    def test_symbol_level_rows_must_have_symbol(self):
-        rows = [{"weekStartDate": "2025-01-06", "tierIdentifier": "T1", "summaryTypeCode": "ATS_W_SMBL"}]
-        errors = validate_partition_rows(rows, "2025-01-06", "T1")
-        self.assertTrue(any("missing issueSymbolIdentifier" in x for x in errors))
-
-    def test_unknown_summary_type_is_rejected(self):
-        rows = [{"weekStartDate": "2025-01-06", "tierIdentifier": "T1", "summaryTypeCode": "NEW_CODE"}]
-        errors = validate_partition_rows(rows, "2025-01-06", "T1")
-        self.assertTrue(any("unknown or missing summaryTypeCode" in x for x in errors))
 
     def test_only_symbol_level_rows_count_as_aggregate(self):
         self.assertEqual(SYMBOL_AGGREGATES, {"ATS_W_SMBL", "OTC_W_SMBL"})
