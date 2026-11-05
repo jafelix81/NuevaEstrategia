@@ -1,7 +1,7 @@
 # Phase 113 — Cboe Enhanced US Options Trade-by-Trade (TBT) sample feasibility
 
 **Date:** 2026-11-05  
-**Status:** public sample parsed; convention exceptions under targeted review  
+**Status:** sample parser passed; semantic convention flags remain unresolved  
 **Scope:** data feasibility only; no forward returns, alpha test, purchase, subscription or vendor contact.
 
 ## Why this source is materially different
@@ -55,3 +55,44 @@ No purchase, subscription, vendor contact or acceptance of additional terms is a
 
 
 The parser/workflow were revised after run 42023567791 to retain convention exceptions, add cross-tabs and exception-row samples, and always upload the raw public sample artifact. The next hosted run will distinguish successful file parsing from unresolved semantic conventions.
+
+
+## Final hosted sample audit — run 42023896730
+
+The corrected workflow completed successfully. All 9 offline tests passed; the public sample and official v1.1 PDF downloaded with HTTP 200; the raw ZIP and JSON artifact were retained.
+
+- Artifact: https://github.com/jafelix81/NuevaEstrategia/actions/runs/42023896730/artifacts/13413280759
+- Sample ZIP: 3,807,739 bytes; SHA-256 6c99e69e43d259e81bc31334574579cf9c623f5e77ff596cacf268712cd3262c.
+- Current v1.1 PDF: 306,668 bytes; SHA-256 e70599e0829dc5d030ac2e47b73fbd12afd6b7b31047d3ae354bbd884e65dffa.
+- Nested sample CSV: 113,018 rows; 16,486,601 bytes; SHA-256 24394a233dc20066b1fad675deb15cd99bf91e8620a69f6bf50f190dfda62ba0.
+- Sample trade date: 2025-03-28; 1,250 underlyings; C1 only; sample filename says 3%.
+
+### Reconciliation of sample v1.0 and current v1.1 conventions
+
+The sample archive contains an embedded TBT v1.0 PDF dated 2026-01-12. Its field names are lowercase and its container is ZIP; the current v1.1 spec (2026-10-05) uses uppercase names and CSV.GZ. Both versions describe SIDE as B/S, OPEN_CLOSE as O/C, and the same trading-segment examples (1 prior-evening/overnight, 2 daytime). Thus the observed values below are not explained by a documented v1.0-to-v1.1 change.
+
+### Sample exceptions and coverage
+
+- SIDE: B 56,635; S 56,314; T 69. All 69 T rows also have blank OPEN_CLOSE. T occurs only with Complex Add (23), Complex Remove (28), COA Responder (9), COA Initiator (8), and Opening Cross (1). Do not interpret T as buyer or seller.
+- OPEN_CLOSE: O 69,184; C 23,654; blank 20,180 (17.86%). Blank values span 19 trade types; the largest are Simple Add (6,007), Simple Remove (5,419), COA Responder (3,325), Complex Remove (2,614), AIM Responder - Complex (806) and AIM Responder - Simple (713). Do not impute O/C.
+- CAPACITY: MarketMaker 58,293; Customer 49,989; ProCustomer 2,699; Firm 1,879; BrokerDealer 158. These are exchange capacity categories, not beneficial-owner identities.
+- SESSION: RTH 111,240; GTH 1,671; Curb 107. TRADING_SEGMENT is 1 for every row, including all RTH rows; this conflicts with the spec's illustrative RTH2/GTH1 examples. Preserve SESSION, but do not rely on TRADING_SEGMENT for time segmentation until Cboe explains or an independently verified file resolves it.
+- 306 transact_time/TRADING_DT calendar-date mismatches are all GTH; RTH and Curb have zero. This is consistent with the documented GTH cross-midnight caveat.
+- NBBO: 111,756 valid; 45 locked; 12 crossed; 1,205 zero/missing. BBO: 109,410 valid; 3,608 zero/missing.
+- FLOOR_ACTION_TS exists on 618 rows: 61 have transact_time minus floor_action_ts >=90 seconds; 557 are between 0 and 90 seconds; none are negative.
+- EXEC_ID: 111,333 unique IDs over 113,018 rows; 1,685 repeated groups, all with both B and S sides. These are execution links, not duplicate records. COMPLEX_EXEC_ID has 46,350 unique IDs and 2,875 repeated groups (2,770 size 2; 103 size 3; 2 size 4). Exact duplicate rows: zero.
+
+The run's data_gate is PASS_PARSE_WITH_UNRESOLVED_CONVENTIONS: structural parsing, numeric fields, timestamps, capacities and duplicate-row checks passed, but side/open-close/segment semantics remain unresolved. This is not a data-approval or alpha gate.
+
+### Decision
+
+Keep C1 TBT as the highest-information conditional options candidate because it explicitly carries side, open/close, capacity and execution type, with history advertised from 2019-10-07 and T+1 delivery. Do not yet use it for a directional/open-close feature. Exclude SIDE=T and blank OPEN_CLOSE from any such candidate feature unless the semantics are resolved; do not use TRADING_SEGMENT. C1-only coverage and the 3% sample are not sufficient to infer universe completeness or whole-market representativeness.
+
+Next gates:
+1. Compare C1 TBT against C1 Open-Close on the same dates/series and identical population or known sampling fraction.
+2. Verify the 2019-10-07 archive boundary and missing-date/symbol coverage; a sample does not prove historical completeness.
+3. Crosswalk all 1,250 sample underlyings and historical/delisted securities to the broad PIT security master.
+4. Establish actual file availability/correction timing before a conservative T+1 feature timestamp.
+5. Preregister a narrow feature set only after the above; no returns or alpha test yet.
+
+No purchase, subscription, vendor contact, terms acceptance, or production change occurred. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
