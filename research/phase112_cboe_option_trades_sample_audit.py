@@ -166,6 +166,8 @@ def parse_trade_csv(payload: bytes) -> dict[str, Any]:
         rows.append(row)
 
     duplicate_count = len(sequence_keys) - len(set(sequence_keys))
+    key_text = "\\n".join(sorted(f"{d}|{seq}|{ex}" for d, seq, ex in sequence_keys))
+    sequence_key_sha256 = hashlib.sha256(key_text.encode("utf-8")).hexdigest()
     return {
         "fields": fields,
         "raw_sample_lines": text.splitlines()[:6],
@@ -181,6 +183,7 @@ def parse_trade_csv(payload: bytes) -> dict[str, Any]:
         "quote_state_counts": dict(quote_states),
         "trade_location_counts": dict(trade_locations),
         "sequence_key_duplicate_count": duplicate_count,
+        "sequence_key_sha256": sequence_key_sha256,
         "optional_calcs": dict(optional_calcs),
         "errors": dict(errors),
         "sample_rows": rows[:5],
@@ -291,6 +294,18 @@ def main() -> int:
             "error": error,
         }
 
+    variant_match = None
+    if len(csv_results) >= 2:
+        calcs = next((x for x in csv_results if "Calcs" in x["file"]), None)
+        base = next((x for x in csv_results if "Calcs" not in x["file"]), None)
+        if calcs and base:
+            variant_match = {
+                "row_count_match": calcs["audit"]["row_count"] == base["audit"]["row_count"],
+                "sequence_key_hash_match": calcs["audit"]["sequence_key_sha256"] == base["audit"]["sequence_key_sha256"],
+                "calcs_rows": calcs["audit"]["row_count"],
+                "base_rows": base["audit"]["row_count"],
+            }
+
     schema_pass = (
         sample_status == 200
         and len(csv_results) > 0
@@ -309,6 +324,7 @@ def main() -> int:
         "zip_error": zip_error,
         "zip_entries": zip_entries,
         "csv_results": csv_results,
+        "calcs_vs_base_variant_match": variant_match,
         "mappings": mapping_results,
         "data_gate": "PASS_SAMPLE_SCHEMA" if schema_pass else "FAIL_OR_INCOMPLETE_SAMPLE",
         "limitations": [
