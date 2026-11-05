@@ -277,3 +277,20 @@ The prior note that the SEC FTD actual-file gate was pending is superseded. Phas
 SEC FTD is now a **public actual-file/schema feasibility pass**, not an alpha pass. The series is a cumulative net fail balance, not daily fails flow; the SEC warns it can arise from both long and short sales. Pre-2008-09-16 coverage has a 10,000-share threshold; later data includes all positive balances. The stated release schedule is approximate (first half at month-end; second half about the 15th of the next month) and the SEC does not guarantee exact posting dates. Next gates are multi-period continuity, CUSIP/symbol lifecycle mapping, PIT publication timing, and inactive-security return linkage. No forward-return test is authorized yet.
 
 The Phase 100 FINRA ATS revalidation run 41969978743 remained active at the last status check; its seven offline tests passed and its live historical partition audit had not yet completed. Do not duplicate it.
+
+
+## 2026-11-05 — Phase 102 SEC FTD multi-period actual-file audit
+
+- Phase 102 run 41974948169 passed all seven representative archive downloads/schema checks. It sampled 2004Q2, 2008Q3/Q4, 2009Q2, July 2009 first half, January 2018 first half, and September 2026 second half. Artifact: phase102-sec-ftd-multiperiod-audit (13391072776).
+- Seven samples passed; 1.50M+ FTD rows were parsed with zero malformed rows, invalid/negative quantity/price fields, duplicate (settlement date, CUSIP, symbol) keys, or trailer reconciliation failures. CUSIP was 100% nonblank; symbol was 100% except one blank in the 2026 sample (99.9985%).
+- The 2008Q3 archive empirically confirms the 2008-09-16 threshold break: 171,520 pre-break rows had a minimum of 10,000 shares and zero below-threshold rows; 113,823 post-break rows included 76,712 balances below 10,000, down to one share. Do not combine the regimes without explicit treatment.
+- The catalog's earliest listed quarterly archive is 2004Q2 even though the SEC landing page describes coverage from February 2004; Feb–Mar 2004 remains unverified. The September 2026 “second half” file includes settlement date 2026-09-15.
+- FTD CUSIP↔ticker is not one-to-one across a quarter. The current audit counts mappings across dates, not same-date conflicts; a per-date lifecycle crosswalk remains necessary. FTD rows are fails balances, not short-sale flow or investor identity. No alpha test.
+- Full report: research/PHASE102_SEC_FTD_MULTIPERIOD_AUDIT_2026-11-05.md.
+
+### Phases 100 and 103 — current execution state
+
+- Phase 100 run 41974948327 is running the asynchronous FINRA historic revalidation after the prior synchronous run remained active for over 25 minutes and was cancelled. Offline tests passed. The new implementation polls no more than once per minute and reconciles retrieved rows to FINRA's Record-Total header. Do not launch another Phase 100 run while it is active.
+- Phase 103 run 41974948247 exposed a documentation-versus-file schema mismatch, not a failed SEC download: all six quarterly files were retrieved, but the actual CSV headers use LitVol('000), OrderVol('000), HiddenVol('000), TradeVolForHidden('000), TradesForOddLots, OddLotVol('000), and TradeVolForOddLots('000), rather than the landing page's advertised Trades, TradeVol, LitVol, OrderVol, etc. The parser was corrected to the actual header and now records this discrepancy plus the explicit “thousands” units.
+- Phase 103 run 41975080361 is testing the corrected parser against six quarters (2012Q1, 2016Q1, 2017Q2, 2019Q4, 2025Q4, 2026Q2). It also measures legacy-335 overlap, whether the Security field is CUSIP-like, and HTTP Last-Modified metadata. PIT release vintage and inactive-security coverage remain unproven.
+- Phase 100/103 are feasibility audits only; no forward-return test or F80 change is authorized.
