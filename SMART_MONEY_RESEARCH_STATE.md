@@ -362,3 +362,24 @@ The Phase 100 FINRA ATS revalidation run 41969978743 remained active at the last
 - It separates week/tier mismatches from missing-symbol anomalies and compares coarse collisions with a candidate key including participant identifiers and lastReportedDate. This expanded key is diagnostic only until FINRA's natural-key/revision semantics are confirmed.
 - Latest run 41983989795 is in progress. Do not duplicate while active.
 - No forward returns, alpha test, vendor purchase/contact, data acquisition or F80 change.
+
+
+### 2026-11-05 — Phase 108 completed: FINRA ATS anomaly resolution
+
+This section supersedes the earlier Phase 108 note that said the run was in progress.
+
+- Actions run 41983989795 completed successfully; job `audit` passed, the six offline regression tests passed, and artifact 13395870951 was retained. No Actions runs were in progress at the next status check.
+- Re-queried 2022-01-03/T2 (139,176 rows, 28 pages) and 2025-01-06/T2 (136,362 rows, 28 pages) with expanded participant/publication fields. All 56 pages reconciled exactly to FINRA Record-Total; zero week/tier mismatches and zero request errors.
+- Coarse-key collision groups were 9,653 and 8,964, but the diagnostic expanded key (symbol, week, tier, summary type, product type, MPID, firmCRDNumber, lastReportedDate) had zero collision groups in either partition. The expanded key is still not proven to be FINRA's definitive natural key.
+- The earlier LND “conflicting duplicates” are distinct participant/report-date rows, not duplicates. The symbol-level ATS/OTC and symbol-firm levels overlap; do not add them together. LND OTC symbol-only values match De Minimis Firm values by lastReportedDate. ATS symbol-only rows have a cohort/cumulative relationship that needs a full ten-partition reconciliation before deciding the correct aggregation rule.
+- The two missing-symbol rows in 2022 are correctly week/tier-partitioned but unallocatable OTC rows: one De Minimis Firms (`firmCRDNumber=0`, no MPID/symbol) and one UTP product row with no symbol. Keep them in completeness accounting; exclude them from security-level features.
+- In the two targeted partitions, 129/35,210 symbol aggregate rows (0.366%) had `lastUpdateDate > initialPublishedDate`. Do not backfill current values to first-publication dates as if the original vintage were known. PIT/revision handling remains conditional.
+- Full result: `research/PHASE108_FINRA_ATS_ANOMALY_RESOLUTION_RESULT_2026-11-05.md`. Spec status updated in `research/PHASE108_FINRA_ATS_ANOMALY_RESOLUTION_SPEC_2026-11-05.md`.
+
+### Current decision after Phase 108
+
+1. Phase 100 broad sample is complete; Phase 108 targeted anomaly objective passed.
+2. FINRA ATS is still not authorized for returns/alpha testing. Next gate is a full expanded-field re-audit of the ten Phase 100 partitions, reconciling symbol-only aggregates to symbol-firm contributions by lastReportedDate, establishing natural-key/revision semantics, and then permanent-ID/PIT linkage to the broad historical equity universe.
+3. If those semantics cannot be established, park FINRA ATS rather than force a signal. Its four-year historic rolling window is a material limitation.
+4. Continue broad Smart Money research in parallel: SEC FTD needs PIT + CUSIP-to-permanent-return-ID/inactive-security linkage; SEC MIDAS needs release-vintage and permanent-identity gates; Cboe Open-Close remains the richest options candidate but requires explicit user authorization before vendor contact, purchase or acquisition. Existing negative/conditional decisions for FINRA short-flow selection, Form 4 standalone alpha, 13F, CFTC stock-level use and N-PORT remain unchanged.
+5. No prices/forward returns used in Phase 108; no alpha claim, vendor contact/purchase or F80 change. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
