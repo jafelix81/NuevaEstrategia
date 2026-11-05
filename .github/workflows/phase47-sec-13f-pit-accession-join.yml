@@ -1,0 +1,25 @@
+name: Phase 47 - SEC 13F PIT accession join audit
+on:
+  push:
+    branches: [phase47-sec-13f-pit-accession-join-audit]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run SEC 13F PIT accession join audit
+        run: python research/phase47_sec_13f_pit_accession_join_audit.py
+      - name: Upload audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase47-sec-13f-pit-accession-join-audit
+          path: sec_13f_pit_accession_join_audit.json
+          retention-days: 30
