@@ -313,3 +313,18 @@ The Phase 100 FINRA ATS revalidation run 41969978743 remained active at the last
 - The workflow had no FINRA_API_TOKEN secret and therefore used synchronous mode. The failure is an implementation/response-header mismatch, not evidence that ATS coverage failed.
 - Corrected synchronous pagination to use Total-Records-On-Page when present, otherwise the actual parsed response-body row count; require Record-Total, validate Record-Offset when supplied, advance by actual returned rows, and continue until exact Record-Total reconciliation. Added bounded retries for transient 408/429/5xx/network failures and regression tests. A single new live run will validate this correction; do not duplicate while active.
 - Phase 100 remains data-feasibility only. No returns, alpha test, vendor purchase, or F80 change.
+
+
+### 2026-11-05 — Phase 105/106 SEC FTD same-day identity and availability result
+
+- Phase 105 successful run 41977069080; artifact 13391249428 (SHA-256 `2ea3a0d365fb8d264c23531a942d5d092b43e3fffbdbd0ecfc15d87ac3218e25`). The first attempt failed only because Actions ran a script path that omitted the repository root from Python import search; path was corrected and the second run passed all offline tests and seven live SEC archive downloads.
+- Seven archives from 2004Q2 through 2026-09 second half parsed successfully. CUSIP was nonblank and valid nine-character format in all sampled rows; one blank ticker symbol in the 2026 sample; zero duplicate (settlement date, CUSIP, symbol) keys.
+- Same-day mapping: zero CUSIPs mapped to multiple symbols in all seven samples; only one symbol mapped to multiple CUSIPs, DPW on 2018-01-02 (CUSIPs 253862106 and 26140E105; descriptions Digital Power Corp and DPW Holdings Inc.). This aligns with the issuer's 2017-12-29 announced name/reincorporation transition while retaining DPW ticker. Preserve both CUSIPs as effective-dated keys; do not collapse by ticker.
+- Cross-date pooled many-to-many counts remain, confirming effective-dated lifecycle changes. Same-day mapping is mostly clean, materially reducing—but not eliminating—the FTD identity risk.
+- HTTP HEAD/GET succeeded for all seven; ETag absent. Last-Modified for the current 2026-09 second-half file is 2026-10-15 (matches approximate SEC release convention), but older files show 2020-12-19 migration timestamps or 1970-01-01. Do not use these as historical PIT vintages.
+- SEC states first-half data are available at month-end and second-half about the 15th of next month, but explicitly does not guarantee posting by a particular date. PIT gate remains NOT ESTABLISHED.
+- FTD still needs CUSIP-to-permanent return-source ID crosswalk, inactive/delisted coverage and a defensible historical knowledge-date rule. No returns or alpha test authorized; F80 unchanged.
+
+### 2026-11-05 — Phase 100 corrected FINRA ATS run
+
+- Corrected live run 41976736121 was launched from commit f1914c30 after 15 offline tests passed. At the time of this state update it remained in progress; do not launch a duplicate. The previous failure was an absent Total-Records-On-Page response header plus one transient HTTP 500, not a data-coverage rejection.
