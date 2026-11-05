@@ -26,7 +26,7 @@ jobs:
           import urllib.request
           urls = {
               '2018a': 'https://www.sec.gov/files/data/fails-deliver-data/cnsfails201801a.zip',
-              '202609b': 'https://www.sec.gov/files/data/fails-deliver-data/cnsfails202609b.zip',
+              '202609b': 'https://www.sec.gov/files/data/other/fails-deliver-data/cnsfails202609b.zip',
           }
           headers = {'User-Agent': 'Felix and Sarmiento Abogados S.C. jose.felix@felixsarmiento.com', 'Accept': 'application/zip,*/*'}
           for name, url in urls.items():
