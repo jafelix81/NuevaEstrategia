@@ -115,6 +115,15 @@ class Phase109Tests(unittest.TestCase):
         self.assertFalse(symbols[0]["fully_reconciled"])
         self.assertEqual(summary["families"]["OTC"]["cohort_matches"], 0)
 
+    def test_negative_quantity_cannot_pass_reconciliation(self):
+        rows = [
+            row("ATS_W_SMBL", last_date="2025-01-08", qty="-100", trades="10"),
+            row("ATS_W_SMBL_FIRM", last_date="2025-01-08", qty="-100", trades="10"),
+        ]
+        summary, details, symbols = cohort_reconcile(rows, "2025-01-06", "T2")
+        self.assertFalse(details[0]["cohort_match"])
+        self.assertFalse(symbols[0]["fully_reconciled"])
+
     def test_missing_symbol_is_counted_separately(self):
         rows = [
             row("OTC_W_SMBL", symbol="", last_date="2025-01-08", qty="50", trades="5"),
