@@ -1,7 +1,7 @@
 # Phase 130 — SEC 13(f) official-list and Form 13F filing PIT/scope adjudication
 
 **Date:** 5 November 2026  
-**Status:** Documentation/source-scope audit complete; Phase 129 live list-overlap audit remains in progress.  
+**Status:** Documentation/source-scope audit complete; Phase 129 live list-overlap audit subsequently hit the 45-minute job timeout and was cancelled without an artifact. No data-coverage conclusion was produced.  
 **Purpose:** Define what the SEC 13(f) Official List and public Form 13F filings can and cannot support before any ownership signal or identity join is attempted.
 
 ## 1. Official 13(f) list: historical availability and scope
@@ -68,3 +68,12 @@ Phase 129's output is intentionally privacy/licensing constrained: it does not u
 - SEC, [Official List of Section 13(f) Securities](https://www.sec.gov/rules-regulations/staff-guidance/official-list-section-13f-securities) — quarterly archive, fixed-width fields and historical snapshots.
 - SEC, [Frequently Asked Questions About Form 13F](https://www.sec.gov/rules-regulations/staff-guidance/frequently-asked-questions-about-form-13f) — eligible-security scope, 45-day filing deadlines, long-only reporting, options, confidentiality and amendments.
 - SEC, [Form 13F Data Sets](https://www.sec.gov/data-research/sec-markets-data/form-13f-data-sets) — public structured filing history, as-filed extracts and quarterly publication notes.
+
+
+## 6. Post-run execution adjudication (2026-11-05)
+
+The latest Phase 129 attempt, [Actions run 42081987897](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42081987897), is cancelled, not running. Its job passed compilation, all regression suites and both immutable input-artifact downloads. The live 45-quarter download/parse/overlap step was cancelled at 18:57:42 UTC after the workflow's 45-minute job limit; the log records an explicit cancellation and termination of the Python process. No artifact was produced.
+
+The current implementation processes 45 quarterly snapshots serially, tries multiple candidate URLs with up to four retries, and writes the manifest only after the complete loop. Consequently, timeout leaves no durable partial progress. This is an execution-time/resumability limitation, not evidence that the SEC lists are unavailable or that CUSIP overlap is low.
+
+**Decision:** do not rerun Phase 129 unchanged. Phase 130 already establishes that the list is only an eligibility cross-check and that Run Date/HTTP metadata do not establish public dissemination time. A future re-entry would require (a) a genuinely necessary research question, (b) resumable per-quarter checkpoints, (c) explicit SEC-compliant request pacing, and (d) independent first-publication evidence. The result must not be used for an alpha feature.
