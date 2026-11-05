@@ -898,3 +898,5 @@ F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No source from Phases 112–113
 - PR [#13](https://github.com/jafelix81/NuevaEstrategia/pull/13) is open, unmerged, mergeable/clean, 252 commits ahead and 1 behind main. No workflow was dispatched. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
 
 - **Phase 138 PIT correction:** Databento TCBBO has historical event coverage from 2023-03-28, but the TCBBO/CMBP-1 schemas were introduced in May 2025 (historical/staging from 2025-05-21; production migration 2025-05-27). Do not treat the 2023-03-28–2025-05-26 TCBBO backfill as contemporaneously available. Strict live TCBBO PIT begins no earlier than 2025-05-27, subject to actual delivery logs. The original 2023 T+1 statement applies to then-existing OPRA schemas, not this later TCBBO schema.
+
+- Final Phase 138 documentation verification: branch head `f6cf1b206064eb22f039f4c91913023a6381e87c`; PR #13 remains open/unmerged, GitHub mergeable=true/clean, 257 commits ahead and 1 behind main; post-commit Actions queries show zero in-progress and zero queued runs. No workflow started.
