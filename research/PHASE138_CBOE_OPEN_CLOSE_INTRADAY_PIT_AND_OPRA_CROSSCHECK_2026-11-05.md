@@ -94,14 +94,15 @@ Original 2023 product launch: https://databento.com/blog/opra-data
 
 Established from the vendor's public documentation:
 - OPRA.PILLAR covers 18 U.S. equity-options venues and has normalized trade/quote/definition schemas from 2013-04-01; schema availability differs by date.
-- From 2023-03-28 onward, event-level TCBBO provides the NBBO immediately before each trade; CMBP-1 and CBBO-1s are also available. This is the viable event-synchronous trade/NBBO signing period.
+- The TCBBO schema provides the NBBO immediately before each trade for historical event dates from 2023-03-28 onward. However, Databento's own May 14, 2025 announcement says TCBBO/CMBP-1 were introduced in 2025: historical availability and live staging began May 21, and the production schema migration replaced TBBO/MBP-1 on May 27, 2025. Thus 2023-03-28 through 2025-05-26 is a retrospective TCBBO backfill, not proof that this exact consolidated schema was available to a trader then.
 - Before 2023-03-28, data are explicitly described as subsampled rather than packet-capture generated. TCBBO, CMBP-1 and CBBO-1s are unavailable; CBBO-1m is the highest BBO granularity. `ts_recv` equals the event timestamp and carries `F_BAD_TS_RECV`; the venue showing the NBBO is not identified, and Statistics contains only aggregated open interest.
 
 Decision:
 - Do **not** sign 2013–2023 trades using minute-end CBBO-1m as if it were the contemporaneous NBBO. That would introduce stale-quote/misclassification risk and false event-time precision.
 - Treat 2013-04-01 to 2023-03-27 as coarse historical options context only.
-- Treat 2023-03-28 onward as the first viable period for event-synchronous, all-OPRA trade/NBBO signing using TCBBO, subject to sample, correction/condition, security-identity, historical availability and licensing audits.
-- Databento's 2023 launch announcement describes continuous T+1 historical availability from 2023-03-28; its 2025 addition of pre-2013-04-01 history is a retrospective extension. Do not backdate that later-added history as if it had been available in 2013.
+- Treat **2025-05-27 onward** as the earliest documented production/live TCBBO window for strict prospective PIT, subject to actual delivery logs, license and sample validation. May 21 was historical/staging availability; May 27 was the production migration/cutover.
+- TCBBO rows for 2023-03-28 through 2025-05-26 may be used only as a clearly labelled retrospective reconstruction/sensitivity, not strict contemporaneous PIT. The original OPRA product's 2023 T+1 availability statement applies to the then-existing schemas and does not establish that the later TCBBO schema was available live in 2023.
+- The 2013-04-01 to 2023-03-27 subsampled backfill is still further removed from event-synchronous PIT. Do not backdate either the 2025 TCBBO schema or the later-added pre-2023 history.
 - This route has no participant-capacity or beneficial-owner identity; it is an independent raw-market microstructure/signing comparison, not a "smart money" label.
 
 ## 7. Pre-registered feature architecture — design only, no returns test
@@ -126,6 +127,6 @@ Before any alpha test:
 
 Promote Cboe Open-Close intraday/EOD to the **top-tier conditional participant-capacity and opening/closing activity candidate**. It is more useful than the prior EOD-only framing, especially for prospective 1-minute/10-minute capture. Keep strict historical PIT and coverage gates closed until immutable snapshots, delivery timestamps and historical security identity are demonstrated.
 
-Databento OPRA is the strongest broad multi-venue route for independent trade/NBBO reconstruction from 2023-03-28 onward; pre-boundary data are not suitable for event-level signing. IVolatility's new 2015 signed-flow history remains a retrospective backfill until historical knowledge-time/vintages are shown. Cboe Volatility Surfaces remains a separate volatility-context candidate.
+Databento OPRA is the strongest broad multi-venue route for independent trade/NBBO reconstruction; strict TCBBO PIT begins no earlier than the 2025-05-27 production cutover. TCBBO backfill from 2023-03-28 to 2025-05-26 is retrospective, and pre-2023-03-28 data are not suitable for event-level signing. IVolatility's new 2015 signed-flow history remains a retrospective backfill until historical knowledge-time/vintages are shown. Cboe Volatility Surfaces remains a separate volatility-context candidate.
 
 No raw data purchase, account/trial, vendor contact, terms acceptance, return test, portfolio change or production change occurred. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
