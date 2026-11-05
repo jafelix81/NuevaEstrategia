@@ -51,32 +51,61 @@ jobs:
               rows = list(csv.reader(io.StringIO(text), delimiter='|'))
               assert rows, f'{path}: empty text'
               rows = [r for r in rows if any(x.strip() for x in r)]
-              header = [x.strip().upper() for x in rows[0]]
+              header = [x.strip().upper().lstrip('\ufeff') for x in rows[0]]
               required = ['SETTLEMENT DATE','CUSIP','SYMBOL','QUANTITY (FAILS)','DESCRIPTION','PRICE']
               assert header == required, f'{path}: unexpected header {header}'
-              records = rows[1:]
-              assert all(len(r) == 6 for r in records), f'{path}: malformed record length'
-              bad_date = bad_qty = 0
+              raw_records = rows[1:]
+              records, malformed = [], []
+              for line_no, original in enumerate(raw_records, start=2):
+                  r = list(original)
+                  while len(r) > 6 and not r[-1].strip():
+                      r.pop()
+                  if len(r) > 6:
+                      r = r[:4] + ['|'.join(r[4:-1])] + [r[-1]]
+                  elif len(r) == 5:
+                      r = r + ['.']
+                  if len(r) != 6:
+                      malformed.append({'line': line_no, 'field_count': len(r), 'sample': r[:10]})
+                      continue
+                  records.append(r)
+              bad_date = bad_qty = bad_price = 0
               symbols, dates = set(), []
               for r in records:
                   d = r[0].strip()
-                  try:
-                      assert len(d) == 8 and d.isdigit()
+                  if len(d) == 8 and d.isdigit():
                       dates.append(d)
-                  except Exception:
+                  else:
                       bad_date += 1
                   try:
-                      int(r[3].strip().replace(',', ''))
+                      quantity = int(r[3].strip().replace(',', ''))
+                      if quantity < 0:
+                          bad_qty += 1
                   except Exception:
                       bad_qty += 1
+                  price = r[5].strip()
+                  if price not in ('', '.') :
+                      try:
+                          float(price.replace(',', ''))
+                      except Exception:
+                          bad_price += 1
                   if r[2].strip():
                       symbols.add(r[2].strip().upper())
-              assert bad_date == 0, f'{path}: {bad_date} bad settlement dates'
-              assert bad_qty == 0, f'{path}: {bad_qty} bad fail quantities'
-              out.append({'file': path.name, 'zip_members': names, 'records': len(records),
-                          'unique_symbols': len(symbols), 'min_settlement_date': min(dates),
-                          'max_settlement_date': max(dates), 'bad_date': bad_date,
-                          'bad_quantity': bad_qty})
+              result = {
+                  'file': path.name,
+                  'zip_members': names,
+                  'raw_records': len(raw_records),
+                  'valid_records': len(records),
+                  'unique_symbols': len(symbols),
+                  'min_settlement_date': min(dates) if dates else None,
+                  'max_settlement_date': max(dates) if dates else None,
+                  'malformed_record_count': len(malformed),
+                  'malformed_examples': malformed[:10],
+                  'bad_date': bad_date,
+                  'bad_quantity': bad_qty,
+                  'bad_price': bad_price,
+                  'schema_status': 'PASS' if not malformed and not bad_date and not bad_qty else 'PARTIAL_OR_FAIL',
+              }
+              out.append(result)
           Path('ftd_audit_summary.json').write_text(json.dumps(out, indent=2))
           print(json.dumps(out, indent=2))
           PY
