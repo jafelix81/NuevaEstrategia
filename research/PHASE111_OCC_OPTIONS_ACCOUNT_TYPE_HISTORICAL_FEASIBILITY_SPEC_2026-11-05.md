@@ -89,3 +89,14 @@ This phase is data feasibility only. It does not claim that customer/firm/MM com
 ## Hosted execution
 
 A guarded live audit was triggered after the parser and offline tests were committed. Results will be appended only after the run and artifact are inspected. The workflow does not purchase data, authenticate to a paid service, or accept any terms on the user's behalf.
+
+
+## Initial live result — run 42020488244
+
+The first live audit completed successfully and uploaded artifact 13411093545 (316,214 bytes; ZIP SHA-256 e00faeca14158d2fa16b02466db59ee997f95f61fd0c4de3fb117538148678d9).
+
+- 2026-11-03 returned HTTP 200 and 1,799,455 bytes: 41,847 fixed-width rows, 4,631 unique symbols, no duplicate Group/Symbol/Exchange keys, no unknown exchange codes, no malformed rows, no invalid or negative volumes. Totals were Customer 50,334,339; Firm 5,339,753; Market Maker 58,497,402.
+- 2016-05-31, 2019-05-31 and 2023-11-03 each returned HTTP 200 but only a 41-byte non-data body with no rows. Their identical body hash indicates a consistent unavailable/empty response rather than three distinct datasets.
+- The initial run's summary incorrectly marked the 2026 date as not matching because the OCC header is MMDDYYYY while the request parameter is YYYYMMDD. The fixed-width parser itself recovered all rows. The date normalization has been corrected before any pass/fail conclusion.
+
+A second, non-duplicative boundary audit is being run for 2024-11-04, 2024-11-05 and 2024-11-06, plus the same recent reference date 2026-11-03. This will identify whether the effective cutoff aligns with the page's 24-month statement.
