@@ -41,7 +41,7 @@ class Phase116Tests(unittest.TestCase):
         # The source rounds each tape and the total to one decimal; independent
         # rounding can leave a 0.11 difference without a substantive mismatch.
         row = "2009-01-09,NYSE Arca (P),0,0,0,0,1,1,1,2.89,0,0,0,0"
-        parsed = phase116.parse_csv((header + "\\n" + row + "\\n").encode(), "daily", 2009)
+        parsed = phase116.parse_csv((header + "\n" + row + "\n").encode(), "daily", 2009)
         self.assertEqual(parsed["rows"], 1)
 
     def test_negative_value_rejected(self):
@@ -54,7 +54,7 @@ class Phase116Tests(unittest.TestCase):
     def test_monthly_url_legacy_daily_schema_detected(self):
         header = ",".join(phase116.DAILY_HEADER)
         row = "2009-01-02,NYSE,1,2,3,6,10,20,30,60,1,2,3,6"
-        parsed = phase116.parse_download_payload((header + "\\n" + row + "\\n").encode(), "monthly", 2009)
+        parsed = phase116.parse_download_payload((header + "\n" + row + "\n").encode(), "monthly", 2009)
         self.assertEqual(parsed["source_schema"], "daily_header_on_monthly_url")
         self.assertIn(next(iter(parsed["dates"])).isoformat(), ["2009-01-02"])
 
