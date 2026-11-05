@@ -8,7 +8,6 @@ import hashlib
 import json
 import re
 import time
-from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -17,7 +16,7 @@ import requests
 
 ENDPOINT = "https://marketdata.theocc.com/onn-volume-download"
 DATES = ("20160531", "20190531", "20231103", "20261103")
-EXCHANGE_CODES = set("ABCDEFGHIKLM PQRSTUVWXZ".replace(" ", ""))
+EXCHANGE_CODES = set("ABCDEFGHIJKLM PQRSTUVWXZ".replace(" ", ""))
 EXPECTED_WIDTH = 40
 
 
@@ -227,7 +226,7 @@ def main() -> int:
     session = requests.Session()
     session.headers.update(
         {
-            "User-Agent": "NuevaEstrategia-Research/Phase111 contact: research-audit",
+            "User-Agent": "NuevaEstrategia-Research/Phase111",
             "Accept": "text/plain,text/csv,application/octet-stream,*/*",
         }
     )
