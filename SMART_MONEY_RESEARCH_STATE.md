@@ -328,3 +328,18 @@ The Phase 100 FINRA ATS revalidation run 41969978743 remained active at the last
 ### 2026-11-05 — Phase 100 corrected FINRA ATS run
 
 - Corrected live run 41976736121 was launched from commit f1914c30 after 15 offline tests passed. At the time of this state update it remained in progress; do not launch a duplicate. The previous failure was an absent Total-Records-On-Page response header plus one transient HTTP 500, not a data-coverage rejection.
+
+
+
+### 2026-11-05 — Phase 100 corrected live FINRA ATS revalidation (preliminary)
+
+- First corrected live run 41976736121 retrieved all 10 sampled week/tier partitions; each partition's row count exactly matched FINRA Record-Total. Offline tests passed 15/15. Total 968,139 rows; 108,444 symbol-level aggregates (52,007 ATS; 56,437 OTC); zero invalid/negative quantity fields.
+- The run failed only at output serialization: page_hashes.csv fieldnames were stale relative to new sync pagination metadata. Partial artifact 13392981544 preserves partition_summary.csv but no final summary.json or page hashes.
+- Partial audit shows 100% non-null initialPublishedDate; lags 21 days T1 / 35 days T2; 1,882/108,444 (1.735%) symbol aggregates had lastUpdateDate later than initialPublishedDate.
+- Two conflicting duplicate aggregate keys for LND, 2025-01-06 T2 (ATS_W_SMBL and OTC_W_SMBL), with different values and lastReportedDate. One T2 partition (2022-01-03) has two row-level mismatches, including one OTC_W_SMBL row with no symbol; full mismatch examples pending corrected output.
+- Removed the 90% legacy-335 coverage gate because 335 was manually/arbitrarily selected and is not representative. Overlap remains diagnostic only. Added page-hash schema and Record-Total tests, corrected duplicate counting, and separated source coverage from aggregate integrity.
+- Corrected run 41978867803 is in progress. Do not launch a duplicate. See research/PHASE107_FINRA_ATS_PRELIMINARY_LIVE_REVALIDATION_2026-11-05.md.
+- Official FINRA documentation: weeklySummary production is rolling 12 months; weeklySummaryHistoric is rolling four years beginning one year before the current date; historical data older than one year is static. Source: https://developer.finra.org/docs#query_api-equity-weekly_summary and https://developer.finra.org/news/q12021.
+- No returns, alpha test, vendor purchase/contact, data acquisition or F80 change.
+
+
