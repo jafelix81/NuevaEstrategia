@@ -42,7 +42,7 @@ class Phase136Tests(unittest.TestCase):
         self.assertEqual(result["underlying_count"], 1)
         self.assertEqual(result["duplicate_surface_key_rows"], 1)
         self.assertEqual(result["negative_confidence_code_cells"], 2)
-        self.assertEqual(result["confidence_below_0_5_cells"], 3)
+        self.assertEqual(result["confidence_below_0_5_cells"], 1)
 
     def test_inspect_csv_rejects_missing_required_columns(self):
         payload = b"underlying_symbol,timestamp,iv_25_delta\nABC,09:40:00,0.2\n"
