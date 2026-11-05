@@ -145,6 +145,7 @@ def compare_monthly(daily: dict, monthly: dict, year: int, current_month: str) -
                 if abs(a - b) > tol:
                     mismatches.append({"key": key, "field": field, "monthly": str(a), "daily_sum": str(b)})
     return {
+        "status": "PASS",
         "complete_months_compared": complete_months,
         "participant_month_comparisons": comparisons,
         "missing_daily_keys": missing_daily[:50],
@@ -156,6 +157,18 @@ def compare_monthly(daily: dict, monthly: dict, year: int, current_month: str) -
     }
 
 
+def parse_download_payload(data: bytes, kind: str, year: int) -> dict:
+    text = data.decode("utf-8-sig")
+    header = next(csv.reader(io.StringIO(text)), [])
+    if kind == "monthly" and header == DAILY_HEADER:
+        parsed = parse_csv(data, "daily", year)
+        parsed["source_schema"] = "daily_header_on_monthly_url"
+        return parsed
+    parsed = parse_csv(data, kind, year)
+    parsed["source_schema"] = kind
+    return parsed
+
+
 def download(session: requests.Session, year: int, kind: str, out: Path) -> dict:
     filename = ("market_history_" if kind == "daily" else "market_history_monthly_") + str(year) + ".csv"
     url = BASE + "/" + filename
@@ -164,7 +177,7 @@ def download(session: requests.Session, year: int, kind: str, out: Path) -> dict
     if len(response.content) < 100:
         raise ValueError("implausibly small " + kind + " file for " + str(year))
     (out / filename).write_bytes(response.content)
-    return parse_csv(response.content, kind, year)
+    return parse_download_payload(response.content, kind, year)
 
 
 def main() -> int:
@@ -193,7 +206,18 @@ def main() -> int:
             if (right - left).days > 10:
                 gaps.append({"from": left.isoformat(), "to": right.isoformat(),
                              "calendar_gap_days": (right - left).days})
-        cmp = compare_monthly(daily, monthly, year, current_month)
+        if monthly.get("source_schema") == "daily_header_on_monthly_url":
+            cmp = {
+                "status": "SKIP_MONTHLY_URL_RETURNS_DAILY_SCHEMA",
+                "complete_months_compared": [],
+                "participant_month_comparisons": 0,
+                "missing_daily_keys": [], "missing_monthly_keys": [],
+                "mismatches": [], "missing_daily_count": 0,
+                "missing_monthly_count": 0, "mismatch_count": 0,
+                "monthly_url_matches_daily_sha256": monthly["sha256"] == daily["sha256"],
+            }
+        else:
+            cmp = compare_monthly(daily, monthly, year, current_month)
         comparisons.append({"year": year, **cmp})
         annual.append({
             "year": year, "daily_rows": daily["rows"], "monthly_rows": monthly["rows"],
@@ -201,6 +225,8 @@ def main() -> int:
             "last_date": last_date.isoformat(), "daily_participants": sorted(daily["participants"]),
             "monthly_participants": sorted(monthly["participants"]),
             "daily_sha256": daily["sha256"], "monthly_sha256": monthly["sha256"],
+            "monthly_url_schema": monthly.get("source_schema"),
+            "daily_and_monthly_url_hash_equal": monthly["sha256"] == daily["sha256"],
             "daily_bytes": daily["bytes"], "monthly_bytes": monthly["bytes"],
             "calendar_gaps_over_10_days": gaps, "monthly_reconciliation": cmp,
         })
@@ -238,7 +264,7 @@ def main() -> int:
 
     failures = []
     for item in annual:
-        if item["monthly_reconciliation"]["missing_daily_count"] or item["monthly_reconciliation"]["missing_monthly_count"] or item["monthly_reconciliation"]["mismatch_count"]:
+        if item["monthly_reconciliation"]["status"] == "PASS" and (item["monthly_reconciliation"]["missing_daily_count"] or item["monthly_reconciliation"]["missing_monthly_count"] or item["monthly_reconciliation"]["mismatch_count"]):
             failures.append({"year": item["year"], "monthly_reconciliation": item["monthly_reconciliation"]})
     if failures:
         (out / "reconciliation_failures.json").write_text(json.dumps(failures, indent=2), encoding="utf-8")
