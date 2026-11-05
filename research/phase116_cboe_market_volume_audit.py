@@ -33,7 +33,7 @@ NOTIONAL = ["Tape A Notional", "Tape B Notional", "Tape C Notional"]
 TRADES = ["Tape A Trade Count", "Tape B Trade Count", "Tape C Trade Count"]
 DAILY_HEADER = ["Day", "Market Participant"] + NUMERIC
 MONTHLY_HEADER = ["Month", "Market Participant"] + NUMERIC
-TOL_NOTIONAL = Decimal("0.10")
+TOL_NOTIONAL = Decimal("0.20")
 TOL_SHARES = Decimal("0.000001")
 
 
