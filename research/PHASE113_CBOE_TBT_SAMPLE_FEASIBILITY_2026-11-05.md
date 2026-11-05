@@ -1,7 +1,7 @@
 # Phase 113 — Cboe Enhanced US Options Trade-by-Trade (TBT) sample feasibility
 
 **Date:** 2026-11-05  
-**Status:** live public-sample audit triggered  
+**Status:** public sample parsed; convention exceptions under targeted review  
 **Scope:** data feasibility only; no forward returns, alpha test, purchase, subscription or vendor contact.
 
 ## Why this source is materially different
@@ -52,3 +52,6 @@ It will not infer a timezone where the file does not explicitly supply one, equa
 7. Only then consider a preregistered incremental test versus frozen LTM/F80 with identical exposure/costs, chronological OOS, bootstrap and issuer LOO.
 
 No purchase, subscription, vendor contact or acceptance of additional terms is authorized. No alpha test is authorized. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+The parser/workflow were revised after run 42023567791 to retain convention exceptions, add cross-tabs and exception-row samples, and always upload the raw public sample artifact. The next hosted run will distinguish successful file parsing from unresolved semantic conventions.
