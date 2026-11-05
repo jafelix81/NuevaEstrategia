@@ -107,3 +107,12 @@ No forward returns, feature selection or alpha tests are authorized in Phase 69.
 The previously active duplicate Phase 67 run 41828179718 has now completed successfully (artifact 13334881835; job 126605281463). The exact baseline required by this script remains run 41828139052 / artifact 13327123059; that artifact was downloaded and independently rechecked: `data_gate=PASS`, 21,648 candidate rows, 21,634 issuer events, 14 filer-only false positives, zero unresolved rows and zero XML errors. Its SHA-256 is the one recorded above.
 
 A guarded Phase 69 workflow is now prepared. It downloads that exact cross-run artifact by run ID, runs the Phase 50/64/65/67/69 regression suites, and then performs the ten-CIK incremental scan. It has not been triggered yet; the corrected Phase 82 global-index run is being allowed to finish first to avoid overlapping SEC retrieval work. No Phase 69 data or returns have been generated.
+
+
+## 2026-11-05 — hosted execution and zero-candidate interpretation
+
+The guarded scan ran successfully as run 41959603351 / artifact 13385365595. The ten newly mapped fund-registrant CIKs generated zero candidate Form 144/144-A accessions in all 14 quarters (2023Q2–2026Q3). The expanded panel therefore remains exactly 21,648 candidate rows and 21,634 issuer-event rows; there are 14 filer-only false positives excluded and 280/280 controls concordant. No XML was fetched for incremental candidates because none existed.
+
+The original workflow's `data_gate=PASS` had vacuous XML sub-gates because the candidate denominators were zero. The script was subsequently corrected to report `incremental_identity_validation_status=NOT_APPLICABLE_NO_CANDIDATES` and `data_gate=PASS_NO_INCREMENTAL_CANDIDATES`, with XML-specific gates set to null. Offline workflow run 41959973317 passed all 45 tests; its incremental-scan job was skipped. No SEC rescan occurred.
+
+This extension is closed for the same ten-CIK set and 2023Q2–2026Q3 period. Do not repeat without a materially changed candidate set, period or source. No forward returns or alpha test.
