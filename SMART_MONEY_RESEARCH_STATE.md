@@ -760,7 +760,6 @@ F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No source from Phases 112–113
 - Verify mapping against an independent historical security master and preserve acceptance timestamp separately from event date. Only then define a preregistered 13D activist/passive event hypothesis and test incremental information versus frozen LTM/F80 with chronological OOS, identical exposure/costs, bootstrap and LOO.
 - Continue Cboe Open-Close EOD as the leading options-flow feasibility candidate in parallel; no vendor purchase or licensing commitment without explicit authorization.
 - F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
-- Phase 127 Actions run 42079517644 succeeded; all 15 Phase 124 tests and 21 Phase 125 regression tests passed, the immutable Phase 124 artifact downloaded with its expected SHA-256, and the corrected 599-row audit produced no raw-hash/identity errors. Artifact 13438903901 (SHA-256 `sha256:b80d15d736ba6c45f4f3c5dd569604175e221414b31a28fd58a62010a805c166`) is retained for 90 days.
 ## 2026-11-05 — Phase 127 SEC 13D/G XML CUSIP schema correction
 
 - [Phase 127 run 42079517644](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42079517644) passed using the same immutable Phase 124 sample; no new SEC requests were made. All 600 raw hashes/accession/identity checks passed, and 15 Phase 124 plus 21 Phase 125 regression tests passed.
@@ -781,3 +780,11 @@ F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No source from Phases 112–113
 - The legacy body-name heuristic yielded 442/497 apparent candidates; 82 contain obvious separators/boilerplate, and the remaining 360 are unvalidated. It is not promoted as an identity source.
 - Decision: internal cross-schema CUSIP overlap (2/553 = 0.36%) is far too sparse to build a historical security master. Need effective-dated permanent security mapping before return tests. No alpha/production changes; F80 remains frozen.
 - Phase 128 Actions run 42080440140 succeeded; all Phase 124–128 regression suites passed (52 tests total across the four suites), 600/600 raw hashes verified, and no audit errors. Artifact 13439559366; ZIP SHA-256 `aed19dba803bd47f9ac6a846807d93a778b05bad3cf637c18936e1d3593fb22b`.
+
+## 2026-11-05 — Phase 129 SEC 13(f) official-list CUSIP PIT overlap audit (in progress)
+
+- The first attempt (run 42081506576) failed before source access because a GitHub expression was escaped incorrectly in the artifact-download step. The first corrected run (42081840017) downloaded both source artifacts and passed tests, then failed on the Phase 127 summary filename. Both implementation defects were corrected; no SEC 13(f) list download was performed in those failed attempts.
+- Current run [42081987897](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42081987897) passed compilation, the Phase 124/125/126/128/129 regression suites, and both immutable artifact downloads. The 45-quarter SEC 13(f) list availability/CUSIP overlap audit is running.
+- Scope: 2015Q3–2026Q3 official 13(f) lists, including 2015Q3 as a pre-sample anchor for early 2016 filings. The audit uses the Phase 127 corrected 13D/G CUSIPs and SEC acceptance dates, tests 1- and 5-calendar-day buffers after the later of PDF Run Date and HTTP Last-Modified, and separately records same-quarter lookahead matches.
+- The official 13(f) list is only a 13F-reportable security reference, not a complete security master. PDF Run Date/Time is a generation timestamp, not verified public-release time; no predictive use is permitted until publication availability is independently verified.
+- Raw 13(f) list rows, CUSIPs sourced from the list, issuer names and descriptions are not uploaded. The artifact retains only source hashes/metadata and match booleans against CUSIPs already present in SEC 13D/G filings. No alpha test, vendor purchase or production change.
