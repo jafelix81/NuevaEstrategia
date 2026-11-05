@@ -99,11 +99,11 @@ def parse_csv(data: bytes, kind: str, year: int) -> dict:
             if abs(vals[total] - summed) > tol:
                 anomalies.append({"line": line_no, "key": key, "check": total,
                                   "reported": str(vals[total]), "sum": str(summed)})
+        month = period[:7] if kind == "daily" else period
+        agg_key = (month, participant)
+        for name, value in vals.items():
+            month_agg[agg_key][name] += value
         if kind == "daily":
-            month = period[:7]
-            agg_key = (month, participant)
-            for name, value in vals.items():
-                month_agg[agg_key][name] += value
             if "TRF" in participant.upper():
                 for name, value in vals.items():
                     trf_summary[period][name] += value
