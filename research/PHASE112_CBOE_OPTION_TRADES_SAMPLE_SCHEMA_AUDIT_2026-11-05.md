@@ -80,3 +80,12 @@ The first workflow attempt stopped at the offline tests because the fixture's 1.
 The public sample ZIP downloaded successfully (HTTP 200, 3,561,778 bytes, SHA-256 a02504e156db28b3f007d9d25a534e4c88ffd8d24ac43f3bf84885583a3d10b8). Both reference mappings also downloaded successfully: exchange IDs (1,703 bytes) and trade-condition IDs (26,854 bytes). The sample archive did not expose a top-level CSV to the initial parser, so the schema gate remained incomplete; no live data conclusion was drawn.
 
 The parser has been extended to inspect nested ZIP/GZIP members and identify CSV payloads by their header, not merely by filename extension. Offline tests were corrected and the live audit is being retried. The first run did not fail because of Cboe data; it failed to recognize the sample's archive structure.
+
+
+## Nested sample structure and parser correction
+
+The second attempt identified two nested ZIP variants for the same sample date, 2026-01-07:
+- Calcs included: nested ZIP 2,092,490 bytes; CSV 11,287,115 bytes; 74,999 data records.
+- Calcs excluded: nested ZIP 1,471,241 bytes; CSV 7,923,505 bytes; 74,999 data records.
+
+These are alternative schema variants for the same trade date, not independent trade populations and must not be added together. The current sample omits the legacy number_of_exchanges field described in the v1.3 PDF; the parser no longer requires that legacy field and now accepts ISO-formatted trade timestamps. A third run will validate the actual records and compare sequence-key hashes between the two variants.
