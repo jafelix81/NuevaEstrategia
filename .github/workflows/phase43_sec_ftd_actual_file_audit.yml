@@ -128,6 +128,7 @@ jobs:
                   'bad_price': bad_price,
                   'schema_status': 'PASS' if not malformed and not bad_date and not bad_qty and trailer_count_match and trailer_quantity_match else 'PARTIAL_OR_FAIL',
               }
+              out.append(result)
           Path('ftd_audit_summary.json').write_text(json.dumps(out, indent=2))
           print(json.dumps(out, indent=2))
           PY
