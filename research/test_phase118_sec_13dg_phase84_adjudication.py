@@ -1,5 +1,5 @@
 import unittest
-from phase118_sec_13dg_phase84_adjudication import (
+from research.phase118_sec_13dg_phase84_adjudication import (
     classify_form_relationship,
     is_13dg_form,
     parse_submission,
