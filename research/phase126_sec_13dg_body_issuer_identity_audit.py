@@ -50,6 +50,10 @@ def norm_cik(value):
     return digits.lstrip("0") or "0" if digits else None
 
 
+def normalize_cik(value):
+    return norm_cik(value)
+
+
 def normalize_name(value):
     value = re.sub(r"[^A-Z0-9 ]", " ", str(value or "").upper())
     return re.sub(r"\s+", " ", value).strip()
