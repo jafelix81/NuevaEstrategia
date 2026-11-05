@@ -46,6 +46,29 @@ def to_float(value: str | None) -> float | None:
     return float(value)
 
 
+def parse_market_date(value: str):
+    for fmt in ("%Y-%m-%d", "%m/%d/%Y", "%Y%m%d"):
+        try:
+            return datetime.strptime(value, fmt).date(), fmt
+        except ValueError:
+            continue
+    return None, None
+
+
+def classify_quote_datetime(value: str):
+    value = value.strip()
+    if re.fullmatch(r"\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?", value):
+        try:
+            return "full_datetime", datetime.fromisoformat(value.replace("Z", "+00:00"))
+        except ValueError:
+            return "unrecognized", None
+    if re.fullmatch(r"\d{2}:\d{2}\.\d+", value):
+        return "two_component_clock", None
+    if re.fullmatch(r"\d{2}:\d{2}:\d{2}(?:\.\d+)?", value):
+        return "time_only", None
+    return "unrecognized", None
+
+
 def parse_trade_csv(payload: bytes) -> dict[str, Any]:
     text = payload.decode("utf-8-sig", errors="replace")
     reader = csv.DictReader(io.StringIO(text))
@@ -65,6 +88,9 @@ def parse_trade_csv(payload: bytes) -> dict[str, Any]:
     date_values = set()
     optional_calcs = Counter()
     timestamp_mismatch = 0
+    full_datetime_count = 0
+    quote_time_formats = Counter()
+    market_date_formats = Counter()
 
     for row_no, raw in enumerate(reader, start=2):
         row = {str(k).strip().lower(): (v or "").strip() for k, v in raw.items() if k is not None}
@@ -73,7 +99,9 @@ def parse_trade_csv(payload: bytes) -> dict[str, Any]:
         try:
             underlying = row["underlying_symbol"]
             market_date = row["market_date"]
-            quote_dt = datetime.fromisoformat(row["quote_datetime"].replace("Z", "+00:00"))
+            quote_raw = row["quote_datetime"]
+            quote_format, quote_dt = classify_quote_datetime(quote_raw)
+            quote_time_formats[quote_format] += 1
             sequence = to_int(row["sequence_number"])
             root = row["root"]
             expiration = row["expiration"]
@@ -113,13 +141,16 @@ def parse_trade_csv(payload: bytes) -> dict[str, Any]:
         if condition is None:
             errors["missing_trade_condition"] += 1
 
-        try:
-            market_dt = datetime.strptime(market_date, "%Y-%m-%d").date()
-            date_values.add(market_date)
-            if quote_dt.date() != market_dt:
-                timestamp_mismatch += 1
-        except ValueError:
+        market_dt, market_fmt = parse_market_date(market_date)
+        if market_dt is None:
             errors["invalid_market_date"] += 1
+        else:
+            market_date_formats[market_fmt] += 1
+            date_values.add(market_dt.isoformat())
+            if quote_dt is not None:
+                full_datetime_count += 1
+                if quote_dt.date() != market_dt:
+                    timestamp_mismatch += 1
 
         if bid is None or ask is None or bid <= 0 or ask <= 0:
             quote_states["zero_or_missing_nbbo"] += 1
@@ -154,8 +185,8 @@ def parse_trade_csv(payload: bytes) -> dict[str, Any]:
             exchanges[str(exchange_id)] += 1
         if condition is not None:
             conditions[str(condition)] += 1
-        if sequence is not None and market_date and exchange_id is not None:
-            sequence_keys.append((market_date, sequence, exchange_id))
+        if sequence is not None and market_dt is not None and exchange_id is not None:
+            sequence_keys.append((market_dt.isoformat(), sequence, exchange_id))
 
         for field in ("trade_iv", "trade_delta", "trade_gamma", "trade_vega", "trade_theta", "trade_rho"):
             if field in row:
@@ -178,6 +209,9 @@ def parse_trade_csv(payload: bytes) -> dict[str, Any]:
         "unique_option_series": len(series),
         "market_dates": sorted(date_values),
         "timestamp_calendar_date_mismatch_count": timestamp_mismatch,
+        "quote_datetime_full_parseable_count": full_datetime_count,
+        "quote_datetime_format_counts": dict(quote_time_formats),
+        "market_date_format_counts": dict(market_date_formats),
         "exchange_id_counts": dict(exchanges),
         "trade_condition_counts": dict(conditions),
         "quote_state_counts": dict(quote_states),
