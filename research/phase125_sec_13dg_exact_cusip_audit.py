@@ -121,6 +121,18 @@ def cusip_status(candidates):
     valid = cusip_check_digit(value)
     return ("UNIQUE_CHECKSUM_VALID" if valid else "UNIQUE_CHECKSUM_INVALID"), value, valid
 
+
+def classify_xml_cusip(raw_value):
+    raw_normalized = re.sub(r"[^A-Z0-9]", "", str(raw_value or "").upper())
+    if not raw_normalized:
+        return "MISSING", None, None
+    if raw_normalized == "000000000":
+        return "XML_PLACEHOLDER", None, None
+    candidate = normalize_cusip(raw_value)
+    if candidate is None:
+        return "INVALID_XML_CUSIP_FORMAT", None, None
+    return cusip_status([candidate])
+
 def weighted_rate(rows, predicate):
     denominator = sum(float(r["sample_weight"]) for r in rows)
     if denominator <= 0: return None
@@ -175,17 +187,14 @@ def audit(input_dir, output_dir):
 
         xml_present, xml_raw = extract_xml_cusip(raw)
         if xml_present:
-            candidate = normalize_cusip(xml_raw)
-            candidates = [candidate] if candidate else []
             source = "13DG_XML"
-            format_invalid = bool(xml_raw and candidate is None)
+            status, cusip, checksum_valid = classify_xml_cusip(xml_raw)
+            candidates = [cusip] if cusip else []
         else:
             candidates = extract_legacy_cusips(raw)
             source = "LEGACY_HTML_EXACT_TOKEN"
             xml_raw = None
-            format_invalid = False
-        status, cusip, checksum_valid = cusip_status(candidates)
-        if format_invalid: status = "INVALID_XML_CUSIP_FORMAT"
+            status, cusip, checksum_valid = cusip_status(candidates)
         results.append({
             "accession": accession, "quarter": row["quarter"], "family": row["family"],
             "index_form": sample.get("form"), "form": header.get("form"),
@@ -228,7 +237,10 @@ def audit(input_dir, output_dir):
         "xml_cusip_present_rows": sum(r["cusip_candidate_count"] > 0 for r in xml),
         "xml_unique_checksum_valid_rows": sum(r["cusip_status"] == "UNIQUE_CHECKSUM_VALID" for r in xml),
         "xml_unique_checksum_invalid_rows": sum(r["cusip_status"] == "UNIQUE_CHECKSUM_INVALID" for r in xml),
-        "xml_missing_or_invalid_format_rows": sum(r["cusip_status"] in {"MISSING", "INVALID_XML_CUSIP_FORMAT"} for r in xml),
+        "xml_missing_rows": sum(r["cusip_status"] == "MISSING" for r in xml),
+        "xml_placeholder_rows": sum(r["cusip_status"] == "XML_PLACEHOLDER" for r in xml),
+        "xml_invalid_format_rows": sum(r["cusip_status"] == "INVALID_XML_CUSIP_FORMAT" for r in xml),
+        "xml_missing_or_invalid_format_rows": sum(r["cusip_status"] in {"MISSING", "XML_PLACEHOLDER", "INVALID_XML_CUSIP_FORMAT"} for r in xml),
         "unique_checksum_valid_rows": sum(r["cusip_status"] == "UNIQUE_CHECKSUM_VALID" for r in results),
         "weighted_legacy_unique_checksum_valid_rate": weighted_rate(legacy, lambda r: r["cusip_status"] == "UNIQUE_CHECKSUM_VALID"),
         "weighted_xml_unique_checksum_valid_rate": weighted_rate(xml, lambda r: r["cusip_status"] == "UNIQUE_CHECKSUM_VALID"),

@@ -1,7 +1,7 @@
 import unittest
 from research.phase125_sec_13dg_exact_cusip_audit import (
     classify_submission, cusip_check_digit, cusip_status,
-    extract_legacy_cusips, normalize_cusip, weighted_rate,
+    classify_xml_cusip, extract_legacy_cusips, normalize_cusip, weighted_rate,
 )
 
 class Phase125Tests(unittest.TestCase):
@@ -27,6 +27,11 @@ class Phase125Tests(unittest.TestCase):
     def test_rejects_placeholder(self):
         raw = "<DOCUMENT><TYPE>SC 13D</TYPE><TEXT><p>CUSIP No. 000000000</p></TEXT></DOCUMENT>"
         self.assertEqual(extract_legacy_cusips(raw), [])
+
+    def test_xml_placeholder_is_distinguished_from_invalid_format(self):
+        self.assertEqual(classify_xml_cusip("000000000")[0], "XML_PLACEHOLDER")
+        self.assertEqual(classify_xml_cusip(None)[0], "MISSING")
+        self.assertEqual(classify_xml_cusip("US12021A1079")[0], "INVALID_XML_CUSIP_FORMAT")
 
     def test_ambiguous_candidates_are_not_collapsed(self):
         self.assertEqual(cusip_status(["42234Q102", "376536603"])[0], "AMBIGUOUS")
