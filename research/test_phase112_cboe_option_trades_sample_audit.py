@@ -1,6 +1,6 @@
 import unittest
 
-from research.phase112_cboe_option_trades_sample_audit import parse_trade_csv
+from research.phase112_cboe_option_trades_sample_audit import classify_quote_datetime, parse_market_date, parse_trade_csv
 
 
 HEADER = (
@@ -67,6 +67,24 @@ class Phase112OptionTradesTests(unittest.TestCase):
         found, entries = collect_csv_payloads(buffer.getvalue())
         self.assertEqual(found, [])
         self.assertEqual(len(entries), 1)
+
+
+    def test_market_date_us_format_and_partial_clock_are_preserved(self):
+        date_value, date_format = parse_market_date("1/7/2026")
+        quote_format, quote_value = classify_quote_datetime("21:30.4")
+        self.assertEqual(date_value.isoformat(), "2026-01-07")
+        self.assertEqual(date_format, "%m/%d/%Y")
+        self.assertEqual(quote_format, "two_component_clock")
+        self.assertIsNone(quote_value)
+
+    def test_sample_style_date_and_clock_row_parses(self):
+        sample_header = HEADER.replace("2025-03-28", "1/7/2026")
+        sample_row = row().replace("2025-03-28", "1/7/2026").replace("10:00:00.123", "21:30.4")
+        result = parse_trade_csv((sample_header + sample_row).encode())
+        self.assertEqual(result["row_count"], 1)
+        self.assertEqual(result["market_dates"], ["2026-01-07"])
+        self.assertEqual(result["quote_datetime_format_counts"]["two_component_clock"], 1)
+        self.assertEqual(result["errors"], {})
 
 
 if __name__ == "__main__":
