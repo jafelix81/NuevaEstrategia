@@ -56,6 +56,19 @@ class Phase112OptionTradesTests(unittest.TestCase):
         self.assertIn("quote_datetime", result["missing_required_fields"])
 
 
+    def test_empty_or_non_csv_payload_is_not_misidentified(self):
+        from research.phase112_cboe_option_trades_sample_audit import collect_csv_payloads
+        import io
+        import zipfile
+
+        buffer = io.BytesIO()
+        with zipfile.ZipFile(buffer, "w") as archive:
+            archive.writestr("readme.txt", "sample only")
+        found, entries = collect_csv_payloads(buffer.getvalue())
+        self.assertEqual(found, [])
+        self.assertEqual(len(entries), 1)
+
+
 if __name__ == "__main__":
     unittest.main()
 
