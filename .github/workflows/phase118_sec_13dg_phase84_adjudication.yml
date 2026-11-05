@@ -7,11 +7,6 @@ on:
     paths:
       - research/phase118_sec_13dg_phase84_adjudication.py
       - research/test_phase118_sec_13dg_phase84_adjudication.py
-  pull_request:
-    paths:
-      - research/phase118_sec_13dg_phase84_adjudication.py
-      - research/test_phase118_sec_13dg_phase84_adjudication.py
-
 permissions:
   contents: read
 
