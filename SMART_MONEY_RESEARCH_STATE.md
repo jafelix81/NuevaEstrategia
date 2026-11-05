@@ -213,3 +213,16 @@ F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No forward-return test or produ
 
 ## Current branch/PR status after Phase 110
 - PR #13 remains open, unmerged, and mergeable. The research branch was one commit behind main at the latest comparison; no merge was performed.
+
+
+## 2026-11-05 — Phase 111 OCC options account-type feasibility
+- Added an independent public-source audit for OCC Volume by Account Type / ONN daily data. The fixed-width raw report contains Group, Symbol, Exchange, Customer, Firm and Market-Maker volume; it does not contain buyer/seller direction, opening/closing status or beneficial-owner identity.
+- First live run 42020488244 completed successfully; artifact 13411093545. The 2026-11-03 report returned 41,847 rows across 4,631 symbols and passed row-width, exchange-code, duplicate-key, numeric and nonnegative-volume checks. Account-volume sums: Customer 50,334,339; Firm 5,339,753; Market Maker 58,497,402.
+- The 2016-05-31, 2019-05-31 and 2023-11-03 batch requests returned identical 41-byte non-data responses. The parser initially compared OCC's MMDDYYYY header with a YYYYMMDD request and incorrectly failed the 2026 date; corrected before the second run. Boundary run 42020739832 is in progress for 2024-11-04/05/06 plus 2026-11-03.
+- Decision remains conditional. OCC's current UI says 24 months; official batch docs show a 2019 example, but live results have not yet established a long historical archive. No returns test.
+- Cboe Option Sentiment is a higher-information conditional option-flow candidate: official FAQ lists Jan 2012 history and OPRA coverage for U.S. stocks, ETFs and indices; its spec describes midpoint-classified directional premium/volume, net option delta, OI, IV/skew, implied borrow and account-type fields. However the former product URL redirects to the DataShop home page and the current Options catalog omits it. Current orderability, price, sample and method continuity are unverified. No contact or purchase.
+- No option source is yet authorized for alpha testing. Treat Customer/Firm/MM as account/capacity categories, not institutional or informed traders.
+
+## 2026-11-05 — FINRA historical archive user-certification gate
+- FINRA OTC Transparency Website User Guide v6.0 states the user must affirmatively certify on each visit and click "I AGREE" before accessing OTC Transparency data. The guide's screenshots show 2016 weekly data, but the current historical download route has not been verified.
+- Do not automate the affirmative certification or accept terms on the user's behalf. FINRA's developer API remains the already-audited rolling historical/production path; older website archives are blocked until the user personally reviews and accepts the terms. No certification was made.
