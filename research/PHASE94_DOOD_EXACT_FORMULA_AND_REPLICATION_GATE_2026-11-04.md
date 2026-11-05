@@ -130,3 +130,12 @@ If prior returns explain the signal, if the effect reverses before next-session 
 - No forward returns or alpha tests have been run.
 - The exact formula correction and synthetic unit tests are methodological only.
 - F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## 9. Deterministic implementation check
+
+- First CI attempt: 11/12 tests passed; one synthetic expected value for the multiplier-adjusted sensitivity was wrong by a factor of ten. The calculation helper was not changed.
+- Corrected the test fixture arithmetic from 0.075 to 0.75.
+- Replay run 41950153878 completed successfully: 12/12 unit tests passed.
+- This validates only the deterministic arithmetic helper. It does not validate vendor data, historical contract conventions, PIT availability, predictive power or economic value.
+- Workflow: https://github.com/jafelix81/NuevaEstrategia/actions/runs/41950153878
