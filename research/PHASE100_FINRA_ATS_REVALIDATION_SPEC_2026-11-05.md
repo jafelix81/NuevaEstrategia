@@ -34,12 +34,13 @@ Query both NMS tiers, T1 and T2. Preserve exact issueSymbolIdentifier; do not st
 
 - No request errors or row-level partition mismatches.
 - Symbol-level aggregate rows exist in every sampled week/tier.
-- At least 90% exact 335-name union coverage in each sampled week (legacy comparison only; coverage is combined across T1 and T2).
-- At least 99% of symbol-level rows have valid initialPublishedDate.
+- Symbol-level ATS and OTC aggregate rows must exist in every sampled week/tier; every requested partition must reconcile exactly to FINRA's Record-Total.
+- At least 99% of symbol-level rows must have a valid initialPublishedDate.
+- Legacy 335-name overlap is reported separately by week/tier as a comparability diagnostic only. It is not a pass/fail gate because the 335 names were manually and arbitrarily selected and are not representative of a defined market universe.
 - Publication lag is not earlier than 14 calendar days for T1 or 28 calendar days for T2; later dates are retained and reported.
 - Duplicate keys and post-publication update dates are reported, not silently discarded.
 
-Passing these gates means **coverage/schema feasibility**, not full PIT-vintage proof. If current values were updated after first publication and original vintages are unavailable, the economic test remains conditional.
+Passing these gates means **coverage/schema feasibility**, not full PIT-vintage proof. Conflicting duplicate aggregate keys and invalid quantities are separately reported; conflicting duplicate groups must be resolved before feature construction. If current values were updated after first publication and original vintages are unavailable, the economic test remains conditional. The 335-name overlap is not a broad-universe coverage estimate.
 
 ## Economic interpretation
 
@@ -79,3 +80,8 @@ separately from \`initialPublishedDate\` and \`lastUpdateDate\`.
 ## FINRA authentication and pagination correction
 
 The async endpoint's status URL requires a Bearer token. The workflow now passes the optional repository secret FINRA_API_TOKEN to the job. If it is present, the audit uses async requests and polls at the documented one-minute maximum. If it is absent, the audit uses synchronous requests. The live FINRA response returned Record-Total, Record-Limit and Record-Offset but omitted Total-Records-On-Page. The corrected parser uses the header count when present and otherwise the actual number of parsed rows in the response body, while requiring Record-Total, validating Record-Offset when supplied, advancing by the actual body count, and continuing until the exact total is retrieved. A short body page is not treated as complete merely because it is shorter than the requested limit. Transient 408/429/5xx and network failures receive bounded retries; persistent failures remain hard errors.
+
+
+## 2026-11-05 correction — legacy overlap is diagnostic, not a gate
+
+The user clarified that the 335-name F80 set was manually/arbitrarily selected without a formal methodology. Therefore the Phase 100 90% overlap threshold is not a valid source-coverage gate and has been removed. Per-week/tier overlap remains reported solely for legacy comparability. Coverage now requires both T1 and T2 symbol-level aggregates in every sampled week, exact row-level week/tier agreement, exact reconciliation to FINRA Record-Total, valid nonnegative quantity fields, and the publication-date checks above. Conflicting duplicate aggregate keys are reported separately and must be resolved before feature construction. A successful workflow run means the audit executed; a gate failure is a research result, not a software crash.
