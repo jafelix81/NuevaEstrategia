@@ -1,0 +1,33 @@
+name: Phase 118 SEC 13D-G artifact adjudication tests
+
+on:
+  push:
+    branches:
+      - phase99-broad-pit-universe-charter
+    paths:
+      - research/phase118_sec_13dg_phase84_adjudication.py
+      - research/test_phase118_sec_13dg_phase84_adjudication.py
+      - research/PHASE118_SEC_13DG_PHASE84_ARTIFACT_ADJUDICATION_2026-11-05.md
+      - SMART_MONEY_RESEARCH_STATE.md
+      - .github/workflows/phase118_sec_13dg_phase84_adjudication.yml
+  pull_request:
+    paths:
+      - research/phase118_sec_13dg_phase84_adjudication.py
+      - research/test_phase118_sec_13dg_phase84_adjudication.py
+      - .github/workflows/phase118_sec_13dg_phase84_adjudication.yml
+
+permissions:
+  contents: read
+
+jobs:
+  offline-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile adjudicator
+        run: python -m py_compile research/phase118_sec_13dg_phase84_adjudication.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase118_sec_13dg_phase84_adjudication
