@@ -98,3 +98,6 @@ The sample archive also contains C1 1-minute and 10-minute sample packages, but 
 **Decision:** PASS for public-sample schema, integrity and participant-bucket accounting. This is a material improvement over the TBT raw sample, whose side/open-close conventions remain partly unresolved. The result does not establish the actual 2005 archive boundary, complete daily availability, broad PIT security coverage, historical dissemination timestamps, or license cost. No alpha test, purchase, subscription, authentication or vendor contact occurred.
 
 A same-date C1 TBT-vs-Open-Close sample consistency audit is documented separately in Phase 115.
+
+
+**History-start discrepancy:** the legacy C1 specification describes its pre-migration format as covering 1990-01-02 through 2010-12-31, but the current DataShop product availability table advertises C1 EOD history only from 2005-01-03. Treat 2005-01-03 as the earliest advertised purchasable date; do not assume 1990–2004 files are available without a verified archive response.
