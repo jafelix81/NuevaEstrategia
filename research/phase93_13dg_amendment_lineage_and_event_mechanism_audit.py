@@ -57,6 +57,13 @@ def normalize_name(value: str) -> str:
     return re.sub(r"[^A-Z0-9]", "", str(value or "").upper())
 
 
+def normalize_form(value: str) -> str:
+    form = re.sub(r"\\s+", " ", str(value or "").strip().upper())
+    form = form.replace("SCHEDULE 13D", "SC 13D").replace("SCHEDULE 13G", "SC 13G")
+    form = re.sub(r"^SC\\s*13([DG])\\s*/\\s*A$", r"SC 13\\1/A", form)
+    return re.sub(r"^SC\\s*13([DG])$", r"SC 13\\1", form)
+
+
 def normalize_cusip(value: str) -> str:
     return re.sub(r"[^A-Z0-9]", "", str(value or "").upper())
 
@@ -299,7 +306,7 @@ def run(args):
         if normalize_cik(parsed.get("filer_cik_xml", "")) != filer:
             errors.append({"accession": accession, "error": "xml_filer_mismatch"})
             continue
-        if str(parsed.get("submission_type", "")).upper() != str(event.get("form", "")).upper():
+        if normalize_form(parsed.get("submission_type", "")) != normalize_form(event.get("form", "")):
             errors.append({"accession": accession, "error": "xml_form_mismatch"})
             continue
         person_rows = persons_by_accession.get(accession, [])
