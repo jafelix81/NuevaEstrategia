@@ -40,6 +40,15 @@ class Phase160Tests(unittest.TestCase):
     def test_reused_parent_counted(self):
         second=sm(); second["accession"]="0000000003-20-000001"
         _,s=audit([ix()],[sm(),second]); self.assertEqual(s["reused_parent_accessions"],1)
+    def test_full_index_metadata_overrides_compact_excerpt(self):
+        meta={"index_rows":324964,"unique_accessions":324964,"duplicate_accession_count":0,
+              "duplicate_accessions":[],"quarters":43,"first_quarter":"2016Q1","last_quarter":"2026Q3",
+              "metadata_conflict_rows":0}
+        rows,s=audit([ix()],[sm(previous="1-15-1")],meta)
+        self.assertEqual(rows[0]["lineage_status"],"OUTSIDE_INDEX_HISTORY")
+        self.assertEqual(s["index_integrity"]["index_rows"],324964)
+        self.assertEqual(s["index_integrity"]["compact_index_rows"],1)
+
     def test_no_economic_or_holdout_claim(self):
         _,s=audit([ix()],[sm()]); self.assertFalse(s["economic_test_authorized"]); self.assertFalse(s["forward_returns_used"]); self.assertFalse(s["final_holdout_used"]); self.assertFalse(s["production_changed"])
 

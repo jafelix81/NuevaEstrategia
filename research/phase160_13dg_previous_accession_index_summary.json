@@ -13,7 +13,10 @@
     "last_quarter": "2026Q3",
     "metadata_conflict_rows": 0,
     "quarters": 43,
-    "unique_accessions": 324964
+    "unique_accessions": 324964,
+    "compact_index_rows": 30,
+    "compact_unique_accessions": 30,
+    "compact_duplicate_accession_count": 0
   },
   "lineage_status_counts": {
     "OUTSIDE_INDEX_HISTORY": 2,
@@ -38,5 +41,21 @@
     "phase82_zip_sha256": "e925ad8fe9792f27e570b9e882dff772bb67d9edd67f1c93404a198faab80985"
   },
   "status": "COMPLETE_INDEX_RECONCILIATION",
-  "unique_parent_accessions": 32
+  "unique_parent_accessions": 32,
+  "compact_input_hashes": {
+    "phase124_source/phase124_global_13dg_submission_audit.csv": "2f336724890a78d69d14c585f34a9574bf56e7666d82034af3faa6732729a02c",
+    "phase82_source/global_master_index_13dg.csv": "27521f41c64d5255eb6dd7ac34045b7f170184c3adec4a8ffb5ee91793d81153"
+  },
+  "source_artifacts": {
+    "phase124": {
+      "run_id": 42073725379,
+      "artifact_id": 13436764625,
+      "zip_sha256": "85f69e083b5af65731c9bcfe24e8c75821fc0f2c2476bfa8ba573e2e884570dc"
+    },
+    "phase82": {
+      "run_id": 41892370262,
+      "artifact_id": 13353118959,
+      "zip_sha256": "e925ad8fe9792f27e570b9e882dff772bb67d9edd67f1c93404a198faab80985"
+    }
+  }
 }

@@ -4,7 +4,7 @@
 Index CIKs are candidate identities only. They are not role-labelled proof of issuer identity.
 """
 from __future__ import annotations
-import argparse, csv, json, re
+import argparse, csv, json, re, hashlib
 from collections import Counter
 from datetime import date
 from pathlib import Path
@@ -41,16 +41,19 @@ def parse_list(value):
 def read_csv(path):
     with Path(path).open(encoding="utf-8-sig",newline="") as f: return list(csv.DictReader(f))
 
-def audit(index_rows,sample_rows):
+def audit(index_rows,sample_rows,index_metadata=None):
     counts=Counter(r.get("accession","") for r in index_rows)
     duplicates=sorted(k for k,v in counts.items() if k and v>1)
     index={r.get("accession",""):r for r in index_rows if r.get("accession")}
     quarters=sorted({r.get("quarter","") for r in index_rows if r.get("quarter")})
     conflicts=sum(str(r.get("metadata_conflict","")).lower()=="true" for r in index_rows)
-    integrity={"index_rows":len(index_rows),"unique_accessions":len(index),
+    compact_integrity={"compact_index_rows":len(index_rows),"compact_unique_accessions":len(index),
+      "compact_duplicate_accession_count":len(duplicates)}
+    integrity=dict(index_metadata) if index_metadata else {"index_rows":len(index_rows),"unique_accessions":len(index),
       "duplicate_accession_count":len(duplicates),"duplicate_accessions":duplicates[:20],
       "quarters":len(quarters),"first_quarter":quarters[0] if quarters else None,
       "last_quarter":quarters[-1] if quarters else None,"metadata_conflict_rows":conflicts}
+    integrity.update(compact_integrity)
     links=[]
     for r in sample_rows:
         if str(r.get("xml_present","")).lower()!="true" or str(r.get("is_index_alias","")).lower()=="true": continue
@@ -118,15 +121,31 @@ def audit(index_rows,sample_rows):
       "economic_test_authorized":False,"forward_returns_used":False,"final_holdout_used":False,"production_changed":False}
     return links,summary
 
+def sha256_file(path):
+    digest=hashlib.sha256()
+    with Path(path).open("rb") as f:
+        for block in iter(lambda:f.read(1024*1024),b""): digest.update(block)
+    return digest.hexdigest()
+
 def main():
     p=argparse.ArgumentParser()
     p.add_argument("--phase82-dir",required=True,type=Path); p.add_argument("--phase124-dir",required=True,type=Path); p.add_argument("--output-dir",required=True,type=Path)
     a=p.parse_args()
-    links,summary=audit(read_csv(a.phase82_dir/"global_master_index_13dg.csv"),read_csv(a.phase124_dir/"phase124_global_13dg_submission_audit.csv"))
-    a.output_dir.mkdir(parents=True,exist_ok=True)
-    with (a.output_dir/"phase160_13dg_previous_accession_index_reconciliation.csv").open("w",encoding="utf-8",newline="") as f:
-        w=csv.DictWriter(f,fieldnames=list(links[0])); w.writeheader(); w.writerows(links)
-    (a.output_dir/"phase160_13dg_previous_accession_index_summary.json").write_text(json.dumps(summary,indent=2,sort_keys=True)+"\n",encoding="utf-8")
+    index_path=a.phase82_dir/"global_master_index_13dg.csv"
+    sample_path=a.phase124_dir/"phase124_global_13dg_submission_audit.csv"
+    manifest_path=a.phase82_dir/"phase160_input_manifest.json"
+    manifest=json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_path.exists() else None
+    if manifest:
+        expected=manifest.get("compact_inputs",{})
+        for label,path in [("phase82_source/global_master_index_13dg.csv",index_path),
+                           ("phase124_source/phase124_global_13dg_submission_audit.csv",sample_path)]:
+            if expected.get(label)!=sha256_file(path):
+                raise RuntimeError(f"compact input hash mismatch: {label}")
+    links,summary=audit(read_csv(index_path),read_csv(sample_path),manifest.get("index_integrity") if manifest else None)
+    if manifest:
+        summary["compact_input_hashes"]=manifest.get("compact_inputs",{})
+        summary["source_artifacts"]=manifest.get("source_artifacts",{})
+    write_outputs(links,summary,a.output_dir)
     print(json.dumps(summary,indent=2,sort_keys=True))
     return 2 if summary["index_integrity"]["duplicate_accession_count"] or summary["index_integrity"]["metadata_conflict_rows"] else 0
 
