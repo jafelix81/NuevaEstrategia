@@ -128,7 +128,12 @@ def _csv_members(raw_zip: bytes) -> list[tuple[str, bytes]]:
 
 
 def _audit_csv(member_name: str, payload: bytes) -> tuple[dict[str, object], dict[tuple[str, ...], dict[str, str]]]:
-    meta = parse_member_name(member_name)
+    try:
+        meta = parse_member_name(member_name)
+    except ValueError:
+        base = member_name.replace("\\\\", "/").rsplit("/", 1)[-1]
+        meta = {"member_basename": base, "exchange": "UNKNOWN", "quote_date": None,
+                "file_kind": "UNKNOWN", "filename_identity_basis": "UNRESOLVED_GENERIC_MEMBER_NAME"}
     try:
         decoded = payload.decode("utf-8-sig")
     except UnicodeDecodeError as exc:
@@ -143,7 +148,10 @@ def _audit_csv(member_name: str, payload: bytes) -> tuple[dict[str, object], dic
     summary: dict[str, object] = {
         **meta, "actual_column_count": len(headers), "expected_column_count": len(expected),
         "missing_columns": missing, "extra_columns": extra, "duplicate_header_count": duplicate_headers,
+        "detected_schema": ("EOD" if not missing and not extra and duplicate_headers == 0 else
+                            "INTRADAY_LIKE" if {"trade_datetime", "underlying"}.issubset(set(headers)) else "UNKNOWN"),
         "header_case_normalized": raw_headers != headers, "row_count": 0,
+        "quote_date_from_rows": None, "distinct_quote_dates_in_rows": 0,
         "unique_underlying_count": 0, "unique_series_count": 0, "duplicate_series_rows": 0,
         "quote_date_mismatch_rows": 0, "invalid_required_field_count": 0, "invalid_bucket_values": 0,
         "blank_previous_close_rows": 0, "zero_previous_close_rows": 0, "negative_previous_close_rows": 0,
@@ -163,6 +171,7 @@ def _audit_csv(member_name: str, payload: bytes) -> tuple[dict[str, object], dic
     series_counts: Counter[str] = Counter()
     call_put_counts: Counter[str] = Counter()
     invalid_required = invalid_buckets = 0
+    quote_date_values: set[str] = set()
     for raw_row in reader:
         row = {str(k).strip().lower(): v for k, v in raw_row.items() if k is not None}
         summary["row_count"] = int(summary["row_count"]) + 1
@@ -176,7 +185,8 @@ def _audit_csv(member_name: str, payload: bytes) -> tuple[dict[str, object], dic
         series_type = _text(row.get("series_type")).upper()
         try:
             quote_date = datetime.strptime(_text(row.get("quote_date")), "%m/%d/%Y").date().isoformat()
-            if quote_date != meta["quote_date"]:
+            quote_date_values.add(quote_date)
+            if meta["quote_date"] is not None and quote_date != meta["quote_date"]:
                 summary["quote_date_mismatch_rows"] = int(summary["quote_date_mismatch_rows"]) + 1
         except ValueError:
             invalid_required += 1
@@ -257,6 +267,14 @@ def _audit_csv(member_name: str, payload: bytes) -> tuple[dict[str, object], dic
             "total_exchange_vol": _text(row.get("total_exchange_vol")),
         }
     summary["unique_underlying_count"] = len(underlying_set)
+    summary["distinct_quote_dates_in_rows"] = len(quote_date_values)
+    if len(quote_date_values) == 1:
+        row_quote_date = next(iter(quote_date_values))
+        summary["quote_date_from_rows"] = row_quote_date
+        if summary["quote_date"] is None:
+            summary["quote_date"] = row_quote_date
+    elif len(quote_date_values) != 1:
+        invalid_required += 1
     summary["unique_series_count"] = len(series_set)
     summary["invalid_required_field_count"] = invalid_required
     summary["invalid_bucket_values"] = invalid_buckets
@@ -272,7 +290,7 @@ def audit_archive(raw_zip: bytes, headers: dict[str, str] | None = None, *,
     retrieved = retrieved_at_utc or datetime.now(timezone.utc).isoformat()
     members = _csv_members(raw_zip)
     file_summaries = []
-    states: dict[tuple[str, str, str], dict[tuple[str, ...], dict[str, str]]] = {}
+    states: dict[tuple[str, str, str, str], dict[tuple[str, ...], dict[str, str]]] = {}
     schema_failures = 0
     total_rows = total_underlyings = total_series = total_duplicates = 0
     for name, payload in members:
@@ -283,7 +301,7 @@ def audit_archive(raw_zip: bytes, headers: dict[str, str] | None = None, *,
             schema_failures += 1
         if int(summary["quote_date_mismatch_rows"]) > 0 or int(summary["invalid_required_field_count"]) > 0 or int(summary["invalid_bucket_values"]) > 0:
             schema_failures += 1
-        key = (str(summary["exchange"]), str(summary["quote_date"]), str(summary["file_kind"]))
+        key = (str(summary["exchange"]), str(summary["quote_date"]), str(summary["file_kind"]), str(summary["member_basename"]))
         if key in states:
             schema_failures += 1
         states[key] = state
@@ -294,10 +312,14 @@ def audit_archive(raw_zip: bytes, headers: dict[str, str] | None = None, *,
         total_duplicates += int(summary["duplicate_series_rows"])
 
     comparisons = []
-    pair_keys = {(ex, day) for ex, day, kind in states if kind == "FINAL" and (ex, day, "PRELIMINARY") in states}
+    grouped_states: dict[tuple[str, str], dict[str, dict[tuple[str, ...], dict[str, str]]]] = {}
+    for (exchange, day, kind, _member), state in states.items():
+        if exchange != "UNKNOWN" and kind in {"FINAL", "PRELIMINARY"}:
+            grouped_states.setdefault((exchange, day), {})[kind] = state
+    pair_keys = {key for key, versions in grouped_states.items() if {"FINAL", "PRELIMINARY"}.issubset(versions)}
     for exchange, day in sorted(pair_keys):
-        prelim = states[(exchange, day, "PRELIMINARY")]
-        final = states[(exchange, day, "FINAL")]
+        prelim = grouped_states[(exchange, day)]["PRELIMINARY"]
+        final = grouped_states[(exchange, day)]["FINAL"]
         common = set(prelim) & set(final)
         changed = {field: sum(prelim[k][field] != final[k][field] for k in common)
                    for field in ("open_interest", "previous_open_interest", "total_industry_vol")}
@@ -312,14 +334,22 @@ def audit_archive(raw_zip: bytes, headers: dict[str, str] | None = None, *,
                          x["invalid_required_field_count"] == 0 and x["negative_previous_close_rows"] == 0 and
                          x["invalid_previous_close_format_rows"] == 0 and x["invalid_bucket_values"] == 0 and
                          x["duplicate_series_rows"] == 0 for x in file_summaries)
-    status = "PASS_EOD_SAMPLE_SCHEMA" if all_headers and all_rows_valid and schema_failures == 0 else "FAIL_EOD_SAMPLE_SCHEMA"
+    identity_resolved = all(x["exchange"] != "UNKNOWN" and x["file_kind"] != "UNKNOWN" for x in file_summaries)
+    detected = {str(x["detected_schema"]) for x in file_summaries}
+    if detected == {"INTRADAY_LIKE"}:
+        status = "BLOCKED_SAMPLE_IS_INTRADAY_NOT_EOD"
+    elif all_headers and all_rows_valid and schema_failures == 0:
+        status = "PASS_EOD_SAMPLE_SCHEMA" if identity_resolved else "PASS_EOD_SAMPLE_SCHEMA_IDENTITY_UNRESOLVED"
+    else:
+        status = "FAIL_EOD_SAMPLE_SCHEMA"
     return {
         "phase": 168, "status": status, "sample_url": SAMPLE_URL,
         "final_url_without_query": _safe_final_url(final_url), "retrieved_at_utc": retrieved,
         "http_content_type": headers.get("content-type"), "http_content_length": headers.get("content-length"),
         "http_last_modified": headers.get("last-modified"), "http_etag": headers.get("etag"),
         "compressed_bytes": len(raw_zip), "raw_zip_sha256": hashlib.sha256(raw_zip).hexdigest(),
-        "csv_member_count": len(members), "total_rows": total_rows,
+        "csv_member_count": len(members), "member_filename_identity_resolved": identity_resolved,
+        "total_rows": total_rows,
         "sum_of_file_unique_underlyings_not_deduplicated": total_underlyings,
         "sum_of_file_unique_series_not_deduplicated": total_series,
         "duplicate_series_rows": total_duplicates, "schema_failure_count": schema_failures,
