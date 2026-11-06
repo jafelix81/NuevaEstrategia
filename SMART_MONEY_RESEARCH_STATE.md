@@ -927,3 +927,33 @@ F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No source from Phases 112–113
 - Phase 140 report: `research/PHASE140_CBOE_TBT_GRK_PIT_SEMANTICS_AUDIT_2026-11-05.md`. Current branch head at final validation: `18ffb4913af1d6e0a5cfa5a99d277aa00af6face`; PR #13 title is Phases 99–140, open/unmerged/mergeable.
 - Decision: C1 Open-Close EOD remains the preferred conditional daily participant-capacity/open-close source because its public sample passed exact bucket accounting. TBT remains a secondary execution/trade-type diagnostic until its capacity-specific missingness, SIDE=T, segment/timezone semantics and complex-execution aggregation are resolved. GRK forward join cannot be used as trade-time delta; use backward-only for event-time features and report match rate, or label forward join post-trade. Compare C1 data against OPRA-wide Option EOD Summary before claiming venue representativeness.
 - No alpha/forward-return test, no data purchase, subscription, vendor contact, terms acceptance or production change. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+
+---
+
+## Current research state — 2026-11-05 (Phases 141–142 supersede the Phase 140 next-step note)
+
+### Phase 141 — Cboe OPRA denominator and venue share
+- Reused the existing Phase 112 Option Trades and Phase 114 Open-Close artifacts; no duplicate data-download workflow was run.
+- On the one-symbol AAPL Option Trades sample dated 2026-01-07, C1 represented 10.47% of 531,227 OPRA contracts; Cboe C1/C2/BZX/EDGX together represented 21.04%. This is one symbol/day, not a market-wide estimate.
+- The sample contains 74,999 valid rows and 23,580 all-empty padded rows. Its quote_datetime field is a two-component clock, contrary to the published full timestamp specification; daily market_date aggregation remains conditionally feasible, intraday use is blocked.
+- Corrected the C1 Open-Close volume-unit interpretation: total_exchange_vol counts both sides. One-sided buy volume / reported total industry volume in the 2025-03-28 20% series sample is 18.43%. Cboe specifies OPRA values in preliminary files and OCC-authoritative values in final files; preserve file version. This is descriptive only because the sample covers 20% of series.
+- No same-date cross-source join was possible: Option Trades is 2026-01-07; Open-Close is 2025-03-28. The legacy 335 names remain a coverage diagnostic, not a cap on the research universe.
+- Added a reusable CSV audit helper and 11 offline regression tests. CI is PR-only; no push trigger or live data download.
+
+### Phase 142 — IvyDB TradeFlow
+- Current top conditional options-flow candidate: all U.S. options exchanges, 5-minute/30-minute/EOD intervals, vendor-claimed history since 2016, with signed volume, trade conditions, market structure, venue and retail/aggressive-institutional proxy buckets.
+- TradeFlow launched 2026-09-30. Its 2016 backfill is not proof that the current classifier was available at those historical dates. Preserve version lineage and first-delivery timestamps; do not splice Signed Volume generations without an overlap/regime study.
+- Retail/institutional buckets are execution/size/condition heuristics, not beneficial-owner identities. Institutional 2 measures aggressive liquidity demand only; it omits passive positioning, midpoint flow, patient accumulation and market making. Vendor-reported 99.9% assigned volume is coverage, not independently validated accuracy.
+- No public raw sample, immutable historical publication log, delivery SLA or price schedule was found. No vendor contact, trial, purchase or terms acceptance occurred.
+
+### Current source ranking and next gates
+1. **IvyDB TradeFlow** — top conditional all-venue signed-flow candidate; first-delivery/version, raw-sample, classifier and universe-coverage gates remain open.
+2. **IvyDB US** — complementary long-history OI/IV/Greeks/security-ID foundation; preserve daily patch history and first receipt.
+3. **Cboe Open-Close EOD** — conditional Cboe-venue capacity/open-close source; normalize one-sided volume and retain historical breaks.
+4. **Cboe Option Trades** — conditional all-venue daily denominator; timestamp and broad-sample gates remain open.
+5. **Cboe TBT/GRK** — secondary execution diagnostic; Phase 140 backward-only event-time join restriction remains.
+
+Next research must resolve data access and historical PIT before alpha testing. Any candidate must add information beyond frozen LTM/F80, be lagged to verified availability, distinguish prediction from return-chasing, use identical exposure/costs, chronological OOS, bootstrap and issuer LOO. The eventual universe must be historical and survivorship-aware, not limited to the legacy 335 names.
+
+No alpha result is claimed. No production changes, data purchases or vendor contacts. **F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.**
