@@ -20,14 +20,14 @@ A separate counterexample remains important: eight First Trust child filings reu
 
 | Referenced accession | Parent issuer | Parent CUSIP | Parent filing | Child evidence | Result |
 |---|---|---|---|---|---|
-| 0000315066-12-002323 | Amdocs Limited (1062579) | G02602103 | Initial SC 13G; 2012-02-14 | 2026 child is Amendment 14; same issuer/CUSIP | Long-lived initial-anchor candidate |
+| 0000315066-12-002323 | Amdocs Limited (1062579) | G02602103 | Initial SC 13G; filed 2012-02-14, accepted 12:03:15 ET | 2026 child is Amendment 14; same issuer/CUSIP | Long-lived initial-anchor candidate |
 | 0001274173-23-000077 | 89bio, Inc. (1785173) | 282559103 | Initial SC 13G; 2023-02-14, accepted 16:51:19 ET | 2025 child is Amendment 5; same issuer/CUSIP | Initial-anchor candidate, not immediate predecessor |
-| 0001644956-25-000024 | Montrose Environmental Group (1643615) | 615111101 | Initial SC 13G; 2025-05-09, accepted 16:13:10 ET | 2025 child Amendment 1; same issuer/CUSIP | Issuer/security continuity candidate |
+| 0001644956-25-000024 | Montrose Environmental Group (1643615) | 615111101 | Initial SCHEDULE 13G; 2025-05-09, accepted 16:13:10 ET | 2025 child Amendment 1; same issuer/CUSIP | Issuer/security continuity candidate |
 | 0001193125-22-031137 | Endeavor Group Holdings (1766363) | 29260Y109 | Initial SC 13G; 2022-02-08, accepted 17:11:01 ET | Sampled 2025 child has same issuer CIK; child CUSIP not embedded in this compact fixture | Security continuity unresolved |
 | 0001535610-24-000019 | Mobiquity Technologies (1084267) | 60743F508 | Initial SC 13G; 2024-01-03, accepted 09:26:06 ET | Sampled 2025 child has same issuer CIK; child CUSIP not embedded in this compact fixture | Security continuity unresolved |
 | 0001445546-21-002430 | First Trust Exchange-Traded Fund VIII (1667919) | 33740F854 | Initial SC 13G; 2021-05-10, accepted 09:06:41 ET | Eight children: five issuer CIKs, eight CUSIPs; 0 exact CUSIP matches | Quarantine all eight state links |
 
-The 2012 Amdocs filing's directory timestamp is not treated as an acceptance timestamp. No exact acceptance time is asserted for that filing.
+The Amdocs acceptance timestamp is verified directly from the SEC submission header: 2012-02-14 12:03:15 ET. The child filing-detail page identifies the child as SCHEDULE 13G/A, Amendment No. 14, with the same issuer CIK and CUSIP.
 
 ## First Trust reused-reference control
 
@@ -71,7 +71,7 @@ A same issuer-CIK plus same CUSIP result is only a continuity candidate. It stil
 ## CI and reproducibility
 
 - Pure offline fixture and deterministic classifier.
-- Regression tests cover initial-anchor semantics, security mismatches, unknown CUSIPs, accession normalization, output generation and no-lookahead governance.
+- Regression tests cover initial-anchor semantics, both legacy and current Schedule form labels, verified acceptance timestamps, security mismatches, unknown CUSIPs, accession normalization, output generation and no-lookahead governance.
 - No SEC bulk request was made by the workflow.
 - No vendor contact/purchase or production change.
 

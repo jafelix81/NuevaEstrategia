@@ -1170,3 +1170,16 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 - Six of 32 unique references inspected; the other 26 remain unresolved. Targeted, non-random audit; no prevalence estimate. Raw SEC response bodies and per-document hashes are not embedded.
 - Decision: previousAccessionNumber is an accession reference with unknown role (original anchor or predecessor), not an immediate chain edge. Preserve raw/canonical value; require issuer and effective-dated security continuity plus independent amendment-chain reconstruction.
 - Added Phase 163 report, deterministic fixture/parser, 16 offline regression tests and PR-only Actions workflow. No returns, feature panel, bootstrap/LOO, OOS test, final holdout, vendor contact/purchase or production/F80 change. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## Phase 163 correction — form-label and acceptance-time verification (2026-11-06)
+- Direct SEC review confirmed the Amdocs initial filing acceptance timestamp as 2012-02-14 12:03:15 ET; the 2026 child filing detail is SCHEDULE 13G/A, Amendment No. 14, CUSIP G02602103.
+- Montrose parent is filed under the current SCHEDULE 13G label, not the legacy SC 13G code. The parser now treats both legacy SC 13G and current SCHEDULE 13G labels as initial Schedule forms.
+- Phase 163 now has 18 offline regression tests; no classification counts changed.
+
+## Phase 164 — OpenFIGI cross-CUSIP corporate-action transition control (2026-11-06)
+- Phase 149 completed successfully: 553 sample CUSIPs, 438 primary mappings, 115 primary no-matches; fallback uniquely recovered 6 of 115, leaving 109; one cross-CUSIP shareClassFIGI pair.
+- The only pair is Fortuna Silver Mines Inc. CUSIP 349915108 and Fortuna Mining Corp. CUSIP 349942102, both currently mapped to shareClassFIGI BBG001S982M0.
+- SEC-filed certificate and issuer announcement establish legal name change effective 2024-06-20. The TSX notice establishes the new common-share CUSIP effective at the open on 2024-06-27; old CUSIP is retained through 2024-06-26. TSX ticker FVI and NYSE ticker FSM remain unchanged. The exact NYSE CUSIP-effective date is not independently verified.
+- Added one manually source-dated TSX corporate-action bridge with 14 offline tests. OpenFIGI's current shareClassFIGI is only corroborating identity; its current ticker list is not backdated.
+- No returns, alpha, bootstrap/LOO, OOS or final holdout test; no vendor purchase/contact, production or F80 change. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.

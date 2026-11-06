@@ -46,6 +46,17 @@ class Phase163PreviousAccessionAnchorTests(unittest.TestCase):
         self.assertEqual(row["status"], "ISSUER_SECURITY_CONTINUITY_CANDIDATE_NOT_EDGE")
         self.assertFalse(row["immediate_predecessor_verified"])
 
+    def test_montrose_current_schedule_form_is_still_initial(self):
+        rows, _ = audit()
+        row = next(r for r in rows if r["child_accession"] == "0001644956-25-000034")
+        self.assertEqual(row["parent_form"], "SCHEDULE 13G")
+        self.assertTrue(row["parent_is_initial_filing"])
+
+    def test_amdocs_parent_acceptance_timestamp_is_verified(self):
+        rows, _ = audit()
+        row = next(r for r in rows if r["child_accession"] == "0000315066-26-000372")
+        self.assertEqual(row["parent_accepted_et"], "2012-02-14 12:03:15")
+
     def test_endeavor_security_identity_remains_unverified(self):
         rows, _ = audit()
         row = next(r for r in rows if r["child_accession"] == "0001140361-25-017757")

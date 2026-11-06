@@ -20,5 +20,11 @@
   "forward_returns_used": false,
   "final_holdout_used": false,
   "production_changed": false,
-  "f80_changed": false
+  "f80_changed": false,
+  "amdocs_parent_acceptance_time_verified": true,
+  "schedule_form_label_variants_supported": [
+    "SC 13G",
+    "SCHEDULE 13G"
+  ],
+  "tests_expected": 18
 }

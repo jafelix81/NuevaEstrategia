@@ -12,7 +12,7 @@ PARENT_CASES = [
         "previous_accession": "0000315066-12-002323",
         "parent_form": "SC 13G",
         "parent_filing_date": "2012-02-14",
-        "parent_accepted_et": None,
+        "parent_accepted_et": "2012-02-14 12:03:15",
         "parent_issuer_cik": "0001062579",
         "parent_issuer_name": "Amdocs Limited",
         "parent_cusip": "G02602103",
@@ -46,7 +46,7 @@ PARENT_CASES = [
     },
     {
         "previous_accession": "0001644956-25-000024",
-        "parent_form": "SC 13G",
+        "parent_form": "SCHEDULE 13G",
         "parent_filing_date": "2025-05-09",
         "parent_accepted_et": "2025-05-09 16:13:10",
         "parent_issuer_cik": "0001643615",
@@ -140,7 +140,7 @@ def audit(cases: list[dict] | None = None) -> tuple[list[dict], dict]:
         if not parent_accession or not parent_issuer.isdigit() or not parent_cusip:
             invalid += 1
             continue
-        parent_is_initial = str(case.get("parent_form", "")).upper() in {"SC 13D", "SC 13G"}
+        parent_is_initial = str(case.get("parent_form", "")).upper() in {"SC 13D", "SC 13G", "SCHEDULE 13D", "SCHEDULE 13G"}
         for child in case.get("children", []):
             child_accession = normalize_accession(child.get("child_accession", ""))
             child_issuer = str(child.get("child_issuer_cik", "")).zfill(10)
