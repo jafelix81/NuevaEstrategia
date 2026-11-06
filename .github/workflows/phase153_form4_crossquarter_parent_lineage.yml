@@ -1,0 +1,72 @@
+name: Phase 153 SEC Form 4/A cross-quarter parent-lineage audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "research/phase153_*"
+      - ".github/workflows/phase153_form4_crossquarter_parent_lineage.yml"
+      - "SMART_MONEY_RESEARCH_STATE.md"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Download immutable Phase 39 endpoint-quarter artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: phase39-sec-form4-actual-file-audit
+          run-id: 40606706518
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: phase39_source
+      - name: Download immediately preceding SEC quarters
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p adjacent_source
+          UA='NuevaEstrategia/Phase153 Form 4 amendment lineage audit contact research'
+          BASE='https://www.sec.gov/files'
+          for spec in \
+            'structureddata/data/insider-transactions-data-sets/2011q4_form345.zip 2011q4_form345.zip' \
+            'datastandardsinnovation/data/insider-transactions-data-sets/2026q2_form345.zip 2026q2_form345.zip'; do
+            set -- $spec
+            url="$BASE/$1"
+            out="adjacent_source/$2"
+            echo "Downloading $url"
+            curl --fail --show-error --location --retry 6 --retry-all-errors --retry-delay 5 \
+              --connect-timeout 30 --max-time 240 -A "$UA" \
+              -H 'Accept: application/zip, application/octet-stream, */*' \
+              -H 'Accept-Encoding: gzip, deflate' "$url" -o "$out"
+            test -s "$out"
+            unzip -t "$out" >/dev/null
+            sha256sum "$out"
+          done
+      - name: Compile audit and tests
+        run: |
+          python -m py_compile research/phase153_form4_crossquarter_parent_lineage.py
+          python -m unittest discover -s research -p 'test_phase153_*.py' -v
+      - name: Build cross-quarter parent-candidate and line-diff audit
+        run: |
+          python research/phase153_form4_crossquarter_parent_lineage.py \
+            --input-dir phase39_source \
+            --adjacent-dir adjacent_source \
+            --output phase153_output/phase153_form4_amendment_lineage_summary.json
+      - name: Upload reproducible audit output
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase153-form4-crossquarter-lineage-audit
+          path: |
+            phase153_output/phase153_form4_amendment_lineage_summary.json
+            adjacent_source/*.zip
+          if-no-files-found: error
+          retention-days: 30
