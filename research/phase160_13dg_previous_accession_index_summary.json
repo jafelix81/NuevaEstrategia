@@ -1,0 +1,42 @@
+{
+  "current_filer_cik_in_parent_candidate_ciks": 30,
+  "current_subject_cik_in_parent_candidate_ciks": 29,
+  "decision": "Direct XML previousAccessionNumber is a strong accession-level parent pointer. The 43-quarter index finds 30/32 links after canonical padding; two parents predate the 2016Q1 index window. Index CIKs are candidate identities only, not role-labelled proof. One found parent lacks the current SEC-header subject CIK among its candidate CIKs and remains identity/role-quarantined. No legacy-HTML parent is inferred from filing-agent CIK or date proximity.",
+  "direct_previous_accession_links": 32,
+  "economic_test_authorized": false,
+  "final_holdout_used": false,
+  "index_integrity": {
+    "duplicate_accession_count": 0,
+    "duplicate_accessions": [],
+    "first_quarter": "2016Q1",
+    "index_rows": 324964,
+    "last_quarter": "2026Q3",
+    "metadata_conflict_rows": 0,
+    "quarters": 43,
+    "unique_accessions": 324964
+  },
+  "lineage_status_counts": {
+    "OUTSIDE_INDEX_HISTORY": 2,
+    "PARENT_FOUND_FORM_DATE_AND_CIK_CANDIDATES_MATCH": 29,
+    "PARENT_FOUND_SUBJECT_CIK_CANDIDATE_MISMATCH": 1
+  },
+  "parent_form_family_matches": 30,
+  "parents_found_exactly_as_filed": 29,
+  "parents_found_in_index": 30,
+  "parents_outside_index_history": 2,
+  "parents_precede_current_filing_date": 30,
+  "parents_recovered_by_canonicalization": 1,
+  "parents_that_are_non_amended_13d_or_13g": 30,
+  "production_changed": false,
+  "reused_parent_accessions": 0,
+  "sources": {
+    "phase124_artifact_id": 13436764625,
+    "phase124_run_id": 42073725379,
+    "phase124_zip_sha256": "85f69e083b5af65731c9bcfe24e8c75821fc0f2c2476bfa8ba573e2e884570dc",
+    "phase82_artifact_id": 13353118959,
+    "phase82_run_id": 41892370262,
+    "phase82_zip_sha256": "e925ad8fe9792f27e570b9e882dff772bb67d9edd67f1c93404a198faab80985"
+  },
+  "status": "COMPLETE_INDEX_RECONCILIATION",
+  "unique_parent_accessions": 32
+}
