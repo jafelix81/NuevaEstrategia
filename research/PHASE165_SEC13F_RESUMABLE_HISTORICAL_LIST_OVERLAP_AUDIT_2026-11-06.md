@@ -100,3 +100,12 @@ No vendor purchase/contact, no production change, no final holdout use and no F8
 - [2015Q3 official PDF](https://www.sec.gov/divisions/investment/13f/13flist2015q3.pdf)
 - [2020Q1 official TXT](https://www.sec.gov/files/investment/13flist2020q1.txt)
 - [2026Q3 official TXT](https://www.sec.gov/files/investment/13flist2026q3.txt)
+
+
+## Phase 165 post-run adjudication (2026-11-06)
+- The initial Phase 165 CI attempt failed because the test fixture encoded literal backslash-n instead of line breaks; corrected before the successful run.
+- The first all-PDF run completed 45/45 but exposed a bug in the imported Phase 129 CUSIP wrapper: it compared a boolean to a string and reported zero checksum-valid list identifiers. Phase 165 was corrected to call the tested Phase 125 boolean validator directly.
+- SEC TXT responses were compressed when gzip/deflate was advertised; the initial TXT parser therefore fell back to PDF. Phase 165 now requests identity encoding and decodes compressed responses defensively. The corrected run completed 45/45, with 25 TXT and 20 PDF snapshots.
+- The direct TXT-first aggregate's Last-Modified PIT proxy is superseded: 22/25 historical TXT files carry a 2026-09-04 Last-Modified date, a later archive migration/republication timestamp. See Phase 166 for the PDF Run Date bridge and cross-format concordance.
+- The standard check-digit diagnostic is not a universal exclusion rule: the 2026Q3 official list contains CALL/PUT series identifiers that fail the standard equity CUSIP check-digit test. The field named `invalid_unique_cusips` should be read as nonconforming-to-standard-check-digit candidates, not proof of malformed securities.
+- Final PIT adjudication and content concordance are documented in [Phase 166](PHASE166_SEC13F_CROSS_FORMAT_PIT_METADATA_BRIDGE_2026-11-06.md).
