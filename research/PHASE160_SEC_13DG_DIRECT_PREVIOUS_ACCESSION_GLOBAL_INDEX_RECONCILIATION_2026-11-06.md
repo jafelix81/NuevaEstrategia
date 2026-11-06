@@ -84,3 +84,8 @@ No forward returns, feature panel, bootstrap/LOO, OOS test, final holdout, vendo
 ## CI reproducibility note
 
 The first Phase 160 GitHub Actions attempt could not download the 185 MB Phase 82 cross-run artifact: the download action returned “Bad credentials” before the audit step. The source artifact remains available and unexpired. To avoid repeating a cross-run credential dependency, the workflow now uses compact, hash-pinned excerpts extracted from the immutable Phase 82 and Phase 124 artifacts. The manifest preserves both original run/artifact IDs and full ZIP SHA-256 values; the helper verifies the compact CSV hashes before recomputation. The compact index excerpt contains only the 30 found parent rows, and the compact child file contains the 32 explicit predecessor links. The full 324,964-row index integrity figures remain sourced from the completed Phase 82 full-index audit, not recomputed from the excerpt. This distinction is explicit in the manifest and summary.
+
+
+## Final CI execution note
+
+The first CI attempt failed at cross-run artifact download with Bad credentials; the workflow was changed to use compact, hash-pinned excerpts from the immutable Phase 82 and Phase 124 artifacts. The next compact run passed all 19 tests but exposed a missing CSV/JSON output-writer function in the helper. The writer is now implemented and covered by a regression test. The next Phase 160 workflow run will validate the complete compact-input path; until that run completes, treat the code-level result as locally verified rather than CI-green.

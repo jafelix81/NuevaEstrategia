@@ -1,5 +1,7 @@
 import unittest
-from phase160_13dg_previous_accession_index_reconciliation import audit, norm_accession, accession_year, family
+from pathlib import Path
+import tempfile, json
+from phase160_13dg_previous_accession_index_reconciliation import audit, norm_accession, accession_year, family, write_outputs
 
 def ix(form="SC 13D", filing="2020-01-02", candidates='["0000000001","0000000002"]'):
     return {"accession":"0000000001-20-000001","quarter":"2020Q1","form":form,"filing_date":filing,
@@ -48,6 +50,14 @@ class Phase160Tests(unittest.TestCase):
         self.assertEqual(rows[0]["lineage_status"],"OUTSIDE_INDEX_HISTORY")
         self.assertEqual(s["index_integrity"]["index_rows"],324964)
         self.assertEqual(s["index_integrity"]["compact_index_rows"],1)
+
+    def test_write_outputs_creates_csv_and_summary(self):
+        rows, summary = audit([ix()], [sm()])
+        with tempfile.TemporaryDirectory() as tmp:
+            write_outputs(rows, summary, Path(tmp))
+            self.assertTrue((Path(tmp) / "phase160_13dg_previous_accession_index_reconciliation.csv").exists())
+            saved = json.loads((Path(tmp) / "phase160_13dg_previous_accession_index_summary.json").read_text())
+            self.assertEqual(saved["direct_previous_accession_links"], 1)
 
     def test_no_economic_or_holdout_claim(self):
         _,s=audit([ix()],[sm()]); self.assertFalse(s["economic_test_authorized"]); self.assertFalse(s["forward_returns_used"]); self.assertFalse(s["final_holdout_used"]); self.assertFalse(s["production_changed"])

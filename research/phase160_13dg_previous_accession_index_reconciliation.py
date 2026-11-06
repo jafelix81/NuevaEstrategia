@@ -121,6 +121,21 @@ def audit(index_rows,sample_rows,index_metadata=None):
       "economic_test_authorized":False,"forward_returns_used":False,"final_holdout_used":False,"production_changed":False}
     return links,summary
 
+def write_outputs(links, summary, output_dir):
+    output_dir.mkdir(parents=True, exist_ok=True)
+    csv_path = output_dir / "phase160_13dg_previous_accession_index_reconciliation.csv"
+    if links:
+        with csv_path.open("w", encoding="utf-8", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=list(links[0].keys()))
+            writer.writeheader()
+            writer.writerows(links)
+    else:
+        csv_path.write_text("", encoding="utf-8")
+    (output_dir / "phase160_13dg_previous_accession_index_summary.json").write_text(
+        json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+
+
 def sha256_file(path):
     digest=hashlib.sha256()
     with Path(path).open("rb") as f:
