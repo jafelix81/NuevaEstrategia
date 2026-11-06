@@ -54,6 +54,12 @@ class Phase168Tests(unittest.TestCase):
         self.assertEqual(final["file_kind"], "FINAL")
         self.assertEqual(prelim["file_kind"], "PRELIMINARY")
 
+    def test_sample_suffix_preserves_exchange_date_but_not_final_role(self):
+        parsed = parse_member_name("C1OpenClose_2025-03-28_sample_20pct.csv")
+        self.assertEqual(parsed["exchange"], "C1")
+        self.assertEqual(parsed["quote_date"], "2025-03-28")
+        self.assertEqual(parsed["file_kind"], "SAMPLE_UNSPECIFIED")
+
     def test_filename_rejects_unknown_exchange(self):
         with self.assertRaisesRegex(ValueError, "filename_unrecognized"):
             parse_member_name("NYSEOpenClose_2026-09-30.csv")
@@ -160,6 +166,25 @@ class Phase168Tests(unittest.TestCase):
         result = audit_archive(make_zip({"C1OpenClose_2026-09-30.csv": out.getvalue().encode()}))
         self.assertEqual(result["status"], "FAIL_EOD_SAMPLE_SCHEMA")
         self.assertEqual(result["file_summaries"][0]["invalid_previous_close_format_rows"], 1)
+
+    def test_mixed_public_archive_separates_intraday_and_eod_members(self):
+        intraday = b"trade_datetime,underlying,trading_dt\\n2025-03-28 12:30:00,AAPL,2025-03-28\\n"
+        raw = make_zip({
+            "Cboe_OpenClose_2025-03-28_12_30_1.csv": intraday,
+            "Cboe_OpenClose_2025-03-28_13_16_1.csv": intraday,
+            "C1OpenClose_2025-03-28_sample_20pct.csv": make_csv(quote_date="2025-03-28"),
+        })
+        result = audit_archive(raw)
+        self.assertEqual(result["status"], "PASS_EOD_SAMPLE_SCHEMA_IDENTITY_UNRESOLVED")
+        self.assertEqual(result["csv_member_count"], 3)
+        self.assertEqual(result["eod_member_count"], 1)
+        self.assertEqual(result["intraday_member_count"], 2)
+        self.assertEqual(result["total_rows"], 1)
+        self.assertTrue(result["member_filename_identity_resolved"])
+        self.assertFalse(result["file_version_identity_resolved"])
+        eod = next(x for x in result["file_summaries"] if x["detected_schema"] == "EOD")
+        self.assertEqual(eod["quote_date_format_counts"], {"YYYY-MM-DD": 1})
+        self.assertEqual(eod["quote_date"], "2025-03-28")
 
     def test_raw_symbols_not_persisted(self):
         result = audit_archive(make_zip({"C1OpenClose_2026-09-30.csv": make_csv()}))
