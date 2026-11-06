@@ -167,6 +167,19 @@ class Phase168Tests(unittest.TestCase):
         self.assertFalse(result["raw_rows_persisted"])
         self.assertFalse(result["raw_symbols_persisted"])
 
+    def test_generic_filename_can_pass_schema_but_not_identity_gate(self):
+        raw = make_zip({"Sample.csv": make_csv()})
+        result = audit_archive(raw)
+        self.assertEqual(result["status"], "PASS_EOD_SAMPLE_SCHEMA_IDENTITY_UNRESOLVED")
+        self.assertFalse(result["member_filename_identity_resolved"])
+        self.assertEqual(result["file_summaries"][0]["quote_date"], "2026-09-30")
+
+    def test_intraday_sample_is_identified_and_not_misclassified_as_eod(self):
+        payload = b"trade_datetime,underlying,trading_dt\\n2026-09-30 15:20:00,AAPL,2026-09-30\\n"
+        result = audit_archive(make_zip({"Sample.csv": payload}))
+        self.assertEqual(result["status"], "BLOCKED_SAMPLE_IS_INTRADAY_NOT_EOD")
+        self.assertEqual(result["file_summaries"][0]["detected_schema"], "INTRADAY_LIKE")
+
     def test_invalid_zip_rejected(self):
         with self.assertRaisesRegex(ValueError, "not_zip"):
             audit_archive(b"not a zip")
