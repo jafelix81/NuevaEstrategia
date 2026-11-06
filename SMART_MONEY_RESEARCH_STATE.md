@@ -1064,3 +1064,19 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 - ETON accession regression: original 0001437749-26-029196 and amendment 0001437749-26-029308; Table I has 4 exact repeated rows plus 1 same-coarse unmatched row; Table II has 1 exact repeated plus 1 same-coarse unmatched. The latter rows are not forced into added-versus-modified categories.
 - Parser corrections: exact ZIP basename matching prevents DERIV_TRANS.tsv from colliding with NONDERIV_TRANS.tsv; multiset diff preserves same-coarse extra rows. 17 local tests pass. The updated workflow runs offline tests without a secret and emits a blocked artifact instead of repeatedly sending undeclared requests.
 - Resume: configure the repository Actions secret SEC_CONTACT_EMAIL with an authorized project/firm contact email, then manually dispatch Phase 153. No alpha test, no final holdout use, and F80 remains frozen.
+
+
+## Phase 154 — SEC 13D/G event-date semantics (2026-11-06; issuer-level interpretation superseded)
+- Original descriptive audit used Phase 35 run 41575083622 / artifact 13212292743. Its form-level sample showed quarter-end event dates in 82.71% of 13G rows versus 1.57% of 13D rows, but Phase 155 established that the source is a CIK-submissions query sample, not a subject-issuer-validated event panel.
+- Do not use its 303 source/query CIK/ticker pairs as issuer identities. The exact positive control 0000895421-24-000178 is keyed to MS / CIK 0000895421 while the SEC-validated subject is abrdn Global Infrastructure Income Fund / CIK 0001793855.
+- The legacy report_date is missing in 20,265/20,265 rows; filing_lag_business_days contains only -1, 0 and missing. Both fields remain quarantined.
+- Phase 154 date distributions may be retained only as descriptive filer-query-sample statistics. No issuer-level joins, security returns, features or alpha tests.
+
+## Phase 155 — Role-aware SEC 13D/G event-date audit and Phase 154 quarantine (2026-11-06)
+- Added [Phase 155 report](research/PHASE155_SEC_13DG_ROLE_AWARE_EVENT_DATE_AND_PHASE154_QUARANTINE_2026-11-06.md), [hash-pinned helper](research/phase155_13dg_role_aware_event_date_audit.py), [7 regression tests](research/test_phase155_13dg_role_aware_event_date_audit.py), and a workflow that reuses immutable Phase 124 and Phase 35 artifacts without new SEC requests.
+- Phase 124 role-aware sample: 600 index rows, 599 actual 13D/G submissions plus one quarantined SC TO-T/A alias; 102 structured XML rows, with 102/102 subject/filer/header concordance. Event dates exist in 102/599 (17.03%) of actual sample rows; legacy HTML extraction remains unvalidated.
+- Among the 102 role-validated XML event dates: 13G has 53/68 quarter-end dates (77.94%; sample-weighted descriptive rate 79.12% within the observed XML subset); 13D has 0/34. 13G median filing-event lag is 37 calendar days; 13D median is 3.5 days. These are descriptive sample results, not population estimates or alpha.
+- Rule-designation split for 13G: Rule 13d-1(b) 38/44 quarter-end; (c) 10/15; (d) 5/9. Counts are small and weighted rates are not population-wide because XML/event-date missingness is regime-dependent.
+- EDGAR acceptance after 16:00 ET: 28/34 13D and 23/68 13G. Acceptance time, not event_date or date-only filing_date, is the conservative PIT knowledge boundary; after-close filings must not be backdated to the same regular session.
+- Phase 154 report now carries a supersession note and its helper labels CIKs/tickers as unvalidated source/query identities. Phase 35 remains discovery-only; do not restart its CIK-specific crawl.
+- No forward-return test, no final holdout use, no vendor contact/purchase, no production change. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
