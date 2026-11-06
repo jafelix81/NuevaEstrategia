@@ -1,7 +1,7 @@
 # Phase 167 — Cboe Open-Close public sample and November 8 cutover audit
 
 **Date:** 2026-11-06  
-**Status:** Public sample retrieved; parser correction committed; revised hosted gate pending.  
+**Status:** 1-minute sample schema gate passed; final previous-close classification audit is in the current revision.  
 **Scope:** Validate the newly linked public 1-minute sample against the November 8, 2026 C1 v1.8 specification, test the 10-minute specification contract separately, and preserve the existing PIT/identity restrictions. No paid data, account, vendor contact, return test or production change.
 
 ## Source and cutover
@@ -46,6 +46,15 @@ The revised parser therefore:
 - retains only hashes, counts and metadata, never raw rows or symbols.
 
 The first run's 26,258 aggregate base-value diagnostics were not sufficiently granular to interpret; the revised audit breaks them down by field. Its metadata-only artifact is uploaded even when the schema gate fails, so a mismatch is not hidden by a failed job.
+
+
+## Second hosted sample run
+
+Run 42282406737 passed 24 offline tests, sample download, schema gate and metadata-only artifact upload: https://github.com/jafelix81/NuevaEstrategia/actions/runs/42282406737. Artifact: https://github.com/jafelix81/NuevaEstrategia/actions/runs/42282406737/artifacts/13536036202.
+
+The 88-column lower-case sample header matched the revised sample contract. All eight EOD-only placeholder columns were present but completely empty. The sample uses total_cboe_vol rather than the PDF's total_exchange_vol; the alias column was also empty. Thus the parser/schema gate passes without treating the empty EOD placeholders as data.
+
+The second run isolated the previous aggregate row-quality diagnostic: 26,258 of 123,022 rows (21.34%) have previous_close <= 0; blank previous_close is zero, and all other parsed field diagnostics are zero. Positive previous_close coverage is 78.66%. The third parser revision now distinguishes zero, negative, blank and nonnumeric previous_close values. Zero is preserved as a separate sentinel-like value without assuming it means missing; negative and nonnumeric values remain invalid. The follow-up hosted artifact is authoritative for the final split.
 
 ## 10-minute documentation discrepancy
 

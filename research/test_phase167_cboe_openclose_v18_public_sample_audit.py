@@ -10,7 +10,7 @@ from research.phase167_cboe_openclose_v18_public_sample_audit import (
 )
 
 
-def synthetic_gzip(rows=1, *, mutate_header=None, eod_populated=False, days="79"):
+def synthetic_gzip(rows=1, *, mutate_header=None, eod_populated=False, days="79", previous_close="250"):
     columns = sample_columns_1m()
     if mutate_header == "missing":
         columns = columns[:-1]
@@ -28,7 +28,7 @@ def synthetic_gzip(rows=1, *, mutate_header=None, eod_populated=False, days="79"
         "security_type": "1", "option_symbol": "AAPL  261218C00200000",
         "expiration_date": "20261218", "strike_price": "200",
         "call_or_put": "C", "days_to_expire": days, "series_type": "S",
-        "previous_close": "250", "trading_dt": "2026-09-30", "trading_segment": "1",
+        "previous_close": previous_close, "trading_dt": "2026-09-30", "trading_segment": "1",
     })
     for _ in range(rows):
         writer.writerow({k: base.get(k, "0") for k in columns})
@@ -208,6 +208,38 @@ class Phase167Tests(unittest.TestCase):
         self.assertEqual(result["sample_total_volume_field_alias"],
                          "total_cboe_vol_in_sample_vs_total_exchange_vol_in_pdf_spec")
 
+
+    def test_zero_previous_close_is_separate_not_invalid(self):
+        result = audit_payload(synthetic_gzip(previous_close="0"))
+        self.assertEqual(result["zero_previous_close_rows"], 1)
+        self.assertEqual(result["negative_previous_close_rows"], 0)
+        self.assertEqual(result["positive_previous_close_rows"], 0)
+        self.assertEqual(result["invalid_base_values"], 0)
+        self.assertEqual(result["row_quality_status"], "PASS_WITH_PREVIOUS_CLOSE_GAPS")
+
+    def test_negative_previous_close_is_invalid(self):
+        result = audit_payload(synthetic_gzip(previous_close="-1"))
+        self.assertEqual(result["negative_previous_close_rows"], 1)
+        self.assertEqual(result["zero_previous_close_rows"], 0)
+        self.assertGreater(result["invalid_base_values"], 0)
+        self.assertEqual(result["row_quality_status"], "PASS_WITH_ROW_DIAGNOSTICS")
+
+    def test_blank_previous_close_is_counted_separately(self):
+        result = audit_payload(synthetic_gzip(previous_close=""))
+        self.assertEqual(result["blank_previous_close_rows"], 1)
+        self.assertEqual(result["zero_previous_close_rows"], 0)
+        self.assertEqual(result["positive_previous_close_rows"], 0)
+
+    def test_positive_previous_close_is_counted(self):
+        result = audit_payload(synthetic_gzip(previous_close="250"))
+        self.assertEqual(result["positive_previous_close_rows"], 1)
+        self.assertEqual(result["positive_previous_close_coverage"], 1.0)
+
+
+    def test_non_numeric_previous_close_is_format_error_not_negative(self):
+        result = audit_payload(synthetic_gzip(previous_close="not-a-price"))
+        self.assertEqual(result["invalid_previous_close_format_rows"], 1)
+        self.assertEqual(result["negative_previous_close_rows"], 0)
 
 if __name__ == "__main__":
     unittest.main()

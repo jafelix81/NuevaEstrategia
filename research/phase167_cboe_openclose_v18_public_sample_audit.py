@@ -168,7 +168,7 @@ def audit_payload(raw_gzip: bytes, headers: dict[str, str] | None = None, *,
     blank_underlying_rows = blank_option_symbol_rows = 0
     invalid_strike_price_rows = invalid_days_to_expire_rows = 0
     days_to_expire_decimal_format_rows = 0
-    blank_previous_close_rows = invalid_previous_close_rows = 0
+    blank_previous_close_rows = zero_previous_close_rows = negative_previous_close_rows = positive_previous_close_rows = invalid_previous_close_format_rows = 0
     invalid_trade_datetime = invalid_trading_dt = invalid_expiration_date = 0
     invalid_call_put = invalid_series_type = invalid_security_type = invalid_segment = 0
     segment_missing = duplicate_series_rows = rows_with_extra_values = rows_with_any_issue = 0
@@ -286,12 +286,16 @@ def audit_payload(raw_gzip: bytes, headers: dict[str, str] | None = None, *,
             if close_value is None:
                 blank_previous_close_rows += 1
                 blank_base_values += 1
-            elif close_value <= 0:
-                invalid_previous_close_rows += 1
+            elif close_value == 0:
+                zero_previous_close_rows += 1
+            elif close_value < 0:
+                negative_previous_close_rows += 1
                 invalid_base_values += 1
                 row_issue = True
+            else:
+                positive_previous_close_rows += 1
         except ValueError:
-            invalid_previous_close_rows += 1
+            invalid_previous_close_format_rows += 1
             invalid_base_values += 1
             row_issue = True
 
@@ -348,7 +352,11 @@ def audit_payload(raw_gzip: bytes, headers: dict[str, str] | None = None, *,
     )
     return {
         "phase": 167, "status": status,
-        "row_quality_status": "CLEAN" if row_quality_issues == 0 else "PASS_WITH_ROW_DIAGNOSTICS",
+        "row_quality_status": (
+            "PASS_WITH_PREVIOUS_CLOSE_GAPS"
+            if row_quality_issues == 0 and (zero_previous_close_rows > 0 or blank_previous_close_rows > 0)
+            else "CLEAN" if row_quality_issues == 0 else "PASS_WITH_ROW_DIAGNOSTICS"
+        ),
         "source_url": url, "capture_mode": "PUBLIC_SAMPLE_ARCHIVE_BACKFILL",
         "strict_pit": False, "first_publication_time_verified": False,
         "historical_coverage_verified": False, "broad_universe_coverage_verified": False,
@@ -394,7 +402,13 @@ def audit_payload(raw_gzip: bytes, headers: dict[str, str] | None = None, *,
         "invalid_days_to_expire_rows": invalid_days_to_expire_rows,
         "days_to_expire_decimal_format_rows": days_to_expire_decimal_format_rows,
         "blank_previous_close_rows": blank_previous_close_rows,
-        "invalid_previous_close_rows": invalid_previous_close_rows,
+        "zero_previous_close_rows": zero_previous_close_rows,
+        "negative_previous_close_rows": negative_previous_close_rows,
+        "invalid_previous_close_format_rows": invalid_previous_close_format_rows,
+        "positive_previous_close_rows": positive_previous_close_rows,
+        "positive_previous_close_coverage": positive_previous_close_rows / len(rows),
+        "zero_previous_close_fraction": zero_previous_close_rows / len(rows),
+        "previous_close_zero_semantics": "not specified by the source specification; preserve zero separately and do not use as a positive price or automatically impute as missing",
         "invalid_trade_datetime": invalid_trade_datetime, "invalid_trading_dt": invalid_trading_dt,
         "invalid_expiration_date": invalid_expiration_date, "invalid_call_put": invalid_call_put,
         "invalid_series_type": invalid_series_type, "invalid_security_type": invalid_security_type,
