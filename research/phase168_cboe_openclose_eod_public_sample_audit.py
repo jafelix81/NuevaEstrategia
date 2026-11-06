@@ -56,8 +56,9 @@ def parse_member_name(name: str) -> dict[str, object]:
         datetime.strptime(date_s, "%Y-%m-%d")
     except ValueError as exc:
         raise ValueError("eod_member_date_invalid") from exc
-    return {"exchange": exchange.upper(), "quote_date": date_s,
-            "file_kind": "PRELIMINARY" if prelim else "FINAL"}
+    return {"member_basename": base, "exchange": exchange.upper(), "quote_date": date_s,
+            "file_kind": "PRELIMINARY" if prelim else "FINAL",
+            "filename_identity_basis": "EXCHANGE_DATE_AND_PRELIMINARY_SUFFIX"}
 
 
 def _text(value: object) -> str:
