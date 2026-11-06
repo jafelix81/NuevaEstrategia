@@ -1,0 +1,50 @@
+name: Phase 156 SEC 13D-G structured XML ownership audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "research/phase156_*"
+      - "research/test_phase156_*"
+      - "research/PHASE156_*"
+      - ".github/workflows/phase156_sec_13dg_structured_xml_ownership_audit.yml"
+      - "SMART_MONEY_RESEARCH_STATE.md"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: phase156-sec-13dg-structured-xml-ownership-audit
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Download immutable Phase 124 role-aware sample artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: phase124-global-sec-13dg-stratified-submission-audit
+          run-id: 42073725379
+          github-token: \${{ secrets.GITHUB_TOKEN }}
+          path: phase124_source
+      - name: Compile and run offline regression tests
+        run: |
+          python -m py_compile research/phase156_13dg_structured_xml_ownership_audit.py
+          python -m unittest discover -s research -p 'test_phase156_*.py' -v
+      - name: Recompute structured XML field and ownership semantics audit
+        run: python research/phase156_13dg_structured_xml_ownership_audit.py --input-dir phase124_source --output phase156_output/phase156_13dg_structured_xml_ownership_audit_summary.json
+      - name: Upload reproducible Phase 156 summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase156-13dg-structured-xml-ownership-audit
+          path: phase156_output/phase156_13dg_structured_xml_ownership_audit_summary.json
+          if-no-files-found: error
+          retention-days: 30
