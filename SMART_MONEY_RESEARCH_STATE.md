@@ -1229,3 +1229,5 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 - The current EOD specification states C1 changes format beginning 2011-01-02; C1 pre-2011 history requires a separate legacy EOD parser. The current 86-column parser is not valid for all advertised C1 history back to 2005.
 
 - Cboe's product page states subscriptions are rolling monthly; a mid-month subscription starts on its start date and excludes earlier dates in that month, while prior dates require a separate historical order. Its order interface may flag unavailable symbols/dates; a future coverage audit must preserve those exclusions. Raw data remain internal-use only; derived-data redistribution requires separate licensing/approval.
+
+- The official legacy C1 EOD specification (v2.7, 2026-02-17) is a materially different 24-field schema for 1990-01-02–2010-12-31: only Firm/Customer origin, original-order-size buckets, and no modern OHLC/volume/OI fields. Modern 86-column C1 begins 2011-01-02. Do not splice pre-2011 C1 features into post-2011 panels; default homogeneous EOD coverage starts 2011 for C1 and 2018 for BZX/C2/EDGX.
