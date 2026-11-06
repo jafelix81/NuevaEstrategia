@@ -1221,3 +1221,9 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 - Added metadata-only archive audit, nested-ZIP support, source/row/schema checks and 17 offline regression tests. Local compile and all 17 tests passed before commit; hosted public sample retrieval is pending.
 - The public product's advertised EOD start dates (C1 2005-01-03; BZX/C2/EDGX 2018-01-02) are not proof of complete daily/security coverage or first receipt. Typical next-morning delivery is not a historical receipt log. Cboe capacity codes are clearing-origin categories, not beneficial-owner identity; product is venue-specific, not whole OPRA.
 - Decision remains schema/sample feasibility only. Strict PIT, historical/delisted coverage, immutable preliminary/final receipt vintages, licensing and contract identity remain hard gates. No feature, return, bootstrap/LOO, OOS or final-holdout test. No vendor purchase/contact, production or F80 change. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+### Phase 168 hosted preflight correction (2026-11-06)
+- First hosted sample run 42290524336 passed 17 offline tests and downloaded a ZIP, but stopped on an unrecognized CSV member basename; this was a filename-assumption/parser block, not an HTTP access failure. Metadata-only artifact 13538813954 retained the error; no raw rows or symbols were persisted.
+- Staged parser correction: generic member names may pass schema-only validation without inventing exchange or preliminary/final identity; quote date is inferred from rows only when exactly one date is present; intraday-like headers are explicitly rejected as EOD. 19 offline tests pass locally; hosted re-run pending.
+- The current EOD specification states C1 changes format beginning 2011-01-02; C1 pre-2011 history requires a separate legacy EOD parser. The current 86-column parser is not valid for all advertised C1 history back to 2005.
