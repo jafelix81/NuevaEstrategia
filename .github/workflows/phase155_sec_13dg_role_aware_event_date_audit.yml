@@ -47,11 +47,7 @@ jobs:
           python -m py_compile research/phase155_13dg_role_aware_event_date_audit.py
           python -m unittest discover -s research -p 'test_phase155_*.py' -v
       - name: Recompute role-aware event-date audit and source quarantine
-        run: |
-          python research/phase155_13dg_role_aware_event_date_audit.py \\
-            --phase124-input phase124_source \\
-            --phase35-input phase35_source \\
-            --output phase155_output/phase155_13dg_role_aware_event_date_summary.json
+        run: python research/phase155_13dg_role_aware_event_date_audit.py --phase124-input phase124_source --phase35-input phase35_source --output phase155_output/phase155_13dg_role_aware_event_date_summary.json
       - name: Upload reproducible Phase 155 summary
         uses: actions/upload-artifact@v4
         with:
