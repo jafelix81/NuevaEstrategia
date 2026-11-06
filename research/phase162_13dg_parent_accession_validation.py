@@ -105,7 +105,7 @@ def audit(rows: list[dict] | None = None, parent: dict | None = None) -> tuple[l
     same_issuer_diff_cusip = [r for r in same_ref if r["same_issuer_cik"] and not r["same_cusip"]]
     cross_issuer = [r for r in same_ref if not r["same_issuer_cik"]]
     form_family_match = "13G" in str(parent.get("form", "")).upper() and all(
-        "13G" in str(r.get("form", "")).upper() for r in valid
+        "13G" in str(raw.get("form", "")).upper() for raw in rows
     )
     summary = {
         "phase": 162,
