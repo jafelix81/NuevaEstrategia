@@ -40,3 +40,5 @@ jobs:
           path: phase167_output/phase167_cboe_openclose_public_sample_summary.json
           if-no-files-found: error
           retention-days: 90
+
+# CI trigger commit: ensure the PR head includes the Phase 167 sample-audit workflow.
