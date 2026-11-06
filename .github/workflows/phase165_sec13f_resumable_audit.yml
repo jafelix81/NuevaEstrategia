@@ -1,0 +1,148 @@
+name: Phase 165 SEC 13(f) resumable quarterly-list overlap audit
+
+on:
+  push:
+    branches:
+      - phase99-broad-pit-universe-charter
+    paths:
+      - research/phase165_sec13f_resumable_audit.py
+      - research/test_phase165_sec13f_resumable_audit.py
+      - .github/workflows/phase165_sec13f_resumable_audit.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: phase165-sec13f-resumable-audit
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compile Phase 165
+        run: python -m py_compile research/phase165_sec13f_resumable_audit.py
+      - name: Run Phase 124-129 and Phase 165 regression suites
+        run: |
+          python -m unittest -v research.test_phase124_global_sec_13dg_stratified_submission_audit
+          python -m unittest -v research.test_phase125_sec_13dg_exact_cusip_audit
+          python -m unittest -v research.test_phase126_sec_13dg_body_issuer_identity_audit
+          python -m unittest -v research.test_phase128_sec_13dg_cusip_cross_schema_identity_audit
+          python -m unittest -v research.test_phase129_sec13f_list_cusip_pit_overlap_audit
+          python -m unittest -v research.test_phase165_sec13f_resumable_audit
+      - name: Download immutable Phase 124 sample
+        uses: actions/download-artifact@v4
+        with:
+          name: phase124-global-sec-13dg-stratified-submission-audit
+          path: inputs/phase124
+          repository: jafelix81/NuevaEstrategia
+          run-id: 42073725379
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download immutable Phase 127 CUSIP audit
+        uses: actions/download-artifact@v4
+        with:
+          name: phase127-sec-13dg-xml-cusip-schema-correction
+          path: inputs/phase127
+          repository: jafelix81/NuevaEstrategia
+          run-id: 42079517644
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build compact, reproducible sample input
+        run: >-
+          python -m research.phase165_sec13f_resumable_audit
+          --mode prepare
+          --phase124-dir inputs/phase124
+          --phase127-dir inputs/phase127
+          --output-dir prepared
+      - name: Upload compact Phase 165 sample
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase165-sec13f-sample-input
+          path: prepared/
+          retention-days: 30
+
+  shards:
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install PDF text utility
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils
+      - name: Download compact sample input
+        uses: actions/download-artifact@v4
+        with:
+          name: phase165-sec13f-sample-input
+          path: inputs
+      - name: Download five quarterly snapshots with per-quarter checkpoints
+        env:
+          SEC_CONTACT_EMAIL: ${{ secrets.SEC_CONTACT_EMAIL }}
+        run: >-
+          python -m research.phase165_sec13f_resumable_audit
+          --mode shard
+          --sample-csv inputs/phase165_sample.csv
+          --shard-index ${{ matrix.shard }}
+          --shard-count 9
+          --output-dir out
+      - name: Upload shard checkpoint (no raw 13(f) rows)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase165-sec13f-shard-${{ matrix.shard }}
+          path: out/
+          if-no-files-found: error
+          retention-days: 30
+
+  aggregate:
+    needs: [prepare, shards]
+    if: always() && needs.prepare.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Download compact sample input
+        uses: actions/download-artifact@v4
+        with:
+          name: phase165-sec13f-sample-input
+          path: inputs
+      - name: Download all shard checkpoints
+        uses: actions/download-artifact@v4
+        with:
+          pattern: phase165-sec13f-shard-*
+          path: shards
+          merge-multiple: true
+      - name: Compile and aggregate the 45-quarter audit
+        run: |
+          python -m py_compile research/phase165_sec13f_resumable_audit.py
+          python -m research.phase165_sec13f_resumable_audit \
+            --mode aggregate \
+            --sample-csv inputs/phase165_sample.csv \
+            --input-dir shards \
+            --output-dir final
+      - name: Upload aggregate audit (no raw 13(f) rows)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase165-sec13f-resumable-overlap-audit
+          path: final/
+          if-no-files-found: error
+          retention-days: 90
