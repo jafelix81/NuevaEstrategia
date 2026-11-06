@@ -110,3 +110,23 @@ The official legacy C1 specification (v2.7, 2026-02-17) covers the pre-migration
 - it uses legacy root/expiry/strike/type fields and a different product-type taxonomy.
 
 The modern 86-column schema begins 2011-01-02. Therefore, even if historical files before 2005 can be obtained, their capacity and size features are not directly comparable with the post-2011 fields. The defensible default for a homogeneous EOD feature study is to start in 2011 for C1 and 2018 for BZX/C2/EDGX; any 1990-2010 C1 study must be a separate regime with a separately validated feature definition, not a backfilled modern feature.
+
+
+## 9. First live sample findings and parser correction
+
+The first successful download of the public sample (run 42291920877; metadata artifact 13539098365) contained **three CSV members**, not one homogeneous EOD file:
+
+- two intraday snapshots named with Cboe timestamp suffixes;
+- one EOD C1 sample named C1OpenClose_2025-03-28_sample_20pct.csv.
+
+The EOD member had exactly 86 columns, no missing/extra headers, 23,179 rows, 1,553 distinct underlyings, 23,179 unique series and zero duplicate series. The two intraday members were separately recognized as intraday-like and must not be counted as EOD rows.
+
+The first parser attempt failed its EOD gate because it accepted only the PDF's MM/DD/YYYY quote-date format. It counted one required-field parse error per EOD row (23,179) plus the no-date-inference guard. The file name itself identifies C1 and 2025-03-28, but the public sample suffix does not identify whether the file is preliminary or final. The first summary therefore correctly did not infer a final-file vintage.
+
+The correction now:
+- recognizes the C1 sample suffix as SAMPLE_UNSPECIFIED, not FINAL;
+- separates the two intraday members from the EOD member;
+- accepts both MM/DD/YYYY and YYYY-MM-DD row dates while recording the actual format counts and comparing the row date with the filename date;
+- keeps preliminary/final comparison disabled because the sample suffix does not identify a subscription version.
+
+The local regression suite now has 21 tests and passes. The corrected hosted re-run is pending. The likely ISO date-format discrepancy must be confirmed by the new artifact before it is treated as a source/documentation mismatch.
