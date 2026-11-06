@@ -1,7 +1,7 @@
 # Phase 166 — SEC 13(f) cross-format content and PIT metadata bridge
 
 **Date:** 2026-11-06  
-**Status:** Cross-format/PIT reconciliation passed in the initial CI run; a follow-up run adds unique-CUSIP coverage to the summary.  
+**Status:** Completed. [Phase 166 CI run 42280802397](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42280802397) passed 9 tests; [artifact 13535032644](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42280802397/artifacts/13535032644).  
 **Research role:** Historical Section 13(f) eligibility/identity cross-check for the SEC 13D/G sample only; not a 13F holdings signal.
 
 ## 1. Inputs and preflight
@@ -67,7 +67,7 @@ This avoids overstating coverage by counting repeated filings as independent sec
 
 ## 5. CUSIP check-digit diagnostic: do not over-filter the 13(f) list
 
-The corrected TXT parser yields 25 TXT snapshots with 303,450 unique identifiers, of which 283,581 pass the standard equity CUSIP check-digit test (93.45%). The 2020Q1–2025Q4 TXT snapshots individually conform at 100%; the two 2026 TXT snapshots have lower conformance:
+The corrected TXT parser yields 25 TXT snapshots with 303,450 unique identifiers, of which 283,581 pass the standard equity CUSIP check-digit test (93.45%). All TXT snapshots through 2025Q2 plus 2025Q4 (23 files) individually conform at 100%; the two 2026 TXT snapshots have lower conformance:
 
 - 2026Q1: 12,792 / 22,659 = 56.45%.
 - 2026Q3: 13,717 / 23,719 = 57.83%.
@@ -101,6 +101,8 @@ The first CI attempt also exposed a newline-escaping error in a test fixture; th
 - `.github/workflows/phase166_sec13f_cross_format_pit_bridge.yml`
 
 The workflow reconciles existing Phase 165 artifacts only. It downloads no SEC list files.
+
+CI verification: **9/9 tests passed** in run 42280802397; the final artifact contains the 45-quarter cross-format and PIT bridge outputs.
 
 ## Official SEC references
 
