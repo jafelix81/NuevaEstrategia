@@ -82,3 +82,19 @@ No features, forward returns, bootstrap/LOO, OOS, final holdout, vendor purchase
 - Cboe product page: https://datashop.cboe.com/cboe-options-open-close-volume-summary
 - EOD specification v1.3: https://datashop.cboe.com/documents/Open_Close_EOD_Spec_v1.3.pdf
 - Phase 167 intraday sample audit: research/PHASE167_CBOE_OPENCLOSE_V18_PUBLIC_SAMPLE_AND_CUTOVER_AUDIT_2026-11-06.md
+
+
+## 7. Hosted preflight correction
+
+The first hosted run (42290524336) passed the initial 17 offline tests and successfully retrieved a ZIP, but the parser stopped because the CSV member basename did not match the assumed exchange/date filename pattern. This was a parser identity assumption, not an HTTP/network failure. The metadata-only artifact 13538813954 recorded the unrecognized-member-filename error; no raw rows or underlying symbols were retained.
+
+The correction now:
+- keeps the member basename for audit;
+- permits schema-only parsing when a public sample uses a generic member name, while explicitly setting exchange and preliminary/final identity to UNKNOWN;
+- derives quote date from CSV rows only when exactly one date occurs;
+- detects an intraday-like header and refuses to label it EOD;
+- leaves preliminary/final comparisons disabled when the member name does not identify those versions.
+
+The corrected parser and 19 offline tests pass locally. A second hosted run is still required before the sample's actual schema and identity can be reported.
+
+**Additional historical boundary:** the EOD specification states that C1 has a format change beginning 2011-01-02; pre-2011 C1 history requires the separate legacy EOD specification. Therefore the 86-column parser in this phase cannot be applied to all advertised C1 history back to 2005. That older period requires a separately audited parser and convention bridge.
