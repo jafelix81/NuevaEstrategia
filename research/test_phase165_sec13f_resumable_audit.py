@@ -21,10 +21,10 @@ from research.phase165_sec13f_resumable_audit import (
 class Phase165Tests(unittest.TestCase):
     def test_fixed_width_txt_parses_starred_and_unstarred_cusips(self):
         raw = (
-            'B38564108*EURONAV NV                   SHS                                    N\\n'
-            'G0080J104 ACT II GLOBAL ACQUISITION CO  CL A SHS                               E\\n'
-            'CUSIP NO ISSUER NAME\\n'
-            'Page 1 of 4\\n'
+            'B38564108*EURONAV NV                   SHS                                    N\n'
+            'G0080J104 ACT II GLOBAL ACQUISITION CO  CL A SHS                               E\n'
+            'CUSIP NO ISSUER NAME\n'
+            'Page 1 of 4\n'
         ).encode()
         _, run_date, run_time, stated_quarter, cusips = parse_txt_fixed_width(raw)
         self.assertIsNone(run_date)
