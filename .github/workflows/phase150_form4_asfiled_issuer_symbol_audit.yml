@@ -1,0 +1,49 @@
+name: Phase 150 SEC Form 4 as-filed issuer-symbol audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "research/phase150_*"
+      - ".github/workflows/phase150_form4_asfiled_issuer_symbol_audit.yml"
+      - "SMART_MONEY_RESEARCH_STATE.md"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Download immutable Phase 39 source artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: phase39-sec-form4-actual-file-audit
+          run-id: 40606706518
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: phase39_source
+      - name: Compile auditor
+        run: python -m py_compile research/phase150_form4_asfiled_issuer_symbol_audit.py
+      - name: Run offline regression tests
+        run: python -m unittest discover -s research -p 'test_phase150_*.py' -v
+      - name: Reproduce source audit and compare committed summary
+        run: |
+          python research/phase150_form4_asfiled_issuer_symbol_audit.py \
+            --input-dir phase39_source \
+            --output phase150_output/phase150_form4_symbol_audit_summary.json
+          diff -u research/phase150_form4_symbol_audit_summary.json \
+            phase150_output/phase150_form4_symbol_audit_summary.json
+      - name: Upload compact audit result
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase150-form4-asfiled-issuer-symbol-audit
+          path: phase150_output/phase150_form4_symbol_audit_summary.json
+          if-no-files-found: error
+          retention-days: 30

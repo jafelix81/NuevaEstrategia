@@ -1,0 +1,89 @@
+{
+  "periods": {
+    "2012Q1": {
+      "all_submission_rows": 71282,
+      "canonical_symbol_coverage_pct": 98.4908,
+      "canonical_symbol_rows": 62717,
+      "form4_amendment_rows": 1862,
+      "form4_original_rows": 61816,
+      "form4_rows": 63678,
+      "issuer_ciks_with_multiple_canonical_symbol_candidates": 75,
+      "issuer_ciks_with_multiple_raw_symbol_values": 108,
+      "issuer_ciks_with_no_nonblank_symbol_value": 0,
+      "issuer_ciks_with_one_canonical_symbol_candidate": 4429,
+      "issuer_ciks_with_one_raw_symbol_value": 4522,
+      "issuer_ciks_with_only_noncanonical_or_placeholder_values": 126,
+      "issuer_ciks_without_canonical_symbol_candidate": 126,
+      "max_ciks_per_ticker_candidate": 2,
+      "missing_filing_date_rows": 0,
+      "missing_period_of_report_rows": 0,
+      "period": "2012Q1",
+      "symbol_class_counts": {
+        "EXCHANGE_PREFIXED_SINGLE": 183,
+        "MISSING_OR_PLACEHOLDER": 499,
+        "MULTI_OR_FREEFORM": 323,
+        "OTHER_NONCANONICAL": 139,
+        "SINGLE_TOKEN": 62534
+      },
+      "ticker_candidates_reused_across_ciks": {
+        "ANGN": 2, "BAF": 2, "CLWR": 2, "EZJR": 2, "FAC": 2, "HBNC": 2,
+        "IIN": 2, "MLR": 2, "N": 2, "O": 2, "OB": 2, "OKE": 2,
+        "PNNW": 2, "PTI": 2, "RIF": 2, "SGBI": 2
+      },
+      "unique_issuer_ciks": 4630
+    },
+    "2026Q3": {
+      "all_submission_rows": 38152,
+      "canonical_symbol_coverage_pct": 98.3249,
+      "canonical_symbol_rows": 33576,
+      "form4_amendment_rows": 627,
+      "form4_original_rows": 33521,
+      "form4_rows": 34148,
+      "issuer_ciks_with_multiple_canonical_symbol_candidates": 24,
+      "issuer_ciks_with_multiple_raw_symbol_values": 32,
+      "issuer_ciks_with_no_nonblank_symbol_value": 0,
+      "issuer_ciks_with_one_canonical_symbol_candidate": 4110,
+      "issuer_ciks_with_one_raw_symbol_value": 4228,
+      "issuer_ciks_with_only_noncanonical_or_placeholder_values": 126,
+      "issuer_ciks_without_canonical_symbol_candidate": 126,
+      "max_ciks_per_ticker_candidate": 2,
+      "missing_filing_date_rows": 0,
+      "missing_period_of_report_rows": 0,
+      "period": "2026Q3",
+      "symbol_class_counts": {
+        "EXCHANGE_PREFIXED_SINGLE": 79,
+        "MISSING_OR_PLACEHOLDER": 430,
+        "MULTI_OR_FREEFORM": 120,
+        "OTHER_NONCANONICAL": 22,
+        "SINGLE_TOKEN": 33497
+      },
+      "ticker_candidates_reused_across_ciks": {
+        "CLBK": 2, "CSAN": 2, "DLR": 2, "NNOX": 2, "TSBK": 2, "VRXA": 2
+      },
+      "unique_issuer_ciks": 4260
+    }
+  },
+  "phase": 150,
+  "pit_and_identity_rules": [
+    "ISSUERCIK is the primary issuer identity; the symbol is a label, not a permanent security key.",
+    "Preserve raw symbols; do not split multi-class/free-form values.",
+    "Join ACCESSION_NUMBER to EDGAR acceptance time; FILING_DATE is date-only and PERIOD_OF_REPORT is event date.",
+    "Do not backdate the quarterly bulk dataset or a later ticker value into an earlier decision."
+  ],
+  "source": {
+    "artifact_id": 12781850078,
+    "artifact_run_id": 40606706518,
+    "artifact_sha256": "203d7b1d2e29c999da318456af72e621cb30ef9a470d8f1610d088f9bebecb66",
+    "inner_zip_sha256": {
+      "2012Q1": "0cac6f943813dae94c20ecc8bca63fda692e2b8ac6d02ce2c322ab411f45c357",
+      "2026Q3": "a4e6a681cfcfa43a3d9e4ca9cfec1fd26a59d0a01eac7e9f7b5a0122092c90f3"
+    },
+    "page": "https://www.sec.gov/data-research/sec-markets-data/insider-transactions-data-sets",
+    "periods": ["2012Q1", "2026Q3"],
+    "provider": "U.S. Securities and Exchange Commission",
+    "schema_documentation": "https://www.sec.gov/files/insider_transactions_readme.pdf",
+    "verification_mode": "verified_inner_zip_hashes",
+    "verified_input_sha256": "01a94536e5fffe797e03cef959ab7050482d2240d7b70328ffcc4a47f702d6d3"
+  },
+  "status": "COMPLETED_AS_FILED_ISSUER_SYMBOL_FIELD_AUDIT"
+}
