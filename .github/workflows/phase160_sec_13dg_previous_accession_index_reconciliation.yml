@@ -1,0 +1,55 @@
+name: Phase 160 SEC 13D-G direct previous-accession global-index reconciliation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "research/phase160_*"
+      - "research/test_phase160_*"
+      - ".github/workflows/phase160_sec_13dg_previous_accession_index_reconciliation.yml"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: phase160-sec-13dg-previous-accession-index
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Download immutable Phase 82 global index
+        uses: actions/download-artifact@v4
+        with:
+          name: phase82-global-13dg-index-coverage-audit
+          run-id: 41892370262
+          github-token: \${{ secrets.GITHUB_TOKEN }}
+          path: phase82_source
+      - name: Download immutable Phase 124 role-aware sample
+        uses: actions/download-artifact@v4
+        with:
+          name: phase124-global-sec-13dg-stratified-submission-audit
+          run-id: 42073725379
+          github-token: \${{ secrets.GITHUB_TOKEN }}
+          path: phase124_source
+      - name: Compile and run regression tests
+        run: python -m py_compile research/phase160_13dg_previous_accession_index_reconciliation.py && python -m unittest discover -s research -p 'test_phase160_*.py' -v
+      - name: Recompute direct predecessor reconciliation
+        run: python research/phase160_13dg_previous_accession_index_reconciliation.py --phase82-dir phase82_source --phase124-dir phase124_source --output-dir phase160_output
+      - name: Upload reproducible audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase160-sec-13dg-previous-accession-index-reconciliation
+          path: |
+            phase160_output/phase160_13dg_previous_accession_index_reconciliation.csv
+            phase160_output/phase160_13dg_previous_accession_index_summary.json
+          if-no-files-found: error
+          retention-days: 30
