@@ -1150,3 +1150,13 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 - Phase 160's 30/32 lookup result remains valid as index lookup/chronology evidence, but not as 30 verified issuer-level parent links. No parent document was inspected in Phase 161.
 - Added a deterministic eight-record fixture, offline auditor and 14 regression tests. Final-head GitHub Actions run [42258657865](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42258657865) passed 14/14 tests and uploaded artifact [13523024322](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42258657865/artifacts/13523024322); earlier run 42258322283 also passed. No broad SEC download, forward returns, feature panel, bootstrap/LOO, OOS test, final holdout or production change. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
 - Next: inspect accession 0001445546-21-002430 using a permitted SEC retrieval path, then require issuer/security continuity before any amendment-state reconstruction.
+
+
+## Phase 162 — SEC 13D/G referenced-parent document validation (2026-11-06)
+- Inspected the actual SEC document for accession 0001445546-21-002430. It is an initial SC 13G filed 2021-05-10 at 09:06:41 ET by First Trust Portfolios L.P. (CIK 0001184765) for First Trust Exchange-Traded Fund VIII (CIK 0001667919), specifically FT Cboe Vest U.S. Equity Deep Buffer ETF - August, CUSIP 33740F854; event date 2021-04-30.
+- Compared it with the eight Phase 161 child XMLs that repeat the accession. All eight have the same filer CIK and repeat the reference; four have a different issuer CIK; the other four share issuer CIK 0001667919 but all have a different CUSIP. Parent CUSIP 33740F854 matches 0/8 children; exact issuer-CIK + CUSIP match is 0/8.
+- Decision: the referenced accession is not a demonstrated issuer/security parent for any of these eight child states. Retain previousAccessionNumber as provenance only for this group; do not create state edges or backdate ownership. A stale/template-level filer reference is plausible, but the precise cause is not proven.
+- This supersedes Phase 161's unresolved status for this one accession. It does not estimate population prevalence. Parent and child raw XML bodies/hashes are not embedded; the fixture is manually transcribed from official SEC archive pages.
+- Phase 162 helper, 17 offline tests, report and workflow added. No returns, feature panel, bootstrap/LOO, OOS test, final holdout, vendor purchase/contact or production/F80 change.
+- Next gate: inspect all 32 Phase 160 referenced accessions against their actual parent submissions and effective-dated security identity; do not extrapolate the targeted eight-child counterexample to all filers.
+

@@ -89,3 +89,8 @@ Inspect accession \`0001445546-21-002430\` and compare its actual subject/securi
 ## Source reproducibility limitation
 
 The eight primary-document URLs are official SEC-hosted XML endpoints, but this Phase 161 fixture is a targeted manual transcription of the visible structured fields. Raw XML bodies and per-document SHA-256 hashes are not embedded in the offline CI artifact. The workflow validates deterministic grouping of the recorded observations, not live SEC source integrity. Before broad lineage reconstruction, retrieve and hash the parent and child submissions through a permitted SEC User-Agent route.
+
+
+## Superseding parent-document inspection — Phase 162 (2026-11-06)
+
+The referenced accession 0001445546-21-002430 was inspected on the official SEC archive. It is an initial SC 13G filed 2021-05-10 by First Trust Portfolios L.P. for First Trust Exchange-Traded Fund VIII, specifically FT Cboe Vest U.S. Equity Deep Buffer ETF - August, CUSIP 33740F854. All eight Phase 161 child filings share the same filer CIK and repeat this accession, but four have a different issuer CIK and the other four have the same issuer CIK with different CUSIPs. None matches the parent's CUSIP. The accession is therefore not a demonstrated issuer/security parent for any of the eight children. A stale/template-level filer reference is plausible but the exact cause is unproven. See Phase 162 report and reproducible audit. Raw SEC response bodies/hashes are not embedded; fixture is manually transcribed.
