@@ -18,7 +18,7 @@ SAMPLE_URL = "https://datashop.cboe.com/download/sample/218"
 MAX_COMPRESSED_BYTES = 100_000_000
 MAX_DECOMPRESSED_BYTES = 500_000_000
 MAX_CSV_MEMBERS = 32
-FILENAME_RE = re.compile(r"^(C1|BZX|C2|EDGX)OpenClose_(\d{4}-\d{2}-\d{2})(_p)?\.csv$", re.I)
+FILENAME_RE = re.compile(r"^(C1|BZX|C2|EDGX)OpenClose_(\d{4}-\d{2}-\d{2})(_p)?(_sample_\d+pct)?\.csv$", re.I)
 
 
 def bucket_columns() -> list[str]:
@@ -51,14 +51,15 @@ def parse_member_name(name: str) -> dict[str, object]:
     match = FILENAME_RE.fullmatch(base)
     if not match:
         raise ValueError("eod_member_filename_unrecognized")
-    exchange, date_s, prelim = match.groups()
+    exchange, date_s, prelim, sample_suffix = match.groups()
     try:
         datetime.strptime(date_s, "%Y-%m-%d")
     except ValueError as exc:
         raise ValueError("eod_member_date_invalid") from exc
+    file_kind = "SAMPLE_UNSPECIFIED" if sample_suffix else ("PRELIMINARY" if prelim else "FINAL")
+    identity_basis = "EXCHANGE_DATE_SAMPLE_SUFFIX" if sample_suffix else "EXCHANGE_DATE_AND_PRELIMINARY_SUFFIX"
     return {"member_basename": base, "exchange": exchange.upper(), "quote_date": date_s,
-            "file_kind": "PRELIMINARY" if prelim else "FINAL",
-            "filename_identity_basis": "EXCHANGE_DATE_AND_PRELIMINARY_SUFFIX"}
+            "file_kind": file_kind, "filename_identity_basis": identity_basis}
 
 
 def _text(value: object) -> str:
@@ -152,7 +153,7 @@ def _audit_csv(member_name: str, payload: bytes) -> tuple[dict[str, object], dic
         "detected_schema": ("EOD" if not missing and not extra and duplicate_headers == 0 else
                             "INTRADAY_LIKE" if {"trade_datetime", "underlying"}.issubset(set(headers)) else "UNKNOWN"),
         "header_case_normalized": raw_headers != headers, "row_count": 0,
-        "quote_date_from_rows": None, "distinct_quote_dates_in_rows": 0,
+        "quote_date_from_rows": None, "distinct_quote_dates_in_rows": 0, "quote_date_format_counts": {},
         "unique_underlying_count": 0, "unique_series_count": 0, "duplicate_series_rows": 0,
         "quote_date_mismatch_rows": 0, "invalid_required_field_count": 0, "invalid_bucket_values": 0,
         "blank_previous_close_rows": 0, "zero_previous_close_rows": 0, "negative_previous_close_rows": 0,
@@ -173,6 +174,7 @@ def _audit_csv(member_name: str, payload: bytes) -> tuple[dict[str, object], dic
     call_put_counts: Counter[str] = Counter()
     invalid_required = invalid_buckets = 0
     quote_date_values: set[str] = set()
+    quote_date_formats: Counter[str] = Counter()
     for raw_row in reader:
         row = {str(k).strip().lower(): v for k, v in raw_row.items() if k is not None}
         summary["row_count"] = int(summary["row_count"]) + 1
@@ -185,7 +187,13 @@ def _audit_csv(member_name: str, payload: bytes) -> tuple[dict[str, object], dic
         call_put = _text(row.get("call_put_flag")).upper()
         series_type = _text(row.get("series_type")).upper()
         try:
-            quote_date = datetime.strptime(_text(row.get("quote_date")), "%m/%d/%Y").date().isoformat()
+            raw_quote_date = _text(row.get("quote_date"))
+            try:
+                quote_date = datetime.strptime(raw_quote_date, "%m/%d/%Y").date().isoformat()
+                quote_date_formats["MM/DD/YYYY"] += 1
+            except ValueError:
+                quote_date = datetime.strptime(raw_quote_date, "%Y-%m-%d").date().isoformat()
+                quote_date_formats["YYYY-MM-DD"] += 1
             quote_date_values.add(quote_date)
             if meta["quote_date"] is not None and quote_date != meta["quote_date"]:
                 summary["quote_date_mismatch_rows"] = int(summary["quote_date_mismatch_rows"]) + 1
@@ -269,6 +277,7 @@ def _audit_csv(member_name: str, payload: bytes) -> tuple[dict[str, object], dic
         }
     summary["unique_underlying_count"] = len(underlying_set)
     summary["distinct_quote_dates_in_rows"] = len(quote_date_values)
+    summary["quote_date_format_counts"] = dict(sorted(quote_date_formats.items()))
     if len(quote_date_values) == 1:
         row_quote_date = next(iter(quote_date_values))
         summary["quote_date_from_rows"] = row_quote_date
@@ -294,19 +303,32 @@ def audit_archive(raw_zip: bytes, headers: dict[str, str] | None = None, *,
     states: dict[tuple[str, str, str, str], dict[tuple[str, ...], dict[str, str]]] = {}
     schema_failures = 0
     total_rows = total_underlyings = total_series = total_duplicates = 0
+    eod_summaries = []
+    intraday_member_count = unknown_member_count = 0
     for name, payload in members:
         summary, state = _audit_csv(name, payload)
+        file_summaries.append({k: v for k, v in summary.items()})
+        detected_schema = str(summary["detected_schema"])
+        if detected_schema == "INTRADAY_LIKE":
+            intraday_member_count += 1
+            continue
+        if detected_schema not in {"EOD", "EOD_CANDIDATE"}:
+            unknown_member_count += 1
+            schema_failures += 1
+            continue
+        eod_summaries.append(summary)
         if summary["missing_columns"] or summary["extra_columns"] or summary["duplicate_header_count"]:
             schema_failures += 1
         if int(summary["row_count"]) == 0:
             schema_failures += 1
-        if int(summary["quote_date_mismatch_rows"]) > 0 or int(summary["invalid_required_field_count"]) > 0 or int(summary["invalid_bucket_values"]) > 0:
+        if (int(summary["quote_date_mismatch_rows"]) > 0 or int(summary["invalid_required_field_count"]) > 0 or
+                int(summary["invalid_bucket_values"]) > 0 or int(summary["negative_previous_close_rows"]) > 0 or
+                int(summary["invalid_previous_close_format_rows"]) > 0 or int(summary["duplicate_series_rows"]) > 0):
             schema_failures += 1
         key = (str(summary["exchange"]), str(summary["quote_date"]), str(summary["file_kind"]), str(summary["member_basename"]))
         if key in states:
             schema_failures += 1
         states[key] = state
-        file_summaries.append({k: v for k, v in summary.items()})
         total_rows += int(summary["row_count"])
         total_underlyings += int(summary["unique_underlying_count"])
         total_series += int(summary["unique_series_count"])
@@ -330,17 +352,23 @@ def audit_archive(raw_zip: bytes, headers: dict[str, str] | None = None, *,
                             "final_only_series": len(set(final)-set(prelim)),
                             "changed_values_on_common_series": changed})
 
-    all_headers = all(not x["missing_columns"] and not x["extra_columns"] and x["duplicate_header_count"] == 0 for x in file_summaries)
-    all_rows_valid = all(x["row_count"] > 0 and x["quote_date_mismatch_rows"] == 0 and
-                         x["invalid_required_field_count"] == 0 and x["negative_previous_close_rows"] == 0 and
-                         x["invalid_previous_close_format_rows"] == 0 and x["invalid_bucket_values"] == 0 and
-                         x["duplicate_series_rows"] == 0 for x in file_summaries)
-    identity_resolved = all(x["exchange"] != "UNKNOWN" and x["file_kind"] != "UNKNOWN" for x in file_summaries)
-    detected = {str(x["detected_schema"]) for x in file_summaries}
-    if detected == {"INTRADAY_LIKE"}:
+    all_headers = bool(eod_summaries) and all(
+        not x["missing_columns"] and not x["extra_columns"] and x["duplicate_header_count"] == 0 for x in eod_summaries)
+    all_rows_valid = bool(eod_summaries) and all(
+        x["row_count"] > 0 and x["distinct_quote_dates_in_rows"] == 1 and
+        x["quote_date_mismatch_rows"] == 0 and x["invalid_required_field_count"] == 0 and
+        x["negative_previous_close_rows"] == 0 and x["invalid_previous_close_format_rows"] == 0 and
+        x["invalid_bucket_values"] == 0 and x["duplicate_series_rows"] == 0 for x in eod_summaries)
+    member_identity_resolved = bool(eod_summaries) and all(
+        x["exchange"] != "UNKNOWN" and x["quote_date"] is not None for x in eod_summaries)
+    version_identity_resolved = bool(eod_summaries) and all(
+        x["file_kind"] in {"FINAL", "PRELIMINARY"} for x in eod_summaries)
+    if not eod_summaries and intraday_member_count:
         status = "BLOCKED_SAMPLE_IS_INTRADAY_NOT_EOD"
+    elif not eod_summaries:
+        status = "FAIL_NO_EOD_MEMBER"
     elif all_headers and all_rows_valid and schema_failures == 0:
-        status = "PASS_EOD_SAMPLE_SCHEMA" if identity_resolved else "PASS_EOD_SAMPLE_SCHEMA_IDENTITY_UNRESOLVED"
+        status = "PASS_EOD_SAMPLE_SCHEMA" if member_identity_resolved and version_identity_resolved else "PASS_EOD_SAMPLE_SCHEMA_IDENTITY_UNRESOLVED"
     else:
         status = "FAIL_EOD_SAMPLE_SCHEMA"
     return {
@@ -349,7 +377,10 @@ def audit_archive(raw_zip: bytes, headers: dict[str, str] | None = None, *,
         "http_content_type": headers.get("content-type"), "http_content_length": headers.get("content-length"),
         "http_last_modified": headers.get("last-modified"), "http_etag": headers.get("etag"),
         "compressed_bytes": len(raw_zip), "raw_zip_sha256": hashlib.sha256(raw_zip).hexdigest(),
-        "csv_member_count": len(members), "member_filename_identity_resolved": identity_resolved,
+        "csv_member_count": len(members), "eod_member_count": len(eod_summaries),
+        "intraday_member_count": intraday_member_count, "unknown_member_count": unknown_member_count,
+        "member_filename_identity_resolved": member_identity_resolved,
+        "file_version_identity_resolved": version_identity_resolved,
         "total_rows": total_rows,
         "sum_of_file_unique_underlyings_not_deduplicated": total_underlyings,
         "sum_of_file_unique_series_not_deduplicated": total_series,
