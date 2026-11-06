@@ -7,7 +7,6 @@ on:
       - "research/phase147_ivydb_oi_vintage_ledger.py"
       - "research/test_phase147_ivydb_oi_vintage_ledger.py"
       - "research/PHASE147_IVYDB_OI_IMMUTABLE_CORRECTION_VINTAGE_LEDGER_2026-11-05.md"
-      - "SMART_MONEY_RESEARCH_STATE.md"
       - ".github/workflows/phase147_ivydb_oi_vintage_ledger.yml"
     types: [opened, synchronize, reopened]
   workflow_dispatch:

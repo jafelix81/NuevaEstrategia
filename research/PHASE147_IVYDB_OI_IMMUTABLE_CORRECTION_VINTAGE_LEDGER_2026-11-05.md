@@ -41,6 +41,8 @@ A patch-file adapter must expand each patch into a complete replacement row befo
 
 ## Validation
 
+**Hosted Actions:** [run 42175727066](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42175727066) passed compilation and all **25/25 offline regression tests**. No artifact was needed.
+
 Added:
 - research/phase147_ivydb_oi_vintage_ledger.py
 - research/test_phase147_ivydb_oi_vintage_ledger.py
