@@ -1092,3 +1092,14 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 - Decision: keep 13D/G as a conditional ownership-event source only. Mandatory structured history is too short alone for multi-regime OOS; legacy HTML parsing, owner/group resolution, amendment chains and effective-dated security/universe mapping remain gates. No returns/alpha test, final holdout use, vendor contact/purchase or production change; F80 remains frozen.
 - Phase 149's OpenFIGI run was completed successfully on the prior head: run [42215264784](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42215264784), artifact 13501535603 (no historical effective-date fields).
 
+
+
+## Phase 157 — SEC 13D/G legacy HTML extraction and PIT feasibility
+- Reused immutable Phase 124/127 artifacts; all 600 raw submission hashes verified. The 497 legacy HTML filings were parsed; 102 structured XML rows and one index alias were excluded.
+- Legacy candidate coverage: body issuer name 459/497 (92.4%), class title 439/497 (88.3%), first reporting-person candidate 475/497 (95.6%), event date 423/497 (85.1%); 473/497 CUSIPs are checksum-valid. These are extraction candidates, not a historical issuer/security master.
+- Among parsed event dates, 13G has 156/262 quarter-end dates (59.54%; weighted descriptive rate 76.81%); 13D has 7/161 (4.35%; weighted 4.08%). Median event-to-filing lag: 27 calendar days for 13G and 4 for 13D. Two lags exceed 365 days and require quarantine. No parsed event date is after filing date.
+- All 497 acceptance timestamps are syntactically present; 242/497 are at/after 16:00 ET. Use EDGAR acceptance time, not event date or date-only filing date, as the conservative knowledge boundary.
+- Item 4 Purpose of Transaction is detected in 116/180 13D filings. This is a candidate for manually validated activist-intent taxonomy, not an NLP signal yet.
+- Legacy owner/position fields are raw first-cover-owner candidates only. Never sum reporting persons; Phase 156 found repeated identical ownership tuples in 48/102 XML filings.
+- Phase 157 passed source-hash reconciliation and four inherited manual issuer controls. No return test, feature panel, final holdout, vendor contact/purchase or production change. F80 remains frozen.
+- Phase 157 report: research/PHASE157_SEC_13DG_LEGACY_HTML_PIT_FEASIBILITY_AUDIT_2026-11-06.md; workflow: .github/workflows/phase157_sec_13dg_legacy_html_pit_feasibility.yml
