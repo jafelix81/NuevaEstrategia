@@ -89,3 +89,10 @@ The first Phase 160 GitHub Actions attempt could not download the 185 MB Phase 8
 ## Final CI execution note
 
 The first CI attempt failed at cross-run artifact download with Bad credentials; the workflow was changed to use compact, hash-pinned excerpts from the immutable Phase 82 and Phase 124 artifacts. The next compact run passed all 19 tests but exposed a missing CSV/JSON output-writer function in the helper. The writer is now implemented and covered by a regression test. Final GitHub Actions run [42256372788](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42256372788) completed successfully: 20/20 regression tests passed, compact input hashes verified, the 32-link reconciliation recomputed, and artifact 13521928292 uploaded. Phase 160 is CI-green on the recorded head.
+
+
+## Superseding interpretation — Phase 161 (2026-11-06)
+
+Phase 160's index lookup and chronology counts remain valid, but the phrase “primary explicit parent pointer” is too strong for issuer/security-state reconstruction. Phase 161 found the same value, `0001445546-21-002430`, reused by eight official SEC Schedule 13G/A XML filings spanning five issuer CIKs and eight CUSIPs. The field must therefore be retained as an accession reference only until the referenced submission itself is inspected and issuer/security continuity is verified. The 30/32 result is an index-reference lookup result, not 30 verified issuer-level parent links.
+
+See [Phase 161 — previous-accession one-to-many semantics audit](PHASE161_SEC_13DG_PREVIOUS_ACCESSION_ONE_TO_MANY_SEMANTICS_AUDIT_2026-11-06.md). No amendment-state reconstruction or alpha test is authorized from the field alone.
