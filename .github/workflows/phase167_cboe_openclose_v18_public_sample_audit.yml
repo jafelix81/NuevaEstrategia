@@ -1,0 +1,42 @@
+name: Phase 167 Cboe Open-Close v1.8 public sample audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - research/phase167_cboe_openclose_v18_public_sample_audit.py
+      - research/test_phase167_cboe_openclose_v18_public_sample_audit.py
+      - .github/workflows/phase167_cboe_openclose_v18_public_sample_audit.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase167-cboe-openclose-v18-public-sample-audit
+  cancel-in-progress: false
+
+jobs:
+  sample-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile Phase 167
+        run: python -m py_compile research/phase167_cboe_openclose_v18_public_sample_audit.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase167_cboe_openclose_v18_public_sample_audit
+      - name: Download and audit public Cboe sample in memory
+        run: >-
+          python -m research.phase167_cboe_openclose_v18_public_sample_audit
+          --output-dir phase167_output
+      - name: Upload metadata-only audit artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase167-cboe-openclose-v18-public-sample-audit
+          path: phase167_output/phase167_cboe_openclose_public_sample_summary.json
+          if-no-files-found: error
+          retention-days: 90

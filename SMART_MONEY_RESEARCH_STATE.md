@@ -1202,3 +1202,12 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 - 13D 5-day overlap is 140/195 (71.79%, weighted 76.48%); 13G is 338/376 (89.89%, weighted 92.73%). These are sample-specific reportability/identity rates, not predictive results.
 - The standard CUSIP check-digit diagnostic must not be used as a universal exclusion rule for 13(f) identifiers: the 2026Q3 list includes CALL/PUT series rows that fail the standard equity CUSIP check. The PDF parser's full candidate counts are not treated as clean security counts.
 - Phase 166 is an offline artifact reconciliation; no SEC re-download, raw 13(f) CUSIP persistence, return test, bootstrap/LOO, OOS or final holdout. No vendor purchase/contact, production change or F80 change. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+
+## 2026-11-06 — Phase 167 Cboe Open-Close v1.8 public sample and Nov-08 cutover audit
+- New public 1-minute sample link and v1.8 PDF were found on the current Cboe Open-Close product page. Phase 167 validates the exact sample in memory and retains only hashes/counts/schema metadata; raw sample rows and symbols are not persisted.
+- 1-minute expected contract: 80 lower-case columns, call_or_put, trading_dt, trading_segment; EOD-only fields 10–17 absent.
+- The 10-minute PDF link filename says v1.8, but the PDF cover identifies v1.7 dated 2026-11-08. It uses call_put_flag; the product-page typo correction says cust_gt_199_close_buy, while the PDF lists cust_gt_199_close_buy_qty. Preserve this discrepancy; no silent rename.
+- Both intraday products are cumulative snapshots with later corrections; first differences are changes in published cumulative state, not trade-time interval volume.
+- The sample is dated 2026-09-30, before the announced 2026-11-08 cutover, and is an archive/backfill download. It cannot prove post-cutover production, historical first receipt, broad universe/delisted coverage or alpha. Cboe capacity is not beneficial-owner identity; product is venue-specific, not OPRA-wide.
+- Phase 167 is a schema/public-sample audit only. No return test, vendor purchase/contact, production change or F80 change. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
