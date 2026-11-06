@@ -4,7 +4,7 @@ Updated: 2026-11-06
 
 ## Frozen control
 - F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
-- MOM120 is a validated control candidate but not promoted: realized portfolio metrics slightly exceeded LTM, but incremental daily excess was small and the block-bootstrap CI included zero.
+- MOM120 remains a descriptive price-momentum control only. Phase 148's cost-aware re-audit did not pass the net-mean, bootstrap lower-bound, and LOO robustness gate at either tested horizon/cost; do not promote.
 
 ## Phase 31 — FINRA short-flow × short-interest divergence
 - Status: KILLED as independent alpha.
@@ -1055,3 +1055,12 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 - Verified ETON example: original 0001437749-26-029196 accepted 2026-08-28 16:51:30 ET; 4/A 0001437749-26-029308 accepted 2026-08-31 16:06:45 ET. The amendment repeats four unchanged Table I lines and one unchanged Table II line, then adds only a 12,500-share M exercise in each table. Naively summing would double count the original 50,000-share sales and exercise.
 - Clarification: SEC instructions prohibit repeating unchanged lines in amendments, but the actual as-filed filing demonstrates that repetitions can occur. Bulk data README warns about redundancies/inconsistencies. Every 4/A needs confirmed parent accession + line-level diff; amendments are state updates, not independent trade streams.
 - Decision: Form 4/A stays conditional; no return test, no alpha claim, no final holdout use, no vendor contact/purchase, no production change. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## Phase 153 — SEC Form 4/A cross-quarter lineage preflight (2026-11-06)
+- Status: BLOCKED pending an authorized SEC contact email for automated downloads. The Phase 39 endpoint-quarter artifact (2012Q1 and 2026Q3) was retrieved and its SHA-256 verified; adjacent-quarter SEC ZIP attempts returned HTTP 403 in runs 42201178315 (2011Q4) and 42201909289 (2026Q2).
+- The SEC's official Accessing EDGAR Data page requires a declared User-Agent identifying the requester and a contact email. The Phase 153 request identified the project but omitted an email. No personal commit email was reused and no address was fabricated.
+- The same-quarter-only reproduction matches Phase 152: 2012Q1 has 1,146/1,862 unique parent candidates (61.5467%), 40 ambiguous and 676 unmatched; 2026Q3 has 341/627 (54.3860%), 7 ambiguous and 279 unmatched. Both windows remain incomplete because the preceding-quarter ZIPs were not available.
+- ETON accession regression: original 0001437749-26-029196 and amendment 0001437749-26-029308; Table I has 4 exact repeated rows plus 1 same-coarse unmatched row; Table II has 1 exact repeated plus 1 same-coarse unmatched. The latter rows are not forced into added-versus-modified categories.
+- Parser corrections: exact ZIP basename matching prevents DERIV_TRANS.tsv from colliding with NONDERIV_TRANS.tsv; multiset diff preserves same-coarse extra rows. 17 local tests pass. The updated workflow runs offline tests without a secret and emits a blocked artifact instead of repeatedly sending undeclared requests.
+- Resume: configure the repository Actions secret SEC_CONTACT_EMAIL with an authorized project/firm contact email, then manually dispatch Phase 153. No alpha test, no final holdout use, and F80 remains frozen.

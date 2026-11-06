@@ -44,7 +44,7 @@ def norm_value(field,x):
     return " ".join(s.upper().split())
 
 def read_table(z,suffix):
-    names=[n for n in z.namelist() if n.upper().endswith(suffix.upper())]
+    names=[n for n in z.namelist() if n.rsplit("/",1)[-1].upper()==suffix.upper()]
     if len(names)!=1:raise ValueError(f"Expected one {suffix}; got {names}")
     return list(csv.DictReader(io.StringIO(z.read(names[0]).decode("utf-8-sig")),delimiter="\t"))
 
@@ -77,18 +77,24 @@ def signature(row,fields):return tuple(norm_value(f,row.get(f)) for f in fields)
 def diff_rows(parent,child,exact_fields,coarse_fields):
     p_exact=Counter(signature(r,exact_fields) for r in parent);c_exact=Counter(signature(r,exact_fields) for r in child)
     repeated=sum((p_exact & c_exact).values())
-    p_coarse=Counter(signature(r,coarse_fields) for r in parent);c_coarse=Counter(signature(r,coarse_fields) for r in child)
+    p_coarse_all=Counter(signature(r,coarse_fields) for r in parent)
+    c_coarse_all=Counter(signature(r,coarse_fields) for r in child)
     exact_coarse=Counter();p_left=p_exact.copy()
     for row in child:
         sig=signature(row,exact_fields)
         if p_left[sig]>0:
             exact_coarse[signature(row,coarse_fields)]+=1;p_left[sig]-=1
-    p_coarse-=exact_coarse;c_coarse-=exact_coarse
-    same_coarse=sum((p_coarse & c_coarse).values())
+    p_remaining=p_coarse_all-exact_coarse
+    c_remaining=c_coarse_all-exact_coarse
+    # An unmatched child row is ambiguous if its coarse key appeared anywhere in the parent,
+    # even when that parent row was itself repeated exactly.
+    same_coarse=sum(min(p_coarse_all[k],c_remaining[k]) for k in c_remaining)
+    distinct_added=sum(c_remaining.values())-same_coarse
+    parent_unmatched=sum(p_remaining.values())-sum(min(p_remaining[k],c_remaining[k]) for k in p_remaining)
     return {"parent_rows":len(parent),"amendment_rows":len(child),"exact_repeated_candidate_rows":repeated,
             "same_coarse_unmatched_candidate_rows":same_coarse,
-            "distinct_coarse_added_candidate_rows":sum(c_coarse.values())-same_coarse,
-            "parent_rows_not_repeated_in_amendment":sum(p_coarse.values())-same_coarse,
+            "distinct_coarse_added_candidate_rows":distinct_added,
+            "parent_rows_not_repeated_in_amendment":parent_unmatched,
             "classification_is_candidate_only":True}
 
 def build_candidate_index(periods):

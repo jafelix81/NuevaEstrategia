@@ -13,15 +13,23 @@ permissions:
   actions: read
   contents: read
 
+concurrency:
+  group: phase153-form4-crossquarter-lineage
+  cancel-in-progress: true
+
 jobs:
   audit:
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    env:
+      SEC_CONTACT_EMAIL: ${{ secrets.SEC_CONTACT_EMAIL }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Prepare output directories
+        run: mkdir -p phase153_output adjacent_source
       - name: Download immutable Phase 39 endpoint-quarter artifact
         uses: actions/download-artifact@v4
         with:
@@ -29,52 +37,98 @@ jobs:
           run-id: 40606706518
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: phase39_source
+      - name: Compile audit and run offline tests
+        run: |
+          python -m py_compile research/phase153_form4_crossquarter_parent_lineage.py
+          python -m unittest discover -s research -p 'test_phase153_*.py' -v
       - name: Download immediately preceding 2026 quarter
+        id: q2
+        if: env.SEC_CONTACT_EMAIL != ''
+        continue-on-error: true
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p adjacent_source
-          UA='NuevaEstrategia/Phase153 Form 4 amendment lineage audit contact research'
+          UA="NuevaEstrategia research ${SEC_CONTACT_EMAIL}"
           URL='https://www.sec.gov/files/datastandardsinnovation/data/insider-transactions-data-sets/2026q2_form345.zip'
-          curl --fail --show-error --location --retry 6 --retry-all-errors --retry-delay 5 \
+          curl --fail --show-error --location --retry 3 --retry-delay 2 \
             --connect-timeout 30 --max-time 240 -A "$UA" \
             -H 'Accept: application/zip, application/octet-stream, */*' \
-            -H 'Accept-Encoding: gzip, deflate' "$URL" -o adjacent_source/2026q2_form345.zip
+            -H 'Accept-Encoding: gzip, deflate' -H 'Host: www.sec.gov' \
+            "$URL" -o adjacent_source/2026q2_form345.zip
           test -s adjacent_source/2026q2_form345.zip
           unzip -t adjacent_source/2026q2_form345.zip >/dev/null
           sha256sum adjacent_source/2026q2_form345.zip
       - name: Attempt optional 2011Q4 boundary quarter
+        if: env.SEC_CONTACT_EMAIL != '' && steps.q2.outcome == 'success'
+        continue-on-error: true
         shell: bash
         run: |
           set -euo pipefail
-          UA='NuevaEstrategia/Phase153 Form 4 amendment lineage audit contact research'
+          UA="NuevaEstrategia research ${SEC_CONTACT_EMAIL}"
           URL='https://www.sec.gov/files/structureddata/data/insider-transactions-data-sets/2011q4_form345.zip'
           if curl --fail --show-error --location --connect-timeout 30 --max-time 180 -A "$UA" \
             -H 'Accept: application/zip, application/octet-stream, */*' \
-            -H 'Accept-Encoding: gzip, deflate' "$URL" -o adjacent_source/2011q4_form345.zip; then
+            -H 'Accept-Encoding: gzip, deflate' -H 'Host: www.sec.gov' \
+            "$URL" -o adjacent_source/2011q4_form345.zip; then
             unzip -t adjacent_source/2011q4_form345.zip >/dev/null
             sha256sum adjacent_source/2011q4_form345.zip
           else
-            echo 'SEC returned an HTTP error for 2011Q4; 2012Q1 lineage window will be explicitly marked incomplete.' \
-              | tee adjacent_source/2011q4_unavailable.txt
+            echo '2011Q4 unavailable; 2012Q1 search window remains incomplete.' | tee adjacent_source/2011q4_unavailable.txt
             rm -f adjacent_source/2011q4_form345.zip
           fi
-      - name: Compile audit and tests
-        run: |
-          python -m py_compile research/phase153_form4_crossquarter_parent_lineage.py
-          python -m unittest discover -s research -p 'test_phase153_*.py' -v
-      - name: Build cross-quarter parent-candidate and line-diff audit
+      - name: Build cross-quarter parent-candidate audit
+        if: env.SEC_CONTACT_EMAIL != '' && steps.q2.outcome == 'success'
         run: |
           python research/phase153_form4_crossquarter_parent_lineage.py \
             --input-dir phase39_source \
             --adjacent-dir adjacent_source \
             --output phase153_output/phase153_form4_amendment_lineage_summary.json
-      - name: Upload reproducible audit output
+      - name: Record missing SEC contact prerequisite
+        if: env.SEC_CONTACT_EMAIL == ''
+        run: |
+          python - <<'PY'
+          import json, pathlib
+          pathlib.Path("phase153_output").mkdir(exist_ok=True)
+          result = {
+            "phase": 153,
+            "status": "BLOCKED_SEC_CONTACT_EMAIL_REQUIRED",
+            "reason": "SEC Accessing EDGAR Data requires a declared User-Agent identifying the requester and a contact email. No authorized project contact email is configured in this workflow.",
+            "next_action": "Configure the repository Actions secret SEC_CONTACT_EMAIL, then manually dispatch the Phase 153 workflow.",
+            "source_artifact_run_id": 40606706518,
+            "source_artifact_id": 12781850078,
+            "source_artifact_sha256": "203d7b1d2e29c999da318456af72e621cb30ef9a470d8f1610d088f9bebecb66",
+            "alpha_test": False,
+            "final_holdout_used": False,
+            "f80_modified": False
+          }
+          pathlib.Path("phase153_output/phase153_blocked_status.json").write_text(json.dumps(result, indent=2) + "\n")
+          print(json.dumps(result, indent=2))
+          PY
+      - name: Record failed adjacent-quarter download
+        if: env.SEC_CONTACT_EMAIL != '' && steps.q2.outcome != 'success'
+        run: |
+          python - <<'PY'
+          import json, pathlib
+          result = {
+            "phase": 153,
+            "status": "BLOCKED_SEC_ADJACENT_QUARTER_DOWNLOAD",
+            "reason": "The 2026Q2 SEC bulk ZIP could not be downloaded with the configured contact identity.",
+            "source_artifact_run_id": 40606706518,
+            "source_artifact_id": 12781850078,
+            "alpha_test": False,
+            "final_holdout_used": False,
+            "f80_modified": False
+          }
+          pathlib.Path("phase153_output/phase153_blocked_status.json").write_text(json.dumps(result, indent=2) + "\n")
+          print(json.dumps(result, indent=2))
+          PY
+      - name: Upload reproducible Phase 153 preflight
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: phase153-form4-crossquarter-lineage-audit
+          name: phase153-form4-crossquarter-lineage-preflight
           path: |
-            phase153_output/phase153_form4_amendment_lineage_summary.json
+            phase153_output/*
             adjacent_source/*
           if-no-files-found: error
           retention-days: 30

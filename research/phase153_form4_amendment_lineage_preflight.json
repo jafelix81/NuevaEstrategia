@@ -1,0 +1,62 @@
+{
+  "phase": 153,
+  "status": "BLOCKED_SEC_CONTACT_EMAIL_REQUIRED",
+  "source": {
+    "provider": "SEC",
+    "phase39_artifact_run_id": 40606706518,
+    "phase39_artifact_id": 12781850078,
+    "phase39_outer_sha256": "203d7b1d2e29c999da318456af72e621cb30ef9a470d8f1610d088f9bebecb66"
+  },
+  "adjacent_quarter_downloads": [
+    {
+      "period": "2011Q4",
+      "run_id": 42201178315,
+      "status": "HTTP_403"
+    },
+    {
+      "period": "2026Q2",
+      "run_id": 42201909289,
+      "status": "HTTP_403"
+    }
+  ],
+  "same_quarter_reproduction": {
+    "2012Q1": {
+      "amendments": 1862,
+      "unique_parent_candidates": 1146,
+      "ambiguous": 40,
+      "no_candidate": 676,
+      "coverage_pct": 61.5467,
+      "search_window_complete": false
+    },
+    "2026Q3": {
+      "amendments": 627,
+      "unique_parent_candidates": 341,
+      "ambiguous": 7,
+      "no_candidate": 279,
+      "coverage_pct": 54.386,
+      "search_window_complete": false
+    }
+  },
+  "eton_regression": {
+    "original": "0001437749-26-029196",
+    "amendment": "0001437749-26-029308",
+    "table_i": {
+      "exact_repeated": 4,
+      "same_coarse_unmatched": 1,
+      "distinct_coarse_added": 0
+    },
+    "table_ii": {
+      "exact_repeated": 1,
+      "same_coarse_unmatched": 1,
+      "distinct_coarse_added": 0
+    }
+  },
+  "local_tests": {
+    "passed": 17,
+    "failed": 0
+  },
+  "alpha_test": false,
+  "final_holdout_used": false,
+  "f80_modified": false,
+  "next_action": "Configure repository Actions secret SEC_CONTACT_EMAIL and manually dispatch Phase 153."
+}

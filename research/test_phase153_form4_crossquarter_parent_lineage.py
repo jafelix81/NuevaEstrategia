@@ -1,6 +1,8 @@
 import unittest
+import io
+import zipfile
 from phase153_form4_crossquarter_parent_lineage import (
-    parent_candidates,build_candidate_index,diff_rows,norm_date,norm_cik,ND_EXACT,ND_COARSE
+    parent_candidates,build_candidate_index,diff_rows,norm_date,norm_cik,ND_EXACT,ND_COARSE,read_table
 )
 
 def filing(a,p,d,issuer="0000000001",fd="2026-06-30",od="",owners=None,nd=None,dv=None):
@@ -8,6 +10,13 @@ def filing(a,p,d,issuer="0000000001",fd="2026-06-30",od="",owners=None,nd=None,d
             "owners":set(owners or []),"nd":list(nd or []),"dv":list(dv or [])}
 
 class Phase153Tests(unittest.TestCase):
+    def test_deriv_table_name_not_confused_with_nonderiv(self):
+        raw=io.BytesIO()
+        with zipfile.ZipFile(raw,"w") as z:
+            z.writestr("DERIV_TRANS.tsv","ACCESSION_NUMBER\nD\n")
+            z.writestr("NONDERIV_TRANS.tsv","ACCESSION_NUMBER\nN\n")
+        with zipfile.ZipFile(io.BytesIO(raw.getvalue())) as z:
+            self.assertEqual(read_table(z,"DERIV_TRANS.tsv")[0]["ACCESSION_NUMBER"],"D")
     def test_date_normalization(self):self.assertEqual(norm_date("31-JUL-2026"),"2026-07-31")
     def test_cik_padding(self):self.assertEqual(norm_cik("123"),"0000000123")
     def test_cross_quarter_unique(self):
@@ -45,7 +54,7 @@ class Phase153Tests(unittest.TestCase):
     def test_exact_repeats_multiset(self):
         r={"SECURITY_TITLE":"Common Stock","TRANS_DATE":"01-JUN-2026","TRANS_FORM_TYPE":"4","TRANS_CODE":"S","TRANS_SHARES":"100.0","TRANS_PRICEPERSHARE":"10.00","TRANS_ACQUIRED_DISP_CD":"D","DIRECT_INDIRECT_OWNERSHIP":"D"}
         d=diff_rows([r,r],[r,r,r],ND_EXACT,ND_COARSE)
-        self.assertEqual(d["exact_repeated_candidate_rows"],2);self.assertEqual(d["distinct_coarse_added_candidate_rows"],1)
+        self.assertEqual(d["exact_repeated_candidate_rows"],2);self.assertEqual(d["same_coarse_unmatched_candidate_rows"],1);self.assertEqual(d["distinct_coarse_added_candidate_rows"],0)
     def test_same_coarse_unmatched_is_not_forced_as_added(self):
         a={"SECURITY_TITLE":"Common Stock","TRANS_DATE":"01-JUN-2026","TRANS_FORM_TYPE":"4","TRANS_CODE":"M","TRANS_SHARES":"50000","TRANS_PRICEPERSHARE":"3.78"}
         b=dict(a,TRANS_SHARES="12500",TRANS_PRICEPERSHARE="7.31")
