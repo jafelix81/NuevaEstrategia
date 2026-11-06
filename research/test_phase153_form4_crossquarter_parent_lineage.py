@@ -35,7 +35,7 @@ class Phase153Tests(unittest.TestCase):
         p1=filing("0000000001-26-000001","2026Q2","4",owners={"0000000002"})
         p2=filing("0000000001-26-000003","2026Q2","4",owners={"0000000002"})
         c=filing("0000000001-26-000002","2026Q3","4/A",od="2026-06-30",owners={"0000000002"})
-        self.assertEqual(len(parent_candidates(c,build_candidate_index({"q2":{"filings":{p1["accession"]:p1,p2["accession"]:p2}}})),2)
+        self.assertEqual(len(parent_candidates(c,build_candidate_index({"q2":{"filings":{p1["accession"]:p1,p2["accession"]:p2}}}))),2)
     def test_form4a_cannot_be_parent(self):
         p=filing("0000000001-26-000001","2026Q2","4/A",owners={"0000000002"})
         c=filing("0000000001-26-000002","2026Q3","4/A",od="2026-06-30",owners={"0000000002"})
