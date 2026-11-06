@@ -76,3 +76,8 @@ Without a confirmed original accession and line-level comparison, an amendment c
 - Helper: `research/phase158_13d_item4_segmentation_audit.py`
 - Tests: `research/test_phase158_13d_item4_segmentation_audit.py`
 - Workflow: `.github/workflows/phase158_sec_13d_item4_segmentation_audit.yml`
+
+
+## Supersession note — Phase 159 (2026-11-06)
+
+Phase 159 found four non-/A index filings with positive cover-page Amendment No. values (34, 3, 1, 4). All four had been labelled INITIAL_DISCLOSURE in this report and all four contain Item 4. The 117-section extraction count remains valid, but the 59/58 role split is superseded: 58 index-coded amendments, four additional cover-numbered amendment candidates, and 55 non-/A Item 4 sections with initial status still unconfirmed. No parent accession was resolved. See research/PHASE159_SEC_13D_COVER_PAGE_AMENDMENT_NUMBER_AND_ITEM4_COHORT_AUDIT_2026-11-06.md.

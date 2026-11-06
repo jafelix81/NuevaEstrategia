@@ -1,0 +1,74 @@
+name: Phase 159 SEC 13D cover-page amendment role audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "research/phase159_*"
+      - "research/test_phase159_*"
+      - "research/phase158_13d_item4_segmentation_audit.py"
+      - ".github/workflows/phase159_sec_13d_cover_amendment_role_audit.yml"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: phase159-sec-13d-cover-amendment-role
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Download immutable Phase 124 role-aware sample
+        uses: actions/download-artifact@v4
+        with:
+          name: phase124-global-sec-13dg-stratified-submission-audit
+          run-id: 42073725379
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: phase124_source
+      - name: Download immutable Phase 157 legacy HTML audit
+        uses: actions/download-artifact@v4
+        with:
+          name: phase157-sec-13dg-legacy-html-pit-feasibility
+          run-id: 42224436013
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: phase157_source
+      - name: Download immutable Phase 158 Item 4 audit
+        uses: actions/download-artifact@v4
+        with:
+          name: phase158-sec-13d-item4-segmentation-audit
+          run-id: 42231437618
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: phase158_source
+      - name: Compile and run regression tests
+        env:
+          PHASE124_DIR: phase124_source
+          PHASE157_DIR: phase157_source
+          PHASE158_DIR: phase158_source
+        run: |
+          python -m py_compile research/phase159_13d_cover_amendment_role_audit.py
+          python -m unittest discover -s research -p 'test_phase159_*.py' -v
+      - name: Recompute cover amendment role audit
+        run: |
+          python research/phase159_13d_cover_amendment_role_audit.py \
+            --phase124-dir phase124_source \
+            --phase157-dir phase157_source \
+            --phase158-dir phase158_source \
+            --output-dir phase159_output
+      - name: Upload reproducible audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase159-sec-13d-cover-amendment-role-audit
+          path: |
+            phase159_output/phase159_13d_cover_amendment_roles.csv
+            phase159_output/phase159_13d_cover_amendment_summary.json
+          if-no-files-found: error
+          retention-days: 30

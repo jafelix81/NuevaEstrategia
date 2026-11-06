@@ -1112,3 +1112,12 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 - One amendment section says only "No material change." All 58 amendment sections are explicitly labelled state updates, never independent trades/events. Median cleaned section length is 1,879 characters for initial filings and 1,045 for amendments; length is not an intent/novelty score.
 - Decision: PASS for section extraction feasibility only. No activist-intent labels, predictive features, forward returns, bootstrap/LOO or OOS tests. Cross-quarter amendment parent lineage, line-level state diff, effective-dated issuer/security identity and historical active-universe coverage remain gates.
 - Helper: research/phase158_13d_item4_segmentation_audit.py; tests: research/test_phase158_13d_item4_segmentation_audit.py; workflow: .github/workflows/phase158_sec_13d_item4_segmentation_audit.yml. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## Phase 159 — SEC 13D cover-page amendment-number audit (2026-11-06)
+- Reused immutable Phase 124/157/158 artifacts. Rechecked all 600 Phase 124 raw hashes; reconciled 180 legacy 13D records and all 117 Phase 158 Item 4 section hashes.
+- Phase 158's index-form split was too strong: among 72 rows indexed as SC 13D, four carry positive cover-page Amendment No. values (34, 3, 1 and 4). All four had Item 4 sections and were labelled INITIAL_DISCLOSURE by Phase 158; all four have no previous_accession in the Phase 124 sample.
+- Corrected Item 4 cohort: 58 index-coded SC 13D/A sections; four cover-numbered amendment candidates; 55 sections on non-/A forms whose initial status remains unconfirmed. The previous 59-section “initial” cohort is reduced by four (6.78%); total extraction remains 117.
+- Of the 72 non-/A forms, 40 cover fields are blank/underscore/N/A and 28 are missing/unparseable. Neither status proves an initial filing. The four positive numbers are a lower-bound set; parent lineage is unresolved.
+- Added the role audit, 13 regression tests and a workflow that reuses immutable artifacts only. No SEC requests, no activist-intent labels, no return test, no final holdout and no production change. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+- Report: research/PHASE159_SEC_13D_COVER_PAGE_AMENDMENT_NUMBER_AND_ITEM4_COHORT_AUDIT_2026-11-06.md. Phase 158's INITIAL_DISCLOSURE interpretation is superseded for the four listed accessions; its 117 extracted-section count remains valid.
