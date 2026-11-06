@@ -96,7 +96,7 @@ def audit_rows(rows: list[dict[str, str]], outer_sha256: str | None, csv_sha256:
                                    "event_after_filing": 0, "event_same_day": 0,
                                    "quarter_end_event": 0, "calendar_lags": [],
                                    "reporting_person_missing": 0, "purpose_text_present": 0})
-    filing_dates, issuer_ids, tickers, all_lags = [], set(), set(), []
+    filing_dates, source_ciks, source_tickers, all_lags = [], set(), set(), []
     report_date_missing = reporting_person_missing = person_type_missing = purpose_present = 0
     future_events, event_missing, event_after, event_same = [], 0, 0, 0
 
@@ -106,8 +106,8 @@ def audit_rows(rows: list[dict[str, str]], outer_sha256: str | None, csv_sha256:
         if filing is None:
             raise ValueError("Missing filing_date")
         filing_dates.append(filing)
-        issuer_ids.add(row.get("issuer_cik", "").strip())
-        tickers.add(row.get("ticker", "").strip())
+        source_ciks.add(row.get("issuer_cik", "").strip())
+        source_tickers.add(row.get("ticker", "").strip())
         form = (row.get("form", "") or "").strip().upper()
         base = base_form(form)
         if base not in {"SC 13D", "SC 13G"}:
@@ -177,7 +177,7 @@ def audit_rows(rows: list[dict[str, str]], outer_sha256: str | None, csv_sha256:
                    "member": SOURCE_MEMBER, "member_sha256": csv_sha256, "rows": len(rows)},
         "identity_and_integrity": {"unique_accessions": len(accession_counts),
                                    "duplicate_accession_rows": duplicate_accessions,
-                                   "unique_issuer_ciks": len(issuer_ids), "unique_tickers": len(tickers),
+                                   "unique_source_ciks_not_subject_validated": len(source_ciks), "unique_source_tickers_not_subject_validated": len(source_tickers),\n                                   "identity_scope": "CIK_SUBMISSIONS_QUERY_SOURCE_NOT_SUBJECT_ISSUER_VALIDATED",
                                    "filing_date_min": min(filing_dates).isoformat(),
                                    "filing_date_max": max(filing_dates).isoformat()},
         "form_counts": dict(sorted(forms.items())),
