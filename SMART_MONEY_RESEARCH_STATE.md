@@ -1103,3 +1103,12 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 - Legacy owner/position fields are raw first-cover-owner candidates only. Never sum reporting persons; Phase 156 found repeated identical ownership tuples in 48/102 XML filings.
 - Phase 157 passed source-hash reconciliation and four inherited manual issuer controls. No return test, feature panel, final holdout, vendor contact/purchase or production change. F80 remains frozen.
 - Phase 157 report: research/PHASE157_SEC_13DG_LEGACY_HTML_PIT_FEASIBILITY_AUDIT_2026-11-06.md; workflow: .github/workflows/phase157_sec_13dg_legacy_html_pit_feasibility.yml
+
+
+## Phase 158 — SEC 13D Item 4 segmentation and amendment-contamination audit (2026-11-06)
+- Reused Phase 124 run 42073725379 / artifact 13436764625 and Phase 157 run 42224436013 / artifact 13504962007. All 600 Phase 124 raw submission hashes and the Phase 124/157 CSV hashes were reverified; no new SEC requests.
+- Re-extracted Item 4 from 180 legacy HTML 13D filings: 72 initial and 108 amendments. The corrected full-document scan finds 117 sections versus Phase 157's 116. It recovers accession 0001140361-18-032832 at extracted line 1,317; its cleaned text is only "No material change." The earlier 1,000-line scan limit caused the undercount.
+- Section coverage: 59/72 initial filings and 58/108 amendments. Boundary counts: 112 next-Item-5, two next-Item-6 and three next-Item-7. Five amendments previously lacking an Item-5 boundary are now bounded by Item 6/7; no section remains unbounded in this sample.
+- One amendment section says only "No material change." All 58 amendment sections are explicitly labelled state updates, never independent trades/events. Median cleaned section length is 1,879 characters for initial filings and 1,045 for amendments; length is not an intent/novelty score.
+- Decision: PASS for section extraction feasibility only. No activist-intent labels, predictive features, forward returns, bootstrap/LOO or OOS tests. Cross-quarter amendment parent lineage, line-level state diff, effective-dated issuer/security identity and historical active-universe coverage remain gates.
+- Helper: research/phase158_13d_item4_segmentation_audit.py; tests: research/test_phase158_13d_item4_segmentation_audit.py; workflow: .github/workflows/phase158_sec_13d_item4_segmentation_audit.yml. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
