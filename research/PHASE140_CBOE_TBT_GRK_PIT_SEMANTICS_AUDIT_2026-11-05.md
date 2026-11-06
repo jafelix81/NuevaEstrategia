@@ -98,3 +98,11 @@ Next:
 6. No alpha test until historical coverage, inactive/delisted identity, C1/OPRA representativeness, file availability and licensing pass. No vendor contact, purchase, trial, terms acceptance or production change.
 
 `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+
+## 7. Reproducible helper and Actions validation
+
+- Added `research/phase140_cboe_tbt_grk_pit.py` and 15 offline tests covering unclassified flags, capacity-specific missingness, strike-key construction, global timestamp sorting, backward/forward ASOF semantics, tolerance, unmatched-row retention, contract-key isolation and timezone-awareness mismatch.
+- Final run [42145294478](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42145294478), job `127655197850`, completed successfully: compile passed; **15/15 tests passed**; no artifact expected for this offline regression.
+- Two initial runs on the same commit (`42145038632` push and `42145045125` pull_request) both passed. The duplicate was caused by configuring both push and pull_request triggers on the same PR branch. Removed the push trigger; the final run was pull_request-only. Latest Actions query shows zero queued/in-progress jobs.
+- Current branch head: `18ffb4913af1d6e0a5cfa5a99d277aa00af6face`. PR #13 remains open, unmerged and mergeable/clean; title updated through Phase 140.
