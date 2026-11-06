@@ -1,6 +1,6 @@
 # Smart Money Research State
 
-Updated: 2026-11-05
+Updated: 2026-11-06
 
 ## Frozen control
 - F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
@@ -257,8 +257,7 @@ F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. Phases 112–113 are source-fea
 
 
 ## 2026-11-05 — Phase 113 Cboe TBT public sample completed
-- Run 42023896730 completed successfully; all 9 offline tests passed; artifact 13413280759. Sample ZIP HTTP 200, 3,807,739 bytes, SHA-256 6c99e69e43d259e81bc31334574579cf9c623f5e77ff596cacf268712cd3262c. Current TBT v1.1 PDF HTTP 200, SHA-256 e70599e0829dc5d030ac2e47b73fbd12afd6b7b31047d3ae354bbd884e65dffa.
-- Nested 2025-03-28 sample CSV has 113,018 rows, 1,250 underlyings, C1 only, sample filename says 3%. Required schema, transaction/trading-date parsing, positive sizes/prices, capacities and exact-row uniqueness passed. Gate is PASS_PARSE_WITH_UNRESOLVED_CONVENTIONS, not economic approval.
+- Run 42023896730 completed successfully; all 9 offline tests passed; artifact 13413280759. Sample ZIP HTTP 200, 3,807,739 bytes, SHA-256 6c99e69e43d259e81bc31334574579cf9c623f5e77ff596cacf268712cd3262c. Current TBT v1.1 PDF HTTP 200, SHA-256 e70599e0829dc5d030ac2e47b73fbd12afd6b7b31047d3ae354bbd884e65dffa.- Nested 2025-03-28 sample CSV has 113,018 rows, 1,250 underlyings, C1 only, sample filename says 3%. Required schema, transaction/trading-date parsing, positive sizes/prices, capacities and exact-row uniqueness passed. Gate is PASS_PARSE_WITH_UNRESOLVED_CONVENTIONS, not economic approval.
 - The sample archive embeds v1.0 spec dated 2026-01-12; current v1.1 is dated 2026-10-05. Both specify SIDE B/S, OPEN_CLOSE O/C and trading segment examples 1=prior-evening/overnight, 2=daytime. Sample has SIDE=T on 69 rows (all also blank open_close), blank open_close on 20,180 rows (17.86%), and TRADING_SEGMENT=1 on every row including RTH. Do not infer T as buy/sell, impute O/C, or rely on trading_segment. T is observed only in Complex Add/Remove, COA Initiator/Responder and Opening Cross rows; blank O/C spans 19 trade types.
 - 306 calendar-date mismatches between transact_time and TRADING_DT are all GTH; no RTH/Curb mismatch. NBBO: 111,756 valid, 45 locked, 12 crossed, 1,205 zero/missing. BBO: 109,410 valid, 3,608 zero/missing. Floor-action timestamp on 618 rows: 61 >=90s late, 557 under 90s, zero negative. EXEC_ID has 1,685 repeated groups, all with both B/S sides; these are linkage pairs, not duplicates. COMPLEX_EXEC_ID has 2,875 repeated groups; exact duplicate rows zero.
 - Decision: retain C1 TBT as the highest-information conditional options candidate (explicit side/open-close/capacity/trade-type, history advertised from 2019-10-07, T+1), but do not use a directional/open-close feature until sample conventions are explained and C1 Open-Close reconciliation passes. C1-only and a 3% sample do not prove whole-OPRA or broad PIT coverage. See research/PHASE113_CBOE_TBT_SAMPLE_FEASIBILITY_2026-11-05.md.
@@ -516,7 +515,6 @@ F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No forward-return test or produ
 - Phase 84 live disjoint 600-filing 13D/13G role-aware pilot: run 41914491120; offline tests succeeded, Phase 82 artifact downloaded, live SEC retrieval still in progress at the latest check. No additional SEC scan has been launched.
 - Phase 87 invalidates Phase 35 run 41878429289 as a subject-issuer panel; preserve it only as filer-side diagnostic.
 - No forward-return test, feature tuning, vendor purchase, or production change. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
-
 
 ## 2026-11-05 — Research governance and source-gate supersession
 
@@ -777,8 +775,7 @@ F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No source from Phases 112–113
 - Reconciles immutable Phase 124 (600 index rows; 599 actual filings; one alias) and Phase 127 corrected CUSIP artifacts. No new SEC requests.
 - Preliminary repeated-CUSIP structure: 553 unique checksum-valid CUSIPs; 18 repeated groups (14 legacy-only, 2 XML-only, 2 cross-schema). Only two cross-schema links exist: 90290N109 (USA Compression Partners, CIK 1522727) and G38644103 (GigaCloud Technology, CIK 1857816); both have matching issuer/subject CIK and normalized issuer name across schemas.
 - 81752R100 reproduces the Seritage legacy header-CIK conflict: same body issuer name and CUSIP across two filings, but subject CIKs 1549575 and 1628063.
-- The legacy body-name heuristic yielded 442/497 apparent candidates; 82 contain obvious separators/boilerplate, and the remaining 360 are unvalidated. It is not promoted as an identity source.
-- Decision: internal cross-schema CUSIP overlap (2/553 = 0.36%) is far too sparse to build a historical security master. Need effective-dated permanent security mapping before return tests. No alpha/production changes; F80 remains frozen.
+- The legacy body-name heuristic yielded 442/497 apparent candidates; 82 contain obvious separators/boilerplate, and the remaining 360 are unvalidated. It is not promoted as an identity source.- Decision: internal cross-schema CUSIP overlap (2/553 = 0.36%) is far too sparse to build a historical security master. Need effective-dated permanent security mapping before return tests. No alpha/production changes; F80 remains frozen.
 - Phase 128 Actions run 42080440140 succeeded; all Phase 124–128 regression suites passed (52 tests total across the four suites), 600/600 raw hashes verified, and no audit errors. Artifact 13439559366; ZIP SHA-256 `aed19dba803bd47f9ac6a846807d93a778b05bad3cf637c18936e1d3593fb22b`.
 
 ## 2026-11-05 — Phase 129 SEC 13(f) official-list CUSIP PIT overlap audit (in progress)
@@ -1005,3 +1002,13 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 - Feature knowledge time is the later of the selected current-session and prior-session receipts. This prevents a late correction to the prior session from retroactively making a revised ΔOI feature appear known when the current-session file first arrived.
 - 25 offline tests cover as-of selection, no backdating, late prior-session corrections, chain integrity, tombstones, timestamp boundaries, continuity/expiry, schema breaks, signed deltas and zero denominators. Hosted Actions run [42175727066](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42175727066) passed all 25 tests.
 - This is implementation integrity only. No licensed IvyDB sample/patch, actual receipt archive, optionable-universe coverage or alpha test. Vendor patch semantics and row-level supersedes mapping remain unverified. F80 remains frozen.
+
+## Phase 148 — Phase 29 independent-alpha cost and OOS audit
+- Reused the completed Phase 29 artifact (run 40105752275 / artifact 12565060248); no new price download and no factor reselection. The source artifact/report hashes and compact date-level Q10–Q1 spread series are pinned in the Phase 148 input.
+- Found a material implementation omission: Phase 29 declared COST_BPS = 10.0 per side but did not deduct costs from its Q10–Q1 spread. A long-top/short-bottom spread has four one-way legs, so the 10 bps sensitivity is 40 bps per signal-date spread. Borrow, financing, impact and turnover costs remain excluded.
+- MOM120 was the discovery-selected price-momentum control at both 20- and 60-session horizons. In 2021–2023 validation, the 20-session gross mean spread was only +0.122%; net was −0.078% at 5 bps/side and −0.278% at 10 bps/side. At 10 bps, 31/36 leave-one-date-out means were negative.
+- The 60-session validation mean remained +3.689% net at 10 bps/side and all LOO means stayed positive, but block-bootstrap 95% intervals still crossed zero at block lengths 1, 3, 6 and 9. Neither horizon passed the strict net-mean + bootstrap-lower-bound + LOO gate at any tested cost from 0 to 50 bps/side.
+- The 2024+ Phase 29 slice is already exposed by the prior report; it is exploratory, not a virgin holdout. The original lab used a fixed 335-symbol Yahoo Finance universe, did not establish PIT/delisted membership, did not compare incrementally with F80/LTM, and did not correct for ten-family multiple testing.
+- Decision: keep MOM120 as a descriptive price-momentum control only. Do not add it to F80 and do not treat the arbitrary 335 names as the research universe. Future Smart Money features must beat both frozen LTM/F80 and ordinary price momentum using a survivorship-aware PIT universe, defensible costs and untouched chronological OOS.
+- Added research/PHASE148_PHASE29_INDEPENDENT_ALPHA_COST_AND_OOS_AUDIT_2026-11-06.md, the compact spread input, cost/bootstrap/LOO audit helper, 12 regression tests and a PR-only Actions workflow. No production change; F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
