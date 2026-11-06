@@ -9,13 +9,14 @@ from __future__ import annotations
 import argparse
 import csv
 import json
-from collections import Counter
+from collections import Counter, defaultdict
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
 from research.phase165_sec13f_resumable_audit import (
     AUDIT_FIELDS,
     build_audit_rows,
+    parse_acceptance_date,
     proxy_dates,
     read_csv,
     safe_rate,
@@ -193,6 +194,56 @@ def build_bridge_audit(sample, pit_manifest, content_matches):
     return rows
 
 
+
+def unique_cusip_coverage(sample, audit_rows):
+    audit_by_accession = {row['accession']: row for row in audit_rows}
+    by_cusip = defaultdict(list)
+    for base in sample:
+        if base.get('cusip_status') != 'UNIQUE_CHECKSUM_VALID' or not base.get('cusip'):
+            continue
+        audit = audit_by_accession.get(base['accession'])
+        if audit is None:
+            continue
+        event_date, _ = parse_acceptance_date(
+            base.get('acceptance_datetime'), base.get('filing_date') or ''
+        )
+        by_cusip[base['cusip']].append((event_date, audit))
+    first_matches = []
+    last_matches = []
+    any_matches = []
+    repeated = 0
+    repeated_consistent = 0
+    for observations in by_cusip.values():
+        ordered = sorted(observations, key=lambda item: item[0])
+        values = [
+            item[1].get('match_5d_proxy')
+            for item in ordered
+            if item[1].get('match_5d_proxy') is not None
+        ]
+        first_matches.append(ordered[0][1].get('match_5d_proxy'))
+        last_matches.append(ordered[-1][1].get('match_5d_proxy'))
+        any_matches.append(any(value is True for value in values) if values else None)
+        if len(ordered) > 1:
+            repeated += 1
+            if values and len(set(values)) == 1:
+                repeated_consistent += 1
+    def block(values):
+        eligible = [value for value in values if value is not None]
+        return {
+            'n': len(eligible),
+            'matches': sum(bool(value) for value in eligible),
+            'rate': sum(bool(value) for value in eligible) / len(eligible) if eligible else None,
+        }
+    return {
+        'unique_valid_cusips': len(by_cusip),
+        'first_observed_filing_5d_match': block(first_matches),
+        'last_observed_filing_5d_match': block(last_matches),
+        'any_observed_filing_5d_match': block(any_matches),
+        'repeated_cusips': repeated,
+        'repeated_cusips_with_consistent_5d_match_status': repeated_consistent,
+    }
+
+
 def rate_block(rows, field):
     eligible = [row for row in rows if row.get(field) is not None]
     return {
@@ -240,6 +291,7 @@ def main():
         row.update(concordance_by_quarter[row['quarter']])
 
     audit_rows = build_bridge_audit(sample, pit_manifest, content_matches)
+    unique_coverage = unique_cusip_coverage(sample, audit_rows)
     valid_audit = [row for row in audit_rows if row.get('cusip_status') == 'UNIQUE_CHECKSUM_VALID']
     prior1 = rate_block(valid_audit, 'match_1d_proxy')
     prior5 = rate_block(valid_audit, 'match_5d_proxy')
@@ -305,6 +357,7 @@ def main():
         'content_snapshots': len(content_manifests),
         'content_source_format_counts': dict(content_formats),
         'valid_sample_filings': len(valid_accessions),
+        'unique_cusip_coverage': unique_coverage,
         'expected_sample_match_comparisons': expected_comparisons,
         'sample_match_comparisons': comparison_n,
         'sample_match_concordant': concordant_n,

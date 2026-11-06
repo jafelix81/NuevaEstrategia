@@ -9,6 +9,7 @@ from research.phase166_sec13f_cross_format_pit_bridge import (
     load_shard_dir,
     parse_pdf_last_modified,
     summarize_concordance_by_format,
+    unique_cusip_coverage,
 )
 
 
@@ -84,6 +85,30 @@ class Phase166Tests(unittest.TestCase):
         self.assertEqual(result['txt']['sample_match_comparisons'], 10)
         self.assertIn('Independent TXT-versus-PDF', result['txt']['interpretation'])
         self.assertIn('not independent', result['pdf']['interpretation'])
+
+    def test_unique_cusip_coverage_deduplicates_repeated_filings(self):
+        sample = [
+            {'accession': 'A1', 'cusip': '037833100', 'cusip_status': 'UNIQUE_CHECKSUM_VALID',
+             'acceptance_datetime': '2020-01-02T12:00:00-05:00', 'filing_date': '2020-01-02'},
+            {'accession': 'A2', 'cusip': '037833100', 'cusip_status': 'UNIQUE_CHECKSUM_VALID',
+             'acceptance_datetime': '2021-01-02T12:00:00-05:00', 'filing_date': '2021-01-02'},
+            {'accession': 'B1', 'cusip': '594918104', 'cusip_status': 'UNIQUE_CHECKSUM_VALID',
+             'acceptance_datetime': '2020-02-02T12:00:00-05:00', 'filing_date': '2020-02-02'},
+            {'accession': 'C1', 'cusip': '', 'cusip_status': 'INVALID_CHECKSUM',
+             'acceptance_datetime': '2020-03-02T12:00:00-05:00', 'filing_date': '2020-03-02'},
+        ]
+        audit = [
+            {'accession': 'A1', 'match_5d_proxy': True},
+            {'accession': 'A2', 'match_5d_proxy': True},
+            {'accession': 'B1', 'match_5d_proxy': False},
+            {'accession': 'C1', 'match_5d_proxy': None},
+        ]
+        result = unique_cusip_coverage(sample, audit)
+        self.assertEqual(result['unique_valid_cusips'], 2)
+        self.assertEqual(result['first_observed_filing_5d_match']['matches'], 1)
+        self.assertEqual(result['first_observed_filing_5d_match']['rate'], 0.5)
+        self.assertEqual(result['repeated_cusips'], 1)
+        self.assertEqual(result['repeated_cusips_with_consistent_5d_match_status'], 1)
 
     def test_no_raw_cusip_fields_in_output_schema(self):
         from research.phase166_sec13f_cross_format_pit_bridge import QUARTER_FIELDS, MISMATCH_FIELDS, BRIDGE_AUDIT_FIELDS
