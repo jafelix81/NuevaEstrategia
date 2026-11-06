@@ -144,8 +144,17 @@ def build_oi_features(rows: Iterable[Mapping[str, Any]]) -> list[dict[str, Any]]
                 status = "NO_PRIOR_SESSION"
             elif prior is None:
                 status = "MISSING_PREVIOUS_SESSION"
+            elif any(
+                prior_date < candidate["session_date"] < row["session_date"]
+                for candidate in group
+            ):
+                # A supplied prior date is not adjacent if an intervening
+                # contract observation exists in the same input panel.
+                status = "NON_ADJACENT_PREVIOUS_SESSION"
             elif prior["contract_terms_key"] != row["contract_terms_key"]:
                 status = "CONTRACT_TERMS_BREAK"
+            elif prior["expiration_date"] != row["expiration_date"]:
+                status = "EXPIRATION_DATE_BREAK"
             elif row["expiration_date"] <= row["session_date"]:
                 status = "EXPIRY_OR_EXERCISE_AFFECTED"
             elif row["first_received_at"] <= prior["first_received_at"]:
@@ -204,6 +213,8 @@ def features_known_by(
     result = []
     for feature in features:
         known = _timestamp(feature.get("knowledge_time"))
-        if known <= decision and feature.get("status") == "OK":
+        # No event sequence is stored for equal timestamps. Fail closed:
+        # knowledge must strictly precede the decision instant.
+        if known < decision and feature.get("status") == "OK":
             result.append(dict(feature))
     return result

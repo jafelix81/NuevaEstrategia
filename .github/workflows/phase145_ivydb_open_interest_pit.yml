@@ -1,4 +1,4 @@
-name: Phase 145 IvyDB open-interest PIT regression
+name: Phase 145–146 IvyDB open-interest PIT regression
 
 on:
   pull_request:
@@ -7,6 +7,7 @@ on:
       - "research/phase145_ivydb_open_interest_pit.py"
       - "research/test_phase145_ivydb_open_interest_pit.py"
       - "research/PHASE145_IVYDB_OPEN_INTEREST_CONTRACT_STATE_AND_PIT_AUDIT_2026-11-05.md"
+      - "research/PHASE146_IVYDB_OI_STRICT_PIT_BOUNDARY_AND_CONTINUITY_CORRECTION_2026-11-06.md"
       - "SMART_MONEY_RESEARCH_STATE.md"
       - ".github/workflows/phase145_ivydb_open_interest_pit.yml"
     types: [opened, synchronize, reopened]

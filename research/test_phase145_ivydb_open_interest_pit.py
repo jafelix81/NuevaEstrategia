@@ -148,6 +148,30 @@ class Phase145Tests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "source_provenance_missing"):
             build_oi_features(rows)
 
+
+
+    def test_feature_is_unavailable_at_exact_receipt_timestamp(self):
+        features = build_oi_features(self.pair())
+        known = features_known_by(features, "2026-11-06T08:50:00-05:00")
+        self.assertEqual(known, [])
+
+    def test_expiration_date_change_blocks_delta(self):
+        rows = self.pair()
+        rows[1]["expiration_date"] = "2027-01-22"
+        result = build_oi_features(rows)[1]
+        self.assertEqual(result["status"], "EXPIRATION_DATE_BREAK")
+        self.assertIsNone(result["delta_open_interest"])
+
+    def test_stale_non_adjacent_previous_session_is_blocked(self):
+        rows = [
+            row("2026-11-03", "", 90, 100, "2026-11-04T08:50:00-05:00"),
+            row("2026-11-04", "2026-11-03", 100, 150, "2026-11-05T08:50:00-05:00"),
+            row("2026-11-05", "2026-11-03", 125, 500, "2026-11-06T08:50:00-05:00"),
+        ]
+        result = build_oi_features(rows)[2]
+        self.assertEqual(result["status"], "NON_ADJACENT_PREVIOUS_SESSION")
+        self.assertIsNone(result["delta_open_interest"])
+
     def test_input_order_does_not_change_results(self):
         rows = self.pair()
         forward = build_oi_features(rows)
