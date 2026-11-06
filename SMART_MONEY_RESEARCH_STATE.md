@@ -1012,3 +1012,16 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 - Decision: keep MOM120 as a descriptive price-momentum control only. Do not add it to F80 and do not treat the arbitrary 335 names as the research universe. Future Smart Money features must beat both frozen LTM/F80 and ordinary price momentum using a survivorship-aware PIT universe, defensible costs and untouched chronological OOS.
 - Added research/PHASE148_PHASE29_INDEPENDENT_ALPHA_COST_AND_OOS_AUDIT_2026-11-06.md, the compact spread input, cost/bootstrap/LOO audit helper, 12 regression tests and a PR-only Actions workflow. No production change; F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
 
+
+## Phase 149 — OpenFIGI CUSIP/FIGI identity bridge (2026-11-06)
+
+- Audited 553 unique checksum-valid CUSIPs from the 599-filing Phase 124/127 13D/13G sample (571 valid rows).
+- Exact 9-character ID_CUSIP: 438/553 mapped; 430 one shareClassFIGI, 2 one composite only, 4 one FIGI only, 2 multiple composite-only unresolved, 115 no match.
+- ID_CUSIP_8_CHR fallback on the 115 exact no-matches recovered 6 one-shareClass mappings (5 Common Stock, 1 REIT); 109 remain unmatched. Overall any-match coverage 444/553 = 80.3%; single-identifier CUSIPs 442; two composite-only cases unresolved.
+- 436 CUSIPs have a shareClassFIGI, resolving to 435 distinct shareClassFIGIs. One current FIGI links CUSIPs 349915108 (2016 filing, Fortuna Silver Mines Inc.) and 349942102 (2026 filing, Fortuna Mining Corp.); useful identity bridge, but the API does not date the transition.
+- 68 API requests (56 exact + 12 fallback), all HTTP 200 on first attempt; no API key; 2.5-second spacing, below the documented 25 requests/minute and 10 jobs/request limit. 16/16 Phase 149 tests passed.
+- Final run 42189666301; artifact 13488819025; ZIP digest dcf4265a19c28e822412517c5e65d72d69175e8cc762dd934f502923876d4269.
+- **Decision: candidate present-day identity bridge only, not a historical PIT security master.** OpenFIGI's documented response has no issuer CIK, effective dates, historical listing status or first-publication timestamp. Do not backdate current ticker/name mappings and do not run 13D/13G return tests from this crosswalk alone.
+- The 109 residual no-matches span legacy-only and XML-only filings; this is not solely a legacy HTML extraction issue.
+- No alpha test, vendor contact, purchase or production change. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
