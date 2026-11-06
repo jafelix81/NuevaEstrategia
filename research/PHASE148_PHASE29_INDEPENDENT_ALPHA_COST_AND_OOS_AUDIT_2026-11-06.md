@@ -45,8 +45,8 @@ At 10 bps per side:
 
 | Horizon | Net block-bootstrap 95% CI, block 3 | Net block-bootstrap 95% CI, block 6 | Net leave-one-date-out range | Negative LOO means |
 |---:|---:|---:|---:|---:|
-| 20 sessions | −3.485% to +2.575% | −2.408% to +1.552% | −0.802% to +1.057% | 31 / 36 |
-| 60 sessions | −1.586% to +8.884% | −1.328% to +7.948% | +2.989% to +4.757% | 0 / 36 |
+| 20 sessions | −3.504% to +2.547% | −2.444% to +1.590% | −0.802% to +1.057% | 31 / 36 |
+| 60 sessions | −1.602% to +8.916% | −1.212% to +7.985% | +2.989% to +4.757% | 0 / 36 |
 
 The 20-session validation mean is particularly fragile: its median gross spread is +2.097%, but its mean is only +0.122%; the worst signal date is 2023-01-05 at −46.603%. We do not trim or winsorize that observation. The artifact lacks per-ticker holdings/returns, so the cause cannot be attributed to individual names.
 
@@ -56,8 +56,8 @@ The 60-session validation result is more coherent under leave-one-date-out, but 
 
 | Horizon | Gross mean | Net mean at 10 bps/side | Net block-3 95% CI | Net block-6 95% CI |
 |---:|---:|---:|---:|---:|
-| 20 sessions | +3.188% | +2.788% | −0.156% to +5.708% | +0.097% to +5.308% |
-| 60 sessions | +3.742% | +3.342% | −4.767% to +11.579% | −4.250% to +10.138% |
+| 20 sessions | +3.188% | +2.788% | −0.172% to +5.720% | +0.104% to +5.311% |
+| 60 sessions | +3.742% | +3.342% | −4.825% to +11.598% | −4.392% to +10.108% |
 
 The 20-session lower bound changes sign with block length and cost, while the 60-session interval is very wide. More importantly, this slice was already included in the prior Phase 29 report and is now explicitly classified as **exposed exploratory evidence**, not a virgin final OOS. It cannot be reused to select a model or threshold.
 
