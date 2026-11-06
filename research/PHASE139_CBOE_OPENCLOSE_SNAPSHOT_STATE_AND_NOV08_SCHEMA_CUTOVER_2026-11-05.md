@@ -1,7 +1,7 @@
 # Phase 139 — Cboe Open-Close snapshot state and Nov-08 schema cutover
 
 **Date:** 2026-11-05  
-**Status:** Offline state-engine PASS (22/22 synthetic tests). Historical PIT, universe and alpha gates remain blocked.  
+**Status:** Offline state-engine PASS (23/23 synthetic tests). Historical PIT, universe and alpha gates remain blocked.  
 **Scope:** Source-contract audit and pure validator only. No paid data, account/trial, vendor contact, terms acceptance, forward-return test or production change.
 
 ## 1. Repository preflight
@@ -73,7 +73,7 @@ It differences only common series/metric keys. New and removed series are listed
 
 The output is explicitly called reported_increment and says it is not trade-time interval volume. strict_pit_pair is only pair-level provenance for two LIVE_FIRST_RECEIPT snapshots; it is not a historical archive claim or alpha admission. Alpha remains blocked pending universe, identity, coverage and cost gates.
 
-Offline regression: 22/22 synthetic tests passed locally. They cover positive increments, negative corrections, new/removed series, archive/live capture, snapshot/knowledge ordering, timezone, schema and contract-map changes, C1 segment semantics, non-C1 null segment, market-date/trading-date distinction, duplicates/revisions, missing metrics, invalid cumulative values and hash format. No Cboe file was downloaded in Phase 139.
+Offline regression: 23/23 synthetic tests passed locally. They cover positive increments, negative corrections, new/removed series, archive/live capture, snapshot/knowledge ordering, timezone, schema and contract-map changes, C1 segment semantics, non-C1 null segment, market-date/trading-date distinction, duplicates/revisions, missing metrics, invalid cumulative values and hash format. No Cboe file was downloaded in Phase 139.
 
 ## 6. Decision
 
