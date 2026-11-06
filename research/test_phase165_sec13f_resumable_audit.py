@@ -1,10 +1,15 @@
+import gzip
 import unittest
+import zlib
 from datetime import date, datetime, timezone
 from unittest.mock import patch
 from urllib.error import HTTPError
 
 from research.phase165_sec13f_resumable_audit import (
     candidate_urls,
+    decode_payload,
+    is_valid_cusip,
+    parse_last_modified_safe,
     parse_txt_fixed_width,
     proxy_dates,
     metadata_basis,
@@ -31,6 +36,23 @@ class Phase165Tests(unittest.TestCase):
         self.assertIsNone(run_time)
         self.assertIsNone(stated_quarter)
         self.assertEqual(cusips, ['B38564108', 'G0080J104'])
+
+
+    def test_cusip_checksum_uses_full_cusip_boolean_validator(self):
+        self.assertTrue(is_valid_cusip('037833100'))
+        self.assertTrue(is_valid_cusip('594918104'))
+        self.assertFalse(is_valid_cusip('584680106'))
+
+    def test_gzip_payload_is_decompressed_before_fixed_width_parse(self):
+        raw = b'B38564108*EURONAV NV\\n'
+        self.assertEqual(decode_payload(gzip.compress(raw), {'content-encoding': 'gzip'}), raw)
+
+    def test_deflate_payload_is_decompressed(self):
+        raw = b'G0080J104 ACT II GLOBAL\\n'
+        self.assertEqual(decode_payload(zlib.compress(raw), {'content-encoding': 'deflate'}), raw)
+
+    def test_epoch_last_modified_is_rejected_as_placeholder(self):
+        self.assertIsNone(parse_last_modified_safe('Thu, 01 Jan 1970 00:00:00 GMT'))
 
     def test_txt_is_first_candidate_from_2020(self):
         first = next(candidate_urls(2020, 1))

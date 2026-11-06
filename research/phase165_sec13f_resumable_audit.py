@@ -9,12 +9,14 @@ from __future__ import annotations
 
 import argparse
 import csv
+import gzip
 import hashlib
 import json
 import os
 import re
 import time
 import tempfile
+import zlib
 from datetime import date, timedelta
 from pathlib import Path
 from urllib.error import HTTPError, URLError
@@ -24,13 +26,13 @@ from research.phase129_sec13f_list_cusip_pit_overlap_audit import (
     PHASE124_RUN_ID,
     PHASE127_RUN_ID,
     PHASE127_ARTIFACT_DIGEST,
-    is_valid_cusip,
     parse_acceptance_date,
     parse_last_modified,
     parse_pdf,
     parse_run_metadata,
     quarter_iter,
 )
+from research.phase125_sec_13dg_exact_cusip_audit import cusip_check_digit
 
 USER_AGENT = 'jafelix81/NuevaEstrategia Smart Money Research (research-only)'
 CONTACT_EMAIL = os.environ.get('SEC_CONTACT_EMAIL', '').strip()
@@ -39,18 +41,18 @@ if CONTACT_EMAIL:
 HEADERS = {
     'User-Agent': USER_AGENT,
     'Accept': 'application/pdf,text/plain,*/*',
-    'Accept-Encoding': 'gzip, deflate',
+    'Accept-Encoding': 'identity',
 }
 EXPECTED_QUARTERS = 45
 SAMPLE_ROWS = 599
 MANIFEST_FIELDS = [
     'quarter', 'format', 'source_url', 'source_sha256',
-    'http_last_modified_utc', 'http_etag', 'http_date',
+    'http_last_modified_utc', 'http_last_modified_header', 'http_content_encoding', 'http_etag', 'http_date',
     'content_length_header', 'run_date', 'run_time_local_unspecified',
     'stated_quarter', 'quarter_identity_basis', 'metadata_basis',
     'conservative_available_from_1d', 'conservative_available_from_5d',
     'parsed_rows', 'unique_cusips', 'checksum_valid_unique_cusips',
-    'invalid_unique_cusips', 'duplicate_rows', 'parse_status', 'errors',
+    'invalid_unique_cusips', 'duplicate_rows', 'checksum_validation_status', 'parse_status', 'errors',
 ]
 MATCH_FIELDS = [
     'accession', 'quarter', 'filing_date', 'acceptance_datetime',
@@ -106,6 +108,30 @@ def parse_txt_fixed_width(raw: bytes):
             cusips.append(candidate)
     return text, run_date, run_time, stated_quarter, cusips
 
+def is_valid_cusip(value: str):
+    # Phase 129's wrapper compared a boolean result with the string check digit,
+    # classifying every 13(f) list CUSIP as invalid. Use the tested Phase 125
+    # full-CUSIP validator directly.
+    return bool(cusip_check_digit(value))
+
+
+def parse_last_modified_safe(value):
+    parsed = parse_last_modified(value)
+    # SEC/CDN sometimes emits the Unix epoch as a placeholder Last-Modified.
+    return None if parsed and parsed.year < 1990 else parsed
+
+
+def decode_payload(raw: bytes, headers: dict):
+    encoding = str(headers.get('content-encoding', '')).lower()
+    if 'gzip' in encoding or raw.startswith(b'\\x1f\\x8b'):
+        return gzip.decompress(raw)
+    if 'deflate' in encoding:
+        try:
+            return zlib.decompress(raw)
+        except zlib.error:
+            return zlib.decompress(raw, -zlib.MAX_WBITS)
+    return raw
+
 
 def download_bytes(url: str, retries: int = 1, timeout: int = 30):
     last_error = None
@@ -117,10 +143,10 @@ def download_bytes(url: str, retries: int = 1, timeout: int = 30):
                 headers = {key.lower(): value for key, value in response.headers.items()}
                 if response.status != 200:
                     raise RuntimeError(f'HTTP {response.status}')
-                return raw, headers, response.geturl()
+                payload = decode_payload(raw, headers)
+                return raw, payload, headers, response.geturl()
         except HTTPError as exc:
             last_error = f'HTTP {exc.code}: {exc.reason}'
-            # A missing archive path is permanent; do not spend retries on 404.
             retryable = exc.code in {408, 429, 500, 502, 503, 504}
             retry_after = exc.headers.get('Retry-After') if exc.headers else None
             if not retryable or attempt >= retries:
@@ -166,17 +192,17 @@ def download_snapshot(year: int, quarter: int, temp_dir: Path):
     errors = []
     for url, preferred_format in candidate_urls(year, quarter):
         try:
-            raw, headers, final_url = download_bytes(url)
-            if raw.startswith(b'%PDF'):
+            raw, payload, headers, final_url = download_bytes(url)
+            if payload.startswith(b'%PDF'):
                 fmt = 'pdf'
-                _, run_date, run_time, stated_quarter, cusips = parse_pdf(raw, temp_dir)
+                _, run_date, run_time, stated_quarter, cusips = parse_pdf(payload, temp_dir)
             else:
-                sample = raw[:500].lstrip().lower()
+                sample = payload[:500].lstrip().lower()
                 if b'<html' in sample or b'<!doctype html' in sample:
                     errors.append({'url': url, 'error': 'HTML response, not a list file'})
                     continue
                 fmt = 'txt'
-                _, run_date, run_time, stated_quarter, cusips = parse_txt_fixed_width(raw)
+                _, run_date, run_time, stated_quarter, cusips = parse_txt_fixed_width(payload)
             if len(cusips) < 1000:
                 errors.append({'url': url, 'error': f'too few parsed CUSIP rows: {len(cusips)}'})
                 continue
@@ -186,7 +212,8 @@ def download_snapshot(year: int, quarter: int, temp_dir: Path):
             unique = set(cusips)
             valid = {value for value in unique if is_valid_cusip(value)}
             invalid = unique - valid
-            last_modified = parse_last_modified(headers.get('last-modified'))
+            last_modified_header = headers.get('last-modified')
+            last_modified = parse_last_modified_safe(last_modified_header)
             available_1d, available_5d = proxy_dates(run_date, last_modified)
             manifest = {
                 'quarter': expected,
@@ -194,6 +221,8 @@ def download_snapshot(year: int, quarter: int, temp_dir: Path):
                 'source_url': final_url,
                 'source_sha256': hashlib.sha256(raw).hexdigest(),
                 'http_last_modified_utc': last_modified.isoformat() if last_modified else None,
+                'http_last_modified_header': last_modified_header,
+                'http_content_encoding': headers.get('content-encoding'),
                 'http_etag': headers.get('etag'),
                 'http_date': headers.get('date'),
                 'content_length_header': headers.get('content-length'),
@@ -209,6 +238,7 @@ def download_snapshot(year: int, quarter: int, temp_dir: Path):
                 'checksum_valid_unique_cusips': len(valid),
                 'invalid_unique_cusips': len(invalid),
                 'duplicate_rows': len(cusips) - len(unique),
+                'checksum_validation_status': 'PASS_PHASE125_CHECK_DIGIT',
                 'parse_status': 'PASS',
                 'errors': json.dumps(errors, sort_keys=True),
             }
@@ -221,6 +251,8 @@ def download_snapshot(year: int, quarter: int, temp_dir: Path):
         'source_url': None,
         'source_sha256': None,
         'http_last_modified_utc': None,
+        'http_last_modified_header': None,
+        'http_content_encoding': None,
         'http_etag': None,
         'http_date': None,
         'content_length_header': None,
@@ -236,6 +268,7 @@ def download_snapshot(year: int, quarter: int, temp_dir: Path):
         'checksum_valid_unique_cusips': 0,
         'invalid_unique_cusips': 0,
         'duplicate_rows': 0,
+        'checksum_validation_status': 'NOT_AVAILABLE',
         'parse_status': 'FAILED',
         'errors': json.dumps(errors, sort_keys=True),
     }, set()
