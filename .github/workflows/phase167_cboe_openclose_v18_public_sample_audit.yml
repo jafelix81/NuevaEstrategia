@@ -30,15 +30,21 @@ jobs:
       - name: Run offline regression tests
         run: python -m unittest -v research.test_phase167_cboe_openclose_v18_public_sample_audit
       - name: Download and audit public Cboe sample in memory
+        id: audit
+        continue-on-error: true
         run: >-
           python -m research.phase167_cboe_openclose_v18_public_sample_audit
           --output-dir phase167_output
       - name: Upload metadata-only audit artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: phase167-cboe-openclose-v18-public-sample-audit
           path: phase167_output/phase167_cboe_openclose_public_sample_summary.json
-          if-no-files-found: error
+          if-no-files-found: ignore
           retention-days: 90
-
-# CI trigger commit: ensure the PR head includes the Phase 167 sample-audit workflow.
+      - name: Enforce sample schema gate after artifact upload
+        if: always()
+        run: |
+          test -f phase167_output/phase167_cboe_openclose_public_sample_summary.json
+          python -c "import json; p='phase167_output/phase167_cboe_openclose_public_sample_summary.json'; s=json.load(open(p)); assert s['status'].startswith('PASS_'), s['status']"
