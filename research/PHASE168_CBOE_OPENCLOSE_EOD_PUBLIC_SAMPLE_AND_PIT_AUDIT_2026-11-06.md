@@ -130,3 +130,11 @@ The correction now:
 - keeps preliminary/final comparison disabled because the sample suffix does not identify a subscription version.
 
 The local regression suite now has 21 tests and passes. The corrected hosted re-run is pending. The likely ISO date-format discrepancy must be confirmed by the new artifact before it is treated as a source/documentation mismatch.
+
+
+## 10. Hosted regression correction — schema-candidate classification (2026-11-06)
+
+- Latest PR merge run [42292441456](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42292441456) compiled Phase 168 but failed two of 21 offline tests before the public sample download. The failing cases were the intentional missing-header and extra-header EOD fixtures.
+- Root cause: the parser classified a malformed-but-recognizably-EOD header as UNKNOWN because it required an exact 86-column match to identify EOD. The archive auditor consequently returned FAIL_NO_EOD_MEMBER rather than the more specific FAIL_EOD_SAMPLE_SCHEMA. This was a parser classification defect; it was not an HTTP or source-data failure.
+- Correction: preserve exact EOD detection, preserve intraday precedence, and classify a near-match as EOD_CANDIDATE only when at least 80 expected headers and at least 7 of 9 EOD discriminator headers are present. Such candidates remain schema failures when headers are missing/extra. An unrelated generic CSV remains UNKNOWN.
+- Added explicit assertions for EOD_CANDIDATE and a negative-control test for unrelated CSVs. The public sample was not downloaded in run 42292441456 because the offline suite stopped first. The corrected hosted rerun must confirm both the regression and the previously observed YYYY-MM-DD quote-date parsing before Phase 168 can be called complete.

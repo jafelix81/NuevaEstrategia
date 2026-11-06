@@ -97,12 +97,14 @@ class Phase168Tests(unittest.TestCase):
         result = audit_archive(raw)
         self.assertEqual(result["status"], "FAIL_EOD_SAMPLE_SCHEMA")
         self.assertIn("procust_gt_199_close_sell_vol", result["file_summaries"][0]["missing_columns"])
+        self.assertEqual(result["file_summaries"][0]["detected_schema"], "EOD_CANDIDATE")
 
     def test_extra_header_fails_schema(self):
         raw = make_zip({"C1OpenClose_2026-09-30.csv": make_csv(mutate="extra")})
         result = audit_archive(raw)
         self.assertEqual(result["status"], "FAIL_EOD_SAMPLE_SCHEMA")
         self.assertIn("extra_field", result["file_summaries"][0]["extra_columns"])
+        self.assertEqual(result["file_summaries"][0]["detected_schema"], "EOD_CANDIDATE")
 
     def test_negative_open_interest_fails_schema(self):
         columns = expected_columns_eod()
@@ -204,6 +206,13 @@ class Phase168Tests(unittest.TestCase):
         result = audit_archive(make_zip({"Sample.csv": payload}))
         self.assertEqual(result["status"], "BLOCKED_SAMPLE_IS_INTRADAY_NOT_EOD")
         self.assertEqual(result["file_summaries"][0]["detected_schema"], "INTRADAY_LIKE")
+
+    def test_unrelated_generic_csv_is_not_promoted_to_eod_candidate(self):
+        raw = make_zip({"unrelated.csv": b"foo,bar\\nx,y\\n"})
+        result = audit_archive(raw)
+        self.assertEqual(result["status"], "FAIL_NO_EOD_MEMBER")
+        self.assertEqual(result["file_summaries"][0]["detected_schema"], "UNKNOWN")
+        self.assertEqual(result["unknown_member_count"], 1)
 
     def test_invalid_zip_rejected(self):
         with self.assertRaisesRegex(ValueError, "not_zip"):

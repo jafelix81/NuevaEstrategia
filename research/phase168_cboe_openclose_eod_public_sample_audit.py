@@ -147,11 +147,22 @@ def _audit_csv(member_name: str, payload: bytes) -> tuple[dict[str, object], dic
     missing = sorted(set(expected) - set(headers))
     extra = sorted(set(headers) - set(expected))
     duplicate_headers = len(headers) - len(set(headers))
+    eod_signature = {
+        "quote_date", "underlying_symbol", "option_symbol", "expiration_date",
+        "strike_price", "call_put_flag", "open_interest", "previous_open_interest",
+        "total_industry_vol",
+    }
+    expected_header_overlap = len(set(expected).intersection(set(headers)))
+    eod_signature_overlap = len(eod_signature.intersection(set(headers)))
     summary: dict[str, object] = {
         **meta, "actual_column_count": len(headers), "expected_column_count": len(expected),
         "missing_columns": missing, "extra_columns": extra, "duplicate_header_count": duplicate_headers,
-        "detected_schema": ("EOD" if not missing and not extra and duplicate_headers == 0 else
-                            "INTRADAY_LIKE" if {"trade_datetime", "underlying"}.issubset(set(headers)) else "UNKNOWN"),
+        "detected_schema": (
+            "EOD" if not missing and not extra and duplicate_headers == 0 else
+            "INTRADAY_LIKE" if {"trade_datetime", "underlying"}.issubset(set(headers)) else
+            "EOD_CANDIDATE" if expected_header_overlap >= 80 and eod_signature_overlap >= 7 else
+            "UNKNOWN"
+        ),
         "header_case_normalized": raw_headers != headers, "row_count": 0,
         "quote_date_from_rows": None, "distinct_quote_dates_in_rows": 0, "quote_date_format_counts": {},
         "unique_underlying_count": 0, "unique_series_count": 0, "duplicate_series_rows": 0,
