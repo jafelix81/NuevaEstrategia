@@ -167,6 +167,14 @@ class Phase168Tests(unittest.TestCase):
         self.assertEqual(result["status"], "FAIL_EOD_SAMPLE_SCHEMA")
         self.assertEqual(result["file_summaries"][0]["invalid_previous_close_format_rows"], 1)
 
+    def test_iso_datetime_quote_date_is_parsed_and_reported(self):
+        raw = make_zip({"C1OpenClose_2025-03-28_sample_20pct.csv": make_csv(quote_date="2025-03-28T00:00:00")})
+        result = audit_archive(raw)
+        self.assertEqual(result["status"], "PASS_EOD_SAMPLE_SCHEMA_IDENTITY_UNRESOLVED")
+        eod = result["file_summaries"][0]
+        self.assertEqual(eod["quote_date_format_counts"], {"ISO_DATETIME": 1})
+        self.assertEqual(eod["quote_date"], "2025-03-28")
+
     def test_mixed_public_archive_separates_intraday_and_eod_members(self):
         intraday = b"trade_datetime,underlying,trading_dt\\n2025-03-28 12:30:00,AAPL,2025-03-28\\n"
         raw = make_zip({
