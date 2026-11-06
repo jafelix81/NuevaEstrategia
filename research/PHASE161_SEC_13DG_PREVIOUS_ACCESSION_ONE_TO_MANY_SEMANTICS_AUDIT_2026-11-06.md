@@ -84,3 +84,8 @@ Inspect accession \`0001445546-21-002430\` and compare its actual subject/securi
 - Final-head run: [42258657865](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42258657865), commit `2297a44abfcd5f4ee4842e92e801bedb0ae73865`.
 - Job `audit`: success; Python compilation passed; **14/14 offline regression tests passed**; targeted audit recomputed; artifact [13523024322](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42258657865/artifacts/13523024322) uploaded (SHA-256 `3e6b1996d1736ecac3874796abc10b3d1ed7e48841d0a68b1b81c65457265125`).
 - No external SEC request was made by this workflow; the eight source records are a targeted public-XML fixture.
+
+
+## Source reproducibility limitation
+
+The eight primary-document URLs are official SEC-hosted XML endpoints, but this Phase 161 fixture is a targeted manual transcription of the visible structured fields. Raw XML bodies and per-document SHA-256 hashes are not embedded in the offline CI artifact. The workflow validates deterministic grouping of the recorded observations, not live SEC source integrity. Before broad lineage reconstruction, retrieve and hash the parent and child submissions through a permitted SEC User-Agent route.
