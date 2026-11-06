@@ -77,3 +77,10 @@ A same-issuer/same-CUSIP match is only a continuity candidate; it is not proof t
 
 Inspect accession \`0001445546-21-002430\` and compare its actual subject/security scope against the eight children. If the source remains inaccessible under the repository's declared SEC User-Agent policy, use only a permitted, reproducible retrieval route; do not infer the parent from index CIKs or a third-party summary.
 
+
+
+## Final CI execution
+
+- Final-head run: [42258657865](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42258657865), commit `2297a44abfcd5f4ee4842e92e801bedb0ae73865`.
+- Job `audit`: success; Python compilation passed; **14/14 offline regression tests passed**; targeted audit recomputed; artifact [13523024322](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42258657865/artifacts/13523024322) uploaded (SHA-256 `3e6b1996d1736ecac3874796abc10b3d1ed7e48841d0a68b1b81c65457265125`).
+- No external SEC request was made by this workflow; the eight source records are a targeted public-XML fixture.
