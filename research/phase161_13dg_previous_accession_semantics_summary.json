@@ -1,0 +1,19 @@
+{
+  "phase": 161,
+  "status": "CROSS_ISSUER_REFERENCE_REUSE_DETECTED",
+  "sample_design": "TARGETED_NON_RANDOM_PUBLIC_SEC_XML_CONTROL_SET",
+  "input_rows": 8,
+  "valid_unique_child_rows": 8,
+  "children_with_previous_accession": 8,
+  "unique_previous_accessions": 1,
+  "previous_accession": "0001445546-21-002430",
+  "max_children_per_previous_accession": 8,
+  "distinct_issuer_cik_count": 5,
+  "distinct_cusip_count": 8,
+  "parent_document_inspected": false,
+  "issuer_security_parent_verified": false,
+  "decision": "Treat previousAccessionNumber as an accession reference only until parent document and effective-dated issuer/security continuity are verified.",
+  "forward_returns_used": false,
+  "final_holdout_used": false,
+  "production_changed": false
+}

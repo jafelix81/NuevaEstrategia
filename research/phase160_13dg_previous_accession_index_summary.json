@@ -64,5 +64,9 @@
     "tests_passed": 20,
     "tests_failed": 0,
     "status": "SUCCESS"
-  }
+  },
+  "interpretation_status": "SUPERSEDED_BY_PHASE161_FOR_ISSUER_SECURITY_PARENT_SEMANTICS",
+  "previous_accession_semantics": "ACCESSION_REFERENCE_ONLY_UNTIL_PARENT_DOCUMENT_AND_ISSUER_SECURITY_CONTINUITY_ARE_VERIFIED",
+  "issuer_security_parent_links_verified": 0,
+  "note": "The original 30/32 index lookup counts remain unchanged; Phase 161 demonstrates cross-issuer and cross-CUSIP reuse of one reference, so index presence is not issuer/security parent proof."
 }
