@@ -33,7 +33,7 @@ jobs:
         with:
           name: phase124-global-sec-13dg-stratified-submission-audit
           run-id: 42073725379
-          github-token: \${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           path: phase124_source
       - name: Compile and run offline regression tests
         run: |
