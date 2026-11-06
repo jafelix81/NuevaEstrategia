@@ -1160,3 +1160,13 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 - Phase 162 helper, 17 offline tests, report and workflow added. No returns, feature panel, bootstrap/LOO, OOS test, final holdout, vendor purchase/contact or production/F80 change.
 - Next gate: inspect all 32 Phase 160 referenced accessions against their actual parent submissions and effective-dated security identity; do not extrapolate the targeted eight-child counterexample to all filers.
 
+
+
+## Phase 163 — SEC 13D/G previousAccessionNumber original-anchor vs immediate-predecessor semantics (2026-11-06)
+- Inspected six of the 32 unique Phase 160 previous-accession references against official parent filing documents and 13 linked child rows.
+- Two clear long-chain examples show the field can point to an initial/base filing rather than the immediately preceding amendment: Amdocs 2026 Amendment No. 14 references its initial 2012 SC 13G; 89bio 2025 Amendment No. 5 references its initial 2023 SC 13G.
+- Three same-issuer/same-CUSIP comparisons are continuity candidates only (Amdocs, 89bio, Montrose); none is promoted to an immediate-predecessor or ownership-state edge. Endeavor and Mobiquity have issuer-CIK matches but child CUSIP is not present in the compact fixture, so security continuity remains unresolved.
+- Reconfirmed the First Trust counterexample: eight children reuse 0001445546-21-002430; four have different issuer CIKs, four have the same trust-level issuer CIK but different CUSIPs, and zero match the parent CUSIP 33740F854.
+- Six of 32 unique references inspected; the other 26 remain unresolved. Targeted, non-random audit; no prevalence estimate. Raw SEC response bodies and per-document hashes are not embedded.
+- Decision: previousAccessionNumber is an accession reference with unknown role (original anchor or predecessor), not an immediate chain edge. Preserve raw/canonical value; require issuer and effective-dated security continuity plus independent amendment-chain reconstruction.
+- Added Phase 163 report, deterministic fixture/parser, 16 offline regression tests and PR-only Actions workflow. No returns, feature panel, bootstrap/LOO, OOS test, final holdout, vendor contact/purchase or production/F80 change. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
