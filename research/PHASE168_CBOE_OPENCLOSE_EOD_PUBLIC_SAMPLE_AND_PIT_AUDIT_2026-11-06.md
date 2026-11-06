@@ -1,7 +1,7 @@
 # Phase 168 — Cboe Open-Close EOD public sample and PIT audit
 
 **Date:** 2026-11-06  
-**Status:** offline parser and regression suite complete; hosted public-sample retrieval pending.  
+**Status:** hosted public EOD sample schema gate passed; strict PIT, historical coverage and licensing remain unproven.  
 **Research role:** complementary Cboe-venue opening/closing and capacity data; schema feasibility only, not a Smart Money signal.
 
 ## 1. Why EOD is the next useful Cboe check
@@ -138,3 +138,13 @@ The local regression suite now has 21 tests and passes. The corrected hosted re-
 - Root cause: the parser classified a malformed-but-recognizably-EOD header as UNKNOWN because it required an exact 86-column match to identify EOD. The archive auditor consequently returned FAIL_NO_EOD_MEMBER rather than the more specific FAIL_EOD_SAMPLE_SCHEMA. This was a parser classification defect; it was not an HTTP or source-data failure.
 - Correction: preserve exact EOD detection, preserve intraday precedence, and classify a near-match as EOD_CANDIDATE only when at least 80 expected headers and at least 7 of 9 EOD discriminator headers are present. Such candidates remain schema failures when headers are missing/extra. An unrelated generic CSV remains UNKNOWN.
 - Added explicit assertions for EOD_CANDIDATE and a negative-control test for unrelated CSVs. The public sample was not downloaded in run 42292441456 because the offline suite stopped first. The corrected hosted rerun must confirm both the regression and the previously observed YYYY-MM-DD quote-date parsing before Phase 168 can be called complete.
+
+
+## 11. Final hosted verification — corrected parser and public EOD sample (2026-11-06)
+
+- Corrected PR run [42293576092](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42293576092) completed successfully: compile, **22/22 offline regression tests**, public archive download, in-memory audit, metadata-only artifact upload and final schema gate all passed.
+- Artifact [13539339653](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42293576092/artifacts/13539339653) confirms the mixed archive contains three CSV members: two intraday snapshots and one EOD member. Intraday members remain excluded from EOD row counts.
+- The C1 EOD member has 86/86 expected columns, 23,179 rows, 1,553 distinct underlyings, 23,179 unique series and zero duplicate series. All 23,179 quote dates parse as YYYY-MM-DD = 2025-03-28; zero date mismatches, invalid required fields or invalid bucket values. Calls/puts are 12,380/10,799; series types S/N/F are 23,080/11/88.
+- Open interest is positive in 22,121 rows and zero in 1,058. Previous close is positive in 16,960 and zero in 6,219; there are no blank, negative or non-numeric previous-close values. Zero previous-close remains a diagnostic and is not imputed.
+- The sample's 20pct suffix and exchange/date filename identify a sample cohort and C1/2025-03-28, but do not establish preliminary/final version or first receipt. The artifact explicitly retains strict_pit=false, historical_coverage_proven=false and delisted_underlying_coverage_proven=false. This is a schema/sample pass only, not a feature or return test.
+- The prior run [42292441456](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42292441456) exposed two classifier-regression failures. The EOD_CANDIDATE correction and unrelated-CSV negative control resolved them; the final hosted run passed.
