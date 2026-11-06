@@ -1,7 +1,7 @@
 # Phase 170 — Cboe Option Trades active-catalog and public-sample PIT audit
 
 **Date:** 2026-11-06  
-**Decision:** **PROMOTE OPTION TRADES TO FIRST-PRIORITY OPTIONS RAW-FLOW FEASIBILITY. PUBLIC SAMPLE DOWNLOAD WORKS; THE FIRST SCHEMA GATE FOUND ONE LEGACY-FIELD EXPECTATION ERROR, NOW CORRECTED IN CODE. FINAL HOSTED SCHEMA RE-RUN PENDING. OPTION SENTIMENT IS PARKED PENDING CURRENT PRODUCT CONFIRMATION.**  
+**Decision:** **OPTION TRADES REMAINS FIRST-PRIORITY RAW-FLOW FEASIBILITY. HEADER SCHEMA PASSES, BUT THE FIRST FULL ROW PARSE FAILED ON ALL 197,158 ROWS. PHASE 170 IS NOT A VALIDATED SAMPLE YET; ROW-LEVEL DIAGNOSTICS ARE BEING ADDED BEFORE ANY PARSER RELAXATION. OPTION SENTIMENT REMAINS PARKED PENDING CURRENT PRODUCT CONFIRMATION.**  
 **Scope:** Current DataShop catalog/orderability evidence, official file specification, sample retrieval, schema correction and trade-side design. No paid data, vendor contact, return test or production change.
 
 ## 1. Why the source ranking changed
@@ -116,3 +116,12 @@ Option Trades is not a substitute for TBT's open/close and capacity fields. The 
 - [Option Sentiment Specification v1.4](https://datashop.cboe.com/Documents/Cboe_OptionSentiment_Specs.pdf)
 - [Enhanced US Options Trade-by-Trade Execution Detail](https://datashop.cboe.com/enhanced-us-options-trade-by-trade-execution-detail)
 - [Option Quotes](https://datashop.cboe.com/option-quote-intervals)
+
+
+## 2026-11-06 — hosted row-parser diagnostic correction
+
+Run [42303680951](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42303680951) confirmed that the corrected 25-column and 19-column headers pass, but all 98,579 rows in each member were marked invalid. Because the parser did not preserve field-level error reasons, the prior artifact cannot identify the cause. Zero contracts, underlyings, trade keys or volume were accumulated; the 98,579 duplicate-key count per member is therefore a consequence of zero parsed keys, not evidence of actual duplicate trades.
+
+The parser now records only non-identifying diagnostics: row field-count distribution, extra/short-field counts, sanitized parser error codes, and the first error code/field name. It does not store row values, symbols, contract identifiers or raw trades. The workflow treats a completed diagnostic with a failed row gate as a successful diagnostic run, not as a passing sample. The explicit status `DIAGNOSTIC_COMPLETE_ROW_GATE_FAIL` means schema passed but row-level validity did not; it is not alpha admission or data validation.
+
+Added regression tests for extra CSV fields, short rows, value-free parse errors and the diagnostic-vs-pass status. The next decision depends on the actual error distribution from the hosted sample. No date/number parser has been loosened without evidence.

@@ -47,4 +47,4 @@ jobs:
         if: always()
         run: |
           test -f phase170_output/phase170_cboe_option_trades_public_sample_summary.json
-          python -c "import json; p='phase170_output/phase170_cboe_option_trades_public_sample_summary.json'; s=json.load(open(p)); assert s['status'] == 'PASS_SCHEMA_SAMPLE', s['status']"
+          python -c "import json; p='phase170_output/phase170_cboe_option_trades_public_sample_summary.json'; s=json.load(open(p)); assert s['status'] in {'PASS_SCHEMA_SAMPLE', 'DIAGNOSTIC_COMPLETE_ROW_GATE_FAIL'}, s['status']; print('ROW_GATE_STATUS=' + s['status'])"

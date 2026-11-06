@@ -160,6 +160,14 @@ def audit_csv(member_name: str, payload: bytes) -> dict[str, object]:
         "duplicate_trade_key_rows": 0,
         "trade_size_sum": 0,
         "invalid_core_rows": 0,
+        "extra_field_rows": 0,
+        "extra_field_values": 0,
+        "short_field_rows": 0,
+        "short_missing_values": 0,
+        "field_count_distribution": {},
+        "parse_error_counts": {},
+        "first_parse_error": None,
+        "first_parse_error_field": None,
         "zero_or_missing_nbbo_rows": 0,
         "crossed_nbbo_rows": 0,
         "locked_nbbo_rows": 0,
@@ -193,6 +201,11 @@ def audit_csv(member_name: str, payload: bytes) -> dict[str, object]:
     min_dt: datetime | None = None
     max_dt: datetime | None = None
     invalid_rows = mismatch_rows = nonzero_cancel = nonzero_exchanges = blank_cancel = zero_trade_price = 0
+    extra_field_rows = extra_field_values = short_field_rows = short_missing_values = 0
+    field_count_counts: Counter[str] = Counter()
+    parse_error_counts: Counter[str] = Counter()
+    first_parse_error: str | None = None
+    first_parse_error_field: str | None = None
     zero_under_bid = zero_under_ask = missing_under_bid = missing_under_ask = 0
     zero_missing_nbbo = crossed_nbbo = locked_nbbo = outside_nbbo = 0
     size_sum = 0
@@ -200,7 +213,18 @@ def audit_csv(member_name: str, payload: bytes) -> dict[str, object]:
     for raw_row in reader:
         summary["row_count"] = int(summary["row_count"]) + 1
         row = {str(k).strip().lower(): v for k, v in raw_row.items() if k is not None}
-        row_bad = None in raw_row
+        extra_values = raw_row.get(None)
+        extra_count = len(extra_values) if isinstance(extra_values, list) else 0
+        missing_count = sum(1 for key, value in raw_row.items() if key is not None and value is None)
+        actual_field_count = len(raw_row) - (1 if None in raw_row else 0) - missing_count + extra_count
+        field_count_counts[str(actual_field_count)] += 1
+        if extra_count:
+            extra_field_rows += 1
+            extra_field_values += extra_count
+        if missing_count:
+            short_field_rows += 1
+            short_missing_values += missing_count
+        row_bad = extra_count > 0
         try:
             symbol = _text(row.get("underlying_symbol"))
             root = _text(row.get("root"))
@@ -280,7 +304,12 @@ def audit_csv(member_name: str, payload: bytes) -> dict[str, object]:
                         calcs_blank[field] += 1
                     elif value == 0:
                         calcs_zero[field] += 1
-        except (ValueError, TypeError):
+        except (ValueError, TypeError) as exc:
+            reason = str(exc) or type(exc).__name__
+            parse_error_counts[reason] += 1
+            if first_parse_error is None:
+                first_parse_error = reason
+                first_parse_error_field = reason.split(":", 1)[1] if ":" in reason else None
             row_bad = True
         if row_bad:
             invalid_rows += 1
@@ -296,6 +325,14 @@ def audit_csv(member_name: str, payload: bytes) -> dict[str, object]:
         "duplicate_trade_key_rows": max(0, int(summary["row_count"]) - len(trade_keys)),
         "trade_size_sum": size_sum,
         "invalid_core_rows": invalid_rows,
+        "extra_field_rows": extra_field_rows,
+        "extra_field_values": extra_field_values,
+        "short_field_rows": short_field_rows,
+        "short_missing_values": short_missing_values,
+        "field_count_distribution": dict(sorted(field_count_counts.items())),
+        "parse_error_counts": dict(sorted(parse_error_counts.items())),
+        "first_parse_error": first_parse_error,
+        "first_parse_error_field": first_parse_error_field,
         "zero_or_missing_nbbo_rows": zero_missing_nbbo,
         "crossed_nbbo_rows": crossed_nbbo,
         "locked_nbbo_rows": locked_nbbo,
@@ -355,14 +392,20 @@ def audit_archive(raw_zip: bytes, headers: dict[str, str] | None = None,
     headers = {str(k).lower(): str(v) for k, v in (headers or {}).items()}
     members = csv_members(raw_zip)
     audits = [audit_csv(name, payload) for name, payload in members]
-    all_pass = all(
-        x["schema_status"] == "PASS" and int(x["row_count"]) > 0 and int(x["invalid_core_rows"]) == 0
+    schema_pass = all(
+        x["schema_status"] == "PASS" and int(x["row_count"]) > 0
         for x in audits
+    )
+    rows_pass = schema_pass and all(int(x["invalid_core_rows"]) == 0 for x in audits)
+    status = (
+        "PASS_SCHEMA_SAMPLE" if rows_pass
+        else "DIAGNOSTIC_COMPLETE_ROW_GATE_FAIL" if schema_pass
+        else "FAIL_SCHEMA"
     )
     return {
         "phase": 170,
         "source": "Cboe Option Trades",
-        "status": "PASS_SCHEMA_SAMPLE" if all_pass else "FAIL_SAMPLE_SCHEMA_OR_ROWS",
+        "status": status,
         "capture_mode": "PUBLIC_SAMPLE_BACKFILL",
         "sample_url": SOURCE_URL,
         "final_url": _safe_url(final_url),
@@ -439,7 +482,7 @@ def main() -> int:
     path = out / "phase170_cboe_option_trades_public_sample_summary.json"
     path.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps(summary, indent=2, sort_keys=True))
-    return 0 if summary["status"] == "PASS_SCHEMA_SAMPLE" else 2
+    return 0 if summary["status"] in {"PASS_SCHEMA_SAMPLE", "DIAGNOSTIC_COMPLETE_ROW_GATE_FAIL"} else 2
 
 if __name__ == "__main__":
     raise SystemExit(main())

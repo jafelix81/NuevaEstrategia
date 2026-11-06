@@ -207,6 +207,56 @@ class Phase170Tests(unittest.TestCase):
         self.assertFalse(result["raw_rows_persisted"])
         self.assertFalse(result["raw_symbols_persisted"])
 
+    def test_extra_csv_fields_are_counted_without_persisting_values(self):
+        base = csv_bytes().decode("utf-8").strip().splitlines()
+        payload = (base[0] + "\\n" + base[1] + ",EXTRA_SECRET\\n").encode()
+        result = audit_csv("sample.csv", payload)
+        self.assertEqual(result["extra_field_rows"], 1)
+        self.assertEqual(result["extra_field_values"], 1)
+        self.assertEqual(result["invalid_core_rows"], 1)
+        self.assertFalse(result["raw_rows_persisted"])
+        self.assertNotIn("EXTRA_SECRET", str(result))
+
+    def test_short_csv_fields_are_counted(self):
+        base = csv_bytes().decode("utf-8").strip().splitlines()
+        payload = (base[0] + "\\n" + ",".join(base[1].split(",")[:-1]) + "\\n").encode()
+        result = audit_csv("sample.csv", payload)
+        self.assertEqual(result["short_field_rows"], 1)
+        self.assertEqual(result["short_missing_values"], 1)
+        self.assertEqual(result["invalid_core_rows"], 1)
+
+    def test_parse_error_reason_is_field_specific_and_value_free(self):
+        row = {
+            "underlying_symbol": "TEST", "market_date": "BAD_DATE",
+            "quote_datetime": "2026-11-05 15:59:59.123", "sequence_number": "1001",
+            "root": "TEST", "expiration": "2026-11-20", "strike": "10",
+            "option_type": "C", "exchange_id": "1", "trade_size": "5",
+            "trade_price": "1.25", "trade_condition_id": "0",
+            "canceled_trade_condition_id": "0", "best_bid_size": "10",
+            "best_bid": "1.20", "best_ask": "1.30", "best_ask_size": "12",
+            "underlying_bid": "9.99", "underlying_ask": "10.01",
+        }
+        result = audit_csv("sample.csv", csv_bytes(rows=[row]))
+        self.assertEqual(result["parse_error_counts"], {"invalid_market_date": 1})
+        self.assertEqual(result["first_parse_error"], "invalid_market_date")
+        self.assertIsNone(result["first_parse_error_field"])
+
+    def test_archive_distinguishes_completed_diagnostic_from_valid_sample(self):
+        row = {
+            "underlying_symbol": "TEST", "market_date": "BAD_DATE",
+            "quote_datetime": "2026-11-05 15:59:59.123", "sequence_number": "1001",
+            "root": "TEST", "expiration": "2026-11-20", "strike": "10",
+            "option_type": "C", "exchange_id": "1", "trade_size": "5",
+            "trade_price": "1.25", "trade_condition_id": "0",
+            "canceled_trade_condition_id": "0", "best_bid_size": "10",
+            "best_bid": "1.20", "best_ask": "1.30", "best_ask_size": "12",
+            "underlying_bid": "9.99", "underlying_ask": "10.01",
+        }
+        result = audit_archive(zip_bytes(csv_bytes(rows=[row])))
+        self.assertEqual(result["status"], "DIAGNOSTIC_COMPLETE_ROW_GATE_FAIL")
+        self.assertEqual(result["member_audits"][0]["invalid_core_rows"], 1)
+        self.assertFalse(result["alpha_admission"])
+
     def test_non_zip_fails(self):
         with self.assertRaisesRegex(ValueError, "sample_not_zip"):
             audit_archive(b"not a zip")
