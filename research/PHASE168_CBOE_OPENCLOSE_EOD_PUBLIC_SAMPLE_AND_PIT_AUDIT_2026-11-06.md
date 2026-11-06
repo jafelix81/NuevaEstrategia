@@ -51,7 +51,7 @@ For a future daily signal:
 5. Keep Cboe venue scope separate from all-OPRA volume; do not call the fields whole-market flow.
 6. Resolve effective-dated option-series terms and underlying identity, including adjusted/nonstandard/Flex contracts and delisted underlyings, before joining to equity returns.
 
-The public page states that raw data are licensed for internal use only and may not be redistributed; external distribution of derived data requires additional licensing and approval. This phase writes only aggregate metadata and does not retain sample rows or symbols.
+The public page states that raw data are licensed for internal use only and may not be redistributed; external distribution of derived data requires additional licensing and approval. It also says subscriptions are rolling monthly: a mid-month subscription starts from the subscription date and does not include earlier days in that month; prior dates require a separate historical order. The order interface can flag unavailable symbols/dates, so a future coverage audit must retain those exclusions rather than assume every selected series/date exists. This phase writes only aggregate metadata and does not retain sample rows or symbols.
 
 ## 5. Phase 168 implementation and live gate
 
