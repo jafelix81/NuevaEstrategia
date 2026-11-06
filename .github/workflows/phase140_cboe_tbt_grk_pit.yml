@@ -1,12 +1,6 @@
 name: Phase 140 Cboe TBT GRK PIT semantics regression
 
 on:
-  push:
-    branches: [phase99-broad-pit-universe-charter]
-    paths:
-      - "research/phase140_cboe_tbt_grk_pit.py"
-      - "research/test_phase140_cboe_tbt_grk_pit.py"
-      - ".github/workflows/phase140_cboe_tbt_grk_pit.yml"
   pull_request:
     branches: [main]
     paths:
