@@ -1,0 +1,79 @@
+{
+  "phase": 151,
+  "date": "2026-11-06",
+  "source_artifact_id": 12781850078,
+  "source_outer_sha256": "203d7b1d2e29c999da318456af72e621cb30ef9a470d8f1610d088f9bebecb66",
+  "samples": {
+    "2012Q1": {
+      "form4_submissions": 63678,
+      "form4_original": 61816,
+      "form4a": 1862,
+      "table_i_rows": 101473,
+      "table_i_p": 7180,
+      "table_i_s": 28169,
+      "table_i_ps": 35349,
+      "table_ii_ps": 647,
+      "table_i_ps_form4a": 818,
+      "table_i_ps_form5_type": 253,
+      "table_i_ps_direction_mismatch": 133,
+      "table_i_ps_deemed_execution_date": 1127,
+      "table_i_ps_footnote_rows": 21300,
+      "table_i_ps_multi_owner_rows": 2610,
+      "table_i_ps_future_transaction_date": 13,
+      "table_i_ps_accessions_10b5": {
+        "unknown": 16831
+      },
+      "table_i_ps_calendar_lag": {
+        "median": 2,
+        "p90": 4,
+        "p95": 11,
+        "p99": 344.52,
+        "max": 3959,
+        "over365": 309
+      },
+      "table_i_ps_footnote_keyword_rows": {
+        "mentions_10b5": 8486,
+        "mentions_open_market": 499,
+        "mentions_private": 256
+      }
+    },
+    "2026Q3": {
+      "form4_submissions": 34148,
+      "form4_original": 33521,
+      "form4a": 627,
+      "table_i_rows": 59834,
+      "table_i_p": 5183,
+      "table_i_s": 25430,
+      "table_i_ps": 30613,
+      "table_ii_ps": 634,
+      "table_i_ps_form4a": 522,
+      "table_i_ps_form5_type": 42,
+      "table_i_ps_direction_mismatch": 82,
+      "table_i_ps_deemed_execution_date": 287,
+      "table_i_ps_footnote_rows": 26168,
+      "table_i_ps_multi_owner_rows": 2903,
+      "table_i_ps_future_transaction_date": 1,
+      "table_i_ps_accessions_10b5": {
+        "true": 4859,
+        "false": 8099
+      },
+      "table_i_ps_calendar_lag": {
+        "median": 2,
+        "p90": 4,
+        "p95": 5,
+        "p99": 51,
+        "max": 7308,
+        "over365": 65
+      },
+      "table_i_ps_footnote_keyword_rows": {
+        "mentions_10b5": 13077,
+        "mentions_open_market": 481,
+        "mentions_private": 274
+      }
+    }
+  },
+  "decision": "conditional filing-time event source; no P/S alpha signal approved",
+  "alpha_test": false,
+  "final_holdout_used": false,
+  "f80_modified": false
+}
