@@ -74,3 +74,5 @@ The 10-minute linked PDF filename says v1.8, but its cover identifies v1.7 dated
 The initial parser failure was an audit-contract defect, not evidence that Cboe data are unusable. The revised hosted artifact is the authoritative check of whether the eight placeholder columns are empty and whether the row-level fields conform. Even a schema pass promotes only the parser/sample gate; PIT, broad universe coverage, contract identity and alpha remain BLOCKED.
 
 F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No forward returns, bootstrap/LOO, OOS or final-holdout data are used in this phase.
+
+CI sync commit: Phase 167 previous-close sentinel classification refinement.
