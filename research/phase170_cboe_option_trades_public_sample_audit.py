@@ -34,18 +34,21 @@ BASE_FIELDS = (
     "root", "expiration", "strike", "option_type", "exchange_id", "trade_size",
     "trade_price", "trade_condition_id", "canceled_trade_condition_id",
     "best_bid_size", "best_bid", "best_ask", "best_ask_size",
-    "underlying_bid", "underlying_ask", "number_of_exchanges",
+    "underlying_bid", "underlying_ask",
 )
 CALCS_FIELDS = (
     "trade_iv", "trade_delta", "trade_gamma", "trade_vega", "trade_theta", "trade_rho",
 )
-ALLOWED_FIELDS = frozenset(BASE_FIELDS + CALCS_FIELDS)
+OPTIONAL_LEGACY_FIELDS = ("number_of_exchanges",)
+ALLOWED_FIELDS = frozenset(BASE_FIELDS + CALCS_FIELDS + OPTIONAL_LEGACY_FIELDS)
 
 def _text(value: object) -> str:
     return "" if value is None else str(value).strip()
 
-def _decimal(value: object, field: str) -> Decimal:
+def _decimal(value: object, field: str, *, blank_ok: bool = False) -> Decimal | None:
     raw = _text(value)
+    if not raw and blank_ok:
+        return None
     try:
         out = Decimal(raw)
     except InvalidOperation as exc:
@@ -54,8 +57,10 @@ def _decimal(value: object, field: str) -> Decimal:
         raise ValueError(f"nonfinite_decimal:{field}")
     return out
 
-def _integer(value: object, field: str) -> int:
+def _integer(value: object, field: str, *, blank_ok: bool = False) -> int | None:
     raw = _text(value)
+    if not raw and blank_ok:
+        return None
     if not re.fullmatch(r"-?\d+", raw):
         raise ValueError(f"invalid_integer:{field}")
     return int(raw)
@@ -92,25 +97,33 @@ def schema_check(headers: list[str]) -> dict[str, object]:
     extras = sorted(observed - ALLOWED_FIELDS)
     present_calcs = set(CALCS_FIELDS) & observed
     partial_calcs = bool(present_calcs) and present_calcs != set(CALCS_FIELDS)
+    legacy_present = sorted(set(OPTIONAL_LEGACY_FIELDS) & observed)
     schema_ok = not duplicates and not missing and not extras and not partial_calcs
     return {
         "schema_status": "PASS" if schema_ok else "FAIL",
         "expected_base_columns": len(BASE_FIELDS),
         "expected_calcs_columns": len(CALCS_FIELDS),
         "observed_columns": len(normalized),
+        "observed_column_names": normalized,
         "calcs_included": present_calcs == set(CALCS_FIELDS),
         "missing_columns": missing,
         "extra_columns": extras,
         "duplicate_columns": duplicates,
         "partial_calcs_group": partial_calcs,
+        "optional_legacy_columns_present": legacy_present,
+        "optional_legacy_columns_absent": sorted(set(OPTIONAL_LEGACY_FIELDS) - observed),
         "header_sha256": hashlib.sha256(",".join(normalized).encode("utf-8")).hexdigest(),
     }
 
-def classify_trade_vs_nbbo(price: Decimal, bid: Decimal, ask: Decimal) -> str:
+def classify_trade_vs_nbbo(price: Decimal, bid: Decimal | None, ask: Decimal | None) -> str:
+    if bid is None or ask is None:
+        return "missing_nbbo"
     if bid < 0 or ask < 0 or ask < bid:
         return "invalid_or_crossed_nbbo"
     if bid == 0 and ask == 0:
         return "missing_nbbo"
+    if bid == ask:
+        return "locked_nbbo_unclassified"
     if price > ask:
         return "outside_above_ask"
     if price == ask:
@@ -149,14 +162,20 @@ def audit_csv(member_name: str, payload: bytes) -> dict[str, object]:
         "invalid_core_rows": 0,
         "zero_or_missing_nbbo_rows": 0,
         "crossed_nbbo_rows": 0,
+        "locked_nbbo_rows": 0,
         "outside_nbbo_rows": 0,
         "trade_vs_nbbo_counts": {},
         "trade_condition_counts": {},
         "nonzero_canceled_trade_condition_rows": 0,
+        "blank_canceled_trade_condition_rows": 0,
+        "zero_trade_price_rows": 0,
         "nonzero_number_of_exchanges_rows": 0,
         "zero_underlying_bid_rows": 0,
         "zero_underlying_ask_rows": 0,
+        "missing_underlying_bid_rows": 0,
+        "missing_underlying_ask_rows": 0,
         "calcs_zero_counts": {},
+        "calcs_blank_counts": {},
         "raw_rows_persisted": False,
         "raw_symbols_persisted": False,
     }
@@ -170,10 +189,12 @@ def audit_csv(member_name: str, payload: bytes) -> dict[str, object]:
     condition_counts: Counter[str] = Counter()
     quote_counts: Counter[str] = Counter()
     calcs_zero: Counter[str] = Counter()
+    calcs_blank: Counter[str] = Counter()
     min_dt: datetime | None = None
     max_dt: datetime | None = None
-    invalid_rows = mismatch_rows = nonzero_cancel = nonzero_exchanges = 0
-    zero_under_bid = zero_under_ask = zero_missing_nbbo = crossed_nbbo = outside_nbbo = 0
+    invalid_rows = mismatch_rows = nonzero_cancel = nonzero_exchanges = blank_cancel = zero_trade_price = 0
+    zero_under_bid = zero_under_ask = missing_under_bid = missing_under_ask = 0
+    zero_missing_nbbo = crossed_nbbo = locked_nbbo = outside_nbbo = 0
     size_sum = 0
 
     for raw_row in reader:
@@ -193,29 +214,42 @@ def audit_csv(member_name: str, payload: bytes) -> dict[str, object]:
             size = _integer(row.get("trade_size"), "trade_size")
             price = _decimal(row.get("trade_price"), "trade_price")
             condition = _integer(row.get("trade_condition_id"), "trade_condition_id")
-            cancel_condition = _integer(row.get("canceled_trade_condition_id"), "canceled_trade_condition_id")
-            bid_size = _integer(row.get("best_bid_size"), "best_bid_size")
-            ask_size = _integer(row.get("best_ask_size"), "best_ask_size")
-            bid = _decimal(row.get("best_bid"), "best_bid")
-            ask = _decimal(row.get("best_ask"), "best_ask")
-            under_bid = _decimal(row.get("underlying_bid"), "underlying_bid")
-            under_ask = _decimal(row.get("underlying_ask"), "underlying_ask")
-            exchange_count = _integer(row.get("number_of_exchanges"), "number_of_exchanges")
+            cancel_condition = _integer(row.get("canceled_trade_condition_id"), "canceled_trade_condition_id", blank_ok=True)
+            bid_size = _integer(row.get("best_bid_size"), "best_bid_size", blank_ok=True)
+            ask_size = _integer(row.get("best_ask_size"), "best_ask_size", blank_ok=True)
+            bid = _decimal(row.get("best_bid"), "best_bid", blank_ok=True)
+            ask = _decimal(row.get("best_ask"), "best_ask", blank_ok=True)
+            under_bid = _decimal(row.get("underlying_bid"), "underlying_bid", blank_ok=True)
+            under_ask = _decimal(row.get("underlying_ask"), "underlying_ask", blank_ok=True)
+            exchange_count = (
+                _integer(row.get("number_of_exchanges"), "number_of_exchanges")
+                if "number_of_exchanges" in row else None
+            )
             if not symbol or not root or option_type not in {"C", "P"}:
                 raise ValueError("contract_identity_invalid")
-            if strike <= 0 or size <= 0 or price <= 0:
+            if strike is None or strike <= 0 or size is None or size <= 0 or price is None or price < 0:
                 raise ValueError("trade_economics_invalid")
-            if min(seq, exchange, condition, cancel_condition, bid_size, ask_size, exchange_count) < 0:
+            if price == 0:
+                zero_trade_price += 1
+            required_ints = [seq, exchange, condition]
+            optional_ints = [x for x in (cancel_condition, bid_size, ask_size, exchange_count) if x is not None]
+            if min(required_ints + optional_ints) < 0:
                 raise ValueError("negative_integer_field")
-            if bid < 0 or ask < 0 or under_bid < 0 or under_ask < 0:
+            if any(x is not None and x < 0 for x in (bid, ask, under_bid, under_ask)):
                 raise ValueError("negative_quote_field")
-            if under_bid == 0:
+            if under_bid is None:
+                missing_under_bid += 1
+            elif under_bid == 0:
                 zero_under_bid += 1
-            if under_ask == 0:
+            if under_ask is None:
+                missing_under_ask += 1
+            elif under_ask == 0:
                 zero_under_ask += 1
-            if cancel_condition != 0:
+            if cancel_condition is None:
+                blank_cancel += 1
+            elif cancel_condition != 0:
                 nonzero_cancel += 1
-            if exchange_count != 0:
+            if exchange_count is not None and exchange_count != 0:
                 nonzero_exchanges += 1
             if mdate.isoformat() != qdt.date().isoformat():
                 mismatch_rows += 1
@@ -229,6 +263,8 @@ def audit_csv(member_name: str, payload: bytes) -> dict[str, object]:
                 zero_missing_nbbo += 1
             if quote_class == "invalid_or_crossed_nbbo":
                 crossed_nbbo += 1
+            if quote_class == "locked_nbbo_unclassified":
+                locked_nbbo += 1
             if quote_class in {"outside_above_ask", "outside_below_bid"}:
                 outside_nbbo += 1
             condition_counts[str(condition)] += 1
@@ -239,8 +275,10 @@ def audit_csv(member_name: str, payload: bytes) -> dict[str, object]:
             size_sum += size
             if schema["calcs_included"]:
                 for field in CALCS_FIELDS:
-                    value = _decimal(row.get(field), field)
-                    if value == 0:
+                    value = _decimal(row.get(field), field, blank_ok=True)
+                    if value is None:
+                        calcs_blank[field] += 1
+                    elif value == 0:
                         calcs_zero[field] += 1
         except (ValueError, TypeError):
             row_bad = True
@@ -260,14 +298,20 @@ def audit_csv(member_name: str, payload: bytes) -> dict[str, object]:
         "invalid_core_rows": invalid_rows,
         "zero_or_missing_nbbo_rows": zero_missing_nbbo,
         "crossed_nbbo_rows": crossed_nbbo,
+        "locked_nbbo_rows": locked_nbbo,
         "outside_nbbo_rows": outside_nbbo,
         "trade_vs_nbbo_counts": dict(sorted(quote_counts.items())),
         "trade_condition_counts": dict(sorted(condition_counts.items())),
         "nonzero_canceled_trade_condition_rows": nonzero_cancel,
+        "blank_canceled_trade_condition_rows": blank_cancel,
+        "zero_trade_price_rows": zero_trade_price,
         "nonzero_number_of_exchanges_rows": nonzero_exchanges,
         "zero_underlying_bid_rows": zero_under_bid,
         "zero_underlying_ask_rows": zero_under_ask,
+        "missing_underlying_bid_rows": missing_under_bid,
+        "missing_underlying_ask_rows": missing_under_ask,
         "calcs_zero_counts": dict(sorted(calcs_zero.items())),
+        "calcs_blank_counts": dict(sorted(calcs_blank.items())),
     })
     return summary
 
@@ -311,7 +355,10 @@ def audit_archive(raw_zip: bytes, headers: dict[str, str] | None = None,
     headers = {str(k).lower(): str(v) for k, v in (headers or {}).items()}
     members = csv_members(raw_zip)
     audits = [audit_csv(name, payload) for name, payload in members]
-    all_pass = all(x["schema_status"] == "PASS" and int(x["row_count"]) > 0 for x in audits)
+    all_pass = all(
+        x["schema_status"] == "PASS" and int(x["row_count"]) > 0 and int(x["invalid_core_rows"]) == 0
+        for x in audits
+    )
     return {
         "phase": 170,
         "source": "Cboe Option Trades",
@@ -329,7 +376,9 @@ def audit_archive(raw_zip: bytes, headers: dict[str, str] | None = None,
         "member_count": len(audits),
         "total_rows": sum(int(x["row_count"]) for x in audits),
         "member_audits": audits,
-        "historical_start_advertised": "2012-01",
+        "historical_start_product_page_advertised": "2012-01",
+        "historical_start_faq_table": "2010-01",
+        "historical_start_resolved": False,
         "historical_coverage_complete": False,
         "first_receipt_verified": False,
         "strict_pit": False,
