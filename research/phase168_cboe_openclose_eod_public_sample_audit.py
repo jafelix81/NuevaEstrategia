@@ -151,7 +151,8 @@ def _audit_csv(member_name: str, payload: bytes) -> tuple[dict[str, object], dic
         **meta, "actual_column_count": len(headers), "expected_column_count": len(expected),
         "missing_columns": missing, "extra_columns": extra, "duplicate_header_count": duplicate_headers,
         "detected_schema": ("EOD" if not missing and not extra and duplicate_headers == 0 else
-                            "INTRADAY_LIKE" if {"trade_datetime", "underlying"}.issubset(set(headers)) else "UNKNOWN"),
+                            "INTRADAY_LIKE" if {"trade_datetime", "underlying"}.issubset(set(headers)) else
+                            "EOD_CANDIDATE" if meta["exchange"] != "UNKNOWN" else "UNKNOWN"),
         "header_case_normalized": raw_headers != headers, "row_count": 0,
         "quote_date_from_rows": None, "distinct_quote_dates_in_rows": 0, "quote_date_format_counts": {},
         "unique_underlying_count": 0, "unique_series_count": 0, "duplicate_series_rows": 0,
