@@ -57,5 +57,12 @@
       "artifact_id": 13353118959,
       "zip_sha256": "e925ad8fe9792f27e570b9e882dff772bb67d9edd67f1c93404a198faab80985"
     }
+  },
+  "github_actions_validation": {
+    "run_id": 42256372788,
+    "artifact_id": 13521928292,
+    "tests_passed": 20,
+    "tests_failed": 0,
+    "status": "SUCCESS"
   }
 }
