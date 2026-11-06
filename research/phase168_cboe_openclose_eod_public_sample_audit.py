@@ -85,6 +85,22 @@ def _decimal_value(value: object, field: str, *, allow_blank: bool = True) -> De
         raise ValueError(f"invalid_decimal:{field}") from exc
 
 
+def _parse_quote_date(raw: str) -> tuple[str, str]:
+    value = raw.strip()
+    for fmt, label in (("%m/%d/%Y", "MM/DD/YYYY"), ("%Y-%m-%d", "YYYY-MM-DD"),
+                       ("%m/%d/%Y %H:%M:%S", "MM/DD/YYYY_HH:MM:SS"),
+                       ("%Y-%m-%d %H:%M:%S", "YYYY-MM-DD_HH:MM:SS"),
+                       ("%Y%m%d", "YYYYMMDD")):
+        try:
+            return datetime.strptime(value, fmt).date().isoformat(), label
+        except ValueError:
+            pass
+    try:
+        return datetime.fromisoformat(value).date().isoformat(), "ISO_DATETIME"
+    except ValueError as exc:
+        raise ValueError("quote_date_unparseable") from exc
+
+
 def _safe_final_url(url: str) -> str:
     parts = urlsplit(url)
     return f"{parts.scheme}://{parts.netloc}{parts.path}"
@@ -155,6 +171,7 @@ def _audit_csv(member_name: str, payload: bytes) -> tuple[dict[str, object], dic
                             "EOD_CANDIDATE" if meta["exchange"] != "UNKNOWN" else "UNKNOWN"),
         "header_case_normalized": raw_headers != headers, "row_count": 0,
         "quote_date_from_rows": None, "distinct_quote_dates_in_rows": 0, "quote_date_format_counts": {},
+        "quote_date_unparsed_examples": [],
         "unique_underlying_count": 0, "unique_series_count": 0, "duplicate_series_rows": 0,
         "quote_date_mismatch_rows": 0, "invalid_required_field_count": 0, "invalid_bucket_values": 0,
         "blank_previous_close_rows": 0, "zero_previous_close_rows": 0, "negative_previous_close_rows": 0,
@@ -189,17 +206,17 @@ def _audit_csv(member_name: str, payload: bytes) -> tuple[dict[str, object], dic
         series_type = _text(row.get("series_type")).upper()
         try:
             raw_quote_date = _text(row.get("quote_date"))
-            try:
-                quote_date = datetime.strptime(raw_quote_date, "%m/%d/%Y").date().isoformat()
-                quote_date_formats["MM/DD/YYYY"] += 1
-            except ValueError:
-                quote_date = datetime.strptime(raw_quote_date, "%Y-%m-%d").date().isoformat()
-                quote_date_formats["YYYY-MM-DD"] += 1
+            quote_date, quote_date_format = _parse_quote_date(raw_quote_date)
+            quote_date_formats[quote_date_format] += 1
             quote_date_values.add(quote_date)
             if meta["quote_date"] is not None and quote_date != meta["quote_date"]:
                 summary["quote_date_mismatch_rows"] = int(summary["quote_date_mismatch_rows"]) + 1
         except ValueError:
             invalid_required += 1
+            raw_bad_date = _text(row.get("quote_date"))
+            examples = summary["quote_date_unparsed_examples"]
+            if raw_bad_date and raw_bad_date not in examples and len(examples) < 3:
+                examples.append(raw_bad_date)
         try:
             datetime.strptime(expiration, "%Y-%m-%d")
         except ValueError:
