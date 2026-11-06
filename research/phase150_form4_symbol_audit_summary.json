@@ -1,6 +1,10 @@
 {
   "periods": {
     "2012Q1": {
+      "aff10b5one_field_present": false,
+      "aff10b5one_metadata_description": null,
+      "aff10b5one_true_pct_of_form4_rows": null,
+      "aff10b5one_value_counts": {},
       "all_submission_rows": 71282,
       "canonical_symbol_coverage_pct": 98.4908,
       "canonical_symbol_rows": 62717,
@@ -33,6 +37,10 @@
       "unique_issuer_ciks": 4630
     },
     "2026Q3": {
+      "aff10b5one_field_present": true,
+      "aff10b5one_metadata_description": "the transaction was made pursuant to a contract, instruction or written plan for the purchase or sale of equity securities of the issuer that is intended to satisfy the affirmative defense conditions of rule 10b5-1(c)",
+      "aff10b5one_true_pct_of_form4_rows": 14.7446,
+      "aff10b5one_value_counts": {"false": 29113, "true": 5035},
       "all_submission_rows": 38152,
       "canonical_symbol_coverage_pct": 98.3249,
       "canonical_symbol_rows": 33576,

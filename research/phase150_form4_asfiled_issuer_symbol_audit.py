@@ -56,6 +56,11 @@ def parse_period_zip(raw: bytes, period: str) -> dict:
         }
         if any(desc.get(k) != v for k, v in expected.items()):
             raise ValueError("SEC SUBMISSION metadata field definitions changed")
+        aff_description = desc.get("AFF10B5ONE")
+        if aff_description and aff_description != (
+            "the transaction was made pursuant to a contract, instruction or written plan for the purchase or sale of equity securities of the issuer that is intended to satisfy the affirmative defense conditions of rule 10b5-1(c)"
+        ):
+            raise ValueError("Unexpected AFF10B5ONE metadata definition")
         rows = list(csv.DictReader(io.StringIO(z.read(sub[0]).decode("utf-8-sig")), delimiter="\t"))
     if not rows:
         raise ValueError("SUBMISSION.tsv is empty")
@@ -63,7 +68,7 @@ def parse_period_zip(raw: bytes, period: str) -> dict:
     if not f4:
         raise ValueError("No Form 4 or 4/A rows found")
     ciks, raw_by_cik, candidates_by_cik, candidate_to_ciks = set(), defaultdict(set), defaultdict(set), defaultdict(set)
-    classes, forms = Counter(), Counter()
+    classes, forms, aff_counts = Counter(), Counter(), Counter()
     missing_filing = missing_event = 0
     for r in f4:
         cik = (r.get("ISSUERCIK") or "").strip()
@@ -76,6 +81,16 @@ def parse_period_zip(raw: bytes, period: str) -> dict:
         forms[(r.get("DOCUMENT_TYPE") or "").strip().upper()] += 1
         missing_filing += not bool((r.get("FILING_DATE") or "").strip())
         missing_event += not bool((r.get("PERIOD_OF_REPORT") or "").strip())
+        if "AFF10B5ONE" in r:
+            flag = (r.get("AFF10B5ONE") or "").strip().casefold()
+            if flag in {"1", "true"}:
+                aff_counts["true"] += 1
+            elif flag in {"0", "false"}:
+                aff_counts["false"] += 1
+            elif not flag:
+                aff_counts["missing"] += 1
+            else:
+                aff_counts["unknown"] += 1
         raw = (r.get("ISSUERTRADINGSYMBOL") or "").strip()
         cls, candidate = classify_symbol(raw)
         classes[cls] += 1
@@ -105,6 +120,10 @@ def parse_period_zip(raw: bytes, period: str) -> dict:
         "ticker_candidates_reused_across_ciks": collisions,
         "max_ciks_per_ticker_candidate": max((len(v) for v in candidate_to_ciks.values()), default=0),
         "missing_filing_date_rows": missing_filing, "missing_period_of_report_rows": missing_event,
+        "aff10b5one_field_present": "AFF10B5ONE" in (rows[0].keys() if rows else []),
+        "aff10b5one_metadata_description": desc.get("AFF10B5ONE"),
+        "aff10b5one_value_counts": dict(sorted(aff_counts.items())),
+        "aff10b5one_true_pct_of_form4_rows": round(100 * aff_counts["true"] / n, 4) if aff_counts else None,
     }
 
 

@@ -11,6 +11,7 @@ META = {"tables": [{"url": "SUBMISSION.tsv", "tableSchema": {"columns": [
     {"name": "ACCESSION_NUMBER", "dc:description": "Unique identifier assigned by the SEC to each EDGAR submission"},
 ]}}]}
 HEADER = "ACCESSION_NUMBER\tDOCUMENT_TYPE\tISSUERCIK\tISSUERTRADINGSYMBOL\tISSUERNAME\tFILING_DATE\tPERIOD_OF_REPORT\n"
+AFF_DESC = "The transaction was made pursuant to a contract, instruction or written plan for the purchase or sale of equity securities of the issuer that is intended to satisfy the affirmative defense conditions of Rule 10b5-1(c)"
 
 def fixture(rows):
     b = io.BytesIO()
@@ -46,6 +47,7 @@ class Phase150Tests(unittest.TestCase):
         self.assertEqual(result["canonical_symbol_rows"], 1)
         self.assertEqual(result["unique_issuer_ciks"], 1)
         self.assertEqual(result["symbol_class_counts"]["EXCHANGE_PREFIXED_SINGLE"], 1)
+        self.assertFalse(result["aff10b5one_field_present"])
 
     def test_ticker_reused_across_ciks_flagged(self):
         rows = [
@@ -68,6 +70,36 @@ class Phase150Tests(unittest.TestCase):
         rows = [["0000000001-26-000001", "4", "BAD", "ABC", "ISSUER A", "06-NOV-2026", "05-NOV-2026"]]
         with self.assertRaisesRegex(ValueError, "Invalid issuer CIK"):
             parse_period_zip(fixture(rows), "TEST")
+
+    def test_aff10b5one_true_false_normalized(self):
+        meta = json.loads(json.dumps(META))
+        meta["tables"][0]["tableSchema"]["columns"].append({"name": "AFF10B5ONE", "dc:description": AFF_DESC})
+        rows = [
+            ["0000000001-26-000001", "4", "0000000001", "ABC", "ISSUER A", "06-NOV-2026", "05-NOV-2026", "true"],
+            ["0000000002-26-000001", "4", "0000000002", "XYZ", "ISSUER B", "06-NOV-2026", "05-NOV-2026", "0"],
+            ["0000000003-26-000001", "4/A", "0000000003", "DEF", "ISSUER C", "06-NOV-2026", "05-NOV-2026", "1"],
+            ["0000000004-26-000001", "4", "0000000004", "GHI", "ISSUER D", "06-NOV-2026", "05-NOV-2026", "false"],
+        ]
+        b = io.BytesIO()
+        header = HEADER.rstrip("\n") + "\tAFF10B5ONE\n"
+        with zipfile.ZipFile(b, "w") as z:
+            z.writestr("SUBMISSION.tsv", header + "".join("\t".join(r) + "\n" for r in rows))
+            z.writestr("metadata.json", json.dumps(meta))
+        result = parse_period_zip(b.getvalue(), "TEST")
+        self.assertEqual(result["aff10b5one_value_counts"], {"false": 2, "true": 2})
+        self.assertEqual(result["aff10b5one_true_pct_of_form4_rows"], 50.0)
+
+    def test_aff10b5one_unknown_is_not_assumed_false(self):
+        meta = json.loads(json.dumps(META))
+        meta["tables"][0]["tableSchema"]["columns"].append({"name": "AFF10B5ONE", "dc:description": AFF_DESC})
+        rows = [["0000000001-26-000001", "4", "0000000001", "ABC", "ISSUER A", "06-NOV-2026", "05-NOV-2026", "unknown"]]
+        b = io.BytesIO()
+        header = HEADER.rstrip("\n") + "\tAFF10B5ONE\n"
+        with zipfile.ZipFile(b, "w") as z:
+            z.writestr("SUBMISSION.tsv", header + "\t".join(rows[0]) + "\n")
+            z.writestr("metadata.json", json.dumps(meta))
+        result = parse_period_zip(b.getvalue(), "TEST")
+        self.assertEqual(result["aff10b5one_value_counts"], {"unknown": 1})
 
     def test_no_form4_rejected(self):
         rows = [["0000000001-26-000001", "3", "0000000001", "ABC", "ISSUER A", "06-NOV-2026", "05-NOV-2026"]]

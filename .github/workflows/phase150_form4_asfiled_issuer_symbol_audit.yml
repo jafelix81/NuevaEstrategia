@@ -38,8 +38,15 @@ jobs:
           python research/phase150_form4_asfiled_issuer_symbol_audit.py \
             --input-dir phase39_source \
             --output phase150_output/phase150_form4_symbol_audit_summary.json
-          diff -u research/phase150_form4_symbol_audit_summary.json \
-            phase150_output/phase150_form4_symbol_audit_summary.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          expected = json.loads(Path("research/phase150_form4_symbol_audit_summary.json").read_text())
+          actual = json.loads(Path("phase150_output/phase150_form4_symbol_audit_summary.json").read_text())
+          if expected != actual:
+              raise SystemExit("Committed Phase 150 summary differs from reproduced source audit")
+          print("Committed summary matches reproduced audit.")
+          PY
       - name: Upload compact audit result
         uses: actions/upload-artifact@v4
         with:

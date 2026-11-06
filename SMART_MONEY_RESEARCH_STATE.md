@@ -1028,9 +1028,12 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 
 
 ## Phase 150 — SEC Form 4 as-filed issuer-symbol and identity audit (2026-11-06)
-- Added [Phase 150 report](research/PHASE150_SEC_FORM4_AS_FILED_ISSUER_SYMBOL_AND_IDENTITY_AUDIT_2026-11-06.md), a hash-pinned parser/summary, 16 offline tests and a PR-only workflow that re-downloads the immutable Phase 39 artifact.
+- Added [Phase 150 report](research/PHASE150_SEC_FORM4_AS_FILED_ISSUER_SYMBOL_AND_IDENTITY_AUDIT_2026-11-06.md), a hash-pinned parser/summary, 18 offline tests and a PR-only workflow that re-downloads the immutable Phase 39 artifact.
 - SEC Form 3/4/5 SUBMISSION rows expose issuer CIK, issuer name and as-filed issuer trading symbol. In two real Form 4/4-A endpoint samples, canonical single-symbol candidates cover 62,717/63,678 rows (98.49%) in 2012Q1 and 33,576/34,148 (98.32%) in 2026Q3.
 - The symbol remains an issuer-level label, not a permanent or class-specific security ID: multi-class/free-form values, multiple symbols per CIK and ticker reuse across CIKs require quarantine. Keep ISSUERCIK primary; never split ambiguous values or join on ticker alone.
 - The bulk table has date-only FILING_DATE and event-date PERIOD_OF_REPORT, not acceptance time-of-day. Phase 39's representative 2012/2026 acceptance-time parser passed, but the intended sample still needs accession-by-accession acceptance-time reconciliation. Amendments are new information at their own acceptance times.
 - This improves Form 4 issuer-label feasibility but does not establish broad investable-universe coverage, resolve the legacy 335-name mapping gap, identify the transacted share class, or prove public-market execution (SEC P/S codes include private transactions). No forward-return/alpha test was run.
 - Source: Phase 39 run 40606706518 / artifact 12781850078; outer ZIP SHA-256 203d7b1d2e29c999da318456af72e621cb30ef9a470d8f1610d088f9bebecb66. No vendor contact/purchase or production change; F80 remains frozen.
+
+- AFF10B5ONE addendum: absent in the 2012Q1 schema, present in 2026Q3; 5,035 true and 29,113 false among 34,148 Form 4/4-A rows. The SEC's mandatory Form 4/5 checkbox applies to reports filed from 2023-04-01; the 2023–2025 bulk files were updated in July 2025. This is an accession-level Rule 10b5-1(c) indicator, not a clean discretionary label; the SEC did not adopt a non-Rule 10b5-1 checkbox. Never backfill pre-April-2023 absence as false.
+- Initial hosted run 42192663178 compiled and passed all 18 regression tests and source reproduction, but its final text diff failed only because JSON formatting differed. The workflow now compares parsed JSON values; the next hosted run is the authoritative final CI result.

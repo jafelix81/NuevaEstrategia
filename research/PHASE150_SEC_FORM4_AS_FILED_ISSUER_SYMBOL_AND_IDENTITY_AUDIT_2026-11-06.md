@@ -21,7 +21,12 @@ The SEC technical documentation defines the `SUBMISSION` row with:
 - `ISSUERNAME`: issuer name;
 - `ISSUERTRADINGSYMBOL`: issuer trading symbol;
 - `FILING_DATE`: date only; and
-- `PERIOD_OF_REPORT`: date of event requiring the statement.
+- `PERIOD_OF_REPORT`: date of event requiring the statement; and
+- `AFF10B5ONE` (in newer schemas): filing-level indicator that the reported transaction was made pursuant to a Rule 10b5-1(c) plan.
+
+The SEC's final rule became effective February 27, 2023, and the mandatory Form 4/5 checkbox applies to beneficial-ownership reports filed on or after April 1, 2023. In July 2025, the SEC updated its 2023–2025 bulk data sets to include `AFF10B5ONE`; future data sets are processed similarly. The field is absent from the 2012Q1 schema and present in 2026Q3. This is a structural break: do not convert pre-April-2023 absence into `false` or compare the raw flag across eras as if coverage were uniform.
+
+In the 2026Q3 Form 4/4-A sample, all 34,148 rows have a recognized value: 5,035 true (14.74%) and 29,113 false (85.26%). It is an accession-level field in `SUBMISSION`, not a verified transaction-row attribution when a filing contains multiple transactions. `false` means no Rule 10b5-1(c) affirmative-defense checkbox indication in that filing; it does **not** prove discretionary/public-market execution or absence of a non-Rule 10b5-1 trading arrangement. The SEC did not adopt the proposed optional checkbox for non-Rule 10b5-1 plans. The plan-adoption date and transaction-specific footnote linkage were not audited here; recover them from original filings before finer classification.
 
 The bulk `SUBMISSION` table does not contain the accession's acceptance time-of-day. Therefore:
 
@@ -69,6 +74,8 @@ Only `DOCUMENT_TYPE` values `4` and `4/A` were included. Form 3, 5 and their ame
 | Candidate symbols reused across CIKs | 16 | 6 |
 | Maximum CIKs per reused candidate | 2 | 2 |
 | Missing filing-date / event-date rows | 0 / 0 | 0 / 0 |
+| `AFF10B5ONE` in schema | No | Yes |
+| `AFF10B5ONE` true / false | Not available | 5,035 (14.74%) / 29,113 (85.26%) |
 
 Examples of values that must not be force-normalized include `NYSE:SSD`, `NYSE: SCS`, `CBS, CBS.A`, `LEN, LEN.B`, `JWA/JWB`, `NYSE/TRN`, `(NYSE:FBC)` and `[NONE]`. These demonstrate that the issuer-level field can encode exchange prefixes, multiple share classes or free-form text.
 
@@ -86,6 +93,7 @@ The 126 issuer CIKs without a canonical candidate in each sample still have raw 
 - The audit covers two real quarters, not every quarter from 2006 to 2026. It establishes feasibility at two endpoints, not uninterrupted field-quality stability.
 - High field coverage among Form 4 filers is not coverage of the broad investable universe. It does not resolve the prior 54.6%–83.3% mapping figures for the arbitrary legacy 335-name list, and that list is not the research universe.
 - The SEC's transaction-code table defines `P` and `S` as “open market or private” purchase/sale. Those codes alone do not prove a public-market execution. Grants, awards, tax withholding, exercises, gifts, private transactions and footnoted exceptions require separate treatment.
+- `AFF10B5ONE` provides a useful post-April-2023 control for Rule 10b5-1(c)-indicated filings, but its filing-level scope and adoption-date/footnote linkage must be preserved. The SEC did not adopt an optional non-Rule 10b5-1 checkbox, so `false` is not a clean “discretionary” label.
 
 ## 5. Decision and next gates
 
@@ -93,7 +101,7 @@ The 126 issuer CIKs without a canonical candidate in each sample still have raw 
 2. Do not split multi-symbol values, use ticker alone as a permanent key, or assign an issuer-level symbol to a specific share class without validating `SECURITY_TITLE` and an effective-dated class map.
 3. Reconcile accession-level acceptance timestamps across the intended Form 4/4-A sample; keep event date, filing date, acceptance timestamp and first tradable session separate.
 4. Build a broad, survivorship-aware point-in-time universe and effective-dated CIK-to-security/return crosswalk, including multiple classes, ticker changes, mergers, delistings and ADRs. Do not substitute the historical 335-name list.
-5. Separate discretionary open-market purchases/sales from private transactions and non-discretionary codes using original filings, footnotes and transaction details. The SEC bulk data disclaimer requires spot-checking original accessions.
+5. Separate discretionary open-market purchases/sales from private transactions and non-discretionary codes using original filings, footnotes and transaction details. Recover Rule 10b5-1 plan-adoption dates and the filing-level checkbox's scope; treat non-Rule 10b5-1 arrangements as unclassified and do not backfill pre-April-2023 missing flags as false. The SEC bulk data disclaimer requires spot-checking original accessions.
 6. Only after identity, coverage and PIT gates pass, preregister clustered insider-purchase hypotheses and compare them incrementally with frozen LTM/F80, using identical exposure/costs, chronological OOS, bootstrap and leave-one-out diagnostics. Control for prior returns, liquidity, volatility and event timing to distinguish information from return-chasing.
 
 **No forward-return test, alpha claim, vendor contact/purchase, final-holdout use or production change was made.** `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
@@ -102,4 +110,5 @@ The 126 issuer CIKs without a canonical candidate in each sample still have raw 
 
 - SEC, [Insider Transactions Data Sets](https://www.sec.gov/data-research/sec-markets-data/insider-transactions-data-sets) — history, as-filed status, quarterly publication, disclaimer and archive.
 - SEC, [Insider Transactions Data Sets technical documentation](https://www.sec.gov/files/insider_transactions_readme.pdf) — `SUBMISSION` fields, issuer trading symbol, filing/event dates, amendments and transaction-code meanings.
+- SEC, [Insider Trading Arrangements and Related Disclosures guide](https://www.sec.gov/resources-small-businesses/small-business-compliance-guides/insider-trading-arrangements-and-related-disclosures) and [Release 33-11138](https://www.sec.gov/files/rules/final/2022/33-11138.pdf) — Form 4/5 Rule 10b5-1 checkbox requirements, effective date and April 1, 2023 compliance date.
 - Prior repository gate: [Phase 39 Form 4 feasibility](PHASE39_SEC_FORM4_INSIDER_FEASIBILITY_2026-10-26.md).
