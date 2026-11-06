@@ -1,0 +1,50 @@
+name: Phase 168 Cboe Open-Close EOD public sample audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - research/phase168_cboe_openclose_eod_public_sample_audit.py
+      - research/test_phase168_cboe_openclose_eod_public_sample_audit.py
+      - .github/workflows/phase168_cboe_openclose_eod_public_sample_audit.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase168-cboe-openclose-eod-public-sample-audit
+  cancel-in-progress: false
+
+jobs:
+  eod-sample-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile Phase 168
+        run: python -m py_compile research/phase168_cboe_openclose_eod_public_sample_audit.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase168_cboe_openclose_eod_public_sample_audit
+      - name: Download and audit public Cboe EOD sample in memory
+        id: audit
+        continue-on-error: true
+        run: python -m research.phase168_cboe_openclose_eod_public_sample_audit --output-dir phase168_output
+      - name: Upload metadata-only audit artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase168-cboe-openclose-eod-public-sample-audit
+          path: phase168_output/phase168_cboe_openclose_eod_sample_summary.json
+          if-no-files-found: ignore
+          retention-days: 90
+      - name: Enforce sample schema gate after artifact upload
+        if: always()
+        run: |
+          test -f phase168_output/phase168_cboe_openclose_eod_sample_summary.json
+          python -c "import json; p='phase168_output/phase168_cboe_openclose_eod_sample_summary.json'; s=json.load(open(p)); assert s['status'].startswith('PASS_'), s['status']"
+
+# Uploads a metadata-only summary even when the external sample is unavailable.
