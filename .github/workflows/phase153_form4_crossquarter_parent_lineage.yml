@@ -29,28 +29,36 @@ jobs:
           run-id: 40606706518
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: phase39_source
-      - name: Download immediately preceding SEC quarters
+      - name: Download immediately preceding 2026 quarter
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p adjacent_source
           UA='NuevaEstrategia/Phase153 Form 4 amendment lineage audit contact research'
-          BASE='https://www.sec.gov/files'
-          for spec in \
-            'structureddata/data/insider-transactions-data-sets/2011q4_form345.zip 2011q4_form345.zip' \
-            'datastandardsinnovation/data/insider-transactions-data-sets/2026q2_form345.zip 2026q2_form345.zip'; do
-            set -- $spec
-            url="$BASE/$1"
-            out="adjacent_source/$2"
-            echo "Downloading $url"
-            curl --fail --show-error --location --retry 6 --retry-all-errors --retry-delay 5 \
-              --connect-timeout 30 --max-time 240 -A "$UA" \
-              -H 'Accept: application/zip, application/octet-stream, */*' \
-              -H 'Accept-Encoding: gzip, deflate' "$url" -o "$out"
-            test -s "$out"
-            unzip -t "$out" >/dev/null
-            sha256sum "$out"
-          done
+          URL='https://www.sec.gov/files/datastandardsinnovation/data/insider-transactions-data-sets/2026q2_form345.zip'
+          curl --fail --show-error --location --retry 6 --retry-all-errors --retry-delay 5 \
+            --connect-timeout 30 --max-time 240 -A "$UA" \
+            -H 'Accept: application/zip, application/octet-stream, */*' \
+            -H 'Accept-Encoding: gzip, deflate' "$URL" -o adjacent_source/2026q2_form345.zip
+          test -s adjacent_source/2026q2_form345.zip
+          unzip -t adjacent_source/2026q2_form345.zip >/dev/null
+          sha256sum adjacent_source/2026q2_form345.zip
+      - name: Attempt optional 2011Q4 boundary quarter
+        shell: bash
+        run: |
+          set -euo pipefail
+          UA='NuevaEstrategia/Phase153 Form 4 amendment lineage audit contact research'
+          URL='https://www.sec.gov/files/structureddata/data/insider-transactions-data-sets/2011q4_form345.zip'
+          if curl --fail --show-error --location --connect-timeout 30 --max-time 180 -A "$UA" \
+            -H 'Accept: application/zip, application/octet-stream, */*' \
+            -H 'Accept-Encoding: gzip, deflate' "$URL" -o adjacent_source/2011q4_form345.zip; then
+            unzip -t adjacent_source/2011q4_form345.zip >/dev/null
+            sha256sum adjacent_source/2011q4_form345.zip
+          else
+            echo 'SEC returned an HTTP error for 2011Q4; 2012Q1 lineage window will be explicitly marked incomplete.' \
+              | tee adjacent_source/2011q4_unavailable.txt
+            rm -f adjacent_source/2011q4_form345.zip
+          fi
       - name: Compile audit and tests
         run: |
           python -m py_compile research/phase153_form4_crossquarter_parent_lineage.py
@@ -67,6 +75,6 @@ jobs:
           name: phase153-form4-crossquarter-lineage-audit
           path: |
             phase153_output/phase153_form4_amendment_lineage_summary.json
-            adjacent_source/*.zip
+            adjacent_source/*
           if-no-files-found: error
           retention-days: 30
