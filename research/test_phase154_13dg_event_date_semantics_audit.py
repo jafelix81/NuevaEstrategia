@@ -91,5 +91,13 @@ class Phase154Tests(unittest.TestCase):
         self.assertEqual(g["event_valid"], 1)
         self.assertEqual(g["quarter_end_event_pct_of_valid"], 100.0)
 
+    def test_source_cik_is_not_labeled_as_subject_issuer(self):
+        rows = [row("0000000001-24-000001", "SC 13D", "2024-11-14", "2024-11-01")]
+        result = audit_rows(rows, "outer", "inner")
+        identity = result["identity_and_integrity"]
+        self.assertIn("unique_source_ciks_not_subject_validated", identity)
+        self.assertIn("identity_scope", identity)
+        self.assertNotIn("unique_issuer_ciks", identity)
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
