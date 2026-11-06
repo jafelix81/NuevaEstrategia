@@ -1,0 +1,61 @@
+name: Phase 155 SEC 13D-G role-aware event-date audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "research/phase155_*"
+      - "research/test_phase155_*"
+      - "research/PHASE155_*"
+      - ".github/workflows/phase155_sec_13dg_role_aware_event_date_audit.yml"
+      - "SMART_MONEY_RESEARCH_STATE.md"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: phase155-13dg-role-aware-event-date-audit
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Download immutable Phase 124 role-aware sample artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: phase124-global-sec-13dg-stratified-submission-audit
+          run-id: 42073725379
+          github-token: \${{ secrets.GITHUB_TOKEN }}
+          path: phase124_source
+      - name: Download immutable Phase 35/28D filer-query artifact for quarantine check
+        uses: actions/download-artifact@v4
+        with:
+          name: phase35-13dg-pit-event-crosswalk-audit
+          run-id: 41575083622
+          github-token: \${{ secrets.GITHUB_TOKEN }}
+          path: phase35_source
+      - name: Compile and run offline regression tests
+        run: |
+          python -m py_compile research/phase155_13dg_role_aware_event_date_audit.py
+          python -m unittest discover -s research -p 'test_phase155_*.py' -v
+      - name: Recompute role-aware event-date audit and source quarantine
+        run: |
+          python research/phase155_13dg_role_aware_event_date_audit.py \\
+            --phase124-input phase124_source \\
+            --phase35-input phase35_source \\
+            --output phase155_output/phase155_13dg_role_aware_event_date_summary.json
+      - name: Upload reproducible Phase 155 summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase155-13dg-role-aware-event-date-audit
+          path: phase155_output/phase155_13dg_role_aware_event_date_summary.json
+          if-no-files-found: error
+          retention-days: 30
