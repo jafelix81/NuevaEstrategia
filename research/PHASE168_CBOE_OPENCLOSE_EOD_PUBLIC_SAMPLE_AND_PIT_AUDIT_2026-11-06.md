@@ -98,3 +98,15 @@ The correction now:
 The corrected parser and 19 offline tests pass locally. A second hosted run is still required before the sample's actual schema and identity can be reported.
 
 **Additional historical boundary:** the EOD specification states that C1 has a format change beginning 2011-01-02; pre-2011 C1 history requires the separate legacy EOD specification. Therefore the 86-column parser in this phase cannot be applied to all advertised C1 history back to 2005. That older period requires a separately audited parser and convention bridge.
+
+
+## 8. Legacy C1 is a separate economic schema, not just a file-format variant
+
+The official legacy C1 specification (v2.7, 2026-02-17) covers the pre-migration period 1990-01-02 through 2010-12-31. It has only 24 fields and materially different semantics:
+
+- only Firm and Customer origins are reported (no Broker-Dealer, Market Maker or Pro-Customer buckets);
+- size buckets are based on original order size, not post-2011 execution size;
+- it does not carry the modern OHLC, exchange/industry volume or open-interest fields;
+- it uses legacy root/expiry/strike/type fields and a different product-type taxonomy.
+
+The modern 86-column schema begins 2011-01-02. Therefore, even if historical files before 2005 can be obtained, their capacity and size features are not directly comparable with the post-2011 fields. The defensible default for a homogeneous EOD feature study is to start in 2011 for C1 and 2018 for BZX/C2/EDGX; any 1990-2010 C1 study must be a separate regime with a separately validated feature definition, not a backfilled modern feature.
