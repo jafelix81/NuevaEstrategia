@@ -1,3 +1,5 @@
+> **Superseded for issuer-level interpretation by Phase 155 (2026-11-06).** The Phase 35/28D input is a CIK-submissions query sample, not a subject-issuer-validated panel. Its 303 distinct CIK/ticker pairs are source/query identities. The exact positive control `0000895421-24-000178` is keyed to Morgan Stanley (filer CIK `0000895421`, ticker `MS`) although the SEC-validated subject is abrdn Global Infrastructure Income Fund (CIK `0001793855`). Retain Phase 154's date counts only as descriptive form-level statistics of that filer-query sample; do not use its issuer/ticker joins, event panel, or returns. See [Phase 155](PHASE155_SEC_13DG_ROLE_AWARE_EVENT_DATE_AND_PHASE154_QUARANTINE_2026-11-06.md).
+
 # Phase 154 — SEC Schedule 13D/G event-date semantics and reporting-regime audit
 
 **Date:** 2026-11-06  
@@ -19,7 +21,7 @@ Reused corrected Phase 35 run **41575083622**, artifact **13212292743** (phase35
 - Inner phase28d_events.csv SHA-256: 4a1b40cf7e104be0dc5bad4d579cd65ef78ab4783a4f525f19a299b50f3efa14
 - Rows: 20,265; unique accessions: 20,265; duplicate accession rows: 0.
 - Filing-date range: 2020-10-01 through 2026-09-30.
-- Unique issuer CIKs: 303; unique tickers: 303. This remains conditional on the legacy 335-name candidate list, not a survivorship-free historical universe.
+- Unique source/query CIKs: 303; unique source/query tickers: 303. These are not validated subject-issuer identities.
 
 ## Filing mix: raw filing counts are not independent events
 
