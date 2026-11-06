@@ -997,3 +997,11 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 - The helper still accepts one immutable source version per contract/session; original deliveries and correction patches must be versioned upstream. No raw IvyDB sample, first-receipt archive, patch-vintage panel, coverage measurement, forward-return test, vendor contact/purchase or production change. F80 remains frozen.
 
 - Phase 146 hosted CI follow-up: run 42170697030 on the initial correction commit found one test-precedence failure (`test_expiry_session_blocks_delta`). The expiry/exercise-session check was moved ahead of expiration-date mismatch handling in commit `d973cce2233213e41d7022b320ba0b739973f77d`; the new head is awaiting a clean hosted rerun.
+
+
+## Phase 147 — IvyDB OI immutable correction-vintage ledger
+- Added the Phase 147 report, an append-only normalized vintage ledger and an as-of OI feature builder.
+- Corrections remain separate immutable versions with source hash, schema version, actual receipt timestamp, unique version ID and explicit supersedes link. Only versions received strictly before a decision instant are visible; exact-time ties fail closed; tombstones are preserved.
+- Feature knowledge time is the later of the selected current-session and prior-session receipts. This prevents a late correction to the prior session from retroactively making a revised ΔOI feature appear known when the current-session file first arrived.
+- 23 offline tests cover as-of selection, no backdating, late prior-session corrections, chain integrity, tombstones, timestamp boundaries, continuity/expiry, schema breaks, signed deltas and zero denominators. Hosted Actions validation is the final gate.
+- This is implementation integrity only. No licensed IvyDB sample/patch, actual receipt archive, optionable-universe coverage or alpha test. Vendor patch semantics and row-level supersedes mapping remain unverified. F80 remains frozen.
