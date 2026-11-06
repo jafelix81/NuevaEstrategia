@@ -14,7 +14,7 @@
 2. **A stale previous session could be used.** The caller supplies the exchange-calendar `previous_session_date`. If an older row existed and the declared previous date skipped an intervening session already present in the same contract panel, the old code still calculated a multi-session ΔOI as if it were one session. The helper now emits `NON_ADJACENT_PREVIOUS_SESSION` and suppresses the delta whenever an intervening contract observation exists.
 3. **Expiration-date continuity was implicit.** The helper compared a terms fingerprint but did not separately require the expiration date to remain identical. It now emits `EXPIRATION_DATE_BREAK` when the paired observations disagree, even if the supplied terms key was accidentally unchanged.
 
-The regression suite increases from 15 to **18 tests**. The existing positive/negative ΔOI, missing-session, receipt provenance, timezone, expiry-session, duplicate, zero-denominator and input-order tests remain intact.
+The regression suite increases from 15 to **18 tests**. The first hosted run exposed an ordering defect: an expiry-session row with a changed expiration date was labelled `EXPIRATION_DATE_BREAK` before the more important `EXPIRY_OR_EXERCISE_AFFECTED` condition. The checks are now ordered so the expiry-session quarantine takes precedence. The other positive/negative ΔOI, missing-session, receipt provenance, timezone, duplicate, zero-denominator and input-order tests remain intact.
 
 ## Remaining limitations
 

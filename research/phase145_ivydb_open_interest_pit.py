@@ -153,10 +153,10 @@ def build_oi_features(rows: Iterable[Mapping[str, Any]]) -> list[dict[str, Any]]
                 status = "NON_ADJACENT_PREVIOUS_SESSION"
             elif prior["contract_terms_key"] != row["contract_terms_key"]:
                 status = "CONTRACT_TERMS_BREAK"
-            elif prior["expiration_date"] != row["expiration_date"]:
-                status = "EXPIRATION_DATE_BREAK"
             elif row["expiration_date"] <= row["session_date"]:
                 status = "EXPIRY_OR_EXERCISE_AFFECTED"
+            elif prior["expiration_date"] != row["expiration_date"]:
+                status = "EXPIRATION_DATE_BREAK"
             elif row["first_received_at"] <= prior["first_received_at"]:
                 status = "KNOWLEDGE_TIME_NOT_MONOTONIC"
             else:
