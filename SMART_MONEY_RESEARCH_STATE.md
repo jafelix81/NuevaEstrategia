@@ -1298,3 +1298,16 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 - Phase 170 latest final-head run [42323305956](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42323305956), artifact [13554320538](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42323305956/artifacts/13554320538), reports 98,579 rows/member; 74,999 M/D/YYYY market dates and 23,580 blanks; 74,999 nonblank quote datetimes classified as other and 23,580 blanks. Exact row widths and 19/25-column schemas pass, but zero rows parse. Phase 170 success is diagnostic-only, not sample admission.
 - Phase 171 will determine whether blank date/time fields occur together, whether the remaining non-date trade fields are populated, and which sanitized timestamp signature is present. Unknown formats remain rejected; no date inference or imputation.
 - No feature panel, forward-return test, bootstrap/LOO, chronological OOS, final-holdout use, vendor purchase/contact or production change. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## Phase 171 — hosted date/time-shape result (2026-11-07)
+- Run [42327762664](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42327762664) passed 9/9 tests and downloaded the same public archive SHA-256 as Phase 170; metadata-only artifact [13556500580](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42327762664/artifacts/13556500580).
+- Each 98,579-row member contains 23,580 rows with both market_date and quote_datetime blank and all ten non-date core fields blank; 74,999 rows have both date fields nonblank; no one-sided blankness.
+- All 74,999 market_date values parse as M/D/YYYY and match the filename date 2026-01-07. All 74,999 quote_datetime values have length 7 and sanitized signature 99:99.9; none matches the explicit full-datetime formats. The sample/specification mismatch remains unresolved.
+- Phase 171 did not inspect all optional fields or blank-row positions. Phase 172 measures all-column emptiness, run placement and valid hour/minute ranges without assigning units to the final digit or constructing timestamps.
+- No sample admission, alpha/return/OOS/holdout test, purchase/contact or production change. F80 remains frozen.
+
+## Phase 172 — Cboe Option Trades empty-row and time-only range diagnostic
+- Adds a metadata-only audit for whether both-date-blank records are empty across every column, whether they are trailing or interspersed, and whether the 99:99.9 signature is a valid HH:MM.d clock shape.
+- The final digit is not assigned seconds or fractional-minute semantics. No timestamps are synthesized, no rows are dropped, and no raw values are persisted.
+- Hosted result pending. No feature/return/OOS/holdout test, vendor purchase/contact or production change. F80 remains frozen.
