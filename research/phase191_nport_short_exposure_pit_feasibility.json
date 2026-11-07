@@ -1,0 +1,200 @@
+{
+  "phase": 191,
+  "audit_as_of": "2026-11-07",
+  "source": "SEC Form N-PORT public data sets and individual EDGAR NPORT-P filings",
+  "status": "CONDITIONAL_REGISTERED_FUND_SHORT_EXPOSURE_CANDIDATE",
+  "classification": "registered_fund_short_exposure_not_universal_institutional_short_interest",
+  "coverage": {
+    "dataset_start": "2019-10-01",
+    "dataset_end": "2026-09-30",
+    "quarterly_archive_count": 28,
+    "archive_min_mb": 228.89,
+    "archive_max_mb": 690.83,
+    "archive_total_mb": 11382.43,
+    "archive_total_gb_decimal": 11.38243,
+    "publication_frequency": "quarterly",
+    "page_last_reviewed": "2026-09-30",
+    "publicly_disseminated_filings_only": true,
+    "as_filed": true,
+    "includes_amendments": true,
+    "filing_types": [
+      "NPORT-P",
+      "NPORT-P/A",
+      "NT NPORT-P"
+    ]
+  },
+  "current_reporting_regime": {
+    "public_frequency": "quarterly",
+    "public_period_rule": "Only the third month of each fund's fiscal quarter is intended to be public; first and second month reports are not public.",
+    "filing_deadline": "60 days after the end of the fund's fiscal quarter",
+    "complete_calendar_quarter_picture": "approximately four months after quarter end, due to reporting and different fund fiscal calendars",
+    "2024_monthly_amendments_large_funds_compliance": "2027-11-17",
+    "2024_monthly_amendments_small_funds_compliance": "2028-05-18",
+    "2026_proposal_status_as_of_audit": "PROPOSED_NOT_ADOPTED",
+    "2026_proposal_summary": "Would extend filing to 45 days after month end, retain public reporting only for the third month of a fiscal quarter with 60-day public delay, and remove the non-derivative payoff-profile item; do not implement proposed fields or cadence as current law."
+  },
+  "scope": {
+    "included": [
+      "registered management investment companies",
+      "ETFs organized as unit investment trusts",
+      "registered mutual funds other than money market funds",
+      "registered closed-end funds",
+      "separate accounts offering variable annuity contracts"
+    ],
+    "excluded_or_not_covered": [
+      "money market funds",
+      "small business investment companies",
+      "business development companies",
+      "non-ETF unit investment trusts",
+      "private hedge funds that do not file Form N-PORT",
+      "all institutional investors outside the Form N-PORT filer population"
+    ],
+    "beneficial_owner_identity_provided": false,
+    "universal_institutional_short_interest": false
+  },
+  "bulk_dataset_schema": {
+    "submission_table_fields": [
+      "ACCESSION_NUMBER",
+      "FILING_DATE",
+      "SUB_TYPE",
+      "REPORT_ENDING_PERIOD",
+      "REPORT_DATE"
+    ],
+    "submission_table_has_acceptance_timestamp": false,
+    "holding_table_fields": [
+      "ACCESSION_NUMBER",
+      "HOLDING_ID",
+      "ISSUER_NAME",
+      "ISSUER_CUSIP",
+      "BALANCE",
+      "UNIT",
+      "CURRENCY_VALUE",
+      "PERCENTAGE",
+      "PAYOFF_PROFILE",
+      "ASSET_CAT",
+      "ISSUER_TYPE",
+      "INVESTMENT_COUNTRY",
+      "DERIVATIVE_CAT"
+    ],
+    "identifiers_table_fields": [
+      "HOLDING_ID",
+      "IDENTIFIER_ISIN",
+      "IDENTIFIER_TICKER",
+      "OTHER_IDENTIFIER"
+    ],
+    "fund_portfolio_identity": "SERIES_ID",
+    "registrant_identity": "CIK",
+    "class_identity_is_not_portfolio_identity": true,
+    "cusip_isin_ticker_optional": true,
+    "derivative_positions_have_separate_item_c11_tables": true
+  },
+  "short_position_semantics": {
+    "non_derivative_payoff_profile_field": "PAYOFF_PROFILE",
+    "current_values": [
+      "long",
+      "short",
+      "N/A"
+    ],
+    "short_value_sign_crosscheck": "SEC's 2026 proposal states funds generally report positive values for long non-derivative positions and negative values for short non-derivative positions.",
+    "discordant_profile_value_rows": "QUARANTINE_AND_AUDIT; do not silently choose one field",
+    "first_hypothesis_scope": "non-derivative equity-common, corporate issuer, US investment country, PAYOFF_PROFILE=short, and negative CURRENCY_VALUE; require a PIT security crosswalk before claiming US-listed common equity",
+    "derivatives_in_first_hypothesis": false,
+    "sample_short_equity_row_verified": false,
+    "sec_december_2024_consistency_statistic": {
+      "long_positions_with_negative_value_pct": 0.004,
+      "short_positions_with_positive_value_pct": 0.0012,
+      "interpretation": "classification/value-sign inconsistency rates, not the prevalence of short positions"
+    }
+  },
+  "pit": {
+    "report_date_is_knowledge_date": false,
+    "bulk_dataset_has_acceptance_timestamp": false,
+    "acceptance_timestamp_source": "SEC-HEADER acceptance timestamp and/or SEC submissions metadata keyed by accession",
+    "first_public_receipt_capture_verified": false,
+    "bulk_dataset_is_published_quarterly": true,
+    "individual_filing_acceptance_is_not_first_receipt_capture": true,
+    "conservative_knowledge_rule": "Use the first verified public filing/receipt timestamp; until an immutable first-receipt capture exists, use the SEC acceptance timestamp and execute no earlier than the next full regular trading session. If using a quarterly bulk archive as the data source, use the archive's own publication/receipt time instead.",
+    "amendment_rule": "Append every NPORT-P/A as a new version and apply it only from its own verified availability time; never overwrite or backdate the prior filing."
+  },
+  "identity_and_universe": {
+    "series_id_is_portfolio_unit": true,
+    "registrant_cik_is_not_series_id": true,
+    "multiple_share_classes_can_share_one_series": true,
+    "security_identifiers_are_optional": true,
+    "historical_security_crosswalk_admitted": false,
+    "historical_delisted_coverage_proven": false,
+    "broad_pit_equity_universe_admitted": false,
+    "legacy_335_is_universe_anchor": false
+  },
+  "prior_work": {
+    "phase27o_status": "KILLED_IN_TESTED_LONG_ACCUMULATION_DOSE_RESPONSE",
+    "phase27o_is_evidence_against_short_position_hypothesis": false,
+    "short_position_hypothesis_tested": false,
+    "phase27o_oos_results_reused": false
+  },
+  "candidate_hypotheses": [
+    "Change in aggregate direct non-derivative US common-equity short market value across reporting fund series",
+    "Breadth of reporting fund series opening or increasing shorts versus reducing or covering them",
+    "Short exposure normalized by fund NAV and issuer market capitalization",
+    "Persistence and concentration of short exposure, with controls for prior returns, liquidity, volatility and options flow"
+  ],
+  "admission_gates": {
+    "official_history_and_public_scope": "PASS_DOCUMENTATION_ONLY",
+    "short_equity_sample_parse": "NOT_VERIFIED",
+    "quarterly_vintage_and_amendment_lineage": "NOT_VERIFIED",
+    "acceptance_and_first_receipt_timestamps": "PARTIAL_ACCEPTANCE_METADATA_ONLY",
+    "series_and_class_deduplication": "DOCUMENTED_NOT_SAMPLED",
+    "historical_security_identity_and_delisted_coverage": "FAIL_NOT_ESTABLISHED",
+    "broad_pit_universe": "FAIL_NOT_ESTABLISHED",
+    "alpha_test": "NOT_AUTHORIZED"
+  },
+  "controls": {
+    "bulk_archive_downloaded": false,
+    "short_equity_sample_parsed": false,
+    "return_test_run": false,
+    "alpha_test_run": false,
+    "holdout_used": false,
+    "production_changed": false,
+    "data_purchase": false,
+    "vendor_contact": false,
+    "f80_frozen": true
+  },
+  "decision": "Retain N-PORT direct short exposure as a distinct conditional public-data hypothesis, not as short interest or proof of informed trading. The next gate is a deterministic sample audit of actual non-derivative US common-equity short rows, amendment/acceptance vintages, fund-series deduplication, and PIT security coverage. Do not run returns or promote a feature until these gates pass.",
+  "references": [
+    {
+      "title": "SEC Form N-PORT Data Sets",
+      "url": "https://www.sec.gov/data-research/sec-markets-data/form-n-port-data-sets",
+      "date_or_coverage": "October 2019 through September 2026; 28 quarterly archives; last reviewed September 30, 2026"
+    },
+    {
+      "title": "SEC N-PORT Data Sets Readme",
+      "url": "https://www.sec.gov/files/nport_readme.pdf",
+      "date_or_coverage": "Data are as-filed, include amendments, include only disseminated filings, and are published quarterly"
+    },
+    {
+      "title": "SEC Registered Fund Statistics, March 2026",
+      "url": "https://www.sec.gov/files/im-investment-registered-fund-statistics-202603.pdf",
+      "date_or_coverage": "Current quarterly public-disclosure regime and approximately four-month calendar-quarter information lag"
+    },
+    {
+      "title": "SEC Form N-PORT and N-CEN reporting; delay of effective and compliance dates",
+      "url": "https://www.sec.gov/rules-regulations/2025/04/s7-26-22",
+      "date_or_coverage": "April 16, 2025 final rule; monthly-reporting amendments delayed to 2027/2028"
+    },
+    {
+      "title": "SEC Form N-PORT Reporting proposed rule",
+      "url": "https://www.sec.gov/files/rules/proposed/2026/ic-35962.pdf",
+      "date_or_coverage": "February 18, 2026 proposal; not treated as current law"
+    },
+    {
+      "title": "SEC Form N-PORT",
+      "url": "https://www.sec.gov/about/forms/formn-port.pdf",
+      "date_or_coverage": "Current form and Item C.3 payoff profile"
+    },
+    {
+      "title": "SEC EDGAR filing example: Vanguard Total Stock Market Index Fund",
+      "url": "https://www.sec.gov/Archives/edgar/data/36405/0000036405-26-000323-index.htm",
+      "date_or_coverage": "Report date 2026-03-31; accepted 2026-05-28 16:39:53 ET; one series with multiple share classes"
+    }
+  ]
+}
