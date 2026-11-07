@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import argparse
 import csv
-import gzip
 import hashlib
 import io
 import json
@@ -19,7 +18,6 @@ from typing import Any
 
 PHASE = 179
 COMPACT_FIELDS = ("acc", "dt", "family", "role", "filer", "cusip", "issuer_h96", "owner_h96", "i4")
-INPUT_GZIP_SHA256 = "b4549ba063b07df34ba89c1a874a8cbe9f96340d8af05e3f86dcf9664560fcda"
 INPUT_CSV_SHA256 = "6d0cc2a0841dc58a362be1e2b61d055a4e300da53ff157dedb9df5096d919626"
 SOURCE_PHASE157_CSV_SHA256 = "154b628436d6c438e54bb953f7d77b0a82f89b5c19373e9f1b642a5140f20072"
 SOURCE_PHASE159_CSV_SHA256 = "bb6411e78fc3eca1ca8c7aae6c76a1b26e6ef03138bb5eb622d8747cf330cfa4"
@@ -54,7 +52,7 @@ def normalized_name_hash(value: str) -> str:
     normalized = re.sub(r"[^A-Z0-9]", "", (value or "").upper())
     return hashlib.sha256(normalized.encode("ascii")).hexdigest()[:24] if normalized else ""
 
-def build_compact_input(input_dir: Path) -> tuple[bytes, bytes]:
+def build_compact_input(input_dir: Path) -> bytes:
     """Rebuild the hash-only 497-row fixture from immutable Phase 157/159 artifacts."""
     p157_path = input_dir / "phase157_legacy_13dg_html_field_audit.csv"
     p159_path = input_dir / "phase159_13d_cover_amendment_roles.csv"
@@ -104,10 +102,7 @@ def build_compact_input(input_dir: Path) -> tuple[bytes, bytes]:
     csv_bytes = buffer.getvalue().encode("utf-8")
     if sha256(csv_bytes) != INPUT_CSV_SHA256:
         raise ValueError("rebuilt_compact_csv_sha256_mismatch")
-    gzip_bytes = gzip.compress(csv_bytes, compresslevel=9, mtime=0)
-    if sha256(gzip_bytes) != INPUT_GZIP_SHA256:
-        raise ValueError("rebuilt_compact_gzip_sha256_mismatch")
-    return csv_bytes, gzip_bytes
+    return csv_bytes
 
 def parse_rows(csv_bytes: bytes) -> list[dict[str, str]]:
     if sha256(csv_bytes) != INPUT_CSV_SHA256:
@@ -319,8 +314,8 @@ def audit_rows(rows: list[dict[str, str]]) -> dict[str, Any]:
             "phase159_raw_hash_matches": 180,
         },
         "input": {
-            "gzip_sha256": INPUT_GZIP_SHA256,
             "csv_sha256": INPUT_CSV_SHA256,
+            "representation": "compact_csv_rebuilt_in_memory_from_pinned_phase157_phase159_artifacts",
             "raw_names_persisted": False,
             "item4_text_persisted": False,
         },
@@ -335,7 +330,7 @@ def audit_rows(rows: list[dict[str, str]]) -> dict[str, Any]:
 
 def run_audit(output_dir: Path | None = None, input_dir: Path | None = None) -> dict[str, Any]:
     source_dir = input_dir or Path(__file__).with_name("phase179_inputs")
-    csv_bytes, _gzip_bytes = build_compact_input(source_dir)
+    csv_bytes = build_compact_input(source_dir)
     rows = parse_rows(csv_bytes)
     result = audit_rows(rows)
     if output_dir is not None:

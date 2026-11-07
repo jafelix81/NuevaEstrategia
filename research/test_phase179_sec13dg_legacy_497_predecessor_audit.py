@@ -6,7 +6,6 @@ from pathlib import Path
 
 from research.phase179_sec13dg_legacy_497_predecessor_audit import (
     INPUT_CSV_SHA256,
-    INPUT_GZIP_SHA256,
     build_compact_input,
     audit_rows,
     cusip_is_valid,
@@ -19,12 +18,11 @@ class Phase179Tests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.input_dir = Path(__file__).with_name("phase179_inputs")
-        cls.csv_bytes, cls.gzip_bytes = build_compact_input(cls.input_dir)
+        cls.csv_bytes = build_compact_input(cls.input_dir)
         cls.result = run_audit(input_dir=cls.input_dir)
         cls.rows = parse_rows(cls.csv_bytes)
 
     def test_input_hashes_are_pinned(self):
-        self.assertEqual(hashlib.sha256(self.gzip_bytes).hexdigest(), INPUT_GZIP_SHA256)
         self.assertEqual(hashlib.sha256(self.csv_bytes).hexdigest(), INPUT_CSV_SHA256)
 
     def test_full_legacy_sample_has_497_unique_accessions(self):

@@ -78,9 +78,9 @@
   "initial_status_confirmed": 0,
   "input": {
     "csv_sha256": "6d0cc2a0841dc58a362be1e2b61d055a4e300da53ff157dedb9df5096d919626",
-    "gzip_sha256": "b4549ba063b07df34ba89c1a874a8cbe9f96340d8af05e3f86dcf9664560fcda",
     "item4_text_persisted": false,
-    "raw_names_persisted": false
+    "raw_names_persisted": false,
+    "representation": "compact_csv_rebuilt_in_memory_from_pinned_phase157_phase159_artifacts"
   },
   "input_rows": 497,
   "issuer_cusip_amendment_candidates_all_families": {
