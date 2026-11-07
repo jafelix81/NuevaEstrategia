@@ -141,3 +141,11 @@ Added regression tests for extra CSV fields, short rows, value-free parse errors
 - Run [42316322780](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42316322780) and identical-input final-head rerun [42316681966](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42316681966) both completed successfully with 553 CUSIPs, 437 exact 9-character primary mappings, 116 primary no-matches, 7 unique 8-character fallback recoveries, 109 remaining no-matches, zero API errors and one cross-CUSIP shareClassFIGI pair (two CUSIPs).
 - The preceding run [42302934940](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42302934940) had 438 primary mappings and 6 fallback recoveries, with the same 444/553 total. The exact-vs-fallback split moved by one across current API snapshots; preserve request/response hashes and retrieval timestamps, and do not treat OpenFIGI's current response as an immutable historical security master.
 - The 109 unmatched CUSIPs and lack of effective dates remain unresolved. No ticker or issuer mapping may be backdated; Phase 149 remains a manual identity cross-check only.
+
+
+## 2026-11-07 — offline regression assertion correction
+
+- Latest PR-head run [42317137580](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42317137580) compiled successfully but failed one offline assertion before downloading the public sample. The test expected `first_parse_error_field=None` for `invalid_market_date`, while the current parser deliberately maps that sanitized error code to `market_date`.
+- Corrected the stale test expectation only; no production parser behavior or accepted date formats were changed. The run did not exercise the live sample and produced no diagnostic artifact.
+- The prior artifact [13550443768](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42316681940/artifacts/13550443768) predates the newly added date-shape counters. The actual public-sample date shape therefore remains unknown until a corrected hosted run completes.
+- Phase 170 remains diagnostic-only. No sample admission, feature construction, return test, OOS test or final-holdout use is authorized. No purchase/contact or production/F80 change.

@@ -284,7 +284,7 @@ class Phase170Tests(unittest.TestCase):
         result = audit_csv("sample.csv", csv_bytes(rows=[row]))
         self.assertEqual(result["parse_error_counts"], {"invalid_market_date": 1})
         self.assertEqual(result["first_parse_error"], "invalid_market_date")
-        self.assertIsNone(result["first_parse_error_field"])
+        self.assertEqual(result["first_parse_error_field"], "market_date")
 
     def test_archive_distinguishes_completed_diagnostic_from_valid_sample(self):
         row = {
