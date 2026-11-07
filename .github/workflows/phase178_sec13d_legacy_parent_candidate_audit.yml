@@ -1,0 +1,40 @@
+name: Phase 178 SEC legacy 13D in-sample predecessor-candidate audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - research/phase178_sec13d_legacy_parent_candidate_audit.py
+      - research/test_phase178_sec13d_legacy_parent_candidate_audit.py
+      - research/phase178_sec13d_legacy_parent_input.csv.gz
+      - .github/workflows/phase178_sec13d_legacy_parent_candidate_audit.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase178-sec13d-legacy-parent-candidate-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile Phase 178
+        run: python -m py_compile research/phase178_sec13d_legacy_parent_candidate_audit.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase178_sec13d_legacy_parent_candidate_audit
+      - name: Generate metadata-only audit result
+        run: python -m research.phase178_sec13d_legacy_parent_candidate_audit --output-dir phase178_output
+      - name: Upload metadata-only result
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase178-sec13d-legacy-parent-candidate-audit
+          path: phase178_output/phase178_sec13d_legacy_parent_candidate_summary.json
+          retention-days: 90

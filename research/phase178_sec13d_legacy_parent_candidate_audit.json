@@ -1,0 +1,80 @@
+{
+  "phase": 178,
+  "status": "IN_SAMPLE_PREDECESSOR_COVERAGE_INSUFFICIENT",
+  "input_rows": 180,
+  "unique_accessions": 180,
+  "role_counts": {
+    "index_coded_amendment": 108,
+    "non_amendment_form_initial_status_unconfirmed": 68,
+    "cover_numbered_amendment_candidate": 4,
+    "total_amendment_candidates": 112
+  },
+  "item4_non_amendment_unconfirmed_candidates": 55,
+  "item4_candidates_with_valid_cusip": 46,
+  "item4_candidates_with_body_issuer_hash": 53,
+  "item4_candidates_with_first_owner_hash": 55,
+  "item4_candidates_with_complete_match_key": 46,
+  "item4_candidates_with_any_in_sample_predecessor": 0,
+  "item4_candidates_without_in_sample_predecessor": 55,
+  "amendment_candidates_with_any_in_sample_candidate": 2,
+  "amendment_candidates_with_unique_candidate": 2,
+  "amendment_candidates_with_ambiguous_candidates": 0,
+  "amendment_candidates_without_candidate": 110,
+  "candidate_pairs": [
+    {
+      "candidate_predecessor_accession": "0000921895-18-001641",
+      "candidate_predecessor_filing_date": "2018-05-11",
+      "candidate_predecessor_role": "A",
+      "candidate_predecessor_item4": true,
+      "later_amendment_accession": "0001011438-19-000110",
+      "later_amendment_filing_date": "2019-08-21",
+      "later_amendment_role": "A",
+      "later_amendment_item4": false,
+      "same_issuer_hash": true,
+      "same_valid_cusip": true,
+      "same_filer_cik": true,
+      "same_first_owner_hash": true,
+      "verified_parent_edge": false
+    },
+    {
+      "candidate_predecessor_accession": "0000807249-18-000020",
+      "candidate_predecessor_filing_date": "2018-02-07",
+      "candidate_predecessor_role": "A",
+      "candidate_predecessor_item4": false,
+      "later_amendment_accession": "0000807249-20-000135",
+      "later_amendment_filing_date": "2020-06-02",
+      "later_amendment_role": "A",
+      "later_amendment_item4": false,
+      "same_issuer_hash": true,
+      "same_valid_cusip": true,
+      "same_filer_cik": true,
+      "same_first_owner_hash": true,
+      "verified_parent_edge": false
+    }
+  ],
+  "candidate_parent_documents_are_amendments": true,
+  "candidate_parent_documents_have_no_earlier_in_sample_anchor": true,
+  "legacy_previous_accession_populated_rows": 0,
+  "parent_edges_verified": 0,
+  "initial_status_confirmed": 0,
+  "feature_admission": false,
+  "alpha_admission": false,
+  "final_holdout_used": false,
+  "f80_modified": false,
+  "source": {
+    "phase159_run_id": 42353084525,
+    "phase159_artifact_id": 13565349554,
+    "phase159_csv_sha256": "bb6411e78fc3eca1ca8c7aae6c76a1b26e6ef03138bb5eb622d8747cf330cfa4",
+    "phase157_run_id": 42353084472,
+    "phase157_artifact_id": 13566915807,
+    "phase157_csv_sha256": "154b628436d6c438e54bb953f7d77b0a82f89b5c19373e9f1b642a5140f20072",
+    "raw_submission_hash_matches": 180
+  },
+  "input": {
+    "gzip_sha256": "4d14030c8b176065f40f10537d34d4de9491c71183200ab3480f27469085cb05",
+    "csv_sha256": "4370ba9645d8184101fd8230cdcf274c99c68cd9561387aee898fc4cb7063d07",
+    "raw_names_persisted": false,
+    "item4_text_persisted": false
+  },
+  "decision": "Keep all 55 Item 4 rows INITIAL_STATUS_UNCONFIRMED; keep two amendment pairs CANDIDATE_ONLY_UNVERIFIED; do not create state edges or run returns tests."
+}

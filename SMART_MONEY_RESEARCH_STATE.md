@@ -1,6 +1,6 @@
 # Smart Money Research State
 
-Updated: 2026-11-06
+Updated: 2026-11-07
 
 ## Frozen control
 - F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
@@ -1394,3 +1394,12 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 - First run [42352771288](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42352771288) passed compilation, all 6 regression tests and metadata generation. The final workflow assertion used a misspelled JSON key (`same_day_or_intraday_quarantined`) while the audit emits `same_day_intraday_quarantined`; this was a workflow-only assertion defect, not a data or audit-code failure.
 - Corrected the workflow key in the follow-up CI-sync commit. No SEC calls or data changes. The current head's Phase 149 run [42352771360](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42352771360) completed: 16/16 offline tests, 68 API batches, zero API errors; 553 CUSIPs, 437 primary matches, 7 additional 8-character fallback identities, 109 unresolved. Present-day mapping only; no effective dates or PIT identity established.
 - Phase 153's latest green run is a **preflight-only success**, not an unblocked SEC retrieval: [42352771364](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42352771364), artifact [13566730466](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42352771364/artifacts/13566730466) still records `BLOCKED_SEC_CONTACT_EMAIL_REQUIRED`; adjacent-quarter downloads were skipped. The authorized repository secret `SEC_CONTACT_EMAIL` remains a human prerequisite.
+
+
+## Phase 178 — SEC legacy 13D in-sample predecessor-candidate coverage audit
+- Reused the current-head Phase 159 role table (run 42353084525 / artifact 13565349554) and Phase 157 legacy-HTML audit (run 42353084472 / artifact 13566915807). The 180 rows reconcile by accession and all 180 raw submission hashes match; no SEC request was made.
+- The 55 non-/A, non-numbered Item 4 candidates remain unconfirmed initial filings. 46 have checksum-valid CUSIP, 53 have body-derived issuer-name candidates, and all 55 have filer/first-owner candidates; **zero of 55** has an earlier in-sample record matching body issuer, valid CUSIP and filer. This is a sample-coverage failure, not evidence that the filings are initial.
+- Of 112 amendment candidates, two have unique in-sample same-body-issuer/CUSIP/filer/first-owner candidate predecessors. Both candidate predecessor documents are themselves /A and have no earlier same-key anchor in the sample. Keep both as candidate-only; no parent edge is verified. No legacy row in the 180-row Phase 159 table has a populated previous_accession.
+- Added a compact hash-only fixture (no raw names or Item 4 text), deterministic helper, 13 offline tests, metadata JSON and PR-only workflow. Status: IN_SAMPLE_PREDECESSOR_COVERAGE_INSUFFICIENT.
+- Decision: do not infer initial status, reconstruct amendment chains, create state edges, backdate Item 4 text, or run returns/alpha tests from this sample. Full historical predecessor coverage and effective-dated issuer/security identity remain required.
+- No feature/alpha/OOS/holdout test, SEC request, vendor contact/purchase or production change. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
