@@ -209,7 +209,7 @@ class Phase170Tests(unittest.TestCase):
 
     def test_extra_csv_fields_are_counted_without_persisting_values(self):
         base = csv_bytes().decode("utf-8").strip().splitlines()
-        payload = (base[0] + "\\n" + base[1] + ",EXTRA_SECRET\\n").encode()
+        payload = (base[0] + "\n" + base[1] + ",EXTRA_SECRET\n").encode()
         result = audit_csv("sample.csv", payload)
         self.assertEqual(result["extra_field_rows"], 1)
         self.assertEqual(result["extra_field_values"], 1)
@@ -219,7 +219,7 @@ class Phase170Tests(unittest.TestCase):
 
     def test_short_csv_fields_are_counted(self):
         base = csv_bytes().decode("utf-8").strip().splitlines()
-        payload = (base[0] + "\\n" + ",".join(base[1].split(",")[:-1]) + "\\n").encode()
+        payload = (base[0] + "\n" + ",".join(base[1].split(",")[:-1]) + "\n").encode()
         result = audit_csv("sample.csv", payload)
         self.assertEqual(result["short_field_rows"], 1)
         self.assertEqual(result["short_missing_values"], 1)
