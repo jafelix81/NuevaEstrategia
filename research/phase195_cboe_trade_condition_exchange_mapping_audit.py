@@ -263,10 +263,12 @@ def count_sample_ids(raw_zip: bytes) -> dict[str, object]:
     condition_sets = {json.dumps(m["condition_counts"], sort_keys=True) for m in members}
     exchange_sets = {json.dumps(m["exchange_counts"], sort_keys=True) for m in members}
     row_counts = {m["nonblank_rows"] for m in members}
+    expected_pair_present = len(members) == 2 and any("calcs" not in m["member_basename"].lower() for m in members) and any("calcs" in m["member_basename"].lower() for m in members)
     return {
         "member_count": len(members),
+        "expected_two_member_pair_present": expected_pair_present,
         "members": members,
-        "core_id_counts_match_across_members": len(condition_sets) == 1 and len(exchange_sets) == 1 and len(row_counts) == 1,
+        "core_id_counts_match_across_members": expected_pair_present and len(condition_sets) == 1 and len(exchange_sets) == 1 and len(row_counts) == 1,
         "observed_condition_counts": members[0]["condition_counts"],
         "observed_exchange_counts": members[0]["exchange_counts"],
         "observed_canceled_condition_counts": members[0]["canceled_condition_counts"],
@@ -405,7 +407,9 @@ def run_audit() -> dict[str, object]:
             "sample_core_id_counts_match_across_members": sample_ids["core_id_counts_match_across_members"],
             "candidate_side_eligible_condition_ids": [x["id"] for x in condition_reconciliation if x.get("candidate_side_eligible")],
             "candidate_side_eligible_rows_under_strict_mapping_rule": eligible_rows,
-            "mapping_effective_dates_verified": bool(condition_map["effective_date_fields"]),
+            "mapping_effective_date_fields_present": bool(condition_map["effective_date_fields"]),
+            "mapping_effective_dates_verified": False,
+            "mapping_current_snapshot_only": not bool(condition_map["effective_date_fields"]),
             "historical_mapping_pit_verified": False,
             "decision": "Current public mapping files are reconciled to the one-day sample only. Even a complete ID mapping does not establish historical effective dates or first receipt. Candidate side eligibility is deliberately restricted to a mapping row explicitly marked Regular/Normal, trade, and options; all other conditions remain quarantined. No signed-flow feature or alpha test is admitted."
         })

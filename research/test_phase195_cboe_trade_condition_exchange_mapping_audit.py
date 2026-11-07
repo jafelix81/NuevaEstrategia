@@ -97,6 +97,19 @@ class Phase195Tests(unittest.TestCase):
         self.assertEqual(result["observed_exchange_counts"],{"1":1,"2":1})
         self.assertEqual(result["observed_canceled_condition_counts"],{"0":2})
 
+    def test_single_sample_member_does_not_pass_pair_gate(self):
+        fields=["trade_condition_id","exchange_id","canceled_trade_condition_id"]
+        out=io.StringIO()
+        w=csv.DictWriter(out,fieldnames=fields,lineterminator="\n")
+        w.writeheader()
+        w.writerow({"trade_condition_id":"18","exchange_id":"1","canceled_trade_condition_id":"0"})
+        buff=io.BytesIO()
+        with zipfile.ZipFile(buff,"w",zipfile.ZIP_DEFLATED) as z:
+            z.writestr("UnderlyingOptionsTrades_2026-01-07.csv",out.getvalue().encode())
+        result=count_sample_ids(buff.getvalue())
+        self.assertFalse(result["expected_two_member_pair_present"])
+        self.assertFalse(result["core_id_counts_match_across_members"])
+
     def test_sample_count_output_contains_no_trade_rows_or_symbols(self):
         result=count_sample_ids(sample_zip())
         rendered=str(result)
