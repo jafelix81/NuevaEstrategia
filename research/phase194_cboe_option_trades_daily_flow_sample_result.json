@@ -1,0 +1,92 @@
+{
+  "phase": 194,
+  "status": "DAILY_SAMPLE_ROW_GATE_PASS_TIME_FIELD_QUARANTINED",
+  "workflow_run_id": 42418091879,
+  "workflow_url": "https://github.com/jafelix81/NuevaEstrategia/actions/runs/42418091879",
+  "artifact_id": 13591894915,
+  "artifact_name": "phase194-cboe-option-trades-daily-flow-sample-audit",
+  "artifact_retention_days": 90,
+  "sample_url": "https://datashop.cboe.com/download/sample/216",
+  "archive_sha256": "a02504e156db28b3f007d9d25a534e4c88ffd8d24ac43f3bf84885583a3d10b8",
+  "compressed_bytes": 3561778,
+  "retrieved_at_utc": "2026-11-07T21:55:00.616634+00:00",
+  "tests_passed": 16,
+  "members": [
+    {
+      "name": "UnderlyingOptionsTradesCalcs_2026-01-07.csv",
+      "sha256": "c492079514995790143e9ad975383118de82fe4081a0752d45aadaa1ae3ec521",
+      "core_trade_rows_sha256": "4dd0e041ca3b1921a2f5a6a3825a9505be234947736232fb47f18e93c74d1b06",
+      "columns": 25
+    },
+    {
+      "name": "UnderlyingOptionsTrades_2026-01-07.csv",
+      "sha256": "68fae85ab164e0060cefcc7eb28b02d3d50a991ff755b7d00effcc2a4e0ac229",
+      "core_trade_rows_sha256": "4dd0e041ca3b1921a2f5a6a3825a9505be234947736232fb47f18e93c74d1b06",
+      "columns": 19
+    }
+  ],
+  "sample_metrics": {
+    "sample_date": "2026-01-07",
+    "rows_per_member": 98579,
+    "populated_trade_rows_per_member": 74999,
+    "trailing_all_column_blank_rows_per_member": 23580,
+    "invalid_trade_rows_per_member": 0,
+    "market_date_filename_match_rows_per_member": 74999,
+    "underlying_count": 1,
+    "contract_count": 308,
+    "unique_trade_keys_per_member": 74999,
+    "duplicate_trade_key_rows_per_member": 0,
+    "total_trade_size_contracts": 531227,
+    "trade_price_times_size_sum_no_multiplier": "1814368.33",
+    "trade_vs_nbbo_print_counts": {
+      "at_ask_candidate": 24649,
+      "at_bid_candidate": 27697,
+      "inside_spread_unclassified": 12782,
+      "midpoint_unclassified": 8754,
+      "locked_nbbo_unclassified": 625,
+      "invalid_or_crossed_nbbo": 5,
+      "missing_nbbo": 1,
+      "outside_above_ask": 231,
+      "outside_below_bid": 255
+    },
+    "contract_volume_by_nbbo_class": {
+      "at_ask_candidate": 172313,
+      "at_bid_candidate": 209076,
+      "inside_spread_unclassified": 87266,
+      "midpoint_unclassified": 51349,
+      "locked_nbbo_unclassified": 4078,
+      "invalid_or_crossed_nbbo": 56,
+      "missing_nbbo": 1,
+      "outside_above_ask": 2646,
+      "outside_below_bid": 4442
+    },
+    "at_ask_contract_volume": 172313,
+    "at_bid_contract_volume": 209076,
+    "candidate_signed_contract_volume": -36763,
+    "unclassified_contract_volume": 149838,
+    "quote_time_hhmm_range_valid_rows": 22989,
+    "quote_time_hhmm_range_invalid_rows": 52010,
+    "quote_time_mmss_range_valid_rows": 74999,
+    "quote_time_semantics_assigned": false
+  },
+  "interpretation": {
+    "daily_flow_measurement_candidate": true,
+    "signed_flow_feature_admitted": false,
+    "strict_pit_admitted": false,
+    "alpha_admission": false,
+    "first_receipt_verified": false,
+    "historical_coverage_verified": false,
+    "trade_condition_mapping_verified": false,
+    "adjusted_deliverables_verified": false,
+    "raw_archive_persisted": false,
+    "raw_rows_persisted": false,
+    "raw_symbols_persisted": false,
+    "raw_contracts_persisted": false,
+    "raw_clock_values_persisted": false,
+    "vendor_contact_or_purchase": false,
+    "production_changed": false,
+    "holdout_used": false,
+    "f80_frozen": true
+  },
+  "conclusion": "One public sample day supports a reproducible daily NBBO-side measurement prototype. The negative candidate signed volume (-36,763 contracts) is descriptive only and cannot be interpreted as informed/institutional flow or predictive alpha. Time semantics, trade-condition mapping, adjusted deliverables, first receipt and historical coverage remain unresolved."
+}

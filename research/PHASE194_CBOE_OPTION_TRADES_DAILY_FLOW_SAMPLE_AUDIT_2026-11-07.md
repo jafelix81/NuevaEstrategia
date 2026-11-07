@@ -27,7 +27,15 @@ A passing row gate would establish only that one public daily sample can support
 
 ## Hosted execution result
 
-The latest Phase 194 workflow artifact is the canonical sample-level result. If the daily row gate passes, the next task is a versioned condition-code and adjusted-deliverable audit, not an alpha test. If it fails, retain the rejection and do not relax the parser to force a positive result.
+**PASS — daily sample row gate; time field quarantined.** Workflow [42418091879](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42418091879) completed successfully with 16/16 offline tests passing and a metadata-only artifact uploaded.
+
+Both members (19-column and 25-column) contained 98,579 rows: 74,999 populated trade rows and 23,580 all-column-empty trailing padding rows. All 74,999 populated rows parsed; there were zero invalid rows, zero duplicate trade keys, and all market dates matched 2026-01-07. The two members had identical core-trade SHA-256 digest 4dd0e041ca3b1921a2f5a6a3825a9505be234947736232fb47f18e93c74d1b06. The sample represents one underlying and 308 option contracts, with 531,227 contracts of reported trade size.
+
+Exact at-ask candidates: 24,649 prints / 172,313 contracts. Exact at-bid candidates: 27,697 prints / 209,076 contracts. The descriptive candidate signed contract-volume proxy is -36,763 contracts. Another 149,838 contracts were unclassified. Counts include 12,782 inside-spread, 8,754 midpoint, 625 locked-NBBO, 5 crossed/invalid-NBBO, 1 missing-NBBO, 231 above-ask and 255 below-bid prints. These are one-day descriptive counts, not predictive evidence or a validated net-flow signal.
+
+The quote-time field remains opaque. 22,989 rows fit conventional HH:MM component ranges; 52,010 do not. All 74,999 fit a numeric 00–59 / 00–59 component range that could resemble MM:SS, but no MM:SS meaning is assigned. Raw clock values were not persisted. No same-day or intraday use is authorized.
+
+This establishes that a daily sample-level NBBO-side measurement prototype is technically feasible without interpreting quote_datetime. It does not establish historical coverage, trade-condition semantics, adjusted deliverables, first file receipt, correction vintages or strict PIT. The next phase should audit condition codes, adjusted deliverables and actual file availability before any feature is admitted.
 
 ## Controls
 
