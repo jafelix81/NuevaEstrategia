@@ -1,0 +1,264 @@
+{
+  "phase": 184,
+  "date": "2026-11-07",
+  "status": "HISTORICAL_PIT_GATE_FAIL_PHASE23C_QUARANTINED",
+  "official_sources": {
+    "cftc_faq": "https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm",
+    "release_schedule": "https://www.cftc.gov/MarketReports/CommitmentsofTraders/ReleaseSchedule/index.htm",
+    "special_announcements": "https://www.cftc.gov/MarketReports/CommitmentsofTraders/HistoricalSpecialAnnouncements/index.htm",
+    "shutdown_2019": "https://www.cftc.gov/PressRoom/PressReleases/7864-19"
+  },
+  "historical_release_calendar_limit_months": 13,
+  "complete_official_release_date_ledger_available_2016_2024": false,
+  "documented_exception_rows": 21,
+  "exception_counts": {
+    "ION_2023": 7,
+    "SHUTDOWN_2025_FINAL": 13,
+    "HOLIDAY_2021": 1
+  },
+  "report_date_plus_6": {
+    "synthetic_earlier_than_actual": 20,
+    "synthetic_same_date_time_unknown": 1,
+    "synthetic_later_than_actual": 0
+  },
+  "exceptions": [
+    {
+      "report_date": "2023-01-31",
+      "scheduled_release_date": "2023-02-03",
+      "actual_release_date": "2023-02-24",
+      "release_time_et": null,
+      "first_receipt_utc": null,
+      "event": "ION_2023",
+      "date_precision_only": true,
+      "strict_pit_admitted": false
+    },
+    {
+      "report_date": "2023-02-07",
+      "scheduled_release_date": "2023-02-10",
+      "actual_release_date": "2023-03-03",
+      "release_time_et": null,
+      "first_receipt_utc": null,
+      "event": "ION_2023",
+      "date_precision_only": true,
+      "strict_pit_admitted": false
+    },
+    {
+      "report_date": "2023-02-14",
+      "scheduled_release_date": "2023-02-17",
+      "actual_release_date": "2023-03-08",
+      "release_time_et": null,
+      "first_receipt_utc": null,
+      "event": "ION_2023",
+      "date_precision_only": true,
+      "strict_pit_admitted": false
+    },
+    {
+      "report_date": "2023-02-21",
+      "scheduled_release_date": "2023-02-24",
+      "actual_release_date": "2023-03-10",
+      "release_time_et": null,
+      "first_receipt_utc": null,
+      "event": "ION_2023",
+      "date_precision_only": true,
+      "strict_pit_admitted": false
+    },
+    {
+      "report_date": "2023-02-28",
+      "scheduled_release_date": "2023-03-03",
+      "actual_release_date": "2023-03-14",
+      "release_time_et": null,
+      "first_receipt_utc": null,
+      "event": "ION_2023",
+      "date_precision_only": true,
+      "strict_pit_admitted": false
+    },
+    {
+      "report_date": "2023-03-07",
+      "scheduled_release_date": "2023-03-10",
+      "actual_release_date": "2023-03-16",
+      "release_time_et": null,
+      "first_receipt_utc": null,
+      "event": "ION_2023",
+      "date_precision_only": true,
+      "strict_pit_admitted": false
+    },
+    {
+      "report_date": "2023-03-14",
+      "scheduled_release_date": "2023-03-17",
+      "actual_release_date": "2023-03-21",
+      "release_time_et": null,
+      "first_receipt_utc": null,
+      "event": "ION_2023",
+      "date_precision_only": true,
+      "strict_pit_admitted": false
+    },
+    {
+      "report_date": "2025-09-30",
+      "scheduled_release_date": "2025-10-03",
+      "actual_release_date": "2025-11-19",
+      "release_time_et": null,
+      "first_receipt_utc": null,
+      "event": "SHUTDOWN_2025_FINAL",
+      "date_precision_only": true,
+      "strict_pit_admitted": false
+    },
+    {
+      "report_date": "2025-10-07",
+      "scheduled_release_date": "2025-10-10",
+      "actual_release_date": "2025-11-21",
+      "release_time_et": null,
+      "first_receipt_utc": null,
+      "event": "SHUTDOWN_2025_FINAL",
+      "date_precision_only": true,
+      "strict_pit_admitted": false
+    },
+    {
+      "report_date": "2025-10-14",
+      "scheduled_release_date": "2025-10-17",
+      "actual_release_date": "2025-11-25",
+      "release_time_et": null,
+      "first_receipt_utc": null,
+      "event": "SHUTDOWN_2025_FINAL",
+      "date_precision_only": true,
+      "strict_pit_admitted": false
+    },
+    {
+      "report_date": "2025-10-21",
+      "scheduled_release_date": "2025-10-24",
+      "actual_release_date": "2025-12-02",
+      "release_time_et": null,
+      "first_receipt_utc": null,
+      "event": "SHUTDOWN_2025_FINAL",
+      "date_precision_only": true,
+      "strict_pit_admitted": false
+    },
+    {
+      "report_date": "2025-10-28",
+      "scheduled_release_date": "2025-10-31",
+      "actual_release_date": "2025-12-05",
+      "release_time_et": null,
+      "first_receipt_utc": null,
+      "event": "SHUTDOWN_2025_FINAL",
+      "date_precision_only": true,
+      "strict_pit_admitted": false
+    },
+    {
+      "report_date": "2025-11-04",
+      "scheduled_release_date": "2025-11-07",
+      "actual_release_date": "2025-12-09",
+      "release_time_et": null,
+      "first_receipt_utc": null,
+      "event": "SHUTDOWN_2025_FINAL",
+      "date_precision_only": true,
+      "strict_pit_admitted": false
+    },
+    {
+      "report_date": "2025-11-10",
+      "scheduled_release_date": "2025-11-14",
+      "actual_release_date": "2025-12-10",
+      "release_time_et": null,
+      "first_receipt_utc": null,
+      "event": "SHUTDOWN_2025_FINAL",
+      "date_precision_only": true,
+      "strict_pit_admitted": false
+    },
+    {
+      "report_date": "2025-11-18",
+      "scheduled_release_date": "2025-11-21",
+      "actual_release_date": "2025-12-12",
+      "release_time_et": null,
+      "first_receipt_utc": null,
+      "event": "SHUTDOWN_2025_FINAL",
+      "date_precision_only": true,
+      "strict_pit_admitted": false
+    },
+    {
+      "report_date": "2025-11-25",
+      "scheduled_release_date": "2025-12-01",
+      "actual_release_date": "2025-12-15",
+      "release_time_et": null,
+      "first_receipt_utc": null,
+      "event": "SHUTDOWN_2025_FINAL",
+      "date_precision_only": true,
+      "strict_pit_admitted": false
+    },
+    {
+      "report_date": "2025-12-02",
+      "scheduled_release_date": "2025-12-05",
+      "actual_release_date": "2025-12-17",
+      "release_time_et": null,
+      "first_receipt_utc": null,
+      "event": "SHUTDOWN_2025_FINAL",
+      "date_precision_only": true,
+      "strict_pit_admitted": false
+    },
+    {
+      "report_date": "2025-12-09",
+      "scheduled_release_date": "2025-12-12",
+      "actual_release_date": "2025-12-19",
+      "release_time_et": null,
+      "first_receipt_utc": null,
+      "event": "SHUTDOWN_2025_FINAL",
+      "date_precision_only": true,
+      "strict_pit_admitted": false
+    },
+    {
+      "report_date": "2025-12-16",
+      "scheduled_release_date": "2025-12-19",
+      "actual_release_date": "2025-12-23",
+      "release_time_et": null,
+      "first_receipt_utc": null,
+      "event": "SHUTDOWN_2025_FINAL",
+      "date_precision_only": true,
+      "strict_pit_admitted": false
+    },
+    {
+      "report_date": "2025-12-23",
+      "scheduled_release_date": "2025-12-29",
+      "actual_release_date": "2025-12-29",
+      "release_time_et": null,
+      "first_receipt_utc": null,
+      "event": "SHUTDOWN_2025_FINAL",
+      "date_precision_only": true,
+      "strict_pit_admitted": false
+    },
+    {
+      "report_date": "2021-06-15",
+      "scheduled_release_date": "2021-06-18",
+      "actual_release_date": "2021-06-21",
+      "release_time_et": null,
+      "first_receipt_utc": null,
+      "event": "HOLIDAY_2021",
+      "date_precision_only": true,
+      "strict_pit_admitted": false
+    }
+  ],
+  "unresolved_outage_windows": [
+    {
+      "event": "SHUTDOWN_2018_2019",
+      "last_published_report_date": "2018-12-21",
+      "next_report_date": "2018-12-24",
+      "original_scheduled_release_date": "2018-12-28",
+      "expected_catchup_release_date": "2019-02-01",
+      "exact_first_publication_vintage_for_all_missed_reports": false
+    }
+  ],
+  "phase23c": {
+    "synthetic_knowledge_rule": "ReportDate + 6 calendar days",
+    "label_maturity_embargo_present": false,
+    "phase182_immature_h5_dates": 6,
+    "phase182_total_h5_dates": 12,
+    "phase182_immature_h20_dates": 12,
+    "phase182_total_h20_dates": 12,
+    "affected_test_date": "2023-03-27",
+    "disposition": "QUARANTINED_NO_REUSE"
+  },
+  "admission": {
+    "historical_cftc_tff_pit_admitted": false,
+    "alpha_test_authorized": false,
+    "holdout_used": false,
+    "production_changed": false,
+    "prospective_shadow_capture_permitted_after_first_receipt_logger": true,
+    "f80_baseline": "FROZEN"
+  }
+}

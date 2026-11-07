@@ -1,0 +1,43 @@
+name: Phase 184 CFTC TFF COT publication-vintage PIT audit
+on:
+  push:
+    branches: [phase99-broad-pit-universe-charter]
+    paths:
+      - "research/phase184_cftc_release_vintage_pit_audit.py"
+      - "research/test_phase184_cftc_release_vintage_pit_audit.py"
+      - "research/phase184_cftc_release_vintage_pit_audit.json"
+      - "research/PHASE184_CFTC_TFF_PUBLICATION_VINTAGE_AND_PIT_GATE_AUDIT_2026-11-07.md"
+      - ".github/workflows/phase184_cftc_release_vintage_pit_audit.yml"
+      - "SMART_MONEY_RESEARCH_STATE.md"
+  pull_request:
+    branches: [main]
+    paths:
+      - "research/phase184_cftc_release_vintage_pit_audit.py"
+      - "research/test_phase184_cftc_release_vintage_pit_audit.py"
+      - "research/phase184_cftc_release_vintage_pit_audit.json"
+      - "research/PHASE184_CFTC_TFF_PUBLICATION_VINTAGE_AND_PIT_GATE_AUDIT_2026-11-07.md"
+      - ".github/workflows/phase184_cftc_release_vintage_pit_audit.yml"
+      - "SMART_MONEY_RESEARCH_STATE.md"
+  workflow_dispatch:
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile auditor and tests
+        run: python -m py_compile research/phase184_cftc_release_vintage_pit_audit.py research/test_phase184_cftc_release_vintage_pit_audit.py
+      - name: Run offline regression tests
+        run: python -m unittest research.test_phase184_cftc_release_vintage_pit_audit -v
+      - name: Generate audit snapshot
+        run: python research/phase184_cftc_release_vintage_pit_audit.py --output phase184_output/phase184_cftc_release_vintage_pit_audit.json
+      - name: Upload audit artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase184-cftc-release-vintage-pit-audit
+          path: phase184_output/phase184_cftc_release_vintage_pit_audit.json
+          if-no-files-found: error
+          retention-days: 90
