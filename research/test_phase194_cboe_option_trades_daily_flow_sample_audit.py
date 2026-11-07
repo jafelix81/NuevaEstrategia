@@ -138,7 +138,12 @@ class Phase194Tests(unittest.TestCase):
         self.assertFalse(result["raw_clock_values_persisted"] if "raw_clock_values_persisted" in result else False)
 
     def test_f80_and_alpha_controls_remain_closed(self):
-        result = audit_archive(b"not-a-zip")
+        buff = io.BytesIO()
+        with zipfile.ZipFile(buff, "w", zipfile.ZIP_DEFLATED) as z:
+            z.writestr("UnderlyingOptionsTrades_2026-01-07.csv", csv_bytes([make_row()]))
+            calc_fields = list(BASE_FIELDS) + list(CALCS_FIELDS)
+            z.writestr("UnderlyingOptionsTradesCalcs_2026-01-07.csv", csv_bytes([make_row(**{field: "0" for field in CALCS_FIELDS})], calc_fields))
+        result = audit_archive(buff.getvalue())
         self.assertFalse(result["alpha_admission"])
         self.assertFalse(result["strict_pit_admitted"])
         self.assertTrue(result["f80_frozen"])
