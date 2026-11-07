@@ -70,7 +70,7 @@ Early-close handling is also required: 390/405-minute subscription files may sti
 
 The public sample is linked from the current product page at https://datashop.cboe.com/download/sample/215. Phase 174 adds a hosted downloader and metadata-only auditor. It records schema, row, timestamp, contract-key, duplicate, interval, quote-crossing, zero-IV/Greek, zero-OI/volume and within-session SOD-OI consistency diagnostics. It does not persist raw rows, underlying symbols, option roots, strikes, expirations or contract keys.
 
-The hosted sample result is pending at report creation. A schema pass on one demonstration sample will establish parser compatibility only; it will not establish historical coverage or PIT.
+The first hosted run downloaded a 2,628,937-byte archive (SHA-256 7645a6cc94f1a984e98264a4b494f748e373c30ecde85de25ceadb83a5c56782) containing six top-level non-directory members but zero members whose direct filename ended in .csv. The first parser therefore found no CSV candidate and failed the sample gate after all 14 offline tests and the metadata artifact succeeded. This does not prove the sample is invalid; it exposes an archive-layout assumption. The follow-up parser now inspects nested ZIP/GZIP containers and extensionless text members using a header signature, while emitting only sanitized extension/type/size metadata. No raw sample rows or member names are retained. A schema pass on one demonstration sample will establish parser compatibility only; it will not establish historical coverage or PIT.
 
 | Gate | Status |
 |---|---|
@@ -78,7 +78,7 @@ The hosted sample result is pending at report creation. A schema pass on one dem
 | Product-page historical floor | CONDITIONAL: Jan 2012; FAQ says Jan 2010 |
 | Documented interval timestamp and OHLC/volume semantics | RESOLVED |
 | OCC SOD OI semantics | RESOLVED |
-| Public sample schema | PENDING HOSTED AUDIT |
+| Public sample schema | DIAGNOSTIC: 6 top-level members, 0 direct .csv; nested/extensionless inspection pending |
 | 2012–2020 format bridge | NOT TESTED |
 | 2022 regional-BBO regime | DOCUMENTED; historical field population not tested |
 | June 22, 2026 size regime | DOCUMENTED; sample coverage across boundary not tested |
@@ -90,3 +90,9 @@ The hosted sample result is pending at report creation. A schema pass on one dem
 **Decision:** retain Option Quotes as a conditional full-OPRA interval/IV/OI context candidate. Do not build a predictive panel or run forward-return tests until sample/schema compatibility, historical coverage, first-receipt vintages, contract identity and licensing pass. No vendor contact, purchase, alpha test, bootstrap/LOO, chronological OOS, final-holdout use or production change.
 
 F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## 7. Hosted diagnostic and correction
+
+- Initial hosted run: [42339245917](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42339245917), artifact [13561040983](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42339245917/artifacts/13561040983). Compilation and **14/14 offline tests** passed; the public download succeeded. The archive had 6 top-level members but the first parser found 0 direct .csv members, so the sample gate failed. This is an archive-discovery failure, not a row/schema result.
+- Follow-up correction adds nested ZIP/GZIP traversal and header-signature detection for extensionless text members, with sanitized member metadata only. The corrected hosted sample result is pending.

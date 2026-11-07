@@ -1340,3 +1340,10 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 - Operational scale: Cboe estimates all-symbol Calcs files at ~2,300 GB compressed/year for 1-minute, ~155 GB for 15-minute and ~40 GB for 60-minute. For a swing strategy, 15/60-minute or EOD should be evaluated before 1-minute full-market history. Prices were not confirmed.
 - Added Phase 174 metadata-only sample auditor, 14 offline tests and a PR-only workflow. Hosted sample result is pending; one sample can establish parser compatibility only, not universe coverage or PIT. Raw rows and symbols are not persisted.
 - Decision: retain as a conditional OPRA-wide interval/IV/OI context candidate, not signed flow. No feature panel, forward-return test, bootstrap/LOO, chronological OOS, final-holdout use, vendor contact/purchase or production change. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## Phase 174 — Cboe Option Quotes hosted archive diagnostic follow-up (2026-11-07)
+
+- Run [42339245917](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42339245917), artifact [13561040983](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42339245917/artifacts/13561040983): compile and 14/14 offline tests passed; public sample download succeeded (2,628,937 bytes, SHA-256 7645a6cc94f1a984e98264a4b494f748e373c30ecde85de25ceadb83a5c56782). The archive has six top-level non-directory members, but the initial parser found zero direct .csv filenames. The gate failed because archive discovery was too narrow; this is not evidence that the sample rows or schema are invalid.
+- Corrected parser now inspects nested ZIP/GZIP containers and extensionless text files by a header signature, retaining only sanitized member extension/type/size metadata. Follow-up hosted validation pending. No raw sample data or member names are stored.
+- Phase 149 OpenFIGI workflow [42339245885](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42339245885) was still running at this audit; no duplicate was started. No vendor purchase/contact, alpha test, OOS/holdout use or production/F80 change.

@@ -1,3 +1,4 @@
+import gzip
 import io
 import unittest
 import zipfile
@@ -115,6 +116,33 @@ class Phase174Tests(unittest.TestCase):
             zf.writestr("readme.txt", "no data")
         result = audit_archive(buf.getvalue())
         self.assertFalse(result["sample_schema_gate_pass"])
+
+    def test_extensionless_text_member_is_detected_by_header_signature(self):
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
+            zf.writestr("member_01", make_csv())
+        result = audit_archive(buf.getvalue())
+        self.assertTrue(result["sample_schema_gate_pass"])
+        self.assertEqual(result["data_member_count"], 1)
+
+    def test_nested_gzip_csv_member_is_detected(self):
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
+            zf.writestr("sample.csv.gz", gzip.compress(make_csv()))
+        result = audit_archive(buf.getvalue())
+        self.assertTrue(result["sample_schema_gate_pass"])
+        self.assertEqual(result["data_member_count"], 1)
+
+    def test_nested_zip_csv_member_is_detected(self):
+        inner = io.BytesIO()
+        with zipfile.ZipFile(inner, "w", zipfile.ZIP_DEFLATED) as zf:
+            zf.writestr("sample.csv", make_csv())
+        outer = io.BytesIO()
+        with zipfile.ZipFile(outer, "w", zipfile.ZIP_DEFLATED) as zf:
+            zf.writestr("nested_archive", inner.getvalue())
+        result = audit_archive(outer.getvalue())
+        self.assertTrue(result["sample_schema_gate_pass"])
+        self.assertEqual(result["data_member_count"], 1)
 
     def test_calcs_and_open_interest_are_optional_schema_variants(self):
         base_row = make_csv().decode().splitlines()[1].split(",")[:len(BASE_REQUIRED)]

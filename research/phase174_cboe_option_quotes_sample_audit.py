@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import gzip
 import hashlib
 import io
 import json
@@ -265,12 +266,72 @@ def audit_csv_bytes(data: bytes, member_index: int = 0) -> dict[str, Any]:
     }
 
 
+def _extension_chain(name: str) -> str:
+    suffixes = Path(name).suffixes
+    return "".join(suffixes[-2:]).lower() if suffixes else "[none]"
+
+
+def _looks_like_option_csv(payload: bytes) -> bool:
+    try:
+        first_line = payload.decode("utf-8-sig").splitlines()[0]
+        header = [normalize_header(x) for x in next(csv.reader([first_line]))]
+    except (UnicodeDecodeError, IndexError, StopIteration):
+        return False
+    return len(set(header) & set(BASE_REQUIRED)) >= 5
+
+
+def _walk_archive_member(name: str, payload: bytes, depth: int, counter: list[int],
+                         metadata: list[dict[str, Any]], data_members: list[dict[str, Any]]) -> None:
+    if depth > 3:
+        raise ValueError("nested_archive_depth_exceeded")
+    counter[0] += 1
+    if counter[0] > 500:
+        raise ValueError("too_many_nested_archive_members")
+    if payload.startswith(b"PK\x03\x04"):
+        metadata.append({"member_index": counter[0], "extension_chain": _extension_chain(name),
+                         "container_type": "zip", "bytes": len(payload)})
+        with zipfile.ZipFile(io.BytesIO(payload)) as nested:
+            for info in nested.infolist():
+                if info.is_dir():
+                    continue
+                if info.file_size > 500_000_000:
+                    raise ValueError("nested_member_too_large")
+                _walk_archive_member(info.filename, nested.read(info), depth + 1,
+                                     counter, metadata, data_members)
+        return
+    if payload.startswith(b"\x1f\x8b"):
+        metadata.append({"member_index": counter[0], "extension_chain": _extension_chain(name),
+                         "container_type": "gzip", "bytes": len(payload)})
+        expanded = gzip.decompress(payload)
+        if len(expanded) > 500_000_000:
+            raise ValueError("gzip_member_too_large")
+        inner_name = name[:-3] if name.lower().endswith(".gz") else name + ".decompressed"
+        _walk_archive_member(inner_name, expanded, depth + 1, counter, metadata, data_members)
+        return
+    if _looks_like_option_csv(payload):
+        audit = audit_csv_bytes(payload, len(data_members))
+        audit["extension_chain"] = _extension_chain(name)
+        audit["uncompressed_bytes"] = len(payload)
+        audit["raw_member_name_persisted"] = False
+        data_members.append(audit)
+        metadata.append({"member_index": counter[0], "extension_chain": _extension_chain(name),
+                         "container_type": "option_csv_candidate", "bytes": len(payload)})
+    else:
+        try:
+            payload.decode("utf-8-sig")
+            kind = "text_non_option_csv"
+        except UnicodeDecodeError:
+            kind = "binary_non_data"
+        metadata.append({"member_index": counter[0], "extension_chain": _extension_chain(name),
+                         "container_type": kind, "bytes": len(payload)})
+
+
 def audit_archive(payload: bytes) -> dict[str, Any]:
     result: dict[str, Any] = {
         "phase": 174, "source": "Cboe Option Quotes / Option Quote Intervals",
         "sample_url": SAMPLE_URL, "download_status": "PASS",
         "archive_bytes": len(payload), "archive_sha256": hashlib.sha256(payload).hexdigest(),
-        "members": [], "sample_schema_gate_pass": False,
+        "members": [], "archive_member_metadata": [], "sample_schema_gate_pass": False,
         "sample_admission": False, "pit_admission": False, "alpha_admission": False,
         "first_receipt_vintages_verified": False,
         "broad_pit_universe_coverage_verified": False,
@@ -278,20 +339,23 @@ def audit_archive(payload: bytes) -> dict[str, Any]:
         "bootstrap_loo_tested": False, "chronological_oos_tested": False,
         "final_holdout_used": False, "production_changed": False, "f80_changed": False,
     }
+    if not payload.startswith(b"PK\x03\x04"):
+        raise ValueError("sample_not_zip")
     with zipfile.ZipFile(io.BytesIO(payload)) as zf:
         infos = [i for i in zf.infolist() if not i.is_dir()]
         if len(infos) > 100:
             raise ValueError("too_many_archive_members")
-        csv_infos = [i for i in infos if i.filename.lower().endswith(".csv")]
         result["archive_member_count"] = len(infos)
-        result["csv_member_count"] = len(csv_infos)
-        for index, info in enumerate(csv_infos):
+        counter = [0]
+        for info in infos:
             if info.file_size > 500_000_000:
-                raise ValueError("csv_member_too_large")
-            member = audit_csv_bytes(zf.read(info), index)
-            member["compressed_bytes"] = info.compress_size
-            member["uncompressed_bytes"] = info.file_size
-            result["members"].append(member)
+                raise ValueError("archive_member_too_large")
+            _walk_archive_member(info.filename, zf.read(info), 0, counter,
+                                 result["archive_member_metadata"], result["members"])
+    result["leaf_member_count"] = counter[0]
+    result["data_member_count"] = len(result["members"])
+    result["container_type_counts"] = dict(Counter(x["container_type"] for x in result["archive_member_metadata"]))
+    result["extension_chain_counts"] = dict(Counter(x["extension_chain"] for x in result["archive_member_metadata"]))
     result["sample_schema_gate_pass"] = bool(result["members"]) and all(
         m.get("schema_gate_pass", False) for m in result["members"]
     )
@@ -300,7 +364,6 @@ def audit_archive(payload: bytes) -> dict[str, Any]:
         else "DIAGNOSTIC_COMPLETE_SAMPLE_GATE_FAIL"
     )
     return result
-
 
 def download_sample(timeout: int = 45, max_bytes: int = 200_000_000) -> bytes:
     request = urllib.request.Request(
