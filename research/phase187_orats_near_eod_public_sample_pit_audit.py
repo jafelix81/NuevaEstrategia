@@ -24,6 +24,8 @@ FIELD_ALIASES = {
     "put_volume": {"putvolume", "pvolu"},
     "call_oi": {"callopeninterest", "coi", "calloi"},
     "put_oi": {"putopeninterest", "poi", "putoi"},
+}
+OPTIONAL_TIMESTAMP_ALIASES = {
     "updated_at": {"updatedat", "updatedtime", "updatetime"},
 }
 OPTIONAL_IV_ALIASES = {
@@ -90,7 +92,7 @@ def _field_map(headers):
             missing.append(canonical)
         else:
             resolved[canonical] = found
-    for canonical, aliases in {**OPTIONAL_IV_ALIASES, **OPTIONAL_REFERENCE_ALIASES}.items():
+    for canonical, aliases in {**OPTIONAL_TIMESTAMP_ALIASES, **OPTIONAL_IV_ALIASES, **OPTIONAL_REFERENCE_ALIASES}.items():
         found = next((by_norm[a] for a in aliases if a in by_norm), None)
         if found is not None:
             resolved[canonical] = found
@@ -109,6 +111,9 @@ def audit_csv(member_name, payload):
         "member_sha256": hashlib.sha256(payload).hexdigest(),
         "header_sha256": hashlib.sha256(",".join(_norm(x) for x in headers).encode()).hexdigest(),
         "column_count": len(headers),
+        "header_names": list(headers),
+        "timestamp_field_present": "updated_at" in fields,
+        "timestamp_field_name": fields.get("updated_at"),
         "missing_required_fields": missing,
         "duplicate_normalized_headers": duplicates,
         "schema_pass": not missing and not duplicates,
@@ -119,7 +124,8 @@ def audit_csv(member_name, payload):
         "missing_required_value_rows": 0, "invalid_volume_or_oi_rows": 0,
         "zero_call_volume_rows": 0, "zero_put_volume_rows": 0,
         "zero_call_oi_rows": 0, "zero_put_oi_rows": 0,
-        "iv_zero_or_missing_counts": {}, "updated_at_parse_fail_rows": 0,
+        "iv_zero_or_missing_counts": {}, "updated_at_missing_rows": 0,
+        "updated_at_absent_rows": 0, "updated_at_parse_fail_rows": 0,
         "updated_at_naive_rows": 0, "updated_at_aware_rows": 0,
         "updated_at_et_time_counts": {}, "updated_at_et_min": None,
         "updated_at_et_max": None, "raw_rows_persisted": False,
@@ -132,7 +138,7 @@ def audit_csv(member_name, payload):
     updated_min = updated_max = None
     mismatch = expiration_fail = strike_fail = missing_values = invalid_vol_oi = 0
     zero_call_vol = zero_put_vol = zero_call_oi = zero_put_oi = 0
-    blank_rows = duplicate_keys = parse_fail = naive_ts = aware_ts = 0
+    blank_rows = duplicate_keys = parse_fail = naive_ts = aware_ts = missing_ts = 0
     match = re.search(r"(\d{8})", Path(member_name).name)
     expected_date = _parse_date(match.group(1)) if match else date.fromisoformat(EXPECTED_SAMPLE_DATE)
     for raw in reader:
@@ -143,7 +149,7 @@ def audit_csv(member_name, payload):
         out["row_count"] += 1
         values = {k: str(row.get(col, "") or "").strip() for k, col in fields.items()}
         if any(not values.get(k) for k in ("ticker", "trade_date", "expiration", "strike",
-                                             "call_volume", "put_volume", "call_oi", "put_oi", "updated_at")):
+                                             "call_volume", "put_volume", "call_oi", "put_oi")):
             missing_values += 1
         ticker = values.get("ticker", "").upper()
         trade_day = _parse_date(values.get("trade_date"))
@@ -181,17 +187,22 @@ def audit_csv(member_name, payload):
                 n = _parse_number(values.get(field))
                 if n is None or n <= 0:
                     iv_zero_missing[field] += 1
-        stamp = _parse_timestamp(values.get("updated_at"))
-        if stamp is None:
-            parse_fail += 1
-        elif stamp.tzinfo is None:
-            naive_ts += 1
-        else:
-            aware_ts += 1
-            et_stamp = stamp.astimezone(ET)
-            updated_times[et_stamp.strftime("%H:%M:%S")] += 1
-            updated_min = et_stamp if updated_min is None or et_stamp < updated_min else updated_min
-            updated_max = et_stamp if updated_max is None or et_stamp > updated_max else updated_max
+        if "updated_at" in fields:
+            raw_stamp = values.get("updated_at", "")
+            if not raw_stamp:
+                missing_ts += 1
+            else:
+                stamp = _parse_timestamp(raw_stamp)
+                if stamp is None:
+                    parse_fail += 1
+                elif stamp.tzinfo is None:
+                    naive_ts += 1
+                else:
+                    aware_ts += 1
+                    et_stamp = stamp.astimezone(ET)
+                    updated_times[et_stamp.strftime("%H:%M:%S")] += 1
+                    updated_min = et_stamp if updated_min is None or et_stamp < updated_min else updated_min
+                    updated_max = et_stamp if updated_max is None or et_stamp > updated_max else updated_max
     out.update({
         "blank_rows": blank_rows, "unique_underlying_count": len(tickers),
         "unique_contract_key_count": len(contract_keys), "duplicate_contract_key_rows": duplicate_keys,
@@ -202,6 +213,8 @@ def audit_csv(member_name, payload):
         "zero_call_volume_rows": zero_call_vol, "zero_put_volume_rows": zero_put_vol,
         "zero_call_oi_rows": zero_call_oi, "zero_put_oi_rows": zero_put_oi,
         "iv_zero_or_missing_counts": dict(sorted(iv_zero_missing.items())),
+        "updated_at_missing_rows": missing_ts,
+        "updated_at_absent_rows": out["row_count"] if "updated_at" not in fields else 0,
         "updated_at_parse_fail_rows": parse_fail, "updated_at_naive_rows": naive_ts,
         "updated_at_aware_rows": aware_ts, "updated_at_et_time_counts": dict(sorted(updated_times.items())),
         "updated_at_et_min": updated_min.isoformat() if updated_min else None,
@@ -236,10 +249,24 @@ def audit_archive(payload, retrieved_at_utc=None):
     mismatch = sum(int(x["trade_date_filename_mismatch_rows"]) for x in audits)
     parse_errors = sum(int(x["updated_at_parse_fail_rows"]) for x in audits)
     naive = sum(int(x["updated_at_naive_rows"]) for x in audits)
+    missing_ts = sum(int(x["updated_at_missing_rows"]) for x in audits)
+    timestamp_members = sum(bool(x["timestamp_field_present"]) for x in audits)
+    timestamp_aware = sum(int(x["updated_at_aware_rows"]) for x in audits)
+    timestamp_diagnostic_pass = (timestamp_members == len(audits) and timestamp_aware == rows
+                                 and missing_ts == 0 and parse_errors == 0 and naive == 0)
     missing = sum(int(x["missing_required_value_rows"]) for x in audits)
     invalid = sum(int(x["invalid_volume_or_oi_rows"]) + int(x["invalid_strike_rows"]) +
                   int(x["expiration_parse_fail_rows"]) for x in audits)
-    passed = schema_pass and rows > 0 and underlyings > 0 and mismatch == 0 and parse_errors == 0 and naive == 0 and missing == 0 and invalid == 0
+    duplicate_keys = sum(int(x["duplicate_contract_key_rows"]) for x in audits)
+    passed = schema_pass and rows > 0 and underlyings > 0 and mismatch == 0 and missing == 0 and invalid == 0 and duplicate_keys == 0
+    if not passed:
+        status = "PUBLIC_SAMPLE_DIAGNOSTIC_REQUIRES_REVIEW"
+    elif timestamp_members == 0:
+        status = "PUBLIC_SAMPLE_SCHEMA_AND_ROW_DIAGNOSTICS_PASS_TIMESTAMP_ABSENT"
+    elif timestamp_diagnostic_pass:
+        status = "PUBLIC_SAMPLE_SCHEMA_AND_ROW_DIAGNOSTICS_PASS_TIMESTAMP_PRESENT"
+    else:
+        status = "PUBLIC_SAMPLE_SCHEMA_AND_ROW_DIAGNOSTICS_PASS_OPTIONAL_TIMESTAMP_INCOMPLETE"
     return {
         "phase": 187, "source": "ORATS Near End-of-Day historical options chain",
         "sample_url": SOURCE_URL, "expected_sample_date": EXPECTED_SAMPLE_DATE,
@@ -247,7 +274,15 @@ def audit_archive(payload, retrieved_at_utc=None):
         "retrieved_at_utc": retrieved_at_utc or datetime.now(timezone.utc).isoformat(),
         "csv_member_count": len(audits), "member_audits": audits,
         "sample_schema_pass": schema_pass, "sample_overall_pass": passed,
-        "overall_status": "PUBLIC_SAMPLE_SCHEMA_AND_ROW_DIAGNOSTICS_PASS" if passed else "PUBLIC_SAMPLE_DIAGNOSTIC_REQUIRES_REVIEW",
+        "timestamp_field_present": timestamp_members == len(audits),
+        "timestamp_field_members": timestamp_members,
+        "timestamp_aware_rows": timestamp_aware,
+        "timestamp_missing_rows": missing_ts,
+        "timestamp_parse_fail_rows": parse_errors,
+        "timestamp_naive_rows": naive,
+        "timestamp_diagnostic_pass": timestamp_diagnostic_pass,
+        "duplicate_contract_key_rows": duplicate_keys,
+        "overall_status": status,
         "historical_coverage_verified": False, "inactive_delisted_coverage_verified": False,
         "historical_first_receipt_vintages_verified": False, "strict_pit_admitted": False,
         "aggressor_side_available": False, "open_close_available": False,

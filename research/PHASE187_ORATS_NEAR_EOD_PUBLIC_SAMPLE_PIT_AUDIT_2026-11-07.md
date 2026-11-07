@@ -67,11 +67,12 @@ Hosted result and aggregate artifact are added to this report after the workflow
 No purchase, vendor contact, alpha/return test, holdout use or production change. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
 
 
-## Hosted sample status
+## Hosted sample execution — first public download (2026-11-07)
 
-Pending the first hosted execution on the PR head. The workflow is diagnostic-only and fails closed if the public sample cannot be parsed or the required timestamp/date checks do not pass. No alpha or PIT admission is implied by a schema pass.
+- Run [42388926580](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42388926580) successfully downloaded the linked ZIP (66,808,802 compressed bytes; archive SHA-256 `e04a37310b0f453fedc03a000c55adfc517a119279150173916ebdc5fb514570`) and found one CSV member, `ORATS_SMV_Strikes_20240103.csv`, with 39 columns (member SHA-256 `e97a9835c4ed56da50b61656f1cb8811b8e5e69ffb74e1d9f3d5ca2a75ff39ae`).
+- The first hosted parser stopped before row iteration because it incorrectly required `updatedAt` as a core CSV field. The 39-column flat-file sample does not contain that field. The job's offline tests passed, the download step failed on this parser/schema mismatch, and the metadata-only artifact was still uploaded: [artifact 13580856815](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42388926580/artifacts/13580856815).
+- This is an auditor defect, not evidence that the ORATS file itself is malformed. Because the parser returned before iterating rows, the first run established no row count, underlying count, or contract-duplicate result. No raw CSV rows or symbols were persisted.
+- The correction makes a row-level timestamp optional for the flat-file structural audit, exposes the observed header names, and reports timestamp presence/quality separately. A missing timestamp does not imply PIT availability: first receipt, immutable revisions, and historical live vintages remain unverified.
+- The structural gate now also rejects duplicate contract keys, date/filename mismatches, invalid required volume/OI/strike/expiration values, and missing required core columns. A structural pass will not admit the source as strict PIT or authorize alpha testing.
 
-
-## Hosted CI correction note (2026-11-07)
-
-The first hosted attempt stopped in the offline test suite before downloading the public sample. The failure was in the test fixture: the missing-header test passed a row containing the intentionally omitted field to DictWriter, which rejected the fixture before the auditor could exercise its schema gate. The test helper now ignores extra fixture keys, and field-alias resolution in the auditor is sorted for deterministic selection. No sample data were downloaded or admitted by the failed run; the public-sample result remains pending.
+No purchase, vendor contact, holdout use, return test, or production change. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
