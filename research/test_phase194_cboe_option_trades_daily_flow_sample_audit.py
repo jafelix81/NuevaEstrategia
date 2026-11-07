@@ -91,6 +91,10 @@ class Phase194Tests(unittest.TestCase):
         self.assertEqual(result["market_date_filename_mismatch_rows"], 1)
         self.assertFalse(result["member_row_gate_pass"])
 
+    def test_member_without_filename_date_fails_gate(self):
+        result = audit_member("sample.csv", csv_bytes([make_row()]))
+        self.assertFalse(result["member_row_gate_pass"])
+
     def test_exact_ask_and_bid_are_only_candidate_sides(self):
         rows = [
             make_row(sequence_number="1001", trade_price="1.25", best_bid="1.20", best_ask="1.25", trade_size="10"),
@@ -128,6 +132,14 @@ class Phase194Tests(unittest.TestCase):
         self.assertTrue(result["daily_flow_measurement_candidate"])
         self.assertFalse(result["strict_pit_admitted"])
         self.assertFalse(result["alpha_admission"])
+
+    def test_single_member_archive_does_not_pass_cross_member_gate(self):
+        buff = io.BytesIO()
+        with zipfile.ZipFile(buff, "w", zipfile.ZIP_DEFLATED) as z:
+            z.writestr("UnderlyingOptionsTrades_2026-01-07.csv", csv_bytes([make_row()]))
+        result = audit_archive(buff.getvalue())
+        self.assertFalse(result["expected_two_member_pair_present"])
+        self.assertFalse(result["daily_flow_measurement_candidate"])
 
     def test_no_raw_symbols_contracts_or_clock_values_are_persisted(self):
         result = audit_member("UnderlyingOptionsTrades_2026-01-07.csv", csv_bytes([make_row()]))

@@ -336,6 +336,8 @@ def audit_member(member_name: str, payload: bytes) -> dict[str, object]:
         and nonblank_rows > 0
         and valid_rows == nonblank_rows
         and not internal_blank
+        and filename_day is not None
+        and filename_matches == nonblank_rows
         and filename_mismatches == 0
         and len(market_dates) == 1
     )
@@ -429,8 +431,12 @@ def audit_archive(raw_zip: bytes, retrieved_at_utc: str | None = None) -> dict[s
     members = [(name, audit_member(name, payload)) for name, payload in csv_members(raw_zip)]
     core_hashes = [item["core_trade_rows_sha256"] for _, item in members]
     row_counts = [item["nonblank_trade_rows"] for _, item in members]
-    core_match = bool(members) and len(set(core_hashes)) == 1 and len(set(row_counts)) == 1
-    members_pass = bool(members) and all(item["member_row_gate_pass"] for _, item in members)
+    names = [item["member_basename"].lower() for _, item in members]
+    has_base_member = any("underlyingoptionstrades_" in name and "calcs" not in name for name in names)
+    has_calcs_member = any("underlyingoptionstradescalcs_" in name for name in names)
+    expected_member_pair = len(members) == 2 and has_base_member and has_calcs_member
+    core_match = expected_member_pair and len(set(core_hashes)) == 1 and len(set(row_counts)) == 1
+    members_pass = expected_member_pair and all(item["member_row_gate_pass"] for _, item in members)
     daily_candidate = members_pass and core_match
     return {
         "phase": 194,
@@ -441,6 +447,7 @@ def audit_archive(raw_zip: bytes, retrieved_at_utc: str | None = None) -> dict[s
         "retrieved_at_utc": retrieved_at_utc or datetime.now(timezone.utc).isoformat(),
         "member_count": len(members),
         "member_audits": [item for _, item in members],
+        "expected_two_member_pair_present": expected_member_pair,
         "core_trade_rows_match_across_members": core_match,
         "daily_flow_measurement_candidate": daily_candidate,
         "signed_flow_feature_admitted": False,
