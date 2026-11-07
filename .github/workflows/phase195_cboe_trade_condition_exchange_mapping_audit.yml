@@ -1,0 +1,60 @@
+name: Phase 195 Cboe Option Trades condition and exchange mapping audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "research/phase195_cboe_trade_condition_exchange_mapping_audit.py"
+      - "research/phase195_cboe_trade_condition_exchange_mapping_audit.json"
+      - "research/test_phase195_cboe_trade_condition_exchange_mapping_audit.py"
+      - ".github/workflows/phase195_cboe_trade_condition_exchange_mapping_audit.yml"
+      - "SMART_MONEY_RESEARCH_STATE.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase195-cboe-trade-condition-exchange-mapping-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile audit and tests
+        run: python -m py_compile research/phase195_cboe_trade_condition_exchange_mapping_audit.py research/test_phase195_cboe_trade_condition_exchange_mapping_audit.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase195_cboe_trade_condition_exchange_mapping_audit
+      - name: Download and reconcile official Cboe mappings to the public sample
+        run: python -m research.phase195_cboe_trade_condition_exchange_mapping_audit --output-dir phase195_output
+      - name: Validate diagnostic-only controls
+        run: |
+          python - <<'PY'
+          import json
+          p = "phase195_output/phase195_cboe_trade_condition_exchange_mapping_audit.json"
+          s = json.load(open(p, encoding="utf-8"))
+          assert s["phase"] == 195
+          assert s["strict_pit_admitted"] is False
+          assert s["signed_flow_feature_admitted"] is False
+          assert s["alpha_admission"] is False
+          assert s["holdout_used"] is False
+          assert s["production_changed"] is False
+          assert s["vendor_contact"] is False
+          assert s["data_purchase"] is False
+          assert s["f80_frozen"] is True
+          assert s["status"] in {"MAPPINGS_RECONCILED", "MAPPING_GAP_OR_MEMBER_MISMATCH", "DOWNLOAD_OR_PARSE_FAILED"}
+          print("PHASE195_STATUS=" + s["status"])
+          PY
+      - name: Upload metadata-only mapping audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase195-cboe-trade-condition-exchange-mapping-audit
+          path: phase195_output/phase195_cboe_trade_condition_exchange_mapping_audit.json
+          if-no-files-found: error
+          retention-days: 90

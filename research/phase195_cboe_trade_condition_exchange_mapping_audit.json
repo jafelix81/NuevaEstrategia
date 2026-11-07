@@ -1,0 +1,29 @@
+{
+  "phase": 195,
+  "audit_as_of": "2026-11-07",
+  "source": "Cboe DataShop public reference files and public Option Trades sample",
+  "urls": {
+    "condition_mapping": "https://datashop.cboe.com/documents/livevol_trade_condition_ids.xlsx",
+    "exchange_mapping": "https://datashop.cboe.com/documents/livevol_exchange_ids.csv",
+    "sample": "https://datashop.cboe.com/download/sample/216",
+    "livevol_message_condition_api_docs": "https://api.livevol.com/v1/docs/Help/Api/GET-allaccess-reference-message-conditions"
+  },
+  "purpose": "Reconcile every trade_condition_id and exchange_id observed in the 2026-01-07 public sample against official current Cboe reference mappings, without treating current mappings as historical effective-dated truth.",
+  "controls": {
+    "raw_trade_rows_persisted": false,
+    "raw_symbols_persisted": false,
+    "raw_contracts_persisted": false,
+    "mapping_files_persisted": false,
+    "vendor_contact": false,
+    "data_purchase": false,
+    "first_receipt_verified": false,
+    "historical_mapping_pit_verified": false,
+    "strict_pit_admitted": false,
+    "signed_flow_feature_admitted": false,
+    "alpha_admission": false,
+    "holdout_used": false,
+    "production_changed": false,
+    "f80_frozen": true
+  },
+  "decision": "Even if every observed code maps, eligibility is limited to explicitly documented regular/normal option-trade conditions. All other condition types remain quarantined. Effective dates and historical mapping vintages must be verified before backtesting."
+}
