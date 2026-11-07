@@ -67,12 +67,23 @@ Hosted result and aggregate artifact are added to this report after the workflow
 No purchase, vendor contact, alpha/return test, holdout use or production change. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
 
 
-## Hosted sample execution — first public download (2026-11-07)
+## Hosted sample execution — schema correction and contract-identity follow-up (2026-11-07)
 
-- Run [42388926580](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42388926580) successfully downloaded the linked ZIP (66,808,802 compressed bytes; archive SHA-256 `e04a37310b0f453fedc03a000c55adfc517a119279150173916ebdc5fb514570`) and found one CSV member, `ORATS_SMV_Strikes_20240103.csv`, with 39 columns (member SHA-256 `e97a9835c4ed56da50b61656f1cb8811b8e5e69ffb74e1d9f3d5ca2a75ff39ae`).
-- The first hosted parser stopped before row iteration because it incorrectly required `updatedAt` as a core CSV field. The 39-column flat-file sample does not contain that field. The job's offline tests passed, the download step failed on this parser/schema mismatch, and the metadata-only artifact was still uploaded: [artifact 13580856815](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42388926580/artifacts/13580856815).
-- This is an auditor defect, not evidence that the ORATS file itself is malformed. Because the parser returned before iterating rows, the first run established no row count, underlying count, or contract-duplicate result. No raw CSV rows or symbols were persisted.
-- The correction makes a row-level timestamp optional for the flat-file structural audit, exposes the observed header names, and reports timestamp presence/quality separately. A missing timestamp does not imply PIT availability: first receipt, immutable revisions, and historical live vintages remain unverified.
-- The structural gate now also rejects duplicate contract keys, date/filename mismatches, invalid required volume/OI/strike/expiration values, and missing required core columns. A structural pass will not admit the source as strict PIT or authorize alpha testing.
+### First attempt: parser assumption corrected
+- Run [42388926580](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42388926580) downloaded the public ZIP (66,808,802 compressed bytes; archive SHA-256 `e04a37310b0f453fedc03a000c55adfc517a119279150173916ebdc5fb514570`) and found one CSV member, `ORATS_SMV_Strikes_20240103.csv`, with 39 columns (member SHA-256 `e97a9835c4ed56da50b61656f1cb8811b8e5e69ffb74e1d9f3d5ca2a75ff39ae`).
+- The first parser incorrectly required `updatedAt`. The flat-file sample does not contain it. The job stopped before row iteration; artifact [13580856815](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42388926580/artifacts/13580856815) contains metadata only. This was an auditor defect, not a source-file failure.
 
-No purchase, vendor contact, holdout use, return test, or production change. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+### Second attempt: row-level sample diagnostics
+- Run [42390402753](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42390402753) used the corrected optional-timestamp parser and completed row iteration. It found **716,822 rows**, **5,787 distinct underlying symbols**, one CSV member and 39 columns.
+- Core structural checks passed: zero trade-date/filename mismatches, zero missing required values, zero invalid strikes/expirations and zero invalid/negative volume or OI values.
+- The incomplete key `ticker + trade_date + expiration + strike + root` produced 1,590 candidate collisions (715,232 distinct partial keys). The auditor incorrectly treated these as confirmed duplicate contracts and failed the sample gate. The file has no `root` or `optionSymbol` column, so these are **partial-key collisions**, not proven duplicate records.
+- The sample also contains `cOpra` and `pOpra` columns. The public Near-EOD field list reviewed does not define these two fields. Their values must remain opaque until semantics are verified. The next audit records only nonblank/unique counts, pair uniqueness and string-length distributions; it never persists the raw codes or assumes they are valid option identifiers.
+- IV zero/missing diagnostics: call/put mid-IV 14,867/18,852 rows (2.07%/2.63%); call/put bid-IV 387,949/417,371 (54.12%/58.23%). Zero call/put volume rows were 599,189/621,057; zero call/put OI rows were 354,006/419,702. These are diagnostics, not proof of missing data or a signal.
+- The second run's metadata-only artifact is [13581540031](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42390402753/artifacts/13581540031). No raw rows, symbols or opaque codes were persisted.
+
+### Correction in this revision
+- Separate the structural file gate from partial-key identity diagnostics. Partial-key collisions no longer masquerade as confirmed duplicate contracts or invalidate the CSV's core schema/row checks.
+- Add opaque `cOpra`/`pOpra` pair diagnostics (coverage, unique counts, pair collisions and lengths) without asserting their meaning. A unique pair is only a candidate identifier; semantics, adjusted deliverables and historical identity remain unverified.
+- A structural sample pass still does **not** admit historical PIT: no per-file first-receipt ledger, immutable correction vintages, full historical coverage or inactive-name coverage has been proven.
+
+No purchase, vendor contact, alpha/return test, holdout use or production change. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.

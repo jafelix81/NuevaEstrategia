@@ -28,6 +28,12 @@ FIELD_ALIASES = {
 OPTIONAL_TIMESTAMP_ALIASES = {
     "updated_at": {"updatedat", "updatedtime", "updatetime"},
 }
+# The public sample contains cOpra/pOpra. Treat these as opaque codes until
+# their exact semantics are documented; never persist their raw values.
+OPTIONAL_IDENTITY_ALIASES = {
+    "call_opra_code": {"copra"},
+    "put_opra_code": {"popra"},
+}
 OPTIONAL_IV_ALIASES = {
     "call_mid_iv": {"callmidiv", "cmidiv"},
     "put_mid_iv": {"putmidiv", "pmidiv"},
@@ -92,7 +98,7 @@ def _field_map(headers):
             missing.append(canonical)
         else:
             resolved[canonical] = found
-    for canonical, aliases in {**OPTIONAL_TIMESTAMP_ALIASES, **OPTIONAL_IV_ALIASES, **OPTIONAL_REFERENCE_ALIASES}.items():
+    for canonical, aliases in {**OPTIONAL_TIMESTAMP_ALIASES, **OPTIONAL_IDENTITY_ALIASES, **OPTIONAL_IV_ALIASES, **OPTIONAL_REFERENCE_ALIASES}.items():
         found = next((by_norm[a] for a in aliases if a in by_norm), None)
         if found is not None:
             resolved[canonical] = found
@@ -114,11 +120,19 @@ def audit_csv(member_name, payload):
         "header_names": list(headers),
         "timestamp_field_present": "updated_at" in fields,
         "timestamp_field_name": fields.get("updated_at"),
+        "opaque_code_pair_fields_present": ("call_opra_code" in fields and "put_opra_code" in fields),
+        "call_opra_code_field_name": fields.get("call_opra_code"),
+        "put_opra_code_field_name": fields.get("put_opra_code"),
         "missing_required_fields": missing,
         "duplicate_normalized_headers": duplicates,
         "schema_pass": not missing and not duplicates,
         "row_count": 0, "blank_rows": 0, "unique_underlying_count": 0,
         "unique_contract_key_count": 0, "duplicate_contract_key_rows": 0,
+        "partial_ticker_expiration_strike_collision_rows": 0,
+        "call_opra_code_missing_rows": 0, "put_opra_code_missing_rows": 0,
+        "call_opra_code_unique_count": 0, "put_opra_code_unique_count": 0,
+        "opaque_code_pair_unique_count": 0, "opaque_code_pair_duplicate_rows": 0,
+        "call_opra_code_length_counts": {}, "put_opra_code_length_counts": {},
         "trade_date_counts": {}, "trade_date_filename_mismatch_rows": 0,
         "expiration_parse_fail_rows": 0, "invalid_strike_rows": 0,
         "missing_required_value_rows": 0, "invalid_volume_or_oi_rows": 0,
@@ -134,11 +148,14 @@ def audit_csv(member_name, payload):
     if missing or duplicates:
         return out
     tickers, contract_keys = set(), set()
+    call_opra_codes, put_opra_codes, opaque_code_pairs = set(), set(), set()
+    call_code_lengths, put_code_lengths = Counter(), Counter()
     trade_dates, iv_zero_missing, updated_times = Counter(), Counter(), Counter()
     updated_min = updated_max = None
     mismatch = expiration_fail = strike_fail = missing_values = invalid_vol_oi = 0
     zero_call_vol = zero_put_vol = zero_call_oi = zero_put_oi = 0
     blank_rows = duplicate_keys = parse_fail = naive_ts = aware_ts = missing_ts = 0
+    call_code_missing = put_code_missing = opaque_pair_duplicates = 0
     match = re.search(r"(\d{8})", Path(member_name).name)
     expected_date = _parse_date(match.group(1)) if match else date.fromisoformat(EXPECTED_SAMPLE_DATE)
     for raw in reader:
@@ -172,6 +189,26 @@ def audit_csv(member_name, payload):
                 duplicate_keys += 1
             else:
                 contract_keys.add(key)
+        call_code = values.get("call_opra_code", "").upper()
+        put_code = values.get("put_opra_code", "").upper()
+        if "call_opra_code" in fields:
+            if call_code:
+                call_opra_codes.add(call_code)
+                call_code_lengths[len(call_code)] += 1
+            else:
+                call_code_missing += 1
+        if "put_opra_code" in fields:
+            if put_code:
+                put_opra_codes.add(put_code)
+                put_code_lengths[len(put_code)] += 1
+            else:
+                put_code_missing += 1
+        if call_code and put_code:
+            pair = (call_code, put_code)
+            if pair in opaque_code_pairs:
+                opaque_pair_duplicates += 1
+            else:
+                opaque_code_pairs.add(pair)
         for field, label in (("call_volume", "call"), ("put_volume", "put"),
                              ("call_oi", "call_oi"), ("put_oi", "put_oi")):
             n = _parse_number(values.get(field))
@@ -206,6 +243,15 @@ def audit_csv(member_name, payload):
     out.update({
         "blank_rows": blank_rows, "unique_underlying_count": len(tickers),
         "unique_contract_key_count": len(contract_keys), "duplicate_contract_key_rows": duplicate_keys,
+        "partial_ticker_expiration_strike_collision_rows": duplicate_keys,
+        "call_opra_code_missing_rows": call_code_missing,
+        "put_opra_code_missing_rows": put_code_missing,
+        "call_opra_code_unique_count": len(call_opra_codes),
+        "put_opra_code_unique_count": len(put_opra_codes),
+        "opaque_code_pair_unique_count": len(opaque_code_pairs),
+        "opaque_code_pair_duplicate_rows": opaque_pair_duplicates,
+        "call_opra_code_length_counts": dict(sorted(call_code_lengths.items())),
+        "put_opra_code_length_counts": dict(sorted(put_code_lengths.items())),
         "trade_date_counts": dict(sorted(trade_dates.items())),
         "trade_date_filename_mismatch_rows": mismatch,
         "expiration_parse_fail_rows": expiration_fail, "invalid_strike_rows": strike_fail,
@@ -257,16 +303,25 @@ def audit_archive(payload, retrieved_at_utc=None):
     missing = sum(int(x["missing_required_value_rows"]) for x in audits)
     invalid = sum(int(x["invalid_volume_or_oi_rows"]) + int(x["invalid_strike_rows"]) +
                   int(x["expiration_parse_fail_rows"]) for x in audits)
-    duplicate_keys = sum(int(x["duplicate_contract_key_rows"]) for x in audits)
-    passed = schema_pass and rows > 0 and underlyings > 0 and mismatch == 0 and missing == 0 and invalid == 0 and duplicate_keys == 0
+    partial_collisions = sum(int(x["partial_ticker_expiration_strike_collision_rows"]) for x in audits)
+    call_code_missing = sum(int(x["call_opra_code_missing_rows"]) for x in audits)
+    put_code_missing = sum(int(x["put_opra_code_missing_rows"]) for x in audits)
+    call_code_unique = sum(int(x["call_opra_code_unique_count"]) for x in audits)
+    put_code_unique = sum(int(x["put_opra_code_unique_count"]) for x in audits)
+    opaque_pair_unique = sum(int(x["opaque_code_pair_unique_count"]) for x in audits)
+    opaque_pair_duplicates = sum(int(x["opaque_code_pair_duplicate_rows"]) for x in audits)
+    code_pair_members = sum(bool(x["opaque_code_pair_fields_present"]) for x in audits)
+    opaque_code_pair_unique_candidate = (
+        code_pair_members == len(audits) and call_code_missing == 0 and put_code_missing == 0
+        and opaque_pair_duplicates == 0 and opaque_pair_unique == rows
+    )
+    passed = schema_pass and rows > 0 and underlyings > 0 and mismatch == 0 and missing == 0 and invalid == 0
     if not passed:
         status = "PUBLIC_SAMPLE_DIAGNOSTIC_REQUIRES_REVIEW"
-    elif timestamp_members == 0:
-        status = "PUBLIC_SAMPLE_SCHEMA_AND_ROW_DIAGNOSTICS_PASS_TIMESTAMP_ABSENT"
-    elif timestamp_diagnostic_pass:
-        status = "PUBLIC_SAMPLE_SCHEMA_AND_ROW_DIAGNOSTICS_PASS_TIMESTAMP_PRESENT"
+    elif opaque_code_pair_unique_candidate:
+        status = "PUBLIC_SAMPLE_SCHEMA_AND_ROW_DIAGNOSTICS_PASS_OPAQUE_CODE_PAIR_UNIQUE_SEMANTICS_UNVERIFIED"
     else:
-        status = "PUBLIC_SAMPLE_SCHEMA_AND_ROW_DIAGNOSTICS_PASS_OPTIONAL_TIMESTAMP_INCOMPLETE"
+        status = "PUBLIC_SAMPLE_SCHEMA_AND_ROW_DIAGNOSTICS_PASS_CONTRACT_IDENTITY_UNRESOLVED"
     return {
         "phase": 187, "source": "ORATS Near End-of-Day historical options chain",
         "sample_url": SOURCE_URL, "expected_sample_date": EXPECTED_SAMPLE_DATE,
@@ -281,7 +336,16 @@ def audit_archive(payload, retrieved_at_utc=None):
         "timestamp_parse_fail_rows": parse_errors,
         "timestamp_naive_rows": naive,
         "timestamp_diagnostic_pass": timestamp_diagnostic_pass,
-        "duplicate_contract_key_rows": duplicate_keys,
+        "partial_ticker_expiration_strike_collision_rows": partial_collisions,
+        "call_opra_code_missing_rows": call_code_missing,
+        "put_opra_code_missing_rows": put_code_missing,
+        "call_opra_code_unique_count": call_code_unique,
+        "put_opra_code_unique_count": put_code_unique,
+        "opaque_code_pair_unique_count": opaque_pair_unique,
+        "opaque_code_pair_duplicate_rows": opaque_pair_duplicates,
+        "opaque_code_pair_unique_candidate": opaque_code_pair_unique_candidate,
+        "opaque_code_pair_semantics_verified": False,
+        "contract_identity_admitted": False,
         "overall_status": status,
         "historical_coverage_verified": False, "inactive_delisted_coverage_verified": False,
         "historical_first_receipt_vintages_verified": False, "strict_pit_admitted": False,
