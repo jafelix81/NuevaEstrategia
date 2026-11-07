@@ -1,4 +1,9 @@
 import unittest
+import json
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
 from research.phase192_nport_direct_short_equity_sample_discovery import build_audit, load_evidence
 
 
@@ -40,7 +45,7 @@ class Phase192NportDirectShortDiscoveryTests(unittest.TestCase):
             self.assertTrue(row["source_url"].startswith("https://www.sec.gov/Archives/edgar/data/"))
 
     def test_directory_times_are_not_promoted_to_acceptance_times(self):
-        self.assertGreaterEqual(len(self.evidence["timestamp_observations"]), 3)
+        self.assertGreaterEqual(len(self.evidence["timestamp_observations"]), 4)
         self.assertTrue(all(not x["timezone_and_acceptance_semantics_verified"] for x in self.evidence["timestamp_observations"]))
 
     def test_raw_xml_retrieval_and_hashes_remain_pending(self):
@@ -84,6 +89,24 @@ class Phase192NportDirectShortDiscoveryTests(unittest.TestCase):
         bad["complete_short_rows"] = [dict(self.evidence["complete_short_rows"][0], asset_category="DE")]
         with self.assertRaises(ValueError):
             build_audit(bad)
+
+
+    def test_source_urls_match_accessions(self):
+        for row in self.evidence["complete_short_rows"]:
+            self.assertIn(row["accession"].replace("-", ""), row["source_url"])
+
+    def test_cli_output_is_valid_json(self):
+        script = Path(__file__).with_name("phase192_nport_direct_short_equity_sample_discovery.py")
+        repo_root = Path(__file__).resolve().parents[1]
+        with tempfile.TemporaryDirectory() as tmp:
+            output = Path(tmp) / "audit.json"
+            subprocess.run(
+                [sys.executable, str(script), "--output", str(output)],
+                cwd=repo_root, check=True, capture_output=True, text=True
+            )
+            parsed = json.loads(output.read_text(encoding="utf-8"))
+            self.assertEqual(parsed["phase"], 192)
+            self.assertEqual(parsed["complete_short_row_excerpts"], 11)
 
 
 if __name__ == "__main__":

@@ -37,6 +37,8 @@ def build_audit(evidence: dict[str, Any] | None = None) -> dict[str, Any]:
             raise ValueError("Row does not meet the narrow non-derivative US corporate common-equity filter")
         if not row["source_url"].startswith("https://www.sec.gov/Archives/edgar/data/"):
             raise ValueError("Only SEC-hosted primary documents are admissible discovery sources")
+        if row["accession"].replace("-", "") not in row["source_url"]:
+            raise ValueError("SEC source URL does not contain the row accession")
         if row.get("units") == "NS" and (not isinstance(row.get("balance"), (int, float)) or row["balance"] >= 0):
             raise ValueError("Observed NS short balance must be negative")
         if row.get("currency_value_usd", 0) >= 0 or row.get("pct_net_assets", 0) >= 0:
@@ -76,7 +78,7 @@ def main() -> None:
     args = parser.parse_args()
     result = build_audit()
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\\n", encoding="utf-8")
+    args.output.write_text(json.dumps(result, indent=2, sort_keys=True) + chr(10), encoding="utf-8")
     print(json.dumps(result, indent=2, sort_keys=True))
 
 

@@ -33,6 +33,8 @@ jobs:
         run: python -m unittest -v research.test_phase192_nport_direct_short_equity_sample_discovery
       - name: Build deterministic discovery audit
         run: python -m research.phase192_nport_direct_short_equity_sample_discovery --output phase192_output/phase192_nport_short_discovery_audit.json
+      - name: Validate generated audit JSON
+        run: python -c "import json; json.load(open('phase192_output/phase192_nport_short_discovery_audit.json', encoding='utf-8'))"
       - name: Upload metadata-only audit artifact
         uses: actions/upload-artifact@v4
         with:

@@ -18,9 +18,9 @@ This is meaningful evidence that the proposed variable exists in actual historic
 
 The sample is purposive and discovery-driven, not random. Filing year is taken from the accession; report dates are not inferred. The SEC-hosted XML URLs are recorded in the machine-readable evidence ledger.
 
-Three SEC archive-directory listing timestamps were also observed (2020-08-21 12:55:43; 2023-09-29 14:46:20; 2025-05-28 16:04:35). These strings are retained only as directory observations. Their timezone and relationship to the authoritative acceptance timestamp were not reconciled, so they are **not** used as PIT availability times.
+Four SEC archive-directory listing timestamps were also observed (2020-08-21 12:55:43; 2022-09-15 14:23:22; 2023-09-29 14:46:20; 2025-05-28 16:04:35). These strings are retained only as directory observations. Their timezone and relationship to the authoritative acceptance timestamp were not reconciled, so they are **not** used as PIT availability times.
 
-**Important retrieval limitation:** the full raw XML files could not be retrieved and hashed in this phase. The current evidence is search-indexed excerpts of SEC-hosted XML, not a deterministic parse of complete filing bytes. The phase therefore does not claim raw-file integrity, full filing identity, or amendment lineage.
+**Important retrieval limitation:** the full raw XML files for the short-row sample accessions could not be retrieved and hashed in this phase. The current evidence is search-indexed excerpts of SEC-hosted XML, not a deterministic parse of complete filing bytes. The phase therefore does not claim raw-file integrity, full filing identity, or amendment lineage.
 
 ## Narrow interpretation
 

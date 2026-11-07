@@ -228,6 +228,13 @@
       "sec_archive_directory_timestamp_text": "2025-05-28 16:04:35",
       "source_url": "https://www.sec.gov/Archives/edgar/data/1467631/",
       "timezone_and_acceptance_semantics_verified": false
+    },
+    {
+      "accession": "0001145549-22-056239",
+      "registrant_cik": "0001511699",
+      "sec_archive_directory_timestamp_text": "2022-09-15 14:23:22",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1511699/",
+      "timezone_and_acceptance_semantics_verified": false
     }
   ],
   "admission_gates": {
