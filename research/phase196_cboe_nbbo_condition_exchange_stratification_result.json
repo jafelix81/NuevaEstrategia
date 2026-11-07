@@ -1,0 +1,20 @@
+{
+  "phase": 196,
+  "status": "PENDING_HOSTED_EXECUTION",
+  "scope": "one-day, one-underlying public Cboe sample; descriptive only",
+  "sample_url": "https://datashop.cboe.com/download/sample/216",
+  "strict_pit_admitted": false,
+  "signed_flow_feature_admitted": false,
+  "alpha_admission": false,
+  "return_test_run": false,
+  "holdout_used": false,
+  "production_changed": false,
+  "data_purchase": false,
+  "vendor_contact": false,
+  "raw_trade_rows_persisted": false,
+  "raw_symbols_persisted": false,
+  "raw_contracts_persisted": false,
+  "raw_clock_values_persisted": false,
+  "f80_frozen": true,
+  "note": "Replace this pending record with the hosted metadata-only audit result after Phase 196 completes."
+}
