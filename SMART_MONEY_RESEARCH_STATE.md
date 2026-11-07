@@ -1533,3 +1533,14 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 - Disposition: conditional top-priority reference-data candidate only. No account, API request, sample download, free credits, vendor contact, purchase, terms acceptance, returns test, alpha test, holdout use, or production change. Require authorization before account/credits/terms. Require sample, US common-equity coverage, record-time/receipt-time, lifecycle identity, entitlement, license, and survivorship-free return-series gates before admission.
 - Legacy 335 names remain diagnostic only. Phase 20C remains killed for the tested short-volume stock-selection implementation; do not reopen it. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
 - Report: research/PHASE190_DATABENTO_PIT_SECURITY_MASTER_BROAD_UNIVERSE_FEASIBILITY_2026-11-07.md; evidence: research/phase190_databento_security_master_feasibility.json; auditor: research/phase190_databento_security_master_feasibility.py; tests: research/test_phase190_databento_security_master_feasibility.py; workflow: .github/workflows/phase190_databento_security_master_feasibility.yml.
+
+
+## 2026-11-07 — Phase 191: SEC N-PORT registered-fund short exposure
+- **Status:** conditional public-data candidate; no alpha claim.
+- SEC's public N-PORT data sets cover 2019-10 through 2026-09 across 28 quarterly archives (about 11.38 GB compressed total).
+- Current public disclosure remains quarterly; only the third month of each fund fiscal quarter is intended to be public, with filing due within 60 days after fiscal-quarter end. The 2024 monthly-reporting changes are delayed to 2027/2028; the 2026 proposal is not treated as current law.
+- Current non-derivative Item C.3 carries long/short/N/A. First hypothesis is restricted to direct US common-equity short positions; derivative exposures remain separate. A short label is not evidence of informed bearish intent.
+- Bulk SUBMISSION metadata has filing date but no acceptance timestamp; amendments must be append-only and knowledge time must be established from EDGAR acceptance/receipt, never report date. The quarterly bulk archive's own publication time controls if that archive is the data source.
+- Fund portfolio identity is SERIES_ID, not registrant CIK or each share class. CUSIP/ISIN/ticker are optional. Historical PIT security mapping and delisted coverage are not established.
+- **Next gate:** sample actual non-derivative US common-equity short rows; validate value-sign concordance, series deduplication, amendment lineage, acceptance timestamps and historical security mapping. No returns/alpha test until all gates pass.
+- No bulk archive downloaded; no purchase/vendor contact; no holdout or production change. Phase 27O's killed long-accumulation result is not reused against this distinct short-side hypothesis. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
