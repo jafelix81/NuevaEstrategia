@@ -1352,3 +1352,23 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 ## Phase 174 — local regression hardening (2026-11-07)
 - Parser now separates quote_datetime errors from contract identity errors and emits sanitized timestamp-shape counts only.
 - Local regression suite: 19/19 passed, including 17/18/25/26-column schema variants, nested ZIP/GZIP, extensionless CSV detection, duplicate-key detection, SOD-OI invariance and legacy timestamp-shape classification. Hosted revalidation is still required.
+
+
+## Phase 175 — Cboe Option Quotes date-locale ambiguity audit (2026-11-07)
+
+- Final hosted run [42341825158](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42341825158), artifact [13561539797](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42341825158/artifacts/13561539797): compile passed, **9/9 offline tests passed**, public sample re-downloaded and date-locale diagnostics completed. Artifact is metadata-only. Archive SHA-256: \`7645a6cc94f1a984e98264a4b494f748e373c30ecde85de25ceadb83a5c56782\`.
+- Five CSV members contain 115,617 populated rows across 17/18/25/26-column variants. Four legacy slash-date members (22,610 / 21,999 / 24,999 / 24,999 rows) have quote date 2023-09-21; all quote timestamps parse unambiguously as US-slash minute precision (8 distinct times, 10:30–16:15 ET). Each member has 826 expiration rows that yield two different US-vs-DMY dates; the remaining expiration rows have one US interpretation. Do not sum ambiguous counts across variants or select a locale by guess.
+- The fifth ISO member has 21,010 rows, one underlying and one timestamp (2022-02-02 09:39 ET); 454 rows expire that same day and 20,556 later. It is not a time series or broad-universe sample.
+- Cboe Option Quotes v1.1 requires ISO quote_datetime and expiration fields; the public archive mixes an undocumented slash-date regime with ISO. The sample remains **not admitted**; no row normalization, PIT panel, return test or alpha test. The Phase 174 parser remains strict. Current product page advertises Jan 2012 history while FAQ says Jan 2010; Jan 2012 remains the conservative floor pending reconciliation.
+- Decision: park this sample as a format-compatibility diagnostic. Reopen only with a versioned Cboe layout explanation or a clean historical sample; do not spend on full-market data based on this sample.
+
+## Phase 149 — final OpenFIGI run on Phase 175 head (2026-11-07)
+
+- Run [42341825100](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42341825100), artifact [13562475552](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42341825100/artifacts/13562475552): success, 16/16 offline tests, 68 API batches, zero API errors.
+- 553 CUSIPs: 437 primary matches (429 one-share-class, 4 one-FIGI-only, 2 one-composite-only, 2 multiple-composite-only); 116 primary no-matches. Eight-character fallback recovered 7 unique identities; 109 remain unresolved. Total any-match 444/553 (80.29%).
+- Retain as a present-day candidate crosswalk only. No effective dates, historical ticker mapping, security-class continuity or active/delisted universe membership are established. Do not backdate OpenFIGI results.
+
+### Phase 175 governance
+- No forward-return, bootstrap/LOO, chronological OOS or final-holdout test. No vendor contact/purchase, no production change and no F80 change.
+- \`F80_TOP20_PARTIAL50_BASELINE_C20\` remains frozen.
+- Phase 153 Form 4/A cross-quarter preflight remains blocked on missing GitHub Actions secret \`SEC_CONTACT_EMAIL\`; no SEC request was made by the blocked preflight.
