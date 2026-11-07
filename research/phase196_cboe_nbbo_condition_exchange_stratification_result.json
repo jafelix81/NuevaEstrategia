@@ -1,20 +1,4187 @@
 {
+  "audit_as_of_utc": "2026-11-07T22:15:43.833941+00:00",
+  "condition_bucket_groups": [
+    {
+      "at_ask_contract_volume": 112489,
+      "at_ask_price_times_contracts_no_multiplier": "178139.31",
+      "at_bid_contract_volume": 128884,
+      "at_bid_price_times_contracts_no_multiplier": "182640.01",
+      "bucket": "auto_execution",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -16395,
+      "candidate_signed_price_times_contracts_no_multiplier": "-4500.70",
+      "contract_volume": 269551,
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 112489,
+        "at_bid_candidate": 128884,
+        "inside_spread_unclassified": 8606,
+        "invalid_or_crossed_nbbo": 16,
+        "locked_nbbo_unclassified": 3960,
+        "midpoint_unclassified": 15214,
+        "missing_nbbo": 1,
+        "outside_above_ask": 226,
+        "outside_below_bid": 155
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 17389,
+        "at_bid_candidate": 18754,
+        "inside_spread_unclassified": 1538,
+        "invalid_or_crossed_nbbo": 3,
+        "locked_nbbo_unclassified": 606,
+        "midpoint_unclassified": 1962,
+        "missing_nbbo": 1,
+        "outside_above_ask": 39,
+        "outside_below_bid": 42
+      },
+      "other_nbbo_class_contract_volume": 28178,
+      "rows": 40334
+    },
+    {
+      "at_ask_contract_volume": 5854,
+      "at_ask_price_times_contracts_no_multiplier": "9023.46",
+      "at_bid_contract_volume": 7699,
+      "at_bid_price_times_contracts_no_multiplier": "8662.65",
+      "bucket": "intermarket_sweep",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -1845,
+      "candidate_signed_price_times_contracts_no_multiplier": "360.81",
+      "contract_volume": 14142,
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 5854,
+        "at_bid_candidate": 7699,
+        "inside_spread_unclassified": 72,
+        "locked_nbbo_unclassified": 14,
+        "midpoint_unclassified": 157,
+        "outside_above_ask": 236,
+        "outside_below_bid": 110
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 1056,
+        "at_bid_candidate": 1006,
+        "inside_spread_unclassified": 13,
+        "locked_nbbo_unclassified": 6,
+        "midpoint_unclassified": 38,
+        "outside_above_ask": 31,
+        "outside_below_bid": 15
+      },
+      "other_nbbo_class_contract_volume": 589,
+      "rows": 2165
+    },
+    {
+      "at_ask_contract_volume": 15921,
+      "at_ask_price_times_contracts_no_multiplier": "44533.02",
+      "at_bid_contract_volume": 17355,
+      "at_bid_price_times_contracts_no_multiplier": "65675.62",
+      "bucket": "multi_leg",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -1434,
+      "candidate_signed_price_times_contracts_no_multiplier": "-21142.60",
+      "contract_volume": 92020,
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 15921,
+        "at_bid_candidate": 17355,
+        "inside_spread_unclassified": 39754,
+        "invalid_or_crossed_nbbo": 40,
+        "locked_nbbo_unclassified": 93,
+        "midpoint_unclassified": 13154,
+        "outside_above_ask": 1899,
+        "outside_below_bid": 3804
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 1985,
+        "at_bid_candidate": 2690,
+        "inside_spread_unclassified": 5063,
+        "invalid_or_crossed_nbbo": 2,
+        "locked_nbbo_unclassified": 11,
+        "midpoint_unclassified": 2329,
+        "outside_above_ask": 124,
+        "outside_below_bid": 127
+      },
+      "other_nbbo_class_contract_volume": 58744,
+      "rows": 12331
+    },
+    {
+      "at_ask_contract_volume": 34636,
+      "at_ask_price_times_contracts_no_multiplier": "30684.10",
+      "at_bid_contract_volume": 55114,
+      "at_bid_price_times_contracts_no_multiplier": "45338.03",
+      "bucket": "single_leg_auction_or_cross",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -20478,
+      "candidate_signed_price_times_contracts_no_multiplier": "-14653.93",
+      "contract_volume": 143607,
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 34636,
+        "at_bid_candidate": 55114,
+        "inside_spread_unclassified": 30426,
+        "locked_nbbo_unclassified": 11,
+        "midpoint_unclassified": 22762,
+        "outside_above_ask": 285,
+        "outside_below_bid": 373
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 4212,
+        "at_bid_candidate": 5236,
+        "inside_spread_unclassified": 6123,
+        "locked_nbbo_unclassified": 2,
+        "midpoint_unclassified": 4410,
+        "outside_above_ask": 37,
+        "outside_below_bid": 71
+      },
+      "other_nbbo_class_contract_volume": 53857,
+      "rows": 20091
+    },
+    {
+      "at_ask_contract_volume": 3408,
+      "at_ask_price_times_contracts_no_multiplier": "53942.80",
+      "at_bid_contract_volume": 15,
+      "at_bid_price_times_contracts_no_multiplier": "50.5",
+      "bucket": "single_leg_floor",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 3393,
+      "candidate_signed_price_times_contracts_no_multiplier": "53892.30",
+      "contract_volume": 10347,
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 3408,
+        "at_bid_candidate": 15,
+        "inside_spread_unclassified": 6905,
+        "midpoint_unclassified": 19
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 2,
+        "at_bid_candidate": 3,
+        "inside_spread_unclassified": 7,
+        "midpoint_unclassified": 2
+      },
+      "other_nbbo_class_contract_volume": 6924,
+      "rows": 14
+    },
+    {
+      "at_ask_contract_volume": 5,
+      "at_ask_price_times_contracts_no_multiplier": "2.07",
+      "at_bid_contract_volume": 9,
+      "at_bid_price_times_contracts_no_multiplier": "20.57",
+      "bucket": "stock_option",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -4,
+      "candidate_signed_price_times_contracts_no_multiplier": "-18.50",
+      "contract_volume": 1560,
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 5,
+        "at_bid_candidate": 9,
+        "inside_spread_unclassified": 1503,
+        "midpoint_unclassified": 43
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 5,
+        "at_bid_candidate": 8,
+        "inside_spread_unclassified": 38,
+        "midpoint_unclassified": 13
+      },
+      "other_nbbo_class_contract_volume": 1546,
+      "rows": 64
+    }
+  ],
+  "condition_exchange_cells": [
+    {
+      "at_ask_contract_volume": 4396,
+      "at_ask_price_times_contracts_no_multiplier": "6145.53",
+      "at_bid_contract_volume": 6927,
+      "at_bid_price_times_contracts_no_multiplier": "5663.81",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -2531,
+      "candidate_signed_price_times_contracts_no_multiplier": "481.72",
+      "condition_id": 18,
+      "condition_name": "AutoExecution",
+      "contract_volume": 13180,
+      "exchange_id": 1,
+      "exchange_name": "NASD",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 4396,
+        "at_bid_candidate": 6927,
+        "inside_spread_unclassified": 568,
+        "invalid_or_crossed_nbbo": 2,
+        "locked_nbbo_unclassified": 185,
+        "midpoint_unclassified": 1092,
+        "outside_above_ask": 10
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 570,
+        "at_bid_candidate": 536,
+        "inside_spread_unclassified": 237,
+        "invalid_or_crossed_nbbo": 1,
+        "locked_nbbo_unclassified": 6,
+        "midpoint_unclassified": 278,
+        "outside_above_ask": 1
+      },
+      "other_nbbo_class_contract_volume": 1857,
+      "rows": 1629
+    },
+    {
+      "at_ask_contract_volume": 10598,
+      "at_ask_price_times_contracts_no_multiplier": "15164.26",
+      "at_bid_contract_volume": 6003,
+      "at_bid_price_times_contracts_no_multiplier": "6418.54",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 4595,
+      "candidate_signed_price_times_contracts_no_multiplier": "8745.72",
+      "condition_id": 18,
+      "condition_name": "AutoExecution",
+      "contract_volume": 16650,
+      "exchange_id": 4,
+      "exchange_name": "AMEX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 10598,
+        "at_bid_candidate": 6003,
+        "inside_spread_unclassified": 13,
+        "locked_nbbo_unclassified": 3,
+        "outside_above_ask": 5,
+        "outside_below_bid": 28
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 1602,
+        "at_bid_candidate": 1085,
+        "inside_spread_unclassified": 5,
+        "locked_nbbo_unclassified": 2,
+        "outside_above_ask": 1,
+        "outside_below_bid": 5
+      },
+      "other_nbbo_class_contract_volume": 49,
+      "rows": 2700
+    },
+    {
+      "at_ask_contract_volume": 4527,
+      "at_ask_price_times_contracts_no_multiplier": "5371.24",
+      "at_bid_contract_volume": 7197,
+      "at_bid_price_times_contracts_no_multiplier": "7155.89",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -2670,
+      "candidate_signed_price_times_contracts_no_multiplier": "-1784.65",
+      "condition_id": 18,
+      "condition_name": "AutoExecution",
+      "contract_volume": 15198,
+      "exchange_id": 5,
+      "exchange_name": "CBOE",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 4527,
+        "at_bid_candidate": 7197,
+        "inside_spread_unclassified": 1396,
+        "locked_nbbo_unclassified": 23,
+        "midpoint_unclassified": 1996,
+        "outside_above_ask": 9,
+        "outside_below_bid": 50
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 841,
+        "at_bid_candidate": 1275,
+        "inside_spread_unclassified": 310,
+        "locked_nbbo_unclassified": 11,
+        "midpoint_unclassified": 405,
+        "outside_above_ask": 7,
+        "outside_below_bid": 19
+      },
+      "other_nbbo_class_contract_volume": 3474,
+      "rows": 2868
+    },
+    {
+      "at_ask_contract_volume": 993,
+      "at_ask_price_times_contracts_no_multiplier": "2342.08",
+      "at_bid_contract_volume": 1199,
+      "at_bid_price_times_contracts_no_multiplier": "2200.39",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -206,
+      "candidate_signed_price_times_contracts_no_multiplier": "141.69",
+      "condition_id": 18,
+      "condition_name": "AutoExecution",
+      "contract_volume": 2309,
+      "exchange_id": 6,
+      "exchange_name": "ISE",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 993,
+        "at_bid_candidate": 1199,
+        "inside_spread_unclassified": 47,
+        "locked_nbbo_unclassified": 51,
+        "midpoint_unclassified": 14,
+        "outside_above_ask": 4,
+        "outside_below_bid": 1
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 149,
+        "at_bid_candidate": 150,
+        "inside_spread_unclassified": 11,
+        "locked_nbbo_unclassified": 9,
+        "midpoint_unclassified": 8,
+        "outside_above_ask": 1,
+        "outside_below_bid": 1
+      },
+      "other_nbbo_class_contract_volume": 117,
+      "rows": 329
+    },
+    {
+      "at_ask_contract_volume": 21407,
+      "at_ask_price_times_contracts_no_multiplier": "42544.82",
+      "at_bid_contract_volume": 26881,
+      "at_bid_price_times_contracts_no_multiplier": "53764.59",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -5474,
+      "candidate_signed_price_times_contracts_no_multiplier": "-11219.77",
+      "condition_id": 18,
+      "condition_name": "AutoExecution",
+      "contract_volume": 48311,
+      "exchange_id": 7,
+      "exchange_name": "ARCA",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 21407,
+        "at_bid_candidate": 26881,
+        "locked_nbbo_unclassified": 12,
+        "outside_above_ask": 11
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 3006,
+        "at_bid_candidate": 3847,
+        "locked_nbbo_unclassified": 5,
+        "outside_above_ask": 1
+      },
+      "other_nbbo_class_contract_volume": 23,
+      "rows": 6859
+    },
+    {
+      "at_ask_contract_volume": 3011,
+      "at_ask_price_times_contracts_no_multiplier": "6214.72",
+      "at_bid_contract_volume": 3037,
+      "at_bid_price_times_contracts_no_multiplier": "4219.80",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -26,
+      "candidate_signed_price_times_contracts_no_multiplier": "1994.92",
+      "condition_id": 18,
+      "condition_name": "AutoExecution",
+      "contract_volume": 6785,
+      "exchange_id": 9,
+      "exchange_name": "PHLX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 3011,
+        "at_bid_candidate": 3037,
+        "inside_spread_unclassified": 287,
+        "locked_nbbo_unclassified": 6,
+        "midpoint_unclassified": 442,
+        "outside_below_bid": 2
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 659,
+        "at_bid_candidate": 579,
+        "inside_spread_unclassified": 59,
+        "locked_nbbo_unclassified": 3,
+        "midpoint_unclassified": 55,
+        "outside_below_bid": 1
+      },
+      "other_nbbo_class_contract_volume": 737,
+      "rows": 1356
+    },
+    {
+      "at_ask_contract_volume": 3653,
+      "at_ask_price_times_contracts_no_multiplier": "4314.06",
+      "at_bid_contract_volume": 3403,
+      "at_bid_price_times_contracts_no_multiplier": "4610.56",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 250,
+      "candidate_signed_price_times_contracts_no_multiplier": "-296.50",
+      "condition_id": 18,
+      "condition_name": "AutoExecution",
+      "contract_volume": 7230,
+      "exchange_id": 11,
+      "exchange_name": "BOX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 3653,
+        "at_bid_candidate": 3403,
+        "inside_spread_unclassified": 1,
+        "locked_nbbo_unclassified": 107,
+        "outside_above_ask": 65,
+        "outside_below_bid": 1
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 464,
+        "at_bid_candidate": 482,
+        "inside_spread_unclassified": 1,
+        "locked_nbbo_unclassified": 44,
+        "outside_above_ask": 5,
+        "outside_below_bid": 1
+      },
+      "other_nbbo_class_contract_volume": 174,
+      "rows": 997
+    },
+    {
+      "at_ask_contract_volume": 9552,
+      "at_ask_price_times_contracts_no_multiplier": "16387.33",
+      "at_bid_contract_volume": 10353,
+      "at_bid_price_times_contracts_no_multiplier": "15743.57",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -801,
+      "candidate_signed_price_times_contracts_no_multiplier": "643.76",
+      "condition_id": 18,
+      "condition_name": "AutoExecution",
+      "contract_volume": 26365,
+      "exchange_id": 22,
+      "exchange_name": "MRX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 9552,
+        "at_bid_candidate": 10353,
+        "inside_spread_unclassified": 1735,
+        "locked_nbbo_unclassified": 46,
+        "midpoint_unclassified": 4635,
+        "outside_above_ask": 41,
+        "outside_below_bid": 3
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 1107,
+        "at_bid_candidate": 1239,
+        "inside_spread_unclassified": 212,
+        "locked_nbbo_unclassified": 9,
+        "midpoint_unclassified": 346,
+        "outside_above_ask": 5,
+        "outside_below_bid": 2
+      },
+      "other_nbbo_class_contract_volume": 6460,
+      "rows": 2920
+    },
+    {
+      "at_ask_contract_volume": 3129,
+      "at_ask_price_times_contracts_no_multiplier": "4708.03",
+      "at_bid_contract_volume": 3705,
+      "at_bid_price_times_contracts_no_multiplier": "4980.73",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -576,
+      "candidate_signed_price_times_contracts_no_multiplier": "-272.70",
+      "condition_id": 18,
+      "condition_name": "AutoExecution",
+      "contract_volume": 7887,
+      "exchange_id": 31,
+      "exchange_name": "GEMX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 3129,
+        "at_bid_candidate": 3705,
+        "inside_spread_unclassified": 345,
+        "locked_nbbo_unclassified": 19,
+        "midpoint_unclassified": 672,
+        "outside_above_ask": 15,
+        "outside_below_bid": 2
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 611,
+        "at_bid_candidate": 567,
+        "inside_spread_unclassified": 53,
+        "locked_nbbo_unclassified": 9,
+        "midpoint_unclassified": 84,
+        "outside_above_ask": 3,
+        "outside_below_bid": 1
+      },
+      "other_nbbo_class_contract_volume": 1053,
+      "rows": 1328
+    },
+    {
+      "at_ask_contract_volume": 4873,
+      "at_ask_price_times_contracts_no_multiplier": "3443.42",
+      "at_bid_contract_volume": 4898,
+      "at_bid_price_times_contracts_no_multiplier": "3485.31",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -25,
+      "candidate_signed_price_times_contracts_no_multiplier": "-41.89",
+      "condition_id": 18,
+      "condition_name": "AutoExecution",
+      "contract_volume": 13506,
+      "exchange_id": 42,
+      "exchange_name": "C2",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 4873,
+        "at_bid_candidate": 4898,
+        "inside_spread_unclassified": 1316,
+        "midpoint_unclassified": 2415,
+        "outside_below_bid": 4
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 400,
+        "at_bid_candidate": 461,
+        "inside_spread_unclassified": 29,
+        "midpoint_unclassified": 27,
+        "outside_below_bid": 1
+      },
+      "other_nbbo_class_contract_volume": 3735,
+      "rows": 918
+    },
+    {
+      "at_ask_contract_volume": 5492,
+      "at_ask_price_times_contracts_no_multiplier": "7126.84",
+      "at_bid_contract_volume": 6223,
+      "at_bid_price_times_contracts_no_multiplier": "5568.47",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -731,
+      "candidate_signed_price_times_contracts_no_multiplier": "1558.37",
+      "condition_id": 18,
+      "condition_name": "AutoExecution",
+      "contract_volume": 11939,
+      "exchange_id": 43,
+      "exchange_name": "MIAX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 5492,
+        "at_bid_candidate": 6223,
+        "locked_nbbo_unclassified": 208,
+        "midpoint_unclassified": 2,
+        "outside_below_bid": 14
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 1160,
+        "at_bid_candidate": 1011,
+        "locked_nbbo_unclassified": 16,
+        "midpoint_unclassified": 2,
+        "outside_below_bid": 3
+      },
+      "other_nbbo_class_contract_volume": 224,
+      "rows": 2192
+    },
+    {
+      "at_ask_contract_volume": 4298,
+      "at_ask_price_times_contracts_no_multiplier": "4720.23",
+      "at_bid_contract_volume": 6755,
+      "at_bid_price_times_contracts_no_multiplier": "4560.07",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -2457,
+      "candidate_signed_price_times_contracts_no_multiplier": "160.16",
+      "condition_id": 18,
+      "condition_name": "AutoExecution",
+      "contract_volume": 11144,
+      "exchange_id": 47,
+      "exchange_name": "NASDBX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 4298,
+        "at_bid_candidate": 6755,
+        "inside_spread_unclassified": 12,
+        "locked_nbbo_unclassified": 11,
+        "midpoint_unclassified": 57,
+        "missing_nbbo": 1,
+        "outside_above_ask": 5,
+        "outside_below_bid": 5
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 618,
+        "at_bid_candidate": 785,
+        "inside_spread_unclassified": 3,
+        "locked_nbbo_unclassified": 2,
+        "midpoint_unclassified": 4,
+        "missing_nbbo": 1,
+        "outside_above_ask": 1,
+        "outside_below_bid": 1
+      },
+      "other_nbbo_class_contract_volume": 91,
+      "rows": 1415
+    },
+    {
+      "at_ask_contract_volume": 4539,
+      "at_ask_price_times_contracts_no_multiplier": "6350.20",
+      "at_bid_contract_volume": 4736,
+      "at_bid_price_times_contracts_no_multiplier": "6475.10",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -197,
+      "candidate_signed_price_times_contracts_no_multiplier": "-124.90",
+      "condition_id": 18,
+      "condition_name": "AutoExecution",
+      "contract_volume": 14950,
+      "exchange_id": 60,
+      "exchange_name": "BZX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 4539,
+        "at_bid_candidate": 4736,
+        "inside_spread_unclassified": 2423,
+        "locked_nbbo_unclassified": 80,
+        "midpoint_unclassified": 3141,
+        "outside_above_ask": 8,
+        "outside_below_bid": 23
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 892,
+        "at_bid_candidate": 988,
+        "inside_spread_unclassified": 537,
+        "locked_nbbo_unclassified": 4,
+        "midpoint_unclassified": 602,
+        "outside_above_ask": 2,
+        "outside_below_bid": 3
+      },
+      "other_nbbo_class_contract_volume": 5675,
+      "rows": 3028
+    },
+    {
+      "at_ask_contract_volume": 5066,
+      "at_ask_price_times_contracts_no_multiplier": "7301.41",
+      "at_bid_contract_volume": 4155,
+      "at_bid_price_times_contracts_no_multiplier": "4924.99",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 911,
+      "candidate_signed_price_times_contracts_no_multiplier": "2376.42",
+      "condition_id": 18,
+      "condition_name": "AutoExecution",
+      "contract_volume": 9391,
+      "exchange_id": 65,
+      "exchange_name": "EDGX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 5066,
+        "at_bid_candidate": 4155,
+        "inside_spread_unclassified": 62,
+        "locked_nbbo_unclassified": 62,
+        "midpoint_unclassified": 36,
+        "outside_above_ask": 8,
+        "outside_below_bid": 2
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 718,
+        "at_bid_candidate": 667,
+        "inside_spread_unclassified": 20,
+        "locked_nbbo_unclassified": 17,
+        "midpoint_unclassified": 11,
+        "outside_above_ask": 4,
+        "outside_below_bid": 2
+      },
+      "other_nbbo_class_contract_volume": 170,
+      "rows": 1439
+    },
+    {
+      "at_ask_contract_volume": 7701,
+      "at_ask_price_times_contracts_no_multiplier": "14515.06",
+      "at_bid_contract_volume": 9231,
+      "at_bid_price_times_contracts_no_multiplier": "17367.10",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -1530,
+      "candidate_signed_price_times_contracts_no_multiplier": "-2852.04",
+      "condition_id": 18,
+      "condition_name": "AutoExecution",
+      "contract_volume": 16972,
+      "exchange_id": 69,
+      "exchange_name": "PEARL",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 7701,
+        "at_bid_candidate": 9231,
+        "invalid_or_crossed_nbbo": 4,
+        "locked_nbbo_unclassified": 16,
+        "midpoint_unclassified": 5,
+        "outside_below_bid": 15
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 1163,
+        "at_bid_candidate": 1253,
+        "invalid_or_crossed_nbbo": 1,
+        "locked_nbbo_unclassified": 6,
+        "midpoint_unclassified": 1,
+        "outside_below_bid": 1
+      },
+      "other_nbbo_class_contract_volume": 40,
+      "rows": 2425
+    },
+    {
+      "at_ask_contract_volume": 8233,
+      "at_ask_price_times_contracts_no_multiplier": "15342.22",
+      "at_bid_contract_volume": 10192,
+      "at_bid_price_times_contracts_no_multiplier": "20022.80",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -1959,
+      "candidate_signed_price_times_contracts_no_multiplier": "-4680.58",
+      "condition_id": 18,
+      "condition_name": "AutoExecution",
+      "contract_volume": 21358,
+      "exchange_id": 71,
+      "exchange_name": "EMLD",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 8233,
+        "at_bid_candidate": 10192,
+        "invalid_or_crossed_nbbo": 10,
+        "locked_nbbo_unclassified": 2917,
+        "outside_above_ask": 6
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 1655,
+        "at_bid_candidate": 1943,
+        "invalid_or_crossed_nbbo": 1,
+        "locked_nbbo_unclassified": 402,
+        "outside_above_ask": 2
+      },
+      "other_nbbo_class_contract_volume": 2933,
+      "rows": 4003
+    },
+    {
+      "at_ask_contract_volume": 5152,
+      "at_ask_price_times_contracts_no_multiplier": "7481.32",
+      "at_bid_contract_volume": 8766,
+      "at_bid_price_times_contracts_no_multiplier": "9959.46",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -3614,
+      "candidate_signed_price_times_contracts_no_multiplier": "-2478.14",
+      "condition_id": 18,
+      "condition_name": "AutoExecution",
+      "contract_volume": 15191,
+      "exchange_id": 120,
+      "exchange_name": "MEMX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 5152,
+        "at_bid_candidate": 8766,
+        "inside_spread_unclassified": 401,
+        "locked_nbbo_unclassified": 152,
+        "midpoint_unclassified": 707,
+        "outside_above_ask": 8,
+        "outside_below_bid": 5
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 825,
+        "at_bid_candidate": 1035,
+        "inside_spread_unclassified": 61,
+        "locked_nbbo_unclassified": 28,
+        "midpoint_unclassified": 139,
+        "outside_above_ask": 3,
+        "outside_below_bid": 1
+      },
+      "other_nbbo_class_contract_volume": 1273,
+      "rows": 2092
+    },
+    {
+      "at_ask_contract_volume": 5869,
+      "at_ask_price_times_contracts_no_multiplier": "8666.54",
+      "at_bid_contract_volume": 5223,
+      "at_bid_price_times_contracts_no_multiplier": "5518.83",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 646,
+      "candidate_signed_price_times_contracts_no_multiplier": "3147.71",
+      "condition_id": 18,
+      "condition_name": "AutoExecution",
+      "contract_volume": 11185,
+      "exchange_id": 121,
+      "exchange_name": "SPHR",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 5869,
+        "at_bid_candidate": 5223,
+        "locked_nbbo_unclassified": 62,
+        "outside_above_ask": 31
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 949,
+        "at_bid_candidate": 851,
+        "locked_nbbo_unclassified": 33,
+        "outside_above_ask": 3
+      },
+      "other_nbbo_class_contract_volume": 93,
+      "rows": 1836
+    },
+    {
+      "at_ask_contract_volume": 247,
+      "at_ask_price_times_contracts_no_multiplier": "386.87",
+      "at_bid_contract_volume": 137,
+      "at_bid_price_times_contracts_no_multiplier": "192.76",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 110,
+      "candidate_signed_price_times_contracts_no_multiplier": "194.11",
+      "condition_id": 95,
+      "condition_name": "IntermarketSweep",
+      "contract_volume": 408,
+      "exchange_id": 1,
+      "exchange_name": "NASD",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 247,
+        "at_bid_candidate": 137,
+        "inside_spread_unclassified": 2,
+        "locked_nbbo_unclassified": 2,
+        "midpoint_unclassified": 11,
+        "outside_below_bid": 9
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 24,
+        "at_bid_candidate": 43,
+        "inside_spread_unclassified": 2,
+        "locked_nbbo_unclassified": 2,
+        "midpoint_unclassified": 7,
+        "outside_below_bid": 1
+      },
+      "other_nbbo_class_contract_volume": 24,
+      "rows": 79
+    },
+    {
+      "at_ask_contract_volume": 100,
+      "at_ask_price_times_contracts_no_multiplier": "63.94",
+      "at_bid_contract_volume": 907,
+      "at_bid_price_times_contracts_no_multiplier": "150.21",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -807,
+      "candidate_signed_price_times_contracts_no_multiplier": "-86.27",
+      "condition_id": 95,
+      "condition_name": "IntermarketSweep",
+      "contract_volume": 1067,
+      "exchange_id": 4,
+      "exchange_name": "AMEX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 100,
+        "at_bid_candidate": 907,
+        "outside_above_ask": 60
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 12,
+        "at_bid_candidate": 32,
+        "outside_above_ask": 5
+      },
+      "other_nbbo_class_contract_volume": 60,
+      "rows": 49
+    },
+    {
+      "at_ask_contract_volume": 133,
+      "at_ask_price_times_contracts_no_multiplier": "80.24",
+      "at_bid_contract_volume": 406,
+      "at_bid_price_times_contracts_no_multiplier": "114.55",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -273,
+      "candidate_signed_price_times_contracts_no_multiplier": "-34.31",
+      "condition_id": 95,
+      "condition_name": "IntermarketSweep",
+      "contract_volume": 580,
+      "exchange_id": 5,
+      "exchange_name": "CBOE",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 133,
+        "at_bid_candidate": 406,
+        "inside_spread_unclassified": 1,
+        "midpoint_unclassified": 3,
+        "outside_above_ask": 17,
+        "outside_below_bid": 20
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 26,
+        "at_bid_candidate": 31,
+        "inside_spread_unclassified": 1,
+        "midpoint_unclassified": 3,
+        "outside_above_ask": 5,
+        "outside_below_bid": 3
+      },
+      "other_nbbo_class_contract_volume": 41,
+      "rows": 69
+    },
+    {
+      "at_ask_contract_volume": 153,
+      "at_ask_price_times_contracts_no_multiplier": "95.19",
+      "at_bid_contract_volume": 479,
+      "at_bid_price_times_contracts_no_multiplier": "305.63",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -326,
+      "candidate_signed_price_times_contracts_no_multiplier": "-210.44",
+      "condition_id": 95,
+      "condition_name": "IntermarketSweep",
+      "contract_volume": 632,
+      "exchange_id": 6,
+      "exchange_name": "ISE",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 153,
+        "at_bid_candidate": 479
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 41,
+        "at_bid_candidate": 30
+      },
+      "other_nbbo_class_contract_volume": 0,
+      "rows": 71
+    },
+    {
+      "at_ask_contract_volume": 2364,
+      "at_ask_price_times_contracts_no_multiplier": "5004.36",
+      "at_bid_contract_volume": 2603,
+      "at_bid_price_times_contracts_no_multiplier": "6240.87",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -239,
+      "candidate_signed_price_times_contracts_no_multiplier": "-1236.51",
+      "condition_id": 95,
+      "condition_name": "IntermarketSweep",
+      "contract_volume": 4995,
+      "exchange_id": 7,
+      "exchange_name": "ARCA",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 2364,
+        "at_bid_candidate": 2603,
+        "outside_above_ask": 5,
+        "outside_below_bid": 23
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 486,
+        "at_bid_candidate": 478,
+        "outside_above_ask": 2,
+        "outside_below_bid": 5
+      },
+      "other_nbbo_class_contract_volume": 28,
+      "rows": 971
+    },
+    {
+      "at_ask_contract_volume": 50,
+      "at_ask_price_times_contracts_no_multiplier": "176.49",
+      "at_bid_contract_volume": 583,
+      "at_bid_price_times_contracts_no_multiplier": "148.00",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -533,
+      "candidate_signed_price_times_contracts_no_multiplier": "28.49",
+      "condition_id": 95,
+      "condition_name": "IntermarketSweep",
+      "contract_volume": 648,
+      "exchange_id": 9,
+      "exchange_name": "PHLX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 50,
+        "at_bid_candidate": 583,
+        "locked_nbbo_unclassified": 1,
+        "midpoint_unclassified": 2,
+        "outside_above_ask": 12
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 18,
+        "at_bid_candidate": 24,
+        "locked_nbbo_unclassified": 1,
+        "midpoint_unclassified": 2,
+        "outside_above_ask": 2
+      },
+      "other_nbbo_class_contract_volume": 15,
+      "rows": 47
+    },
+    {
+      "at_ask_contract_volume": 233,
+      "at_ask_price_times_contracts_no_multiplier": "231.65",
+      "at_bid_contract_volume": 458,
+      "at_bid_price_times_contracts_no_multiplier": "190.81",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -225,
+      "candidate_signed_price_times_contracts_no_multiplier": "40.84",
+      "condition_id": 95,
+      "condition_name": "IntermarketSweep",
+      "contract_volume": 714,
+      "exchange_id": 11,
+      "exchange_name": "BOX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 233,
+        "at_bid_candidate": 458,
+        "outside_above_ask": 23
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 57,
+        "at_bid_candidate": 59,
+        "outside_above_ask": 2
+      },
+      "other_nbbo_class_contract_volume": 23,
+      "rows": 118
+    },
+    {
+      "at_ask_contract_volume": 173,
+      "at_ask_price_times_contracts_no_multiplier": "111.64",
+      "at_bid_contract_volume": 70,
+      "at_bid_price_times_contracts_no_multiplier": "33.12",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 103,
+      "candidate_signed_price_times_contracts_no_multiplier": "78.52",
+      "condition_id": 95,
+      "condition_name": "IntermarketSweep",
+      "contract_volume": 304,
+      "exchange_id": 22,
+      "exchange_name": "MRX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 173,
+        "at_bid_candidate": 70,
+        "inside_spread_unclassified": 48,
+        "midpoint_unclassified": 7,
+        "outside_above_ask": 6
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 41,
+        "at_bid_candidate": 36,
+        "inside_spread_unclassified": 4,
+        "midpoint_unclassified": 5,
+        "outside_above_ask": 2
+      },
+      "other_nbbo_class_contract_volume": 61,
+      "rows": 88
+    },
+    {
+      "at_ask_contract_volume": 183,
+      "at_ask_price_times_contracts_no_multiplier": "143.58",
+      "at_bid_contract_volume": 137,
+      "at_bid_price_times_contracts_no_multiplier": "222.04",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 46,
+      "candidate_signed_price_times_contracts_no_multiplier": "-78.46",
+      "condition_id": 95,
+      "condition_name": "IntermarketSweep",
+      "contract_volume": 322,
+      "exchange_id": 31,
+      "exchange_name": "GEMX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 183,
+        "at_bid_candidate": 137,
+        "midpoint_unclassified": 2
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 73,
+        "at_bid_candidate": 57,
+        "midpoint_unclassified": 2
+      },
+      "other_nbbo_class_contract_volume": 2,
+      "rows": 132
+    },
+    {
+      "at_ask_contract_volume": 762,
+      "at_ask_price_times_contracts_no_multiplier": "480.99",
+      "at_bid_contract_volume": 640,
+      "at_bid_price_times_contracts_no_multiplier": "143.11",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 122,
+      "candidate_signed_price_times_contracts_no_multiplier": "337.88",
+      "condition_id": 95,
+      "condition_name": "IntermarketSweep",
+      "contract_volume": 1433,
+      "exchange_id": 42,
+      "exchange_name": "C2",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 762,
+        "at_bid_candidate": 640,
+        "outside_above_ask": 31
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 73,
+        "at_bid_candidate": 68,
+        "outside_above_ask": 3
+      },
+      "other_nbbo_class_contract_volume": 31,
+      "rows": 144
+    },
+    {
+      "at_ask_contract_volume": 3,
+      "at_ask_price_times_contracts_no_multiplier": "1.92",
+      "at_bid_contract_volume": 180,
+      "at_bid_price_times_contracts_no_multiplier": "103.30",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -177,
+      "candidate_signed_price_times_contracts_no_multiplier": "-101.38",
+      "condition_id": 95,
+      "condition_name": "IntermarketSweep",
+      "contract_volume": 207,
+      "exchange_id": 43,
+      "exchange_name": "MIAX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 3,
+        "at_bid_candidate": 180,
+        "outside_above_ask": 24
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 1,
+        "at_bid_candidate": 6,
+        "outside_above_ask": 3
+      },
+      "other_nbbo_class_contract_volume": 24,
+      "rows": 10
+    },
+    {
+      "at_ask_contract_volume": 147,
+      "at_ask_price_times_contracts_no_multiplier": "121.49",
+      "at_bid_contract_volume": 15,
+      "at_bid_price_times_contracts_no_multiplier": "12.54",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 132,
+      "candidate_signed_price_times_contracts_no_multiplier": "108.95",
+      "condition_id": 95,
+      "condition_name": "IntermarketSweep",
+      "contract_volume": 162,
+      "exchange_id": 47,
+      "exchange_name": "NASDBX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 147,
+        "at_bid_candidate": 15
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 6,
+        "at_bid_candidate": 2
+      },
+      "other_nbbo_class_contract_volume": 0,
+      "rows": 8
+    },
+    {
+      "at_ask_contract_volume": 385,
+      "at_ask_price_times_contracts_no_multiplier": "892.84",
+      "at_bid_contract_volume": 338,
+      "at_bid_price_times_contracts_no_multiplier": "275.93",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 47,
+      "candidate_signed_price_times_contracts_no_multiplier": "616.91",
+      "condition_id": 95,
+      "condition_name": "IntermarketSweep",
+      "contract_volume": 746,
+      "exchange_id": 60,
+      "exchange_name": "BZX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 385,
+        "at_bid_candidate": 338,
+        "inside_spread_unclassified": 3,
+        "midpoint_unclassified": 10,
+        "outside_below_bid": 10
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 75,
+        "at_bid_candidate": 59,
+        "inside_spread_unclassified": 1,
+        "midpoint_unclassified": 6,
+        "outside_below_bid": 2
+      },
+      "other_nbbo_class_contract_volume": 23,
+      "rows": 143
+    },
+    {
+      "at_ask_contract_volume": 200,
+      "at_ask_price_times_contracts_no_multiplier": "152.15",
+      "at_bid_contract_volume": 455,
+      "at_bid_price_times_contracts_no_multiplier": "237.20",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -255,
+      "candidate_signed_price_times_contracts_no_multiplier": "-85.05",
+      "condition_id": 95,
+      "condition_name": "IntermarketSweep",
+      "contract_volume": 671,
+      "exchange_id": 65,
+      "exchange_name": "EDGX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 200,
+        "at_bid_candidate": 455,
+        "inside_spread_unclassified": 1,
+        "midpoint_unclassified": 10,
+        "outside_above_ask": 5
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 30,
+        "at_bid_candidate": 43,
+        "inside_spread_unclassified": 1,
+        "midpoint_unclassified": 1,
+        "outside_above_ask": 1
+      },
+      "other_nbbo_class_contract_volume": 16,
+      "rows": 76
+    },
+    {
+      "at_ask_contract_volume": 219,
+      "at_ask_price_times_contracts_no_multiplier": "368.21",
+      "at_bid_contract_volume": 105,
+      "at_bid_price_times_contracts_no_multiplier": "118.18",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 114,
+      "candidate_signed_price_times_contracts_no_multiplier": "250.03",
+      "condition_id": 95,
+      "condition_name": "IntermarketSweep",
+      "contract_volume": 399,
+      "exchange_id": 69,
+      "exchange_name": "PEARL",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 219,
+        "at_bid_candidate": 105,
+        "locked_nbbo_unclassified": 5,
+        "outside_above_ask": 26,
+        "outside_below_bid": 44
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 37,
+        "at_bid_candidate": 16,
+        "locked_nbbo_unclassified": 1,
+        "outside_above_ask": 3,
+        "outside_below_bid": 2
+      },
+      "other_nbbo_class_contract_volume": 75,
+      "rows": 59
+    },
+    {
+      "at_ask_contract_volume": 143,
+      "at_ask_price_times_contracts_no_multiplier": "106.28",
+      "at_bid_contract_volume": 18,
+      "at_bid_price_times_contracts_no_multiplier": "25.00",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 125,
+      "candidate_signed_price_times_contracts_no_multiplier": "81.28",
+      "condition_id": 95,
+      "condition_name": "IntermarketSweep",
+      "contract_volume": 163,
+      "exchange_id": 71,
+      "exchange_name": "EMLD",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 143,
+        "at_bid_candidate": 18,
+        "locked_nbbo_unclassified": 2
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 20,
+        "at_bid_candidate": 4,
+        "locked_nbbo_unclassified": 1
+      },
+      "other_nbbo_class_contract_volume": 2,
+      "rows": 25
+    },
+    {
+      "at_ask_contract_volume": 323,
+      "at_ask_price_times_contracts_no_multiplier": "519.62",
+      "at_bid_contract_volume": 28,
+      "at_bid_price_times_contracts_no_multiplier": "30.60",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 295,
+      "candidate_signed_price_times_contracts_no_multiplier": "489.02",
+      "condition_id": 95,
+      "condition_name": "IntermarketSweep",
+      "contract_volume": 485,
+      "exchange_id": 120,
+      "exchange_name": "MEMX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 323,
+        "at_bid_candidate": 28,
+        "inside_spread_unclassified": 17,
+        "locked_nbbo_unclassified": 4,
+        "midpoint_unclassified": 112,
+        "outside_below_bid": 1
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 26,
+        "at_bid_candidate": 7,
+        "inside_spread_unclassified": 4,
+        "locked_nbbo_unclassified": 1,
+        "midpoint_unclassified": 12,
+        "outside_below_bid": 1
+      },
+      "other_nbbo_class_contract_volume": 134,
+      "rows": 51
+    },
+    {
+      "at_ask_contract_volume": 36,
+      "at_ask_price_times_contracts_no_multiplier": "86.00",
+      "at_bid_contract_volume": 140,
+      "at_bid_price_times_contracts_no_multiplier": "118.80",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -104,
+      "candidate_signed_price_times_contracts_no_multiplier": "-32.80",
+      "condition_id": 95,
+      "condition_name": "IntermarketSweep",
+      "contract_volume": 206,
+      "exchange_id": 121,
+      "exchange_name": "SPHR",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 36,
+        "at_bid_candidate": 140,
+        "outside_above_ask": 27,
+        "outside_below_bid": 3
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 10,
+        "at_bid_candidate": 11,
+        "outside_above_ask": 3,
+        "outside_below_bid": 1
+      },
+      "other_nbbo_class_contract_volume": 30,
+      "rows": 25
+    },
+    {
+      "at_ask_contract_volume": 4545,
+      "at_ask_price_times_contracts_no_multiplier": "3332.95",
+      "at_bid_contract_volume": 6226,
+      "at_bid_price_times_contracts_no_multiplier": "4076.50",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -1681,
+      "candidate_signed_price_times_contracts_no_multiplier": "-743.55",
+      "condition_id": 114,
+      "condition_name": "SingLegAuctNonISO",
+      "contract_volume": 15743,
+      "exchange_id": 4,
+      "exchange_name": "AMEX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 4545,
+        "at_bid_candidate": 6226,
+        "inside_spread_unclassified": 2389,
+        "midpoint_unclassified": 2509,
+        "outside_above_ask": 61,
+        "outside_below_bid": 13
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 848,
+        "at_bid_candidate": 1206,
+        "inside_spread_unclassified": 767,
+        "midpoint_unclassified": 560,
+        "outside_above_ask": 9,
+        "outside_below_bid": 8
+      },
+      "other_nbbo_class_contract_volume": 4972,
+      "rows": 3398
+    },
+    {
+      "at_ask_contract_volume": 1343,
+      "at_ask_price_times_contracts_no_multiplier": "1111.56",
+      "at_bid_contract_volume": 1207,
+      "at_bid_price_times_contracts_no_multiplier": "725.79",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 136,
+      "candidate_signed_price_times_contracts_no_multiplier": "385.77",
+      "condition_id": 114,
+      "condition_name": "SingLegAuctNonISO",
+      "contract_volume": 5080,
+      "exchange_id": 5,
+      "exchange_name": "CBOE",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 1343,
+        "at_bid_candidate": 1207,
+        "inside_spread_unclassified": 1739,
+        "midpoint_unclassified": 771,
+        "outside_above_ask": 4,
+        "outside_below_bid": 16
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 304,
+        "at_bid_candidate": 331,
+        "inside_spread_unclassified": 314,
+        "midpoint_unclassified": 264,
+        "outside_above_ask": 1,
+        "outside_below_bid": 3
+      },
+      "other_nbbo_class_contract_volume": 2530,
+      "rows": 1217
+    },
+    {
+      "at_ask_contract_volume": 3418,
+      "at_ask_price_times_contracts_no_multiplier": "3785.67",
+      "at_bid_contract_volume": 4975,
+      "at_bid_price_times_contracts_no_multiplier": "3342.88",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -1557,
+      "candidate_signed_price_times_contracts_no_multiplier": "442.79",
+      "condition_id": 114,
+      "condition_name": "SingLegAuctNonISO",
+      "contract_volume": 14425,
+      "exchange_id": 6,
+      "exchange_name": "ISE",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 3418,
+        "at_bid_candidate": 4975,
+        "inside_spread_unclassified": 3096,
+        "locked_nbbo_unclassified": 1,
+        "midpoint_unclassified": 2837,
+        "outside_above_ask": 50,
+        "outside_below_bid": 48
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 448,
+        "at_bid_candidate": 564,
+        "inside_spread_unclassified": 811,
+        "locked_nbbo_unclassified": 1,
+        "midpoint_unclassified": 877,
+        "outside_above_ask": 4,
+        "outside_below_bid": 6
+      },
+      "other_nbbo_class_contract_volume": 6032,
+      "rows": 2711
+    },
+    {
+      "at_ask_contract_volume": 13353,
+      "at_ask_price_times_contracts_no_multiplier": "11772.25",
+      "at_bid_contract_volume": 23652,
+      "at_bid_price_times_contracts_no_multiplier": "20230.26",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -10299,
+      "candidate_signed_price_times_contracts_no_multiplier": "-8458.01",
+      "condition_id": 114,
+      "condition_name": "SingLegAuctNonISO",
+      "contract_volume": 55912,
+      "exchange_id": 9,
+      "exchange_name": "PHLX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 13353,
+        "at_bid_candidate": 23652,
+        "inside_spread_unclassified": 11557,
+        "locked_nbbo_unclassified": 10,
+        "midpoint_unclassified": 7141,
+        "outside_above_ask": 32,
+        "outside_below_bid": 167
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 1045,
+        "at_bid_candidate": 1239,
+        "inside_spread_unclassified": 1854,
+        "locked_nbbo_unclassified": 1,
+        "midpoint_unclassified": 1263,
+        "outside_above_ask": 9,
+        "outside_below_bid": 23
+      },
+      "other_nbbo_class_contract_volume": 18907,
+      "rows": 5434
+    },
+    {
+      "at_ask_contract_volume": 934,
+      "at_ask_price_times_contracts_no_multiplier": "1318.88",
+      "at_bid_contract_volume": 1199,
+      "at_bid_price_times_contracts_no_multiplier": "1586.49",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -265,
+      "candidate_signed_price_times_contracts_no_multiplier": "-267.61",
+      "condition_id": 114,
+      "condition_name": "SingLegAuctNonISO",
+      "contract_volume": 4900,
+      "exchange_id": 11,
+      "exchange_name": "BOX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 934,
+        "at_bid_candidate": 1199,
+        "inside_spread_unclassified": 1616,
+        "midpoint_unclassified": 1069,
+        "outside_below_bid": 82
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 199,
+        "at_bid_candidate": 240,
+        "inside_spread_unclassified": 445,
+        "midpoint_unclassified": 254,
+        "outside_below_bid": 10
+      },
+      "other_nbbo_class_contract_volume": 2767,
+      "rows": 1148
+    },
+    {
+      "at_ask_contract_volume": 1241,
+      "at_ask_price_times_contracts_no_multiplier": "1248.74",
+      "at_bid_contract_volume": 1802,
+      "at_bid_price_times_contracts_no_multiplier": "1257.27",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -561,
+      "candidate_signed_price_times_contracts_no_multiplier": "-8.53",
+      "condition_id": 114,
+      "condition_name": "SingLegAuctNonISO",
+      "contract_volume": 5152,
+      "exchange_id": 22,
+      "exchange_name": "MRX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 1241,
+        "at_bid_candidate": 1802,
+        "inside_spread_unclassified": 1789,
+        "midpoint_unclassified": 308,
+        "outside_above_ask": 3,
+        "outside_below_bid": 9
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 165,
+        "at_bid_candidate": 200,
+        "inside_spread_unclassified": 242,
+        "midpoint_unclassified": 92,
+        "outside_above_ask": 1,
+        "outside_below_bid": 5
+      },
+      "other_nbbo_class_contract_volume": 2109,
+      "rows": 705
+    },
+    {
+      "at_ask_contract_volume": 25,
+      "at_ask_price_times_contracts_no_multiplier": "1.19",
+      "at_bid_contract_volume": 1,
+      "at_bid_price_times_contracts_no_multiplier": "0.86",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 24,
+      "candidate_signed_price_times_contracts_no_multiplier": "0.33",
+      "condition_id": 114,
+      "condition_name": "SingLegAuctNonISO",
+      "contract_volume": 58,
+      "exchange_id": 31,
+      "exchange_name": "GEMX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 25,
+        "at_bid_candidate": 1,
+        "inside_spread_unclassified": 20,
+        "midpoint_unclassified": 12
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 2,
+        "at_bid_candidate": 1,
+        "inside_spread_unclassified": 5,
+        "midpoint_unclassified": 5
+      },
+      "other_nbbo_class_contract_volume": 32,
+      "rows": 13
+    },
+    {
+      "at_ask_contract_volume": 7820,
+      "at_ask_price_times_contracts_no_multiplier": "6544.96",
+      "at_bid_contract_volume": 12766,
+      "at_bid_price_times_contracts_no_multiplier": "10103.09",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -4946,
+      "candidate_signed_price_times_contracts_no_multiplier": "-3558.13",
+      "condition_id": 114,
+      "condition_name": "SingLegAuctNonISO",
+      "contract_volume": 32156,
+      "exchange_id": 43,
+      "exchange_name": "MIAX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 7820,
+        "at_bid_candidate": 12766,
+        "inside_spread_unclassified": 6699,
+        "midpoint_unclassified": 4807,
+        "outside_above_ask": 33,
+        "outside_below_bid": 31
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 779,
+        "at_bid_candidate": 862,
+        "inside_spread_unclassified": 1375,
+        "midpoint_unclassified": 780,
+        "outside_above_ask": 9,
+        "outside_below_bid": 10
+      },
+      "other_nbbo_class_contract_volume": 11570,
+      "rows": 3815
+    },
+    {
+      "at_ask_contract_volume": 1,
+      "at_ask_price_times_contracts_no_multiplier": "0.42",
+      "at_bid_contract_volume": 207,
+      "at_bid_price_times_contracts_no_multiplier": "126.58",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -206,
+      "candidate_signed_price_times_contracts_no_multiplier": "-126.16",
+      "condition_id": 114,
+      "condition_name": "SingLegAuctNonISO",
+      "contract_volume": 256,
+      "exchange_id": 47,
+      "exchange_name": "NASDBX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 1,
+        "at_bid_candidate": 207,
+        "inside_spread_unclassified": 4,
+        "midpoint_unclassified": 44
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 1,
+        "at_bid_candidate": 20,
+        "inside_spread_unclassified": 4,
+        "midpoint_unclassified": 5
+      },
+      "other_nbbo_class_contract_volume": 48,
+      "rows": 30
+    },
+    {
+      "at_ask_contract_volume": 1956,
+      "at_ask_price_times_contracts_no_multiplier": "1567.48",
+      "at_bid_contract_volume": 2957,
+      "at_bid_price_times_contracts_no_multiplier": "3686.93",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -1001,
+      "candidate_signed_price_times_contracts_no_multiplier": "-2119.45",
+      "condition_id": 114,
+      "condition_name": "SingLegAuctNonISO",
+      "contract_volume": 7703,
+      "exchange_id": 65,
+      "exchange_name": "EDGX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 1956,
+        "at_bid_candidate": 2957,
+        "inside_spread_unclassified": 1517,
+        "midpoint_unclassified": 1259,
+        "outside_above_ask": 12,
+        "outside_below_bid": 2
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 421,
+        "at_bid_candidate": 551,
+        "inside_spread_unclassified": 306,
+        "midpoint_unclassified": 307,
+        "outside_above_ask": 3,
+        "outside_below_bid": 2
+      },
+      "other_nbbo_class_contract_volume": 2790,
+      "rows": 1590
+    },
+    {
+      "at_ask_contract_volume": 0,
+      "at_ask_price_times_contracts_no_multiplier": "0",
+      "at_bid_contract_volume": 29,
+      "at_bid_price_times_contracts_no_multiplier": "45.24",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -29,
+      "candidate_signed_price_times_contracts_no_multiplier": "-45.24",
+      "condition_id": 114,
+      "condition_name": "SingLegAuctNonISO",
+      "contract_volume": 29,
+      "exchange_id": 71,
+      "exchange_name": "EMLD",
+      "nbbo_class_contract_volume": {
+        "at_bid_candidate": 29
+      },
+      "nbbo_class_rows": {
+        "at_bid_candidate": 9
+      },
+      "other_nbbo_class_contract_volume": 0,
+      "rows": 9
+    },
+    {
+      "at_ask_contract_volume": 0,
+      "at_ask_price_times_contracts_no_multiplier": "0",
+      "at_bid_contract_volume": 0,
+      "at_bid_price_times_contracts_no_multiplier": "0",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 0,
+      "candidate_signed_price_times_contracts_no_multiplier": "0",
+      "condition_id": 115,
+      "condition_name": "SingLegAuctISO",
+      "contract_volume": 5,
+      "exchange_id": 5,
+      "exchange_name": "CBOE",
+      "nbbo_class_contract_volume": {
+        "outside_below_bid": 5
+      },
+      "nbbo_class_rows": {
+        "outside_below_bid": 4
+      },
+      "other_nbbo_class_contract_volume": 5,
+      "rows": 4
+    },
+    {
+      "at_ask_contract_volume": 0,
+      "at_ask_price_times_contracts_no_multiplier": "0",
+      "at_bid_contract_volume": 40,
+      "at_bid_price_times_contracts_no_multiplier": "73.46",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -40,
+      "candidate_signed_price_times_contracts_no_multiplier": "-73.46",
+      "condition_id": 115,
+      "condition_name": "SingLegAuctISO",
+      "contract_volume": 131,
+      "exchange_id": 6,
+      "exchange_name": "ISE",
+      "nbbo_class_contract_volume": {
+        "at_bid_candidate": 40,
+        "midpoint_unclassified": 1,
+        "outside_above_ask": 90
+      },
+      "nbbo_class_rows": {
+        "at_bid_candidate": 3,
+        "midpoint_unclassified": 1,
+        "outside_above_ask": 1
+      },
+      "other_nbbo_class_contract_volume": 91,
+      "rows": 5
+    },
+    {
+      "at_ask_contract_volume": 0,
+      "at_ask_price_times_contracts_no_multiplier": "0",
+      "at_bid_contract_volume": 0,
+      "at_bid_price_times_contracts_no_multiplier": "0",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 0,
+      "candidate_signed_price_times_contracts_no_multiplier": "0",
+      "condition_id": 115,
+      "condition_name": "SingLegAuctISO",
+      "contract_volume": 4,
+      "exchange_id": 22,
+      "exchange_name": "MRX",
+      "nbbo_class_contract_volume": {
+        "midpoint_unclassified": 4
+      },
+      "nbbo_class_rows": {
+        "midpoint_unclassified": 1
+      },
+      "other_nbbo_class_contract_volume": 4,
+      "rows": 1
+    },
+    {
+      "at_ask_contract_volume": 0,
+      "at_ask_price_times_contracts_no_multiplier": "0",
+      "at_bid_contract_volume": 53,
+      "at_bid_price_times_contracts_no_multiplier": "82.68",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -53,
+      "candidate_signed_price_times_contracts_no_multiplier": "-82.68",
+      "condition_id": 115,
+      "condition_name": "SingLegAuctISO",
+      "contract_volume": 53,
+      "exchange_id": 43,
+      "exchange_name": "MIAX",
+      "nbbo_class_contract_volume": {
+        "at_bid_candidate": 53
+      },
+      "nbbo_class_rows": {
+        "at_bid_candidate": 10
+      },
+      "other_nbbo_class_contract_volume": 0,
+      "rows": 10
+    },
+    {
+      "at_ask_contract_volume": 0,
+      "at_ask_price_times_contracts_no_multiplier": "0",
+      "at_bid_contract_volume": 0,
+      "at_bid_price_times_contracts_no_multiplier": "0",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 0,
+      "candidate_signed_price_times_contracts_no_multiplier": "0",
+      "condition_id": 116,
+      "condition_name": "SingLegCrossNonISO",
+      "contract_volume": 2000,
+      "exchange_id": 11,
+      "exchange_name": "BOX",
+      "nbbo_class_contract_volume": {
+        "midpoint_unclassified": 2000
+      },
+      "nbbo_class_rows": {
+        "midpoint_unclassified": 1
+      },
+      "other_nbbo_class_contract_volume": 2000,
+      "rows": 1
+    },
+    {
+      "at_ask_contract_volume": 3400,
+      "at_ask_price_times_contracts_no_multiplier": "53890.00",
+      "at_bid_contract_volume": 0,
+      "at_bid_price_times_contracts_no_multiplier": "0",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 3400,
+      "candidate_signed_price_times_contracts_no_multiplier": "53890.00",
+      "condition_id": 118,
+      "condition_name": "SingLegFlr",
+      "contract_volume": 10300,
+      "exchange_id": 9,
+      "exchange_name": "PHLX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 3400,
+        "inside_spread_unclassified": 6900
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 1,
+        "inside_spread_unclassified": 6
+      },
+      "other_nbbo_class_contract_volume": 6900,
+      "rows": 7
+    },
+    {
+      "at_ask_contract_volume": 8,
+      "at_ask_price_times_contracts_no_multiplier": "52.8",
+      "at_bid_contract_volume": 15,
+      "at_bid_price_times_contracts_no_multiplier": "50.5",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -7,
+      "candidate_signed_price_times_contracts_no_multiplier": "2.3",
+      "condition_id": 118,
+      "condition_name": "SingLegFlr",
+      "contract_volume": 47,
+      "exchange_id": 11,
+      "exchange_name": "BOX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 8,
+        "at_bid_candidate": 15,
+        "inside_spread_unclassified": 5,
+        "midpoint_unclassified": 19
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 1,
+        "at_bid_candidate": 3,
+        "inside_spread_unclassified": 1,
+        "midpoint_unclassified": 2
+      },
+      "other_nbbo_class_contract_volume": 24,
+      "rows": 7
+    },
+    {
+      "at_ask_contract_volume": 264,
+      "at_ask_price_times_contracts_no_multiplier": "161.75",
+      "at_bid_contract_volume": 259,
+      "at_bid_price_times_contracts_no_multiplier": "73.32",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 5,
+      "candidate_signed_price_times_contracts_no_multiplier": "88.43",
+      "condition_id": 119,
+      "condition_name": "MultLegAutoEx",
+      "contract_volume": 1168,
+      "exchange_id": 4,
+      "exchange_name": "AMEX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 264,
+        "at_bid_candidate": 259,
+        "inside_spread_unclassified": 434,
+        "locked_nbbo_unclassified": 11,
+        "midpoint_unclassified": 164,
+        "outside_above_ask": 19,
+        "outside_below_bid": 17
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 28,
+        "at_bid_candidate": 32,
+        "inside_spread_unclassified": 75,
+        "locked_nbbo_unclassified": 1,
+        "midpoint_unclassified": 31,
+        "outside_above_ask": 7,
+        "outside_below_bid": 5
+      },
+      "other_nbbo_class_contract_volume": 645,
+      "rows": 179
+    },
+    {
+      "at_ask_contract_volume": 227,
+      "at_ask_price_times_contracts_no_multiplier": "129.10",
+      "at_bid_contract_volume": 503,
+      "at_bid_price_times_contracts_no_multiplier": "405.14",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -276,
+      "candidate_signed_price_times_contracts_no_multiplier": "-276.04",
+      "condition_id": 119,
+      "condition_name": "MultLegAutoEx",
+      "contract_volume": 3203,
+      "exchange_id": 5,
+      "exchange_name": "CBOE",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 227,
+        "at_bid_candidate": 503,
+        "inside_spread_unclassified": 1767,
+        "midpoint_unclassified": 682,
+        "outside_above_ask": 2,
+        "outside_below_bid": 22
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 47,
+        "at_bid_candidate": 91,
+        "inside_spread_unclassified": 132,
+        "midpoint_unclassified": 67,
+        "outside_above_ask": 2,
+        "outside_below_bid": 10
+      },
+      "other_nbbo_class_contract_volume": 2473,
+      "rows": 349
+    },
+    {
+      "at_ask_contract_volume": 1146,
+      "at_ask_price_times_contracts_no_multiplier": "852.09",
+      "at_bid_contract_volume": 1534,
+      "at_bid_price_times_contracts_no_multiplier": "768.45",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -388,
+      "candidate_signed_price_times_contracts_no_multiplier": "83.64",
+      "condition_id": 119,
+      "condition_name": "MultLegAutoEx",
+      "contract_volume": 7057,
+      "exchange_id": 6,
+      "exchange_name": "ISE",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 1146,
+        "at_bid_candidate": 1534,
+        "inside_spread_unclassified": 2248,
+        "invalid_or_crossed_nbbo": 40,
+        "locked_nbbo_unclassified": 5,
+        "midpoint_unclassified": 1060,
+        "outside_above_ask": 758,
+        "outside_below_bid": 266
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 113,
+        "at_bid_candidate": 136,
+        "inside_spread_unclassified": 330,
+        "invalid_or_crossed_nbbo": 2,
+        "locked_nbbo_unclassified": 1,
+        "midpoint_unclassified": 168,
+        "outside_above_ask": 20,
+        "outside_below_bid": 17
+      },
+      "other_nbbo_class_contract_volume": 4377,
+      "rows": 787
+    },
+    {
+      "at_ask_contract_volume": 1229,
+      "at_ask_price_times_contracts_no_multiplier": "1995.93",
+      "at_bid_contract_volume": 77,
+      "at_bid_price_times_contracts_no_multiplier": "76.32",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 1152,
+      "candidate_signed_price_times_contracts_no_multiplier": "1919.61",
+      "condition_id": 119,
+      "condition_name": "MultLegAutoEx",
+      "contract_volume": 2333,
+      "exchange_id": 7,
+      "exchange_name": "ARCA",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 1229,
+        "at_bid_candidate": 77,
+        "inside_spread_unclassified": 786,
+        "locked_nbbo_unclassified": 1,
+        "midpoint_unclassified": 202,
+        "outside_above_ask": 24,
+        "outside_below_bid": 14
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 37,
+        "at_bid_candidate": 24,
+        "inside_spread_unclassified": 94,
+        "locked_nbbo_unclassified": 1,
+        "midpoint_unclassified": 21,
+        "outside_above_ask": 3,
+        "outside_below_bid": 4
+      },
+      "other_nbbo_class_contract_volume": 1027,
+      "rows": 184
+    },
+    {
+      "at_ask_contract_volume": 608,
+      "at_ask_price_times_contracts_no_multiplier": "666.99",
+      "at_bid_contract_volume": 1071,
+      "at_bid_price_times_contracts_no_multiplier": "712.51",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -463,
+      "candidate_signed_price_times_contracts_no_multiplier": "-45.52",
+      "condition_id": 119,
+      "condition_name": "MultLegAutoEx",
+      "contract_volume": 5575,
+      "exchange_id": 9,
+      "exchange_name": "PHLX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 608,
+        "at_bid_candidate": 1071,
+        "inside_spread_unclassified": 2013,
+        "locked_nbbo_unclassified": 12,
+        "midpoint_unclassified": 1571,
+        "outside_above_ask": 146,
+        "outside_below_bid": 154
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 81,
+        "at_bid_candidate": 116,
+        "inside_spread_unclassified": 286,
+        "locked_nbbo_unclassified": 2,
+        "midpoint_unclassified": 140,
+        "outside_above_ask": 18,
+        "outside_below_bid": 12
+      },
+      "other_nbbo_class_contract_volume": 3896,
+      "rows": 655
+    },
+    {
+      "at_ask_contract_volume": 144,
+      "at_ask_price_times_contracts_no_multiplier": "657.85",
+      "at_bid_contract_volume": 1114,
+      "at_bid_price_times_contracts_no_multiplier": "2373.25",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -970,
+      "candidate_signed_price_times_contracts_no_multiplier": "-1715.40",
+      "condition_id": 119,
+      "condition_name": "MultLegAutoEx",
+      "contract_volume": 1834,
+      "exchange_id": 11,
+      "exchange_name": "BOX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 144,
+        "at_bid_candidate": 1114,
+        "inside_spread_unclassified": 201,
+        "locked_nbbo_unclassified": 9,
+        "midpoint_unclassified": 362,
+        "outside_below_bid": 4
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 18,
+        "at_bid_candidate": 39,
+        "inside_spread_unclassified": 16,
+        "locked_nbbo_unclassified": 1,
+        "midpoint_unclassified": 8,
+        "outside_below_bid": 1
+      },
+      "other_nbbo_class_contract_volume": 576,
+      "rows": 83
+    },
+    {
+      "at_ask_contract_volume": 14,
+      "at_ask_price_times_contracts_no_multiplier": "16.68",
+      "at_bid_contract_volume": 26,
+      "at_bid_price_times_contracts_no_multiplier": "13.34",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -12,
+      "candidate_signed_price_times_contracts_no_multiplier": "3.34",
+      "condition_id": 119,
+      "condition_name": "MultLegAutoEx",
+      "contract_volume": 107,
+      "exchange_id": 22,
+      "exchange_name": "MRX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 14,
+        "at_bid_candidate": 26,
+        "inside_spread_unclassified": 48,
+        "midpoint_unclassified": 7,
+        "outside_above_ask": 11,
+        "outside_below_bid": 1
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 6,
+        "at_bid_candidate": 15,
+        "inside_spread_unclassified": 27,
+        "midpoint_unclassified": 6,
+        "outside_above_ask": 2,
+        "outside_below_bid": 1
+      },
+      "other_nbbo_class_contract_volume": 67,
+      "rows": 57
+    },
+    {
+      "at_ask_contract_volume": 51,
+      "at_ask_price_times_contracts_no_multiplier": "65.69",
+      "at_bid_contract_volume": 238,
+      "at_bid_price_times_contracts_no_multiplier": "214.71",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -187,
+      "candidate_signed_price_times_contracts_no_multiplier": "-149.02",
+      "condition_id": 119,
+      "condition_name": "MultLegAutoEx",
+      "contract_volume": 1666,
+      "exchange_id": 42,
+      "exchange_name": "C2",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 51,
+        "at_bid_candidate": 238,
+        "inside_spread_unclassified": 797,
+        "midpoint_unclassified": 576,
+        "outside_above_ask": 2,
+        "outside_below_bid": 2
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 37,
+        "at_bid_candidate": 109,
+        "inside_spread_unclassified": 233,
+        "midpoint_unclassified": 142,
+        "outside_above_ask": 1,
+        "outside_below_bid": 2
+      },
+      "other_nbbo_class_contract_volume": 1377,
+      "rows": 524
+    },
+    {
+      "at_ask_contract_volume": 1647,
+      "at_ask_price_times_contracts_no_multiplier": "2410.90",
+      "at_bid_contract_volume": 1008,
+      "at_bid_price_times_contracts_no_multiplier": "774.20",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 639,
+      "candidate_signed_price_times_contracts_no_multiplier": "1636.70",
+      "condition_id": 119,
+      "condition_name": "MultLegAutoEx",
+      "contract_volume": 10794,
+      "exchange_id": 43,
+      "exchange_name": "MIAX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 1647,
+        "at_bid_candidate": 1008,
+        "inside_spread_unclassified": 5976,
+        "locked_nbbo_unclassified": 14,
+        "midpoint_unclassified": 1357,
+        "outside_above_ask": 732,
+        "outside_below_bid": 60
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 236,
+        "at_bid_candidate": 140,
+        "inside_spread_unclassified": 517,
+        "locked_nbbo_unclassified": 1,
+        "midpoint_unclassified": 187,
+        "outside_above_ask": 18,
+        "outside_below_bid": 6
+      },
+      "other_nbbo_class_contract_volume": 8139,
+      "rows": 1105
+    },
+    {
+      "at_ask_contract_volume": 37,
+      "at_ask_price_times_contracts_no_multiplier": "389.03",
+      "at_bid_contract_volume": 32,
+      "at_bid_price_times_contracts_no_multiplier": "90.97",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 5,
+      "candidate_signed_price_times_contracts_no_multiplier": "298.06",
+      "condition_id": 119,
+      "condition_name": "MultLegAutoEx",
+      "contract_volume": 283,
+      "exchange_id": 60,
+      "exchange_name": "BZX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 37,
+        "at_bid_candidate": 32,
+        "inside_spread_unclassified": 186,
+        "midpoint_unclassified": 28
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 10,
+        "at_bid_candidate": 20,
+        "inside_spread_unclassified": 81,
+        "midpoint_unclassified": 23
+      },
+      "other_nbbo_class_contract_volume": 214,
+      "rows": 134
+    },
+    {
+      "at_ask_contract_volume": 221,
+      "at_ask_price_times_contracts_no_multiplier": "204.72",
+      "at_bid_contract_volume": 348,
+      "at_bid_price_times_contracts_no_multiplier": "339.11",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -127,
+      "candidate_signed_price_times_contracts_no_multiplier": "-134.39",
+      "condition_id": 119,
+      "condition_name": "MultLegAutoEx",
+      "contract_volume": 2984,
+      "exchange_id": 65,
+      "exchange_name": "EDGX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 221,
+        "at_bid_candidate": 348,
+        "inside_spread_unclassified": 1077,
+        "midpoint_unclassified": 1279,
+        "outside_above_ask": 21,
+        "outside_below_bid": 38
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 15,
+        "at_bid_candidate": 43,
+        "inside_spread_unclassified": 54,
+        "midpoint_unclassified": 38,
+        "outside_above_ask": 2,
+        "outside_below_bid": 5
+      },
+      "other_nbbo_class_contract_volume": 2415,
+      "rows": 157
+    },
+    {
+      "at_ask_contract_volume": 287,
+      "at_ask_price_times_contracts_no_multiplier": "1937.13",
+      "at_bid_contract_volume": 95,
+      "at_bid_price_times_contracts_no_multiplier": "179.44",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 192,
+      "candidate_signed_price_times_contracts_no_multiplier": "1757.69",
+      "condition_id": 119,
+      "condition_name": "MultLegAutoEx",
+      "contract_volume": 1183,
+      "exchange_id": 71,
+      "exchange_name": "EMLD",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 287,
+        "at_bid_candidate": 95,
+        "inside_spread_unclassified": 476,
+        "locked_nbbo_unclassified": 2,
+        "midpoint_unclassified": 297,
+        "outside_above_ask": 17,
+        "outside_below_bid": 9
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 45,
+        "at_bid_candidate": 37,
+        "inside_spread_unclassified": 135,
+        "locked_nbbo_unclassified": 1,
+        "midpoint_unclassified": 63,
+        "outside_above_ask": 8,
+        "outside_below_bid": 5
+      },
+      "other_nbbo_class_contract_volume": 801,
+      "rows": 294
+    },
+    {
+      "at_ask_contract_volume": 84,
+      "at_ask_price_times_contracts_no_multiplier": "447.19",
+      "at_bid_contract_volume": 60,
+      "at_bid_price_times_contracts_no_multiplier": "52.48",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 24,
+      "candidate_signed_price_times_contracts_no_multiplier": "394.71",
+      "condition_id": 119,
+      "condition_name": "MultLegAutoEx",
+      "contract_volume": 357,
+      "exchange_id": 121,
+      "exchange_name": "SPHR",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 84,
+        "at_bid_candidate": 60,
+        "inside_spread_unclassified": 128,
+        "locked_nbbo_unclassified": 2,
+        "midpoint_unclassified": 78,
+        "outside_above_ask": 5
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 27,
+        "at_bid_candidate": 26,
+        "inside_spread_unclassified": 68,
+        "locked_nbbo_unclassified": 1,
+        "midpoint_unclassified": 25,
+        "outside_above_ask": 4
+      },
+      "other_nbbo_class_contract_volume": 213,
+      "rows": 151
+    },
+    {
+      "at_ask_contract_volume": 405,
+      "at_ask_price_times_contracts_no_multiplier": "247.55",
+      "at_bid_contract_volume": 464,
+      "at_bid_price_times_contracts_no_multiplier": "348.87",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -59,
+      "candidate_signed_price_times_contracts_no_multiplier": "-101.32",
+      "condition_id": 120,
+      "condition_name": "MultLegAuct",
+      "contract_volume": 1807,
+      "exchange_id": 4,
+      "exchange_name": "AMEX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 405,
+        "at_bid_candidate": 464,
+        "inside_spread_unclassified": 557,
+        "midpoint_unclassified": 314,
+        "outside_above_ask": 26,
+        "outside_below_bid": 41
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 143,
+        "at_bid_candidate": 215,
+        "inside_spread_unclassified": 362,
+        "midpoint_unclassified": 198,
+        "outside_above_ask": 15,
+        "outside_below_bid": 31
+      },
+      "other_nbbo_class_contract_volume": 938,
+      "rows": 964
+    },
+    {
+      "at_ask_contract_volume": 1752,
+      "at_ask_price_times_contracts_no_multiplier": "1666.17",
+      "at_bid_contract_volume": 4641,
+      "at_bid_price_times_contracts_no_multiplier": "3364.40",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -2889,
+      "candidate_signed_price_times_contracts_no_multiplier": "-1698.23",
+      "condition_id": 120,
+      "condition_name": "MultLegAuct",
+      "contract_volume": 14310,
+      "exchange_id": 5,
+      "exchange_name": "CBOE",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 1752,
+        "at_bid_candidate": 4641,
+        "inside_spread_unclassified": 5420,
+        "midpoint_unclassified": 2493,
+        "outside_above_ask": 1,
+        "outside_below_bid": 3
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 348,
+        "at_bid_candidate": 912,
+        "inside_spread_unclassified": 2078,
+        "midpoint_unclassified": 807,
+        "outside_above_ask": 1,
+        "outside_below_bid": 2
+      },
+      "other_nbbo_class_contract_volume": 7917,
+      "rows": 4148
+    },
+    {
+      "at_ask_contract_volume": 71,
+      "at_ask_price_times_contracts_no_multiplier": "8.07",
+      "at_bid_contract_volume": 229,
+      "at_bid_price_times_contracts_no_multiplier": "85.05",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -158,
+      "candidate_signed_price_times_contracts_no_multiplier": "-76.98",
+      "condition_id": 120,
+      "condition_name": "MultLegAuct",
+      "contract_volume": 434,
+      "exchange_id": 6,
+      "exchange_name": "ISE",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 71,
+        "at_bid_candidate": 229,
+        "inside_spread_unclassified": 100,
+        "midpoint_unclassified": 33,
+        "outside_above_ask": 1
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 10,
+        "at_bid_candidate": 12,
+        "inside_spread_unclassified": 36,
+        "midpoint_unclassified": 13,
+        "outside_above_ask": 1
+      },
+      "other_nbbo_class_contract_volume": 134,
+      "rows": 72
+    },
+    {
+      "at_ask_contract_volume": 579,
+      "at_ask_price_times_contracts_no_multiplier": "158.31",
+      "at_bid_contract_volume": 302,
+      "at_bid_price_times_contracts_no_multiplier": "189.98",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 277,
+      "candidate_signed_price_times_contracts_no_multiplier": "-31.67",
+      "condition_id": 120,
+      "condition_name": "MultLegAuct",
+      "contract_volume": 1871,
+      "exchange_id": 9,
+      "exchange_name": "PHLX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 579,
+        "at_bid_candidate": 302,
+        "inside_spread_unclassified": 557,
+        "midpoint_unclassified": 360,
+        "outside_above_ask": 36,
+        "outside_below_bid": 37
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 65,
+        "at_bid_candidate": 67,
+        "inside_spread_unclassified": 75,
+        "midpoint_unclassified": 70,
+        "outside_above_ask": 6,
+        "outside_below_bid": 6
+      },
+      "other_nbbo_class_contract_volume": 990,
+      "rows": 289
+    },
+    {
+      "at_ask_contract_volume": 169,
+      "at_ask_price_times_contracts_no_multiplier": "574.93",
+      "at_bid_contract_volume": 105,
+      "at_bid_price_times_contracts_no_multiplier": "81.91",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 64,
+      "candidate_signed_price_times_contracts_no_multiplier": "493.02",
+      "condition_id": 120,
+      "condition_name": "MultLegAuct",
+      "contract_volume": 632,
+      "exchange_id": 11,
+      "exchange_name": "BOX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 169,
+        "at_bid_candidate": 105,
+        "inside_spread_unclassified": 297,
+        "midpoint_unclassified": 61
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 18,
+        "at_bid_candidate": 19,
+        "inside_spread_unclassified": 20,
+        "midpoint_unclassified": 2
+      },
+      "other_nbbo_class_contract_volume": 358,
+      "rows": 59
+    },
+    {
+      "at_ask_contract_volume": 60,
+      "at_ask_price_times_contracts_no_multiplier": "53.22",
+      "at_bid_contract_volume": 29,
+      "at_bid_price_times_contracts_no_multiplier": "26.34",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 31,
+      "candidate_signed_price_times_contracts_no_multiplier": "26.88",
+      "condition_id": 120,
+      "condition_name": "MultLegAuct",
+      "contract_volume": 388,
+      "exchange_id": 22,
+      "exchange_name": "MRX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 60,
+        "at_bid_candidate": 29,
+        "inside_spread_unclassified": 230,
+        "midpoint_unclassified": 56,
+        "outside_above_ask": 10,
+        "outside_below_bid": 3
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 21,
+        "at_bid_candidate": 11,
+        "inside_spread_unclassified": 44,
+        "midpoint_unclassified": 17,
+        "outside_above_ask": 4,
+        "outside_below_bid": 2
+      },
+      "other_nbbo_class_contract_volume": 299,
+      "rows": 99
+    },
+    {
+      "at_ask_contract_volume": 361,
+      "at_ask_price_times_contracts_no_multiplier": "98.35",
+      "at_bid_contract_volume": 332,
+      "at_bid_price_times_contracts_no_multiplier": "149.16",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 29,
+      "candidate_signed_price_times_contracts_no_multiplier": "-50.81",
+      "condition_id": 120,
+      "condition_name": "MultLegAuct",
+      "contract_volume": 1327,
+      "exchange_id": 43,
+      "exchange_name": "MIAX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 361,
+        "at_bid_candidate": 332,
+        "inside_spread_unclassified": 231,
+        "midpoint_unclassified": 399,
+        "outside_above_ask": 3,
+        "outside_below_bid": 1
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 64,
+        "at_bid_candidate": 48,
+        "inside_spread_unclassified": 79,
+        "midpoint_unclassified": 60,
+        "outside_above_ask": 2,
+        "outside_below_bid": 1
+      },
+      "other_nbbo_class_contract_volume": 634,
+      "rows": 254
+    },
+    {
+      "at_ask_contract_volume": 75,
+      "at_ask_price_times_contracts_no_multiplier": "91.33",
+      "at_bid_contract_volume": 364,
+      "at_bid_price_times_contracts_no_multiplier": "157.07",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -289,
+      "candidate_signed_price_times_contracts_no_multiplier": "-65.74",
+      "condition_id": 120,
+      "condition_name": "MultLegAuct",
+      "contract_volume": 1080,
+      "exchange_id": 65,
+      "exchange_name": "EDGX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 75,
+        "at_bid_candidate": 364,
+        "inside_spread_unclassified": 389,
+        "midpoint_unclassified": 248,
+        "outside_above_ask": 1,
+        "outside_below_bid": 3
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 35,
+        "at_bid_candidate": 108,
+        "inside_spread_unclassified": 227,
+        "midpoint_unclassified": 126,
+        "outside_above_ask": 1,
+        "outside_below_bid": 3
+      },
+      "other_nbbo_class_contract_volume": 641,
+      "rows": 500
+    },
+    {
+      "at_ask_contract_volume": 0,
+      "at_ask_price_times_contracts_no_multiplier": "0",
+      "at_bid_contract_volume": 0,
+      "at_bid_price_times_contracts_no_multiplier": "0",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 0,
+      "candidate_signed_price_times_contracts_no_multiplier": "0",
+      "condition_id": 122,
+      "condition_name": "MultLegFlr",
+      "contract_volume": 500,
+      "exchange_id": 4,
+      "exchange_name": "AMEX",
+      "nbbo_class_contract_volume": {
+        "inside_spread_unclassified": 250,
+        "midpoint_unclassified": 250
+      },
+      "nbbo_class_rows": {
+        "inside_spread_unclassified": 1,
+        "midpoint_unclassified": 1
+      },
+      "other_nbbo_class_contract_volume": 500,
+      "rows": 2
+    },
+    {
+      "at_ask_contract_volume": 600,
+      "at_ask_price_times_contracts_no_multiplier": "174.00",
+      "at_bid_contract_volume": 0,
+      "at_bid_price_times_contracts_no_multiplier": "0",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 600,
+      "candidate_signed_price_times_contracts_no_multiplier": "174.00",
+      "condition_id": 122,
+      "condition_name": "MultLegFlr",
+      "contract_volume": 600,
+      "exchange_id": 9,
+      "exchange_name": "PHLX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 600
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 1
+      },
+      "other_nbbo_class_contract_volume": 0,
+      "rows": 1
+    },
+    {
+      "at_ask_contract_volume": 1356,
+      "at_ask_price_times_contracts_no_multiplier": "19743.0",
+      "at_bid_contract_volume": 1772,
+      "at_bid_price_times_contracts_no_multiplier": "53225.30",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -416,
+      "candidate_signed_price_times_contracts_no_multiplier": "-33482.30",
+      "condition_id": 122,
+      "condition_name": "MultLegFlr",
+      "contract_volume": 3918,
+      "exchange_id": 11,
+      "exchange_name": "BOX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 1356,
+        "at_bid_candidate": 1772,
+        "inside_spread_unclassified": 790
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 2,
+        "at_bid_candidate": 5,
+        "inside_spread_unclassified": 1
+      },
+      "other_nbbo_class_contract_volume": 790,
+      "rows": 8
+    },
+    {
+      "at_ask_contract_volume": 500,
+      "at_ask_price_times_contracts_no_multiplier": "100.0",
+      "at_bid_contract_volume": 0,
+      "at_bid_price_times_contracts_no_multiplier": "0",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 500,
+      "candidate_signed_price_times_contracts_no_multiplier": "100.0",
+      "condition_id": 122,
+      "condition_name": "MultLegFlr",
+      "contract_volume": 1994,
+      "exchange_id": 121,
+      "exchange_name": "SPHR",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 500,
+        "inside_spread_unclassified": 500,
+        "midpoint_unclassified": 994
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 1,
+        "inside_spread_unclassified": 1,
+        "midpoint_unclassified": 2
+      },
+      "other_nbbo_class_contract_volume": 1494,
+      "rows": 4
+    },
+    {
+      "at_ask_contract_volume": 50,
+      "at_ask_price_times_contracts_no_multiplier": "27.56",
+      "at_bid_contract_volume": 25,
+      "at_bid_price_times_contracts_no_multiplier": "13.12",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 25,
+      "candidate_signed_price_times_contracts_no_multiplier": "14.44",
+      "condition_id": 123,
+      "condition_name": "MultLegAutoSingLeg",
+      "contract_volume": 96,
+      "exchange_id": 4,
+      "exchange_name": "AMEX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 50,
+        "at_bid_candidate": 25,
+        "midpoint_unclassified": 21
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 15,
+        "at_bid_candidate": 9,
+        "midpoint_unclassified": 4
+      },
+      "other_nbbo_class_contract_volume": 21,
+      "rows": 28
+    },
+    {
+      "at_ask_contract_volume": 24,
+      "at_ask_price_times_contracts_no_multiplier": "8.13",
+      "at_bid_contract_volume": 24,
+      "at_bid_price_times_contracts_no_multiplier": "5.94",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 0,
+      "candidate_signed_price_times_contracts_no_multiplier": "2.19",
+      "condition_id": 123,
+      "condition_name": "MultLegAutoSingLeg",
+      "contract_volume": 48,
+      "exchange_id": 5,
+      "exchange_name": "CBOE",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 24,
+        "at_bid_candidate": 24
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 10,
+        "at_bid_candidate": 9
+      },
+      "other_nbbo_class_contract_volume": 0,
+      "rows": 19
+    },
+    {
+      "at_ask_contract_volume": 942,
+      "at_ask_price_times_contracts_no_multiplier": "770.14",
+      "at_bid_contract_volume": 613,
+      "at_bid_price_times_contracts_no_multiplier": "487.28",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 329,
+      "candidate_signed_price_times_contracts_no_multiplier": "282.86",
+      "condition_id": 123,
+      "condition_name": "MultLegAutoSingLeg",
+      "contract_volume": 1775,
+      "exchange_id": 6,
+      "exchange_name": "ISE",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 942,
+        "at_bid_candidate": 613,
+        "inside_spread_unclassified": 21,
+        "locked_nbbo_unclassified": 31,
+        "midpoint_unclassified": 69,
+        "outside_above_ask": 38,
+        "outside_below_bid": 61
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 189,
+        "at_bid_candidate": 151,
+        "inside_spread_unclassified": 8,
+        "locked_nbbo_unclassified": 1,
+        "midpoint_unclassified": 13,
+        "outside_above_ask": 6,
+        "outside_below_bid": 9
+      },
+      "other_nbbo_class_contract_volume": 220,
+      "rows": 377
+    },
+    {
+      "at_ask_contract_volume": 1418,
+      "at_ask_price_times_contracts_no_multiplier": "369.93",
+      "at_bid_contract_volume": 1492,
+      "at_bid_price_times_contracts_no_multiplier": "470.58",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -74,
+      "candidate_signed_price_times_contracts_no_multiplier": "-100.65",
+      "condition_id": 123,
+      "condition_name": "MultLegAutoSingLeg",
+      "contract_volume": 2973,
+      "exchange_id": 7,
+      "exchange_name": "ARCA",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 1418,
+        "at_bid_candidate": 1492,
+        "inside_spread_unclassified": 3,
+        "locked_nbbo_unclassified": 6,
+        "midpoint_unclassified": 54
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 62,
+        "at_bid_candidate": 110,
+        "inside_spread_unclassified": 3,
+        "locked_nbbo_unclassified": 1,
+        "midpoint_unclassified": 14
+      },
+      "other_nbbo_class_contract_volume": 63,
+      "rows": 190
+    },
+    {
+      "at_ask_contract_volume": 43,
+      "at_ask_price_times_contracts_no_multiplier": "41.94",
+      "at_bid_contract_volume": 155,
+      "at_bid_price_times_contracts_no_multiplier": "694.07",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -112,
+      "candidate_signed_price_times_contracts_no_multiplier": "-652.13",
+      "condition_id": 123,
+      "condition_name": "MultLegAutoSingLeg",
+      "contract_volume": 244,
+      "exchange_id": 9,
+      "exchange_name": "PHLX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 43,
+        "at_bid_candidate": 155,
+        "midpoint_unclassified": 1,
+        "outside_above_ask": 45
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 18,
+        "at_bid_candidate": 18,
+        "midpoint_unclassified": 1,
+        "outside_above_ask": 2
+      },
+      "other_nbbo_class_contract_volume": 46,
+      "rows": 39
+    },
+    {
+      "at_ask_contract_volume": 56,
+      "at_ask_price_times_contracts_no_multiplier": "28.67",
+      "at_bid_contract_volume": 58,
+      "at_bid_price_times_contracts_no_multiplier": "18.13",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -2,
+      "candidate_signed_price_times_contracts_no_multiplier": "10.54",
+      "condition_id": 123,
+      "condition_name": "MultLegAutoSingLeg",
+      "contract_volume": 114,
+      "exchange_id": 11,
+      "exchange_name": "BOX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 56,
+        "at_bid_candidate": 58
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 16,
+        "at_bid_candidate": 21
+      },
+      "other_nbbo_class_contract_volume": 0,
+      "rows": 37
+    },
+    {
+      "at_ask_contract_volume": 182,
+      "at_ask_price_times_contracts_no_multiplier": "157.69",
+      "at_bid_contract_volume": 97,
+      "at_bid_price_times_contracts_no_multiplier": "66.79",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 85,
+      "candidate_signed_price_times_contracts_no_multiplier": "90.90",
+      "condition_id": 123,
+      "condition_name": "MultLegAutoSingLeg",
+      "contract_volume": 569,
+      "exchange_id": 42,
+      "exchange_name": "C2",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 182,
+        "at_bid_candidate": 97,
+        "inside_spread_unclassified": 152,
+        "midpoint_unclassified": 138
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 64,
+        "at_bid_candidate": 51,
+        "inside_spread_unclassified": 74,
+        "midpoint_unclassified": 82
+      },
+      "other_nbbo_class_contract_volume": 290,
+      "rows": 271
+    },
+    {
+      "at_ask_contract_volume": 914,
+      "at_ask_price_times_contracts_no_multiplier": "10136.86",
+      "at_bid_contract_volume": 82,
+      "at_bid_price_times_contracts_no_multiplier": "39.47",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 832,
+      "candidate_signed_price_times_contracts_no_multiplier": "10097.39",
+      "condition_id": 123,
+      "condition_name": "MultLegAutoSingLeg",
+      "contract_volume": 996,
+      "exchange_id": 43,
+      "exchange_name": "MIAX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 914,
+        "at_bid_candidate": 82
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 116,
+        "at_bid_candidate": 33
+      },
+      "other_nbbo_class_contract_volume": 0,
+      "rows": 149
+    },
+    {
+      "at_ask_contract_volume": 308,
+      "at_ask_price_times_contracts_no_multiplier": "72.25",
+      "at_bid_contract_volume": 141,
+      "at_bid_price_times_contracts_no_multiplier": "123.71",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 167,
+      "candidate_signed_price_times_contracts_no_multiplier": "-51.46",
+      "condition_id": 123,
+      "condition_name": "MultLegAutoSingLeg",
+      "contract_volume": 452,
+      "exchange_id": 60,
+      "exchange_name": "BZX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 308,
+        "at_bid_candidate": 141,
+        "outside_above_ask": 1,
+        "outside_below_bid": 2
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 36,
+        "at_bid_candidate": 41,
+        "outside_above_ask": 1,
+        "outside_below_bid": 1
+      },
+      "other_nbbo_class_contract_volume": 3,
+      "rows": 79
+    },
+    {
+      "at_ask_contract_volume": 86,
+      "at_ask_price_times_contracts_no_multiplier": "68.68",
+      "at_bid_contract_volume": 54,
+      "at_bid_price_times_contracts_no_multiplier": "49.36",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 32,
+      "candidate_signed_price_times_contracts_no_multiplier": "19.32",
+      "condition_id": 123,
+      "condition_name": "MultLegAutoSingLeg",
+      "contract_volume": 140,
+      "exchange_id": 71,
+      "exchange_name": "EMLD",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 86,
+        "at_bid_candidate": 54
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 49,
+        "at_bid_candidate": 20
+      },
+      "other_nbbo_class_contract_volume": 0,
+      "rows": 69
+    },
+    {
+      "at_ask_contract_volume": 1,
+      "at_ask_price_times_contracts_no_multiplier": "1.07",
+      "at_bid_contract_volume": 1,
+      "at_bid_price_times_contracts_no_multiplier": "0.19",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 0,
+      "candidate_signed_price_times_contracts_no_multiplier": "0.88",
+      "condition_id": 124,
+      "condition_name": "StkOptAuct",
+      "contract_volume": 55,
+      "exchange_id": 43,
+      "exchange_name": "MIAX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 1,
+        "at_bid_candidate": 1,
+        "inside_spread_unclassified": 38,
+        "midpoint_unclassified": 15
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 1,
+        "at_bid_candidate": 1,
+        "inside_spread_unclassified": 14,
+        "midpoint_unclassified": 3
+      },
+      "other_nbbo_class_contract_volume": 53,
+      "rows": 19
+    },
+    {
+      "at_ask_contract_volume": 0,
+      "at_ask_price_times_contracts_no_multiplier": "0",
+      "at_bid_contract_volume": 1,
+      "at_bid_price_times_contracts_no_multiplier": "0.61",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -1,
+      "candidate_signed_price_times_contracts_no_multiplier": "-0.61",
+      "condition_id": 124,
+      "condition_name": "StkOptAuct",
+      "contract_volume": 4,
+      "exchange_id": 65,
+      "exchange_name": "EDGX",
+      "nbbo_class_contract_volume": {
+        "at_bid_candidate": 1,
+        "inside_spread_unclassified": 3
+      },
+      "nbbo_class_rows": {
+        "at_bid_candidate": 1,
+        "inside_spread_unclassified": 3
+      },
+      "other_nbbo_class_contract_volume": 3,
+      "rows": 4
+    },
+    {
+      "at_ask_contract_volume": 11,
+      "at_ask_price_times_contracts_no_multiplier": "1.19",
+      "at_bid_contract_volume": 11,
+      "at_bid_price_times_contracts_no_multiplier": "5.85",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 0,
+      "candidate_signed_price_times_contracts_no_multiplier": "-4.66",
+      "condition_id": 125,
+      "condition_name": "MultLegAuctSingLeg",
+      "contract_volume": 22,
+      "exchange_id": 11,
+      "exchange_name": "BOX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 11,
+        "at_bid_candidate": 11
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 2,
+        "at_bid_candidate": 2
+      },
+      "other_nbbo_class_contract_volume": 0,
+      "rows": 4
+    },
+    {
+      "at_ask_contract_volume": 0,
+      "at_ask_price_times_contracts_no_multiplier": "0",
+      "at_bid_contract_volume": 0,
+      "at_bid_price_times_contracts_no_multiplier": "0",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 0,
+      "candidate_signed_price_times_contracts_no_multiplier": "0",
+      "condition_id": 126,
+      "condition_name": "MultLegFlrSingLeg",
+      "contract_volume": 17186,
+      "exchange_id": 5,
+      "exchange_name": "CBOE",
+      "nbbo_class_contract_volume": {
+        "inside_spread_unclassified": 14120,
+        "outside_below_bid": 3066
+      },
+      "nbbo_class_rows": {
+        "inside_spread_unclassified": 6,
+        "outside_below_bid": 4
+      },
+      "other_nbbo_class_contract_volume": 17186,
+      "rows": 10
+    },
+    {
+      "at_ask_contract_volume": 0,
+      "at_ask_price_times_contracts_no_multiplier": "0",
+      "at_bid_contract_volume": 1,
+      "at_bid_price_times_contracts_no_multiplier": "2.77",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -1,
+      "candidate_signed_price_times_contracts_no_multiplier": "-2.77",
+      "condition_id": 127,
+      "condition_name": "StkOptAutoEx",
+      "contract_volume": 2,
+      "exchange_id": 5,
+      "exchange_name": "CBOE",
+      "nbbo_class_contract_volume": {
+        "at_bid_candidate": 1,
+        "inside_spread_unclassified": 1
+      },
+      "nbbo_class_rows": {
+        "at_bid_candidate": 1,
+        "inside_spread_unclassified": 1
+      },
+      "other_nbbo_class_contract_volume": 1,
+      "rows": 2
+    },
+    {
+      "at_ask_contract_volume": 4,
+      "at_ask_price_times_contracts_no_multiplier": "1.00",
+      "at_bid_contract_volume": 0,
+      "at_bid_price_times_contracts_no_multiplier": "0",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 4,
+      "candidate_signed_price_times_contracts_no_multiplier": "1.00",
+      "condition_id": 127,
+      "condition_name": "StkOptAutoEx",
+      "contract_volume": 38,
+      "exchange_id": 6,
+      "exchange_name": "ISE",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 4,
+        "inside_spread_unclassified": 7,
+        "midpoint_unclassified": 27
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 4,
+        "inside_spread_unclassified": 7,
+        "midpoint_unclassified": 9
+      },
+      "other_nbbo_class_contract_volume": 34,
+      "rows": 20
+    },
+    {
+      "at_ask_contract_volume": 0,
+      "at_ask_price_times_contracts_no_multiplier": "0",
+      "at_bid_contract_volume": 0,
+      "at_bid_price_times_contracts_no_multiplier": "0",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 0,
+      "candidate_signed_price_times_contracts_no_multiplier": "0",
+      "condition_id": 127,
+      "condition_name": "StkOptAutoEx",
+      "contract_volume": 5,
+      "exchange_id": 9,
+      "exchange_name": "PHLX",
+      "nbbo_class_contract_volume": {
+        "inside_spread_unclassified": 5
+      },
+      "nbbo_class_rows": {
+        "inside_spread_unclassified": 1
+      },
+      "other_nbbo_class_contract_volume": 5,
+      "rows": 1
+    },
+    {
+      "at_ask_contract_volume": 0,
+      "at_ask_price_times_contracts_no_multiplier": "0",
+      "at_bid_contract_volume": 5,
+      "at_bid_price_times_contracts_no_multiplier": "14.23",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -5,
+      "candidate_signed_price_times_contracts_no_multiplier": "-14.23",
+      "condition_id": 127,
+      "condition_name": "StkOptAutoEx",
+      "contract_volume": 12,
+      "exchange_id": 43,
+      "exchange_name": "MIAX",
+      "nbbo_class_contract_volume": {
+        "at_bid_candidate": 5,
+        "inside_spread_unclassified": 6,
+        "midpoint_unclassified": 1
+      },
+      "nbbo_class_rows": {
+        "at_bid_candidate": 4,
+        "inside_spread_unclassified": 4,
+        "midpoint_unclassified": 1
+      },
+      "other_nbbo_class_contract_volume": 7,
+      "rows": 9
+    },
+    {
+      "at_ask_contract_volume": 0,
+      "at_ask_price_times_contracts_no_multiplier": "0",
+      "at_bid_contract_volume": 1,
+      "at_bid_price_times_contracts_no_multiplier": "2.77",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -1,
+      "candidate_signed_price_times_contracts_no_multiplier": "-2.77",
+      "condition_id": 127,
+      "condition_name": "StkOptAutoEx",
+      "contract_volume": 744,
+      "exchange_id": 65,
+      "exchange_name": "EDGX",
+      "nbbo_class_contract_volume": {
+        "at_bid_candidate": 1,
+        "inside_spread_unclassified": 743
+      },
+      "nbbo_class_rows": {
+        "at_bid_candidate": 1,
+        "inside_spread_unclassified": 7
+      },
+      "other_nbbo_class_contract_volume": 743,
+      "rows": 8
+    },
+    {
+      "at_ask_contract_volume": 0,
+      "at_ask_price_times_contracts_no_multiplier": "0",
+      "at_bid_contract_volume": 0,
+      "at_bid_price_times_contracts_no_multiplier": "0",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 0,
+      "candidate_signed_price_times_contracts_no_multiplier": "0",
+      "condition_id": 129,
+      "condition_name": "StkOptFlr",
+      "contract_volume": 700,
+      "exchange_id": 9,
+      "exchange_name": "PHLX",
+      "nbbo_class_contract_volume": {
+        "inside_spread_unclassified": 700
+      },
+      "nbbo_class_rows": {
+        "inside_spread_unclassified": 1
+      },
+      "other_nbbo_class_contract_volume": 700,
+      "rows": 1
+    }
+  ],
+  "condition_groups": [
+    {
+      "at_ask_contract_volume": 112489,
+      "at_ask_price_times_contracts_no_multiplier": "178139.31",
+      "at_bid_contract_volume": 128884,
+      "at_bid_price_times_contracts_no_multiplier": "182640.01",
+      "bucket": "auto_execution",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -16395,
+      "candidate_signed_price_times_contracts_no_multiplier": "-4500.70",
+      "contract_volume": 269551,
+      "id": 18,
+      "name": "AutoExecution",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 112489,
+        "at_bid_candidate": 128884,
+        "inside_spread_unclassified": 8606,
+        "invalid_or_crossed_nbbo": 16,
+        "locked_nbbo_unclassified": 3960,
+        "midpoint_unclassified": 15214,
+        "missing_nbbo": 1,
+        "outside_above_ask": 226,
+        "outside_below_bid": 155
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 17389,
+        "at_bid_candidate": 18754,
+        "inside_spread_unclassified": 1538,
+        "invalid_or_crossed_nbbo": 3,
+        "locked_nbbo_unclassified": 606,
+        "midpoint_unclassified": 1962,
+        "missing_nbbo": 1,
+        "outside_above_ask": 39,
+        "outside_below_bid": 42
+      },
+      "other_nbbo_class_contract_volume": 28178,
+      "rows": 40334
+    },
+    {
+      "at_ask_contract_volume": 5854,
+      "at_ask_price_times_contracts_no_multiplier": "9023.46",
+      "at_bid_contract_volume": 7699,
+      "at_bid_price_times_contracts_no_multiplier": "8662.65",
+      "bucket": "intermarket_sweep",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -1845,
+      "candidate_signed_price_times_contracts_no_multiplier": "360.81",
+      "contract_volume": 14142,
+      "id": 95,
+      "name": "IntermarketSweep",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 5854,
+        "at_bid_candidate": 7699,
+        "inside_spread_unclassified": 72,
+        "locked_nbbo_unclassified": 14,
+        "midpoint_unclassified": 157,
+        "outside_above_ask": 236,
+        "outside_below_bid": 110
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 1056,
+        "at_bid_candidate": 1006,
+        "inside_spread_unclassified": 13,
+        "locked_nbbo_unclassified": 6,
+        "midpoint_unclassified": 38,
+        "outside_above_ask": 31,
+        "outside_below_bid": 15
+      },
+      "other_nbbo_class_contract_volume": 589,
+      "rows": 2165
+    },
+    {
+      "at_ask_contract_volume": 34636,
+      "at_ask_price_times_contracts_no_multiplier": "30684.10",
+      "at_bid_contract_volume": 55021,
+      "at_bid_price_times_contracts_no_multiplier": "45181.89",
+      "bucket": "single_leg_auction_or_cross",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -20385,
+      "candidate_signed_price_times_contracts_no_multiplier": "-14497.79",
+      "contract_volume": 141414,
+      "id": 114,
+      "name": "SingLegAuctNonISO",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 34636,
+        "at_bid_candidate": 55021,
+        "inside_spread_unclassified": 30426,
+        "locked_nbbo_unclassified": 11,
+        "midpoint_unclassified": 20757,
+        "outside_above_ask": 195,
+        "outside_below_bid": 368
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 4212,
+        "at_bid_candidate": 5223,
+        "inside_spread_unclassified": 6123,
+        "locked_nbbo_unclassified": 2,
+        "midpoint_unclassified": 4407,
+        "outside_above_ask": 36,
+        "outside_below_bid": 67
+      },
+      "other_nbbo_class_contract_volume": 51757,
+      "rows": 20070
+    },
+    {
+      "at_ask_contract_volume": 0,
+      "at_ask_price_times_contracts_no_multiplier": "0",
+      "at_bid_contract_volume": 93,
+      "at_bid_price_times_contracts_no_multiplier": "156.14",
+      "bucket": "single_leg_auction_or_cross",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -93,
+      "candidate_signed_price_times_contracts_no_multiplier": "-156.14",
+      "contract_volume": 193,
+      "id": 115,
+      "name": "SingLegAuctISO",
+      "nbbo_class_contract_volume": {
+        "at_bid_candidate": 93,
+        "midpoint_unclassified": 5,
+        "outside_above_ask": 90,
+        "outside_below_bid": 5
+      },
+      "nbbo_class_rows": {
+        "at_bid_candidate": 13,
+        "midpoint_unclassified": 2,
+        "outside_above_ask": 1,
+        "outside_below_bid": 4
+      },
+      "other_nbbo_class_contract_volume": 100,
+      "rows": 20
+    },
+    {
+      "at_ask_contract_volume": 0,
+      "at_ask_price_times_contracts_no_multiplier": "0",
+      "at_bid_contract_volume": 0,
+      "at_bid_price_times_contracts_no_multiplier": "0",
+      "bucket": "single_leg_auction_or_cross",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 0,
+      "candidate_signed_price_times_contracts_no_multiplier": "0",
+      "contract_volume": 2000,
+      "id": 116,
+      "name": "SingLegCrossNonISO",
+      "nbbo_class_contract_volume": {
+        "midpoint_unclassified": 2000
+      },
+      "nbbo_class_rows": {
+        "midpoint_unclassified": 1
+      },
+      "other_nbbo_class_contract_volume": 2000,
+      "rows": 1
+    },
+    {
+      "at_ask_contract_volume": 3408,
+      "at_ask_price_times_contracts_no_multiplier": "53942.80",
+      "at_bid_contract_volume": 15,
+      "at_bid_price_times_contracts_no_multiplier": "50.5",
+      "bucket": "single_leg_floor",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 3393,
+      "candidate_signed_price_times_contracts_no_multiplier": "53892.30",
+      "contract_volume": 10347,
+      "id": 118,
+      "name": "SingLegFlr",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 3408,
+        "at_bid_candidate": 15,
+        "inside_spread_unclassified": 6905,
+        "midpoint_unclassified": 19
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 2,
+        "at_bid_candidate": 3,
+        "inside_spread_unclassified": 7,
+        "midpoint_unclassified": 2
+      },
+      "other_nbbo_class_contract_volume": 6924,
+      "rows": 14
+    },
+    {
+      "at_ask_contract_volume": 5959,
+      "at_ask_price_times_contracts_no_multiplier": "9935.05",
+      "at_bid_contract_volume": 6365,
+      "at_bid_price_times_contracts_no_multiplier": "6073.24",
+      "bucket": "multi_leg",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -406,
+      "candidate_signed_price_times_contracts_no_multiplier": "3861.81",
+      "contract_volume": 38544,
+      "id": 119,
+      "name": "MultLegAutoEx",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 5959,
+        "at_bid_candidate": 6365,
+        "inside_spread_unclassified": 16137,
+        "invalid_or_crossed_nbbo": 40,
+        "locked_nbbo_unclassified": 56,
+        "midpoint_unclassified": 7663,
+        "outside_above_ask": 1737,
+        "outside_below_bid": 587
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 700,
+        "at_bid_candidate": 828,
+        "inside_spread_unclassified": 2048,
+        "invalid_or_crossed_nbbo": 2,
+        "locked_nbbo_unclassified": 9,
+        "midpoint_unclassified": 919,
+        "outside_above_ask": 85,
+        "outside_below_bid": 68
+      },
+      "other_nbbo_class_contract_volume": 26220,
+      "rows": 4659
+    },
+    {
+      "at_ask_contract_volume": 3472,
+      "at_ask_price_times_contracts_no_multiplier": "2897.93",
+      "at_bid_contract_volume": 6466,
+      "at_bid_price_times_contracts_no_multiplier": "4402.78",
+      "bucket": "multi_leg",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -2994,
+      "candidate_signed_price_times_contracts_no_multiplier": "-1504.85",
+      "contract_volume": 21849,
+      "id": 120,
+      "name": "MultLegAuct",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 3472,
+        "at_bid_candidate": 6466,
+        "inside_spread_unclassified": 7781,
+        "midpoint_unclassified": 3964,
+        "outside_above_ask": 78,
+        "outside_below_bid": 88
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 704,
+        "at_bid_candidate": 1392,
+        "inside_spread_unclassified": 2921,
+        "midpoint_unclassified": 1293,
+        "outside_above_ask": 30,
+        "outside_below_bid": 45
+      },
+      "other_nbbo_class_contract_volume": 11911,
+      "rows": 6385
+    },
+    {
+      "at_ask_contract_volume": 2456,
+      "at_ask_price_times_contracts_no_multiplier": "20017.00",
+      "at_bid_contract_volume": 1772,
+      "at_bid_price_times_contracts_no_multiplier": "53225.30",
+      "bucket": "multi_leg",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 684,
+      "candidate_signed_price_times_contracts_no_multiplier": "-33208.30",
+      "contract_volume": 7012,
+      "id": 122,
+      "name": "MultLegFlr",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 2456,
+        "at_bid_candidate": 1772,
+        "inside_spread_unclassified": 1540,
+        "midpoint_unclassified": 1244
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 4,
+        "at_bid_candidate": 5,
+        "inside_spread_unclassified": 3,
+        "midpoint_unclassified": 3
+      },
+      "other_nbbo_class_contract_volume": 2784,
+      "rows": 15
+    },
+    {
+      "at_ask_contract_volume": 4023,
+      "at_ask_price_times_contracts_no_multiplier": "11681.85",
+      "at_bid_contract_volume": 2741,
+      "at_bid_price_times_contracts_no_multiplier": "1968.45",
+      "bucket": "multi_leg",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 1282,
+      "candidate_signed_price_times_contracts_no_multiplier": "9713.40",
+      "contract_volume": 7407,
+      "id": 123,
+      "name": "MultLegAutoSingLeg",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 4023,
+        "at_bid_candidate": 2741,
+        "inside_spread_unclassified": 176,
+        "locked_nbbo_unclassified": 37,
+        "midpoint_unclassified": 283,
+        "outside_above_ask": 84,
+        "outside_below_bid": 63
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 575,
+        "at_bid_candidate": 463,
+        "inside_spread_unclassified": 85,
+        "locked_nbbo_unclassified": 2,
+        "midpoint_unclassified": 114,
+        "outside_above_ask": 9,
+        "outside_below_bid": 10
+      },
+      "other_nbbo_class_contract_volume": 643,
+      "rows": 1258
+    },
+    {
+      "at_ask_contract_volume": 1,
+      "at_ask_price_times_contracts_no_multiplier": "1.07",
+      "at_bid_contract_volume": 2,
+      "at_bid_price_times_contracts_no_multiplier": "0.80",
+      "bucket": "stock_option",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -1,
+      "candidate_signed_price_times_contracts_no_multiplier": "0.27",
+      "contract_volume": 59,
+      "id": 124,
+      "name": "StkOptAuct",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 1,
+        "at_bid_candidate": 2,
+        "inside_spread_unclassified": 41,
+        "midpoint_unclassified": 15
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 1,
+        "at_bid_candidate": 2,
+        "inside_spread_unclassified": 17,
+        "midpoint_unclassified": 3
+      },
+      "other_nbbo_class_contract_volume": 56,
+      "rows": 23
+    },
+    {
+      "at_ask_contract_volume": 11,
+      "at_ask_price_times_contracts_no_multiplier": "1.19",
+      "at_bid_contract_volume": 11,
+      "at_bid_price_times_contracts_no_multiplier": "5.85",
+      "bucket": "multi_leg",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 0,
+      "candidate_signed_price_times_contracts_no_multiplier": "-4.66",
+      "contract_volume": 22,
+      "id": 125,
+      "name": "MultLegAuctSingLeg",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 11,
+        "at_bid_candidate": 11
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 2,
+        "at_bid_candidate": 2
+      },
+      "other_nbbo_class_contract_volume": 0,
+      "rows": 4
+    },
+    {
+      "at_ask_contract_volume": 0,
+      "at_ask_price_times_contracts_no_multiplier": "0",
+      "at_bid_contract_volume": 0,
+      "at_bid_price_times_contracts_no_multiplier": "0",
+      "bucket": "multi_leg",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 0,
+      "candidate_signed_price_times_contracts_no_multiplier": "0",
+      "contract_volume": 17186,
+      "id": 126,
+      "name": "MultLegFlrSingLeg",
+      "nbbo_class_contract_volume": {
+        "inside_spread_unclassified": 14120,
+        "outside_below_bid": 3066
+      },
+      "nbbo_class_rows": {
+        "inside_spread_unclassified": 6,
+        "outside_below_bid": 4
+      },
+      "other_nbbo_class_contract_volume": 17186,
+      "rows": 10
+    },
+    {
+      "at_ask_contract_volume": 4,
+      "at_ask_price_times_contracts_no_multiplier": "1.00",
+      "at_bid_contract_volume": 7,
+      "at_bid_price_times_contracts_no_multiplier": "19.77",
+      "bucket": "stock_option",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -3,
+      "candidate_signed_price_times_contracts_no_multiplier": "-18.77",
+      "contract_volume": 801,
+      "id": 127,
+      "name": "StkOptAutoEx",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 4,
+        "at_bid_candidate": 7,
+        "inside_spread_unclassified": 762,
+        "midpoint_unclassified": 28
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 4,
+        "at_bid_candidate": 6,
+        "inside_spread_unclassified": 20,
+        "midpoint_unclassified": 10
+      },
+      "other_nbbo_class_contract_volume": 790,
+      "rows": 40
+    },
+    {
+      "at_ask_contract_volume": 0,
+      "at_ask_price_times_contracts_no_multiplier": "0",
+      "at_bid_contract_volume": 0,
+      "at_bid_price_times_contracts_no_multiplier": "0",
+      "bucket": "stock_option",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 0,
+      "candidate_signed_price_times_contracts_no_multiplier": "0",
+      "contract_volume": 700,
+      "id": 129,
+      "name": "StkOptFlr",
+      "nbbo_class_contract_volume": {
+        "inside_spread_unclassified": 700
+      },
+      "nbbo_class_rows": {
+        "inside_spread_unclassified": 1
+      },
+      "other_nbbo_class_contract_volume": 700,
+      "rows": 1
+    }
+  ],
+  "condition_mapping": {
+    "bytes": 26854,
+    "last_modified": "Thu, 08 Oct 2026 20:33:43 GMT",
+    "response_date": "Sat, 07 Nov 2026 22:15:37 GMT",
+    "sha256": "23c94bd8d16229c8ce462a1e351636821670932553c66e84046797275a74cc65",
+    "url": "https://datashop.cboe.com/documents/livevol_trade_condition_ids.xlsx"
+  },
+  "decision": "This one-underlying, one-day sample decomposes the Phase 194 at-ask-minus-at-bid proxy by current trade-condition and exchange labels. It is a measurement diagnostic, not a signed institutional-flow feature or predictive test. Current mappings have no effective dates and were published after the sample date; no historical PIT admission.",
+  "diagnostic_concentration": {
+    "largest_absolute_condition_candidate_net": {
+      "at_ask_contract_volume": 34636,
+      "at_ask_price_times_contracts_no_multiplier": "30684.10",
+      "at_bid_contract_volume": 55021,
+      "at_bid_price_times_contracts_no_multiplier": "45181.89",
+      "bucket": "single_leg_auction_or_cross",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -20385,
+      "candidate_signed_price_times_contracts_no_multiplier": "-14497.79",
+      "contract_volume": 141414,
+      "id": 114,
+      "name": "SingLegAuctNonISO",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 34636,
+        "at_bid_candidate": 55021,
+        "inside_spread_unclassified": 30426,
+        "locked_nbbo_unclassified": 11,
+        "midpoint_unclassified": 20757,
+        "outside_above_ask": 195,
+        "outside_below_bid": 368
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 4212,
+        "at_bid_candidate": 5223,
+        "inside_spread_unclassified": 6123,
+        "locked_nbbo_unclassified": 2,
+        "midpoint_unclassified": 4407,
+        "outside_above_ask": 36,
+        "outside_below_bid": 67
+      },
+      "other_nbbo_class_contract_volume": 51757,
+      "rows": 20070
+    },
+    "largest_absolute_exchange_candidate_net": {
+      "at_ask_contract_volume": 21644,
+      "at_ask_price_times_contracts_no_multiplier": "73094.70",
+      "at_bid_contract_volume": 28800,
+      "at_bid_price_times_contracts_no_multiplier": "26194.62",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -7156,
+      "candidate_signed_price_times_contracts_no_multiplier": "46900.08",
+      "contract_volume": 82640,
+      "id": 9,
+      "name": "PHLX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 21644,
+        "at_bid_candidate": 28800,
+        "inside_spread_unclassified": 22019,
+        "locked_nbbo_unclassified": 29,
+        "midpoint_unclassified": 9517,
+        "outside_above_ask": 271,
+        "outside_below_bid": 360
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 1888,
+        "at_bid_candidate": 2043,
+        "inside_spread_unclassified": 2282,
+        "locked_nbbo_unclassified": 7,
+        "midpoint_unclassified": 1531,
+        "outside_above_ask": 37,
+        "outside_below_bid": 42
+      },
+      "other_nbbo_class_contract_volume": 32196,
+      "rows": 7830
+    }
+  },
+  "exchange_groups": [
+    {
+      "at_ask_contract_volume": 4643,
+      "at_ask_price_times_contracts_no_multiplier": "6532.40",
+      "at_bid_contract_volume": 7064,
+      "at_bid_price_times_contracts_no_multiplier": "5856.57",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -2421,
+      "candidate_signed_price_times_contracts_no_multiplier": "675.83",
+      "contract_volume": 13588,
+      "id": 1,
+      "name": "NASD",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 4643,
+        "at_bid_candidate": 7064,
+        "inside_spread_unclassified": 570,
+        "invalid_or_crossed_nbbo": 2,
+        "locked_nbbo_unclassified": 187,
+        "midpoint_unclassified": 1103,
+        "outside_above_ask": 10,
+        "outside_below_bid": 9
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 594,
+        "at_bid_candidate": 579,
+        "inside_spread_unclassified": 239,
+        "invalid_or_crossed_nbbo": 1,
+        "locked_nbbo_unclassified": 8,
+        "midpoint_unclassified": 285,
+        "outside_above_ask": 1,
+        "outside_below_bid": 1
+      },
+      "other_nbbo_class_contract_volume": 1881,
+      "rows": 1708
+    },
+    {
+      "at_ask_contract_volume": 15962,
+      "at_ask_price_times_contracts_no_multiplier": "18998.01",
+      "at_bid_contract_volume": 13884,
+      "at_bid_price_times_contracts_no_multiplier": "11080.56",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 2078,
+      "candidate_signed_price_times_contracts_no_multiplier": "7917.45",
+      "contract_volume": 37031,
+      "id": 4,
+      "name": "AMEX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 15962,
+        "at_bid_candidate": 13884,
+        "inside_spread_unclassified": 3643,
+        "locked_nbbo_unclassified": 14,
+        "midpoint_unclassified": 3258,
+        "outside_above_ask": 171,
+        "outside_below_bid": 99
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 2648,
+        "at_bid_candidate": 2579,
+        "inside_spread_unclassified": 1210,
+        "locked_nbbo_unclassified": 3,
+        "midpoint_unclassified": 794,
+        "outside_above_ask": 37,
+        "outside_below_bid": 49
+      },
+      "other_nbbo_class_contract_volume": 7185,
+      "rows": 7320
+    },
+    {
+      "at_ask_contract_volume": 8006,
+      "at_ask_price_times_contracts_no_multiplier": "8366.44",
+      "at_bid_contract_volume": 13979,
+      "at_bid_price_times_contracts_no_multiplier": "11774.48",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -5973,
+      "candidate_signed_price_times_contracts_no_multiplier": "-3408.04",
+      "contract_volume": 55612,
+      "id": 5,
+      "name": "CBOE",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 8006,
+        "at_bid_candidate": 13979,
+        "inside_spread_unclassified": 24444,
+        "locked_nbbo_unclassified": 23,
+        "midpoint_unclassified": 5945,
+        "outside_above_ask": 33,
+        "outside_below_bid": 3182
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 1576,
+        "at_bid_candidate": 2650,
+        "inside_spread_unclassified": 2842,
+        "locked_nbbo_unclassified": 11,
+        "midpoint_unclassified": 1546,
+        "outside_above_ask": 16,
+        "outside_below_bid": 45
+      },
+      "other_nbbo_class_contract_volume": 33627,
+      "rows": 8686
+    },
+    {
+      "at_ask_contract_volume": 6727,
+      "at_ask_price_times_contracts_no_multiplier": "7854.24",
+      "at_bid_contract_volume": 9069,
+      "at_bid_price_times_contracts_no_multiplier": "7263.14",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -2342,
+      "candidate_signed_price_times_contracts_no_multiplier": "591.10",
+      "contract_volume": 26801,
+      "id": 6,
+      "name": "ISE",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 6727,
+        "at_bid_candidate": 9069,
+        "inside_spread_unclassified": 5519,
+        "invalid_or_crossed_nbbo": 40,
+        "locked_nbbo_unclassified": 88,
+        "midpoint_unclassified": 4041,
+        "outside_above_ask": 941,
+        "outside_below_bid": 376
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 954,
+        "at_bid_candidate": 1046,
+        "inside_spread_unclassified": 1203,
+        "invalid_or_crossed_nbbo": 2,
+        "locked_nbbo_unclassified": 12,
+        "midpoint_unclassified": 1089,
+        "outside_above_ask": 33,
+        "outside_below_bid": 33
+      },
+      "other_nbbo_class_contract_volume": 11005,
+      "rows": 4372
+    },
+    {
+      "at_ask_contract_volume": 26418,
+      "at_ask_price_times_contracts_no_multiplier": "49915.04",
+      "at_bid_contract_volume": 31053,
+      "at_bid_price_times_contracts_no_multiplier": "60552.36",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -4635,
+      "candidate_signed_price_times_contracts_no_multiplier": "-10637.32",
+      "contract_volume": 58612,
+      "id": 7,
+      "name": "ARCA",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 26418,
+        "at_bid_candidate": 31053,
+        "inside_spread_unclassified": 789,
+        "locked_nbbo_unclassified": 19,
+        "midpoint_unclassified": 256,
+        "outside_above_ask": 40,
+        "outside_below_bid": 37
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 3591,
+        "at_bid_candidate": 4459,
+        "inside_spread_unclassified": 97,
+        "locked_nbbo_unclassified": 7,
+        "midpoint_unclassified": 35,
+        "outside_above_ask": 6,
+        "outside_below_bid": 9
+      },
+      "other_nbbo_class_contract_volume": 1141,
+      "rows": 8204
+    },
+    {
+      "at_ask_contract_volume": 21644,
+      "at_ask_price_times_contracts_no_multiplier": "73094.70",
+      "at_bid_contract_volume": 28800,
+      "at_bid_price_times_contracts_no_multiplier": "26194.62",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -7156,
+      "candidate_signed_price_times_contracts_no_multiplier": "46900.08",
+      "contract_volume": 82640,
+      "id": 9,
+      "name": "PHLX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 21644,
+        "at_bid_candidate": 28800,
+        "inside_spread_unclassified": 22019,
+        "locked_nbbo_unclassified": 29,
+        "midpoint_unclassified": 9517,
+        "outside_above_ask": 271,
+        "outside_below_bid": 360
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 1888,
+        "at_bid_candidate": 2043,
+        "inside_spread_unclassified": 2282,
+        "locked_nbbo_unclassified": 7,
+        "midpoint_unclassified": 1531,
+        "outside_above_ask": 37,
+        "outside_below_bid": 42
+      },
+      "other_nbbo_class_contract_volume": 32196,
+      "rows": 7830
+    },
+    {
+      "at_ask_contract_volume": 6564,
+      "at_ask_price_times_contracts_no_multiplier": "26923.03",
+      "at_bid_contract_volume": 8135,
+      "at_bid_price_times_contracts_no_multiplier": "62142.80",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -1571,
+      "candidate_signed_price_times_contracts_no_multiplier": "-35219.77",
+      "contract_volume": 21411,
+      "id": 11,
+      "name": "BOX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 6564,
+        "at_bid_candidate": 8135,
+        "inside_spread_unclassified": 2910,
+        "locked_nbbo_unclassified": 116,
+        "midpoint_unclassified": 3511,
+        "outside_above_ask": 88,
+        "outside_below_bid": 87
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 777,
+        "at_bid_candidate": 870,
+        "inside_spread_unclassified": 484,
+        "locked_nbbo_unclassified": 45,
+        "midpoint_unclassified": 267,
+        "outside_above_ask": 7,
+        "outside_below_bid": 12
+      },
+      "other_nbbo_class_contract_volume": 6712,
+      "rows": 2462
+    },
+    {
+      "at_ask_contract_volume": 11040,
+      "at_ask_price_times_contracts_no_multiplier": "17817.61",
+      "at_bid_contract_volume": 12280,
+      "at_bid_price_times_contracts_no_multiplier": "17073.64",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -1240,
+      "candidate_signed_price_times_contracts_no_multiplier": "743.97",
+      "contract_volume": 32320,
+      "id": 22,
+      "name": "MRX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 11040,
+        "at_bid_candidate": 12280,
+        "inside_spread_unclassified": 3850,
+        "locked_nbbo_unclassified": 46,
+        "midpoint_unclassified": 5017,
+        "outside_above_ask": 71,
+        "outside_below_bid": 16
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 1340,
+        "at_bid_candidate": 1501,
+        "inside_spread_unclassified": 529,
+        "locked_nbbo_unclassified": 9,
+        "midpoint_unclassified": 467,
+        "outside_above_ask": 14,
+        "outside_below_bid": 10
+      },
+      "other_nbbo_class_contract_volume": 9000,
+      "rows": 3870
+    },
+    {
+      "at_ask_contract_volume": 3337,
+      "at_ask_price_times_contracts_no_multiplier": "4852.80",
+      "at_bid_contract_volume": 3843,
+      "at_bid_price_times_contracts_no_multiplier": "5203.63",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -506,
+      "candidate_signed_price_times_contracts_no_multiplier": "-350.83",
+      "contract_volume": 8267,
+      "id": 31,
+      "name": "GEMX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 3337,
+        "at_bid_candidate": 3843,
+        "inside_spread_unclassified": 365,
+        "locked_nbbo_unclassified": 19,
+        "midpoint_unclassified": 686,
+        "outside_above_ask": 15,
+        "outside_below_bid": 2
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 686,
+        "at_bid_candidate": 625,
+        "inside_spread_unclassified": 58,
+        "locked_nbbo_unclassified": 9,
+        "midpoint_unclassified": 91,
+        "outside_above_ask": 3,
+        "outside_below_bid": 1
+      },
+      "other_nbbo_class_contract_volume": 1087,
+      "rows": 1473
+    },
+    {
+      "at_ask_contract_volume": 5868,
+      "at_ask_price_times_contracts_no_multiplier": "4147.79",
+      "at_bid_contract_volume": 5873,
+      "at_bid_price_times_contracts_no_multiplier": "3909.92",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -5,
+      "candidate_signed_price_times_contracts_no_multiplier": "237.87",
+      "contract_volume": 17174,
+      "id": 42,
+      "name": "C2",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 5868,
+        "at_bid_candidate": 5873,
+        "inside_spread_unclassified": 2265,
+        "midpoint_unclassified": 3129,
+        "outside_above_ask": 33,
+        "outside_below_bid": 6
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 574,
+        "at_bid_candidate": 689,
+        "inside_spread_unclassified": 336,
+        "midpoint_unclassified": 251,
+        "outside_above_ask": 4,
+        "outside_below_bid": 3
+      },
+      "other_nbbo_class_contract_volume": 5433,
+      "rows": 1857
+    },
+    {
+      "at_ask_contract_volume": 16238,
+      "at_ask_price_times_contracts_no_multiplier": "26320.90",
+      "at_bid_contract_volume": 20650,
+      "at_bid_price_times_contracts_no_multiplier": "16834.79",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -4412,
+      "candidate_signed_price_times_contracts_no_multiplier": "9486.11",
+      "contract_volume": 57539,
+      "id": 43,
+      "name": "MIAX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 16238,
+        "at_bid_candidate": 20650,
+        "inside_spread_unclassified": 12950,
+        "locked_nbbo_unclassified": 222,
+        "midpoint_unclassified": 6581,
+        "outside_above_ask": 792,
+        "outside_below_bid": 106
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 2357,
+        "at_bid_candidate": 2115,
+        "inside_spread_unclassified": 1989,
+        "locked_nbbo_unclassified": 17,
+        "midpoint_unclassified": 1033,
+        "outside_above_ask": 32,
+        "outside_below_bid": 20
+      },
+      "other_nbbo_class_contract_volume": 20651,
+      "rows": 7563
+    },
+    {
+      "at_ask_contract_volume": 4446,
+      "at_ask_price_times_contracts_no_multiplier": "4842.14",
+      "at_bid_contract_volume": 6977,
+      "at_bid_price_times_contracts_no_multiplier": "4699.19",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -2531,
+      "candidate_signed_price_times_contracts_no_multiplier": "142.95",
+      "contract_volume": 11562,
+      "id": 47,
+      "name": "NASDBX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 4446,
+        "at_bid_candidate": 6977,
+        "inside_spread_unclassified": 16,
+        "locked_nbbo_unclassified": 11,
+        "midpoint_unclassified": 101,
+        "missing_nbbo": 1,
+        "outside_above_ask": 5,
+        "outside_below_bid": 5
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 625,
+        "at_bid_candidate": 807,
+        "inside_spread_unclassified": 7,
+        "locked_nbbo_unclassified": 2,
+        "midpoint_unclassified": 9,
+        "missing_nbbo": 1,
+        "outside_above_ask": 1,
+        "outside_below_bid": 1
+      },
+      "other_nbbo_class_contract_volume": 139,
+      "rows": 1453
+    },
+    {
+      "at_ask_contract_volume": 5269,
+      "at_ask_price_times_contracts_no_multiplier": "7704.32",
+      "at_bid_contract_volume": 5247,
+      "at_bid_price_times_contracts_no_multiplier": "6965.71",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 22,
+      "candidate_signed_price_times_contracts_no_multiplier": "738.61",
+      "contract_volume": 16431,
+      "id": 60,
+      "name": "BZX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 5269,
+        "at_bid_candidate": 5247,
+        "inside_spread_unclassified": 2612,
+        "locked_nbbo_unclassified": 80,
+        "midpoint_unclassified": 3179,
+        "outside_above_ask": 9,
+        "outside_below_bid": 35
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 1013,
+        "at_bid_candidate": 1108,
+        "inside_spread_unclassified": 619,
+        "locked_nbbo_unclassified": 4,
+        "midpoint_unclassified": 631,
+        "outside_above_ask": 3,
+        "outside_below_bid": 6
+      },
+      "other_nbbo_class_contract_volume": 5915,
+      "rows": 3384
+    },
+    {
+      "at_ask_contract_volume": 7518,
+      "at_ask_price_times_contracts_no_multiplier": "9317.09",
+      "at_bid_contract_volume": 8281,
+      "at_bid_price_times_contracts_no_multiplier": "9348.68",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -763,
+      "candidate_signed_price_times_contracts_no_multiplier": "-31.59",
+      "contract_volume": 22577,
+      "id": 65,
+      "name": "EDGX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 7518,
+        "at_bid_candidate": 8281,
+        "inside_spread_unclassified": 3792,
+        "locked_nbbo_unclassified": 62,
+        "midpoint_unclassified": 2832,
+        "outside_above_ask": 47,
+        "outside_below_bid": 45
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 1219,
+        "at_bid_candidate": 1414,
+        "inside_spread_unclassified": 618,
+        "locked_nbbo_unclassified": 17,
+        "midpoint_unclassified": 483,
+        "outside_above_ask": 11,
+        "outside_below_bid": 12
+      },
+      "other_nbbo_class_contract_volume": 6778,
+      "rows": 3774
+    },
+    {
+      "at_ask_contract_volume": 7920,
+      "at_ask_price_times_contracts_no_multiplier": "14883.27",
+      "at_bid_contract_volume": 9336,
+      "at_bid_price_times_contracts_no_multiplier": "17485.28",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -1416,
+      "candidate_signed_price_times_contracts_no_multiplier": "-2602.01",
+      "contract_volume": 17371,
+      "id": 69,
+      "name": "PEARL",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 7920,
+        "at_bid_candidate": 9336,
+        "invalid_or_crossed_nbbo": 4,
+        "locked_nbbo_unclassified": 21,
+        "midpoint_unclassified": 5,
+        "outside_above_ask": 26,
+        "outside_below_bid": 59
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 1200,
+        "at_bid_candidate": 1269,
+        "invalid_or_crossed_nbbo": 1,
+        "locked_nbbo_unclassified": 7,
+        "midpoint_unclassified": 1,
+        "outside_above_ask": 3,
+        "outside_below_bid": 3
+      },
+      "other_nbbo_class_contract_volume": 115,
+      "rows": 2484
+    },
+    {
+      "at_ask_contract_volume": 8749,
+      "at_ask_price_times_contracts_no_multiplier": "17454.31",
+      "at_bid_contract_volume": 10388,
+      "at_bid_price_times_contracts_no_multiplier": "20321.84",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -1639,
+      "candidate_signed_price_times_contracts_no_multiplier": "-2867.53",
+      "contract_volume": 22873,
+      "id": 71,
+      "name": "EMLD",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 8749,
+        "at_bid_candidate": 10388,
+        "inside_spread_unclassified": 476,
+        "invalid_or_crossed_nbbo": 10,
+        "locked_nbbo_unclassified": 2921,
+        "midpoint_unclassified": 297,
+        "outside_above_ask": 23,
+        "outside_below_bid": 9
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 1769,
+        "at_bid_candidate": 2013,
+        "inside_spread_unclassified": 135,
+        "invalid_or_crossed_nbbo": 1,
+        "locked_nbbo_unclassified": 404,
+        "midpoint_unclassified": 63,
+        "outside_above_ask": 10,
+        "outside_below_bid": 5
+      },
+      "other_nbbo_class_contract_volume": 3736,
+      "rows": 4400
+    },
+    {
+      "at_ask_contract_volume": 5475,
+      "at_ask_price_times_contracts_no_multiplier": "8000.94",
+      "at_bid_contract_volume": 8794,
+      "at_bid_price_times_contracts_no_multiplier": "9990.06",
+      "candidate_signed_contract_volume_at_ask_minus_bid": -3319,
+      "candidate_signed_price_times_contracts_no_multiplier": "-1989.12",
+      "contract_volume": 15676,
+      "id": 120,
+      "name": "MEMX",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 5475,
+        "at_bid_candidate": 8794,
+        "inside_spread_unclassified": 418,
+        "locked_nbbo_unclassified": 156,
+        "midpoint_unclassified": 819,
+        "outside_above_ask": 8,
+        "outside_below_bid": 6
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 851,
+        "at_bid_candidate": 1042,
+        "inside_spread_unclassified": 65,
+        "locked_nbbo_unclassified": 29,
+        "midpoint_unclassified": 151,
+        "outside_above_ask": 3,
+        "outside_below_bid": 2
+      },
+      "other_nbbo_class_contract_volume": 1407,
+      "rows": 2143
+    },
+    {
+      "at_ask_contract_volume": 6489,
+      "at_ask_price_times_contracts_no_multiplier": "9299.73",
+      "at_bid_contract_volume": 5423,
+      "at_bid_price_times_contracts_no_multiplier": "5690.11",
+      "candidate_signed_contract_volume_at_ask_minus_bid": 1066,
+      "candidate_signed_price_times_contracts_no_multiplier": "3609.62",
+      "contract_volume": 13742,
+      "id": 121,
+      "name": "SPHR",
+      "nbbo_class_contract_volume": {
+        "at_ask_candidate": 6489,
+        "at_bid_candidate": 5423,
+        "inside_spread_unclassified": 628,
+        "locked_nbbo_unclassified": 64,
+        "midpoint_unclassified": 1072,
+        "outside_above_ask": 63,
+        "outside_below_bid": 3
+      },
+      "nbbo_class_rows": {
+        "at_ask_candidate": 987,
+        "at_bid_candidate": 888,
+        "inside_spread_unclassified": 69,
+        "locked_nbbo_unclassified": 34,
+        "midpoint_unclassified": 27,
+        "outside_above_ask": 10,
+        "outside_below_bid": 1
+      },
+      "other_nbbo_class_contract_volume": 1830,
+      "rows": 2016
+    }
+  ],
+  "exchange_mapping": {
+    "bytes": 1703,
+    "last_modified": "Thu, 29 Oct 2026 20:48:45 GMT",
+    "response_date": "Sat, 07 Nov 2026 22:15:37 GMT",
+    "sha256": "1b5cab0414cdc96aee6f2cfea098d36c12a4f7d06b7ad15909e3370b90d3c87f",
+    "url": "https://datashop.cboe.com/documents/livevol_exchange_ids.csv"
+  },
+  "interpretation": {
+    "alpha_admission": false,
+    "candidate_net_is_exact_at_ask_minus_exact_at_bid_only": true,
+    "data_purchase": false,
+    "exchange_is_participant_identity": false,
+    "f80_frozen": true,
+    "first_receipt_verified": false,
+    "historical_coverage_verified": false,
+    "historical_mapping_pit_verified": false,
+    "holdout_used": false,
+    "institutional_or_informed_flow_claimed": false,
+    "production_changed": false,
+    "quote_datetime_semantics_assigned": false,
+    "quote_datetime_used": false,
+    "raw_archive_persisted": false,
+    "raw_clock_values_persisted": false,
+    "raw_contracts_persisted": false,
+    "raw_symbols_persisted": false,
+    "raw_trade_rows_persisted": false,
+    "return_test_run": false,
+    "signed_flow_feature_admitted": false,
+    "strict_pit_admitted": false,
+    "trade_conditions_are_participant_identities": false,
+    "vendor_contact": false
+  },
+  "mapping_reconciliation": {
+    "condition_mapping_effective_date_fields": [],
+    "condition_mapping_headers": [
+      "id",
+      "name",
+      "security_type"
+    ],
+    "condition_mapping_rows": 80,
+    "exchange_mapping_headers": [
+      "id",
+      "display_name",
+      "full_name",
+      "security_type"
+    ],
+    "exchange_mapping_rows": 40,
+    "historical_effective_dates_verified": false,
+    "message_type_field_present": false,
+    "strict_side_eligible_rows": 0,
+    "unmapped_condition_ids": [],
+    "unmapped_exchange_ids": []
+  },
   "phase": 196,
-  "status": "PENDING_HOSTED_EXECUTION",
-  "scope": "one-day, one-underlying public Cboe sample; descriptive only",
+  "reconciliation": {
+    "all_observed_ids_mapped": true,
+    "condition_exchange_rows_sum_matches": true,
+    "condition_exchange_volume_sum_matches": true,
+    "condition_rows_sum_matches": true,
+    "condition_volume_sum_matches": true,
+    "exchange_rows_sum_matches": true,
+    "exchange_volume_sum_matches": true,
+    "phase194_at_ask_matches": true,
+    "phase194_at_bid_matches": true,
+    "phase194_contract_volume_matches": true,
+    "phase194_row_count_matches": true
+  },
+  "sample_archive_bytes": 3561778,
+  "sample_archive_sha256": "a02504e156db28b3f007d9d25a534e4c88ffd8d24ac43f3bf84885583a3d10b8",
+  "sample_core_trade_rows_sha256": "4dd0e041ca3b1921a2f5a6a3825a9505be234947736232fb47f18e93c74d1b06",
+  "sample_date": "2026-01-07",
+  "sample_member_basename": "UnderlyingOptionsTrades_2026-01-07.csv",
+  "sample_member_sha256": "68fae85ab164e0060cefcc7eb28b02d3d50a991ff755b7d00effcc2a4e0ac229",
+  "sample_response_headers": {
+    "content_type": "application/x-zip-compressed",
+    "date": "Sat, 07 Nov 2026 22:15:37 GMT",
+    "http_status": "200",
+    "last_modified": ""
+  },
   "sample_url": "https://datashop.cboe.com/download/sample/216",
-  "strict_pit_admitted": false,
-  "signed_flow_feature_admitted": false,
-  "alpha_admission": false,
-  "return_test_run": false,
-  "holdout_used": false,
-  "production_changed": false,
-  "data_purchase": false,
-  "vendor_contact": false,
-  "raw_trade_rows_persisted": false,
-  "raw_symbols_persisted": false,
-  "raw_contracts_persisted": false,
-  "raw_clock_values_persisted": false,
-  "f80_frozen": true,
-  "note": "Replace this pending record with the hosted metadata-only audit result after Phase 196 completes."
+  "status": "STRATIFIED_SAMPLE_DIAGNOSTIC_PASS",
+  "totals": {
+    "at_ask_contract_volume": 172313,
+    "at_ask_price_times_contracts_no_multiplier": "316324.76",
+    "at_bid_contract_volume": 209076,
+    "at_bid_price_times_contracts_no_multiplier": "302387.38",
+    "candidate_signed_contract_volume_at_ask_minus_bid": -36763,
+    "candidate_signed_price_times_contracts_no_multiplier": "13937.38",
+    "contract_volume": 531227,
+    "nbbo_class_contract_volume": {
+      "at_ask_candidate": 172313,
+      "at_bid_candidate": 209076,
+      "inside_spread_unclassified": 87266,
+      "invalid_or_crossed_nbbo": 56,
+      "locked_nbbo_unclassified": 4078,
+      "midpoint_unclassified": 51349,
+      "missing_nbbo": 1,
+      "outside_above_ask": 2646,
+      "outside_below_bid": 4442
+    },
+    "nbbo_class_rows": {
+      "at_ask_candidate": 24649,
+      "at_bid_candidate": 27697,
+      "inside_spread_unclassified": 12782,
+      "invalid_or_crossed_nbbo": 5,
+      "locked_nbbo_unclassified": 625,
+      "midpoint_unclassified": 8754,
+      "missing_nbbo": 1,
+      "outside_above_ask": 231,
+      "outside_below_bid": 255
+    },
+    "other_nbbo_class_contract_volume": 149838,
+    "rows": 74999
+  },
+  "workflow": {
+    "run_id": 42419754569,
+    "run_url": "https://github.com/jafelix81/NuevaEstrategia/actions/runs/42419754569",
+    "artifact_id": 13592858186,
+    "artifact_name": "phase196-cboe-nbbo-condition-exchange-stratification",
+    "artifact_sha256": "8fc18375f52cb8d440e6850de7df5b7a32be028e70786eef0f05e97979d14912",
+    "artifact_size_bytes": 13713,
+    "artifact_expires_at": "2027-02-05T22:15:31Z",
+    "offline_tests_passed": 8,
+    "reconciliation_checks_passed": 11
+  },
+  "derived_diagnostics": {
+    "candidate_volume_net_pct_total_contract_volume": -6.920394,
+    "at_ask_average_premium_per_contract": 1.835757,
+    "at_bid_average_premium_per_contract": 1.446304,
+    "candidate_price_times_contracts_proxy": 13937.38,
+    "candidate_volume_and_price_weighted_proxy_signs_opposite": true,
+    "condition_bucket_net_share_of_net_deficit_pct": {
+      "auto_execution": -44.5965,
+      "intermarket_sweep": -5.0186,
+      "multi_leg": -3.9007,
+      "single_leg_auction_or_cross": -55.7027,
+      "single_leg_floor": 9.2294,
+      "stock_option": -0.0109
+    },
+    "largest_negative_exchange_nets": [
+      {
+        "exchange": "PHLX",
+        "candidate_net": -7156
+      },
+      {
+        "exchange": "CBOE",
+        "candidate_net": -5973
+      },
+      {
+        "exchange": "ARCA",
+        "candidate_net": -4635
+      },
+      {
+        "exchange": "MIAX",
+        "candidate_net": -4412
+      },
+      {
+        "exchange": "MEMX",
+        "candidate_net": -3319
+      }
+    ],
+    "positive_exchange_nets": [
+      {
+        "exchange": "AMEX",
+        "candidate_net": 2078
+      },
+      {
+        "exchange": "SPHR",
+        "candidate_net": 1066
+      },
+      {
+        "exchange": "BZX",
+        "candidate_net": 22
+      }
+    ]
+  }
 }
