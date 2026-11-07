@@ -1,0 +1,31 @@
+{
+  "phase": 194,
+  "audit_as_of": "2026-11-07",
+  "source": "Cboe Option Trades public sample",
+  "sample_url": "https://datashop.cboe.com/download/sample/216",
+  "prior_archive_sha256": "a02504e156db28b3f007d9d25a534e4c88ffd8d24ac43f3bf84885583a3d10b8",
+  "prior_sample_shape": {
+    "total_rows_per_member": 98579,
+    "populated_rows_per_member": 74999,
+    "all_column_blank_trailing_rows_per_member": 23580,
+    "quote_time_only_shape_rows_per_member": 74999,
+    "hhmm_clock_range_valid_rows_per_member": 22989,
+    "hhmm_clock_range_invalid_rows_per_member": 52010,
+    "market_date_shape": "M/D/YYYY",
+    "quote_datetime_shape": "HH:MM.d"
+  },
+  "purpose": "Re-parse daily sample rows using the confirmed M/D/YYYY market_date, exclude only verified trailing all-column-empty padding, keep quote_datetime opaque, and test whether the 19-column and 25-column members contain identical core trade rows and usable contemporaneous NBBO-side fields.",
+  "controls": {
+    "quote_time_semantics_assigned": false,
+    "strict_pit_admitted": false,
+    "alpha_admission": false,
+    "holdout_used": false,
+    "production_changed": false,
+    "vendor_contact_or_purchase": false,
+    "f80_frozen": true,
+    "raw_rows_persisted": false,
+    "raw_symbols_persisted": false,
+    "raw_contracts_persisted": false
+  },
+  "decision": "A daily sample-level measurement may be feasible without assigning a meaning to the time-only field. Exact bid/ask prints remain candidate aggressor-side proxies only. Trade-condition mapping, adjusted deliverables, first receipt, historical coverage and PIT admission remain separate gates."
+}

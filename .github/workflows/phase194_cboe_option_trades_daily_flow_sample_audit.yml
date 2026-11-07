@@ -1,0 +1,61 @@
+name: Phase 194 Cboe Option Trades daily-flow sample audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "research/phase194_cboe_option_trades_daily_flow_sample_audit.py"
+      - "research/phase194_cboe_option_trades_daily_flow_sample_audit.json"
+      - "research/test_phase194_cboe_option_trades_daily_flow_sample_audit.py"
+      - ".github/workflows/phase194_cboe_option_trades_daily_flow_sample_audit.yml"
+      - "SMART_MONEY_RESEARCH_STATE.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase194-cboe-option-trades-daily-flow-sample-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile audit and tests
+        run: python -m py_compile research/phase194_cboe_option_trades_daily_flow_sample_audit.py research/test_phase194_cboe_option_trades_daily_flow_sample_audit.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase194_cboe_option_trades_daily_flow_sample_audit
+      - name: Download and audit public Cboe sample in memory
+        run: python -m research.phase194_cboe_option_trades_daily_flow_sample_audit --output-dir phase194_output
+      - name: Validate diagnostic-only output contract
+        run: |
+          python - <<'PY'
+          import json
+          p = "phase194_output/phase194_cboe_option_trades_daily_flow_sample_audit.json"
+          s = json.load(open(p, encoding="utf-8"))
+          assert s["phase"] == 194
+          assert s["strict_pit_admitted"] is False
+          assert s["alpha_admission"] is False
+          assert s["holdout_used"] is False
+          assert s["production_changed"] is False
+          assert s["vendor_contact_or_purchase"] is False
+          assert s["f80_frozen"] is True
+          assert s["status"] in {
+              "DAILY_SAMPLE_ROW_GATE_PASS_TIME_FIELD_QUARANTINED",
+              "SAMPLE_ROW_GATE_FAIL",
+          }
+          print("PHASE194_STATUS=" + s["status"])
+          PY
+      - name: Upload metadata-only sample audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase194-cboe-option-trades-daily-flow-sample-audit
+          path: phase194_output/phase194_cboe_option_trades_daily_flow_sample_audit.json
+          if-no-files-found: error
+          retention-days: 90

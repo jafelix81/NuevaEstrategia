@@ -1564,3 +1564,16 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 - This is still a purposive sample, not a prevalence estimate. NPORT-P/A amendment lineage, SERIES_ID panel deduplication over time, effective-dated US listing identity, delisted coverage and predictive value remain unestablished. No return/alpha test is authorized.
 - Phase 20C/FINRA remains unpromoted for its tested short-volume stock-selection implementation. Phase 27O long accumulation remains killed in its tested form and is not reused against this separate short-side hypothesis. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
 - Report: research/PHASE193_NPORT_RAW_FILING_ACCEPTANCE_TIME_AUDIT_2026-11-07.md; evidence: research/phase193_nport_raw_filing_retrieval.json; auditor/tests: research/phase193_nport_raw_filing_retrieval.py and research/test_phase193_nport_raw_filing_retrieval.py; workflow: .github/workflows/phase193_nport_raw_filing_retrieval.yml.
+
+
+## 2026-11-07 — Phase 193 hosted result: SEC retrieval blocker
+- Workflow 42417539372 completed successfully; all 12 offline tests passed and the metadata artifact was uploaded.
+- The hosted audit emitted BLOCKED_MISSING_SEC_CONTACT_EMAIL. GitHub Actions supplied an empty SEC_CONTACT_EMAIL environment value; the workflow deliberately sent zero SEC requests and downloaded zero raw filing bytes. This is a material human-action dependency, not an SEC rejection or a failed data hypothesis.
+- Required action: add an authorized project contact email as repository Actions secret SEC_CONTACT_EMAIL, then rerun Phase 193. The value is never committed or printed. Until then the five accession raw-byte hashes, SEC-HEADER acceptance timestamps and direct-short row reconciliation remain unverified.
+- Phase 193 workflow: .github/workflows/phase193_nport_raw_filing_retrieval.yml; run: https://github.com/jafelix81/NuevaEstrategia/actions/runs/42417539372.
+
+## 2026-11-07 — Phase 194 Cboe Option Trades daily-flow sample row audit
+- Added a corrected sample-only parser that accepts the observed M/D/YYYY market_date, quarantines the opaque seven-character quote_datetime rather than guessing HH:MM or MM:SS semantics, and excludes only the 23,580 all-column-empty trailing padding rows previously verified in Phase 172.
+- It parses trade/contract/NBBO fields, counts exact at-ask/at-bid candidate-side prints and trade-condition IDs without assigning condition semantics, and compares a canonical core-row digest across the 19-column and 25-column members.
+- A passing result would establish daily sample-level measurement feasibility only. Trade-condition mapping, adjusted deliverables, historical coverage, inactive/delisted identity, first file receipt and immutable vintages remain open. No alpha or return test is authorized.
+- Report: research/PHASE194_CBOE_OPTION_TRADES_DAILY_FLOW_SAMPLE_AUDIT_2026-11-07.md; evidence: research/phase194_cboe_option_trades_daily_flow_sample_audit.json; auditor/tests: research/phase194_cboe_option_trades_daily_flow_sample_audit.py and research/test_phase194_cboe_option_trades_daily_flow_sample_audit.py; workflow: .github/workflows/phase194_cboe_option_trades_daily_flow_sample_audit.yml.

@@ -54,7 +54,7 @@ SEC acceptance time is an official filing-processing timestamp, not proof of the
 
 ## Hosted execution result
 
-The current workflow artifact is the canonical record of the actual run. If the audit reports BLOCKED_MISSING_SEC_CONTACT_EMAIL, no SEC request was sent; an authorized project contact email must be added as the SEC_CONTACT_EMAIL repository secret before the workflow can retrieve public filings. If retrieval succeeds, use the artifact's per-accession hashes and row-level reconciliation to decide whether Phase 194 should proceed to amendments and a wider stratified sample.
+Workflow 42417539372 completed successfully with 12/12 offline tests passing and a metadata-only artifact uploaded. The audit status was BLOCKED_MISSING_SEC_CONTACT_EMAIL: GitHub Actions supplied an empty secret value, so the workflow sent zero SEC requests and downloaded zero raw filing bytes. This is not an SEC denial. An authorized project contact email must be added as the repository Actions secret SEC_CONTACT_EMAIL before the five accession files can be retrieved, hashed and reconciled. The artifact records the blocked state.
 
 ## Controls
 
