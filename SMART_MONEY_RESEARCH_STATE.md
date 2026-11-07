@@ -1544,3 +1544,14 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 - Fund portfolio identity is SERIES_ID, not registrant CIK or each share class. CUSIP/ISIN/ticker are optional. Historical PIT security mapping and delisted coverage are not established.
 - **Next gate:** sample actual non-derivative US common-equity short rows; validate value-sign concordance, series deduplication, amendment lineage, acceptance timestamps and historical security mapping. No returns/alpha test until all gates pass.
 - No bulk archive downloaded; no purchase/vendor contact; no holdout or production change. Phase 27O's killed long-accumulation result is not reused against this distinct short-side hypothesis. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+
+## 2026-11-07 — Phase 192 SEC N-PORT direct short-equity row discovery
+
+- Phase 192 advances Phase 191 from documentation-only to **DISCOVERY_PASS_RAW_RETRIEVAL_PENDING**. SEC-hosted, search-indexed primary XML excerpts show 11 complete direct non-derivative US corporate common-equity short row excerpts across four accessions (2020, 2022, 2024, 2025), plus one partial 2023 filing excerpt. The complete rows carry payoffProfile=Short, assetCat=EC, issuerCat=CORP, invCountry=US, NS units and negative balances/USD values/NAV percentages.
+- Examples: GPS/COTY/TEX/OXY (2020); CARR/CAT/CVX/CTAS (2022); KMX/EQT (2024); and a 2025 short row with CUSIP 31428X106 and reported value -USD 34.59m. The 2023 excerpt is partial and is not counted as a complete row.
+- Critical limitation: this was purposive search-indexed XML-snippet discovery. Full raw XML bytes were not retrieved or hashed, no deterministic full-filing parser ran, and no representative prevalence estimate is available. Three archive-directory timestamp strings were captured but not reconciled to timezone/acceptance semantics; do not use them as PIT timestamps.
+- The sample does not prove US listing identity, fund-series deduplication, amendment lineage, broad active/delisted universe coverage or informed directional intent. N-PORT shorts may be hedges, arbitrage or relative-value exposures.
+- Next gate: retrieve/hash the complete five SEC primary XML files and filing-index/SEC-HEADER records; parse all holdings; reconcile accessions and amendments append-only; resolve SERIES_ID and effective-dated CUSIP/listing history. No returns/alpha until those gates pass.
+- Phase 27O long-accumulation results remain killed in their tested form and are not reused. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No holdout, production change, data purchase or vendor contact.
+- Report: research/PHASE192_NPORT_DIRECT_SHORT_EQUITY_SAMPLE_DISCOVERY_2026-11-07.md; evidence: research/phase192_nport_direct_short_equity_sample_discovery.json; auditor/tests: research/phase192_nport_direct_short_equity_sample_discovery.py and research/test_phase192_nport_direct_short_equity_sample_discovery.py.
