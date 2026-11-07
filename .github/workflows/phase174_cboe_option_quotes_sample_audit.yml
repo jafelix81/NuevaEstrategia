@@ -1,0 +1,46 @@
+name: Phase 174 Cboe Option Quotes public sample and PIT feasibility
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - research/phase174_cboe_option_quotes_sample_audit.py
+      - research/test_phase174_cboe_option_quotes_sample_audit.py
+      - .github/workflows/phase174_cboe_option_quotes_sample_audit.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: phase174-cboe-option-quotes-sample-audit
+  cancel-in-progress: false
+jobs:
+  sample-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile Phase 174
+        run: python -m py_compile research/phase174_cboe_option_quotes_sample_audit.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase174_cboe_option_quotes_sample_audit
+      - name: Download and audit public Cboe sample
+        run: python -m research.phase174_cboe_option_quotes_sample_audit --output phase174_output/phase174_cboe_option_quotes_sample_audit.json
+      - name: Upload metadata-only audit artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase174-cboe-option-quotes-sample-audit
+          path: phase174_output/phase174_cboe_option_quotes_sample_audit.json
+          retention-days: 90
+      - name: Enforce public sample schema gate
+        run: |
+          python - <<'PY'
+          import json, sys
+          p='phase174_output/phase174_cboe_option_quotes_sample_audit.json'
+          r=json.load(open(p, encoding='utf-8'))
+          print('PHASE174_STATUS='+str(r.get('overall_status', r.get('download_status'))))
+          if r.get('download_status') != 'PASS' or not r.get('sample_schema_gate_pass'):
+              sys.exit(1)
+          PY
