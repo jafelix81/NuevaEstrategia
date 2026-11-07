@@ -1403,3 +1403,30 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 - Added a compact hash-only fixture (no raw names or Item 4 text), deterministic helper, 13 offline tests, metadata JSON and PR-only workflow. Status: IN_SAMPLE_PREDECESSOR_COVERAGE_INSUFFICIENT.
 - Decision: do not infer initial status, reconstruct amendment chains, create state edges, backdate Item 4 text, or run returns/alpha tests from this sample. Full historical predecessor coverage and effective-dated issuer/security identity remain required.
 - No feature/alpha/OOS/holdout test, SEC request, vendor contact/purchase or production change. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## Current-head audit and Phase 179 — 2026-11-07
+
+### Phase 179 — full 497-row legacy 13D/G predecessor coverage
+- Expanded Phase 178 from the 180-row 13D subset to all 497 Phase 157 legacy HTML rows: 180 13D and 317 13G. The 180 13D rows reconcile one-to-one to the current-head Phase 159 role table and all 180 raw-document SHA-256 values match. No new SEC request was made.
+- Roles: 316 amendment candidates (108 index-coded 13D/A, 204 index-coded 13G/A, four cover-numbered 13D candidates) and 181 non-/A forms whose initial status remains unconfirmed. The 13G non-/A cohort has not had a cover-number audit.
+- Strict key (body-issuer hash + valid CUSIP + filer CIK + first-reporting-person hash): two unique same-family 13D/A-to-13D/A candidate pairs in 497 rows; both parent candidates are themselves amendments and neither has an earlier strict-key anchor. Zero parent edges are verified.
+- The 55 non-/A, non-numbered 13D Item 4 candidates still have zero in-sample predecessors; 46 have a complete strict key. None is confirmed initial.
+- Relaxing to issuer+CUSIP yields five same-family candidates (two strict plus three 13G collisions) and eight when both families are searched (five same-family plus three cross-family 13G-to-13D collisions). All six extra collisions fail both filer and first-reporting-person continuity. They are not parent links.
+- Added hash-only input payload, deterministic helper, 14 offline tests, metadata JSON, report and PR-only workflow. No raw names or Item 4 text persisted. No feature, returns, OOS or holdout test.
+- Report: `research/PHASE179_SEC_13DG_LEGACY_497_SAMPLE_PREDECESSOR_AND_KEY_COLLISION_AUDIT_2026-11-07.md`. Result: `IN_SAMPLE_PREDECESSOR_COVERAGE_INSUFFICIENT_497_ROW_COHORT`.
+
+### Current-head source and workflow checks
+- Before adding Phase 179, the latest audited head `6de73cd59d9a8af9af3702d7c2bdf8cf498f432e` had 30 associated PR runs: 29 success, one Phase 174 sample-gate failure, zero still running. The Phase 174 failure is an intentional strict admission rejection, not a test/transport failure.
+- Branch search returned 128 names matching the `phase` query across two pages (including `phase99-broad-pit-universe-charter` and one `fix/phase39...` branch); this is a query result, not a claim that the repository has only 128 branches.
+- Phase 149 current-head OpenFIGI run [42354802462](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42354802462) completed: 553 CUSIPs, 437 primary matches, seven fallback matches, 109 unresolved, zero API errors. Current crosswalk only; no historical effective dates.
+- Phase 153 run [42354802361](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42354802361) is preflight-only and remains `BLOCKED_SEC_CONTACT_EMAIL_REQUIRED`; no adjacent-quarter Form 4/A retrieval occurred. Authorized `SEC_CONTACT_EMAIL` remains required before SEC download workflows can proceed.
+- Phase 168 Cboe Open-Close EOD sample [42354802484](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42354802484), artifact [13566564664](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42354802484/artifacts/13566564664): 23,179 populated rows, 1,553 underlyings, 86 columns, zero duplicate rows, 20%-sample filename for 2025-03-28. OI positive 22,121 / zero 1,058; previous close positive 16,960 / zero 6,219; exchange-volume field positive in all rows. The sample has no ETag/Last-Modified or first-receipt evidence; file-version identity, historical coverage and strict PIT remain unproven. Conditional only.
+- Phase 169 Option Sentiment [42354802369](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42354802369), artifact [13566009969](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42354802369/artifacts/13566009969): specification audit completed (80 fields, 21 tests), but no current orderability, public sample, first-receipt history or broad universe coverage. Parked.
+- Phase 174 Option Quotes [42354802506](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42354802506), artifact [13567360135](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42354802506/artifacts/13567360135): download passed; 115,617 populated rows; 94,607 contract rows rejected by the strict schema gate, zero timestamp-gate failures. Sample admission remains false.
+- Phase 178 [42354802464](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42354802464), artifact [13566933877](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42354802464/artifacts/13566933877): 13/13 tests passed. Phase 179's local 14/14 tests passed; its hosted run will be checked after the PR workflow event is visible.
+
+### Research decision
+- SEC 13D/G predecessor reconstruction is still blocked by sample depth, not by a reason to relax identity keys. Do not repeat the 497-row sample screen; a complete issuer-level EDGAR history with filing/acceptance/PAC lineage and effective-dated security identity is needed.
+- Keep Cboe Open-Close EOD conditional until first-receipt/file-vintage and historical coverage are demonstrated. Keep Option Sentiment parked absent orderability/sample evidence.
+- Do not run return tests or admit any SEC/Cboe feature from these artifacts. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
