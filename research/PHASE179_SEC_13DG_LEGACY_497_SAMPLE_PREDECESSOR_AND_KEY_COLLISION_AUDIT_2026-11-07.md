@@ -60,6 +60,14 @@ The six relaxed-key collisions are deliberately retained in the metadata with ac
 - Helper: `research/phase179_sec13dg_legacy_497_predecessor_audit.py`.
 - Tests: `research/test_phase179_sec13dg_legacy_497_predecessor_audit.py`.
 - Metadata: `research/phase179_sec13dg_legacy_497_parent_summary.json`.
-- Input: `research/phase179_sec13dg_legacy_497_parent_input.csv.gz.b64`.
+- The compact hash-only input is rebuilt in memory from the pinned Phase 157/159 artifacts; source CSV SHA-256 values, the 180-row 13D accession/raw-document reconciliation, and the derived compact CSV/gzip SHA-256 values are all verified. The source artifacts expire 2026-12-07; after that, rerunning the full 497-row audit requires refreshed, independently verified upstream artifacts.
 
 No forward-return, bootstrap/LOO, chronological OOS or final-holdout test was run. No SEC requests, vendor contact/purchase, production change or F80 modification. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+
+## Hosted CI fixture-integrity correction (2026-11-07)
+
+- Current-head run [42359960357](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42359960357) passed compilation but failed in test class setup before any of the 14 tests ran. The decoder raised `Incorrect padding` for the committed base64 fixture; metadata generation and artifact upload were skipped. This is a corrupted/truncated fixture, not evidence against the audit logic or the SEC source data.
+- Replaced the single-file fixture dependency with deterministic in-memory reconstruction from the two immutable upstream artifacts: Phase 157 run 42354802427 / artifact 13567167891 and Phase 159 run 42354802447 / artifact 13566809056. The reconstruction checks both source CSV hashes, all 180 13D accessions and raw-document hashes, then verifies the exact derived compact CSV SHA-256 `6d0cc2a0841dc58a362be1e2b61d055a4e300da53ff157dedb9df5096d919626` and deterministic gzip SHA-256 `b4549ba063b07df34ba89c1a874a8cbe9f96340d8af05e3f86dcf9664560fcda`.
+- The PR-only workflow now downloads those pinned artifacts with read-only Actions permission, reconstructs the fixture on the runner, and only then runs the offline regression suite and metadata gate. The corrupt base64 fixture is removed. No new SEC request, source download, raw-name persistence or change to Phase 179 findings.
+- Upstream artifacts currently expire 2026-12-07. This CI replay is reproducible while those immutable artifacts remain retained; after expiry, the upstream Phase 157/159 artifacts must be refreshed and re-hash-verified before rerunning. The committed summary/report remain the permanent record of this sample result.

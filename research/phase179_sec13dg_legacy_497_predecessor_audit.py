@@ -7,10 +7,10 @@ establish parent links, initial status, beneficial ownership, or predictive alph
 from __future__ import annotations
 
 import argparse
-import base64
 import csv
 import gzip
 import hashlib
+import io
 import json
 import re
 from datetime import date
@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Any
 
 PHASE = 179
-INPUT_NAME = "phase179_sec13dg_legacy_497_parent_input.csv.gz.b64"
+COMPACT_FIELDS = ("acc", "dt", "family", "role", "filer", "cusip", "issuer_h96", "owner_h96", "i4")
 INPUT_GZIP_SHA256 = "b4549ba063b07df34ba89c1a874a8cbe9f96340d8af05e3f86dcf9664560fcda"
 INPUT_CSV_SHA256 = "6d0cc2a0841dc58a362be1e2b61d055a4e300da53ff157dedb9df5096d919626"
 SOURCE_PHASE157_CSV_SHA256 = "154b628436d6c438e54bb953f7d77b0a82f89b5c19373e9f1b642a5140f20072"
@@ -49,6 +49,65 @@ def cusip_is_valid(value: str) -> bool:
         product = value * (2 if i % 2 else 1)
         total += product // 10 + product % 10
     return (10 - total % 10) % 10 == int(c[8])
+
+def normalized_name_hash(value: str) -> str:
+    normalized = re.sub(r"[^A-Z0-9]", "", (value or "").upper())
+    return hashlib.sha256(normalized.encode("ascii")).hexdigest()[:24] if normalized else ""
+
+def build_compact_input(input_dir: Path) -> tuple[bytes, bytes]:
+    """Rebuild the hash-only 497-row fixture from immutable Phase 157/159 artifacts."""
+    p157_path = input_dir / "phase157_legacy_13dg_html_field_audit.csv"
+    p159_path = input_dir / "phase159_13d_cover_amendment_roles.csv"
+    p157_bytes = p157_path.read_bytes()
+    p159_bytes = p159_path.read_bytes()
+    if sha256(p157_bytes) != SOURCE_PHASE157_CSV_SHA256:
+        raise ValueError("phase157_source_csv_sha256_mismatch")
+    if sha256(p159_bytes) != SOURCE_PHASE159_CSV_SHA256:
+        raise ValueError("phase159_source_csv_sha256_mismatch")
+    with p157_path.open("r", encoding="utf-8", newline="") as handle:
+        p157_rows = list(csv.DictReader(handle))
+    with p159_path.open("r", encoding="utf-8", newline="") as handle:
+        p159_rows = list(csv.DictReader(handle))
+    if len(p157_rows) != 497 or len(p159_rows) != 180:
+        raise ValueError("source_artifact_row_count_mismatch")
+    p159_by_accession = {row["accession"]: row for row in p159_rows}
+    p157_13d = {row["accession"]: row for row in p157_rows if row["family"] == "13D"}
+    if set(p157_13d) != set(p159_by_accession):
+        raise ValueError("phase159_accession_reconciliation_mismatch")
+    if any(p157_13d[acc]["raw_sha256"] != row["raw_sha256"] for acc, row in p159_by_accession.items()):
+        raise ValueError("phase159_raw_document_hash_reconciliation_mismatch")
+    compact_rows = []
+    for source in p157_rows:
+        accession = source["accession"]
+        role_record = p159_by_accession.get(accession)
+        if role_record and role_record["corrected_role_class"] == "COVER_NUMBERED_AMENDMENT_CANDIDATE":
+            role = "C"
+        elif source["is_amendment"].lower() == "true":
+            role = "A"
+        else:
+            role = "N"
+        compact_rows.append({
+            "acc": accession,
+            "dt": source["filing_date"],
+            "family": source["family"],
+            "role": role,
+            "filer": source["filer_header_cik"],
+            "cusip": source["cusip"],
+            "issuer_h96": normalized_name_hash(source["body_issuer_name_candidate"]),
+            "owner_h96": normalized_name_hash(source["first_reporting_person_candidate"]),
+            "i4": "1" if source["item4_purpose_section_present"].lower() == "true" else "0",
+        })
+    buffer = io.StringIO(newline="")
+    writer = csv.DictWriter(buffer, fieldnames=COMPACT_FIELDS, lineterminator="\n")
+    writer.writeheader()
+    writer.writerows(compact_rows)
+    csv_bytes = buffer.getvalue().encode("utf-8")
+    if sha256(csv_bytes) != INPUT_CSV_SHA256:
+        raise ValueError("rebuilt_compact_csv_sha256_mismatch")
+    gzip_bytes = gzip.compress(csv_bytes, compresslevel=9, mtime=0)
+    if sha256(gzip_bytes) != INPUT_GZIP_SHA256:
+        raise ValueError("rebuilt_compact_gzip_sha256_mismatch")
+    return csv_bytes, gzip_bytes
 
 def parse_rows(csv_bytes: bytes) -> list[dict[str, str]]:
     if sha256(csv_bytes) != INPUT_CSV_SHA256:
@@ -274,16 +333,10 @@ def audit_rows(rows: list[dict[str, str]]) -> dict[str, Any]:
         ),
     }
 
-def run_audit(output_dir: Path | None = None) -> dict[str, Any]:
-    input_path = Path(__file__).with_name(INPUT_NAME)
-    payload = input_path.read_bytes().strip()
-    try:
-        gzip_bytes = base64.b64decode(payload, validate=True)
-    except Exception as exc:
-        raise ValueError("compact_payload_base64_invalid") from exc
-    if sha256(gzip_bytes) != INPUT_GZIP_SHA256:
-        raise ValueError("compact_gzip_sha256_mismatch")
-    rows = parse_rows(gzip.decompress(gzip_bytes))
+def run_audit(output_dir: Path | None = None, input_dir: Path | None = None) -> dict[str, Any]:
+    source_dir = input_dir or Path(__file__).with_name("phase179_inputs")
+    csv_bytes, _gzip_bytes = build_compact_input(source_dir)
+    rows = parse_rows(csv_bytes)
     result = audit_rows(rows)
     if output_dir is not None:
         output_dir.mkdir(parents=True, exist_ok=True)

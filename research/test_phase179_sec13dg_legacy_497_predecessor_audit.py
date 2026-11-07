@@ -1,5 +1,3 @@
-import base64
-import gzip
 import hashlib
 import json
 import tempfile
@@ -9,6 +7,7 @@ from pathlib import Path
 from research.phase179_sec13dg_legacy_497_predecessor_audit import (
     INPUT_CSV_SHA256,
     INPUT_GZIP_SHA256,
+    build_compact_input,
     audit_rows,
     cusip_is_valid,
     parse_rows,
@@ -19,16 +18,14 @@ from research.phase179_sec13dg_legacy_497_predecessor_audit import (
 class Phase179Tests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.result = run_audit()
-        cls.input_path = Path(__file__).with_name("phase179_sec13dg_legacy_497_parent_input.csv.gz.b64")
-        payload = cls.input_path.read_bytes().strip()
-        cls.rows = parse_rows(gzip.decompress(base64.b64decode(payload, validate=True)))
+        cls.input_dir = Path(__file__).with_name("phase179_inputs")
+        cls.csv_bytes, cls.gzip_bytes = build_compact_input(cls.input_dir)
+        cls.result = run_audit(input_dir=cls.input_dir)
+        cls.rows = parse_rows(cls.csv_bytes)
 
     def test_input_hashes_are_pinned(self):
-        payload = self.input_path.read_bytes().strip()
-        gzip_bytes = base64.b64decode(payload, validate=True)
-        self.assertEqual(hashlib.sha256(gzip_bytes).hexdigest(), INPUT_GZIP_SHA256)
-        self.assertEqual(hashlib.sha256(gzip.decompress(gzip_bytes)).hexdigest(), INPUT_CSV_SHA256)
+        self.assertEqual(hashlib.sha256(self.gzip_bytes).hexdigest(), INPUT_GZIP_SHA256)
+        self.assertEqual(hashlib.sha256(self.csv_bytes).hexdigest(), INPUT_CSV_SHA256)
 
     def test_full_legacy_sample_has_497_unique_accessions(self):
         self.assertEqual(self.result["input_rows"], 497)
@@ -115,7 +112,7 @@ class Phase179Tests(unittest.TestCase):
 
     def test_metadata_output_is_deterministic_and_privacy_limited(self):
         with tempfile.TemporaryDirectory() as temp:
-            result = run_audit(Path(temp))
+            result = run_audit(Path(temp), input_dir=self.input_dir)
             output = Path(temp) / "phase179_sec13dg_legacy_497_parent_summary.json"
             loaded = json.loads(output.read_text())
             self.assertEqual(loaded, result)
