@@ -1,0 +1,41 @@
+name: Phase 191 SEC N-PORT short exposure PIT feasibility
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "research/phase191_nport_short_exposure_pit_feasibility.py"
+      - "research/phase191_nport_short_exposure_pit_feasibility.json"
+      - "research/test_phase191_nport_short_exposure_pit_feasibility.py"
+      - ".github/workflows/phase191_nport_short_exposure_pit_feasibility.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase191-nport-short-exposure-pit-feasibility
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile audit and tests
+        run: python -m py_compile research/phase191_nport_short_exposure_pit_feasibility.py research/test_phase191_nport_short_exposure_pit_feasibility.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase191_nport_short_exposure_pit_feasibility
+      - name: Build deterministic feasibility audit
+        run: python -m research.phase191_nport_short_exposure_pit_feasibility --output phase191_output/phase191_nport_short_exposure_audit.json
+      - name: Upload metadata-only audit artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase191-nport-short-exposure-pit-feasibility
+          path: phase191_output/phase191_nport_short_exposure_audit.json
+          if-no-files-found: error
+          retention-days: 90
