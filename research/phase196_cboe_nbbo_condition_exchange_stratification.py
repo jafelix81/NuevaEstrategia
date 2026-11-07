@@ -378,7 +378,7 @@ def main() -> int:
             "f80_frozen": True,
         }
     path = output_dir / "phase196_cboe_nbbo_condition_exchange_stratification.json"
-    path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\\n", encoding="utf-8")
+    path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps(result, indent=2, sort_keys=True))
     return 0
 

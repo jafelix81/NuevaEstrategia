@@ -34,7 +34,7 @@ def make_row(sequence, condition, exchange, size, price, bid="1.20", ask="1.25")
 
 def csv_payload(rows, fields):
     out = io.StringIO()
-    writer = csv.DictWriter(out, fieldnames=list(fields), lineterminator="\\n")
+    writer = csv.DictWriter(out, fieldnames=list(fields), lineterminator="\n")
     writer.writeheader()
     writer.writerows(rows)
     return out.getvalue().encode()
