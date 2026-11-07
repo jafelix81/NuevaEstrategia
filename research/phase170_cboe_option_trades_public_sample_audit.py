@@ -164,6 +164,8 @@ def audit_csv(member_name: str, payload: bytes) -> dict[str, object]:
         "extra_field_values": 0,
         "short_field_rows": 0,
         "short_missing_values": 0,
+        "missing_required_field_rows": 0,
+        "missing_required_values": 0,
         "field_count_distribution": {},
         "parse_error_counts": {},
         "first_parse_error": None,
@@ -202,6 +204,7 @@ def audit_csv(member_name: str, payload: bytes) -> dict[str, object]:
     max_dt: datetime | None = None
     invalid_rows = mismatch_rows = nonzero_cancel = nonzero_exchanges = blank_cancel = zero_trade_price = 0
     extra_field_rows = extra_field_values = short_field_rows = short_missing_values = 0
+    missing_required_field_rows = missing_required_values = 0
     field_count_counts: Counter[str] = Counter()
     parse_error_counts: Counter[str] = Counter()
     first_parse_error: str | None = None
@@ -216,6 +219,10 @@ def audit_csv(member_name: str, payload: bytes) -> dict[str, object]:
         extra_values = raw_row.get(None)
         extra_count = len(extra_values) if isinstance(extra_values, list) else 0
         missing_count = sum(1 for key, value in raw_row.items() if key is not None and value is None)
+        missing_required_count = sum(
+            1 for key, value in raw_row.items()
+            if key is not None and str(key).strip().lower() in BASE_FIELDS and value is None
+        )
         actual_field_count = len(raw_row) - (1 if None in raw_row else 0) - missing_count + extra_count
         field_count_counts[str(actual_field_count)] += 1
         if extra_count:
@@ -224,7 +231,10 @@ def audit_csv(member_name: str, payload: bytes) -> dict[str, object]:
         if missing_count:
             short_field_rows += 1
             short_missing_values += missing_count
-        row_bad = extra_count > 0
+        if missing_required_count:
+            missing_required_field_rows += 1
+            missing_required_values += missing_required_count
+        row_bad = extra_count > 0 or missing_required_count > 0
         try:
             symbol = _text(row.get("underlying_symbol"))
             root = _text(row.get("root"))
@@ -329,6 +339,8 @@ def audit_csv(member_name: str, payload: bytes) -> dict[str, object]:
         "extra_field_values": extra_field_values,
         "short_field_rows": short_field_rows,
         "short_missing_values": short_missing_values,
+        "missing_required_field_rows": missing_required_field_rows,
+        "missing_required_values": missing_required_values,
         "field_count_distribution": dict(sorted(field_count_counts.items())),
         "parse_error_counts": dict(sorted(parse_error_counts.items())),
         "first_parse_error": first_parse_error,

@@ -223,8 +223,18 @@ class Phase170Tests(unittest.TestCase):
         result = audit_csv("sample.csv", payload)
         self.assertEqual(result["short_field_rows"], 1)
         self.assertEqual(result["short_missing_values"], 1)
+        self.assertEqual(result["missing_required_field_rows"], 1)
+        self.assertEqual(result["missing_required_values"], 1)
         self.assertEqual(result["invalid_core_rows"], 1)
 
+    def test_short_optional_calcs_tail_is_not_core_invalid(self):
+        base = csv_bytes(calcs=True).decode("utf-8").strip().splitlines()
+        payload = (base[0] + "\n" + ",".join(base[1].split(",")[:-2]) + "\n").encode()
+        result = audit_csv("sample.csv", payload)
+        self.assertEqual(result["short_field_rows"], 1)
+        self.assertEqual(result["short_missing_values"], 2)
+        self.assertEqual(result["missing_required_field_rows"], 0)
+        self.assertEqual(result["invalid_core_rows"], 0)
     def test_parse_error_reason_is_field_specific_and_value_free(self):
         row = {
             "underlying_symbol": "TEST", "market_date": "BAD_DATE",
