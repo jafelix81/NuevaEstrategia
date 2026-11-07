@@ -1,0 +1,186 @@
+{
+  "phase": 190,
+  "audit_as_of": "2026-11-07",
+  "source": "Databento Security Master",
+  "classification": "foundational_reference_data_not_alpha_signal",
+  "history": {
+    "start_date": "2005-01-01",
+    "end_date": "present",
+    "headline_years": 21,
+    "dataset_guide_update_frequency": "weekly",
+    "product_page_update_frequency": "weekly",
+    "faq_update_frequency": "four_times_daily",
+    "faq_update_windows_london": [
+      "04:00-05:00",
+      "09:00-10:00",
+      "14:00-15:00",
+      "19:00-20:00"
+    ],
+    "update_frequency_reconciled": false,
+    "headline_instrument_count": 860000,
+    "body_global_instrument_count": 310000,
+    "instrument_count_scope_reconciled": false,
+    "records_are_listing_level": true,
+    "delisted_and_relisted_retained_by_claim": true
+  },
+  "point_in_time": {
+    "ts_record": "UTC timestamp when the record last changed",
+    "ts_effective": "UTC timestamp from which record details are effective",
+    "ts_created": "UTC timestamp when record was added to Databento database",
+    "get_range_supported_index": [
+      "ts_effective",
+      "ts_record"
+    ],
+    "get_last_is_current_state_only": true,
+    "first_exchange_publication_timestamp_provided": false,
+    "first_customer_receipt_timestamp_provided": false,
+    "vendor_record_time_is_not_exchange_publication_time": true,
+    "ts_created_is_not_customer_receipt_time": true,
+    "prospective_immutable_capture_required": true
+  },
+  "identity_fields": {
+    "listing_id": "listing-level identity",
+    "security_id": "security-level identity across listings",
+    "issuer_id": "issuer-level identity",
+    "us_code": "CUSIP",
+    "figi": "Bloomberg FIGI",
+    "isin": "ISIN",
+    "cik": "SEC issuer/entity identifier",
+    "symbol_fields": [
+      "symbol",
+      "nasdaq_symbol",
+      "local_code"
+    ],
+    "venue_fields": [
+      "exchange",
+      "operating_mic",
+      "primary_exchange"
+    ],
+    "lifecycle_fields": [
+      "listing_status",
+      "listing_created_date",
+      "listing_date",
+      "delisting_date"
+    ],
+    "classification_fields": [
+      "security_type",
+      "structure",
+      "segment_mic",
+      "gics",
+      "naics"
+    ]
+  },
+  "api": {
+    "method": "Reference.security_master.get_range",
+    "max_symbols_per_request": 2000,
+    "all_symbols_selector_documented": [
+      "ALL_SYMBOLS",
+      "null"
+    ],
+    "country_filter_documented": true,
+    "security_type_filter_documented": true,
+    "plan_symbol_allocation_is_separate_from_request_limit": true
+  },
+  "us_venues_documented": [
+    "Cboe BZX",
+    "Investors Exchange (IEX)",
+    "Nasdaq",
+    "NYSE National",
+    "New York Stock Exchange",
+    "NYSE American",
+    "NYSE Arca",
+    "FINRA OTCBB",
+    "OTC Markets Group"
+  ],
+  "venue_caveats": {
+    "FINRA_TRACE_listed_on_global_product_page": true,
+    "FINRA_TRACE_is_not_equity_listing_venue": true,
+    "us_common_equity_coverage_by_year_and_venue_quantified": false
+  },
+  "sample_advertised": {
+    "us_sample_securities": 500,
+    "us_sample_records": 9100,
+    "us_sample_scope": "Nasdaq stocks and ETFs",
+    "us_sample_label_year": 2024,
+    "global_sample_securities": 500,
+    "global_sample_records": 1000,
+    "direct_static_sample_url_resolved": false,
+    "sample_downloaded": false
+  },
+  "pricing": {
+    "included_symbols_claimed": 1000,
+    "sample_section_plan_name": "Standard",
+    "sample_section_extra_usd_per_symbol_month": 0.5,
+    "faq_plan_name": "Starter",
+    "faq_extra_usd_per_symbol_month": 1.75,
+    "faq_upgrade_term_months": 12,
+    "base_plan_price_usd": null,
+    "new_user_credit_usd": 125,
+    "pricing_reconciled": false,
+    "external_redistribution_allowed": false,
+    "internal_use_claimed_allowed": true
+  },
+  "alternatives": {
+    "norgate": {
+      "us_platinum_history_start": "1990-01-01",
+      "us_platinum_12_month_price_usd": 630,
+      "delisted_securities_included": true,
+      "historical_index_constituents_included": true,
+      "stable_assetid_claimed": true,
+      "prior_symbol_and_change_date_provided": false,
+      "record_time_pit_archive_equivalent": false
+    },
+    "crsp": {
+      "role": "survivorship-bias-free return and delisting-return benchmark comparator",
+      "access_and_cost_resolved": false
+    }
+  },
+  "research_gates": {
+    "documented_history_2005": "PASS_DOCUMENTATION_ONLY",
+    "separate_record_and_effective_time_axes": "PASS_DOCUMENTATION_ONLY",
+    "stable_listing_security_issuer_identity_model": "PASS_DOCUMENTATION_ONLY",
+    "us_common_equity_coverage": "NOT_VALIDATED",
+    "active_delisted_relisted_completeness": "NOT_INDEPENDENTLY_VALIDATED",
+    "first_exchange_publication_and_first_customer_receipt": "NOT_PROVIDED",
+    "update_cadence": "CONFLICT",
+    "instrument_count_scope": "UNRECONCILED",
+    "pricing_and_plan_entitlement": "CONFLICT",
+    "sample_reconciliation": "NOT_PERFORMED",
+    "ftd_cusip_crosswalk": "NOT_PERFORMED",
+    "return_series_and_delisting_returns": "NOT_INCLUDED",
+    "broad_universe_admitted": false,
+    "ftd_identity_crosswalk_admitted": false,
+    "alpha_test_authorized": false,
+    "holdout_used": false
+  },
+  "legacy_universe": {
+    "ticker_count": 335,
+    "status": "diagnostic_only_not_universe_anchor"
+  },
+  "controls": {
+    "account_created": false,
+    "api_key_used": false,
+    "api_request_made": false,
+    "sample_downloaded": false,
+    "vendor_contact": false,
+    "data_purchase": false,
+    "free_credits_used": false,
+    "terms_accepted": false,
+    "return_test_run": false,
+    "alpha_test_run": false,
+    "holdout_used": false,
+    "production_changed": false,
+    "phase20c_reopened": false,
+    "f80_frozen": true
+  },
+  "sources": {
+    "dataset_guide": "https://databento.com/docs/datasets/security-master",
+    "schema": "https://databento.com/docs/schemas/security-master",
+    "reference_api": "https://databento.com/docs/api-reference-data",
+    "product_page": "https://databento.com/security-master",
+    "pricing": "https://databento.com/pricing",
+    "norgate_packages": "https://norgatedata.com/stockmarketpackages.php",
+    "norgate_faq": "https://norgatedata.com/data-package-faq.php",
+    "crsp": "https://www.crsp.org/research/crsp-us-stock-databases/"
+  }
+}
