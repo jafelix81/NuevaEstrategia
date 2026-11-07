@@ -29,9 +29,9 @@ class Phase184Tests(unittest.TestCase):
             self.assertLessEqual(row["scheduled_release_date"], row["documented_actual_release_date"])
 
     def test_plus_six_rule_is_early_on_nineteen_rows(self):
-        self.assertEqual(self.audit["report_date_plus_6_comparison"]["synthetic_earlier_than_documented_release"], 20)
+        self.assertEqual(self.audit["report_date_plus_6_comparison"]["synthetic_earlier_than_documented_release"], 19)
 
-    def test_plus_six_rule_is_same_date_on_one_row(self):
+    def test_plus_six_rule_is_same_date_on_two_rows(self):
         self.assertEqual(self.audit["report_date_plus_6_comparison"]["synthetic_same_date_time_unknown"], 2)
 
     def test_2023_first_ion_delay(self):
