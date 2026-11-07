@@ -70,3 +70,8 @@ No purchase, vendor contact, alpha/return test, holdout use or production change
 ## Hosted sample status
 
 Pending the first hosted execution on the PR head. The workflow is diagnostic-only and fails closed if the public sample cannot be parsed or the required timestamp/date checks do not pass. No alpha or PIT admission is implied by a schema pass.
+
+
+## Hosted CI correction note (2026-11-07)
+
+The first hosted attempt stopped in the offline test suite before downloading the public sample. The failure was in the test fixture: the missing-header test passed a row containing the intentionally omitted field to DictWriter, which rejected the fixture before the auditor could exercise its schema gate. The test helper now ignores extra fixture keys, and field-alias resolution in the auditor is sorted for deterministic selection. No sample data were downloaded or admitted by the failed run; the public-sample result remains pending.

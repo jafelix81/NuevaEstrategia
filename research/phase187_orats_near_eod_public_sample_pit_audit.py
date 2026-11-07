@@ -85,7 +85,7 @@ def _field_map(headers):
             by_norm[key] = header
     resolved, missing = {}, []
     for canonical, aliases in FIELD_ALIASES.items():
-        found = next((by_norm[a] for a in aliases if a in by_norm), None)
+        found = next((by_norm[a] for a in sorted(aliases) if a in by_norm), None)
         if found is None:
             missing.append(canonical)
         else:

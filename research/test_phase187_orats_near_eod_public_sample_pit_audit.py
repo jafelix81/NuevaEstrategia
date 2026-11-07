@@ -12,7 +12,7 @@ def sample_row(**overrides):
     return row
 
 def csv_payload(rows, headers=HEADERS):
-    stream=io.StringIO(); writer=csv.DictWriter(stream,fieldnames=headers); writer.writeheader(); writer.writerows(rows)
+    stream=io.StringIO(); writer=csv.DictWriter(stream,fieldnames=headers,extrasaction="ignore"); writer.writeheader(); writer.writerows(rows)
     return stream.getvalue().encode("utf-8")
 
 def zip_payload(data, member="ORATS_SMV_Strikes_20240103.csv"):
