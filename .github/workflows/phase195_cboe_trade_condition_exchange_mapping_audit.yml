@@ -2,6 +2,7 @@ name: Phase 195 Cboe Option Trades condition and exchange mapping audit
 
 on:
   pull_request:
+    types: [opened, reopened]
     branches: [main]
     paths:
       - "research/phase195_cboe_trade_condition_exchange_mapping_audit.py"

@@ -1577,3 +1577,16 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 - It parses trade/contract/NBBO fields, counts exact at-ask/at-bid candidate-side prints and trade-condition IDs without assigning condition semantics, and compares a canonical core-row digest across the 19-column and 25-column members.
 - A passing result would establish daily sample-level measurement feasibility only. Trade-condition mapping, adjusted deliverables, historical coverage, inactive/delisted identity, first file receipt and immutable vintages remain open. No alpha or return test is authorized.
 - Report: research/PHASE194_CBOE_OPTION_TRADES_DAILY_FLOW_SAMPLE_AUDIT_2026-11-07.md; evidence: research/phase194_cboe_option_trades_daily_flow_sample_audit.json; auditor/tests: research/phase194_cboe_option_trades_daily_flow_sample_audit.py and research/test_phase194_cboe_option_trades_daily_flow_sample_audit.py; workflow: .github/workflows/phase194_cboe_option_trades_daily_flow_sample_audit.yml.
+
+
+## 2026-11-07 — Phase 194 hosted sample result
+- Phase 194 run 42418091879 passed 16/16 tests. Both public-sample members had 74,999 populated rows, 23,580 trailing blank padding rows, zero invalid rows, identical core-row digests, one underlying, 308 contracts and 74,999 unique trade keys.
+- Exact at-ask candidates were 172,313 contracts; exact at-bid candidates 209,076; the descriptive difference was -36,763 contracts. 149,838 contracts remained unclassified. This is one-day sample arithmetic, not predictive flow. The time-only quote_datetime remains opaque and is not interpreted as HH:MM or MM:SS.
+- Permanent record: research/PHASE194_CBOE_OPTION_TRADES_DAILY_FLOW_SAMPLE_AUDIT_2026-11-07.md and research/phase194_cboe_option_trades_daily_flow_sample_result.json.
+
+## 2026-11-07 — Phase 195 hosted mapping result
+- Phase 195 run 42418568678 passed 11/11 tests. Current Cboe public reference files mapped all 15 observed trade-condition IDs and all 18 observed exchange IDs across both matching sample members. Condition map: 80 rows, fields id/name/security_type only; no message_type or effective dates. Exchange map: 40 rows, no effective dates. Both files were last modified after the sample date 2026-01-07.
+- Sample condition mix: AutoExecution 40,334 (53.78%); IntermarketSweep 2,165 (2.89%); single-leg auction/cross 20,091 (26.79%); multi-leg 12,331 (16.44%); stock-option 64 (0.09%); single-leg floor 14 (0.02%). canceled_trade_condition_id was 0 for all 74,999 rows.
+- The strict Regular/Normal + trade + options eligibility set is empty. The current mapping is descriptive only; no historical PIT, signed-flow feature or alpha test is admitted.
+- Permanent record: research/PHASE195_CBOE_TRADE_CONDITION_EXCHANGE_MAPPING_AUDIT_2026-11-07.md and research/phase195_cboe_trade_condition_exchange_mapping_result.json.
+- The Phase 193 SEC N-PORT raw retrieval remains blocked until an authorized project contact email is added as repository Actions secret SEC_CONTACT_EMAIL. No SEC request has been sent.

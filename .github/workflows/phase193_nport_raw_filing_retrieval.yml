@@ -2,6 +2,7 @@ name: Phase 193 SEC N-PORT raw filing and acceptance-time audit
 
 on:
   pull_request:
+    types: [opened, reopened]
     branches: [main]
     paths:
       - "research/phase193_nport_raw_filing_retrieval.py"

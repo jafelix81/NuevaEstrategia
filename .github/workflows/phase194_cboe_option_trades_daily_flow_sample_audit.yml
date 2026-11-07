@@ -2,6 +2,7 @@ name: Phase 194 Cboe Option Trades daily-flow sample audit
 
 on:
   pull_request:
+    types: [opened, reopened]
     branches: [main]
     paths:
       - "research/phase194_cboe_option_trades_daily_flow_sample_audit.py"
