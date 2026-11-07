@@ -36,7 +36,9 @@ class Phase172Tests(unittest.TestCase):
         self.assertFalse(r["all_blank_rows_only_trailing"])
 
     def test_both_dates_blank_but_other_data_is_reported(self):
-        r=audit_member("sample.csv",payload([row(market_date="",quote_datetime="",trade_price="1.25")]))
+        blank={f:"" for f in BASE_FIELDS}
+        blank["trade_price"]="1.25"
+        r=audit_member("sample.csv",payload([blank]))
         self.assertEqual(r["both_date_fields_blank_any_column_nonblank_rows"],1)
         self.assertEqual(r["both_date_fields_blank_all_columns_blank_rows"],0)
         self.assertEqual(r["nonblank_fields_when_both_dates_blank"],{"trade_price":1})

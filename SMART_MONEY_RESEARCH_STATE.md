@@ -1311,3 +1311,8 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 - Adds a metadata-only audit for whether both-date-blank records are empty across every column, whether they are trailing or interspersed, and whether the 99:99.9 signature is a valid HH:MM.d clock shape.
 - The final digit is not assigned seconds or fractional-minute semantics. No timestamps are synthesized, no rows are dropped, and no raw values are persisted.
 - Hosted result pending. No feature/return/OOS/holdout test, vendor purchase/contact or production change. F80 remains frozen.
+
+
+## Phase 172 — first regression fixture correction (2026-11-07)
+- Run [42328080147](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42328080147) compiled but failed 1/7 offline tests before downloading the public sample. The test fixture expected only trade_price to remain populated but reused a helper row that left other fields populated. The audit output correctly counted all nonblank fields; this was a fixture defect, not a production-data result.
+- Corrected the fixture to start with all fields blank and set only trade_price. No sample result or artifact exists from the failed run. Corrected hosted validation is pending.

@@ -17,6 +17,10 @@ A trailing all-column-empty block is labelled only TRAILING_PADDING_CANDIDATE. T
 
 The time-only field is not converted into a timestamp. The final digit's unit is unknown; no fractional-second or fractional-minute interpretation is assumed. market_date and quote_datetime remain separate raw fields. First receipt and immutable historical vintages remain unverified.
 
-## 3. Result
+## 3. First hosted attempt and correction
 
-Hosted result pending. No alpha/OOS/holdout or production conclusion is claimed. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+Run [42328080147](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42328080147) compiled successfully but one of 7 offline tests failed before the public sample download. The fixture intended to contain only trade_price while both date fields were blank, but the shared row helper left the other core/quote fields populated. The assertion correctly exposed a fixture construction error; the audit's nonblank-field counter behaved as written. No public sample was downloaded and no artifact was produced. The fixture is corrected to start with every field blank and set only trade_price.
+
+## 4. Result
+
+Corrected hosted run pending. No alpha/OOS/holdout or production conclusion is claimed. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
