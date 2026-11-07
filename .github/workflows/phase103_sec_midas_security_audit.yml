@@ -1,0 +1,41 @@
+name: Phase 103 - SEC MIDAS individual-security actual-file audit
+
+on:
+  push:
+    branches: [phase99-broad-pit-universe-charter]
+    paths:
+      - 'research/phase103_sec_midas_security_audit.py'
+      - 'research/test_phase103_sec_midas_security_audit.py'
+      - '.github/workflows/phase103_sec_midas_security_audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase103-sec-midas-security-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependency
+        run: pip install requests
+      - name: Run offline parser tests
+        run: python -m unittest research.test_phase103_sec_midas_security_audit -v
+      - name: Audit official SEC quarterly files
+        run: python -u research/phase103_sec_midas_security_audit.py
+      - name: Upload audit outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase103-sec-midas-security-audit
+          path: phase103_sec_midas_security_audit/
+          retention-days: 90
+          if-no-files-found: warn

@@ -1,0 +1,40 @@
+name: Phase 116 Cboe historical equity market-volume public archive audit
+
+on:
+  push:
+    branches:
+      - phase99-broad-pit-universe-charter
+    paths:
+      - research/PHASE116_CBOE_HISTORICAL_MARKET_VOLUME_PUBLIC_AUDIT_2026-11-05.md
+      - research/phase116_cboe_market_volume_audit.py
+      - research/test_phase116_cboe_market_volume_audit.py
+
+permissions:
+  contents: read
+
+jobs:
+  public-archive-audit:
+    if: contains(github.event.head_commit.message, '[phase116-live]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependency
+        run: python -m pip install --upgrade requests
+      - name: Offline parser tests
+        run: python -m unittest -v research/test_phase116_cboe_market_volume_audit.py
+      - name: Download and reconcile public archive
+        run: python research/phase116_cboe_market_volume_audit.py --output phase116_cboe_market_volume_output
+      - name: Upload audit artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase116-cboe-historical-market-volume-audit
+          path: phase116_cboe_market_volume_output/
+          if-no-files-found: error
+          retention-days: 90

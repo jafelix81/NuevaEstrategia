@@ -1,0 +1,48 @@
+name: Phase 175 Cboe Option Quotes date-locale ambiguity audit
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - research/phase175_cboe_option_quotes_date_locale_audit.py
+      - research/test_phase175_cboe_option_quotes_date_locale_audit.py
+      - .github/workflows/phase175_cboe_option_quotes_date_locale_audit.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: phase175-cboe-option-quotes-date-locale-audit
+  cancel-in-progress: false
+jobs:
+  date-locale-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile Phase 175
+        run: python -m py_compile research/phase175_cboe_option_quotes_date_locale_audit.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase175_cboe_option_quotes_date_locale_audit
+      - name: Download and diagnose public Cboe sample
+        run: python -m research.phase175_cboe_option_quotes_date_locale_audit --output phase175_output/phase175_cboe_option_quotes_date_locale_audit.json
+      - name: Upload metadata-only audit artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase175-cboe-option-quotes-date-locale-audit
+          path: phase175_output/phase175_cboe_option_quotes_date_locale_audit.json
+          retention-days: 90
+      - name: Enforce diagnostic completion, not data admission
+        run: |
+          python - <<'PY'
+          import json, sys
+          p='phase175_output/phase175_cboe_option_quotes_date_locale_audit.json'
+          r=json.load(open(p, encoding='utf-8'))
+          print('PHASE175_STATUS='+str(r.get('overall_status')))
+          if r.get('download_status') != 'PASS' or not r.get('date_locale_diagnostic_complete'):
+              sys.exit(1)
+          if r.get('sample_admission') or r.get('alpha_admission'):
+              sys.exit(2)
+          PY

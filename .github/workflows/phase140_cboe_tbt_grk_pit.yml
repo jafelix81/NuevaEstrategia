@@ -1,0 +1,29 @@
+name: Phase 140 Cboe TBT GRK PIT semantics regression
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "research/phase140_cboe_tbt_grk_pit.py"
+      - "research/test_phase140_cboe_tbt_grk_pit.py"
+      - ".github/workflows/phase140_cboe_tbt_grk_pit.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install pandas
+        run: python -m pip install --disable-pip-version-check "pandas>=2.2,<4"
+      - name: Compile audit helper
+        run: python -m py_compile research/phase140_cboe_tbt_grk_pit.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase140_cboe_tbt_grk_pit

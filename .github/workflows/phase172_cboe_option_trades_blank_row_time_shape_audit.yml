@@ -1,0 +1,42 @@
+name: Phase 172 Cboe Option Trades blank-row and time-only audit
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - research/phase172_cboe_option_trades_blank_row_time_shape_audit.py
+      - research/test_phase172_cboe_option_trades_blank_row_time_shape_audit.py
+      - .github/workflows/phase172_cboe_option_trades_blank_row_time_shape_audit.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: phase172-cboe-option-trades-blank-row-time-shape
+  cancel-in-progress: false
+jobs:
+  blank-row-time-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile Phase 172
+        run: python -m py_compile research/phase172_cboe_option_trades_blank_row_time_shape_audit.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase172_cboe_option_trades_blank_row_time_shape_audit
+      - name: Download and audit public Cboe sample in memory
+        run: python -m research.phase172_cboe_option_trades_blank_row_time_shape_audit --output-dir phase172_output
+      - name: Upload metadata-only diagnostic artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase172-cboe-option-trades-blank-row-time-shape
+          path: phase172_output/phase172_cboe_option_trades_blank_row_time_shape_summary.json
+          if-no-files-found: ignore
+          retention-days: 90
+      - name: Enforce diagnostic-only output contract
+        if: always()
+        run: |
+          test -f phase172_output/phase172_cboe_option_trades_blank_row_time_shape_summary.json
+          python -c "import json; p='phase172_output/phase172_cboe_option_trades_blank_row_time_shape_summary.json'; s=json.load(open(p)); assert s['status']=='DIAGNOSTIC_COMPLETE'; assert s['alpha_admission'] is False; assert s['strict_pit'] is False; print('PHASE172_STATUS=' + s['status'])"

@@ -1,0 +1,377 @@
+{
+  "phase": 183,
+  "title": "Cross-source Smart Money data-admission and research-priority matrix",
+  "audit_date": "2026-11-07",
+  "control": "F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen",
+  "status": "NO_SOURCE_PIT_ADMITTED_NO_ALPHA_TEST_AUTHORIZED",
+  "method": "Evidence-only synthesis of repository audits through Phase 182; no new vendor request or raw-data download",
+  "gate_names": [
+    "representative_raw_sample",
+    "historical_universe_coverage",
+    "first_receipt_vintages",
+    "revision_lineage",
+    "effective_dated_identity",
+    "methodology_version_validation",
+    "license_and_bulk_terms"
+  ],
+  "sources": [
+    {
+      "id": "cboe_open_close",
+      "name": "Cboe Options Open-Close",
+      "priority_rank": 1,
+      "construct": "Venue-specific participant-capacity × buy/sell × opening/closing position buckets",
+      "history_claim": "C1 EOD 2005-01-03; C1 10-minute 2011-01-03; C1 1-minute 2019-10-07; C2/BZX/EDGX EOD 2018-01-02; use 2020-03-01 conservative multi-venue intraday floor pending FAQ/product discrepancy",
+      "sample_evidence": "Phase 168 EOD: 23,179 rows / 1,553 underlyings / 86 columns; Phase 167 intraday: 123,022 rows / 2,642 underlyings. Samples pass structural checks only.",
+      "knowledge_time": "Intraday specs say minutes after interval close; exact historical first receipt and immutable archived vintages are unverified. EOD overnight timing is a schedule, not per-file receipt evidence.",
+      "revision_semantics": "Intraday files are cumulative snapshots; later files can incorporate late trades and remove busts/cancellations. Preserve raw vintages; first differences are changes in published state, not necessarily clock-interval volume.",
+      "identity_scope": "Cboe venue option-series identity; adjusted deliverables, inactive underlying coverage and effective-dated equity join remain unverified.",
+      "limitations": [
+        "Cboe venues only, not all OPRA",
+        "Intraday files omit prices/IV/Greeks/OI",
+        "Capacity is not beneficial-owner identity",
+        "No exact historical first-receipt archive"
+      ],
+      "decision": "CONDITIONAL_TOP_TIER_POSITION_FLOW",
+      "gates": {
+        "representative_raw_sample": false,
+        "historical_universe_coverage": false,
+        "first_receipt_vintages": false,
+        "revision_lineage": false,
+        "effective_dated_identity": false,
+        "methodology_version_validation": true,
+        "license_and_bulk_terms": false
+      }
+    },
+    {
+      "id": "ivydb_tradeflow",
+      "name": "OptionMetrics IvyDB TradeFlow",
+      "priority_rank": 2,
+      "construct": "OPRA NBBO-signed aggressor flow plus vendor participant-size proxies",
+      "history_claim": "Advertised from 2016-01; product launched 2026-09-30; 5-minute, 30-minute and EOD aggregates",
+      "sample_evidence": "No raw multi-year sample or per-symbol/inactive-name sample audited.",
+      "knowledge_time": "2016+ backfill is not proof of live availability in 2016. Historical first-receipt logs are absent; never use interval end as vendor knowledge time.",
+      "revision_semantics": "Correction/vintage policy and historical classifier-version lineage are not verified.",
+      "identity_scope": "TradeFlow-specific option-series, adjusted-contract and delisted-underlying mappings are not verified.",
+      "limitations": [
+        "Institutional 2 is aggressive-liquidity-demand proxy, not all institutional activity",
+        "Institutional 1 is nested in Institutional 2",
+        "Retail labels are vendor proxies, not verified beneficial-owner identities",
+        "Lot-size fields may have a 2021 start despite 2016 product backfill",
+        "One-session vendor classification coverage is not accuracy validation"
+      ],
+      "decision": "CONDITIONAL_TOP_TIER_SIGNED_FLOW",
+      "gates": {
+        "representative_raw_sample": false,
+        "historical_universe_coverage": false,
+        "first_receipt_vintages": false,
+        "revision_lineage": false,
+        "effective_dated_identity": false,
+        "methodology_version_validation": false,
+        "license_and_bulk_terms": false
+      }
+    },
+    {
+      "id": "ivydb_open_interest",
+      "name": "OptionMetrics IvyDB US Open Interest",
+      "priority_rank": 3,
+      "construct": "Daily contract-level outstanding-position state and net OI change",
+      "history_claim": "Advertised history from 1996-01; US equity/index options; permanent security/option IDs and historical security-name/ticker history including delisted names",
+      "sample_evidence": "No licensed raw file/patch sample audited in the project.",
+      "knowledge_time": "Manual describes nightly files and a separate morning OI file; actual historical first receipt is unverified. Option_Price OI has a timing regime break after 2000-11-28.",
+      "revision_semantics": "Daily patch files can revise prior observations; Phase 147 defines an append-only as-of ledger, but no actual vendor patch chain or receipt archive has been validated.",
+      "identity_scope": "Permanent IDs and historical ticker history are promising; adjusted contracts, deliverables, and effective stock-universe coverage still require validation.",
+      "limitations": [
+        "OI is not buyer direction, opening volume or participant identity",
+        "Only optionable stocks enter the panel",
+        "Expiration/exercise/corporate actions can alter OI",
+        "Pre/post 2000-11-28 timing regimes must not be blended"
+      ],
+      "decision": "CONDITIONAL_LONG_HISTORY_CONTRACT_STATE",
+      "gates": {
+        "representative_raw_sample": false,
+        "historical_universe_coverage": false,
+        "first_receipt_vintages": false,
+        "revision_lineage": false,
+        "effective_dated_identity": false,
+        "methodology_version_validation": true,
+        "license_and_bulk_terms": false
+      }
+    },
+    {
+      "id": "ivolatility_signed_flow",
+      "name": "IVolatility OPRA Signed Flow API",
+      "priority_rank": 4,
+      "construct": "NBBO-signed call/put buys and sells; net premium/delta; midpoint unclassified",
+      "history_claim": "Advertised history from 2015; minute and daily aggregates; same-evening current delivery claim",
+      "sample_evidence": "No endpoint-specific raw sample, per-symbol coverage or inactive-name sample audited.",
+      "knowledge_time": "Same-evening delivery does not establish historical first-publication timestamps for backfilled dates.",
+      "revision_semantics": "Endpoint-specific correction/vintage policy not disclosed in the audited materials.",
+      "identity_scope": "Permanent ID, corporate-action and delisted mapping not verified for this endpoint.",
+      "limitations": [
+        "Trade signing is inferred from execution vs NBBO",
+        "Midpoint remains unclassified",
+        "Trade-condition, stale/locked/crossed quote and complex-order rules incomplete",
+        "Retail plans not intended for full-market downloads; professional license required"
+      ],
+      "decision": "CONDITIONAL_BROAD_SIGNED_FLOW",
+      "gates": {
+        "representative_raw_sample": false,
+        "historical_universe_coverage": false,
+        "first_receipt_vintages": false,
+        "revision_lineage": false,
+        "effective_dated_identity": false,
+        "methodology_version_validation": false,
+        "license_and_bulk_terms": false
+      }
+    },
+    {
+      "id": "cboe_volatility_surfaces",
+      "name": "Cboe Volatility Surfaces",
+      "priority_rank": 5,
+      "construct": "Interpolated IV/skew/term-structure context, not trade flow",
+      "history_claim": "Advertised history from 2011-08",
+      "sample_evidence": "Phase 136: four CSV files, 360 rows, one underlying; all timestamps parse, but this is schema-only evidence.",
+      "knowledge_time": "Calculation timestamp is not publication/receipt time; sample supplied no ETag/Last-Modified or historical receipt evidence.",
+      "revision_semantics": "Historical revision/vintage policy remains unverified.",
+      "identity_scope": "Broad underlying and inactive/delisted coverage unverified.",
+      "limitations": [
+        "689 negative extrapolation/flat-lining codes excluded",
+        "32 positive confidence cells below 0.5 fail recommended reliability threshold",
+        "Single-underlying sample cannot establish universe coverage"
+      ],
+      "decision": "CONDITIONAL_VOLATILITY_CONTEXT",
+      "gates": {
+        "representative_raw_sample": false,
+        "historical_universe_coverage": false,
+        "first_receipt_vintages": false,
+        "revision_lineage": false,
+        "effective_dated_identity": false,
+        "methodology_version_validation": true,
+        "license_and_bulk_terms": false
+      }
+    },
+    {
+      "id": "databento_opra_tcbbo",
+      "name": "Databento OPRA trades + TCBBO",
+      "priority_rank": 6,
+      "construct": "Raw OPRA trades with event-synchronous consolidated BBO for independent signing/reconstruction",
+      "history_claim": "OPRA history from 2023-03-28; 20 options venues in current docs. TCBBO schema introduced in May 2025; strict live-PIT floor no earlier than 2025-05-27 absent delivery evidence.",
+      "sample_evidence": "No project-held multi-year/inactive-name sample or file-receipt archive audited.",
+      "knowledge_time": "Pre-2025-05-27 TCBBO backfill is retrospective unless vendor delivery logs prove otherwise; post-cutover first-receipt logs still required.",
+      "revision_semantics": "Historical correction, replay and vintage policy not fully validated for project use.",
+      "identity_scope": "OPRA option-series mapping and adjusted-contract/equity identity require effective-dated validation.",
+      "limitations": [
+        "Short strict-PIT window",
+        "Pre-2023-03-28 subsampling and no event-synchronous TCBBO",
+        "Trade side is inferred; OPRA does not disseminate aggressor side",
+        "Licensing/cost and archive completeness not established"
+      ],
+      "decision": "CONDITIONAL_RAW_MICROSTRUCTURE_CROSSCHECK",
+      "gates": {
+        "representative_raw_sample": false,
+        "historical_universe_coverage": false,
+        "first_receipt_vintages": false,
+        "revision_lineage": false,
+        "effective_dated_identity": false,
+        "methodology_version_validation": true,
+        "license_and_bulk_terms": false
+      }
+    },
+    {
+      "id": "cboe_options_pitch",
+      "name": "Cboe Options PITCH",
+      "priority_rank": 7,
+      "construct": "Venue-specific sequenced order lifecycle and depth-of-book messages",
+      "history_claim": "Advertised historical archive from 2019-10 across C1/C2/BZX/EDGX",
+      "sample_evidence": "No complete sample, symbol-map or inactive-contract coverage audit in the project.",
+      "knowledge_time": "Historical first-receipt and archive completeness not verified.",
+      "revision_semantics": "Sequenced message lifecycle requires replay/gap-recovery validation; project archive/revision policy not established.",
+      "identity_scope": "Anonymous order IDs and venue-specific symbols; no beneficial-owner identity; effective contract map unverified.",
+      "limitations": [
+        "Venue-specific and anonymous",
+        "Order side is not necessarily aggressor/trade side",
+        "No proof of complete archived messages or symbol continuity",
+        "License and historical delivery costs unknown"
+      ],
+      "decision": "CONDITIONAL_VENUE_MICROSTRUCTURE",
+      "gates": {
+        "representative_raw_sample": false,
+        "historical_universe_coverage": false,
+        "first_receipt_vintages": false,
+        "revision_lineage": false,
+        "effective_dated_identity": false,
+        "methodology_version_validation": false,
+        "license_and_bulk_terms": false
+      }
+    },
+    {
+      "id": "finra_ats_otc",
+      "name": "FINRA ATS / OTC transparency",
+      "priority_rank": 8,
+      "construct": "Delayed aggregate off-exchange volume by symbol/ATS",
+      "history_claim": "Historical daily/weekly/monthly aggregate products; current source coverage audited in Phases 100-117",
+      "sample_evidence": "Aggregation reconciliation passed; 1.735% of symbol aggregates revised but revisions represented 10.08% of shares and 11.44% of trades.",
+      "knowledge_time": "Historical first-publication vintages are not established; eventual revised values cannot be backdated.",
+      "revision_semantics": "Material revision impact; do not filter on eventual revision status or substitute final values at original publication time.",
+      "identity_scope": "Historical ticker/security mapping and inactive universe still incomplete.",
+      "limitations": [
+        "Aggregate prints do not reveal buyer/seller beneficial owner",
+        "Revision-weighted activity is material",
+        "No verified first-publication vintage panel"
+      ],
+      "decision": "CONDITIONAL_CONTEXT_ONLY_NO_CURRENT_ALPHA_TEST",
+      "gates": {
+        "representative_raw_sample": true,
+        "historical_universe_coverage": false,
+        "first_receipt_vintages": false,
+        "revision_lineage": false,
+        "effective_dated_identity": false,
+        "methodology_version_validation": true,
+        "license_and_bulk_terms": true
+      }
+    },
+    {
+      "id": "finra_short_volume",
+      "name": "FINRA short-sale volume / short interest",
+      "priority_rank": 9,
+      "construct": "Daily short-sale prints and separately reported settlement short interest",
+      "history_claim": "Existing Phase 20C panel attempted 2,020 daily files across 335 configured names",
+      "sample_evidence": "1,382/2,020 files available (68.42%); 329/335 names valid.",
+      "knowledge_time": "Daily file is published after regular-session close; same-day close execution is invalid. Historical first-receipt coverage remains incomplete.",
+      "revision_semantics": "Short volume and short interest are different measures and cannot be treated as interchangeable.",
+      "identity_scope": "Daily time-series coverage incomplete; short-interest universe overlap insufficient for the intended broad stock panel.",
+      "limitations": [
+        "Phase 20C weak/inconsistent pseudo-OOS",
+        "H10/H20 mean replacement-minus-blocked negative",
+        "H5 median negative and only 5/12 dates positive",
+        "No costs/bootstrap in legacy result"
+      ],
+      "decision": "NO_PROMOTION_REOPEN_ONLY_WITH_NEW_DATA_AND_NEXT_SESSION_EXECUTION",
+      "gates": {
+        "representative_raw_sample": true,
+        "historical_universe_coverage": false,
+        "first_receipt_vintages": false,
+        "revision_lineage": false,
+        "effective_dated_identity": false,
+        "methodology_version_validation": true,
+        "license_and_bulk_terms": true
+      }
+    },
+    {
+      "id": "cftc_tff_cot",
+      "name": "CFTC TFF / COT",
+      "priority_rank": 10,
+      "construct": "Aggregate futures positioning by reportable trader category; broad market-regime context",
+      "history_claim": "Public historical reports; index futures, not individual-stock coverage",
+      "sample_evidence": "Prior Phase 23C panel covered 12 quarterly dates for NASDAQ and S&P 500 futures.",
+      "knowledge_time": "Prior conservative report-date-plus-six-calendar-day proxy was used; release-time calendar needs exact PIT implementation.",
+      "revision_semantics": "Historical report revisions and release vintages not fully audited for this strategy.",
+      "identity_scope": "Index futures only; no direct stock/issuer security identity.",
+      "limitations": [
+        "Phase 23C lacked horizon-specific label maturity embargo",
+        "6/12 dates had immature 5D labels; all 12 had immature 20D rows",
+        "Prior performance quarantined",
+        "Not a stock-level institutional flow signal"
+      ],
+      "decision": "QUARANTINED_REBUILD_ONLY_WITH_CALENDAR_AND_LABEL_EMBARGO",
+      "gates": {
+        "representative_raw_sample": true,
+        "historical_universe_coverage": false,
+        "first_receipt_vintages": false,
+        "revision_lineage": false,
+        "effective_dated_identity": true,
+        "methodology_version_validation": false,
+        "license_and_bulk_terms": true
+      }
+    },
+    {
+      "id": "sec_13dg",
+      "name": "SEC Schedules 13D / 13G",
+      "priority_rank": 11,
+      "construct": "Beneficial-ownership disclosure events and stated purpose; not transaction-level flow",
+      "history_claim": "Broad EDGAR history exists; project hash-stratified global sample and legacy cohorts audited",
+      "sample_evidence": "Phase 179: 497 legacy docs; no verified predecessor edge to an initial filing; two strict A-to-A candidates do not reach initial filings.",
+      "knowledge_time": "Acceptance timestamps and PAC semantics audited; exact first-public availability is not provided. Conservative next-session use required.",
+      "revision_semantics": "13D/A and 13G/A amendments, previousAccessionNumber anchors and PAC messages require separate lineage; current sample is too shallow.",
+      "identity_scope": "CUSIP and issuer identity mostly recoverable in sample, but no complete effective-dated security master or issuer-level full history.",
+      "limitations": [
+        "13D and 13G are distinct regimes",
+        "Amendments can restate prior information",
+        "13F/13D ownership is not transaction flow",
+        "Item 4 semantic triage is provisional"
+      ],
+      "decision": "INSUFFICIENT_LINEAGE_COVERAGE_NO_FEATURE",
+      "gates": {
+        "representative_raw_sample": true,
+        "historical_universe_coverage": false,
+        "first_receipt_vintages": false,
+        "revision_lineage": false,
+        "effective_dated_identity": false,
+        "methodology_version_validation": true,
+        "license_and_bulk_terms": true
+      }
+    },
+    {
+      "id": "sec_13f",
+      "name": "SEC Form 13F",
+      "priority_rank": 12,
+      "construct": "Quarterly reported long holdings with delayed disclosure",
+      "history_claim": "EDGAR history; quarterly filings with up to 45-day reporting lag",
+      "sample_evidence": "Bulk schema has accession and filing date but not accepted time-of-day; accession-level acceptance join required.",
+      "knowledge_time": "Use accession acceptance time; quarter-end/bulk publication dates are not knowledge times.",
+      "revision_semantics": "Restatement, add-only and confidential-treatment amendments alter reported state; manager relationships can double count holdings.",
+      "identity_scope": "13F list is only partial eligible-security reference; CUSIP effective mapping and shared discretion graph unresolved.",
+      "limitations": [
+        "Long-only and incomplete",
+        "No written options or short positions",
+        "Delayed and not transaction flow",
+        "Confidential treatment and amendments"
+      ],
+      "decision": "DELAYED_CONTEXT_ONLY_NO_ALPHA_ADMISSION",
+      "gates": {
+        "representative_raw_sample": true,
+        "historical_universe_coverage": false,
+        "first_receipt_vintages": false,
+        "revision_lineage": false,
+        "effective_dated_identity": false,
+        "methodology_version_validation": true,
+        "license_and_bulk_terms": true
+      }
+    },
+    {
+      "id": "sec_form4",
+      "name": "SEC Form 4 insider transactions",
+      "priority_rank": 13,
+      "construct": "Reported insider transactions, requiring transaction-code and derivative/non-derivative semantics",
+      "history_claim": "EDGAR historical filings",
+      "sample_evidence": "Prior Phase 21C used six dates; bootstrap advantage intervals crossed zero at H5/H10/H20.",
+      "knowledge_time": "Acceptance time is required; same-day close execution cannot be assumed.",
+      "revision_semantics": "Amendments and issuer/security identity must be resolved.",
+      "identity_scope": "Issuer-symbol and transaction code mapping require effective-dated validation.",
+      "limitations": [
+        "Existing tested buying feature family killed for now",
+        "No robust incremental edge over LTM",
+        "Historical holdout dates consumed"
+      ],
+      "decision": "KILLED_FOR_NOW_EXISTING_FEATURE_FAMILY",
+      "gates": {
+        "representative_raw_sample": true,
+        "historical_universe_coverage": false,
+        "first_receipt_vintages": false,
+        "revision_lineage": false,
+        "effective_dated_identity": false,
+        "methodology_version_validation": true,
+        "license_and_bulk_terms": true
+      }
+    }
+  ],
+  "global_decisions": {
+    "alpha_test_authorized": false,
+    "holdout_used": false,
+    "vendor_contact": false,
+    "data_purchase": false,
+    "production_changed": false,
+    "f80_frozen": true,
+    "priority_is_expected_alpha_rank": false
+  }
+}

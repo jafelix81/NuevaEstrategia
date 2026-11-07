@@ -1,0 +1,44 @@
+name: Phase 148 Phase 29 cost-aware OOS audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "research/phase148_independent_alpha_lab_cost_audit.py"
+      - "research/phase148_phase29_spread_series.json"
+      - "research/test_phase148_independent_alpha_lab_cost_audit.py"
+      - "research/PHASE148_PHASE29_INDEPENDENT_ALPHA_COST_AND_OOS_AUDIT_2026-11-06.md"
+      - ".github/workflows/phase148_independent_alpha_lab_cost_audit.yml"
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install numerical dependency
+        run: python -m pip install --disable-pip-version-check "numpy>=1.26,<3"
+      - name: Compile audit
+        run: python -m py_compile research/phase148_independent_alpha_lab_cost_audit.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase148_independent_alpha_lab_cost_audit
+      - name: Recompute cost and OOS audit
+        run: |
+          python research/phase148_independent_alpha_lab_cost_audit.py \
+            --input research/phase148_phase29_spread_series.json \
+            --output phase148_cost_audit/phase148_cost_audit.json
+      - name: Upload audit result
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase148-phase29-cost-aware-audit
+          path: phase148_cost_audit/phase148_cost_audit.json
+          if-no-files-found: error
+          retention-days: 30

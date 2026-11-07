@@ -1,0 +1,44 @@
+name: Phase 164 OpenFIGI CUSIP corporate-action transition control
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "research/phase164_*"
+      - "research/test_phase164_*"
+      - ".github/workflows/phase164_openfigi_cusip_transition_control.yml"
+      - "SMART_MONEY_RESEARCH_STATE.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase164-openfigi-cusip-transition-control
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile and run offline tests
+        run: |
+          python -m py_compile research/phase164_cusip_transition_case_study.py
+          python -m unittest discover -s research -p 'test_phase164_*.py' -v
+      - name: Recompute effective-dated CUSIP bridge
+        run: |
+          python research/phase164_cusip_transition_case_study.py --output-dir phase164_output
+      - name: Upload reproducible bridge
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase164-openfigi-cusip-transition-control
+          path: |
+            phase164_output/phase164_cusip_transition_bridge.csv
+            phase164_output/phase164_cusip_transition_summary.json
+          if-no-files-found: error
+          retention-days: 30

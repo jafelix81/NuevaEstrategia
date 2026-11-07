@@ -1,0 +1,38 @@
+name: Phase 173 Cboe Option EOD OI temporal semantics and PIT gate
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - research/phase173_cboe_option_eod_oi_pit_semantics.py
+      - research/test_phase173_cboe_option_eod_oi_pit_semantics.py
+      - .github/workflows/phase173_cboe_option_eod_oi_pit_semantics.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: phase173-cboe-option-eod-oi-pit-semantics
+  cancel-in-progress: false
+jobs:
+  semantics-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile Phase 173
+        run: python -m py_compile research/phase173_cboe_option_eod_oi_pit_semantics.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase173_cboe_option_eod_oi_pit_semantics
+      - name: Build metadata-only adjudication
+        run: python -m research.phase173_cboe_option_eod_oi_pit_semantics --output phase173_output/phase173_option_eod_oi_pit_semantics.json
+      - name: Upload metadata-only artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase173-cboe-option-eod-oi-pit-semantics
+          path: phase173_output/phase173_option_eod_oi_pit_semantics.json
+          retention-days: 90
+      - name: Enforce no-alpha/no-PIT contract
+        run: |
+          python -c "import json; s=json.load(open('phase173_output/phase173_option_eod_oi_pit_semantics.json')); assert s['pit_admission'] is False; assert s['alpha_admission'] is False; assert s['f80_changed'] is False; print('PHASE173_STATUS=CONDITIONAL_SOURCE_CANDIDATE')"

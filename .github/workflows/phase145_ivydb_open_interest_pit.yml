@@ -1,0 +1,30 @@
+name: Phase 145–146 IvyDB open-interest PIT regression
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "research/phase145_ivydb_open_interest_pit.py"
+      - "research/test_phase145_ivydb_open_interest_pit.py"
+      - "research/PHASE145_IVYDB_OPEN_INTEREST_CONTRACT_STATE_AND_PIT_AUDIT_2026-11-05.md"
+      - "research/PHASE146_IVYDB_OI_STRICT_PIT_BOUNDARY_AND_CONTINUITY_CORRECTION_2026-11-06.md"
+      - ".github/workflows/phase145_ivydb_open_interest_pit.yml"
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile OI PIT helper
+        run: python -m py_compile research/phase145_ivydb_open_interest_pit.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase145_ivydb_open_interest_pit

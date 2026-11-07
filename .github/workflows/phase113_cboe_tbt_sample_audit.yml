@@ -1,0 +1,40 @@
+name: Phase 113 Cboe TBT public sample audit
+
+on:
+  push:
+    branches:
+      - phase99-broad-pit-universe-charter
+    paths:
+      - research/PHASE113_CBOE_TBT_SAMPLE_FEASIBILITY_2026-11-05.md
+      - research/phase113_cboe_tbt_sample_audit.py
+      - research/test_phase113_cboe_tbt_sample_audit.py
+
+permissions:
+  contents: read
+
+jobs:
+  sample-audit:
+    if: contains(github.event.head_commit.message, '[phase113-live]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependency
+        run: python -m pip install --upgrade requests
+      - name: Offline parser tests
+        run: python -m unittest -v research/test_phase113_cboe_tbt_sample_audit.py
+      - name: Download and audit public sample
+        run: python research/phase113_cboe_tbt_sample_audit.py --output phase113_cboe_tbt_output
+      - name: Upload sample audit artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase113-cboe-tbt-public-sample-audit
+          path: phase113_cboe_tbt_output/
+          if-no-files-found: error
+          retention-days: 90

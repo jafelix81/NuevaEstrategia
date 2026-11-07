@@ -1,0 +1,57 @@
+{
+  "phase": 152,
+  "date": "2026-11-06",
+  "source_artifact_id": 12781850078,
+  "source_outer_sha256": "203d7b1d2e29c999da318456af72e621cb30ef9a470d8f1610d088f9bebecb66",
+  "parent_candidate_method": "same issuer CIK + DATE_OF_ORIG_SUB equals original FILING_DATE + at least one shared reporting-owner CIK; heuristic only",
+  "samples": {
+    "2012Q1": {
+      "form4a": 1862,
+      "unique_parent_candidates": 1146,
+      "ambiguous_candidates": 40,
+      "no_same_quarter_candidate": 676,
+      "unique_links_with_loose_line_overlap": 711,
+      "unique_links_with_strict_line_overlap": 413,
+      "amendment_table_i_rows_on_unique_links": 1452,
+      "original_table_i_rows_on_unique_links": 1923,
+      "loose_table_i_row_overlaps": 1209,
+      "strict_table_i_row_overlaps": 722
+    },
+    "2026Q3": {
+      "form4a": 627,
+      "unique_parent_candidates": 341,
+      "ambiguous_candidates": 7,
+      "no_same_quarter_candidate": 279,
+      "unique_links_with_loose_line_overlap": 190,
+      "unique_links_with_strict_line_overlap": 111,
+      "amendment_table_i_rows_on_unique_links": 552,
+      "original_table_i_rows_on_unique_links": 642,
+      "loose_table_i_row_overlaps": 356,
+      "strict_table_i_row_overlaps": 231
+    }
+  },
+  "verified_example": {
+    "issuer": "Eton Pharmaceuticals, Inc.",
+    "issuer_cik": "0001710340",
+    "reporting_owner_cik": "0001182615",
+    "original_accession": "0001437749-26-029196",
+    "amendment_accession": "0001437749-26-029308",
+    "original_acceptance_et": "2026-08-28T16:51:30-04:00",
+    "amendment_acceptance_et": "2026-08-31T16:06:45-04:00",
+    "original_table_i_rows": 4,
+    "amendment_table_i_rows": 5,
+    "unchanged_table_i_rows_repeated": 4,
+    "new_table_i_lines": 1,
+    "original_table_ii_rows": 1,
+    "amendment_table_ii_rows": 2,
+    "unchanged_table_ii_rows_repeated": 1,
+    "new_table_ii_lines": 1,
+    "new_table_i_line": "M exercise of 12,500 shares",
+    "new_table_ii_line": "M option exercise of 12,500 underlying shares",
+    "naive_sum_would_double_count_original_sales": true
+  },
+  "decision": "Form 4/A is a filing-time update, not an independent trade stream; require confirmed parent accession and line-level diff",
+  "alpha_test": false,
+  "final_holdout_used": false,
+  "f80_modified": false
+}

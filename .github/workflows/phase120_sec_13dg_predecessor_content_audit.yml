@@ -1,0 +1,56 @@
+name: Phase 120 SEC 13D-G predecessor content audit
+
+on:
+  push:
+    branches:
+      - phase99-broad-pit-universe-charter
+    paths:
+      - research/phase120_sec_13dg_predecessor_manifest.csv
+      - research/phase120_sec_13dg_predecessor_content_audit.py
+      - research/test_phase120_sec_13dg_predecessor_content_audit.py
+      - .github/workflows/phase120_sec_13dg_predecessor_content_audit.yml
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  predecessor-content-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Compile auditor
+        run: python -m py_compile research/phase120_sec_13dg_predecessor_content_audit.py
+
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase120_sec_13dg_predecessor_content_audit
+
+      - name: Download immutable Phase 84 pilot artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: phase84-13dg-role-aware-identity-validation
+          path: inputs/phase84
+          repository: ${{ github.repository }}
+          run-id: 41914491120
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fetch and reconcile 45 SEC predecessor submissions
+        run: >-
+          python research/phase120_sec_13dg_predecessor_content_audit.py
+          --phase84-dir inputs/phase84
+          --manifest research/phase120_sec_13dg_predecessor_manifest.csv
+          --output-dir out
+
+      - name: Upload immutable predecessor audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase120-sec-13dg-predecessor-content-audit
+          path: out/
+          if-no-files-found: warn
+          retention-days: 90

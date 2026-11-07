@@ -1,0 +1,46 @@
+name: Phase 109 - FINRA ATS full aggregation reconciliation
+
+on:
+  push:
+    branches: [phase99-broad-pit-universe-charter]
+    paths:
+      - 'research/phase109_finra_ats_full_reconciliation.py'
+      - 'research/test_phase109_finra_ats_full_reconciliation.py'
+      - 'research/PHASE109_FINRA_ATS_FULL_RECONCILIATION_SPEC_2026-11-05.md'
+      - '.github/workflows/phase109_finra_ats_full_reconciliation.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: phase109-finra-ats-full-reconciliation
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  reconciliation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      FINRA_API_TOKEN: \${{ secrets.FINRA_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependency
+        run: pip install requests
+      - name: Compile and run offline regression tests
+        run: |
+          python -m py_compile research/phase109_finra_ats_full_reconciliation.py
+          python -m unittest research.test_phase109_finra_ats_full_reconciliation -v
+      - name: Re-query all ten FINRA partitions with expanded fields
+        run: python -u research/phase109_finra_ats_full_reconciliation.py
+      - name: Upload full reconciliation outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase109-finra-ats-full-reconciliation
+          path: phase109_finra_ats_full_reconciliation/
+          retention-days: 90
+          if-no-files-found: warn

@@ -1,0 +1,42 @@
+name: Phase 105 - SEC FTD CUSIP/symbol same-day identity audit
+
+on:
+  push:
+    branches: [phase99-broad-pit-universe-charter]
+    paths:
+      - 'research/phase105_sec_ftd_identity.py'
+      - 'research/test_phase105_sec_ftd_identity.py'
+      - 'research/PHASE105_SEC_FTD_CUSIP_SYMBOL_IDENTITY_SPEC_2026-11-05.md'
+      - '.github/workflows/phase105_sec_ftd_identity.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: phase105-sec-ftd-identity
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  identity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependency
+        run: pip install requests
+      - name: Run offline identity tests
+        run: python -m unittest research.test_phase105_sec_ftd_identity -v
+      - name: Audit official SEC FTD archives and HTTP metadata
+        run: python -u research/phase105_sec_ftd_identity.py
+      - name: Upload audit outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase105-sec-ftd-identity
+          path: phase105_sec_ftd_identity/
+          retention-days: 90
+          if-no-files-found: warn

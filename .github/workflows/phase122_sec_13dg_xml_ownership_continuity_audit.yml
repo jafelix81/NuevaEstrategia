@@ -1,0 +1,75 @@
+name: Phase 122 SEC 13D-G XML ownership continuity audit
+
+on:
+  push:
+    branches:
+      - phase99-broad-pit-universe-charter
+    paths:
+      - research/phase122_sec_13dg_xml_ownership_continuity_audit.py
+      - research/test_phase122_sec_13dg_xml_ownership_continuity_audit.py
+      - .github/workflows/phase122_sec_13dg_xml_ownership_continuity_audit.yml
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  ownership-continuity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Compile auditor
+        run: python -m py_compile research/phase122_sec_13dg_xml_ownership_continuity_audit.py
+
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase122_sec_13dg_xml_ownership_continuity_audit
+
+      - name: Download immutable Phase 84 current-filing artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: phase84-13dg-role-aware-identity-validation
+          path: inputs/phase84
+          repository: ${{ github.repository }}
+          run-id: 41914491120
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download immutable Phase 120 predecessor archive
+        uses: actions/download-artifact@v4
+        with:
+          name: phase120-sec-13dg-predecessor-content-audit
+          path: inputs/phase120
+          repository: ${{ github.repository }}
+          run-id: 42058411930
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download immutable Phase 121 security adjudication
+        uses: actions/download-artifact@v4
+        with:
+          name: phase121-sec-13dg-security-identity-adjudication
+          path: inputs/phase121
+          repository: ${{ github.repository }}
+          run-id: 42060958167
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compare reported ownership snapshots on exact-CUSIP XML pairs
+        run: >-
+          python research/phase122_sec_13dg_xml_ownership_continuity_audit.py
+          --phase84-dir inputs/phase84
+          --phase120-dir inputs/phase120
+          --phase121-dir inputs/phase121
+          --manifest research/phase120_sec_13dg_predecessor_manifest.csv
+          --output-dir out
+
+      - name: Upload immutable ownership continuity audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase122-sec-13dg-xml-ownership-continuity
+          path: out/
+          if-no-files-found: warn
+          retention-days: 90

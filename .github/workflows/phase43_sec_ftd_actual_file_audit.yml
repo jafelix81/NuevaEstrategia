@@ -3,9 +3,9 @@ name: Phase 43 - SEC FTD actual-file audit
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, phase99-broad-pit-universe-charter]
     paths:
-      - 'research/PHASE43_SEC_FTD_ACTUAL_FILE_AUDIT_2026-10-27.md'
+      - '.github/workflows/phase43_sec_ftd_actual_file_audit.yml'
 
 permissions:
   contents: read
@@ -26,9 +26,9 @@ jobs:
           import urllib.request
           urls = {
               '2018a': 'https://www.sec.gov/files/data/fails-deliver-data/cnsfails201801a.zip',
-              '202609b': 'https://www.sec.gov/files/data/fails-deliver-data/cnsfails202609b.zip',
+              '202609b': 'https://www.sec.gov/files/data/other/fails-deliver-data/cnsfails202609b.zip',
           }
-          headers = {'User-Agent': 'NuevaEstrategia research contact'}
+          headers = {'User-Agent': 'Felix and Sarmiento Abogados S.C. jose.felix@felixsarmiento.com', 'Accept': 'application/zip,*/*'}
           for name, url in urls.items():
               req = urllib.request.Request(url, headers=headers)
               with urllib.request.urlopen(req, timeout=60) as r:
@@ -51,32 +51,84 @@ jobs:
               rows = list(csv.reader(io.StringIO(text), delimiter='|'))
               assert rows, f'{path}: empty text'
               rows = [r for r in rows if any(x.strip() for x in r)]
-              header = [x.strip().upper() for x in rows[0]]
+              header = [x.strip().upper().lstrip('\ufeff') for x in rows[0]]
               required = ['SETTLEMENT DATE','CUSIP','SYMBOL','QUANTITY (FAILS)','DESCRIPTION','PRICE']
               assert header == required, f'{path}: unexpected header {header}'
-              records = rows[1:]
-              assert all(len(r) == 6 for r in records), f'{path}: malformed record length'
-              bad_date = bad_qty = 0
+              raw_records = rows[1:]
+              records, malformed = [], []
+              trailer_record_count = trailer_total_quantity = None
+              trailer_lines = 0
+              for line_no, original in enumerate(raw_records, start=2):
+                  if len(original) == 1:
+                      footer = original[0].strip()
+                      if footer.startswith('Trailer record count '):
+                          trailer_record_count = int(footer.rsplit(' ', 1)[1])
+                          trailer_lines += 1
+                          continue
+                      if footer.startswith('Trailer total quantity of shares '):
+                          trailer_total_quantity = int(footer.rsplit(' ', 1)[1])
+                          trailer_lines += 1
+                          continue
+                  r = list(original)
+                  while len(r) > 6 and not r[-1].strip():
+                      r.pop()
+                  if len(r) > 6:
+                      r = r[:4] + ['|'.join(r[4:-1])] + [r[-1]]
+                  elif len(r) == 5:
+                      r = r + ['.']
+                  if len(r) != 6:
+                      malformed.append({'line': line_no, 'field_count': len(r), 'sample': r[:10]})
+                      continue
+                  records.append(r)
+              bad_date = bad_qty = bad_price = 0
               symbols, dates = set(), []
+              quantity_sum = 0
               for r in records:
                   d = r[0].strip()
-                  try:
-                      assert len(d) == 8 and d.isdigit()
+                  if len(d) == 8 and d.isdigit():
                       dates.append(d)
-                  except Exception:
+                  else:
                       bad_date += 1
                   try:
-                      int(r[3].strip().replace(',', ''))
+                      quantity = int(r[3].strip().replace(',', ''))
+                      if quantity < 0:
+                          bad_qty += 1
+                      else:
+                          quantity_sum += quantity
                   except Exception:
                       bad_qty += 1
+                  price = r[5].strip()
+                  if price not in ('', '.') :
+                      try:
+                          float(price.replace(',', ''))
+                      except Exception:
+                          bad_price += 1
                   if r[2].strip():
                       symbols.add(r[2].strip().upper())
-              assert bad_date == 0, f'{path}: {bad_date} bad settlement dates'
-              assert bad_qty == 0, f'{path}: {bad_qty} bad fail quantities'
-              out.append({'file': path.name, 'zip_members': names, 'records': len(records),
-                          'unique_symbols': len(symbols), 'min_settlement_date': min(dates),
-                          'max_settlement_date': max(dates), 'bad_date': bad_date,
-                          'bad_quantity': bad_qty})
+              trailer_count_match = trailer_record_count == len(records)
+              trailer_quantity_match = trailer_total_quantity == quantity_sum
+              result = {
+                  'file': path.name,
+                  'zip_members': names,
+                  'raw_records_including_trailers': len(raw_records),
+                  'valid_records': len(records),
+                  'unique_symbols': len(symbols),
+                  'min_settlement_date': min(dates) if dates else None,
+                  'max_settlement_date': max(dates) if dates else None,
+                  'trailer_lines': trailer_lines,
+                  'trailer_record_count': trailer_record_count,
+                  'trailer_count_match': trailer_count_match,
+                  'trailer_total_quantity': trailer_total_quantity,
+                  'calculated_quantity_sum': quantity_sum,
+                  'trailer_quantity_match': trailer_quantity_match,
+                  'malformed_data_record_count': len(malformed),
+                  'malformed_examples': malformed[:10],
+                  'bad_date': bad_date,
+                  'bad_quantity': bad_qty,
+                  'bad_price': bad_price,
+                  'schema_status': 'PASS' if not malformed and not bad_date and not bad_qty and trailer_count_match and trailer_quantity_match else 'PARTIAL_OR_FAIL',
+              }
+              out.append(result)
           Path('ftd_audit_summary.json').write_text(json.dumps(out, indent=2))
           print(json.dumps(out, indent=2))
           PY

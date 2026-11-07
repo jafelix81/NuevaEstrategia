@@ -1,0 +1,48 @@
+name: Phase 181 IvyDB TradeFlow measurement validity protocol
+
+on:
+  pull_request:
+    paths:
+      - "research/phase181_ivydb_tradeflow_measurement_protocol.py"
+      - "research/test_phase181_ivydb_tradeflow_measurement_protocol.py"
+      - "research/phase181_ivydb_tradeflow_measurement_protocol.json"
+      - "research/PHASE181_IVYDB_TRADEFLOW_MEASUREMENT_VALIDITY_AND_FALSIFICATION_PROTOCOL_2026-11-07.md"
+      - ".github/workflows/phase181_ivydb_tradeflow_measurement_protocol.yml"
+      - "SMART_MONEY_RESEARCH_STATE.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile audit and tests
+        run: |
+          python -m py_compile research/phase181_ivydb_tradeflow_measurement_protocol.py research/test_phase181_ivydb_tradeflow_measurement_protocol.py
+      - name: Run regression tests
+        run: python -m unittest research.test_phase181_ivydb_tradeflow_measurement_protocol -v
+      - name: Generate and compare audit artifact
+        run: |
+          python -m research.phase181_ivydb_tradeflow_measurement_protocol --output-dir phase181_output
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          tracked = json.loads(Path("research/phase181_ivydb_tradeflow_measurement_protocol.json").read_text())
+          generated = json.loads(Path("phase181_output/phase181_ivydb_tradeflow_measurement_protocol.json").read_text())
+          assert tracked == generated
+          assert tracked["decision"]["alpha_admitted"] is False
+          print("PHASE181_ARTIFACT_MATCHES_TRACKED_SUMMARY")
+          PY
+      - name: Upload protocol artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase181-ivydb-tradeflow-measurement-protocol
+          path: phase181_output/phase181_ivydb_tradeflow_measurement_protocol.json
+          retention-days: 90
