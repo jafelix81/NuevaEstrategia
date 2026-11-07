@@ -87,3 +87,8 @@ No purchase, vendor contact, alpha/return test, holdout use or production change
 - A structural sample pass still does **not** admit historical PIT: no per-file first-receipt ledger, immutable correction vintages, full historical coverage or inactive-name coverage has been proven.
 
 No purchase, vendor contact, alpha/return test, holdout use or production change. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+
+### Third attempt: regression-control correction
+- Run [42390781028](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42390781028) compiled successfully but stopped in the offline suite: 12/13 tests passed. The remaining test referenced `controls.raw_contracts_persisted`, which was present in member metadata but omitted from the archive-level controls object. No sample download occurred and no artifact was produced.
+- This commit adds the missing archive-level `raw_contracts_persisted` and `raw_opaque_codes_persisted` flags. It does not change the structural/identity admission rules or authorize PIT/alpha use.

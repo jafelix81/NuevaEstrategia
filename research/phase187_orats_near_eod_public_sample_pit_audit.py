@@ -375,7 +375,8 @@ def audit_archive(payload, retrieved_at_utc=None):
         "controls": {
             "alpha_test_authorized": False, "holdout_used": False, "vendor_contact": False,
             "data_purchase": False, "production_changed": False, "f80_frozen": True,
-            "raw_rows_persisted": False, "raw_symbols_persisted": False
+            "raw_rows_persisted": False, "raw_symbols_persisted": False,
+            "raw_contracts_persisted": False, "raw_opaque_codes_persisted": False
         }
     }
 

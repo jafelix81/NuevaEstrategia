@@ -157,6 +157,7 @@ class Phase187OratsNearEodTests(unittest.TestCase):
         self.assertFalse(r["controls"]["raw_rows_persisted"])
         self.assertFalse(r["controls"]["raw_symbols_persisted"])
         self.assertFalse(r["controls"]["raw_contracts_persisted"])
+        self.assertFalse(r["controls"]["raw_opaque_codes_persisted"])
 
     def test_archive_without_csv_fails_closed(self):
         stream = io.BytesIO()
