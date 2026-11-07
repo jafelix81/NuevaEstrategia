@@ -1372,3 +1372,11 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 - No forward-return, bootstrap/LOO, chronological OOS or final-holdout test. No vendor contact/purchase, no production change and no F80 change.
 - \`F80_TOP20_PARTIAL50_BASELINE_C20\` remains frozen.
 - Phase 153 Form 4/A cross-quarter preflight remains blocked on missing GitHub Actions secret \`SEC_CONTACT_EMAIL\`; no SEC request was made by the blocked preflight.
+
+
+## Phase 176 — SEC 13D Item 4 provisional semantic triage (2026-11-07)
+- Reused Phase 124/157/158/159 immutable artifacts; independently verified all 600 Phase 124 raw submission hashes and the Phase 157/158/159 CSV hashes. No new SEC request.
+- Reviewed the 55 non-/A, non-numbered legacy 13D filings with extracted Item 4. They remain **unconfirmed initial filings**: parent unresolved 55/55. Model-assisted first-pass content triage: 20 specific transaction/corporate-event, 12 governance/strategic-engagement, 12 routine investment/no-specific-plan, 9 mixed/unclear, 2 administrative/reference-only. No gold labels, second reviewer, classifier, feature or alpha test; do not treat these labels as Smart Money or training data.
+- Within this subset: 55 distinct subject CIKs, 54 filer CIKs, 47 checksum-valid CUSIPs, 52/55 event dates, median event-to-filing lag 10 calendar days (max 283); event date is not trade/public-knowledge time.
+- Raw SEC-HEADER acceptance clock is >=16:00 in 36/55. Thirteen acceptance-header dates differ from filing dates (11 earlier; 2 later). Quarantine the two later-date anomalies—0001213900-19-010653 (2019-06-14 09:00:12 vs filing date 2019-06-13) and 0000898822-19-000061 (2019-08-30 09:38:59 vs filing date 2019-08-29)—until SEC filing-index Accepted timestamps are reconciled. Do not guess timezone or shift values.
+- Added [Phase 176 report](research/PHASE176_SEC_13D_ITEM4_PROVISIONAL_SEMANTIC_TRIAGE_2026-11-07.md). Decision: continue parent lineage, issuer/security identity and PIT validation only; no return test authorized. F80 remains frozen.
