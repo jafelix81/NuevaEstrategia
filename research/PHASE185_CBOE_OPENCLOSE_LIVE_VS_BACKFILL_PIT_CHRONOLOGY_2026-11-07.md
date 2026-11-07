@@ -30,14 +30,14 @@ Cboe DataShop announced on **2020-08-03** that 10-minute interval Open-Close sum
 
 The current page advertises 1-minute history from 2019-10-07 for C1 and 2019-03-01 for BZX/C2/EDGX. However, the SEC filings identify the one-minute intraday report as a **new product filed on 2025-06-13** for each of C1, C2, BZX and EDGX; the SEC notices were issued 2025-06-25.
 
-**PIT ruling:** all 1-minute archive dates before 2025-06-13 are retrospective backfill, not contemporaneous live availability. June 13 is a product-introduction lower bound, not a verified first-receipt timestamp.
+**PIT ruling (corrected by Phase 186):** all 1-minute archive dates before 2025-07-13 are retrospective backfill, not contemporaneous live availability. The four SEC notices state a 30-day operative delay after the 2025-06-13 filing; 2025-07-13 is the conservative legal floor and 2025-07-14 the first possible regular session. Actual first receipt remains unverified.
 
 | Interval | Current archive start | Earliest documented live-product floor | Pre-floor history |
 |---|---|---|---|
 | 10-minute C1 | 2011-01-03 | 2020-08-03 | Retrospective backfill |
 | 10-minute C2/BZX/EDGX | 2019-03-01 | 2020-08-03 | Retrospective backfill |
-| 1-minute C1 | 2019-10-07 | 2025-06-13 | Retrospective backfill |
-| 1-minute C2/BZX/EDGX | 2019-03-01 | 2025-06-13 | Retrospective backfill |
+| 1-minute C1 | 2019-10-07 | 2025-07-13 (first possible session 2025-07-14) | Retrospective backfill |
+| 1-minute C2/BZX/EDGX | 2019-03-01 | 2025-07-13 (first possible session 2025-07-14) | Retrospective backfill |
 
 Even for post-launch dates, **no historical row is strict-PIT admitted** until actual first-received timestamps, immutable file hashes and revision lineage are evidenced. The product-launch floor alone is not sufficient.
 
@@ -75,7 +75,7 @@ Cboe states that raw data are licensed for internal use only; external distribut
 ## 7. Decision and next gate
 
 - Keep Cboe Open-Close as a **conditional top-tier position/open-close-flow candidate**.
-- Treat 10-minute pre-2020-08-03 and 1-minute pre-2025-06-13 archives as retrospective-only for live-PIT research.
+- Treat 10-minute pre-2020-08-03 and 1-minute pre-2025-07-13 archives as retrospective-only for live-PIT research.
 - Do not admit any post-launch historical row until per-file first-receipt logs, immutable vintages, correction lineage, effective-dated contract/underlying identity, inactive/delisted coverage and licensing are verified.
 - A prospective shadow-capture pilot may be considered only after authorized subscription and licensing review; every file must be captured at first receipt, timestamped, hashed and preserved append-only. No purchase or contact is part of this phase.
 - No feature construction, forward returns, bootstrap/LOO, OOS, or final-holdout test is authorized by this phase.
@@ -97,3 +97,8 @@ Cboe states that raw data are licensed for internal use only; external distribut
 - [SEC 34-103760 — one-minute delivery example and 2-5 minute expected latency](https://www.sec.gov/files/rules/sro/cboebzx/2025/34-103760.pdf)
 - [Cboe DataShop FAQ — SFTP and daily-file delivery timing](https://datashop.cboe.com/faqs)
 
+
+
+## Phase 186 correction — Cboe one-minute operative date
+
+The original Phase 185 report used 2025-06-13, the filing date, as the earliest live-product floor. This was too early. The four SEC notices for C1, C2, BZX and EDGX state that the change does not become operative for 30 days after filing unless the Commission designates a shorter time. The corrected conservative legal floor is 2025-07-13; the first possible regular trading session is 2025-07-14. No actual first subscriber receipt was verified. See the Phase 186 report and updated JSON for the full reconciliation.

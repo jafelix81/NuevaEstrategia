@@ -1,0 +1,232 @@
+{
+  "phase": 186,
+  "audit_date": "2026-11-07",
+  "title": "Nasdaq Trade Outline cross-venue historical coverage, PIT, semantics and cost audit",
+  "nasdaq_trade_outline": {
+    "venues": [
+      {
+        "venue": "PHLX",
+        "product": "PHOTO",
+        "archive_start": {
+          "intraday": "2009-01",
+          "eod": "2009-01"
+        },
+        "live_product_floor": {
+          "intraday": "2010-09-01",
+          "eod": "2010-09-01"
+        },
+        "archive_prelaunch_backfill": true,
+        "first_receipt_verified": false,
+        "universe_coverage_verified": false,
+        "strict_pit_admitted": false
+      },
+      {
+        "venue": "ISE",
+        "product": "Open/Close Trade Profile",
+        "archive_start": {
+          "intraday": "2009-10",
+          "eod": "2006-01"
+        },
+        "live_product_floor": {
+          "intraday": "2010-01-04",
+          "eod": "2007-08-15"
+        },
+        "archive_prelaunch_backfill": true,
+        "first_receipt_verified": false,
+        "universe_coverage_verified": false,
+        "strict_pit_admitted": false
+      },
+      {
+        "venue": "NOM",
+        "product": "NOTO",
+        "archive_start": {
+          "intraday": "2011-11",
+          "eod": "2011-11"
+        },
+        "live_product_floor": {
+          "intraday": "2011-11-11",
+          "eod": "2011-11-11"
+        },
+        "archive_prelaunch_backfill": false,
+        "first_receipt_verified": false,
+        "universe_coverage_verified": false,
+        "strict_pit_admitted": false
+      },
+      {
+        "venue": "GEMX",
+        "product": "Open/Close Trade Profile",
+        "archive_start": {
+          "intraday": "2013-08",
+          "eod": "2013-08"
+        },
+        "live_product_floor": {
+          "intraday": null,
+          "eod": null
+        },
+        "archive_prelaunch_backfill": "unknown",
+        "first_receipt_verified": false,
+        "universe_coverage_verified": false,
+        "strict_pit_admitted": false
+      },
+      {
+        "venue": "MRX",
+        "product": "MRX Trade Outline",
+        "archive_start": {
+          "intraday": "2017-09",
+          "eod": "2017-09"
+        },
+        "live_product_floor": {
+          "intraday": "2024-09-03",
+          "eod": "2024-09-03"
+        },
+        "archive_prelaunch_backfill": true,
+        "first_receipt_verified": false,
+        "universe_coverage_verified": false,
+        "strict_pit_admitted": false
+      },
+      {
+        "venue": "NTX",
+        "product": "NTX/TEXAS Trade Outline (legacy BX label)",
+        "archive_start": {
+          "intraday": "2014-09",
+          "eod": "2014-09"
+        },
+        "live_product_floor": {
+          "intraday": "2024-09-03",
+          "eod": "2024-09-03"
+        },
+        "archive_prelaunch_backfill": true,
+        "first_receipt_verified": false,
+        "universe_coverage_verified": false,
+        "strict_pit_admitted": false
+      }
+    ],
+    "delivery": {
+      "current_interval_minutes": 10,
+      "current_sla_minutes": 2,
+      "historical_sec_examples_phlx_noto_sla_minutes": 5,
+      "eod_t_plus_one_by_0700_et": true,
+      "early_eod_guaranteed": false,
+      "real_time_feed": false,
+      "cumulative_snapshots": true,
+      "first_receipt_verified": false,
+      "revision_vintages_verified": false
+    },
+    "semantics": {
+      "electronic_exchange_trades_only": true,
+      "all_us_options_market": false,
+      "no_trade_row_means_zero": false,
+      "routed_orders_away_included": true,
+      "routed_away_flag_available": false,
+      "cross_venue_aggregation_authorized": false,
+      "volume_can_decrease_after_corrections": true,
+      "rows_can_disappear_after_full_cancellation": true,
+      "eod_can_include_late_corrections": true,
+      "capacity_is_beneficial_owner_identity": false,
+      "market_maker_open_close_not_required_for": [
+        "PHOTO",
+        "NOTO",
+        "MRX",
+        "TEXAS"
+      ],
+      "ise_gemx_market_maker_category_start": "2026-03-04",
+      "ise_gemx_schema_cutover": "2026-03-04",
+      "old_ise_gemx_codes_decommissioned_after": "2026-06-02",
+      "ise_gemx_pre_cutover_total_industry_volume_double_count": true,
+      "moneyness_eod_only_for": [
+        "ISE",
+        "GEMX",
+        "MRX",
+        "NTX"
+      ],
+      "historical_universe_coverage_verified": false
+    },
+    "costs_2026_usd": {
+      "monthly_intraday_by_venue": {
+        "PHLX": 3000,
+        "NOM": 2000,
+        "ISE": 2500,
+        "GEMX": 1500,
+        "MRX": 1500,
+        "NTX_legacy_BX": 1500
+      },
+      "monthly_eod_by_venue": {
+        "PHLX": 850,
+        "NOM": 575,
+        "ISE": 850,
+        "GEMX": 575,
+        "MRX": 750,
+        "NTX_legacy_BX": 750
+      },
+      "monthly_intraday_all_six": 12000,
+      "monthly_eod_all_six": 4350,
+      "monthly_both_all_six_using_ise_combined_subscription": 12600,
+      "history_36m_intraday_discount_current_subscribers": 57000,
+      "history_36m_eod_discount_current_subscribers": 33000,
+      "history_36m_intraday_ad_hoc_without_subscription": 171000,
+      "history_36m_eod_ad_hoc_without_subscription": 99000
+    }
+  },
+  "ntx_one_minute_snapshots": {
+    "filing_date": "2026-08-11",
+    "sec_notice_date": "2026-08-24",
+    "operative_not_before": "2026-09-10",
+    "implementation_notice_deadline": "2026-10-10",
+    "implementation_notice_located": false,
+    "actual_first_delivery_verified": false,
+    "minimum_trades": 2,
+    "minimum_origin_types": 3,
+    "interval_minutes": 1,
+    "remaining_activity_reported_at_interval_end": true,
+    "trade_count_disclosed": false,
+    "buy_sell_side_disclosed": false,
+    "open_close_by_origin_disclosed": true,
+    "real_time_feed": false,
+    "trade_reporting_system": false
+  },
+  "cboe_one_minute_operability_correction": {
+    "venues": [
+      "C1",
+      "C2",
+      "BZX",
+      "EDGX"
+    ],
+    "filing_date": "2025-06-13",
+    "sec_notice_date": "2025-06-25",
+    "operative_delay_days": 30,
+    "legal_operative_not_before": "2025-07-13",
+    "first_possible_regular_trading_session": "2025-07-14",
+    "actual_first_delivery_verified": false
+  },
+  "decisions": {
+    "status": "CONDITIONAL_HIGH_PRIORITY_DATA_FEASIBILITY_CANDIDATE_NOT_PIT_ADMITTED",
+    "strict_pit_admitted_venues": 0,
+    "cross_venue_aggregation_authorized": false,
+    "historical_universe_coverage_verified": false,
+    "sample_file_audited": false,
+    "alpha_test_authorized": false,
+    "holdout_used": false,
+    "vendor_contact": false,
+    "data_purchase": false,
+    "production_changed": false,
+    "f80_frozen": true
+  },
+  "source_refs": [
+    "https://assets.ctfassets.net/mx0rke14e5yt/71lokR7lXiJBnX49Nuvuur/741a4f9d4e0ab2625ced20003b0f3c9f/Trade_Outline_FAQ_-_Post_ISE_and_GEMX_TO_Migration__2_.pdf",
+    "https://www.sec.gov/files/rules/sro/ise/2007/34-56254.pdf",
+    "https://www.sec.gov/files/rules/sro/ise/2010/34-61317.pdf",
+    "https://www.sec.gov/files/rules/sro/phlx/2010/34-62887.pdf",
+    "https://www.sec.gov/files/rules/sro/nasdaq/2011/34-65587.pdf",
+    "https://data.nasdaq.com/publishers/GMINI",
+    "https://listingcenter.nasdaq.com/rulebook/gemx/rules/GEMX%20Options%203",
+    "https://nasdaqtrader.com/TraderNews.aspx?id=dtn2024-19",
+    "https://listingcenter.nasdaq.com/assets/rulebook/mrx/filings/SR-MRX-2024-40.pdf",
+    "https://listingcenter.nasdaq.com/assets/rulebook/nasdaqtx/filings/SR-BX-2024-028.pdf",
+    "https://www.sec.gov/files/rules/sro/nasdaqtx/2026/34-106176.pdf",
+    "https://www.nasdaqtrader.com/content/ProductsServices/PriceList/Nasdaq_US_Options_Price_List_2025_2026_2027.pdf",
+    "https://www.sec.gov/files/rules/sro/cboe/2025/34-103323.pdf",
+    "https://www.sec.gov/files/rules/sro/c2/2025/34-103324.pdf",
+    "https://www.sec.gov/files/rules/sro/cboebzx/2025/34-103322.pdf",
+    "https://www.sec.gov/files/rules/sro/cboeedgx/2025/34-103321.pdf"
+  ]
+}

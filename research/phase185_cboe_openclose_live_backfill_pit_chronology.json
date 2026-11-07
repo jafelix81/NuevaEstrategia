@@ -38,9 +38,9 @@
       "interval": "1m",
       "archive_start_current_page": "2019-10-07",
       "archive_start_at_2020_launch_announcement": null,
-      "product_not_before": "2025-06-13",
+      "product_not_before": "2025-07-13",
       "sec_notice_date": "2025-06-25",
-      "launch_basis": "SEC notices identify new one-minute intraday Open-Close reports filed 2025-06-13 for each of C1, C2, BZX and EDGX; SEC notices issued 2025-06-25.",
+      "launch_basis": "SEC notices identify a new one-minute product filed 2025-06-13 and noticed 2025-06-25, but state it does not become operative for 30 days after filing unless the Commission designates a shorter period. Conservative legal floor 2025-07-13; first possible regular session 2025-07-14; actual first receipt unverified.",
       "latency_min_minutes": 2,
       "latency_max_minutes": 5,
       "latency_claim": "SEC filings describe first calculation around 09:34 ET for the 09:30-09:31 interval; subsequent cumulative updates; expected delivery 2-5 minutes after each one-minute interval, with variability.",
@@ -55,7 +55,11 @@
         "https://www.sec.gov/files/rules/sro/cboeedgx/2025/34-103321.pdf",
         "https://www.sec.gov/files/rules/sro/cboebzx/2025/34-103760.pdf",
         "https://datashop.cboe.com/cboe-options-open-close-volume-summary"
-      ]
+      ],
+      "first_possible_regular_trading_session": "2025-07-14",
+      "operative_delay_days": 30,
+      "operative_floor_basis": "SEC filing date 2025-06-13 plus the stated 30-day operative delay; not a verified first subscriber delivery.",
+      "actual_first_delivery_verified": false
     },
     {
       "venue": "C2",
@@ -85,9 +89,9 @@
       "interval": "1m",
       "archive_start_current_page": "2019-03-01",
       "archive_start_at_2020_launch_announcement": null,
-      "product_not_before": "2025-06-13",
+      "product_not_before": "2025-07-13",
       "sec_notice_date": "2025-06-25",
-      "launch_basis": "SEC notices identify new one-minute intraday Open-Close reports filed 2025-06-13 for each of C1, C2, BZX and EDGX; SEC notices issued 2025-06-25.",
+      "launch_basis": "SEC notices identify a new one-minute product filed 2025-06-13 and noticed 2025-06-25, but state it does not become operative for 30 days after filing unless the Commission designates a shorter period. Conservative legal floor 2025-07-13; first possible regular session 2025-07-14; actual first receipt unverified.",
       "latency_min_minutes": 2,
       "latency_max_minutes": 5,
       "latency_claim": "SEC filings describe first calculation around 09:34 ET for the 09:30-09:31 interval; subsequent cumulative updates; expected delivery 2-5 minutes after each one-minute interval, with variability.",
@@ -102,7 +106,11 @@
         "https://www.sec.gov/files/rules/sro/cboeedgx/2025/34-103321.pdf",
         "https://www.sec.gov/files/rules/sro/cboebzx/2025/34-103760.pdf",
         "https://datashop.cboe.com/cboe-options-open-close-volume-summary"
-      ]
+      ],
+      "first_possible_regular_trading_session": "2025-07-14",
+      "operative_delay_days": 30,
+      "operative_floor_basis": "SEC filing date 2025-06-13 plus the stated 30-day operative delay; not a verified first subscriber delivery.",
+      "actual_first_delivery_verified": false
     },
     {
       "venue": "BZX",
@@ -132,9 +140,9 @@
       "interval": "1m",
       "archive_start_current_page": "2019-03-01",
       "archive_start_at_2020_launch_announcement": null,
-      "product_not_before": "2025-06-13",
+      "product_not_before": "2025-07-13",
       "sec_notice_date": "2025-06-25",
-      "launch_basis": "SEC notices identify new one-minute intraday Open-Close reports filed 2025-06-13 for each of C1, C2, BZX and EDGX; SEC notices issued 2025-06-25.",
+      "launch_basis": "SEC notices identify a new one-minute product filed 2025-06-13 and noticed 2025-06-25, but state it does not become operative for 30 days after filing unless the Commission designates a shorter period. Conservative legal floor 2025-07-13; first possible regular session 2025-07-14; actual first receipt unverified.",
       "latency_min_minutes": 2,
       "latency_max_minutes": 5,
       "latency_claim": "SEC filings describe first calculation around 09:34 ET for the 09:30-09:31 interval; subsequent cumulative updates; expected delivery 2-5 minutes after each one-minute interval, with variability.",
@@ -149,7 +157,11 @@
         "https://www.sec.gov/files/rules/sro/cboeedgx/2025/34-103321.pdf",
         "https://www.sec.gov/files/rules/sro/cboebzx/2025/34-103760.pdf",
         "https://datashop.cboe.com/cboe-options-open-close-volume-summary"
-      ]
+      ],
+      "first_possible_regular_trading_session": "2025-07-14",
+      "operative_delay_days": 30,
+      "operative_floor_basis": "SEC filing date 2025-06-13 plus the stated 30-day operative delay; not a verified first subscriber delivery.",
+      "actual_first_delivery_verified": false
     },
     {
       "venue": "EDGX",
@@ -179,9 +191,9 @@
       "interval": "1m",
       "archive_start_current_page": "2019-03-01",
       "archive_start_at_2020_launch_announcement": null,
-      "product_not_before": "2025-06-13",
+      "product_not_before": "2025-07-13",
       "sec_notice_date": "2025-06-25",
-      "launch_basis": "SEC notices identify new one-minute intraday Open-Close reports filed 2025-06-13 for each of C1, C2, BZX and EDGX; SEC notices issued 2025-06-25.",
+      "launch_basis": "SEC notices identify a new one-minute product filed 2025-06-13 and noticed 2025-06-25, but state it does not become operative for 30 days after filing unless the Commission designates a shorter period. Conservative legal floor 2025-07-13; first possible regular session 2025-07-14; actual first receipt unverified.",
       "latency_min_minutes": 2,
       "latency_max_minutes": 5,
       "latency_claim": "SEC filings describe first calculation around 09:34 ET for the 09:30-09:31 interval; subsequent cumulative updates; expected delivery 2-5 minutes after each one-minute interval, with variability.",
@@ -196,7 +208,11 @@
         "https://www.sec.gov/files/rules/sro/cboeedgx/2025/34-103321.pdf",
         "https://www.sec.gov/files/rules/sro/cboebzx/2025/34-103760.pdf",
         "https://datashop.cboe.com/cboe-options-open-close-volume-summary"
-      ]
+      ],
+      "first_possible_regular_trading_session": "2025-07-14",
+      "operative_delay_days": 30,
+      "operative_floor_basis": "SEC filing date 2025-06-13 plus the stated 30-day operative delay; not a verified first subscriber delivery.",
+      "actual_first_delivery_verified": false
     }
   ],
   "eod_delivery": {
@@ -233,7 +249,7 @@
   },
   "decisions": {
     "ten_minute_prelaunch_backfill_retrospective_before": "2020-08-03",
-    "one_minute_prelaunch_backfill_retrospective_before": "2025-06-13",
+    "one_minute_prelaunch_backfill_retrospective_before": "2025-07-13",
     "ten_minute_strict_pit_start_confirmed": null,
     "one_minute_strict_pit_start_confirmed": null,
     "actual_receipt_logs_required_for_every_historical_pit_claim": true,
@@ -243,7 +259,8 @@
     "vendor_contact": false,
     "data_purchase": false,
     "production_changed": false,
-    "f80_frozen": true
+    "f80_frozen": true,
+    "one_minute_first_possible_regular_session": "2025-07-14"
   },
   "source_refs": [
     "https://datashop.cboe.com/cboe-options-open-close-volume-summary",
@@ -258,5 +275,19 @@
     "https://www.sec.gov/files/rules/sro/cboebzx/2025/34-103322.pdf",
     "https://www.sec.gov/files/rules/sro/cboeedgx/2025/34-103321.pdf",
     "https://www.sec.gov/files/rules/sro/cboebzx/2025/34-103760.pdf"
-  ]
+  ],
+  "cboe_one_minute_operability_correction": {
+    "venues": [
+      "C1",
+      "C2",
+      "BZX",
+      "EDGX"
+    ],
+    "filing_date": "2025-06-13",
+    "sec_notice_date": "2025-06-25",
+    "operative_delay_days": 30,
+    "legal_operative_not_before": "2025-07-13",
+    "first_possible_regular_trading_session": "2025-07-14",
+    "actual_first_delivery_verified": false
+  }
 }
