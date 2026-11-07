@@ -2,12 +2,13 @@ name: Phase 149 OpenFIGI CUSIP crosswalk feasibility
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, reopened]
     paths:
       - "research/phase149_cusip_input.json"
       - "research/phase149_openfigi_cusip_crosswalk_audit.py"
       - "research/test_phase149_openfigi_cusip_crosswalk_audit.py"
       - ".github/workflows/phase149_openfigi_cusip_crosswalk_audit.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read
