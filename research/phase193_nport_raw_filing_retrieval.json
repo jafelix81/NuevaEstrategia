@@ -1,0 +1,82 @@
+{
+  "phase": 193,
+  "audit_as_of": "2026-11-07",
+  "source": "SEC EDGAR Archives N-PORT primary XML plus complete submission text and accession directory index",
+  "scope": "five purposively selected original NPORT-P accessions discovered in Phase 192; no representative prevalence sample",
+  "accessions": [
+    {
+      "accession": "0001752724-20-163166",
+      "cik": "1408970",
+      "filing_year": 2020,
+      "form": "NPORT-P",
+      "primary_document": "primary_doc.xml",
+      "expected_min_direct_short_rows": 4,
+      "expected_cusips": [
+        "364760108",
+        "222070203",
+        "880779103",
+        "674599105"
+      ]
+    },
+    {
+      "accession": "0001145549-22-056239",
+      "cik": "1511699",
+      "filing_year": 2022,
+      "form": "NPORT-P",
+      "primary_document": "primary_doc.xml",
+      "expected_min_direct_short_rows": 4,
+      "expected_cusips": [
+        "14448C104",
+        "149123101",
+        "166764100",
+        "172908105"
+      ]
+    },
+    {
+      "accession": "0001145549-23-060491",
+      "cik": "811030",
+      "filing_year": 2023,
+      "form": "NPORT-P",
+      "primary_document": "primary_doc.xml",
+      "expected_min_direct_short_rows": 1,
+      "expected_cusips": []
+    },
+    {
+      "accession": "0001145549-24-075135",
+      "cik": "1000351",
+      "filing_year": 2024,
+      "form": "NPORT-P",
+      "primary_document": "primary_doc.xml",
+      "expected_min_direct_short_rows": 2,
+      "expected_cusips": [
+        "143130102",
+        "26884L109"
+      ]
+    },
+    {
+      "accession": "0001145549-25-033457",
+      "cik": "1467631",
+      "filing_year": 2025,
+      "form": "NPORT-P",
+      "primary_document": "primary_doc.xml",
+      "expected_min_direct_short_rows": 1,
+      "expected_cusips": [
+        "31428X106"
+      ]
+    }
+  ],
+  "controls": {
+    "raw_data_purchase": false,
+    "vendor_contact": false,
+    "production_change": false,
+    "f80_frozen": true,
+    "return_test_authorized": false,
+    "alpha_test_authorized": false,
+    "holdout_use": false,
+    "representative_sample": false,
+    "prevalence_estimation": false,
+    "amendment_lineage_in_scope": false,
+    "first_public_receipt_in_scope": false
+  },
+  "decision": "Retrieve exact SEC-hosted filing bytes only when the SEC_CONTACT_EMAIL repository secret is configured. Hash and stage the public index, complete submission and primary XML as a 90-day workflow artifact; parse SEC-HEADER acceptance metadata and direct short-equity rows; reconcile Phase 192 CUSIPs. SEC acceptance is not treated as proof of first public receipt. No return or alpha test is authorized."
+}
