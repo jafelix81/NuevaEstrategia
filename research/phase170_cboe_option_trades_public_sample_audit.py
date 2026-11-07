@@ -65,6 +65,32 @@ def _integer(value: object, field: str, *, blank_ok: bool = False) -> int | None
         raise ValueError(f"invalid_integer:{field}")
     return int(raw)
 
+def _date_shape(value: object) -> str:
+    raw = _text(value)
+    if not raw:
+        return "blank"
+    if re.fullmatch(r"\d{4}-\d{2}-\d{2}", raw):
+        return "yyyy_mm_dd"
+    if re.fullmatch(r"\d{1,2}/\d{1,2}/\d{4}", raw):
+        return "us_m_d_yyyy"
+    if re.fullmatch(r"\d{4}/\d{1,2}/\d{1,2}", raw):
+        return "yyyy_slash_m_d"
+    if re.fullmatch(r"\d{8}", raw):
+        return "yyyymmdd"
+    return "other"
+
+
+def _datetime_shape(value: object) -> str:
+    raw = _text(value)
+    if not raw:
+        return "blank"
+    if re.fullmatch(r"\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(?:\.\d+)?", raw):
+        return "iso_datetime"
+    if re.fullmatch(r"\d{1,2}/\d{1,2}/\d{4} \d{1,2}:\d{2}:\d{2}(?:\.\d+)?", raw):
+        return "us_datetime"
+    return "other"
+
+
 def _market_date(value: object) -> date:
     try:
         return date.fromisoformat(_text(value))
@@ -151,12 +177,15 @@ def audit_csv(member_name: str, payload: bytes) -> dict[str, object]:
         **schema,
         "row_count": 0,
         "distinct_market_dates": 0,
+        "market_date_format_counts": {},
         "quote_datetime_min_et": None,
+        "quote_datetime_format_counts": {},
         "quote_datetime_max_et": None,
         "quote_datetime_market_date_mismatch_rows": 0,
         "underlying_count": 0,
         "contract_count": 0,
         "trade_key_count": 0,
+        "valid_trade_key_rows": 0,
         "duplicate_trade_key_rows": 0,
         "trade_size_sum": 0,
         "invalid_core_rows": 0,
@@ -195,6 +224,9 @@ def audit_csv(member_name: str, payload: bytes) -> dict[str, object]:
     underlyings: set[str] = set()
     contracts: set[tuple[str, ...]] = set()
     trade_keys: set[tuple[str, int, int]] = set()
+    valid_trade_key_rows = 0
+    market_date_format_counts: Counter[str] = Counter()
+    quote_datetime_format_counts: Counter[str] = Counter()
     market_dates: set[str] = set()
     condition_counts: Counter[str] = Counter()
     quote_counts: Counter[str] = Counter()
@@ -216,6 +248,8 @@ def audit_csv(member_name: str, payload: bytes) -> dict[str, object]:
     for raw_row in reader:
         summary["row_count"] = int(summary["row_count"]) + 1
         row = {str(k).strip().lower(): v for k, v in raw_row.items() if k is not None}
+        market_date_format_counts[_date_shape(row.get("market_date"))] += 1
+        quote_datetime_format_counts[_datetime_shape(row.get("quote_datetime"))] += 1
         extra_values = raw_row.get(None)
         extra_count = len(extra_values) if isinstance(extra_values, list) else 0
         missing_count = sum(1 for key, value in raw_row.items() if key is not None and value is None)
@@ -302,7 +336,6 @@ def audit_csv(member_name: str, payload: bytes) -> dict[str, object]:
             if quote_class in {"outside_above_ask", "outside_below_bid"}:
                 outside_nbbo += 1
             condition_counts[str(condition)] += 1
-            trade_keys.add((mdate.isoformat(), seq, exchange))
             contracts.add((symbol, root, expiry.isoformat(), str(strike.normalize()), option_type))
             underlyings.add(symbol)
             market_dates.add(mdate.isoformat())
@@ -314,25 +347,34 @@ def audit_csv(member_name: str, payload: bytes) -> dict[str, object]:
                         calcs_blank[field] += 1
                     elif value == 0:
                         calcs_zero[field] += 1
+            if not row_bad:
+                valid_trade_key_rows += 1
+                trade_keys.add((mdate.isoformat(), seq, exchange))
         except (ValueError, TypeError) as exc:
             reason = str(exc) or type(exc).__name__
             parse_error_counts[reason] += 1
             if first_parse_error is None:
                 first_parse_error = reason
-                first_parse_error_field = reason.split(":", 1)[1] if ":" in reason else None
+                first_parse_error_field = reason.split(":", 1)[1] if ":" in reason else {
+                    "invalid_market_date": "market_date",
+                    "invalid_quote_datetime": "quote_datetime",
+                }.get(reason)
             row_bad = True
         if row_bad:
             invalid_rows += 1
 
     summary.update({
         "distinct_market_dates": len(market_dates),
+        "market_date_format_counts": dict(sorted(market_date_format_counts.items())),
         "quote_datetime_min_et": min_dt.isoformat() if min_dt else None,
         "quote_datetime_max_et": max_dt.isoformat() if max_dt else None,
+        "quote_datetime_format_counts": dict(sorted(quote_datetime_format_counts.items())),
         "quote_datetime_market_date_mismatch_rows": mismatch_rows,
         "underlying_count": len(underlyings),
         "contract_count": len(contracts),
         "trade_key_count": len(trade_keys),
-        "duplicate_trade_key_rows": max(0, int(summary["row_count"]) - len(trade_keys)),
+        "valid_trade_key_rows": valid_trade_key_rows,
+        "duplicate_trade_key_rows": max(0, valid_trade_key_rows - len(trade_keys)),
         "trade_size_sum": size_sum,
         "invalid_core_rows": invalid_rows,
         "extra_field_rows": extra_field_rows,

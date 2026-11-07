@@ -235,6 +235,41 @@ class Phase170Tests(unittest.TestCase):
         self.assertEqual(result["short_missing_values"], 2)
         self.assertEqual(result["missing_required_field_rows"], 0)
         self.assertEqual(result["invalid_core_rows"], 0)
+    def test_market_date_shape_is_reported_without_persisting_value(self):
+        row = {
+            "underlying_symbol": "TEST", "market_date": "1/7/2026",
+            "quote_datetime": "2026-01-07 15:59:59.123", "sequence_number": "1006",
+            "root": "TEST", "expiration": "2026-01-16", "strike": "10",
+            "option_type": "C", "exchange_id": "1", "trade_size": "1",
+            "trade_price": "1.25", "trade_condition_id": "0",
+            "canceled_trade_condition_id": "0", "best_bid_size": "10",
+            "best_bid": "1.20", "best_ask": "1.30", "best_ask_size": "12",
+            "underlying_bid": "9.99", "underlying_ask": "10.01",
+        }
+        result = audit_csv("sample.csv", csv_bytes(rows=[row]))
+        self.assertEqual(result["market_date_format_counts"], {"us_m_d_yyyy": 1})
+        self.assertEqual(result["quote_datetime_format_counts"], {"iso_datetime": 1})
+        self.assertEqual(result["first_parse_error"], "invalid_market_date")
+        self.assertEqual(result["first_parse_error_field"], "market_date")
+        self.assertEqual(result["valid_trade_key_rows"], 0)
+        self.assertEqual(result["duplicate_trade_key_rows"], 0)
+
+    def test_duplicate_trade_keys_count_only_successfully_parsed_rows(self):
+        row = {
+            "underlying_symbol": "TEST", "market_date": "2026-11-05",
+            "quote_datetime": "2026-11-05 15:59:59.123", "sequence_number": "1007",
+            "root": "TEST", "expiration": "2026-11-20", "strike": "10",
+            "option_type": "C", "exchange_id": "1", "trade_size": "1",
+            "trade_price": "1.25", "trade_condition_id": "0",
+            "canceled_trade_condition_id": "0", "best_bid_size": "10",
+            "best_bid": "1.20", "best_ask": "1.30", "best_ask_size": "12",
+            "underlying_bid": "9.99", "underlying_ask": "10.01",
+        }
+        result = audit_csv("sample.csv", csv_bytes(rows=[row, dict(row)]))
+        self.assertEqual(result["valid_trade_key_rows"], 2)
+        self.assertEqual(result["trade_key_count"], 1)
+        self.assertEqual(result["duplicate_trade_key_rows"], 1)
+
     def test_parse_error_reason_is_field_specific_and_value_free(self):
         row = {
             "underlying_symbol": "TEST", "market_date": "BAD_DATE",

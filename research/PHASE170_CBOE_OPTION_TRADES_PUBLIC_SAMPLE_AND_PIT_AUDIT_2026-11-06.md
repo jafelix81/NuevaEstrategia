@@ -125,3 +125,19 @@ Run [42303680951](https://github.com/jafelix81/NuevaEstrategia/actions/runs/4230
 The parser now records only non-identifying diagnostics: row field-count distribution, extra/short-field counts, sanitized parser error codes, and the first error code/field name. It does not store row values, symbols, contract identifiers or raw trades. The workflow treats a completed diagnostic with a failed row gate as a successful diagnostic run, not as a passing sample. The explicit status `DIAGNOSTIC_COMPLETE_ROW_GATE_FAIL` means schema passed but row-level validity did not; it is not alpha admission or data validation.
 
 Added regression tests for extra CSV fields, short rows, value-free parse errors and the diagnostic-vs-pass status. The next decision depends on the actual error distribution from the hosted sample. No date/number parser has been loosened without evidence.
+
+
+## 2026-11-07 — hosted row-diagnostic result and date-shape follow-up
+
+- Final-head diagnostic run [42316681940](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42316681940) passed compile, **32/32 offline tests**, public sample download, metadata-only artifact upload and the diagnostic-status gate. Artifact [13550443768](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42316681940/artifacts/13550443768), archive SHA-256 unchanged at `a02504e156db28b3f007d9d25a534e4c88ffd8d24ac43f3bf84885583a3d10b8`.
+- Both members still have valid headers and exact row widths: 98,579 rows × 25 columns (Calcs) and 98,579 × 19 columns (no Calcs); no extra or short field rows.
+- **All 197,158 rows fail first at `market_date`**: `invalid_market_date` = 98,579 in each member. The parser therefore has zero parsed contracts, underlyings and trade keys. This is a date-format mismatch, not a failed download or a header-schema failure.
+- The artifact's `duplicate_trade_key_rows=98,579` per member is mechanically wrong because the prior formula used total rows minus zero parsed keys. It is not evidence of duplicates. The staged correction counts duplicates only among successfully parsed trade keys.
+- The next diagnostic revision adds value-free `market_date` and `quote_datetime` shape distributions, field-specific first-error labels and valid-key denominators. It does not store raw date strings, symbols, contracts or trades. Date parsing remains strict until the actual shape is observed.
+- Current status remains `DIAGNOSTIC_COMPLETE_ROW_GATE_FAIL`; no sample admission, flow feature or alpha test is authorized.
+
+## Phase 149 — latest OpenFIGI rerun adjudication (2026-11-07)
+
+- Run [42316322780](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42316322780) and identical-input final-head rerun [42316681966](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42316681966) both completed successfully with 553 CUSIPs, 437 exact 9-character primary mappings, 116 primary no-matches, 7 unique 8-character fallback recoveries, 109 remaining no-matches, zero API errors and one cross-CUSIP shareClassFIGI pair (two CUSIPs).
+- The preceding run [42302934940](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42302934940) had 438 primary mappings and 6 fallback recoveries, with the same 444/553 total. The exact-vs-fallback split moved by one across current API snapshots; preserve request/response hashes and retrieval timestamps, and do not treat OpenFIGI's current response as an immutable historical security master.
+- The 109 unmatched CUSIPs and lack of effective dates remain unresolved. No ticker or issuer mapping may be backdated; Phase 149 remains a manual identity cross-check only.
