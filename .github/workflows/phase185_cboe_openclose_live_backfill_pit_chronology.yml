@@ -1,0 +1,43 @@
+name: Phase 185 Cboe Open-Close live versus backfill PIT chronology
+on:
+  push:
+    branches: [phase99-broad-pit-universe-charter]
+    paths:
+      - "research/phase185_cboe_openclose_live_backfill_pit_chronology.py"
+      - "research/test_phase185_cboe_openclose_live_backfill_pit_chronology.py"
+      - "research/phase185_cboe_openclose_live_backfill_pit_chronology.json"
+      - "research/PHASE185_CBOE_OPENCLOSE_LIVE_VS_BACKFILL_PIT_CHRONOLOGY_2026-11-07.md"
+      - ".github/workflows/phase185_cboe_openclose_live_backfill_pit_chronology.yml"
+      - "SMART_MONEY_RESEARCH_STATE.md"
+  pull_request:
+    branches: [main]
+    paths:
+      - "research/phase185_cboe_openclose_live_backfill_pit_chronology.py"
+      - "research/test_phase185_cboe_openclose_live_backfill_pit_chronology.py"
+      - "research/phase185_cboe_openclose_live_backfill_pit_chronology.json"
+      - "research/PHASE185_CBOE_OPENCLOSE_LIVE_VS_BACKFILL_PIT_CHRONOLOGY_2026-11-07.md"
+      - ".github/workflows/phase185_cboe_openclose_live_backfill_pit_chronology.yml"
+      - "SMART_MONEY_RESEARCH_STATE.md"
+  workflow_dispatch:
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile auditor and tests
+        run: python -m py_compile research/phase185_cboe_openclose_live_backfill_pit_chronology.py research/test_phase185_cboe_openclose_live_backfill_pit_chronology.py
+      - name: Run offline regression tests
+        run: python -m unittest research.test_phase185_cboe_openclose_live_backfill_pit_chronology -v
+      - name: Generate audit snapshot
+        run: python research/phase185_cboe_openclose_live_backfill_pit_chronology.py --output phase185_output/phase185_cboe_openclose_pit_audit.json
+      - name: Upload audit artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase185-cboe-openclose-live-backfill-pit-audit
+          path: phase185_output/phase185_cboe_openclose_pit_audit.json
+          if-no-files-found: error
+          retention-days: 90

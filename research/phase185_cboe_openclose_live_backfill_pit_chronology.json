@@ -1,0 +1,262 @@
+{
+  "phase": 185,
+  "audit_date": "2026-11-07",
+  "title": "Cboe Open-Close live-product versus historical-backfill PIT chronology",
+  "scope": "Official Cboe product announcements, current archive-availability claims, and SEC exchange rule filings. Evidence-only; no raw data retrieval, vendor contact, purchase, return test, holdout use, or production change.",
+  "venues": [
+    "C1",
+    "C2",
+    "BZX",
+    "EDGX"
+  ],
+  "venue_interval_rows": [
+    {
+      "venue": "C1",
+      "interval": "10m",
+      "archive_start_current_page": "2011-01-03",
+      "archive_start_at_2020_launch_announcement": "2019-10-01",
+      "product_not_before": "2020-08-03",
+      "launch_basis": "Cboe DataShop launch announcement for all four options exchanges on 2020-08-03; SEC introduction filings in July/August 2020.",
+      "latency_min_minutes": 0,
+      "latency_max_minutes": 5,
+      "latency_claim": "Snapshots are described as available within five minutes after each 10-minute interval closes; first example approximately 09:42 ET for 09:30-09:40.",
+      "cumulative_snapshot": true,
+      "actual_first_receipt_log_required": true,
+      "strict_pit_admitted": false,
+      "prelaunch_archive_is_retrospective": true,
+      "source_refs": [
+        "https://datashop.cboe.com/cboe-options-open-close-volume-summary",
+        "https://datashop.cboe.com/product-enhancement-10-minute-interval-open-close-data-now-available-for-c1-c2-bzx-edgx",
+        "https://www.sec.gov/rules-regulations/self-regulatory-organization-rulemaking/sr-cboe-2020-070",
+        "https://www.sec.gov/rules-regulations/self-regulatory-organization-rulemaking/sr-c2-2020-010",
+        "https://www.sec.gov/rules-regulations/self-regulatory-organization-rulemaking/sr-cboebzx-2020-059",
+        "https://www.sec.gov/rules-regulations/self-regulatory-organization-rulemaking/sr-cboeedgx-2020-036"
+      ]
+    },
+    {
+      "venue": "C1",
+      "interval": "1m",
+      "archive_start_current_page": "2019-10-07",
+      "archive_start_at_2020_launch_announcement": null,
+      "product_not_before": "2025-06-13",
+      "sec_notice_date": "2025-06-25",
+      "launch_basis": "SEC notices identify new one-minute intraday Open-Close reports filed 2025-06-13 for each of C1, C2, BZX and EDGX; SEC notices issued 2025-06-25.",
+      "latency_min_minutes": 2,
+      "latency_max_minutes": 5,
+      "latency_claim": "SEC filings describe first calculation around 09:34 ET for the 09:30-09:31 interval; subsequent cumulative updates; expected delivery 2-5 minutes after each one-minute interval, with variability.",
+      "cumulative_snapshot": true,
+      "actual_first_receipt_log_required": true,
+      "strict_pit_admitted": false,
+      "prelaunch_archive_is_retrospective": true,
+      "source_refs": [
+        "https://www.sec.gov/files/rules/sro/cboe/2025/34-103323.pdf",
+        "https://www.sec.gov/files/rules/sro/c2/2025/34-103324.pdf",
+        "https://www.sec.gov/files/rules/sro/cboebzx/2025/34-103322.pdf",
+        "https://www.sec.gov/files/rules/sro/cboeedgx/2025/34-103321.pdf",
+        "https://www.sec.gov/files/rules/sro/cboebzx/2025/34-103760.pdf",
+        "https://datashop.cboe.com/cboe-options-open-close-volume-summary"
+      ]
+    },
+    {
+      "venue": "C2",
+      "interval": "10m",
+      "archive_start_current_page": "2019-03-01",
+      "archive_start_at_2020_launch_announcement": "2020-01-01",
+      "product_not_before": "2020-08-03",
+      "launch_basis": "Cboe DataShop launch announcement for all four options exchanges on 2020-08-03; SEC introduction filings in July/August 2020.",
+      "latency_min_minutes": 0,
+      "latency_max_minutes": 5,
+      "latency_claim": "Snapshots are described as available within five minutes after each 10-minute interval closes; first example approximately 09:42 ET for 09:30-09:40.",
+      "cumulative_snapshot": true,
+      "actual_first_receipt_log_required": true,
+      "strict_pit_admitted": false,
+      "prelaunch_archive_is_retrospective": true,
+      "source_refs": [
+        "https://datashop.cboe.com/cboe-options-open-close-volume-summary",
+        "https://datashop.cboe.com/product-enhancement-10-minute-interval-open-close-data-now-available-for-c1-c2-bzx-edgx",
+        "https://www.sec.gov/rules-regulations/self-regulatory-organization-rulemaking/sr-cboe-2020-070",
+        "https://www.sec.gov/rules-regulations/self-regulatory-organization-rulemaking/sr-c2-2020-010",
+        "https://www.sec.gov/rules-regulations/self-regulatory-organization-rulemaking/sr-cboebzx-2020-059",
+        "https://www.sec.gov/rules-regulations/self-regulatory-organization-rulemaking/sr-cboeedgx-2020-036"
+      ]
+    },
+    {
+      "venue": "C2",
+      "interval": "1m",
+      "archive_start_current_page": "2019-03-01",
+      "archive_start_at_2020_launch_announcement": null,
+      "product_not_before": "2025-06-13",
+      "sec_notice_date": "2025-06-25",
+      "launch_basis": "SEC notices identify new one-minute intraday Open-Close reports filed 2025-06-13 for each of C1, C2, BZX and EDGX; SEC notices issued 2025-06-25.",
+      "latency_min_minutes": 2,
+      "latency_max_minutes": 5,
+      "latency_claim": "SEC filings describe first calculation around 09:34 ET for the 09:30-09:31 interval; subsequent cumulative updates; expected delivery 2-5 minutes after each one-minute interval, with variability.",
+      "cumulative_snapshot": true,
+      "actual_first_receipt_log_required": true,
+      "strict_pit_admitted": false,
+      "prelaunch_archive_is_retrospective": true,
+      "source_refs": [
+        "https://www.sec.gov/files/rules/sro/cboe/2025/34-103323.pdf",
+        "https://www.sec.gov/files/rules/sro/c2/2025/34-103324.pdf",
+        "https://www.sec.gov/files/rules/sro/cboebzx/2025/34-103322.pdf",
+        "https://www.sec.gov/files/rules/sro/cboeedgx/2025/34-103321.pdf",
+        "https://www.sec.gov/files/rules/sro/cboebzx/2025/34-103760.pdf",
+        "https://datashop.cboe.com/cboe-options-open-close-volume-summary"
+      ]
+    },
+    {
+      "venue": "BZX",
+      "interval": "10m",
+      "archive_start_current_page": "2019-03-01",
+      "archive_start_at_2020_launch_announcement": "2020-01-01",
+      "product_not_before": "2020-08-03",
+      "launch_basis": "Cboe DataShop launch announcement for all four options exchanges on 2020-08-03; SEC introduction filings in July/August 2020.",
+      "latency_min_minutes": 0,
+      "latency_max_minutes": 5,
+      "latency_claim": "Snapshots are described as available within five minutes after each 10-minute interval closes; first example approximately 09:42 ET for 09:30-09:40.",
+      "cumulative_snapshot": true,
+      "actual_first_receipt_log_required": true,
+      "strict_pit_admitted": false,
+      "prelaunch_archive_is_retrospective": true,
+      "source_refs": [
+        "https://datashop.cboe.com/cboe-options-open-close-volume-summary",
+        "https://datashop.cboe.com/product-enhancement-10-minute-interval-open-close-data-now-available-for-c1-c2-bzx-edgx",
+        "https://www.sec.gov/rules-regulations/self-regulatory-organization-rulemaking/sr-cboe-2020-070",
+        "https://www.sec.gov/rules-regulations/self-regulatory-organization-rulemaking/sr-c2-2020-010",
+        "https://www.sec.gov/rules-regulations/self-regulatory-organization-rulemaking/sr-cboebzx-2020-059",
+        "https://www.sec.gov/rules-regulations/self-regulatory-organization-rulemaking/sr-cboeedgx-2020-036"
+      ]
+    },
+    {
+      "venue": "BZX",
+      "interval": "1m",
+      "archive_start_current_page": "2019-03-01",
+      "archive_start_at_2020_launch_announcement": null,
+      "product_not_before": "2025-06-13",
+      "sec_notice_date": "2025-06-25",
+      "launch_basis": "SEC notices identify new one-minute intraday Open-Close reports filed 2025-06-13 for each of C1, C2, BZX and EDGX; SEC notices issued 2025-06-25.",
+      "latency_min_minutes": 2,
+      "latency_max_minutes": 5,
+      "latency_claim": "SEC filings describe first calculation around 09:34 ET for the 09:30-09:31 interval; subsequent cumulative updates; expected delivery 2-5 minutes after each one-minute interval, with variability.",
+      "cumulative_snapshot": true,
+      "actual_first_receipt_log_required": true,
+      "strict_pit_admitted": false,
+      "prelaunch_archive_is_retrospective": true,
+      "source_refs": [
+        "https://www.sec.gov/files/rules/sro/cboe/2025/34-103323.pdf",
+        "https://www.sec.gov/files/rules/sro/c2/2025/34-103324.pdf",
+        "https://www.sec.gov/files/rules/sro/cboebzx/2025/34-103322.pdf",
+        "https://www.sec.gov/files/rules/sro/cboeedgx/2025/34-103321.pdf",
+        "https://www.sec.gov/files/rules/sro/cboebzx/2025/34-103760.pdf",
+        "https://datashop.cboe.com/cboe-options-open-close-volume-summary"
+      ]
+    },
+    {
+      "venue": "EDGX",
+      "interval": "10m",
+      "archive_start_current_page": "2019-03-01",
+      "archive_start_at_2020_launch_announcement": "2020-01-01",
+      "product_not_before": "2020-08-03",
+      "launch_basis": "Cboe DataShop launch announcement for all four options exchanges on 2020-08-03; SEC introduction filings in July/August 2020.",
+      "latency_min_minutes": 0,
+      "latency_max_minutes": 5,
+      "latency_claim": "Snapshots are described as available within five minutes after each 10-minute interval closes; first example approximately 09:42 ET for 09:30-09:40.",
+      "cumulative_snapshot": true,
+      "actual_first_receipt_log_required": true,
+      "strict_pit_admitted": false,
+      "prelaunch_archive_is_retrospective": true,
+      "source_refs": [
+        "https://datashop.cboe.com/cboe-options-open-close-volume-summary",
+        "https://datashop.cboe.com/product-enhancement-10-minute-interval-open-close-data-now-available-for-c1-c2-bzx-edgx",
+        "https://www.sec.gov/rules-regulations/self-regulatory-organization-rulemaking/sr-cboe-2020-070",
+        "https://www.sec.gov/rules-regulations/self-regulatory-organization-rulemaking/sr-c2-2020-010",
+        "https://www.sec.gov/rules-regulations/self-regulatory-organization-rulemaking/sr-cboebzx-2020-059",
+        "https://www.sec.gov/rules-regulations/self-regulatory-organization-rulemaking/sr-cboeedgx-2020-036"
+      ]
+    },
+    {
+      "venue": "EDGX",
+      "interval": "1m",
+      "archive_start_current_page": "2019-03-01",
+      "archive_start_at_2020_launch_announcement": null,
+      "product_not_before": "2025-06-13",
+      "sec_notice_date": "2025-06-25",
+      "launch_basis": "SEC notices identify new one-minute intraday Open-Close reports filed 2025-06-13 for each of C1, C2, BZX and EDGX; SEC notices issued 2025-06-25.",
+      "latency_min_minutes": 2,
+      "latency_max_minutes": 5,
+      "latency_claim": "SEC filings describe first calculation around 09:34 ET for the 09:30-09:31 interval; subsequent cumulative updates; expected delivery 2-5 minutes after each one-minute interval, with variability.",
+      "cumulative_snapshot": true,
+      "actual_first_receipt_log_required": true,
+      "strict_pit_admitted": false,
+      "prelaunch_archive_is_retrospective": true,
+      "source_refs": [
+        "https://www.sec.gov/files/rules/sro/cboe/2025/34-103323.pdf",
+        "https://www.sec.gov/files/rules/sro/c2/2025/34-103324.pdf",
+        "https://www.sec.gov/files/rules/sro/cboebzx/2025/34-103322.pdf",
+        "https://www.sec.gov/files/rules/sro/cboeedgx/2025/34-103321.pdf",
+        "https://www.sec.gov/files/rules/sro/cboebzx/2025/34-103760.pdf",
+        "https://datashop.cboe.com/cboe-options-open-close-volume-summary"
+      ]
+    }
+  ],
+  "eod_delivery": {
+    "current_product_page_claim": "EOD files delivered overnight after midnight U.S. Eastern.",
+    "faq_claim": "Daily files for a trade date are typically uploaded the following day between 00:05 and 03:00 U.S. Eastern; delays can result in delivery after the market opens.",
+    "typical_window_is_guaranteed": false,
+    "actual_first_receipt_log_required": true,
+    "same_day_close_entry_allowed_from_eod_file": false,
+    "source_refs": [
+      "https://datashop.cboe.com/cboe-options-open-close-volume-summary",
+      "https://datashop.cboe.com/faqs"
+    ]
+  },
+  "schema_sample": {
+    "public_sample_trade_date": "2026-09-30",
+    "v18_effective_date": "2026-11-08",
+    "sample_is_production_delivery_evidence": false,
+    "sample_is_historical_first_receipt_evidence": false,
+    "note": "The 2026-09-30 public sample was used to validate a schema announced effective 2026-11-08. It is a format sample, not evidence that v1.8 was the production schema or first-received version on 2026-09-30.",
+    "source_refs": [
+      "https://datashop.cboe.com/cboe-options-open-close-volume-summary",
+      "https://github.com/jafelix81/NuevaEstrategia/blob/phase99-broad-pit-universe-charter/research/PHASE139_CBOE_OPENCLOSE_SNAPSHOT_STATE_AND_NOV08_SCHEMA_CUTOVER_2026-11-05.md",
+      "https://github.com/jafelix81/NuevaEstrategia/blob/phase99-broad-pit-universe-charter/research/PHASE167_CBOE_OPENCLOSE_V18_PUBLIC_SAMPLE_AND_CUTOVER_AUDIT_2026-11-06.md"
+    ]
+  },
+  "global_semantics": {
+    "snapshots_are_cumulative": true,
+    "first_difference_is_trade_time_interval_volume": false,
+    "later_snapshots_may_reflect_late_trades_and_corrections": true,
+    "capacity_is_beneficial_owner_identity": false,
+    "all_opra_coverage": false,
+    "raw_license_internal_use_only": true,
+    "derived_external_distribution_requires_additional_licensing": true
+  },
+  "decisions": {
+    "ten_minute_prelaunch_backfill_retrospective_before": "2020-08-03",
+    "one_minute_prelaunch_backfill_retrospective_before": "2025-06-13",
+    "ten_minute_strict_pit_start_confirmed": null,
+    "one_minute_strict_pit_start_confirmed": null,
+    "actual_receipt_logs_required_for_every_historical_pit_claim": true,
+    "pit_admitted_rows": 0,
+    "alpha_test_authorized": false,
+    "holdout_used": false,
+    "vendor_contact": false,
+    "data_purchase": false,
+    "production_changed": false,
+    "f80_frozen": true
+  },
+  "source_refs": [
+    "https://datashop.cboe.com/cboe-options-open-close-volume-summary",
+    "https://datashop.cboe.com/product-enhancement-10-minute-interval-open-close-data-now-available-for-c1-c2-bzx-edgx",
+    "https://datashop.cboe.com/faqs",
+    "https://www.sec.gov/rules-regulations/self-regulatory-organization-rulemaking/sr-cboe-2020-070",
+    "https://www.sec.gov/rules-regulations/self-regulatory-organization-rulemaking/sr-c2-2020-010",
+    "https://www.sec.gov/rules-regulations/self-regulatory-organization-rulemaking/sr-cboebzx-2020-059",
+    "https://www.sec.gov/rules-regulations/self-regulatory-organization-rulemaking/sr-cboeedgx-2020-036",
+    "https://www.sec.gov/files/rules/sro/cboe/2025/34-103323.pdf",
+    "https://www.sec.gov/files/rules/sro/c2/2025/34-103324.pdf",
+    "https://www.sec.gov/files/rules/sro/cboebzx/2025/34-103322.pdf",
+    "https://www.sec.gov/files/rules/sro/cboeedgx/2025/34-103321.pdf",
+    "https://www.sec.gov/files/rules/sro/cboebzx/2025/34-103760.pdf"
+  ]
+}
