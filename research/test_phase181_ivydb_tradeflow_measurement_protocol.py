@@ -75,7 +75,8 @@ class Phase181TradeFlowProtocolTests(unittest.TestCase):
     def test_no_future_greek_or_nominal_interval_assumption(self):
         pit = self.summary["pit_rules"]
         self.assertIn("Never use a later 15:45 Greek", pit["greeks"])
-        self.assertIn("decision timestamp", pit["intraday"])\n        self.assertIn("delivery time", pit["intraday"])
+        self.assertIn("decision timestamp", pit["intraday"])
+        self.assertIn("delivery time", pit["intraday"])
 
     def test_all_admission_gates_remain_blocked(self):
         gates = self.summary["admission_gates"]
