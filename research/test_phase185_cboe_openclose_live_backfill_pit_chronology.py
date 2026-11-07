@@ -24,7 +24,7 @@ class Phase185CboeOpenCloseChronologyTests(unittest.TestCase):
         self.assertEqual(self.result["product_not_before"]["10m"], "2020-08-03")
 
     def test_one_minute_product_floor(self):
-        self.assertEqual(self.result["product_not_before"]["1m"], "2025-06-13")
+        self.assertEqual(self.result["product_not_before"]["1m"], "2025-07-13")
 
     def test_all_eight_archives_predate_product_introduction(self):
         self.assertEqual(self.result["prelaunch_backfill_rows"], 8)
@@ -42,7 +42,21 @@ class Phase185CboeOpenCloseChronologyTests(unittest.TestCase):
 
     def test_one_minute_archives_precede_2025_introduction(self):
         rows = [x for x in self.snapshot["venue_interval_rows"] if x["interval"] == "1m"]
-        self.assertTrue(all(x["archive_start_current_page"] < "2025-06-13" for x in rows))
+        self.assertTrue(all(x["archive_start_current_page"] < "2025-07-13" for x in rows))
+
+    def test_one_minute_legal_floor_and_first_possible_session(self):
+        rows = [x for x in self.snapshot["venue_interval_rows"] if x["interval"] == "1m"]
+        self.assertTrue(all(x["operative_delay_days"] == 30 for x in rows))
+        self.assertTrue(all(x["first_possible_regular_trading_session"] == "2025-07-14" for x in rows))
+        self.assertTrue(all(x["actual_first_delivery_verified"] is False for x in rows))
+        self.assertEqual(self.result["one_minute_first_possible_regular_session"], "2025-07-14")
+
+    def test_one_minute_operability_mutation_fails_closed(self):
+        broken = copy.deepcopy(self.snapshot)
+        row = next(x for x in broken["venue_interval_rows"] if x["interval"] == "1m")
+        row["operative_delay_days"] = 0
+        with self.assertRaises(ValueError):
+            audit(broken)
 
     def test_ten_minute_latency_envelope(self):
         rows = [x for x in self.snapshot["venue_interval_rows"] if x["interval"] == "10m"]

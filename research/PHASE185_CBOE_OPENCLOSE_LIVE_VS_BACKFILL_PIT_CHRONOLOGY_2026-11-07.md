@@ -102,3 +102,8 @@ Cboe states that raw data are licensed for internal use only; external distribut
 ## Phase 186 correction — Cboe one-minute operative date
 
 The original Phase 185 report used 2025-06-13, the filing date, as the earliest live-product floor. This was too early. The four SEC notices for C1, C2, BZX and EDGX state that the change does not become operative for 30 days after filing unless the Commission designates a shorter time. The corrected conservative legal floor is 2025-07-13; the first possible regular trading session is 2025-07-14. No actual first subscriber receipt was verified. See the Phase 186 report and updated JSON for the full reconciliation.
+
+
+## Phase 187 maintenance addendum — hosted regression repair (2026-11-07)
+
+The first Phase 185 hosted checks exposed a stale executable constant: the report/JSON had already been corrected by Phase 186, but the Phase 185 auditor and one test still used the 2025-06-13 filing date as the one-minute product floor. The SEC filings impose a 30-day operative delay. The conservative legal floor is 2025-07-13; the first possible regular trading session is 2025-07-14. The auditor now validates the 30-day delay, first-session date and unverified actual first delivery. The historical archive remains retrospective before the corrected floor, and no row is strict-PIT admitted.

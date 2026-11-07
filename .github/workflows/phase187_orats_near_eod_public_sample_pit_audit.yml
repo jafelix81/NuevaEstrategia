@@ -1,0 +1,49 @@
+name: Phase 187 ORATS Near-EOD public sample and PIT audit
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "research/phase187_orats_near_eod_public_sample_pit_audit.py"
+      - "research/test_phase187_orats_near_eod_public_sample_pit_audit.py"
+      - ".github/workflows/phase187_orats_near_eod_public_sample_pit_audit.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: phase187-orats-near-eod-public-sample-audit
+  cancel-in-progress: false
+jobs:
+  sample-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile auditor and tests
+        run: python -m py_compile research/phase187_orats_near_eod_public_sample_pit_audit.py research/test_phase187_orats_near_eod_public_sample_pit_audit.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase187_orats_near_eod_public_sample_pit_audit
+      - name: Download and audit ORATS public sample
+        run: python -m research.phase187_orats_near_eod_public_sample_pit_audit --output phase187_output/phase187_orats_near_eod_sample_audit.json
+      - name: Upload metadata-only audit artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase187-orats-near-eod-public-sample-audit
+          path: phase187_output/phase187_orats_near_eod_sample_audit.json
+          if-no-files-found: error
+          retention-days: 90
+      - name: Enforce public sample diagnostic gate
+        run: |
+          python - <<'PY'
+          import json, sys
+          p = 'phase187_output/phase187_orats_near_eod_sample_audit.json'
+          r = json.load(open(p, encoding='utf-8'))
+          print('PHASE187_STATUS=' + str(r.get('overall_status')))
+          if r.get('sample_overall_pass') is not True:
+              sys.exit(1)
+          if r.get('strict_pit_admitted') is not False or r.get('controls', {}).get('alpha_test_authorized') is not False:
+              sys.exit(1)
+          PY

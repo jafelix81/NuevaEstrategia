@@ -12,7 +12,7 @@ from pathlib import Path
 
 DEFAULT_INPUT = Path(__file__).with_name("phase185_cboe_openclose_live_backfill_pit_chronology.json")
 EXPECTED_VENUES = {"C1", "C2", "BZX", "EDGX"}
-EXPECTED_PRODUCT_FLOORS = {"10m": "2020-08-03", "1m": "2025-06-13"}
+EXPECTED_PRODUCT_FLOORS = {"10m": "2020-08-03", "1m": "2025-07-13"}
 EXPECTED_LATENCY = {"10m": (0, 5), "1m": (2, 5)}
 
 
@@ -44,6 +44,13 @@ def audit(snapshot: dict) -> dict:
         product_floor = EXPECTED_PRODUCT_FLOORS[interval]
         if row["product_not_before"] != product_floor:
             raise ValueError(f"product chronology mismatch for {venue}/{interval}")
+        if interval == "1m":
+            if row.get("operative_delay_days") != 30:
+                raise ValueError(f"one-minute operative delay mismatch for {venue}")
+            if row.get("first_possible_regular_trading_session") != "2025-07-14":
+                raise ValueError(f"one-minute first-session mismatch for {venue}")
+            if row.get("actual_first_delivery_verified") is not False:
+                raise ValueError(f"one-minute first delivery must remain unverified for {venue}")
         archive_start = row["archive_start_current_page"]
         if _date(archive_start) >= _date(product_floor):
             raise ValueError(f"archive start must precede live product floor for {venue}/{interval}")
@@ -122,6 +129,7 @@ def audit(snapshot: dict) -> dict:
         "prelaunch_backfill_rows": sum(x["prelaunch_archive_is_retrospective"] for x in audited),
         "strict_pit_admitted_rows": 0,
         "product_not_before": EXPECTED_PRODUCT_FLOORS,
+        "one_minute_first_possible_regular_session": "2025-07-14",
         "strict_pit_start_confirmed": {"10m": None, "1m": None},
         "reason": "Historical archive start dates predate documented live product introduction; actual first-receipt/vintage logs are absent.",
         "rows": audited,

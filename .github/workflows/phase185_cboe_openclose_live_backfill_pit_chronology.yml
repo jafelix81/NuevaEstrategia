@@ -1,24 +1,18 @@
 name: Phase 185 Cboe Open-Close live versus backfill PIT chronology
 on:
-  push:
-    branches: [phase99-broad-pit-universe-charter]
-    paths:
-      - "research/phase185_cboe_openclose_live_backfill_pit_chronology.py"
-      - "research/test_phase185_cboe_openclose_live_backfill_pit_chronology.py"
-      - "research/phase185_cboe_openclose_live_backfill_pit_chronology.json"
-      - "research/PHASE185_CBOE_OPENCLOSE_LIVE_VS_BACKFILL_PIT_CHRONOLOGY_2026-11-07.md"
-      - ".github/workflows/phase185_cboe_openclose_live_backfill_pit_chronology.yml"
-      - "SMART_MONEY_RESEARCH_STATE.md"
   pull_request:
     branches: [main]
     paths:
       - "research/phase185_cboe_openclose_live_backfill_pit_chronology.py"
       - "research/test_phase185_cboe_openclose_live_backfill_pit_chronology.py"
       - "research/phase185_cboe_openclose_live_backfill_pit_chronology.json"
-      - "research/PHASE185_CBOE_OPENCLOSE_LIVE_VS_BACKFILL_PIT_CHRONOLOGY_2026-11-07.md"
       - ".github/workflows/phase185_cboe_openclose_live_backfill_pit_chronology.yml"
-      - "SMART_MONEY_RESEARCH_STATE.md"
   workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: phase185-cboe-openclose-live-backfill-pit-chronology
+  cancel-in-progress: false
 jobs:
   audit:
     runs-on: ubuntu-latest
