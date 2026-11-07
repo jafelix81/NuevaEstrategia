@@ -69,7 +69,34 @@ def parse_expiration(value: str) -> date:
     raw = str(value or "").strip()
     if not raw:
         raise ValueError("missing_expiration")
-    return date.fromisoformat(raw)
+    try:
+        return date.fromisoformat(raw)
+    except ValueError as exc:
+        # Do not leak Python's raw exception text or silently guess a locale.
+        raise ValueError("invalid_expiration_format") from exc
+
+
+def expiration_format_candidates(value: str) -> tuple[str, ...]:
+    """Return diagnostic parse candidates only; never selects a non-ISO format."""
+    raw = str(value or "").strip()
+    if not raw:
+        return ()
+    candidates = (
+        ("iso_extended", "%Y-%m-%d"),
+        ("iso_basic", "%Y%m%d"),
+        ("us_slash", "%m/%d/%Y"),
+        ("dmy_slash", "%d/%m/%Y"),
+        ("year_slash", "%Y/%m/%d"),
+        ("us_dash", "%m-%d-%Y"),
+    )
+    matched = []
+    for label, fmt in candidates:
+        try:
+            datetime.strptime(raw, fmt)
+        except ValueError:
+            continue
+        matched.append(label)
+    return tuple(matched)
 
 
 def parse_number(value: str, field: str) -> float | None:
@@ -150,6 +177,8 @@ def audit_csv_bytes(data: bytes, member_index: int = 0) -> dict[str, Any]:
     error_codes: Counter[str] = Counter()
     populated_field_counts: Counter[int] = Counter()
     timestamp_shapes: Counter[str] = Counter()
+    expiration_shapes: Counter[str] = Counter()
+    expiration_candidate_counts: Counter[str] = Counter()
 
     for values in reader:
         if not values or all(str(x).strip() == "" for x in values):
@@ -170,6 +199,12 @@ def audit_csv_bytes(data: bytes, member_index: int = 0) -> dict[str, Any]:
         if raw_qdt:
             shape = re.sub(r"[A-Za-z]", "A", re.sub(r"\d", "9", raw_qdt))[:64]
             timestamp_shapes[shape] += 1
+        raw_expiration = str(row.get("expiration", "")).strip()
+        if raw_expiration:
+            expiration_shape = re.sub(r"[A-Za-z]", "A", re.sub(r"\d", "9", raw_expiration))[:64]
+            expiration_shapes[expiration_shape] += 1
+            for candidate in expiration_format_candidates(raw_expiration):
+                expiration_candidate_counts[candidate] += 1
         try:
             if any(not str(row.get(k, "")).strip() for k in
                    ("underlying_symbol", "root", "expiration", "strike", "option_type")):
@@ -256,6 +291,8 @@ def audit_csv_bytes(data: bytes, member_index: int = 0) -> dict[str, Any]:
         "short_rows": short_rows, "long_rows": long_rows,
         "invalid_timestamp_rows": invalid_timestamp,
         "quote_datetime_shape_counts": dict(sorted(timestamp_shapes.items())),
+        "expiration_shape_counts": dict(sorted(expiration_shapes.items())),
+        "expiration_candidate_format_counts": dict(sorted(expiration_candidate_counts.items())),
         "invalid_contract_rows": invalid_contract, "numeric_error_rows": numeric_errors,
         "duplicate_contract_interval_keys": duplicate_keys,
         "underlying_count": len(underlyings), "unique_series_count": len(series),
