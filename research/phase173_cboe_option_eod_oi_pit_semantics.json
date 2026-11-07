@@ -1,0 +1,46 @@
+{
+  "phase": 173,
+  "source": "Cboe Option EOD Summary",
+  "product_page_history_start": "2012-01",
+  "faq_history_start": "2010-01",
+  "conservative_history_floor": "2012-01",
+  "oi_semantics": "PREVIOUS_NIGHT_OCC_EOD_AT_START_OF_QUOTE_DATE",
+  "sample": {
+    "origin": "Phase 55",
+    "run_id": 41763011186,
+    "artifact_id": 13290668468,
+    "date": "2023-08-25",
+    "variants": 2,
+    "rows_per_variant": 32672,
+    "underlyings": [
+      "^SPX",
+      "SPY",
+      "TSLA",
+      "^VIX"
+    ],
+    "legacy_335_overlap": 1,
+    "base_fields_nonnull_rate": 1,
+    "calcs_fields_nonnull_rate": 1,
+    "positive_iv_rate": [
+      0.9275,
+      0.9126
+    ],
+    "positive_oi_rate": 0.772,
+    "positive_volume_rate": 0.4035,
+    "representative_universe_sample": false
+  },
+  "pit": {
+    "first_receipt_vintages": "BLOCKED_UNVERIFIED",
+    "broad_universe_coverage": "NOT_TESTED",
+    "licensing_price": "NOT_CONFIRMED",
+    "knowledge_time_rule": "MAX_OCC_AVAILABILITY_FILE_FIRST_RECEIPT_IDENTITY_MAP_AVAILABILITY"
+  },
+  "pit_admission": false,
+  "alpha_admission": false,
+  "forward_returns_tested": false,
+  "bootstrap_loo_tested": false,
+  "chronological_oos_tested": false,
+  "final_holdout_used": false,
+  "production_changed": false,
+  "f80_changed": false
+}
