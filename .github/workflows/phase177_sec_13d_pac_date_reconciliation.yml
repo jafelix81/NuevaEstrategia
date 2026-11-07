@@ -35,7 +35,7 @@ jobs:
           r = json.load(open("phase177_sec_13d_pac_audit.json", encoding="utf-8"))
           assert r["record_count"] == 2
           assert r["pac_compatible_unverified"] == 2
-          assert r["same_day_or_intraday_quarantined"] == 2
+          assert r["same_day_intraday_quarantined"] == 2
           assert r["alpha_test_performed"] is False
           assert r["final_holdout_used"] is False
           print("PHASE177_STATUS=" + r["status"])
