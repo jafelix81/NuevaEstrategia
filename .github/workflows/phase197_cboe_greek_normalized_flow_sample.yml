@@ -1,0 +1,69 @@
+name: Phase 197 Cboe Greek-normalized option flow sample diagnostic
+
+on:
+  pull_request:
+    types: [synchronize]
+    branches: [main]
+    paths:
+      - "research/phase197_cboe_greek_normalized_flow_sample.py"
+      - "research/test_phase197_cboe_greek_normalized_flow_sample.py"
+      - ".github/workflows/phase197_cboe_greek_normalized_flow_sample.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase197-cboe-greek-normalized-flow-sample
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile audit and tests
+        run: >-
+          python -m py_compile
+          research/phase197_cboe_greek_normalized_flow_sample.py
+          research/phase194_cboe_option_trades_daily_flow_sample_audit.py
+          research/phase170_cboe_option_trades_public_sample_audit.py
+          research/test_phase197_cboe_greek_normalized_flow_sample.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase197_cboe_greek_normalized_flow_sample
+      - name: Download and audit the public CALCS sample in memory
+        run: python -m research.phase197_cboe_greek_normalized_flow_sample --output-dir phase197_output
+      - name: Validate sample-only and frozen controls
+        run: |
+          python - <<'PY'
+          import json
+          p = "phase197_output/phase197_cboe_greek_normalized_flow_sample.json"
+          s = json.load(open(p, encoding="utf-8"))
+          assert s["phase"] == 197
+          assert s["status"] == "GREEK_NORMALIZED_SAMPLE_DIAGNOSTIC_PASS"
+          assert s["base_calcs_core_rows_match"] is True
+          assert s["rows"] == s["trade_key_count"]
+          assert s["interpretation"]["strict_pit_admitted"] is False
+          assert s["interpretation"]["alpha_admission"] is False
+          assert s["interpretation"]["return_test_run"] is False
+          assert s["interpretation"]["holdout_used"] is False
+          assert s["interpretation"]["production_changed"] is False
+          assert s["interpretation"]["data_purchase"] is False
+          assert s["interpretation"]["vendor_contact"] is False
+          assert s["interpretation"]["f80_frozen"] is True
+          print("PHASE197_STATUS=" + s["status"])
+          print("PHASE197_ROWS=" + str(s["rows"]))
+          print("PHASE197_OVERALL=" + json.dumps(s["measurements"]["overall"], sort_keys=True))
+          print("PHASE197_GREEK_SIGNS=" + json.dumps(s["measurements"]["greek_sign_diagnostics"], sort_keys=True))
+          PY
+      - name: Upload metadata-only diagnostic
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase197-cboe-greek-normalized-flow-sample
+          path: phase197_output/phase197_cboe_greek_normalized_flow_sample.json
+          if-no-files-found: error
+          retention-days: 90
