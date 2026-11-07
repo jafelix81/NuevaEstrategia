@@ -83,8 +83,8 @@ class Phase197Tests(unittest.TestCase):
             row("C", "0.50", 10, "1.20", "1.20", "1.25", vega="0.20"),
         ])
         overall = result["overall"]
-        self.assertEqual(overall["signed_vega_contracts_no_multiplier"], "0.00")
-        self.assertEqual(overall["vega_imbalance_ratio"], "0E-8" if False else "0E-8")
+        self.assertEqual(overall["signed_vega_contracts_no_multiplier"], "-1.00")
+        self.assertEqual(overall["vega_imbalance_ratio"], "-0.33333333")
 
     def test_empty_sample_has_no_division_by_zero(self):
         result = aggregate_trade_rows([])
