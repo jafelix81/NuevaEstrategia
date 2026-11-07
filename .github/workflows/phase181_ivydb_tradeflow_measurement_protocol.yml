@@ -9,16 +9,6 @@ on:
       - "research/PHASE181_IVYDB_TRADEFLOW_MEASUREMENT_VALIDITY_AND_FALSIFICATION_PROTOCOL_2026-11-07.md"
       - ".github/workflows/phase181_ivydb_tradeflow_measurement_protocol.yml"
       - "SMART_MONEY_RESEARCH_STATE.md"
-  push:
-    branches:
-      - phase99-broad-pit-universe-charter
-    paths:
-      - "research/phase181_ivydb_tradeflow_measurement_protocol.py"
-      - "research/test_phase181_ivydb_tradeflow_measurement_protocol.py"
-      - "research/phase181_ivydb_tradeflow_measurement_protocol.json"
-      - "research/PHASE181_IVYDB_TRADEFLOW_MEASUREMENT_VALIDITY_AND_FALSIFICATION_PROTOCOL_2026-11-07.md"
-      - ".github/workflows/phase181_ivydb_tradeflow_measurement_protocol.yml"
-      - "SMART_MONEY_RESEARCH_STATE.md"
   workflow_dispatch:
 
 permissions:

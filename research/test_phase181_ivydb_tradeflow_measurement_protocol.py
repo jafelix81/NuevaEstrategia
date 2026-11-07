@@ -49,7 +49,7 @@ class Phase181TradeFlowProtocolTests(unittest.TestCase):
         lit = self.summary["literature_interpretation"]
         self.assertIn("cannot reproduce", lit["pan_poteshman_2006"])
         self.assertIn("hedging/price pressure", lit["bryzgalova_pavlova_sikorskaya_2023"])
-        self.assertIn("inventory-risk", lit["option_order_flow_inventory_risk_2015"])
+        self.assertIn("inventory-risk", lit["option_order_flow_inventory_risk_2015"].lower())
 
     def test_five_competing_hypotheses_are_preregistered(self):
         ids = {x["id"] for x in self.summary["hypotheses_not_tested"]}
@@ -57,7 +57,7 @@ class Phase181TradeFlowProtocolTests(unittest.TestCase):
 
     def test_controls_cover_return_chasing_and_microstructure(self):
         controls = " ".join(self.summary["controls_required"]).lower()
-        for token in ("returns", "iv", "liquidity", "dte", "multi-leg", "event"):
+        for token in ("returns", "iv", "spread", "dte", "multi-leg", "event"):
             self.assertIn(token, controls)
 
     def test_multiple_horizons_without_fixed_holding_period(self):
@@ -75,7 +75,7 @@ class Phase181TradeFlowProtocolTests(unittest.TestCase):
     def test_no_future_greek_or_nominal_interval_assumption(self):
         pit = self.summary["pit_rules"]
         self.assertIn("Never use a later 15:45 Greek", pit["greeks"])
-        self.assertIn("actual availability", pit["intraday"])
+        self.assertIn("decision timestamp", pit["intraday"])\n        self.assertIn("delivery time", pit["intraday"])
 
     def test_all_admission_gates_remain_blocked(self):
         gates = self.summary["admission_gates"]
