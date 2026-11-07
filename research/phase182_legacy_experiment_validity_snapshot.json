@@ -1,0 +1,295 @@
+{
+  "phase": 182,
+  "title": "Legacy Smart Money experiment validity and promotion-gate audit",
+  "audit_date": "2026-11-07",
+  "status": "NO_LEGACY_SMART_MONEY_SIGNAL_PROMOTED",
+  "sources": {
+    "finra_20a": {
+      "run_id": 39300615844,
+      "artifact_id": 12211077155,
+      "final_oos_signal_dates": 6,
+      "valid_universe": 328,
+      "configured_universe": 335,
+      "files_available": 415,
+      "files_needed": null
+    },
+    "finra_20b": {
+      "run_id": 39324762076,
+      "artifact_id": 12222238141,
+      "train_end": "2024-10-28",
+      "selected_factor": "SHORT_EXEMPT_RATIO",
+      "direction": -1,
+      "train_mean_spearman": -0.0173295458503492,
+      "final_oos_dates": [
+        "2025-02-25",
+        "2025-06-20",
+        "2025-10-14",
+        "2026-02-09",
+        "2026-06-04",
+        "2026-09-29"
+      ],
+      "blocked_minus_replacement": {
+        "5": {
+          "mean": -0.026652,
+          "blocked_n": 24,
+          "replacement_n": 24
+        },
+        "10": {
+          "mean": -0.013073,
+          "blocked_n": 24,
+          "replacement_n": 24
+        },
+        "20": {
+          "mean": -0.020878,
+          "blocked_n": 20,
+          "replacement_n": 20
+        }
+      },
+      "costs_included": false,
+      "bootstrap_ci_available": false,
+      "holdout_consumed": true
+    },
+    "finra_20c": {
+      "run_id": 40098425254,
+      "artifact_id": 12562171831,
+      "configured_universe": 335,
+      "valid_universe": 329,
+      "universe_failures": 6,
+      "train_signals_all": 24,
+      "finra_eligible_train_signals": 20,
+      "pseudo_oos_test_dates": 12,
+      "final_holdout_signals": 6,
+      "final_holdout_evaluated": false,
+      "files_needed": 2020,
+      "files_available": 1382,
+      "selection_frequency": {
+        "SHORT_RATIO_Z20": 6,
+        "SHORT_EXEMPT_RATIO": 5,
+        "SHORT_RATIO_PERSIST20": 1
+      },
+      "horizons": {
+        "5": {
+          "mean_delta_replacement_minus_blocked": 0.001411,
+          "median_delta": -0.000495,
+          "positive_dates": 5,
+          "n_dates": 12,
+          "std_delta": 0.05273
+        },
+        "10": {
+          "mean_delta_replacement_minus_blocked": -0.016865,
+          "median_delta": -0.018368,
+          "positive_dates": 3,
+          "n_dates": 12,
+          "std_delta": 0.075014
+        },
+        "20": {
+          "mean_delta_replacement_minus_blocked": -0.008578,
+          "median_delta": -0.003334,
+          "positive_dates": 5,
+          "n_dates": 12,
+          "std_delta": 0.165329
+        }
+      },
+      "costs_included": false,
+      "bootstrap_ci_available": false
+    },
+    "cftc_23c": {
+      "run_id": 39375172026,
+      "artifact_id": 12243346515,
+      "test_dates": [
+        "2021-04-29",
+        "2021-08-23",
+        "2021-12-15",
+        "2022-04-11",
+        "2022-08-05",
+        "2022-11-29",
+        "2023-03-27",
+        "2023-07-21",
+        "2023-11-13",
+        "2024-03-11",
+        "2024-07-05",
+        "2024-10-28"
+      ],
+      "families": [
+        "NASDAQ",
+        "SP500"
+      ],
+      "selection_horizon": 5,
+      "knowledge_policy": "ReportDate (Tuesday) + 6 calendar days (following Monday, conservative proxy)",
+      "training_embargo_present": false,
+      "training_maturity_audit_method": "weekday-only business-day count; strict maturity requires label end strictly before test date",
+      "maturity_audit": [
+        {
+          "test_date": "2021-04-29",
+          "training_rows": 277,
+          "immature_5d_rows": 1,
+          "immature_20d_rows": 4,
+          "latest_knowledge_date": "2021-04-26"
+        },
+        {
+          "test_date": "2021-08-23",
+          "training_rows": 293,
+          "immature_5d_rows": 0,
+          "immature_20d_rows": 3,
+          "latest_knowledge_date": "2021-08-16"
+        },
+        {
+          "test_date": "2021-12-15",
+          "training_rows": 310,
+          "immature_5d_rows": 1,
+          "immature_20d_rows": 4,
+          "latest_knowledge_date": "2021-12-13"
+        },
+        {
+          "test_date": "2022-04-11",
+          "training_rows": 326,
+          "immature_5d_rows": 0,
+          "immature_20d_rows": 3,
+          "latest_knowledge_date": "2022-04-04"
+        },
+        {
+          "test_date": "2022-08-05",
+          "training_rows": 343,
+          "immature_5d_rows": 1,
+          "immature_20d_rows": 4,
+          "latest_knowledge_date": "2022-08-01"
+        },
+        {
+          "test_date": "2022-11-29",
+          "training_rows": 360,
+          "immature_5d_rows": 1,
+          "immature_20d_rows": 4,
+          "latest_knowledge_date": "2022-11-28"
+        },
+        {
+          "test_date": "2023-03-27",
+          "training_rows": 376,
+          "immature_5d_rows": 0,
+          "immature_20d_rows": 3,
+          "latest_knowledge_date": "2023-03-20"
+        },
+        {
+          "test_date": "2023-07-21",
+          "training_rows": 393,
+          "immature_5d_rows": 1,
+          "immature_20d_rows": 4,
+          "latest_knowledge_date": "2023-07-17"
+        },
+        {
+          "test_date": "2023-11-13",
+          "training_rows": 409,
+          "immature_5d_rows": 0,
+          "immature_20d_rows": 3,
+          "latest_knowledge_date": "2023-11-06"
+        },
+        {
+          "test_date": "2024-03-11",
+          "training_rows": 426,
+          "immature_5d_rows": 0,
+          "immature_20d_rows": 3,
+          "latest_knowledge_date": "2024-03-04"
+        },
+        {
+          "test_date": "2024-07-05",
+          "training_rows": 443,
+          "immature_5d_rows": 1,
+          "immature_20d_rows": 4,
+          "latest_knowledge_date": "2024-07-01"
+        },
+        {
+          "test_date": "2024-10-28",
+          "training_rows": 459,
+          "immature_5d_rows": 0,
+          "immature_20d_rows": 3,
+          "latest_knowledge_date": "2024-10-21"
+        }
+      ],
+      "summary": {
+        "NASDAQ": {
+          "mean_strategy_5d": 0.00192,
+          "hit_rate_5d": 0.666667,
+          "mean_strategy_20d": -0.0046,
+          "hit_rate_20d": 0.5
+        },
+        "SP500": {
+          "mean_strategy_5d": -0.000494,
+          "hit_rate_5d": 0.5,
+          "mean_strategy_20d": -0.030584,
+          "hit_rate_20d": 0.166667
+        }
+      },
+      "costs_included": false,
+      "final_holdout_used": false
+    },
+    "sec_form4_21c": {
+      "run_id": 39369692938,
+      "artifact_id": 12240403992,
+      "final_oos_dates": [
+        "2025-02-25",
+        "2025-06-20",
+        "2025-10-14",
+        "2026-02-09",
+        "2026-06-04",
+        "2026-09-29"
+      ],
+      "horizons": {
+        "5": {
+          "mean_advantage": -0.00023,
+          "median_advantage": -0.00196,
+          "positive_dates": 2,
+          "n_dates": 6,
+          "bootstrap_ci_low": -0.00659,
+          "bootstrap_ci_high": 0.00667,
+          "mean_residual_spearman": -0.0642
+        },
+        "10": {
+          "mean_advantage": 0.00379,
+          "median_advantage": -0.00186,
+          "positive_dates": 3,
+          "n_dates": 6,
+          "bootstrap_ci_low": -0.009,
+          "bootstrap_ci_high": 0.01776,
+          "mean_residual_spearman": -0.0244
+        },
+        "20": {
+          "mean_advantage": -0.00363,
+          "median_advantage": 0.01244,
+          "positive_dates": 3,
+          "n_dates": 5,
+          "bootstrap_ci_low": -0.0537,
+          "bootstrap_ci_high": 0.03249,
+          "mean_residual_spearman": -0.0275
+        }
+      },
+      "holdout_consumed": true
+    }
+  },
+  "consumed_final_holdout": {
+    "dates": [
+      "2025-02-25",
+      "2025-06-20",
+      "2025-10-14",
+      "2026-02-09",
+      "2026-06-04",
+      "2026-09-29"
+    ],
+    "historical_uses": [
+      "FINRA Phase 20A",
+      "FINRA Phase 20B",
+      "SEC Form 4 Phase 21C"
+    ],
+    "status": "CONSUMED_NOT_PRISTINE",
+    "future_policy": "Do not reuse these dates as a locked final holdout. Establish a new prospective holdout only after definitions and models are frozen."
+  },
+  "decision": {
+    "finra_20c": "NO_PROMOTION_WEAK_INCONSISTENT_AND_68_PERCENT_FILE_COVERAGE",
+    "finra_20b": "EXPLORATORY_ONLY_SIX_DATE_HOLDOUT_NO_COST_OR_BOOTSTRAP",
+    "cftc_23c": "QUARANTINED_STRICT_LABEL_MATURITY_FILTER_MISSING",
+    "sec_form4_21c": "KILLED_NO_ROBUST_INCREMENTAL_EDGE",
+    "f80_frozen": true,
+    "phase182_used_final_holdout": false,
+    "production_changed": false,
+    "vendor_contact": false,
+    "data_purchase": false
+  }
+}

@@ -1,0 +1,49 @@
+name: Phase 182 legacy Smart Money experiment validity audit
+
+on:
+  pull_request:
+    paths:
+      - "research/phase182_legacy_experiment_validity_audit.py"
+      - "research/test_phase182_legacy_experiment_validity_audit.py"
+      - "research/phase182_legacy_experiment_validity_snapshot.json"
+      - "research/PHASE182_LEGACY_SMART_MONEY_EXPERIMENT_VALIDITY_AUDIT_2026-11-07.md"
+      - ".github/workflows/phase182_legacy_experiment_validity_audit.yml"
+      - "SMART_MONEY_RESEARCH_STATE.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile auditor and tests
+        run: |
+          python -m py_compile research/phase182_legacy_experiment_validity_audit.py research/test_phase182_legacy_experiment_validity_audit.py
+      - name: Run regression tests
+        run: python -m unittest research.test_phase182_legacy_experiment_validity_audit -v
+      - name: Generate and compare audit artifact
+        run: |
+          python -m research.phase182_legacy_experiment_validity_audit --output-dir phase182_output
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          tracked = json.loads(Path("research/phase182_legacy_experiment_validity_snapshot.json").read_text())
+          generated = json.loads(Path("phase182_output/phase182_legacy_experiment_validity_audit.json").read_text())
+          assert generated["status"] == tracked["status"]
+          assert generated["controls"]["f80_frozen"] is True
+          assert generated["holdout"]["phase182_used_final_holdout"] is False
+          print("PHASE182_AUDIT_ARTIFACT_GENERATED")
+          PY
+      - name: Upload metadata-only audit artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase182-legacy-smart-money-validity-audit
+          path: phase182_output/phase182_legacy_experiment_validity_audit.json
+          retention-days: 90
