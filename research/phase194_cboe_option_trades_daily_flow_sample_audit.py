@@ -120,6 +120,7 @@ def audit_member(member_name: str, payload: bytes) -> dict[str, object]:
         "quote_time_second_component_gt59_rows": 0,
         "quote_time_semantics_assigned": False,
         "quote_time_values_persisted": False,
+        "raw_clock_values_persisted": False,
         "underlying_count": 0,
         "contract_count": 0,
         "valid_trade_rows": 0,
@@ -218,7 +219,7 @@ def audit_member(member_name: str, payload: bytes) -> dict[str, object]:
             quote_time_blank += 1
         else:
             quote_lengths[str(len(qt_raw))] += 1
-            signature = "".join("9" if ch.isdigit() else "A" if ch.isalpha() else ch for ch in qt_raw)
+            signature = "".join("D" if ch.isdigit() else "A" if ch.isalpha() else ch for ch in qt_raw)
             quote_shapes[signature] += 1
             match = TIME_ONLY_RE.fullmatch(qt_raw)
             if match:

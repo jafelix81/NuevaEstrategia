@@ -56,7 +56,8 @@ class Phase194Tests(unittest.TestCase):
         result = audit_member("UnderlyingOptionsTrades_2026-01-07.csv", payload)
         self.assertEqual(result["valid_trade_rows"], 1)
         self.assertEqual(result["quote_time_only_shape_rows"], 1)
-        self.assertFalse(result["quote_time_semantics_assigned"] if "quote_time_semantics_assigned" in result else False)
+        self.assertEqual(result["quote_time_shape_signature_counts"], {"DD:DD.D": 1})
+        self.assertFalse(result["quote_time_semantics_assigned"])
 
     def test_opaque_99_99_time_does_not_become_a_timestamp(self):
         result = audit_member("UnderlyingOptionsTrades_2026-01-07.csv", csv_bytes([make_row()]))
@@ -135,7 +136,7 @@ class Phase194Tests(unittest.TestCase):
         self.assertNotIn("99:99.9", serialized)
         self.assertFalse(result["raw_symbols_persisted"])
         self.assertFalse(result["raw_contracts_persisted"])
-        self.assertFalse(result["raw_clock_values_persisted"] if "raw_clock_values_persisted" in result else False)
+        self.assertFalse(result["raw_clock_values_persisted"])
 
     def test_f80_and_alpha_controls_remain_closed(self):
         buff = io.BytesIO()
