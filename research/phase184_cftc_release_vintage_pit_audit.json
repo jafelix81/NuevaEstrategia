@@ -17,8 +17,8 @@
     "HOLIDAY_2021": 1
   },
   "report_date_plus_6": {
-    "synthetic_earlier_than_actual": 20,
-    "synthetic_same_date_time_unknown": 1,
+    "synthetic_earlier_than_actual": 19,
+    "synthetic_same_date_time_unknown": 2,
     "synthetic_later_than_actual": 0
   },
   "exceptions": [

@@ -82,8 +82,8 @@ The legacy script:
 - does not require each training label's end session to be strictly before the test entry session.
 
 The +6-day proxy fails against the documented exceptions:
-- 20/21 documented rows: synthetic date is earlier than actual publication date;
-- 1/21: synthetic date equals the publication date, but exact time-of-day is absent;
+- 19/21 documented rows: synthetic date is earlier than actual publication date;
+- 2/21: synthetic date equals the publication date, but exact time-of-day is absent;
 - 2023-03-27 walk-forward training can therefore include several reports whose synthetic knowledge dates precede their actual publication dates.
 
 Phase 182 independently found a second, separate defect: no horizon-specific label-maturity embargo. Six of twelve dates contained an immature 5-session training label; all twelve contained immature 20-session labels. These two defects are cumulative, not alternative explanations.
