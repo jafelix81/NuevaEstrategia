@@ -1,0 +1,59 @@
+name: Phase 179 SEC legacy 13D-G 497-row predecessor coverage audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - research/phase179_sec13dg_legacy_497_predecessor_audit.py
+      - research/test_phase179_sec13dg_legacy_497_predecessor_audit.py
+      - research/phase179_sec13dg_legacy_497_parent_input.csv.gz.b64
+      - research/phase179_sec13dg_legacy_497_parent_summary.json
+      - research/PHASE179_SEC_13DG_LEGACY_497_SAMPLE_PREDECESSOR_AND_KEY_COLLISION_AUDIT_2026-11-07.md
+      - .github/workflows/phase179_sec13dg_legacy_497_predecessor_audit.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase179-sec13dg-legacy-497-predecessor-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile Phase 179
+        run: python -m py_compile research/phase179_sec13dg_legacy_497_predecessor_audit.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase179_sec13dg_legacy_497_predecessor_audit
+      - name: Generate metadata-only audit result
+        run: python -m research.phase179_sec13dg_legacy_497_predecessor_audit --output-dir phase179_output
+      - name: Enforce Phase 179 result gate
+        run: |
+          python - <<'PY'
+          import json
+          p = "phase179_output/phase179_sec13dg_legacy_497_parent_summary.json"
+          r = json.load(open(p, encoding="utf-8"))
+          assert r["status"] == "IN_SAMPLE_PREDECESSOR_COVERAGE_INSUFFICIENT_497_ROW_COHORT"
+          assert r["input_rows"] == 497
+          assert r["strict_amendment_candidates_same_family"]["with_candidate"] == 2
+          assert r["weak_same_family_collision_count"] == 3
+          assert r["cross_family_collision_count"] == 3
+          assert r["verified_parent_edges"] == 0
+          assert r["alpha_admission"] is False
+          assert r["final_holdout_used"] is False
+          assert r["f80_modified"] is False
+          print("PHASE179_AUDIT_COMPLETE; NO_PARENT_OR_ALPHA_ADMISSION")
+          PY
+      - name: Upload metadata-only result
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase179-sec13dg-legacy-497-predecessor-audit
+          path: phase179_output/phase179_sec13dg_legacy_497_parent_summary.json
+          retention-days: 90
