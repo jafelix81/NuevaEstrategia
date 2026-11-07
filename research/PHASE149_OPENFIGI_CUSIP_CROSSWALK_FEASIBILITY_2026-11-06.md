@@ -104,3 +104,9 @@ No 13D/13G alpha test is authorized from this crosswalk. Before such a test, obt
 - Workflow: .github/workflows/phase149_openfigi_cusip_crosswalk_audit.yml
 
 F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No alpha was tested or demonstrated.
+
+
+## 2026-11-07 — repeated current-mapping snapshot
+- Successful run [42339557400](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42339557400), artifact [13560748983](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42339557400/artifacts/13560748983), after a prior run failed closed on an OpenFIGI response-count mismatch.
+- 16/16 offline tests passed. The successful API snapshot covered 553 CUSIPs in 68 batches with no API errors: 437 primary 9-character matches (429 one-shareClassFIGI, 2 multiple-composite, 2 one-composite-only, 4 one-FIGI-only); 116 primary no-matches; 116 eight-character fallbacks, of which 7 recovered one shareClassFIGI and 109 remained unmatched. Total any-match = 444/553; residual no-match = 109.
+- One cross-CUSIP shareClassFIGI link covers two CUSIPs. This is a current mapping snapshot, not an effective-dated PIT security master; do not backdate current ticker/name/FIGI relationships.

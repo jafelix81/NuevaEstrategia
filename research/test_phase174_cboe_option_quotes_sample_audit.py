@@ -38,6 +38,14 @@ class Phase174Tests(unittest.TestCase):
         with self.assertRaises(ValueError):
             parse_quote_datetime("2025-03-28 09:31:00-04:00")
 
+    def test_legacy_slash_timestamp_is_reported_as_timestamp_not_contract_error(self):
+        row = make_csv().decode().splitlines()[1].split(",")
+        row[1] = "03/28/2025 09:31:00"
+        result = audit_csv_bytes(make_csv(rows=[row]))
+        self.assertEqual(result["invalid_timestamp_rows"], 1)
+        self.assertEqual(result["invalid_contract_rows"], 0)
+        self.assertEqual(result["quote_datetime_shape_counts"], {"99/99/9999 99:99:99": 1})
+
     def test_missing_required_field_fails_schema(self):
         header = [x for x in BASE_REQUIRED if x != "quote_datetime"]
         row = ["SPY", "SPY", "2025-04-17", "500", "C", "1", "1", "1", "1",
@@ -109,6 +117,9 @@ class Phase174Tests(unittest.TestCase):
         self.assertFalse(result["alpha_admission"])
         self.assertFalse(result["members"][0]["raw_symbols_persisted"])
         self.assertFalse(result["members"][0]["raw_rows_persisted"])
+        self.assertEqual(result["archive_node_count"], 1)
+        self.assertEqual(result["total_populated_rows"], 1)
+        self.assertEqual(result["total_invalid_timestamp_rows"], 0)
 
     def test_archive_without_csv_fails_sample_gate(self):
         buf = io.BytesIO()
@@ -143,6 +154,29 @@ class Phase174Tests(unittest.TestCase):
         result = audit_archive(outer.getvalue())
         self.assertTrue(result["sample_schema_gate_pass"])
         self.assertEqual(result["data_member_count"], 1)
+
+
+    def test_17_18_25_and_26_column_schema_variants(self):
+        base = list(BASE_REQUIRED)
+        base_row = make_csv().decode().splitlines()[1].split(",")[:len(BASE_REQUIRED)]
+        calcs_fields = [
+            "active_underlying_price", "implied_underlying_price", "implied_volatility",
+            "delta", "gamma", "theta", "vega", "rho",
+        ]
+        calcs_values = ["570.05", "0", "0.55", "0.02", "0.01", "-0.03", "0.10", "0.01"]
+        variants = [
+            (base, base_row, False, False),
+            (base + ["open_interest"], base_row + ["1200"], False, True),
+            (base + calcs_fields, base_row + calcs_values, True, False),
+            (base + calcs_fields + ["open_interest"], base_row + calcs_values + ["1200"], True, True),
+        ]
+        for header, row, expect_calcs, expect_oi in variants:
+            with self.subTest(columns=len(header)):
+                result = audit_csv_bytes(make_csv(header=header, rows=[row]))
+                self.assertTrue(result["schema_gate_pass"])
+                self.assertEqual(result["calcs_present"], expect_calcs)
+                self.assertEqual(result["open_interest_present"], expect_oi)
+
 
     def test_calcs_and_open_interest_are_optional_schema_variants(self):
         base_row = make_csv().decode().splitlines()[1].split(",")[:len(BASE_REQUIRED)]

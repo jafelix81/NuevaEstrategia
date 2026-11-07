@@ -1347,3 +1347,8 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 - Run [42339245917](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42339245917), artifact [13561040983](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42339245917/artifacts/13561040983): compile and 14/14 offline tests passed; public sample download succeeded (2,628,937 bytes, SHA-256 7645a6cc94f1a984e98264a4b494f748e373c30ecde85de25ceadb83a5c56782). The archive has six top-level non-directory members, but the initial parser found zero direct .csv filenames. The gate failed because archive discovery was too narrow; this is not evidence that the sample rows or schema are invalid.
 - Corrected parser now inspects nested ZIP/GZIP containers and extensionless text files by a header signature, retaining only sanitized member extension/type/size metadata. Follow-up hosted validation pending. No raw sample data or member names are stored.
 - Phase 149 OpenFIGI workflow [42339245885](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42339245885) was still running at this audit; no duplicate was started. No vendor purchase/contact, alpha test, OOS/holdout use or production/F80 change.
+
+
+## Phase 174 — local regression hardening (2026-11-07)
+- Parser now separates quote_datetime errors from contract identity errors and emits sanitized timestamp-shape counts only.
+- Local regression suite: 19/19 passed, including 17/18/25/26-column schema variants, nested ZIP/GZIP, extensionless CSV detection, duplicate-key detection, SOD-OI invariance and legacy timestamp-shape classification. Hosted revalidation is still required.

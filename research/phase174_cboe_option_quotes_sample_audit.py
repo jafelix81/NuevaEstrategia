@@ -13,6 +13,7 @@ import hashlib
 import io
 import json
 import math
+import re
 import urllib.request
 import zipfile
 from collections import Counter, defaultdict
@@ -148,6 +149,7 @@ def audit_csv_bytes(data: bytes, member_index: int = 0) -> dict[str, Any]:
     oi_by_contract_day: dict[tuple[Any, ...], set[int]] = defaultdict(set)
     error_codes: Counter[str] = Counter()
     populated_field_counts: Counter[int] = Counter()
+    timestamp_shapes: Counter[str] = Counter()
 
     for values in reader:
         if not values or all(str(x).strip() == "" for x in values):
@@ -164,6 +166,10 @@ def audit_csv_bytes(data: bytes, member_index: int = 0) -> dict[str, Any]:
             error_codes["long_row"] += 1
             continue
         row = dict(zip(header, values))
+        raw_qdt = str(row.get("quote_datetime", "")).strip()
+        if raw_qdt:
+            shape = re.sub(r"[A-Za-z]", "A", re.sub(r"\d", "9", raw_qdt))[:64]
+            timestamp_shapes[shape] += 1
         try:
             if any(not str(row.get(k, "")).strip() for k in
                    ("underlying_symbol", "root", "expiration", "strike", "option_type")):
@@ -174,13 +180,16 @@ def audit_csv_bytes(data: bytes, member_index: int = 0) -> dict[str, Any]:
             strike = parse_number(row["strike"], "strike")
             if strike is None or strike <= 0:
                 raise ValueError("invalid_strike")
-            qdt = parse_quote_datetime(row["quote_datetime"])
         except ValueError as exc:
             code = str(exc).split(":", 1)[0]
-            if code in {"missing_quote_datetime", "unexpected_timezone_in_et_wall_clock"}:
-                invalid_timestamp += 1
-            else:
-                invalid_contract += 1
+            invalid_contract += 1
+            error_codes[code] += 1
+            continue
+        try:
+            qdt = parse_quote_datetime(raw_qdt)
+        except ValueError as exc:
+            code = str(exc).split(":", 1)[0]
+            invalid_timestamp += 1
             error_codes[code] += 1
             continue
 
@@ -246,6 +255,7 @@ def audit_csv_bytes(data: bytes, member_index: int = 0) -> dict[str, Any]:
         "populated_rows": row_count, "empty_rows": empty_rows,
         "short_rows": short_rows, "long_rows": long_rows,
         "invalid_timestamp_rows": invalid_timestamp,
+        "quote_datetime_shape_counts": dict(sorted(timestamp_shapes.items())),
         "invalid_contract_rows": invalid_contract, "numeric_error_rows": numeric_errors,
         "duplicate_contract_interval_keys": duplicate_keys,
         "underlying_count": len(underlyings), "unique_series_count": len(series),
@@ -352,8 +362,15 @@ def audit_archive(payload: bytes) -> dict[str, Any]:
                 raise ValueError("archive_member_too_large")
             _walk_archive_member(info.filename, zf.read(info), 0, counter,
                                  result["archive_member_metadata"], result["members"])
-    result["leaf_member_count"] = counter[0]
+    result["archive_node_count"] = counter[0]
     result["data_member_count"] = len(result["members"])
+    result["total_populated_rows"] = sum(m.get("populated_rows", 0) for m in result["members"])
+    result["total_invalid_timestamp_rows"] = sum(m.get("invalid_timestamp_rows", 0) for m in result["members"])
+    result["total_invalid_contract_rows"] = sum(m.get("invalid_contract_rows", 0) for m in result["members"])
+    result["schema_variant_counts"] = dict(Counter(
+        f"{m.get('header_columns')}cols_calcs{int(m.get('calcs_present', False))}_oi{int(m.get('open_interest_present', False))}"
+        for m in result["members"]
+    ))
     result["container_type_counts"] = dict(Counter(x["container_type"] for x in result["archive_member_metadata"]))
     result["extension_chain_counts"] = dict(Counter(x["extension_chain"] for x in result["archive_member_metadata"]))
     result["sample_schema_gate_pass"] = bool(result["members"]) and all(

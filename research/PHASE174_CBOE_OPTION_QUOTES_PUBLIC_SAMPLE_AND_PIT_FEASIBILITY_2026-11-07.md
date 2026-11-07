@@ -96,3 +96,8 @@ F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
 
 - Initial hosted run: [42339245917](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42339245917), artifact [13561040983](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42339245917/artifacts/13561040983). Compilation and **14/14 offline tests** passed; the public download succeeded. The archive had 6 top-level members but the first parser found 0 direct .csv members, so the sample gate failed. This is an archive-discovery failure, not a row/schema result.
 - Follow-up correction adds nested ZIP/GZIP traversal and header-signature detection for extensionless text members, with sanitized member metadata only. The corrected hosted sample result is pending.
+
+
+## 8. Local regression update (2026-11-07)
+
+The parser now classifies quote_datetime failures separately from contract-identity failures and records a sanitized digit/letter/punctuation shape signature for each populated timestamp. The offline suite passes **19/19** locally, including 17/18/25/26-column schema variants, nested ZIP/GZIP, extensionless CSV detection, SOD-OI invariance and timestamp-shape diagnostics. The next hosted run is required to reveal the four unresolved public-sample timestamp signatures; no timestamp format is accepted by inference.
