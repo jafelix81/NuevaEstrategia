@@ -38,10 +38,10 @@ class Phase214Tests(unittest.TestCase):
         self.assertEqual(v.isoformat(),"2023-06-30"); self.assertEqual(m,"HTML_LABEL_NEAREST_DATE")
         self.assertLessEqual(d["distance_chars"],2)
     def test_13d_xml(self):
-        v,m,_=phase214.extract_event("<edgarSubmission><dateOfEvent>03/14/2025</dateOfEvent></edgarSubmission>")
+        v,m=phase214.extract_event("<edgarSubmission><dateOfEvent>03/14/2025</dateOfEvent></edgarSubmission>")
         self.assertEqual(v.isoformat(),"2025-03-14"); self.assertEqual(m,"XML_dateOfEvent")
     def test_13g_xml(self):
-        v,m,_=phase214.extract_event("<edgarSubmission><eventDateRequiresFilingThisStatement>09/30/2024</eventDateRequiresFilingThisStatement></edgarSubmission>")
+        v,m=phase214.extract_event("<edgarSubmission><eventDateRequiresFilingThisStatement>09/30/2024</eventDateRequiresFilingThisStatement></edgarSubmission>")
         self.assertEqual(v.isoformat(),"2024-09-30"); self.assertEqual(m,"XML_eventDateRequiresFilingThisStatement")
     @unittest.skipUnless(HAS_BS4,"beautifulsoup4/lxml required")
     def test_full_artifact_when_supplied(self):
