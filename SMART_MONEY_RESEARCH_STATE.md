@@ -1673,3 +1673,8 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 - No returns, features, alpha, bootstrap/LOO, OOS or holdout used. No production or universe change. F80 remains frozen.
 - Report/code/tests/result/workflow: research/PHASE213_SEC_13DG_LEGACY_EVENT_DATE_AND_AMENDMENT_MARKER_AUDIT_2026-11-08.md; research/phase213_13dg_legacy_event_date_recovery.py; research/test_phase213_13dg_legacy_event_date_recovery.py; research/phase213_13dg_event_date_recovery_result.json; .github/workflows/phase213_sec_13dg_legacy_event_date_recovery.yml.
 - Pre-Phase-213 GitHub snapshot: PR #13 open, unmerged and mergeable; head acdc9f75cbb38f9c2bd434fc44bb769767b92d70. The two most recent PR-triggered commit batches exposed 55 + 55 = 110 unique successful runs, zero active/failures; current head had no run because its commit used [skip ci]. Branch inventory: 130. No active workflow was duplicated.
+
+
+## 2026-11-08 — Phase 213 workflow syntax review
+- Corrected the dedicated Phase 213 workflow's GitHub token expression and shell line continuations after inspecting the committed YAML. The workflow now uses a literal GitHub expression and single shell continuation characters.
+- No hosted run was started on this documentation/workflow-only correction because the commit uses [skip ci]; Phase 213's 16 offline regression tests and full hash-pinned source audit passed locally. The workflow is configured for a future matching pull_request event or manual workflow_dispatch.

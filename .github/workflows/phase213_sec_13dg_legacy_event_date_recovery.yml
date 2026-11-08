@@ -40,7 +40,7 @@ jobs:
           path: phase213_input/phase124
           repository: jafelix81/NuevaEstrategia
           run-id: 42073725379
-          github-token: \${{ github.token }}
+          github-token: ${{ github.token }}
       - name: Recompute hash-pinned event-date and amendment audit
         run: |
           python research/phase213_13dg_legacy_event_date_recovery.py \
