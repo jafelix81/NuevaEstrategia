@@ -6,13 +6,13 @@ from collections import Counter
 from datetime import date
 from pathlib import Path
 from statistics import median
-from bs4 import BeautifulSoup
 from phase213_13dg_legacy_event_date_recovery import (
     ARTIFACT_SHA256, CSV_NAME, CSV_SHA256, DATE_PATTERNS, EVENT_LABEL,
     extract_event, family, is_true, parse_date, primary_document, validate_header,
 )
 
 def extract_event_bs4(body):
+    from bs4 import BeautifulSoup
     visible = BeautifulSoup(body, "lxml").get_text(" ", strip=True)
     labels = list(EVENT_LABEL.finditer(visible))
     if not labels:

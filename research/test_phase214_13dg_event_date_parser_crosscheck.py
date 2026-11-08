@@ -5,6 +5,7 @@ import phase214_13dg_event_date_parser_crosscheck as phase214
 
 try:
     import bs4
+    import lxml.etree
     HAS_BS4=True
 except ImportError:
     HAS_BS4=False

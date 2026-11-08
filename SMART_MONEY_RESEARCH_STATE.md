@@ -1687,3 +1687,7 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 - The second parser uses the same conservative event-label and nearest-date rule; this is an engine-independence check, not a separately adjudicated gold-standard label set. Event date is not public-knowledge time. Preserve SEC-header ACCEPTANCE-DATETIME and next-full-session daily eligibility.
 - No amendment-state edges were inferred; previousAccessionNumber remains a raw reference only. No returns, features, alpha, bootstrap/LOO, OOS or holdout used. No production/universe change. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen; legacy holdout remains CONSUMED_NOT_PRISTINE.
 - Report: research/PHASE214_SEC_13DG_EVENT_DATE_INDEPENDENT_DOM_CROSSPARSER_AUDIT_2026-11-08.md; auditor: research/phase214_13dg_event_date_parser_crosscheck.py; tests: research/test_phase214_13dg_event_date_parser_crosscheck.py; result: research/phase214_13dg_event_date_parser_crosscheck_result.json.
+
+## 2026-11-08 — Phase 214 offline-discovery hardening
+- Made BeautifulSoup/lxml a lazy runtime dependency so generic repository test discovery can import the Phase 214 module even when the optional parser packages are not installed. The Phase 214 tests now skip DOM-specific cases unless both bs4 and lxml are present; the full audit still requires the pinned parser dependencies.
+- No source data or research conclusions changed. No alpha/return test, holdout use, or production change.
