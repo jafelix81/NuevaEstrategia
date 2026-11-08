@@ -1,0 +1,73 @@
+name: Phase 209 Form 144/Form 4 exact-first matching audit
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'research/phase209_form144_form4_exact_first_matching_audit.py'
+      - 'research/test_phase209_form144_form4_exact_first_matching_audit.py'
+      - 'research/PHASE209_FORM144_FORM4_MATCHING_ORDER_SENSITIVITY_AUDIT_2026-11-08.md'
+      - 'research/phase209_form144_form4_exact_first_matching_audit_result.json'
+      - '.github/workflows/phase209_form144_form4_exact_first_matching_audit.yml'
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Download immutable Phase 69 Form 144 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: phase69-form144-incremental-fund-registrant-scan
+          repository: \${{ github.repository }}
+          run-id: 41959603351
+          github-token: \${{ secrets.GITHUB_TOKEN }}
+          path: phase209_input/form144
+      - name: Download immutable Phase 39 Form 4 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: phase39-sec-form4-actual-file-audit
+          repository: \${{ github.repository }}
+          run-id: 40606706518
+          github-token: \${{ secrets.GITHUB_TOKEN }}
+          path: phase209_input/form4
+      - name: Run offline regression tests
+        run: python -m unittest discover -s research -p 'test_phase209_form144_form4_exact_first_matching_audit.py' -v
+      - name: Reproduce exact-first linkage sensitivity audit
+        run: |
+          python research/phase209_form144_form4_exact_first_matching_audit.py \
+            --form144-csv phase209_input/form144/expanded_issuer_event_raw.csv \
+            --form4-zip phase209_input/form4/2026q3_form345.zip \
+            --output phase209_output/phase209_form144_form4_exact_first_matching_audit_result.json
+      - name: Enforce immutable-sample findings and no-alpha controls
+        run: |
+          python - <<'PY'
+          import json
+          x=json.load(open('phase209_output/phase209_form144_form4_exact_first_matching_audit_result.json'))
+          assert x['sample']['eligible_notices'] == 1451
+          assert x['phase208_broad_window_baseline']['mutually_unique_pairs'] == 441
+          assert x['phase208_broad_window_baseline']['exact_date_and_share_pairs_after_broad_uniqueness'] == 394
+          assert x['exact_edge_graph']['edges'] == 521
+          assert x['exact_edge_graph']['mutually_unique_edges'] == 521
+          assert x['exact_edge_graph']['ambiguous_tranches'] == 0
+          assert x['exact_edge_graph']['ambiguous_form4_blocks'] == 0
+          assert x['exact_edge_graph']['class_family_agree'] == 481
+          assert x['broad_window_collision_diagnostic']['exact_edges_removed_by_phase208_broad_uniqueness'] == 127
+          assert x['exact_first_hierarchical_linkage']['additional_mutually_unique_fallback_matches'] == 49
+          assert x['exact_first_hierarchical_linkage']['total_one_to_one_links'] == 570
+          assert x['decision']['strict_pit_admitted'] is False
+          assert x['decision']['alpha_test_authorized'] is False
+          assert x['decision']['holdout_used'] is False
+          print('Phase 209 immutable-sample and no-alpha invariants passed.')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: phase209-form144-form4-exact-first-matching-audit
+          path: phase209_output/phase209_form144_form4_exact_first_matching_audit_result.json
+          if-no-files-found: error
+          retention-days: 90
