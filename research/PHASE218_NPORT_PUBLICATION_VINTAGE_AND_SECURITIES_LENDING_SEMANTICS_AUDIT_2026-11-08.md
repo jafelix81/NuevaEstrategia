@@ -32,9 +32,9 @@ The SEC describes N-PORT as monthly portfolio reporting, but the public data reg
 - The first and second months of a fund's fiscal quarter are not publicly disclosed under the current regime.
 - The third-month report is made public upon filing.
 - The SEC bulk data sets are updated quarterly.
-- Documents filed after 5:30 p.m. Eastern on the last business day of a quarter are included in the next quarterly posting.
+- Documents filed after 5:30 p.m. EST on the last business day of a quarter are included in the next quarterly posting.
 
-The 2024 amendments that would increase the frequency and timeliness of public N-PORT reporting were delayed on April 22, 2025. The delayed effective/compliance date is November 17, 2027 for larger fund groups and May 18, 2028 for smaller groups. We must not assume monthly public N-PORT availability in 2026.
+The 2024 amendments that would increase the frequency and timeliness of public N-PORT reporting were delayed on April 22, 2025. The delayed effective date is November 17, 2027; the compliance date is November 17, 2027 for larger fund groups and May 18, 2028 for smaller groups. We must not assume monthly public N-PORT availability in 2026.
 
 Sources:
 - SEC archive page: https://www.sec.gov/data-research/sec-markets-data/form-n-port-data-sets
@@ -78,7 +78,7 @@ SECURITIES_LENDING is keyed by HOLDING_ID and contains:
 - IS_LOAN_BY_FUND
 - LOAN_VALUE
 
-These fields describe whether the fund has lent a portion of that holding and the value of the securities on loan. This is **fund-reported lending supply**, not the fund's borrowed short inventory and not market-wide borrow demand or utilization.
+These fields describe whether the fund has lent a portion of that holding and the value of the securities on loan. This is **fund-reported loaned-out inventory**, not the fund's borrowed short inventory, total lendable supply, or market-wide borrow demand/utilization.
 
 ### Borrowers
 BORROWER is keyed by ACCESSION_NUMBER + BORROWER_ID and reports borrower NAME, LEI, and AGGREGATE_VALUE, defined as the aggregate value of all securities on loan to that borrower. The README does not document a security-level borrower-to-HOLDING_ID link. Do not allocate this aggregate borrower value to individual stocks.
@@ -109,7 +109,7 @@ Sources:
 Keep two separately named hypotheses:
 
 - H-NPORT-SHORT: changes in public fund-reported short equity exposure, lagged by the actual filing/acceptance time.
-- H-NPORT-LEND: changes in fund-reported security lending supply for individual holdings.
+- H-NPORT-LENDOUT: changes in fund-reported holdings already on loan.
 
 Do not:
 - Treat either as market-wide short interest.
