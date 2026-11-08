@@ -81,7 +81,7 @@
         "form": "NPORT-P",
         "description": "Vanguard Star Funds",
         "report_to_filing_calendar_days": 60,
-        "index_url": "https://www.sec.gov/Archives/edgar/data/736054/000175272420067889/0001752724-20-067889-index.html"
+        "index_url": "https://www.sec.gov/Archives/edgar/data/736054/000175272420067889/"
       },
       {
         "accession": "0001752724-21-068625",
@@ -92,7 +92,7 @@
         "form": "NPORT-P",
         "description": "Vanguard Total International Stock Index Fund",
         "report_to_filing_calendar_days": 59,
-        "index_url": "https://www.sec.gov/Archives/edgar/data/745463/000175272421068625/0001752724-21-068625-index.html"
+        "index_url": "https://www.sec.gov/Archives/edgar/data/745463/000175272421068625/"
       },
       {
         "accession": "0001752724-22-078880",
@@ -103,7 +103,7 @@
         "form": "NPORT-P",
         "description": "Semiconductor UltraSector ProFund",
         "report_to_filing_calendar_days": 59,
-        "index_url": "https://www.sec.gov/Archives/edgar/data/1039803/000175272422078880/0001752724-22-078880-index.html"
+        "index_url": "https://www.sec.gov/Archives/edgar/data/1039803/000175272422078880/"
       },
       {
         "accession": "0001752724-22-120128",
@@ -114,7 +114,7 @@
         "form": "NPORT-P",
         "description": "SEC filing sample 2022",
         "report_to_filing_calendar_days": 55,
-        "index_url": "https://www.sec.gov/Archives/edgar/data/880195/000175272422120128/0001752724-22-120128-index.html"
+        "index_url": "https://www.sec.gov/Archives/edgar/data/880195/000175272422120128/"
       },
       {
         "accession": "0001145549-22-030043",
@@ -125,7 +125,7 @@
         "form": "NPORT-P",
         "description": "SEC filing sample 2022",
         "report_to_filing_calendar_days": 55,
-        "index_url": "https://www.sec.gov/Archives/edgar/data/2110/000114554922030043/0001145549-22-030043-index.html"
+        "index_url": "https://www.sec.gov/Archives/edgar/data/2110/000114554922030043/"
       },
       {
         "accession": "0001145549-22-030089",
@@ -136,7 +136,7 @@
         "form": "NPORT-P",
         "description": "SEC filing sample 2022",
         "report_to_filing_calendar_days": 55,
-        "index_url": "https://www.sec.gov/Archives/edgar/data/773757/000114554922030089/0001145549-22-030089-index.html"
+        "index_url": "https://www.sec.gov/Archives/edgar/data/773757/000114554922030089/"
       },
       {
         "accession": "0001752724-23-115973",
@@ -147,7 +147,7 @@
         "form": "NPORT-P",
         "description": "SEC filing sample 2023",
         "report_to_filing_calendar_days": 55,
-        "index_url": "https://www.sec.gov/Archives/edgar/data/1722388/000175272423115973/0001752724-23-115973-index.html"
+        "index_url": "https://www.sec.gov/Archives/edgar/data/1722388/000175272423115973/"
       },
       {
         "accession": "0001752724-24-123298",
@@ -158,7 +158,7 @@
         "form": "NPORT-P",
         "description": "iShares Trust",
         "report_to_filing_calendar_days": 58,
-        "index_url": "https://www.sec.gov/Archives/edgar/data/1100663/000175272424123298/0001752724-24-123298-index.html"
+        "index_url": "https://www.sec.gov/Archives/edgar/data/1100663/000175272424123298/"
       },
       {
         "accession": "0000810893-24-002680",
@@ -169,7 +169,7 @@
         "form": "NPORT-P",
         "description": "PIMCO Funds",
         "report_to_filing_calendar_days": 59,
-        "index_url": "https://www.sec.gov/Archives/edgar/data/810893/000081089324002680/0000810893-24-002680-index.html"
+        "index_url": "https://www.sec.gov/Archives/edgar/data/810893/000081089324002680/"
       },
       {
         "accession": "0001145549-24-033505",
@@ -180,7 +180,7 @@
         "form": "NPORT-P",
         "description": "TrueShares Structured Outcome (June) ETF",
         "report_to_filing_calendar_days": 59,
-        "index_url": "https://www.sec.gov/Archives/edgar/data/1683471/000114554924033505/0001145549-24-033505-index.html"
+        "index_url": "https://www.sec.gov/Archives/edgar/data/1683471/000114554924033505/"
       },
       {
         "accession": "0001145549-25-007574",
@@ -191,7 +191,7 @@
         "form": "NPORT-P",
         "description": "Kinetics Small Cap Portfolio",
         "report_to_filing_calendar_days": 50,
-        "index_url": "https://www.sec.gov/Archives/edgar/data/1113229/000114554925007574/0001145549-25-007574-index.html"
+        "index_url": "https://www.sec.gov/Archives/edgar/data/1113229/000114554925007574/"
       },
       {
         "accession": "0001145549-25-022700",
@@ -202,7 +202,7 @@
         "form": "NPORT-P",
         "description": "SEC filing sample 2025",
         "report_to_filing_calendar_days": 59,
-        "index_url": "https://www.sec.gov/Archives/edgar/data/1415726/000114554925022700/0001145549-25-022700-index.html"
+        "index_url": "https://www.sec.gov/Archives/edgar/data/1415726/000114554925022700/"
       },
       {
         "accession": "0001145549-25-022613",
@@ -213,7 +213,7 @@
         "form": "NPORT-P",
         "description": "SEC filing sample 2025",
         "report_to_filing_calendar_days": 59,
-        "index_url": "https://www.sec.gov/Archives/edgar/data/1415726/000114554925022613/0001145549-25-022613-index.html"
+        "index_url": "https://www.sec.gov/Archives/edgar/data/1415726/000114554925022613/"
       },
       {
         "accession": "0001752724-25-082708",
@@ -224,7 +224,7 @@
         "form": "NPORT-P",
         "description": "SEC filing sample 2025",
         "report_to_filing_calendar_days": 17,
-        "index_url": "https://www.sec.gov/Archives/edgar/data/702435/000175272425082708/0001752724-25-082708-index.html"
+        "index_url": "https://www.sec.gov/Archives/edgar/data/702435/000175272425082708/"
       },
       {
         "accession": "0001752724-25-125091",
@@ -235,7 +235,7 @@
         "form": "NPORT-P",
         "description": "SEC filing sample 2025",
         "report_to_filing_calendar_days": 58,
-        "index_url": "https://www.sec.gov/Archives/edgar/data/1064641/000175272425125091/0001752724-25-125091-index.html"
+        "index_url": "https://www.sec.gov/Archives/edgar/data/1064641/000175272425125091/"
       },
       {
         "accession": "0001752724-25-124153",
@@ -246,7 +246,7 @@
         "form": "NPORT-P",
         "description": "SEC filing sample 2025",
         "report_to_filing_calendar_days": 58,
-        "index_url": "https://www.sec.gov/Archives/edgar/data/1217286/000175272425124153/0001752724-25-124153-index.html"
+        "index_url": "https://www.sec.gov/Archives/edgar/data/1217286/000175272425124153/"
       },
       {
         "accession": "0001145549-25-034289",
@@ -257,7 +257,7 @@
         "form": "NPORT-P",
         "description": "SEC filing sample 2025",
         "report_to_filing_calendar_days": 59,
-        "index_url": "https://www.sec.gov/Archives/edgar/data/756913/000114554925034289/0001145549-25-034289-index.html"
+        "index_url": "https://www.sec.gov/Archives/edgar/data/756913/000114554925034289/"
       },
       {
         "accession": "0001145549-25-034330",
@@ -268,7 +268,7 @@
         "form": "NPORT-P",
         "description": "SEC filing sample 2025",
         "report_to_filing_calendar_days": 59,
-        "index_url": "https://www.sec.gov/Archives/edgar/data/1331971/000114554925034330/0001145549-25-034330-index.html"
+        "index_url": "https://www.sec.gov/Archives/edgar/data/1331971/000114554925034330/"
       },
       {
         "accession": "0001145549-25-035291",
@@ -279,7 +279,7 @@
         "form": "NPORT-P",
         "description": "Clipper Fund",
         "report_to_filing_calendar_days": 59,
-        "index_url": "https://www.sec.gov/Archives/edgar/data/1316506/000114554925035291/0001145549-25-035291-index.html"
+        "index_url": "https://www.sec.gov/Archives/edgar/data/1316506/000114554925035291/"
       },
       {
         "accession": "0001752724-25-128454",
@@ -290,7 +290,7 @@
         "form": "NPORT-P",
         "description": "SEC filing sample 2025",
         "report_to_filing_calendar_days": 59,
-        "index_url": "https://www.sec.gov/Archives/edgar/data/872323/000175272425128454/0001752724-25-128454-index.html"
+        "index_url": "https://www.sec.gov/Archives/edgar/data/872323/000175272425128454/"
       },
       {
         "accession": "0001752724-25-128920",
@@ -301,7 +301,7 @@
         "form": "NPORT-P",
         "description": "Partners Group Private Equity (Master Fund), LLC",
         "report_to_filing_calendar_days": 59,
-        "index_url": "https://www.sec.gov/Archives/edgar/data/1447247/000175272425128920/0001752724-25-128920-index.html"
+        "index_url": "https://www.sec.gov/Archives/edgar/data/1447247/000175272425128920/"
       },
       {
         "accession": "0001145549-25-036462",
@@ -312,7 +312,7 @@
         "form": "NPORT-P",
         "description": "SEC filing sample 2025",
         "report_to_filing_calendar_days": 59,
-        "index_url": "https://www.sec.gov/Archives/edgar/data/1660935/000114554925036462/0001145549-25-036462-index.html"
+        "index_url": "https://www.sec.gov/Archives/edgar/data/1660935/000114554925036462/"
       },
       {
         "accession": "0001145549-25-037369",
@@ -323,7 +323,7 @@
         "form": "NPORT-P",
         "description": "SEC filing sample 2025",
         "report_to_filing_calendar_days": 60,
-        "index_url": "https://www.sec.gov/Archives/edgar/data/1976322/000114554925037369/0001145549-25-037369-index.html"
+        "index_url": "https://www.sec.gov/Archives/edgar/data/1976322/000114554925037369/"
       },
       {
         "accession": "0001145549-25-052151",
@@ -334,7 +334,7 @@
         "form": "NPORT-P",
         "description": "Kinetics Global Portfolio",
         "report_to_filing_calendar_days": 52,
-        "index_url": "https://www.sec.gov/Archives/edgar/data/1113229/000114554925052151/0001145549-25-052151-index.html"
+        "index_url": "https://www.sec.gov/Archives/edgar/data/1113229/000114554925052151/"
       },
       {
         "accession": "0001145549-25-052238",
@@ -345,9 +345,10 @@
         "form": "NPORT-P",
         "description": "Empower Lifetime 2065 Fund",
         "report_to_filing_calendar_days": 52,
-        "index_url": "https://www.sec.gov/Archives/edgar/data/356476/000114554925052238/0001145549-25-052238-index.html"
+        "index_url": "https://www.sec.gov/Archives/edgar/data/356476/000114554925052238/"
       }
-    ]
+    ],
+    "index_link_note": "Directory URLs are used because SEC filing index filenames vary between .htm and .html."
   },
   "phase217_reassessment": {
     "accession": "0001145549-25-033457",
