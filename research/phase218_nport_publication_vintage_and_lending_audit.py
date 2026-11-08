@@ -52,6 +52,8 @@ def build_audit(evidence: dict[str, object]) -> dict[str, object]:
         "all_forms_nport_p": all_forms_nport_p,
         "all_acceptance_dates_match_filing_dates": acceptance_dates_match,
         "report_to_filing_calendar_days": summary,
+        "filings_within_50_to_60_days": sum(50 <= value <= 60 for value in lags),
+        "early_filing_count_below_50_days": sum(value < 50 for value in lags),
         "official_sec_quarters": evidence["official_sec_archive"]["quarter_count"],
         "data_gov_quarters": evidence["data_gov_catalog_comparison"]["resource_count"],
         "data_gov_one_quarter_stale": (
