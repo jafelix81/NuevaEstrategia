@@ -14,7 +14,7 @@ class Phase220NportQuantityMeasurementTests(unittest.TestCase):
         self.assertEqual(self.result["primary_feature"], "delta_short_shares_pct")
 
     def test_quantity_change_is_fixed_direction(self):
-        self.assertEqual(quantity_change_pct(-100, -110), 10.0)
+        self.assertAlmostEqual(quantity_change_pct(-100, -110), 10.0, places=9)
 
     def test_price_revaluation_does_not_look_like_new_shares(self):
         row = self.evidence["synthetic_counterexamples"]["unchanged_shares_price_rises_20pct"]
@@ -29,7 +29,7 @@ class Phase220NportQuantityMeasurementTests(unittest.TestCase):
     def test_real_quantity_increase_is_detected(self):
         row = self.evidence["synthetic_counterexamples"]["short_shares_increase_10pct"]
         self.assertEqual(row["delta_short_shares_pct"], 10)
-        self.assertEqual(quantity_change_pct(-row["prior_shares"], -row["current_shares"]), 10.0)
+        self.assertAlmostEqual(quantity_change_pct(-row["prior_shares"], -row["current_shares"]), 10.0, places=9)
 
     def test_split_adjustment_is_applied(self):
         self.assertEqual(quantity_change_pct(-100, -200, 0.5), 0.0)
