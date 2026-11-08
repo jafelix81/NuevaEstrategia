@@ -25,6 +25,8 @@ from research.phase199_sec_midas_disputed_quarter_content_audit import (
     detect_delimiter,
     download_archive,
     normalize_header,
+    parse_date,
+    quarter_bounds,
 )
 from research.phase198_sec_midas_archive_inventory import fetch_sec_page, parse_inventory
 
@@ -34,7 +36,7 @@ NUMERIC_FIELDS = (
     "mcaprank", "turnrank", "volatilityrank", "pricerank", "litvol('000)",
     "ordervol('000)", "hidden", "tradesforhidden", "hiddenvol('000)",
     "tradevolforhidden('000)", "cancels", "littrades", "oddlots",
-    "tradesforoddlots", "oddlotvol('000)", "tradevolforoddLots('000)",
+    "tradesforoddlots", "oddlotvol('000)", "tradevolforoddlots('000)",
 )
 NEGATIVE_FIELDS = {
     "hidden": "tradesforhidden",
@@ -139,16 +141,7 @@ def audit_csv_bytes(data: bytes, quarter: str) -> dict[str, object]:
                             "denominator_zero_count": 0, "negative_or_missing_rows": 0}
     numeric_invalid: Counter[str] = Counter()
     numeric_negative: Counter[str] = Counter()
-    quarter_parts = quarter.split()
-    year, qtr = int(quarter_parts[0]), int(quarter_parts[1][1])
-    start_month = (qtr - 1) * 3 + 1
-    start = f"{year:04d}-{start_month:02d}-01"
-    end_month = start_month + 2
-    if end_month == 12:
-        end = f"{year:04d}-12-31"
-    else:
-        from datetime import date, timedelta
-        end = (date(year, end_month + 1, 1) - timedelta(days=1)).isoformat()
+    start, end = quarter_bounds(quarter)
     out_of_quarter = 0
 
     for raw in reader:
@@ -159,24 +152,21 @@ def audit_csv_bytes(data: bytes, quarter: str) -> dict[str, object]:
             malformed += 1
             continue
         ticker = raw[idx["ticker"]].strip().upper()
-        day = raw[idx["date"]].strip()
+        day_value = parse_date(raw[idx["date"]])
         security = raw[idx["security"]].strip()
         if not ticker:
             blank_ticker += 1
             continue
-        if len(day) == 8 and day.isdigit():
-            day = f"{day[:4]}-{day[4:6]}-{day[6:]}"
-        if len(day) >= 10:
-            day = day[:10]
-        if len(day) != 10 or day[4] != "-" or day[7] != "-":
+        if day_value is None:
             invalid_date += 1
             continue
+        day = day_value.isoformat()
         rows += 1
         dates.add(day)
         tickers.add(ticker)
         if security:
             security_counts[security] += 1
-        if day < start or day > end:
+        if day_value < start or day_value > end:
             out_of_quarter += 1
 
         key = (ticker, day, security)

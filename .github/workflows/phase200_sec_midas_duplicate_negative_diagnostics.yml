@@ -42,6 +42,7 @@ jobs:
           assert s["status"] == "SIX_QUARTER_DUPLICATE_AND_NEGATIVE_VALUE_DIAGNOSTICS_COMPLETED"
           assert len(s["quarter_results"]) == 6
           assert all(x["rows_with_valid_ticker_and_date"] > 0 for x in s["quarter_results"])
+          assert all(x["invalid_date_rows"] == 0 and x["blank_ticker_rows"] == 0 and x["malformed_rows"] == 0 and x["out_of_quarter_rows"] == 0 for x in s["quarter_results"])
           assert s["interpretation"]["strict_pit_admitted"] is False
           assert s["interpretation"]["alpha_test_authorized"] is False
           assert s["interpretation"]["holdout_used"] is False
