@@ -1,0 +1,120 @@
+{
+  "phase": 219,
+  "audit_as_of": "2026-11-08",
+  "status": "DISTINCT_SHORT_SIDE_HYPOTHESIS_PREREGISTERED_NO_ALPHA",
+  "prior_phase_adjudication": {
+    "phase27n_filter": "PAYOFF_PROFILE blank/LONG only; negative CURRENCY_VALUE excluded",
+    "phase27o_signal": "same long share-accumulation signal; six annual formation periods 2020Q4-2025Q4",
+    "phase27o_disposition": "KILLED; top-minus-bottom sign unstable; no rescue permitted",
+    "short_side_tested_before": false
+  },
+  "hypothesis": {
+    "id": "NPORT_DIRECT_SHORT_EXPOSURE_CHANGE",
+    "population": "registered-fund series reporting direct non-derivative U.S. common-equity short payoff positions",
+    "primary_feature": "delta_short_pct_nav",
+    "definition": "current magnitude of short pctVal minus prior magnitude for same series and security, where explicit short rows exist in both consecutive as-filed report vintages",
+    "direction": "positive increase in short exposure predicts lower subsequent residual equity returns",
+    "sign_is_fixed": true,
+    "absent_row_interpretation": "unknown; never impute zero before complete-holdings and omission semantics pass"
+  },
+  "row_filter": {
+    "payoff_profile": "Short",
+    "asset_cat": "EC",
+    "issuer_cat": "CORP",
+    "inv_country": "US",
+    "unit": "NS",
+    "title": "Common Stock where present and consistent",
+    "required_signs": [
+      "BALANCE < 0",
+      "CURRENCY_VALUE < 0",
+      "PERCENTAGE/pctVal < 0"
+    ],
+    "security_identity": "effective-dated CUSIP/ISIN to U.S. primary listing",
+    "fuzzy_ticker_fallback": false
+  },
+  "knowledge_time": {
+    "preserve": [
+      "report_date",
+      "filing_date",
+      "acceptance_datetime_et",
+      "acceptance_datetime_utc",
+      "first_public_receipt_if_captured",
+      "first_full_session_open_after_acceptance"
+    ],
+    "trading_boundary": "first full regular U.S. equity session whose open is strictly after SEC acceptance",
+    "use_report_date_as_knowledge_time": false,
+    "fixed_report_lag": false,
+    "amendments": "append-only as-filed vintages; update state only from amendment's own knowledge boundary"
+  },
+  "current_evidence": {
+    "sec_bulk_archive_quarters": 28,
+    "history_start": "2019-10-01",
+    "history_end": "2026-09-30",
+    "phase192_accessions": 5,
+    "phase193_raw_files_downloaded": 0,
+    "phase193_sec_requests_sent": 0,
+    "phase217_selected_short_rows": 23,
+    "phase217_rows_exhaustive": false,
+    "phase217_raw_submission_sha256_verified": false,
+    "phase217_primary_xml_sha256_verified": false,
+    "phase218_filing_lag_sample": {
+      "n": 25,
+      "min_days": 17,
+      "median_days": 59,
+      "max_days": 60,
+      "representative": false
+    }
+  },
+  "admission_gates": {
+    "five_accession_raw_hashes": "NOT_VERIFIED",
+    "complete_deterministic_holdings_parse": "NOT_VERIFIED",
+    "series_and_amendment_lineage": "NOT_ESTABLISHED",
+    "first_public_receipt": "NOT_VERIFIED",
+    "effective_dated_security_listing_crosswalk": "NOT_ESTABLISHED",
+    "broad_pit_universe_coverage": "NOT_ESTIMATED",
+    "alpha_test_authorized": false
+  },
+  "test_protocol": {
+    "horizons_trading_sessions": [
+      5,
+      20,
+      63,
+      126
+    ],
+    "fixed_direction": "more reported direct short exposure => lower subsequent residual returns",
+    "controls": [
+      "lagged_returns_20_60_120",
+      "volatility",
+      "ADV_liquidity",
+      "size",
+      "beta",
+      "sector"
+    ],
+    "benchmark": "frozen LTM/F80 on identical eligible securities, dates, exposure and costs",
+    "resampling": [
+      "block_bootstrap_by_formation_date",
+      "cluster_bootstrap_by_registrant",
+      "leave_one_registrant_out",
+      "leave_one_fund_series_out",
+      "leave_one_issuer_out"
+    ],
+    "chronological_validation": true,
+    "legacy_holdout": "CONSUMED_NOT_PRISTINE",
+    "prospective_confirmation_required": true
+  },
+  "controls": {
+    "f80_frozen": true,
+    "return_test_run": false,
+    "alpha_test_run": false,
+    "bootstrap_loo_run": false,
+    "holdout_used": false,
+    "production_changed": false,
+    "universe_changed": false,
+    "data_purchase": false,
+    "vendor_contact": false,
+    "sec_requests_sent": false,
+    "placeholder_contact_email_used": false
+  },
+  "human_dependency": "Configure authorized repository Actions secret SEC_CONTACT_EMAIL before Phase 193 raw retrieval. Fail closed while absent.",
+  "decision": "A distinct N-PORT direct-short exposure-change hypothesis is preregistered, not admitted. Do not reuse Phase 27O long-side results as evidence against it; do not interpret reported short positions as beneficial-owner conviction. Retrieve/hash raw filings, establish PIT lineage and broad-universe identity before any return test."
+}

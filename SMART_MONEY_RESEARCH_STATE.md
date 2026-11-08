@@ -1737,3 +1737,15 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 - **Human dependency:** `SEC_CONTACT_EMAIL` remains unavailable as a repository secret; Phase 193's raw SEC retrieval remains blocked. No raw files, first-public-receipt capture, full amendment lineage, or broad-universe security crosswalk were obtained in this phase.
 - No alpha/return test, bootstrap/LOO, OOS, holdout use, vendor purchase/contact, production or universe change. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen; holdout remains `CONSUMED_NOT_PRISTINE`.
 
+
+
+## 2026-11-08 — Phase 219 N-PORT direct-short exposure-change preregistration
+
+- Phase 219 records a distinct short-side hypothesis: changes in registered-fund series' explicitly reported direct U.S. common-equity short exposure may predict lower subsequent residual returns after the filing becomes public.
+- This is **not** a rescue of Phase 27N/27O. The old 27N/27N2 implementation filtered to blank/LONG payoff profiles and non-negative values; Phase 27O reused that long share-accumulation signal. Its six-period dose-response remains killed with unstable signs. It did not test short-payoff positions.
+- Primary feature is the change in short percentage of NAV for the same fund series/security across consecutive as-filed report vintages. The direction is fixed ex ante: increased short exposure predicts lower subsequent returns. No post-hoc sign reversal is permitted.
+- Initial row filter: payoffProfile=Short, assetCat=EC, issuerCat=CORP, invCountry=US, unit=NS, negative balance/value/pctVal, plus an effective-dated CUSIP/ISIN-to-U.S.-listing crosswalk. `invCountry` is not a listing-venue field. Missing position rows remain unknown, not zero; initiation/covering features are deferred until completeness/omission semantics pass.
+- Phase 217's 23 rows are selected from one filing and are not exhaustive; Phase 193 still retrieved zero raw bytes because SEC_CONTACT_EMAIL was empty. Raw hashes, complete holdings parse, series/amendment lineage, first-public-receipt evidence, historical security identity and broad PIT coverage remain unverified.
+- Phase 219 is preregistration only: no returns, alpha, bootstrap/LOO, holdout or production test. The legacy holdout remains CONSUMED_NOT_PRISTINE. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+- Report: `research/PHASE219_NPORT_DIRECT_SHORT_EXPOSURE_CHANGE_HYPOTHESIS_PREREGISTRATION_2026-11-08.md`; evidence, validator and tests are stored alongside it. The validator/tests are not represented as hosted CI; this commit uses [skip ci].
+- Human dependency unchanged: configure the authorized GitHub Actions secret SEC_CONTACT_EMAIL before Phase 193 raw retrieval. No placeholder email or request bypass is permitted.
