@@ -1,0 +1,115 @@
+{
+  "phase": 210,
+  "inputs": {
+    "form144_csv_sha256": "7a54ee09e8d4520e1ec14cf22f2c0d1c62d077798b14d3db596826e3360a3659",
+    "form144_artifact_run_id": 41959603351,
+    "form144_artifact_id": 13385365595,
+    "form4_inner_zip_sha256": "a4e6a681cfcfa43a3d9e4ca9cfec1fd26a59d0a01eac7e9f7b5a0122092c90f3",
+    "form4_artifact_run_id": 40606706518,
+    "form4_artifact_id": 12781850078
+  },
+  "sample": {
+    "form144_panel_rows": 21634,
+    "eligible_notices": 1451,
+    "eligible_tranches": 1460,
+    "form4_submissions": 38152,
+    "form4_nonderivative_rows": 59885,
+    "form4_unique_owner_sale_blocks": 10525
+  },
+  "exact_link_graph": {
+    "edges": 521,
+    "mutually_unique_edges": 521,
+    "ambiguous_tranches": 0,
+    "ambiguous_form4_blocks": 0,
+    "class_family_agree": 481,
+    "class_family_agreement_rate": 0.923225,
+    "normalized_class_text_equal": 52,
+    "family_agree_but_normalized_text_differs": 429,
+    "family_conflict_or_unknown": 40,
+    "class_family_pairs": {
+      "CLASS_A|CLASS_A": 74,
+      "CLASS_C|CLASS_C": 21,
+      "COMMON|COMMON": 378,
+      "SERIES_A|SERIES_A": 8,
+      "COMMON|CLASS_A": 30,
+      "COMMON|ORDINARY": 4,
+      "COMMON|DEPOSITARY": 2,
+      "CLASS_A|SERIES_A": 2,
+      "COMMON|SERIES_A": 1,
+      "CLASS_A|DEPOSITARY": 1
+    },
+    "fallback_mutually_unique_links": 49,
+    "total_hierarchical_links": 570
+  },
+  "permutation_audit": {
+    "replicates": 500,
+    "seed": 210,
+    "group_structure": {
+      "issuer_groups": 1959,
+      "issuers_with_multiple_reporting_owners": 1195,
+      "issuer_owner_groups": 5276,
+      "issuer_owner_groups_with_multiple_form4_blocks": 1967,
+      "owner_identity_mutable_form4_blocks": 8956,
+      "date_and_share_mutable_form4_blocks": 7216,
+      "exact_links_in_owner_mutable_groups": 475,
+      "exact_links_in_date_share_mutable_groups": 340
+    },
+    "placebos": {
+      "owner_identity_within_issuer": {
+        "observed_mutable_exact_links": 475,
+        "mutable_form4_blocks": 8956,
+        "null_mean": 156.606,
+        "null_median": 157,
+        "null_p95": 171,
+        "null_max": 183,
+        "null_replicates_at_or_above_observed": 0,
+        "empirical_tail_plus_one": 0.001996,
+        "observed_to_null_mean_ratio": 3.033089
+      },
+      "date_within_issuer_owner": {
+        "observed_mutable_exact_links": 340,
+        "mutable_form4_blocks": 7216,
+        "null_mean": 194.352,
+        "null_median": 194,
+        "null_p95": 208,
+        "null_max": 218,
+        "null_replicates_at_or_above_observed": 0,
+        "empirical_tail_plus_one": 0.001996,
+        "observed_to_null_mean_ratio": 1.749403
+      },
+      "shares_within_issuer_owner": {
+        "observed_mutable_exact_links": 340,
+        "mutable_form4_blocks": 7216,
+        "null_mean": 194.962,
+        "null_median": 195,
+        "null_p95": 208,
+        "null_max": 223,
+        "null_replicates_at_or_above_observed": 0,
+        "empirical_tail_plus_one": 0.001996,
+        "observed_to_null_mean_ratio": 1.743929
+      },
+      "date_and_shares_within_issuer_owner": {
+        "observed_mutable_exact_links": 340,
+        "mutable_form4_blocks": 7216,
+        "null_mean": 195.284,
+        "null_median": 195,
+        "null_p95": 209,
+        "null_max": 218,
+        "null_replicates_at_or_above_observed": 0,
+        "empirical_tail_plus_one": 0.001996,
+        "observed_to_null_mean_ratio": 1.741054
+      }
+    }
+  },
+  "decision": {
+    "disposition": "LINKAGE_PLACEBO_ALIGNMENT_ENHANCED_DESCRIPTIVE_ONLY",
+    "strict_pit_admitted": false,
+    "feature_admitted": false,
+    "alpha_test_authorized": false,
+    "return_test_run": false,
+    "holdout_used": false,
+    "legacy_holdout": "CONSUMED_NOT_PRISTINE",
+    "f80_frozen": true,
+    "production_changed": false
+  }
+}

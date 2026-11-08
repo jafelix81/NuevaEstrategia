@@ -32,18 +32,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: phase39-sec-form4-actual-file-audit
-          repository: ${{ github.repository }}
+          repository: REPO_EXPR
           run-id: 40606706518
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: TOKEN_EXPR
           path: phase209_input/form4
       - name: Run offline regression tests
         run: python -m unittest discover -s research -p 'test_phase209_form144_form4_exact_first_matching_audit.py' -v
       - name: Reproduce exact-first linkage sensitivity audit
-        run: |
-          python research/phase209_form144_form4_exact_first_matching_audit.py \
-            --form144-csv phase209_input/form144/expanded_issuer_event_raw.csv \
-            --form4-zip phase209_input/form4/2026q3_form345.zip \
-            --output phase209_output/phase209_form144_form4_exact_first_matching_audit_result.json
+        run: python -m research.phase209_form144_form4_exact_first_matching_audit --form144-csv phase209_input/form144/expanded_issuer_event_raw.csv --form4-zip phase209_input/form4/2026q3_form345.zip --output phase209_output/phase209_form144_form4_exact_first_matching_audit_result.json
       - name: Enforce immutable-sample findings and no-alpha controls
         run: |
           python - <<'PY'
