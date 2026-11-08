@@ -32,9 +32,9 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: phase39-sec-form4-actual-file-audit
-          repository: REPO_EXPR
+          repository: ${{ github.repository }}
           run-id: 40606706518
-          github-token: TOKEN_EXPR
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           path: phase209_input/form4
       - name: Run offline regression tests
         run: python -m unittest discover -s research -p 'test_phase209_form144_form4_exact_first_matching_audit.py' -v

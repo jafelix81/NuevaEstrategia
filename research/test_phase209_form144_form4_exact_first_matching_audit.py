@@ -77,11 +77,13 @@ class Phase209Tests(unittest.TestCase):
         b3 = block("4b", "2026-07-04", 100)
         self.assertEqual(len(candidate_edges([t], [b2, b3], 0, 2)), 1)
 
-    def test_workflow_auth_and_module_invocation_are_valid(self):
+    def test_workflow_has_two_valid_cross_run_auth_pairs_and_module_command(self):
         workflow = Path(".github/workflows/phase209_form144_form4_exact_first_matching_audit.yml").read_text()
         dollar = chr(36)
-        self.assertIn("repository: " + dollar + "{{ github.repository }}", workflow)
-        self.assertIn("github-token: " + dollar + "{{ secrets.GITHUB_TOKEN }}", workflow)
+        self.assertEqual(workflow.count("repository: " + dollar + "{{ github.repository }}"), 2)
+        self.assertEqual(workflow.count("github-token: " + dollar + "{{ secrets.GITHUB_TOKEN }}"), 2)
+        self.assertNotIn("REPO_EXPR", workflow)
+        self.assertNotIn("TOKEN_EXPR", workflow)
         self.assertNotIn(chr(92) + dollar + "{{", workflow)
         self.assertIn("python -m research.phase209_form144_form4_exact_first_matching_audit", workflow)
         self.assertNotIn("python research/phase209_form144_form4_exact_first_matching_audit.py", workflow)

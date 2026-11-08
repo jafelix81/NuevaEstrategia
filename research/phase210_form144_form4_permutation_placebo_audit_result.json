@@ -41,6 +41,84 @@
     "fallback_mutually_unique_links": 49,
     "total_hierarchical_links": 570
   },
+  "price_concordance": {
+    "exact_links": {
+      "matches": 521,
+      "priced_matches": 521,
+      "all_form4_shares_priced": 521,
+      "min_priced_share_fraction": 1,
+      "median_abs_relative_difference_pct": 0.000295,
+      "p90_abs_relative_difference_pct": 0.057979,
+      "p95_abs_relative_difference_pct": 0.584595,
+      "max_abs_relative_difference_pct": 3.788235,
+      "within_1pct": 503,
+      "within_2_5pct": 517,
+      "within_5pct": 521,
+      "within_10pct": 521,
+      "within_20pct": 521,
+      "median_abs_price_difference_usd_per_share": 0.000494
+    },
+    "class_family_agree_exact_links": {
+      "matches": 481,
+      "priced_matches": 481,
+      "all_form4_shares_priced": 481,
+      "min_priced_share_fraction": 1,
+      "median_abs_relative_difference_pct": 0.000156,
+      "p90_abs_relative_difference_pct": 0.042408,
+      "p95_abs_relative_difference_pct": 0.584595,
+      "max_abs_relative_difference_pct": 3.788235,
+      "within_1pct": 465,
+      "within_2_5pct": 477,
+      "within_5pct": 481,
+      "within_10pct": 481,
+      "within_20pct": 481,
+      "median_abs_price_difference_usd_per_share": 0.000493
+    },
+    "class_family_conflict_or_unresolved_exact_links": {
+      "matches": 40,
+      "priced_matches": 40,
+      "all_form4_shares_priced": 40,
+      "min_priced_share_fraction": 1,
+      "median_abs_relative_difference_pct": 0.002314,
+      "p90_abs_relative_difference_pct": 0.065606,
+      "p95_abs_relative_difference_pct": 0.410293,
+      "max_abs_relative_difference_pct": 1.185561,
+      "within_1pct": 38,
+      "within_2_5pct": 40,
+      "within_5pct": 40,
+      "within_10pct": 40,
+      "within_20pct": 40,
+      "median_abs_price_difference_usd_per_share": 0.0005
+    },
+    "fallback_links": {
+      "matches": 49,
+      "priced_matches": 49,
+      "all_form4_shares_priced": 49,
+      "min_priced_share_fraction": 1,
+      "median_abs_relative_difference_pct": 0.320755,
+      "p90_abs_relative_difference_pct": 5.092073,
+      "p95_abs_relative_difference_pct": 7.306911,
+      "max_abs_relative_difference_pct": 10.065229,
+      "within_1pct": 30,
+      "within_2_5pct": 36,
+      "within_5pct": 44,
+      "within_10pct": 48,
+      "within_20pct": 49,
+      "median_abs_price_difference_usd_per_share": null
+    }
+  },
+  "plan_flag_concordance": {
+    "table": {
+      "no_plan_date|form4_false": 189,
+      "no_plan_date|form4_true": 7,
+      "plan_date_present|form4_false": 2,
+      "plan_date_present|form4_true": 323
+    },
+    "concordant": 512,
+    "discordant": 9,
+    "known_pairs": 521,
+    "concordance_rate": 0.982725
+  },
   "permutation_audit": {
     "replicates": 500,
     "seed": 210,
@@ -52,7 +130,8 @@
       "owner_identity_mutable_form4_blocks": 8956,
       "date_and_share_mutable_form4_blocks": 7216,
       "exact_links_in_owner_mutable_groups": 475,
-      "exact_links_in_date_share_mutable_groups": 340
+      "exact_links_in_date_share_mutable_groups": 340,
+      "exact_links_in_price_mutable_groups_within_5pct": 340
     },
     "placebos": {
       "owner_identity_within_issuer": {
@@ -98,11 +177,22 @@
         "null_replicates_at_or_above_observed": 0,
         "empirical_tail_plus_one": 0.001996,
         "observed_to_null_mean_ratio": 1.741054
+      },
+      "price_within_5pct_within_issuer_owner": {
+        "observed_mutable_exact_links": 340,
+        "mutable_form4_blocks": 7216,
+        "null_mean": 214.982,
+        "null_median": 214,
+        "null_p95": 228,
+        "null_max": 240,
+        "null_replicates_at_or_above_observed": 0,
+        "empirical_tail_plus_one": 0.001996,
+        "observed_to_null_mean_ratio": 1.581528
       }
     }
   },
   "decision": {
-    "disposition": "LINKAGE_PLACEBO_ALIGNMENT_ENHANCED_DESCRIPTIVE_ONLY",
+    "disposition": "LINKAGE_PLACEBO_AND_PRICE_ALIGNMENT_ENHANCED_DESCRIPTIVE_ONLY",
     "strict_pit_admitted": false,
     "feature_admitted": false,
     "alpha_test_authorized": false,
