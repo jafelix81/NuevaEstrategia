@@ -1774,3 +1774,12 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 - Phase 221 is regulatory semantics plus 13 synthetic cases only. No raw N-PORT filing was downloaded or hashed; no prevalence, alpha, return, bootstrap/LOO, holdout or production test. Phase 193 remains blocked because the actual Actions log shows SEC_CONTACT_EMAIL empty, zero requests and zero files downloaded.
 - Files: research/PHASE221_NPORT_MISSING_ROW_PART_D_CONDITIONAL_ZERO_SEMANTICS_AUDIT_2026-11-08.md, adjacent evidence JSON, pure-Python auditor, 14 regression tests and result JSON. Commit uses [skip ci]; no hosted CI run is claimed.
 - F80 remains frozen; legacy holdout remains CONSUMED_NOT_PRISTINE.
+
+
+## 2026-11-08 — Phase 221 repository preflight and execution audit
+- Pre-write GitHub Actions inventory: 5,577 total historical runs; latest 100 contained 98 success, one failure, one cancelled and zero active/queued/waiting. The failure is the first Phase 214 parser-test attempt later corrected; the cancelled run was superseded.
+- Latest run in the first 100: Phase 185, run 42491346732, SHA 5ac79c08118c37208d148521c6dbcb0ada2d9a9e. Its single audit job completed successfully; artifact 13621239943 is 945 bytes (metadata/audit snapshot).
+- Phase 192 run 42491346703 completed successfully with 12/12 offline tests; artifact 13621506733 is 1,043 bytes and metadata-only, not raw filing data.
+- Phase 193 run 42417539372 completed its fail-closed audit: SEC_CONTACT_EMAIL was empty; zero accessions attempted, zero files downloaded, zero raw hashes verified. Its 731-byte artifact records BLOCKED_MISSING_SEC_CONTACT_EMAIL.
+- Branch pagination verified 100 + 30 + 0 = 130 branches. PR #13 remains open and mergeable; after Phase 221 it has 537 commits and 466 changed files.
+- Phase 221 commit c62ae5013ddcc5b8501dc75408f35a5b70556086 has no associated PR workflow run. It used [skip ci]; no hosted Phase 221 CI is claimed. Latest Actions remain on the older CI SHA above.
