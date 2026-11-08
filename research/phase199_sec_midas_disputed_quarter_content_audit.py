@@ -188,7 +188,12 @@ def audit_csv_member(binary_stream, member_name: str, quarter: str) -> dict[str,
     }
 
 
-def audit_zip_bytes(content: bytes, quarter: str, metadata: dict[str, object] | None = None) -> dict[str, object]:
+def audit_zip_bytes(
+    content: bytes,
+    quarter: str,
+    metadata: dict[str, object] | None = None,
+    nesting: int = 0,
+) -> dict[str, object]:
     archive_sha = hashlib.sha256(content).hexdigest()
     with zipfile.ZipFile(io.BytesIO(content)) as archive:
         members = [item for item in archive.infolist() if not item.is_dir()]
@@ -206,28 +211,69 @@ def audit_zip_bytes(content: bytes, quarter: str, metadata: dict[str, object] | 
             normalized = {normalize_header(value) for value in header}
             if REQUIRED.issubset(normalized):
                 data_members.append(item)
-        if len(data_members) != 1:
+        if not data_members:
+            nested_members = [item for item in members if item.filename.lower().endswith(".zip")]
+            if len(nested_members) == 1 and nesting < 3:
+                with archive.open(nested_members[0], "r") as stream:
+                    nested_bytes = stream.read()
+                nested_result = audit_zip_bytes(nested_bytes, quarter, metadata, nesting + 1)
+                nested_result["nested_archive_sha256"] = nested_result.get(
+                    "data_archive_sha256", nested_result["archive_sha256"]
+                )
+                nested_result["nested_archive_bytes"] = nested_result.get(
+                    "data_archive_bytes", nested_result["archive_bytes"]
+                )
+                nested_result["data_archive_sha256"] = nested_result.get(
+                    "data_archive_sha256", nested_result["archive_sha256"]
+                )
+                nested_result["data_archive_bytes"] = nested_result.get(
+                    "data_archive_bytes", nested_result["archive_bytes"]
+                )
+                nested_result["archive_sha256"] = archive_sha
+                nested_result["archive_bytes"] = len(content)
+                nested_result["zip_crc_passed"] = (
+                    bad_member is None and nested_result["zip_crc_passed"]
+                )
+                nested_result["outer_crc_failure_member"] = bad_member
+                nested_result["outer_member_count"] = len(members)
+                nested_result["outer_members"] = [
+                    {"name": item.filename, "compressed_bytes": item.compress_size,
+                     "uncompressed_bytes": item.file_size, "crc32": f"{item.CRC:08x}"}
+                    for item in members
+                ]
+                nested_result["container_depth"] = nesting + 1
+                nested_result["http_metadata"] = metadata or {}
+                nested_result["last_modified_is_not_publication_time"] = True
+                return nested_result
             inventory = [{"name": item.filename, "bytes": item.file_size} for item in members]
-            raise ValueError(f"{quarter}:expected_one_midas_schema_member_found_{len(data_members)};members={inventory}")
+            raise ValueError(
+                f"{quarter}:no_midas_schema_member_and_no_single_nested_zip;members={inventory}"
+            )
+        if len(data_members) != 1:
+            inventory = [{"name": item.filename, "bytes": item.file_size} for item in data_members]
+            raise ValueError(f"{quarter}:multiple_midas_schema_members:{inventory}")
         with archive.open(data_members[0], "r") as stream:
             csv_result = audit_csv_member(stream, data_members[0].filename, quarter)
         return {
             "quarter": quarter,
             "archive_sha256": archive_sha,
+            "data_archive_sha256": archive_sha,
             "archive_bytes": len(content),
+            "data_archive_bytes": len(content),
             "zip_crc_passed": bad_member is None,
             "crc_failure_member": bad_member,
+            "container_depth": nesting,
             "member_count": len(members),
             "members": [
                 {"name": item.filename, "compressed_bytes": item.compress_size,
                  "uncompressed_bytes": item.file_size, "crc32": f"{item.CRC:08x}"}
                 for item in members
             ],
+            "data_member": data_members[0].filename,
             "csv": csv_result,
             "http_metadata": metadata or {},
             "last_modified_is_not_publication_time": True,
         }
-
 
 def download_archive(url: str, retries: int = 3) -> tuple[bytes, dict[str, object]]:
     last_error: Exception | None = None

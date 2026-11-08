@@ -90,6 +90,15 @@ class Phase199Tests(unittest.TestCase):
         with self.assertRaises(ValueError):
             audit_zip_bytes(make_zip(b"not a MIDAS CSV\n", "sample.bin"), "2016 Q2")
 
+    def test_nested_zip_container_is_recursively_audited(self):
+        inner = make_zip(make_csv([make_row()]), "daily_data")
+        outer = make_zip(inner, "nested_archive.zip")
+        result = audit_zip_bytes(outer, "2016 Q2")
+        self.assertTrue(result["zip_crc_passed"])
+        self.assertEqual(result["container_depth"], 1)
+        self.assertEqual(result["csv"]["rows_with_valid_ticker_and_date"], 1)
+        self.assertEqual(len(result["nested_archive_sha256"]), 64)
+
     def test_conflicting_duplicate_key_is_visible(self):
         row1 = make_row()
         row2 = make_row(cancels="2")
