@@ -1,0 +1,103 @@
+name: Phase 214 SEC 13D-G independent DOM cross-parser audit
+
+on:
+  push:
+    branches:
+      - phase99-broad-pit-universe-charter
+    paths:
+      - "research/phase214_13dg_event_date_parser_crosscheck.py"
+      - "research/test_phase214_13dg_event_date_parser_crosscheck.py"
+      - "research/phase214_13dg_event_date_parser_crosscheck_result.json"
+      - "research/PHASE214_SEC_13DG_EVENT_DATE_INDEPENDENT_DOM_CROSSPARSER_AUDIT_2026-11-08.md"
+      - ".github/workflows/phase214_sec_13dg_event_date_crossparser_audit.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "research/phase214_13dg_event_date_parser_crosscheck.py"
+      - "research/test_phase214_13dg_event_date_parser_crosscheck.py"
+      - "research/phase214_13dg_event_date_parser_crosscheck_result.json"
+      - "research/PHASE214_SEC_13DG_EVENT_DATE_INDEPENDENT_DOM_CROSSPARSER_AUDIT_2026-11-08.md"
+      - ".github/workflows/phase214_sec_13dg_event_date_crossparser_audit.yml"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: phase214-sec-13dg-event-date-crossparser
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install pinned DOM parser dependencies
+        run: |
+          python -m pip install --disable-pip-version-check beautifulsoup4==4.14.3 lxml==6.1.1
+      - name: Compile Phase 214 auditor and tests
+        run: |
+          python -m py_compile research/phase214_13dg_event_date_parser_crosscheck.py
+          python -m py_compile research/test_phase214_13dg_event_date_parser_crosscheck.py
+      - name: Download immutable Phase 124 artifact ZIP and verify its digest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p phase214_input/phase124 phase214_output
+          curl --fail --silent --show-error --location --retry 3 --retry-all-errors \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13436764625/zip" \
+            --output phase214_input/phase124_source.zip
+          echo "85f69e083b5af65731c9bcfe24e8c75821fc0f2c2476bfa8ba573e2e884570dc  phase214_input/phase124_source.zip" | sha256sum --check
+          unzip -q phase214_input/phase124_source.zip -d phase214_input/phase124
+      - name: Run parser regressions and full immutable-artifact integration test
+        env:
+          PHASE124_INPUT_DIR: phase214_input/phase124
+          PHASE124_ZIP_PATH: phase214_input/phase124_source.zip
+        run: |
+          set -o pipefail
+          python -m unittest discover -s research -p 'test_phase214_*.py' -v 2>&1 | tee phase214_output/tests.log
+      - name: Recompute full cross-parser audit
+        run: |
+          python research/phase214_13dg_event_date_parser_crosscheck.py \
+            --input-dir phase214_input/phase124 \
+            --zip-path phase214_input/phase124_source.zip \
+            --output-json phase214_output/phase214_13dg_event_date_parser_crosscheck_result.json
+      - name: Enforce immutable-sample and no-alpha invariants
+        run: |
+          python - <<'PY'
+          import json
+          p = "phase214_output/phase214_13dg_event_date_parser_crosscheck_result.json"
+          x = json.load(open(p, encoding="utf-8"))
+          assert x["source"]["phase124_artifact_zip_sha256_verified"] is True
+          assert x["integrity"]["raw_submission_sha256_verified"] == 600
+          assert x["integrity"]["sec_header_accession_acceptance_filing_date_verified"] == 600
+          assert x["integrity"]["actual_primary_13dg_documents_verified"] == 599
+          assert x["legacy_html_cross_parser"]["rows"] == 497
+          assert x["legacy_html_cross_parser"]["same_date_and_status_outcomes"] == 497
+          assert x["legacy_html_cross_parser"]["conflicts"] == 0
+          assert x["legacy_html_cross_parser"]["parsed_dates"] == 451
+          assert x["combined_event_date_recovery"]["parsed_event_dates"] == 553
+          assert x["combined_event_date_recovery"]["unresolved"] == 46
+          assert x["alpha_test_performed"] is False
+          assert x["forward_returns_used"] is False
+          assert x["final_holdout_used"] is False
+          assert x["production_changed"] is False
+          assert x["f80_changed"] is False
+          print("Phase 214 hash, sample, cross-parser and no-alpha invariants passed.")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: phase214-sec-13dg-crossparser-audit
+          path: |
+            phase214_output/phase214_13dg_event_date_parser_crosscheck_result.json
+            phase214_output/tests.log
+          if-no-files-found: error
+          retention-days: 90
