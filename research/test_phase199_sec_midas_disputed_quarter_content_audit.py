@@ -82,9 +82,13 @@ class Phase199Tests(unittest.TestCase):
         self.assertTrue(result["zip_crc_passed"])
         self.assertEqual(result["csv"]["rows_with_valid_ticker_and_date"], 1)
 
+    def test_zip_accepts_schema_matched_extensionless_member(self):
+        result = audit_zip_bytes(make_zip(make_csv([make_row()]), "2014Q2"), "2014 Q2")
+        self.assertEqual(result["csv"]["rows_with_valid_ticker_and_date"], 1)
+
     def test_zip_rejects_non_data_member(self):
         with self.assertRaises(ValueError):
-            audit_zip_bytes(make_zip(make_csv([make_row()]), "sample.bin"), "2016 Q2")
+            audit_zip_bytes(make_zip(b"not a MIDAS CSV\n", "sample.bin"), "2016 Q2")
 
     def test_conflicting_duplicate_key_is_visible(self):
         row1 = make_row()

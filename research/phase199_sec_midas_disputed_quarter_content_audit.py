@@ -193,11 +193,22 @@ def audit_zip_bytes(content: bytes, quarter: str, metadata: dict[str, object] | 
     with zipfile.ZipFile(io.BytesIO(content)) as archive:
         members = [item for item in archive.infolist() if not item.is_dir()]
         bad_member = archive.testzip()
-        data_members = [item for item in members if item.filename.lower().endswith(".csv")]
-        if not data_members:
-            data_members = [item for item in members if item.filename.lower().endswith(".txt")]
+        data_members = []
+        for item in members:
+            with archive.open(item, "r") as stream:
+                prefix = stream.read(8192).decode("utf-8-sig", errors="replace")
+            first_line = prefix.splitlines()[0] if prefix.splitlines() else ""
+            delimiter = detect_delimiter(first_line)
+            try:
+                header = next(csv.reader([first_line], delimiter=delimiter))
+            except (StopIteration, csv.Error):
+                continue
+            normalized = {normalize_header(value) for value in header}
+            if REQUIRED.issubset(normalized):
+                data_members.append(item)
         if len(data_members) != 1:
-            raise ValueError(f"{quarter}:expected_one_csv_or_txt_member_found_{len(data_members)}")
+            inventory = [{"name": item.filename, "bytes": item.file_size} for item in members]
+            raise ValueError(f"{quarter}:expected_one_midas_schema_member_found_{len(data_members)};members={inventory}")
         with archive.open(data_members[0], "r") as stream:
             csv_result = audit_csv_member(stream, data_members[0].filename, quarter)
         return {
