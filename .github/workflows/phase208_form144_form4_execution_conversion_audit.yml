@@ -1,7 +1,7 @@
 name: Phase 208 Form 144 to Form 4 execution conversion audit
 on:
   pull_request:
-    branches: [phase99-broad-pit-universe-charter]
+    branches: [main]
     paths:
       - 'research/phase208_form144_form4_execution_conversion_audit.py'
       - 'research/test_phase208_form144_form4_execution_conversion_audit.py'
