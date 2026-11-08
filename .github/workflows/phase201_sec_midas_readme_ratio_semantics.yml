@@ -42,6 +42,7 @@ jobs:
           assert s["status"]=="SIX_QUARTER_README_AND_DERIVED_RATIO_AUDIT_COMPLETED"
           assert len(s["quarter_results"])==6
           assert all(x["ratio_diagnostics"]["valid_rows_parsed"]>0 for x in s["quarter_results"])
+          assert all(len(x["readmes"]) >= 1 for x in s["quarter_results"])
           assert s["interpretation"]["strict_pit_admitted"] is False
           assert s["interpretation"]["alpha_test_authorized"] is False
           assert s["interpretation"]["holdout_used"] is False
