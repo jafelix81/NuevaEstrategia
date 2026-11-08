@@ -1,0 +1,23 @@
+{
+  "phase": 215,
+  "status": "QUARTERLY_BATCH_RELEASE_CONFIRMED_EXACT_VINTAGES_MISSING",
+  "daily_stock_by_stock_release_cadence": "quarterly",
+  "public_site_launch_date": "2013-10-09",
+  "archive_quarters": 58,
+  "archive_period": [
+    "2012Q1",
+    "2026Q2"
+  ],
+  "exact_per_quarter_first_publication_timestamps_available": false,
+  "http_last_modified_is_first_publication": false,
+  "row_date_is_knowledge_date": false,
+  "strict_daily_pit_admitted": false,
+  "quarterly_context_candidate_only": true,
+  "off_exchange_execution_flow": false,
+  "participant_identity_available": false,
+  "hidden_order_equals_dark_pool_flow": false,
+  "alpha_test_authorized": false,
+  "holdout_used": false,
+  "f80_frozen": true,
+  "decision": "Do not use daily observation dates as signal availability. Require the actual quarterly first-publication timestamp for each vintage; until then retain MIDAS only as non-PIT on-exchange context."
+}
