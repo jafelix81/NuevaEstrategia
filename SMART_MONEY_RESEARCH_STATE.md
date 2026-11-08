@@ -1602,3 +1602,14 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 - Current condition mapping has 80 rows but no message_type or effective dates; exchange mapping has 40 rows and no effective dates; both were modified after the sample date. Strict Regular/Normal + trade + options eligibility rows = 0. No historical PIT, first receipt, multi-day/multi-underlying coverage, adjusted deliverables or correction-vintage admission.
 - Decision: do not admit a signed-flow feature or run returns/alpha. Next gate is historical effective-dated condition semantics, first file receipt/correction history, adjusted deliverables and broad sample coverage; otherwise archive this route. No holdout, production, purchase or vendor contact. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
 - Report: research/PHASE196_CBOE_NBBO_CONDITION_EXCHANGE_STRATIFICATION_2026-11-07.md; evidence: research/phase196_cboe_nbbo_condition_exchange_stratification_result.json; auditor/tests/workflow in research/ and .github/workflows/.
+
+
+## 2026-11-08 — Phase 199 SEC MIDAS disputed-quarter full-content audit
+
+- **PASS for four remaining disputed SEC archives:** 2014 Q2 (318,489 rows / 5,168 tickers / 63 dates), 2016 Q2 (338,183 / 5,393 / 64), 2016 Q3 (338,099 / 5,400 / 64), 2016 Q4 (331,875 / 5,365 / 63). ZIP CRC and schema passed; no invalid dates, blank tickers, malformed rows or out-of-quarter rows.
+- Combined with Phase 103's actual-file validation of 2016 Q1 and 2019 Q4, all six quarters claimed missing by the third-party catalog have populated SEC-hosted content. 2014 Q2 is a nested ZIP container; schema-based recursive detection was required.
+- **New data-quality blockers:** duplicate (Ticker, Date, Security) keys: 61 in 2016 Q2 (55 conflicting), 68 in 2016 Q3 (68 conflicting), 43 in 2016 Q4 (41 conflicting). Field-level differences are not yet classified; no deduplication is permitted.
+- Negative values occur in Hidden and HiddenVol ratio fields. SEC methodology defines these as ratios, so negative values require a dedicated sentinel/anomaly audit; do not assume -1 or silently treat them as missing. Affected observations remain quarantined.
+- PIT remains NOT ADMITTED: quarterly first-publication vintages, historical permanent identity and inactive/delisted coverage are unresolved. No alpha/return test or holdout; F80 remains frozen.
+- Next: Phase 200 field-level duplicate comparison and negative Hidden/HiddenVol value-distribution audit, then continue the 58-quarter release-vintage ledger.
+- Permanent record: [Phase 199 report](https://github.com/jafelix81/NuevaEstrategia/blob/phase99-broad-pit-universe-charter/research/PHASE199_SEC_MIDAS_DISPUTED_QUARTER_FULL_CONTENT_AUDIT_2026-11-08.md) · [result JSON](https://github.com/jafelix81/NuevaEstrategia/blob/phase99-broad-pit-universe-charter/research/phase199_sec_midas_disputed_quarter_content_audit_result.json).
