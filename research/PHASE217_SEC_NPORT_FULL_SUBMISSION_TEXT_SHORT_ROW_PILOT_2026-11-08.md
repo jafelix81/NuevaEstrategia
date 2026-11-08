@@ -40,7 +40,7 @@ The full 23-row fixture, including exact values and SEC text line ranges, is in 
 
 ## New cross-check against Phase 192
 
-Phase 192 had recorded CUSIP **31428X106** in the 2025 accession but could not capture its security name from the search excerpt. The complete submission text identifies it as **FedEx Corporation** and confirms:
+Phase 192 had recorded CUSIP **31428X106** in the 2025 accession but could not capture its security name from the search excerpt. The complete submission text identifies it as **Fedex Corporation** and confirms:
 - 141,878 shares short;
 - reported value -USD 34,587,018.84;
 - -0.4247602977% of fund net assets;
@@ -73,7 +73,7 @@ The positions belong to one registered fund's reported portfolio. A short positi
 | Prevalence or broad-universe coverage | NOT ESTIMATED |
 | Incremental alpha versus frozen LTM/F80 | NOT AUTHORIZED |
 
-**Important reproducibility limit:** the web-accessible SEC complete submission text was inspected and line-referenced, but the file was not downloaded into the research runtime and no raw SHA-256 was computed. The JSON fixture is a manually transcribed evidence ledger, not a raw-file parser. The nine? No — the 23 row count is a selected evidence sample, not the total short rows in the filing.
+**Important reproducibility limit:** the web-accessible SEC complete submission text was inspected and line-referenced, but the file was not downloaded into the research runtime and no raw SHA-256 was computed. The JSON fixture is a manually transcribed evidence ledger, not a raw-file parser. The 23-row count is a selected evidence sample, not the total number of short rows in the filing.
 
 ## Next gate
 
