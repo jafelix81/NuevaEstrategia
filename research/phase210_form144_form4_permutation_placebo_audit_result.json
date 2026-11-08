@@ -28,15 +28,15 @@
     "family_conflict_or_unknown": 40,
     "class_family_pairs": {
       "CLASS_A|CLASS_A": 74,
-      "CLASS_C|CLASS_C": 21,
-      "COMMON|COMMON": 378,
-      "SERIES_A|SERIES_A": 8,
-      "COMMON|CLASS_A": 30,
-      "COMMON|ORDINARY": 4,
-      "COMMON|DEPOSITARY": 2,
+      "CLASS_A|DEPOSITARY": 1,
       "CLASS_A|SERIES_A": 2,
+      "CLASS_C|CLASS_C": 21,
+      "COMMON|CLASS_A": 30,
+      "COMMON|COMMON": 378,
+      "COMMON|DEPOSITARY": 2,
+      "COMMON|ORDINARY": 4,
       "COMMON|SERIES_A": 1,
-      "CLASS_A|DEPOSITARY": 1
+      "SERIES_A|SERIES_A": 8
     },
     "fallback_mutually_unique_links": 49,
     "total_hierarchical_links": 570
@@ -72,7 +72,7 @@
       "within_5pct": 481,
       "within_10pct": 481,
       "within_20pct": 481,
-      "median_abs_price_difference_usd_per_share": 0.000493
+      "median_abs_price_difference_usd_per_share": 0.000403
     },
     "class_family_conflict_or_unresolved_exact_links": {
       "matches": 40,
@@ -88,7 +88,7 @@
       "within_5pct": 40,
       "within_10pct": 40,
       "within_20pct": 40,
-      "median_abs_price_difference_usd_per_share": 0.0005
+      "median_abs_price_difference_usd_per_share": 0.002063
     },
     "fallback_links": {
       "matches": 49,
@@ -104,7 +104,7 @@
       "within_5pct": 44,
       "within_10pct": 48,
       "within_20pct": 49,
-      "median_abs_price_difference_usd_per_share": null
+      "median_abs_price_difference_usd_per_share": 0.375
     }
   },
   "plan_flag_concordance": {
@@ -117,7 +117,7 @@
     "concordant": 512,
     "discordant": 9,
     "known_pairs": 521,
-    "concordance_rate": 0.982725
+    "concordance_rate": 0.982726
   },
   "permutation_audit": {
     "replicates": 500,
@@ -165,7 +165,7 @@
         "null_max": 223,
         "null_replicates_at_or_above_observed": 0,
         "empirical_tail_plus_one": 0.001996,
-        "observed_to_null_mean_ratio": 1.743929
+        "observed_to_null_mean_ratio": 1.74393
       },
       "date_and_shares_within_issuer_owner": {
         "observed_mutable_exact_links": 340,
