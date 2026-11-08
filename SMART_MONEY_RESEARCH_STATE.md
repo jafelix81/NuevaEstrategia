@@ -1759,3 +1759,8 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 - Local pure-Python reproduction: 10/10 tests passed. No hosted CI run; Phase 220 files use `[skip ci]` to avoid PR-wide path-filter fan-out.
 - No raw filings, alpha/return, bootstrap/LOO, OOS or holdout test; raw SEC hashes, corporate-action adjustments, series/amendment lineage, PIT security identity and broad universe coverage remain open. F80 remains frozen; holdout remains `CONSUMED_NOT_PRISTINE`.
 - Report/code/tests/evidence: `research/PHASE220_NPORT_SHORT_QUANTITY_VS_NAV_EXPOSURE_MEASUREMENT_AUDIT_2026-11-08.md` and adjacent Phase 220 files.
+
+
+### Phase 220 validation correction — 2026-11-08
+- The first local run exposed a strict floating-point equality in the synthetic +10% quantity example. Updated the auditor to use `math.isclose(rel_tol=1e-9, abs_tol=1e-9)` and tests to use a 9-place tolerance.
+- The final isolated reproduction passed 10/10 tests. This remains local validation only; no hosted workflow was run.
