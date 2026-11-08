@@ -16,7 +16,7 @@ Neither is a direct measure of market-wide short interest, securities-borrow dem
 
 The current SEC Form N-PORT Data Sets page lists **28 quarterly archives from October 2019 through September 2026**, including 2026 Q3 (440.95 MB). The page was last reviewed/updated September 30, 2026.
 
-The Data.gov catalog page still lists **27 resources through 2026 Q2**. It is one quarterly archive behind the current SEC page. Phase 191's 28-quarter count is therefore consistent with the current SEC source; the older Data.gov catalog should not be used as the sole current coverage inventory.
+The Data.gov catalog page still lists **27 resources through 2026 Q2**. It is one quarterly archive behind the current SEC page. Phase 191's 28-quarter count is consistent with the current SEC source; the older Data.gov catalog should not be used as the sole current coverage inventory.
 
 This phase verified the official page metadata and links, not the bytes of the 2026 Q3 ZIP. No archive was downloaded or hashed.
 
@@ -41,15 +41,16 @@ Sources:
 - Data.gov rights description: https://catalog.data.gov/dataset/edgar-form-n-port
 - Federal Register, April 22, 2025: https://www.govinfo.gov/content/pkg/FR-2025-04-22/html/2025-06861.htm
 
-## 3. Filing-lag pilot: 19 SEC filing-index records
+## 3. Filing-lag pilot: 25 SEC filing-index records
 
-A purposive, search-indexed sample of 19 NPORT-P filing-index pages across 2020–2025 shows report-date-to-filing-date lags of:
+A purposive, search-indexed sample of **25 NPORT-P filing-index pages** across 2020–2025 shows report-date-to-filing-date lags of:
 
-- Minimum: **49 calendar days**
-- Median: **58 calendar days**
+- Minimum: **17 calendar days**
+- Median: **59 calendar days**
 - Maximum: **60 calendar days**
+- **24 of 25** sampled filings were 50–60 calendar days after the report date; one filing was accepted after 17 days.
 
-This is a feasibility sample, not a random or representative sample of all funds or filings. It establishes that the observed public snapshot is commonly about seven to nine weeks old at filing; it does not establish the population distribution.
+The early filing is important: do not hard-code a 58- or 60-day lag. This remains a feasibility sample, not a random or representative sample of all funds or filings. It does not establish the population distribution.
 
 The complete accession-level manifest and acceptance timestamps are in phase218_nport_publication_vintage_and_lending_audit.json.
 
@@ -57,7 +58,7 @@ For a daily strategy:
 - Never use REPORT_DATE as the knowledge date.
 - Preserve the EDGAR accession and acceptance timestamp.
 - Until first public receipt is independently captured, use the first full regular trading session after acceptance as a conservative candidate availability boundary.
-- Treat report-to-filing lag as an explicit feature/stratification variable, not as a constant 58-day offset.
+- Treat report-to-filing lag as an explicit feature/stratification variable, not as a constant offset.
 
 ## 4. N-PORT table semantics: short positions are not securities lending
 
