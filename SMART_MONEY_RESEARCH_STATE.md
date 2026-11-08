@@ -1623,3 +1623,13 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 - **PIT NOT ADMITTED:** first-publication dates, complete release-vintage ledger and permanent historical security identity unresolved. No alpha/return test or holdout; F80 remains frozen.
 - Next: Phase 201 extract README versions and compute both derived ratios with negative/zero-denominator diagnostics.
 - Permanent record: [Phase 200 report](https://github.com/jafelix81/NuevaEstrategia/blob/phase99-broad-pit-universe-charter/research/PHASE200_SEC_MIDAS_DUPLICATE_AND_NEGATIVE_FIELD_DIAGNOSTICS_2026-11-08.md) · [result JSON](https://github.com/jafelix81/NuevaEstrategia/blob/phase99-broad-pit-universe-charter/research/phase200_sec_midas_duplicate_negative_diagnostics_result.json).
+
+
+## 2026-11-08 — Phase 201 SEC MIDAS README and ratio semantics
+
+- Three README versions recovered for the six disputed quarters: 2014 Q2, 2016 Q1–Q4, and 2019 Q4. None documents negative values or a negative sentinel.
+- Correct formulas: Hidden Rate = Hidden / TradesForHidden; Hidden Volume = HiddenVol('000) / TradeVolForHidden('000). Hidden and HiddenVol are raw numerator fields, not ratios.
+- Pre-May 1, 2017 NYSE/Amex hidden values are derived as SIP minus direct-feed values. NYSE switched to NIF on May 1, 2017; NSX and CHX hidden coverage entered in 2018/2019. This is a major measurement-regime break and a plausible source of negative residuals, not proof of informed trading.
+- Hidden Rate ratios were within [0,1] in all six samples. Hidden Volume share had two >1 observations in 2014 Q2 (max 2.2671), none in the other five.
+- **Phase 202 candidate:** SEC Metrics by Individual Security and Exchange has 58 quarterly archives from Jan 2012–Jun 2026. Inspect 2016 Q2, 2017 Q2 and 2019 Q4 archive layouts before venue-level reconciliation.
+- Permanent result: [Phase 201 report](https://github.com/jafelix81/NuevaEstrategia/blob/phase99-broad-pit-universe-charter/research/PHASE201_SEC_MIDAS_README_AND_RATIO_SEMANTICS_AUDIT_2026-11-08.md) · [artifact](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42436111867/artifacts/13599821005).

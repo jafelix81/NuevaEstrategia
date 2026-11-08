@@ -1,0 +1,1771 @@
+{
+  "audit_as_of_utc": "2026-11-08T01:53:25.526199+00:00",
+  "decision": "Documentation and derived-ratio audit only. README wording is evidence about field definitions, not a publication timestamp. Negative numerator values remain unclassified unless the embedded documentation explicitly resolves them.",
+  "interpretation": {
+    "alpha_test_authorized": false,
+    "data_purchase": false,
+    "embedded_readmes_extracted": true,
+    "f80_frozen": true,
+    "hidden_rate_recomputed_as_hidden_over_tradesforhidden": true,
+    "hidden_volume_share_recomputed_as_hiddenvol_over_tradevolforhidden": true,
+    "holdout_used": false,
+    "negative_values_assumed_to_be_sentinels": false,
+    "production_changed": false,
+    "readme_versions_compared_by_sha256": true,
+    "strict_pit_admitted": false,
+    "vendor_contact": false
+  },
+  "phase": 201,
+  "quarter_results": [
+    {
+      "archive_metadata": {
+        "archive_layers": [
+          {
+            "bytes": 13044750,
+            "member_count": 1,
+            "members": [
+              {
+                "bytes": 13044496,
+                "crc32": "a3efb7f3",
+                "name": "Market Activity by Individual Security 2014 Q2/individual_security_2014_q2.zip"
+              }
+            ],
+            "sha256": "55b5d81438cca01f0451d6e4fcc3cad6efc4a345f4784e423ba2803403adc883",
+            "zip_crc_passed": true
+          },
+          {
+            "bytes": 13044496,
+            "member_count": 2,
+            "members": [
+              {
+                "bytes": 2398,
+                "crc32": "5ba640b5",
+                "name": "README2_q.txt"
+              },
+              {
+                "bytes": 33212023,
+                "crc32": "4f64ba44",
+                "name": "q2_2014_all.csv"
+              }
+            ],
+            "sha256": "746ebefd33c82501367f09a133fee4800d93ab55d27c6921a2c7ff0467cdfc21",
+            "zip_crc_passed": true
+          }
+        ],
+        "container_depth": 1,
+        "data_bytes": 33212023,
+        "data_member": "q2_2014_all.csv",
+        "data_sha256": "b9b308a84e7bf9ddfa441e871e91e0b9de08974258f603df19cbbb0615064375",
+        "nested_member_path": "Market Activity by Individual Security 2014 Q2/individual_security_2014_q2.zip"
+      },
+      "http_metadata": {
+        "content_length_header": "13044750",
+        "download_attempt": 1,
+        "etag": null,
+        "final_url": "https://www.sec.gov/files/opa/data/market-structure/metrics-individual-security/individual_security_2014_q2.zip",
+        "http_date": "Sun, 08 Nov 2026 01:52:44 GMT",
+        "http_status": 200,
+        "last_modified": "Sat, 19 Dec 2020 10:17:22 GMT"
+      },
+      "quarter": "2014 Q2",
+      "ratio_diagnostics": {
+        "csv_sha256": "b9b308a84e7bf9ddfa441e871e91e0b9de08974258f603df19cbbb0615064375",
+        "quarter": "2014 Q2",
+        "ratios": {
+          "hidden_rate": {
+            "denominator_missing_count": 0,
+            "denominator_negative_count": 0,
+            "denominator_zero_count": 12533,
+            "greater_than_one_count": 0,
+            "greater_than_one_examples": [],
+            "max": 1,
+            "min": 0,
+            "negative_examples": [
+              {
+                "date": "2014-04-01",
+                "denominator": 179,
+                "denominator_field": "tradesforhidden",
+                "numerator": -27,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2014-04-02",
+                "denominator": 213,
+                "denominator_field": "tradesforhidden",
+                "numerator": -73,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2014-04-03",
+                "denominator": 156,
+                "denominator_field": "tradesforhidden",
+                "numerator": -13,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2014-04-04",
+                "denominator": 159,
+                "denominator_field": "tradesforhidden",
+                "numerator": -19,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2014-04-07",
+                "denominator": 182,
+                "denominator_field": "tradesforhidden",
+                "numerator": -35,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2014-04-07",
+                "denominator": 6,
+                "denominator_field": "tradesforhidden",
+                "numerator": -1,
+                "ticker": "GLOW"
+              },
+              {
+                "date": "2014-04-08",
+                "denominator": 549,
+                "denominator_field": "tradesforhidden",
+                "numerator": -184,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2014-04-09",
+                "denominator": 137,
+                "denominator_field": "tradesforhidden",
+                "numerator": -38,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2014-04-10",
+                "denominator": 238,
+                "denominator_field": "tradesforhidden",
+                "numerator": -44,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2014-04-11",
+                "denominator": 169,
+                "denominator_field": "tradesforhidden",
+                "numerator": -18,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2014-04-14",
+                "denominator": 226,
+                "denominator_field": "tradesforhidden",
+                "numerator": -53,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2014-04-14",
+                "denominator": 297,
+                "denominator_field": "tradesforhidden",
+                "numerator": -36,
+                "ticker": "FAC"
+              }
+            ],
+            "negative_numerator_count": 75,
+            "numerator_missing_count": 0,
+            "valid_count": 305881
+          },
+          "hidden_volume_share": {
+            "denominator_missing_count": 0,
+            "denominator_negative_count": 0,
+            "denominator_zero_count": 12533,
+            "greater_than_one_count": 2,
+            "greater_than_one_examples": [
+              {
+                "date": "2014-04-23",
+                "denominator": 0.977,
+                "numerator": 2.215,
+                "ratio": 2.267144319344933,
+                "ticker": "VSR"
+              },
+              {
+                "date": "2014-06-25",
+                "denominator": 29.517,
+                "numerator": 32.571,
+                "ratio": 1.1034657993698547,
+                "ticker": "DLS"
+              }
+            ],
+            "max": 2.267144319344933,
+            "min": 0,
+            "negative_examples": [
+              {
+                "date": "2014-04-01",
+                "denominator": 0.205,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.054,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2014-04-02",
+                "denominator": 0.247,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.079,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2014-04-03",
+                "denominator": 0.161,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.025,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2014-04-04",
+                "denominator": 0.16,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.017,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2014-04-07",
+                "denominator": 0.198,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.047,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2014-04-07",
+                "denominator": 1.8,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.2,
+                "ticker": "GLOW"
+              },
+              {
+                "date": "2014-04-08",
+                "denominator": 0.718,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.034,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2014-04-09",
+                "denominator": 0.164,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.055,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2014-04-10",
+                "denominator": 0.271,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.076,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2014-04-11",
+                "denominator": 0.171,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.022,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2014-04-14",
+                "denominator": 0.249,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.083,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2014-04-14",
+                "denominator": 48.358,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -1.452,
+                "ticker": "FAC"
+              }
+            ],
+            "negative_numerator_count": 76,
+            "numerator_missing_count": 0,
+            "valid_count": 305880
+          }
+        },
+        "valid_rows_parsed": 318489
+      },
+      "readme_archive_layers": [
+        {
+          "bytes": 13044750,
+          "members": [
+            "Market Activity by Individual Security 2014 Q2/individual_security_2014_q2.zip"
+          ],
+          "sha256": "55b5d81438cca01f0451d6e4fcc3cad6efc4a345f4784e423ba2803403adc883",
+          "zip_crc_passed": true
+        },
+        {
+          "bytes": 13044496,
+          "members": [
+            "README2_q.txt",
+            "q2_2014_all.csv"
+          ],
+          "sha256": "746ebefd33c82501367f09a133fee4800d93ab55d27c6921a2c7ff0467cdfc21",
+          "zip_crc_passed": true
+        }
+      ],
+      "readmes": [
+        {
+          "bytes": 2398,
+          "member": "README2_q.txt",
+          "mentions_correction": false,
+          "mentions_negative": false,
+          "relevant_lines": [
+            "Exchanges denote trades against hidden orders: Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX",
+            "Exchanges do not denote trades against hidden orders: Amex, CHX, NSX, NYSE",
+            "Exchanges do not report trades against individual orders: Amex, NYSE",
+            "Note: In December 2013, the SIP began reporting odd lot trades. Beginning with January 2014, trades against hiddden",
+            "orders and their associated volumes can be computed as the difference between the total trades/volume reported to the SIP and",
+            "the total trades/volume reported on the direct feeds for NYSE and Amex.",
+            "LitVol('000): Sum of trade volume for trades that are not against hidden orders.",
+            "OrderVol('000): Sum of order volume for all add order messages.",
+            "Hidden: Count of trades against hidden orders from exchanges that report trades against hidden orders.",
+            "TradesForHidden: Count of trades from exchanges that report trades against hidden orders.",
+            "HiddenVol('000): Sum of trade volume for trades against hidden orders from exchanges that report trades against hidden orders.",
+            "TradeVolForHidden('000): Sum of trade volume from exchanges that report trades against hidden orders.",
+            "Cancels: Count of all cancel messages, either full or partial, for all exchanges.",
+            "LitTrades: Count of all trade messages for trades that are not against hidden orders.",
+            "OddLots: Count of odd lot trade messages for all exchanges.",
+            "TradesForOddLots: Count of trades from exchanges that report individual trades.",
+            "OddLotVol('000): Sum of odd lot trade volume for all exchanges.",
+            "TradeVolForOddLots('000): Sum of trade volume from exchanges that report individual trades.",
+            "Cancel-to-Trade = Cancels/LitTrades for Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX",
+            "Trade-to-Order-Volume = 100*LitVol/OrderVol for All Exchanges",
+            "Hidden Rate = 100*Hidden/TradesForHidden for Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX",
+            "Hidden Volume = 100*HiddenVol/TradeVolForHidden for Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX",
+            "Oddlot Rate=100*OddLots/TradesForOddLots for Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX",
+            "Oddlot Volume=100*OddLotVol/TradeVolForOddLots for Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX"
+          ],
+          "sha256": "49da9294b4c747d1602db623cbe381712c876ae94383a044375297afbc2a632a",
+          "text": "MAR User Data\r\n\r\nThese are the csv files containing the raw data underlying most of the charts.\r\nThey are intended for user download.\r\n\r\nExchanges denote trades against hidden orders: Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX\r\nExchanges do not denote trades against hidden orders: Amex, CHX, NSX, NYSE\r\nExchanges do not report trades against individual orders: Amex, NYSE\r\n\r\nNote: In December 2013, the SIP began reporting odd lot trades. Beginning with January 2014, trades against hiddden\r\norders and their associated volumes can be computed as the difference between the total trades/volume reported to the SIP and\r\nthe total trades/volume reported on the direct feeds for NYSE and Amex.\r\n\r\nLitVol('000): Sum of trade volume for trades that are not against hidden orders.\r\nOrderVol('000): Sum of order volume for all add order messages.\r\nHidden: Count of trades against hidden orders from exchanges that report trades against hidden orders.\r\nTradesForHidden: Count of trades from exchanges that report trades against hidden orders.\r\nHiddenVol('000): Sum of trade volume for trades against hidden orders from exchanges that report trades against hidden orders.\r\nTradeVolForHidden('000): Sum of trade volume from exchanges that report trades against hidden orders.\r\nCancels: Count of all cancel messages, either full or partial, for all exchanges.\r\nLitTrades: Count of all trade messages for trades that are not against hidden orders.\r\nOddLots: Count of odd lot trade messages for all exchanges.\r\nTradesForOddLots: Count of trades from exchanges that report individual trades.\r\nOddLotVol('000): Sum of odd lot trade volume for all exchanges.\r\nTradeVolForOddLots('000): Sum of trade volume from exchanges that report individual trades.\r\n\r\nThe metrics:\r\n\r\nCancel-to-Trade = Cancels/LitTrades for Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX\r\nTrade-to-Order-Volume = 100*LitVol/OrderVol for All Exchanges\r\nHidden Rate = 100*Hidden/TradesForHidden for Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX\r\nHidden Volume = 100*HiddenVol/TradeVolForHidden for Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX\r\nOddlot Rate=100*OddLots/TradesForOddLots for Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX\r\nOddlot Volume=100*OddLotVol/TradeVolForOddLots for Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX\r\n"
+        }
+      ]
+    },
+    {
+      "archive_metadata": {
+        "archive_layers": [
+          {
+            "bytes": 15177551,
+            "member_count": 2,
+            "members": [
+              {
+                "bytes": 3602,
+                "crc32": "45278408",
+                "name": "README.txt"
+              },
+              {
+                "bytes": 46271163,
+                "crc32": "423568df",
+                "name": "q1_2016_all.csv"
+              }
+            ],
+            "sha256": "d627631e65301d24f94c60733bdcbad5cb8bab16ae3b34f32df043a142ce00a8",
+            "zip_crc_passed": true
+          }
+        ],
+        "container_depth": 0,
+        "data_bytes": 46271163,
+        "data_member": "q1_2016_all.csv",
+        "data_sha256": "077e7a3c0edfe2fc5994e4af20ad22e47fbb3cffdf42dd22b270ed9b75ad5762"
+      },
+      "http_metadata": {
+        "content_length_header": "15177551",
+        "download_attempt": 1,
+        "etag": null,
+        "final_url": "https://www.sec.gov/files/opa/data/market-structure/metrics-individual-security/individual_security_2016_q1.zip",
+        "http_date": "Sun, 08 Nov 2026 01:52:50 GMT",
+        "http_status": 200,
+        "last_modified": "Sat, 19 Dec 2020 10:17:31 GMT"
+      },
+      "quarter": "2016 Q1",
+      "ratio_diagnostics": {
+        "csv_sha256": "077e7a3c0edfe2fc5994e4af20ad22e47fbb3cffdf42dd22b270ed9b75ad5762",
+        "quarter": "2016 Q1",
+        "ratios": {
+          "hidden_rate": {
+            "denominator_missing_count": 0,
+            "denominator_negative_count": 0,
+            "denominator_zero_count": 18800,
+            "greater_than_one_count": 0,
+            "greater_than_one_examples": [],
+            "max": 1,
+            "min": 0,
+            "negative_examples": [
+              {
+                "date": "2016-01-04",
+                "denominator": 570,
+                "denominator_field": "tradesforhidden",
+                "numerator": -167,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-01-05",
+                "denominator": 105,
+                "denominator_field": "tradesforhidden",
+                "numerator": -1,
+                "ticker": "NNVC"
+              },
+              {
+                "date": "2016-01-06",
+                "denominator": 452,
+                "denominator_field": "tradesforhidden",
+                "numerator": -37,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-01-06",
+                "denominator": 6,
+                "denominator_field": "tradesforhidden",
+                "numerator": -1,
+                "ticker": "DDE"
+              },
+              {
+                "date": "2016-01-08",
+                "denominator": 265,
+                "denominator_field": "tradesforhidden",
+                "numerator": -64,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-01-11",
+                "denominator": 186,
+                "denominator_field": "tradesforhidden",
+                "numerator": -36,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-01-12",
+                "denominator": 198,
+                "denominator_field": "tradesforhidden",
+                "numerator": -47,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-01-12",
+                "denominator": 110,
+                "denominator_field": "tradesforhidden",
+                "numerator": -1,
+                "ticker": "PVCT"
+              },
+              {
+                "date": "2016-01-13",
+                "denominator": 314,
+                "denominator_field": "tradesforhidden",
+                "numerator": -108,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-01-13",
+                "denominator": 11,
+                "denominator_field": "tradesforhidden",
+                "numerator": -1,
+                "ticker": "UAMY"
+              },
+              {
+                "date": "2016-01-14",
+                "denominator": 189,
+                "denominator_field": "tradesforhidden",
+                "numerator": -34,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-01-15",
+                "denominator": 365,
+                "denominator_field": "tradesforhidden",
+                "numerator": -45,
+                "ticker": "BRK.A"
+              }
+            ],
+            "negative_numerator_count": 82,
+            "numerator_missing_count": 146,
+            "valid_count": 304426
+          },
+          "hidden_volume_share": {
+            "denominator_missing_count": 0,
+            "denominator_negative_count": 0,
+            "denominator_zero_count": 18800,
+            "greater_than_one_count": 0,
+            "greater_than_one_examples": [],
+            "max": 1,
+            "min": 0,
+            "negative_examples": [
+              {
+                "date": "2016-01-04",
+                "denominator": 84.277,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -10.845000000000006,
+                "ticker": "BPI"
+              },
+              {
+                "date": "2016-01-04",
+                "denominator": 0.6699999999999999,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.10200000000000001,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-01-04",
+                "denominator": 50.936,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -16.514999999999997,
+                "ticker": "ERN"
+              },
+              {
+                "date": "2016-01-05",
+                "denominator": 15.738,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.37399999999999983,
+                "ticker": "NNVC"
+              },
+              {
+                "date": "2016-01-06",
+                "denominator": 46.53,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -2.3419999999999996,
+                "ticker": "AST"
+              },
+              {
+                "date": "2016-01-06",
+                "denominator": 284.382,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -11.845999999999988,
+                "ticker": "AXN"
+              },
+              {
+                "date": "2016-01-06",
+                "denominator": 0.549,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.03400000000000001,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-01-06",
+                "denominator": 0.302,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.0020000000000000018,
+                "ticker": "DDE"
+              },
+              {
+                "date": "2016-01-06",
+                "denominator": 58.454,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -4.034999999999998,
+                "ticker": "HTM"
+              },
+              {
+                "date": "2016-01-06",
+                "denominator": 11.013,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -3.175,
+                "ticker": "IBIO"
+              },
+              {
+                "date": "2016-01-07",
+                "denominator": 15.536,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.5009999999999999,
+                "ticker": "ADK"
+              },
+              {
+                "date": "2016-01-07",
+                "denominator": 201.325,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -7.696999999999994,
+                "ticker": "WAIR"
+              }
+            ],
+            "negative_numerator_count": 184,
+            "numerator_missing_count": 146,
+            "valid_count": 304324
+          }
+        },
+        "valid_rows_parsed": 323454
+      },
+      "readme_archive_layers": [
+        {
+          "bytes": 15177551,
+          "members": [
+            "README.txt",
+            "q1_2016_all.csv"
+          ],
+          "sha256": "d627631e65301d24f94c60733bdcbad5cb8bab16ae3b34f32df043a142ce00a8",
+          "zip_crc_passed": true
+        }
+      ],
+      "readmes": [
+        {
+          "bytes": 3602,
+          "member": "README.txt",
+          "mentions_correction": false,
+          "mentions_negative": false,
+          "relevant_lines": [
+            "Exchanges denote trades against hidden orders: Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX",
+            "Exchanges do not denote trades against hidden orders: Amex, CHX, NSX, NYSE",
+            "Exchanges do not report trades against individual orders: Amex, NYSE",
+            "Note: In December 2013, the SIP began reporting odd lot trades. Beginning with January 2014, trades against hidden",
+            "orders and their associated volumes can be approximated as the difference between the total trades/volume reported to the SIP and",
+            "the total trades/volume reported on the direct (level-book) feeds for NYSE and Amex.",
+            "Trades, Trade Volume, Hidden, Hidden Volume, Odd Lots and Odd Lot Volume are counted/summed from the direct feeds for:",
+            "Trades, Trade Volume, Odd Lots and Odd Lot Volume are counted/summed from the direct feeds for:",
+            "Trades, Trade Volume, Odd Lots and Odd Lot Volume are counted/summed from the SIP feeds for:",
+            "Hidden and Hidden Volume are computed as the difference between Trades/Trade Volume reported on the SIP feed and Trades/Trade Volume reported on the direct feeds for:",
+            "Hidden and Hidden Volume are not reported for:",
+            "For monthly (Date, Ticker, Exchange) data:",
+            "Trades: Count of all trade messages.",
+            "TradeVol('000): Sum of trade volume for all trade messages.",
+            "Cancels: Count of all cancel messages, either full or partial, for all exchanges.",
+            "Hidden: Count of trades against hidden orders from exchanges that report trades against hidden orders. Difference between SIP Trades and Direct Trades for NYSE and Amex.",
+            "LitTrades: Count of all trade messages for trades that are not against hidden orders. Computed as the difference between Trades and Hidden.",
+            "LitVol('000): Sum of trade volume for trades that are not against hidden orders. Computed as the difference between Trade Volume and Hidden Volume.",
+            "OrderVol('000): Sum of order volume for all add order messages.",
+            "TradesForHidden: Count of trades from exchanges that report trades against hidden orders.",
+            "HiddenVol('000): Sum of trade volume for trades against hidden orders from exchanges that report trades against hidden orders.",
+            "TradeVolForHidden('000): Sum of trade volume from exchanges that report trades against hidden orders.",
+            "OddLots: Count of odd lot trade messages for all exchanges.",
+            "OddLotVol('000): Sum of odd lot trade volume for all exchanges.",
+            "For quarterly (Date, Ticker) data:",
+            "TradesForOddLots = Trades: Count of trades from order-based exchanges.",
+            "TradeVolForOddLots('000) = TradeVol('000): Sum of trade volume from order-based exchanges.",
+            "Cancel-to-Trade = Cancels/LitTrades for Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX",
+            "Trade-to-Order-Volume = 100*LitVol/OrderVol for All Exchanges",
+            "Hidden Rate = 100*Hidden/TradesForHidden for Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX (& Amex and NYSE from 2014)",
+            "Hidden Volume = 100*HiddenVol/TradeVolForHidden for Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX (& Amex and NYSE from 2014)",
+            "Oddlot Rate=100*OddLots/TradesForOddLots for Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX",
+            "Oddlot Volume=100*OddLotVol/TradeVolForOddLots for Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX"
+          ],
+          "sha256": "e3adbdfe155957ade084188964c251e212c7dcbc54a1f95111c7cd8d8a7b49a0",
+          "text": "MAR User Data\r\n\r\nThese are the csv files containing the raw data underlying most of the charts.\r\nThey are intended for user download.\r\n\r\nOrder-based exchanges: Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX\r\nLevel-book exchanges: Amex, NYSE\r\n\r\nExchanges denote trades against hidden orders: Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX\r\nExchanges do not denote trades against hidden orders: Amex, CHX, NSX, NYSE\r\nExchanges do not report trades against individual orders: Amex, NYSE\r\n\r\nNote: In December 2013, the SIP began reporting odd lot trades. Beginning with January 2014, trades against hidden\r\norders and their associated volumes can be approximated as the difference between the total trades/volume reported to the SIP and\r\nthe total trades/volume reported on the direct (level-book) feeds for NYSE and Amex.\r\n\r\nTrades, Trade Volume, Hidden, Hidden Volume, Odd Lots and Odd Lot Volume are counted/summed from the direct feeds for:\r\n  Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX\r\nTrades, Trade Volume, Odd Lots and Odd Lot Volume are counted/summed from the direct feeds for:\r\n  CHX, NSX\r\nTrades, Trade Volume, Odd Lots and Odd Lot Volume are counted/summed from the SIP feeds for:\r\n  Amex, NYSE\r\nHidden and Hidden Volume are computed as the difference between Trades/Trade Volume reported on the SIP feed and Trades/Trade Volume reported on the direct feeds for:\r\n  Amex, NYSE \r\nHidden and Hidden Volume are not reported for:\r\n  CHX, NSX\r\n\r\nFor monthly (Date, Ticker, Exchange) data:\r\nTrades: Count of all trade messages.\r\nTradeVol('000): Sum of trade volume for all trade messages.\r\nCancels: Count of all cancel messages, either full or partial, for all exchanges.\r\nHidden: Count of trades against hidden orders from exchanges that report trades against hidden orders. Difference between SIP Trades and Direct Trades for NYSE and Amex.\r\nLitTrades: Count of all trade messages for trades that are not against hidden orders. Computed as the difference between Trades and Hidden.\r\nLitVol('000): Sum of trade volume for trades that are not against hidden orders. Computed as the difference between Trade Volume and Hidden Volume.\r\nOrderVol('000): Sum of order volume for all add order messages.\r\nTradesForHidden: Count of trades from exchanges that report trades against hidden orders.\r\nHiddenVol('000): Sum of trade volume for trades against hidden orders from exchanges that report trades against hidden orders.\r\nTradeVolForHidden('000): Sum of trade volume from exchanges that report trades against hidden orders.\r\nOddLots: Count of odd lot trade messages for all exchanges.\r\nOddLotVol('000): Sum of odd lot trade volume for all exchanges.\r\n\r\nFor quarterly (Date, Ticker) data:\r\nTradesForOddLots = Trades: Count of trades from order-based exchanges.\r\nTradeVolForOddLots('000) = TradeVol('000): Sum of trade volume from order-based exchanges.\r\n\r\nThe metrics:\r\n\r\nCancel-to-Trade = Cancels/LitTrades for Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX\r\nTrade-to-Order-Volume = 100*LitVol/OrderVol for All Exchanges\r\nHidden Rate = 100*Hidden/TradesForHidden for Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX (& Amex and NYSE from 2014)\r\nHidden Volume = 100*HiddenVol/TradeVolForHidden for Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX (& Amex and NYSE from 2014)\r\nOddlot Rate=100*OddLots/TradesForOddLots for Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX\r\nOddlot Volume=100*OddLotVol/TradeVolForOddLots for Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX\r\n"
+        }
+      ]
+    },
+    {
+      "archive_metadata": {
+        "archive_layers": [
+          {
+            "bytes": 15643843,
+            "member_count": 2,
+            "members": [
+              {
+                "bytes": 48069485,
+                "crc32": "85000f12",
+                "name": "q2_2016_all.csv"
+              },
+              {
+                "bytes": 3602,
+                "crc32": "45278408",
+                "name": "README.txt"
+              }
+            ],
+            "sha256": "0074161916f1aa11390f6d5da59d6de919baa1111df4d81f5fa81f63d499bf4b",
+            "zip_crc_passed": true
+          }
+        ],
+        "container_depth": 0,
+        "data_bytes": 48069485,
+        "data_member": "q2_2016_all.csv",
+        "data_sha256": "8a6c77ffd5a2deb6b1bfaecccfc08d33de4abfa176d570eb4fe367db5733ca0c"
+      },
+      "http_metadata": {
+        "content_length_header": "15643843",
+        "download_attempt": 1,
+        "etag": null,
+        "final_url": "https://www.sec.gov/files/opa/data/market-structure/metrics-individual-security/individual_security_2016_q2.zip",
+        "http_date": "Sun, 08 Nov 2026 01:52:57 GMT",
+        "http_status": 200,
+        "last_modified": "Sat, 19 Dec 2020 10:17:32 GMT"
+      },
+      "quarter": "2016 Q2",
+      "ratio_diagnostics": {
+        "csv_sha256": "8a6c77ffd5a2deb6b1bfaecccfc08d33de4abfa176d570eb4fe367db5733ca0c",
+        "quarter": "2016 Q2",
+        "ratios": {
+          "hidden_rate": {
+            "denominator_missing_count": 0,
+            "denominator_negative_count": 0,
+            "denominator_zero_count": 21026,
+            "greater_than_one_count": 0,
+            "greater_than_one_examples": [],
+            "max": 1,
+            "min": 0,
+            "negative_examples": [
+              {
+                "date": "2016-04-01",
+                "denominator": 198,
+                "denominator_field": "tradesforhidden",
+                "numerator": -74,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-04-04",
+                "denominator": 141,
+                "denominator_field": "tradesforhidden",
+                "numerator": -45,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-04-05",
+                "denominator": 141,
+                "denominator_field": "tradesforhidden",
+                "numerator": -61,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-04-05",
+                "denominator": 2,
+                "denominator_field": "tradesforhidden",
+                "numerator": -1,
+                "ticker": "MOC"
+              },
+              {
+                "date": "2016-04-06",
+                "denominator": 127,
+                "denominator_field": "tradesforhidden",
+                "numerator": -45,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-04-06",
+                "denominator": 11,
+                "denominator_field": "tradesforhidden",
+                "numerator": -2,
+                "ticker": "MKC.V"
+              },
+              {
+                "date": "2016-04-06",
+                "denominator": 5,
+                "denominator_field": "tradesforhidden",
+                "numerator": -1,
+                "ticker": "STZ.B"
+              },
+              {
+                "date": "2016-04-07",
+                "denominator": 96,
+                "denominator_field": "tradesforhidden",
+                "numerator": -23,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-04-08",
+                "denominator": 85,
+                "denominator_field": "tradesforhidden",
+                "numerator": -42,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-04-11",
+                "denominator": 63,
+                "denominator_field": "tradesforhidden",
+                "numerator": -20,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-04-12",
+                "denominator": 120,
+                "denominator_field": "tradesforhidden",
+                "numerator": -55,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-04-13",
+                "denominator": 219,
+                "denominator_field": "tradesforhidden",
+                "numerator": -96,
+                "ticker": "BRK.A"
+              }
+            ],
+            "negative_numerator_count": 77,
+            "numerator_missing_count": 0,
+            "valid_count": 317080
+          },
+          "hidden_volume_share": {
+            "denominator_missing_count": 0,
+            "denominator_negative_count": 0,
+            "denominator_zero_count": 21026,
+            "greater_than_one_count": 0,
+            "greater_than_one_examples": [],
+            "max": 1,
+            "min": 0,
+            "negative_examples": [
+              {
+                "date": "2016-04-01",
+                "denominator": 0.256,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.11699999999999999,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-04-04",
+                "denominator": 0.14700000000000002,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.049,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-04-05",
+                "denominator": 0.183,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.09399999999999997,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-04-05",
+                "denominator": 0.041,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -1.4220000000000002,
+                "ticker": "MOC"
+              },
+              {
+                "date": "2016-04-06",
+                "denominator": 0.136,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.05200000000000002,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-04-06",
+                "denominator": 1.463,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.2,
+                "ticker": "MKC.V"
+              },
+              {
+                "date": "2016-04-06",
+                "denominator": 0.006,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.198,
+                "ticker": "SIF"
+              },
+              {
+                "date": "2016-04-06",
+                "denominator": 0.319,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.098,
+                "ticker": "STZ.B"
+              },
+              {
+                "date": "2016-04-07",
+                "denominator": 0.10300000000000001,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.027999999999999997,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-04-07",
+                "denominator": 167.891,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -4.867000000000003,
+                "ticker": "PIP"
+              },
+              {
+                "date": "2016-04-08",
+                "denominator": 0.086,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.03899999999999999,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-04-11",
+                "denominator": 0.067,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.024000000000000004,
+                "ticker": "BRK.A"
+              }
+            ],
+            "negative_numerator_count": 147,
+            "numerator_missing_count": 0,
+            "valid_count": 317010
+          }
+        },
+        "valid_rows_parsed": 338183
+      },
+      "readme_archive_layers": [
+        {
+          "bytes": 15643843,
+          "members": [
+            "q2_2016_all.csv",
+            "README.txt"
+          ],
+          "sha256": "0074161916f1aa11390f6d5da59d6de919baa1111df4d81f5fa81f63d499bf4b",
+          "zip_crc_passed": true
+        }
+      ],
+      "readmes": [
+        {
+          "bytes": 3602,
+          "member": "README.txt",
+          "mentions_correction": false,
+          "mentions_negative": false,
+          "relevant_lines": [
+            "Exchanges denote trades against hidden orders: Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX",
+            "Exchanges do not denote trades against hidden orders: Amex, CHX, NSX, NYSE",
+            "Exchanges do not report trades against individual orders: Amex, NYSE",
+            "Note: In December 2013, the SIP began reporting odd lot trades. Beginning with January 2014, trades against hidden",
+            "orders and their associated volumes can be approximated as the difference between the total trades/volume reported to the SIP and",
+            "the total trades/volume reported on the direct (level-book) feeds for NYSE and Amex.",
+            "Trades, Trade Volume, Hidden, Hidden Volume, Odd Lots and Odd Lot Volume are counted/summed from the direct feeds for:",
+            "Trades, Trade Volume, Odd Lots and Odd Lot Volume are counted/summed from the direct feeds for:",
+            "Trades, Trade Volume, Odd Lots and Odd Lot Volume are counted/summed from the SIP feeds for:",
+            "Hidden and Hidden Volume are computed as the difference between Trades/Trade Volume reported on the SIP feed and Trades/Trade Volume reported on the direct feeds for:",
+            "Hidden and Hidden Volume are not reported for:",
+            "For monthly (Date, Ticker, Exchange) data:",
+            "Trades: Count of all trade messages.",
+            "TradeVol('000): Sum of trade volume for all trade messages.",
+            "Cancels: Count of all cancel messages, either full or partial, for all exchanges.",
+            "Hidden: Count of trades against hidden orders from exchanges that report trades against hidden orders. Difference between SIP Trades and Direct Trades for NYSE and Amex.",
+            "LitTrades: Count of all trade messages for trades that are not against hidden orders. Computed as the difference between Trades and Hidden.",
+            "LitVol('000): Sum of trade volume for trades that are not against hidden orders. Computed as the difference between Trade Volume and Hidden Volume.",
+            "OrderVol('000): Sum of order volume for all add order messages.",
+            "TradesForHidden: Count of trades from exchanges that report trades against hidden orders.",
+            "HiddenVol('000): Sum of trade volume for trades against hidden orders from exchanges that report trades against hidden orders.",
+            "TradeVolForHidden('000): Sum of trade volume from exchanges that report trades against hidden orders.",
+            "OddLots: Count of odd lot trade messages for all exchanges.",
+            "OddLotVol('000): Sum of odd lot trade volume for all exchanges.",
+            "For quarterly (Date, Ticker) data:",
+            "TradesForOddLots = Trades: Count of trades from order-based exchanges.",
+            "TradeVolForOddLots('000) = TradeVol('000): Sum of trade volume from order-based exchanges.",
+            "Cancel-to-Trade = Cancels/LitTrades for Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX",
+            "Trade-to-Order-Volume = 100*LitVol/OrderVol for All Exchanges",
+            "Hidden Rate = 100*Hidden/TradesForHidden for Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX (& Amex and NYSE from 2014)",
+            "Hidden Volume = 100*HiddenVol/TradeVolForHidden for Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX (& Amex and NYSE from 2014)",
+            "Oddlot Rate=100*OddLots/TradesForOddLots for Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX",
+            "Oddlot Volume=100*OddLotVol/TradeVolForOddLots for Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX"
+          ],
+          "sha256": "e3adbdfe155957ade084188964c251e212c7dcbc54a1f95111c7cd8d8a7b49a0",
+          "text": "MAR User Data\r\n\r\nThese are the csv files containing the raw data underlying most of the charts.\r\nThey are intended for user download.\r\n\r\nOrder-based exchanges: Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX\r\nLevel-book exchanges: Amex, NYSE\r\n\r\nExchanges denote trades against hidden orders: Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX\r\nExchanges do not denote trades against hidden orders: Amex, CHX, NSX, NYSE\r\nExchanges do not report trades against individual orders: Amex, NYSE\r\n\r\nNote: In December 2013, the SIP began reporting odd lot trades. Beginning with January 2014, trades against hidden\r\norders and their associated volumes can be approximated as the difference between the total trades/volume reported to the SIP and\r\nthe total trades/volume reported on the direct (level-book) feeds for NYSE and Amex.\r\n\r\nTrades, Trade Volume, Hidden, Hidden Volume, Odd Lots and Odd Lot Volume are counted/summed from the direct feeds for:\r\n  Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX\r\nTrades, Trade Volume, Odd Lots and Odd Lot Volume are counted/summed from the direct feeds for:\r\n  CHX, NSX\r\nTrades, Trade Volume, Odd Lots and Odd Lot Volume are counted/summed from the SIP feeds for:\r\n  Amex, NYSE\r\nHidden and Hidden Volume are computed as the difference between Trades/Trade Volume reported on the SIP feed and Trades/Trade Volume reported on the direct feeds for:\r\n  Amex, NYSE \r\nHidden and Hidden Volume are not reported for:\r\n  CHX, NSX\r\n\r\nFor monthly (Date, Ticker, Exchange) data:\r\nTrades: Count of all trade messages.\r\nTradeVol('000): Sum of trade volume for all trade messages.\r\nCancels: Count of all cancel messages, either full or partial, for all exchanges.\r\nHidden: Count of trades against hidden orders from exchanges that report trades against hidden orders. Difference between SIP Trades and Direct Trades for NYSE and Amex.\r\nLitTrades: Count of all trade messages for trades that are not against hidden orders. Computed as the difference between Trades and Hidden.\r\nLitVol('000): Sum of trade volume for trades that are not against hidden orders. Computed as the difference between Trade Volume and Hidden Volume.\r\nOrderVol('000): Sum of order volume for all add order messages.\r\nTradesForHidden: Count of trades from exchanges that report trades against hidden orders.\r\nHiddenVol('000): Sum of trade volume for trades against hidden orders from exchanges that report trades against hidden orders.\r\nTradeVolForHidden('000): Sum of trade volume from exchanges that report trades against hidden orders.\r\nOddLots: Count of odd lot trade messages for all exchanges.\r\nOddLotVol('000): Sum of odd lot trade volume for all exchanges.\r\n\r\nFor quarterly (Date, Ticker) data:\r\nTradesForOddLots = Trades: Count of trades from order-based exchanges.\r\nTradeVolForOddLots('000) = TradeVol('000): Sum of trade volume from order-based exchanges.\r\n\r\nThe metrics:\r\n\r\nCancel-to-Trade = Cancels/LitTrades for Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX\r\nTrade-to-Order-Volume = 100*LitVol/OrderVol for All Exchanges\r\nHidden Rate = 100*Hidden/TradesForHidden for Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX (& Amex and NYSE from 2014)\r\nHidden Volume = 100*HiddenVol/TradeVolForHidden for Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX (& Amex and NYSE from 2014)\r\nOddlot Rate=100*OddLots/TradesForOddLots for Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX\r\nOddlot Volume=100*OddLotVol/TradeVolForOddLots for Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX\r\n"
+        }
+      ]
+    },
+    {
+      "archive_metadata": {
+        "archive_layers": [
+          {
+            "bytes": 15566189,
+            "member_count": 2,
+            "members": [
+              {
+                "bytes": 3602,
+                "crc32": "45278408",
+                "name": "README.txt"
+              },
+              {
+                "bytes": 47955250,
+                "crc32": "27e3068f",
+                "name": "q3_2016_all.csv"
+              }
+            ],
+            "sha256": "b95521f684d9ee873080e14ffc95802607d6fae486ead051f169d6bfacf7cd97",
+            "zip_crc_passed": true
+          }
+        ],
+        "container_depth": 0,
+        "data_bytes": 47955250,
+        "data_member": "q3_2016_all.csv",
+        "data_sha256": "64f3a9d3cd739b3393bf969c4396b3fe57c421388c0884f086e09fb6229bffec"
+      },
+      "http_metadata": {
+        "content_length_header": "15566189",
+        "download_attempt": 1,
+        "etag": null,
+        "final_url": "https://www.sec.gov/files/opa/data/market-structure/metrics-individual-security/individual_security_2016_q3.zip",
+        "http_date": "Sun, 08 Nov 2026 01:53:05 GMT",
+        "http_status": 200,
+        "last_modified": "Sat, 19 Dec 2020 10:17:32 GMT"
+      },
+      "quarter": "2016 Q3",
+      "ratio_diagnostics": {
+        "csv_sha256": "64f3a9d3cd739b3393bf969c4396b3fe57c421388c0884f086e09fb6229bffec",
+        "quarter": "2016 Q3",
+        "ratios": {
+          "hidden_rate": {
+            "denominator_missing_count": 0,
+            "denominator_negative_count": 0,
+            "denominator_zero_count": 21134,
+            "greater_than_one_count": 0,
+            "greater_than_one_examples": [],
+            "max": 1,
+            "min": 0,
+            "negative_examples": [
+              {
+                "date": "2016-07-01",
+                "denominator": 164,
+                "denominator_field": "tradesforhidden",
+                "numerator": -61,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-07-05",
+                "denominator": 123,
+                "denominator_field": "tradesforhidden",
+                "numerator": -39,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-07-06",
+                "denominator": 131,
+                "denominator_field": "tradesforhidden",
+                "numerator": -34,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-07-07",
+                "denominator": 196,
+                "denominator_field": "tradesforhidden",
+                "numerator": -50,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-07-08",
+                "denominator": 142,
+                "denominator_field": "tradesforhidden",
+                "numerator": -45,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-07-11",
+                "denominator": 118,
+                "denominator_field": "tradesforhidden",
+                "numerator": -55,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-07-12",
+                "denominator": 174,
+                "denominator_field": "tradesforhidden",
+                "numerator": -86,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-07-13",
+                "denominator": 223,
+                "denominator_field": "tradesforhidden",
+                "numerator": -74,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-07-13",
+                "denominator": 2,
+                "denominator_field": "tradesforhidden",
+                "numerator": -4,
+                "ticker": "GTN.A"
+              },
+              {
+                "date": "2016-07-14",
+                "denominator": 153,
+                "denominator_field": "tradesforhidden",
+                "numerator": -41,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-07-15",
+                "denominator": 93,
+                "denominator_field": "tradesforhidden",
+                "numerator": -39,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-07-18",
+                "denominator": 286,
+                "denominator_field": "tradesforhidden",
+                "numerator": -36,
+                "ticker": "BRK.A"
+              }
+            ],
+            "negative_numerator_count": 70,
+            "numerator_missing_count": 0,
+            "valid_count": 316895
+          },
+          "hidden_volume_share": {
+            "denominator_missing_count": 0,
+            "denominator_negative_count": 0,
+            "denominator_zero_count": 21134,
+            "greater_than_one_count": 0,
+            "greater_than_one_examples": [],
+            "max": 1,
+            "min": 0,
+            "negative_examples": [
+              {
+                "date": "2016-07-01",
+                "denominator": 0.19,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.07400000000000001,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-07-05",
+                "denominator": 0.133,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.044999999999999984,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-07-06",
+                "denominator": 0.136,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.036,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-07-07",
+                "denominator": 0.24700000000000003,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.06599999999999998,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-07-07",
+                "denominator": 26.371000000000002,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -2,
+                "ticker": "ETAK"
+              },
+              {
+                "date": "2016-07-07",
+                "denominator": 46.169,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -8.7,
+                "ticker": "IGC"
+              },
+              {
+                "date": "2016-07-08",
+                "denominator": 0.15100000000000002,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.049000000000000016,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-07-08",
+                "denominator": 359.31899999999996,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -17.791999999999963,
+                "ticker": "BZH"
+              },
+              {
+                "date": "2016-07-08",
+                "denominator": 254.53099999999998,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -6.438000000000013,
+                "ticker": "SSY"
+              },
+              {
+                "date": "2016-07-11",
+                "denominator": 0.127,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.059,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-07-11",
+                "denominator": 302.18600000000004,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -1.9080000000000066,
+                "ticker": "DPW"
+              },
+              {
+                "date": "2016-07-11",
+                "denominator": 44.028,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -7.179000000000003,
+                "ticker": "WYY"
+              }
+            ],
+            "negative_numerator_count": 153,
+            "numerator_missing_count": 0,
+            "valid_count": 316812
+          }
+        },
+        "valid_rows_parsed": 338099
+      },
+      "readme_archive_layers": [
+        {
+          "bytes": 15566189,
+          "members": [
+            "README.txt",
+            "q3_2016_all.csv"
+          ],
+          "sha256": "b95521f684d9ee873080e14ffc95802607d6fae486ead051f169d6bfacf7cd97",
+          "zip_crc_passed": true
+        }
+      ],
+      "readmes": [
+        {
+          "bytes": 3602,
+          "member": "README.txt",
+          "mentions_correction": false,
+          "mentions_negative": false,
+          "relevant_lines": [
+            "Exchanges denote trades against hidden orders: Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX",
+            "Exchanges do not denote trades against hidden orders: Amex, CHX, NSX, NYSE",
+            "Exchanges do not report trades against individual orders: Amex, NYSE",
+            "Note: In December 2013, the SIP began reporting odd lot trades. Beginning with January 2014, trades against hidden",
+            "orders and their associated volumes can be approximated as the difference between the total trades/volume reported to the SIP and",
+            "the total trades/volume reported on the direct (level-book) feeds for NYSE and Amex.",
+            "Trades, Trade Volume, Hidden, Hidden Volume, Odd Lots and Odd Lot Volume are counted/summed from the direct feeds for:",
+            "Trades, Trade Volume, Odd Lots and Odd Lot Volume are counted/summed from the direct feeds for:",
+            "Trades, Trade Volume, Odd Lots and Odd Lot Volume are counted/summed from the SIP feeds for:",
+            "Hidden and Hidden Volume are computed as the difference between Trades/Trade Volume reported on the SIP feed and Trades/Trade Volume reported on the direct feeds for:",
+            "Hidden and Hidden Volume are not reported for:",
+            "For monthly (Date, Ticker, Exchange) data:",
+            "Trades: Count of all trade messages.",
+            "TradeVol('000): Sum of trade volume for all trade messages.",
+            "Cancels: Count of all cancel messages, either full or partial, for all exchanges.",
+            "Hidden: Count of trades against hidden orders from exchanges that report trades against hidden orders. Difference between SIP Trades and Direct Trades for NYSE and Amex.",
+            "LitTrades: Count of all trade messages for trades that are not against hidden orders. Computed as the difference between Trades and Hidden.",
+            "LitVol('000): Sum of trade volume for trades that are not against hidden orders. Computed as the difference between Trade Volume and Hidden Volume.",
+            "OrderVol('000): Sum of order volume for all add order messages.",
+            "TradesForHidden: Count of trades from exchanges that report trades against hidden orders.",
+            "HiddenVol('000): Sum of trade volume for trades against hidden orders from exchanges that report trades against hidden orders.",
+            "TradeVolForHidden('000): Sum of trade volume from exchanges that report trades against hidden orders.",
+            "OddLots: Count of odd lot trade messages for all exchanges.",
+            "OddLotVol('000): Sum of odd lot trade volume for all exchanges.",
+            "For quarterly (Date, Ticker) data:",
+            "TradesForOddLots = Trades: Count of trades from order-based exchanges.",
+            "TradeVolForOddLots('000) = TradeVol('000): Sum of trade volume from order-based exchanges.",
+            "Cancel-to-Trade = Cancels/LitTrades for Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX",
+            "Trade-to-Order-Volume = 100*LitVol/OrderVol for All Exchanges",
+            "Hidden Rate = 100*Hidden/TradesForHidden for Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX (& Amex and NYSE from 2014)",
+            "Hidden Volume = 100*HiddenVol/TradeVolForHidden for Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX (& Amex and NYSE from 2014)",
+            "Oddlot Rate=100*OddLots/TradesForOddLots for Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX",
+            "Oddlot Volume=100*OddLotVol/TradeVolForOddLots for Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX"
+          ],
+          "sha256": "e3adbdfe155957ade084188964c251e212c7dcbc54a1f95111c7cd8d8a7b49a0",
+          "text": "MAR User Data\r\n\r\nThese are the csv files containing the raw data underlying most of the charts.\r\nThey are intended for user download.\r\n\r\nOrder-based exchanges: Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX\r\nLevel-book exchanges: Amex, NYSE\r\n\r\nExchanges denote trades against hidden orders: Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX\r\nExchanges do not denote trades against hidden orders: Amex, CHX, NSX, NYSE\r\nExchanges do not report trades against individual orders: Amex, NYSE\r\n\r\nNote: In December 2013, the SIP began reporting odd lot trades. Beginning with January 2014, trades against hidden\r\norders and their associated volumes can be approximated as the difference between the total trades/volume reported to the SIP and\r\nthe total trades/volume reported on the direct (level-book) feeds for NYSE and Amex.\r\n\r\nTrades, Trade Volume, Hidden, Hidden Volume, Odd Lots and Odd Lot Volume are counted/summed from the direct feeds for:\r\n  Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX\r\nTrades, Trade Volume, Odd Lots and Odd Lot Volume are counted/summed from the direct feeds for:\r\n  CHX, NSX\r\nTrades, Trade Volume, Odd Lots and Odd Lot Volume are counted/summed from the SIP feeds for:\r\n  Amex, NYSE\r\nHidden and Hidden Volume are computed as the difference between Trades/Trade Volume reported on the SIP feed and Trades/Trade Volume reported on the direct feeds for:\r\n  Amex, NYSE \r\nHidden and Hidden Volume are not reported for:\r\n  CHX, NSX\r\n\r\nFor monthly (Date, Ticker, Exchange) data:\r\nTrades: Count of all trade messages.\r\nTradeVol('000): Sum of trade volume for all trade messages.\r\nCancels: Count of all cancel messages, either full or partial, for all exchanges.\r\nHidden: Count of trades against hidden orders from exchanges that report trades against hidden orders. Difference between SIP Trades and Direct Trades for NYSE and Amex.\r\nLitTrades: Count of all trade messages for trades that are not against hidden orders. Computed as the difference between Trades and Hidden.\r\nLitVol('000): Sum of trade volume for trades that are not against hidden orders. Computed as the difference between Trade Volume and Hidden Volume.\r\nOrderVol('000): Sum of order volume for all add order messages.\r\nTradesForHidden: Count of trades from exchanges that report trades against hidden orders.\r\nHiddenVol('000): Sum of trade volume for trades against hidden orders from exchanges that report trades against hidden orders.\r\nTradeVolForHidden('000): Sum of trade volume from exchanges that report trades against hidden orders.\r\nOddLots: Count of odd lot trade messages for all exchanges.\r\nOddLotVol('000): Sum of odd lot trade volume for all exchanges.\r\n\r\nFor quarterly (Date, Ticker) data:\r\nTradesForOddLots = Trades: Count of trades from order-based exchanges.\r\nTradeVolForOddLots('000) = TradeVol('000): Sum of trade volume from order-based exchanges.\r\n\r\nThe metrics:\r\n\r\nCancel-to-Trade = Cancels/LitTrades for Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX\r\nTrade-to-Order-Volume = 100*LitVol/OrderVol for All Exchanges\r\nHidden Rate = 100*Hidden/TradesForHidden for Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX (& Amex and NYSE from 2014)\r\nHidden Volume = 100*HiddenVol/TradeVolForHidden for Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX (& Amex and NYSE from 2014)\r\nOddlot Rate=100*OddLots/TradesForOddLots for Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX\r\nOddlot Volume=100*OddLotVol/TradeVolForOddLots for Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX\r\n"
+        }
+      ]
+    },
+    {
+      "archive_metadata": {
+        "archive_layers": [
+          {
+            "bytes": 15371263,
+            "member_count": 2,
+            "members": [
+              {
+                "bytes": 47158035,
+                "crc32": "2920c146",
+                "name": "q4_2016_all.csv"
+              },
+              {
+                "bytes": 3602,
+                "crc32": "45278408",
+                "name": "README.txt"
+              }
+            ],
+            "sha256": "46b63d9b771a2b45cd03068142c3b317953e42ee269b9c90bb24ad88cb236e76",
+            "zip_crc_passed": true
+          }
+        ],
+        "container_depth": 0,
+        "data_bytes": 47158035,
+        "data_member": "q4_2016_all.csv",
+        "data_sha256": "5ca048764e879507160b9eef9788464361df1afa4b462f9373b4a0b4ef697060"
+      },
+      "http_metadata": {
+        "content_length_header": "15371263",
+        "download_attempt": 1,
+        "etag": null,
+        "final_url": "https://www.sec.gov/files/opa/data/market-structure/metrics-individual-security/individual_security_2016_q4.zip",
+        "http_date": "Sun, 08 Nov 2026 01:53:12 GMT",
+        "http_status": 200,
+        "last_modified": "Sat, 19 Dec 2020 10:17:33 GMT"
+      },
+      "quarter": "2016 Q4",
+      "ratio_diagnostics": {
+        "csv_sha256": "5ca048764e879507160b9eef9788464361df1afa4b462f9373b4a0b4ef697060",
+        "quarter": "2016 Q4",
+        "ratios": {
+          "hidden_rate": {
+            "denominator_missing_count": 0,
+            "denominator_negative_count": 0,
+            "denominator_zero_count": 19692,
+            "greater_than_one_count": 0,
+            "greater_than_one_examples": [],
+            "max": 1,
+            "min": 0,
+            "negative_examples": [
+              {
+                "date": "2016-10-03",
+                "denominator": 165,
+                "denominator_field": "tradesforhidden",
+                "numerator": -61,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-10-04",
+                "denominator": 125,
+                "denominator_field": "tradesforhidden",
+                "numerator": -41,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-10-05",
+                "denominator": 84,
+                "denominator_field": "tradesforhidden",
+                "numerator": -43,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-10-06",
+                "denominator": 112,
+                "denominator_field": "tradesforhidden",
+                "numerator": -33,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-10-07",
+                "denominator": 208,
+                "denominator_field": "tradesforhidden",
+                "numerator": -36,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-10-10",
+                "denominator": 58,
+                "denominator_field": "tradesforhidden",
+                "numerator": -21,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-10-11",
+                "denominator": 153,
+                "denominator_field": "tradesforhidden",
+                "numerator": -28,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-10-12",
+                "denominator": 83,
+                "denominator_field": "tradesforhidden",
+                "numerator": -32,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-10-12",
+                "denominator": 17,
+                "denominator_field": "tradesforhidden",
+                "numerator": -3,
+                "ticker": "DSS"
+              },
+              {
+                "date": "2016-10-13",
+                "denominator": 432,
+                "denominator_field": "tradesforhidden",
+                "numerator": -55,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-10-14",
+                "denominator": 124,
+                "denominator_field": "tradesforhidden",
+                "numerator": -43,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-10-17",
+                "denominator": 79,
+                "denominator_field": "tradesforhidden",
+                "numerator": -14,
+                "ticker": "BRK.A"
+              }
+            ],
+            "negative_numerator_count": 78,
+            "numerator_missing_count": 0,
+            "valid_count": 312105
+          },
+          "hidden_volume_share": {
+            "denominator_missing_count": 0,
+            "denominator_negative_count": 0,
+            "denominator_zero_count": 19692,
+            "greater_than_one_count": 0,
+            "greater_than_one_examples": [],
+            "max": 1,
+            "min": 0,
+            "negative_examples": [
+              {
+                "date": "2016-10-03",
+                "denominator": 3.4429999999999996,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -6.938893903907228e-17,
+                "ticker": "AMS"
+              },
+              {
+                "date": "2016-10-03",
+                "denominator": 0.185,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.07900000000000001,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-10-03",
+                "denominator": 7.031000000000001,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.26599999999999974,
+                "ticker": "CUO"
+              },
+              {
+                "date": "2016-10-03",
+                "denominator": 16.079,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -3.2419999999999978,
+                "ticker": "FSI"
+              },
+              {
+                "date": "2016-10-04",
+                "denominator": 0.135,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.05200000000000001,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-10-04",
+                "denominator": 21.234,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -8.399999999999999,
+                "ticker": "GMO"
+              },
+              {
+                "date": "2016-10-04",
+                "denominator": 39.157,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -1.9409999999999976,
+                "ticker": "HEB"
+              },
+              {
+                "date": "2016-10-05",
+                "denominator": 0.095,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.049,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-10-06",
+                "denominator": 0.13,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.038,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-10-06",
+                "denominator": 111.17399999999999,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -6.008000000000002,
+                "ticker": "EGY"
+              },
+              {
+                "date": "2016-10-07",
+                "denominator": 0.22799999999999998,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.040999999999999995,
+                "ticker": "BRK.A"
+              },
+              {
+                "date": "2016-10-07",
+                "denominator": 2.1109999999999998,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -3.0829999999999997,
+                "ticker": "EVI"
+              }
+            ],
+            "negative_numerator_count": 244,
+            "numerator_missing_count": 0,
+            "valid_count": 311939
+          }
+        },
+        "valid_rows_parsed": 331875
+      },
+      "readme_archive_layers": [
+        {
+          "bytes": 15371263,
+          "members": [
+            "q4_2016_all.csv",
+            "README.txt"
+          ],
+          "sha256": "46b63d9b771a2b45cd03068142c3b317953e42ee269b9c90bb24ad88cb236e76",
+          "zip_crc_passed": true
+        }
+      ],
+      "readmes": [
+        {
+          "bytes": 3602,
+          "member": "README.txt",
+          "mentions_correction": false,
+          "mentions_negative": false,
+          "relevant_lines": [
+            "Exchanges denote trades against hidden orders: Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX",
+            "Exchanges do not denote trades against hidden orders: Amex, CHX, NSX, NYSE",
+            "Exchanges do not report trades against individual orders: Amex, NYSE",
+            "Note: In December 2013, the SIP began reporting odd lot trades. Beginning with January 2014, trades against hidden",
+            "orders and their associated volumes can be approximated as the difference between the total trades/volume reported to the SIP and",
+            "the total trades/volume reported on the direct (level-book) feeds for NYSE and Amex.",
+            "Trades, Trade Volume, Hidden, Hidden Volume, Odd Lots and Odd Lot Volume are counted/summed from the direct feeds for:",
+            "Trades, Trade Volume, Odd Lots and Odd Lot Volume are counted/summed from the direct feeds for:",
+            "Trades, Trade Volume, Odd Lots and Odd Lot Volume are counted/summed from the SIP feeds for:",
+            "Hidden and Hidden Volume are computed as the difference between Trades/Trade Volume reported on the SIP feed and Trades/Trade Volume reported on the direct feeds for:",
+            "Hidden and Hidden Volume are not reported for:",
+            "For monthly (Date, Ticker, Exchange) data:",
+            "Trades: Count of all trade messages.",
+            "TradeVol('000): Sum of trade volume for all trade messages.",
+            "Cancels: Count of all cancel messages, either full or partial, for all exchanges.",
+            "Hidden: Count of trades against hidden orders from exchanges that report trades against hidden orders. Difference between SIP Trades and Direct Trades for NYSE and Amex.",
+            "LitTrades: Count of all trade messages for trades that are not against hidden orders. Computed as the difference between Trades and Hidden.",
+            "LitVol('000): Sum of trade volume for trades that are not against hidden orders. Computed as the difference between Trade Volume and Hidden Volume.",
+            "OrderVol('000): Sum of order volume for all add order messages.",
+            "TradesForHidden: Count of trades from exchanges that report trades against hidden orders.",
+            "HiddenVol('000): Sum of trade volume for trades against hidden orders from exchanges that report trades against hidden orders.",
+            "TradeVolForHidden('000): Sum of trade volume from exchanges that report trades against hidden orders.",
+            "OddLots: Count of odd lot trade messages for all exchanges.",
+            "OddLotVol('000): Sum of odd lot trade volume for all exchanges.",
+            "For quarterly (Date, Ticker) data:",
+            "TradesForOddLots = Trades: Count of trades from order-based exchanges.",
+            "TradeVolForOddLots('000) = TradeVol('000): Sum of trade volume from order-based exchanges.",
+            "Cancel-to-Trade = Cancels/LitTrades for Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX",
+            "Trade-to-Order-Volume = 100*LitVol/OrderVol for All Exchanges",
+            "Hidden Rate = 100*Hidden/TradesForHidden for Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX (& Amex and NYSE from 2014)",
+            "Hidden Volume = 100*HiddenVol/TradeVolForHidden for Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX (& Amex and NYSE from 2014)",
+            "Oddlot Rate=100*OddLots/TradesForOddLots for Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX",
+            "Oddlot Volume=100*OddLotVol/TradeVolForOddLots for Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX"
+          ],
+          "sha256": "e3adbdfe155957ade084188964c251e212c7dcbc54a1f95111c7cd8d8a7b49a0",
+          "text": "MAR User Data\r\n\r\nThese are the csv files containing the raw data underlying most of the charts.\r\nThey are intended for user download.\r\n\r\nOrder-based exchanges: Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX\r\nLevel-book exchanges: Amex, NYSE\r\n\r\nExchanges denote trades against hidden orders: Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX\r\nExchanges do not denote trades against hidden orders: Amex, CHX, NSX, NYSE\r\nExchanges do not report trades against individual orders: Amex, NYSE\r\n\r\nNote: In December 2013, the SIP began reporting odd lot trades. Beginning with January 2014, trades against hidden\r\norders and their associated volumes can be approximated as the difference between the total trades/volume reported to the SIP and\r\nthe total trades/volume reported on the direct (level-book) feeds for NYSE and Amex.\r\n\r\nTrades, Trade Volume, Hidden, Hidden Volume, Odd Lots and Odd Lot Volume are counted/summed from the direct feeds for:\r\n  Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX\r\nTrades, Trade Volume, Odd Lots and Odd Lot Volume are counted/summed from the direct feeds for:\r\n  CHX, NSX\r\nTrades, Trade Volume, Odd Lots and Odd Lot Volume are counted/summed from the SIP feeds for:\r\n  Amex, NYSE\r\nHidden and Hidden Volume are computed as the difference between Trades/Trade Volume reported on the SIP feed and Trades/Trade Volume reported on the direct feeds for:\r\n  Amex, NYSE \r\nHidden and Hidden Volume are not reported for:\r\n  CHX, NSX\r\n\r\nFor monthly (Date, Ticker, Exchange) data:\r\nTrades: Count of all trade messages.\r\nTradeVol('000): Sum of trade volume for all trade messages.\r\nCancels: Count of all cancel messages, either full or partial, for all exchanges.\r\nHidden: Count of trades against hidden orders from exchanges that report trades against hidden orders. Difference between SIP Trades and Direct Trades for NYSE and Amex.\r\nLitTrades: Count of all trade messages for trades that are not against hidden orders. Computed as the difference between Trades and Hidden.\r\nLitVol('000): Sum of trade volume for trades that are not against hidden orders. Computed as the difference between Trade Volume and Hidden Volume.\r\nOrderVol('000): Sum of order volume for all add order messages.\r\nTradesForHidden: Count of trades from exchanges that report trades against hidden orders.\r\nHiddenVol('000): Sum of trade volume for trades against hidden orders from exchanges that report trades against hidden orders.\r\nTradeVolForHidden('000): Sum of trade volume from exchanges that report trades against hidden orders.\r\nOddLots: Count of odd lot trade messages for all exchanges.\r\nOddLotVol('000): Sum of odd lot trade volume for all exchanges.\r\n\r\nFor quarterly (Date, Ticker) data:\r\nTradesForOddLots = Trades: Count of trades from order-based exchanges.\r\nTradeVolForOddLots('000) = TradeVol('000): Sum of trade volume from order-based exchanges.\r\n\r\nThe metrics:\r\n\r\nCancel-to-Trade = Cancels/LitTrades for Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX\r\nTrade-to-Order-Volume = 100*LitVol/OrderVol for All Exchanges\r\nHidden Rate = 100*Hidden/TradesForHidden for Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX (& Amex and NYSE from 2014)\r\nHidden Volume = 100*HiddenVol/TradeVolForHidden for Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX (& Amex and NYSE from 2014)\r\nOddlot Rate=100*OddLots/TradesForOddLots for Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX\r\nOddlot Volume=100*OddLotVol/TradeVolForOddLots for Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX\r\n"
+        }
+      ]
+    },
+    {
+      "archive_metadata": {
+        "archive_layers": [
+          {
+            "bytes": 17235618,
+            "member_count": 2,
+            "members": [
+              {
+                "bytes": 51462991,
+                "crc32": "abb79fe2",
+                "name": "q4_2019_all.csv"
+              },
+              {
+                "bytes": 4379,
+                "crc32": "52c659dc",
+                "name": "README.txt"
+              }
+            ],
+            "sha256": "7291906f9993bbb8bc3d2c20b451c32999856c6d6738ef06fdfb644cd31c376b",
+            "zip_crc_passed": true
+          }
+        ],
+        "container_depth": 0,
+        "data_bytes": 51462991,
+        "data_member": "q4_2019_all.csv",
+        "data_sha256": "74a99c04584cff49ee1225f76e4d3a60cc87b7728db218ff06a2f00213b4879b"
+      },
+      "http_metadata": {
+        "content_length_header": "17235618",
+        "download_attempt": 1,
+        "etag": null,
+        "final_url": "https://www.sec.gov/files/node/add/data_distribution/individual_security_2019_q4.zip",
+        "http_date": "Sun, 08 Nov 2026 01:53:19 GMT",
+        "http_status": 200,
+        "last_modified": "Sat, 19 Dec 2020 10:12:05 GMT"
+      },
+      "quarter": "2019 Q4",
+      "ratio_diagnostics": {
+        "csv_sha256": "74a99c04584cff49ee1225f76e4d3a60cc87b7728db218ff06a2f00213b4879b",
+        "quarter": "2019 Q4",
+        "ratios": {
+          "hidden_rate": {
+            "denominator_missing_count": 0,
+            "denominator_negative_count": 0,
+            "denominator_zero_count": 21303,
+            "greater_than_one_count": 0,
+            "greater_than_one_examples": [],
+            "max": 1,
+            "min": 0,
+            "negative_examples": [
+              {
+                "date": "2019-10-11",
+                "denominator": 45,
+                "denominator_field": "tradesforhidden",
+                "numerator": -19,
+                "ticker": "FTNW"
+              },
+              {
+                "date": "2019-10-15",
+                "denominator": 6,
+                "denominator_field": "tradesforhidden",
+                "numerator": -5,
+                "ticker": "NTN"
+              },
+              {
+                "date": "2019-11-13",
+                "denominator": 26,
+                "denominator_field": "tradesforhidden",
+                "numerator": -1,
+                "ticker": "TGC"
+              },
+              {
+                "date": "2019-12-19",
+                "denominator": 9,
+                "denominator_field": "tradesforhidden",
+                "numerator": -1,
+                "ticker": "NTN"
+              }
+            ],
+            "negative_numerator_count": 4,
+            "numerator_missing_count": 0,
+            "valid_count": 348126
+          },
+          "hidden_volume_share": {
+            "denominator_missing_count": 0,
+            "denominator_negative_count": 0,
+            "denominator_zero_count": 21303,
+            "greater_than_one_count": 0,
+            "greater_than_one_examples": [],
+            "max": 1,
+            "min": 0,
+            "negative_examples": [
+              {
+                "date": "2019-10-11",
+                "denominator": 15.745,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -8.401000000000002,
+                "ticker": "FTNW"
+              },
+              {
+                "date": "2019-10-15",
+                "denominator": 0.224,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.39399999999999996,
+                "ticker": "NTN"
+              },
+              {
+                "date": "2019-11-13",
+                "denominator": 3.6020000000000003,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.07499999999999996,
+                "ticker": "TGC"
+              },
+              {
+                "date": "2019-12-02",
+                "denominator": 392.07000000000005,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -8.138000000000059,
+                "ticker": "NAVB"
+              },
+              {
+                "date": "2019-12-03",
+                "denominator": 89.49199999999999,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -6.211000000000002,
+                "ticker": "YCBD"
+              },
+              {
+                "date": "2019-12-19",
+                "denominator": 0.312,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.003000000000000003,
+                "ticker": "NTN"
+              },
+              {
+                "date": "2019-12-26",
+                "denominator": 3.138,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.5189999999999999,
+                "ticker": "BTN"
+              },
+              {
+                "date": "2019-12-27",
+                "denominator": 20.483999999999998,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.01599999999999982,
+                "ticker": "DPW"
+              },
+              {
+                "date": "2019-12-30",
+                "denominator": 1.5180000000000002,
+                "denominator_field": "tradevolforhidden('000)",
+                "numerator": -0.03900000000000005,
+                "ticker": "XTNT"
+              }
+            ],
+            "negative_numerator_count": 9,
+            "numerator_missing_count": 0,
+            "valid_count": 348121
+          }
+        },
+        "valid_rows_parsed": 369433
+      },
+      "readme_archive_layers": [
+        {
+          "bytes": 17235618,
+          "members": [
+            "q4_2019_all.csv",
+            "README.txt"
+          ],
+          "sha256": "7291906f9993bbb8bc3d2c20b451c32999856c6d6738ef06fdfb644cd31c376b",
+          "zip_crc_passed": true
+        }
+      ],
+      "readmes": [
+        {
+          "bytes": 4379,
+          "member": "README.txt",
+          "mentions_correction": false,
+          "mentions_negative": false,
+          "relevant_lines": [
+            "Exchanges denote trades against hidden orders: Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX",
+            "Exchanges do not denote trades against hidden orders: Amex, CHX (through November 4, 2019), NSX (through May 21, 2018), NYSE (through April, 2017)",
+            "Exchanges do not report trades against individual orders: Amex, NYSE (through April, 2017)",
+            "1. In December 2013, the SIP began reporting odd lot trades. Beginning with January 2014, trades against hidden",
+            "orders and their associated volumes can be approximated as the difference between the total trades/volume reported to the SIP and",
+            "the total trades/volume reported on the direct (level-book) feeds for NYSE and Amex.",
+            "2. Beginning May, 2017, NYSE hidden orders and odd lot trades are counted on the NIF.",
+            "4. Beginning May 21, 2018, NSX reports trades against hidden orders.",
+            "5. Beginning November 4, 2019, CHX reports trades against hidden orders.",
+            "Trades, Trade Volume, Hidden, Hidden Volume, Odd Lots and Odd Lot Volume are counted/summed from the direct feeds for:",
+            "Trades, Trade Volume, Odd Lots and Odd Lot Volume are counted/summed from the direct feeds for:",
+            "Trades, Trade Volume, Odd Lots and Odd Lot Volume are counted/summed from the SIP feeds for:",
+            "Hidden and Hidden Volume are computed as the difference between Trades/Trade Volume reported on the SIP feed and Trades/Trade Volume reported on the direct feeds for:",
+            "Hidden and Hidden Volume are not reported for:",
+            "For monthly (Date, Ticker, Exchange) data:",
+            "Trades: Count of all trade messages.",
+            "TradeVol('000): Sum of trade volume for all trade messages.",
+            "Cancels: Count of all cancel messages, either full or partial, for all exchanges.",
+            "Hidden: Count of trades against hidden orders from exchanges that report trades against hidden orders. Difference between SIP Trades and Direct Trades for NYSE and Amex.",
+            "LitTrades: Count of all trade messages for trades that are not against hidden orders. Computed as the difference between Trades and Hidden.",
+            "LitVol('000): Sum of trade volume for trades that are not against hidden orders. Computed as the difference between Trade Volume and Hidden Volume.",
+            "OrderVol('000): Sum of order volume for all add order messages.",
+            "TradesForHidden: Count of trades from exchanges that report trades against hidden orders.",
+            "HiddenVol('000): Sum of trade volume for trades against hidden orders from exchanges that report trades against hidden orders.",
+            "TradeVolForHidden('000): Sum of trade volume from exchanges that report trades against hidden orders.",
+            "OddLots: Count of odd lot trade messages for all exchanges.",
+            "OddLotVol('000): Sum of odd lot trade volume for all exchanges.",
+            "For quarterly (Date, Ticker) data:",
+            "TradesForOddLots = Trades: Count of trades from order-based exchanges.",
+            "TradeVolForOddLots('000) = TradeVol('000): Sum of trade volume from order-based exchanges.",
+            "Cancel-to-Trade = Cancels/LitTrades for Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX (& NYSE beginning May, 2017)",
+            "Trade-to-Order-Volume = 100*LitVol/OrderVol for All Exchanges",
+            "Hidden Rate = 100*Hidden/TradesForHidden for Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX (& Amex and NYSE from 2014)",
+            "Hidden Volume = 100*HiddenVol/TradeVolForHidden for Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX (& Amex and NYSE from 2014)",
+            "Oddlot Rate=100*OddLots/TradesForOddLots for Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX (& NYSE beginning May, 2017)",
+            "Oddlot Volume=100*OddLotVol/TradeVolForOddLots for Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX (& NYSE beginning May, 2017)"
+          ],
+          "sha256": "418338bae8a331558c01be808238ac54e36f4db366e77cd0b265d0dd2f9a3499",
+          "text": "MAR User Data\r\n\r\nThese are the csv files containing the raw data underlying most of the charts.\r\nThey are intended for user download.\r\n\r\nOrder-based exchanges: Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX\r\nLevel-book exchanges: Amex, NYSE\r\nOn May 1, 2017, MIDAS switched from the NYSE Ultra level-book feed to the NYSE Integrated Feed (NIF)\r\n\r\nExchanges denote trades against hidden orders: Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX\r\nExchanges do not denote trades against hidden orders: Amex, CHX (through November 4, 2019), NSX (through May 21, 2018), NYSE (through April, 2017)\r\nExchanges do not report trades against individual orders: Amex, NYSE (through April, 2017)\r\n\r\nNotes:\r\n1. In December 2013, the SIP began reporting odd lot trades. Beginning with January 2014, trades against hidden\r\norders and their associated volumes can be approximated as the difference between the total trades/volume reported to the SIP and\r\nthe total trades/volume reported on the direct (level-book) feeds for NYSE and Amex. \r\n2. Beginning May, 2017, NYSE hidden orders and odd lot trades are counted on the NIF.\r\n3. Beginning April 9, 2018, NYSE reports all events for all symbols.\r\n4. Beginning May 21, 2018, NSX reports trades against hidden orders.\r\n5. Beginning November 4, 2019, CHX reports trades against hidden orders.\r\n\r\nTrades, Trade Volume, Hidden, Hidden Volume, Odd Lots and Odd Lot Volume are counted/summed from the direct feeds for:\r\n  Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX (& NYSE beginning May, 2017; & NSX beginning May 21, 2018 & CHX beginning November 4, 2019)\r\nTrades, Trade Volume, Odd Lots and Odd Lot Volume are counted/summed from the direct feeds for:\r\n  CHX, NSX\r\nTrades, Trade Volume, Odd Lots and Odd Lot Volume are counted/summed from the SIP feeds for:\r\n  Amex, NYSE (NYSE until April, 2017)\r\nHidden and Hidden Volume are computed as the difference between Trades/Trade Volume reported on the SIP feed and Trades/Trade Volume reported on the direct feeds for:\r\n  Amex, NYSE (NYSE until April, 2017)\r\nHidden and Hidden Volume are not reported for:\r\n  CHX (until November 4, 2019), NSX (until May 21, 2018)\r\n\r\nFor monthly (Date, Ticker, Exchange) data:\r\nTrades: Count of all trade messages.\r\nTradeVol('000): Sum of trade volume for all trade messages.\r\nCancels: Count of all cancel messages, either full or partial, for all exchanges.\r\nHidden: Count of trades against hidden orders from exchanges that report trades against hidden orders. Difference between SIP Trades and Direct Trades for NYSE and Amex.\r\nLitTrades: Count of all trade messages for trades that are not against hidden orders. Computed as the difference between Trades and Hidden.\r\nLitVol('000): Sum of trade volume for trades that are not against hidden orders. Computed as the difference between Trade Volume and Hidden Volume.\r\nOrderVol('000): Sum of order volume for all add order messages.\r\nTradesForHidden: Count of trades from exchanges that report trades against hidden orders.\r\nHiddenVol('000): Sum of trade volume for trades against hidden orders from exchanges that report trades against hidden orders.\r\nTradeVolForHidden('000): Sum of trade volume from exchanges that report trades against hidden orders.\r\nOddLots: Count of odd lot trade messages for all exchanges.\r\nOddLotVol('000): Sum of odd lot trade volume for all exchanges.\r\n\r\nFor quarterly (Date, Ticker) data:\r\nTradesForOddLots = Trades: Count of trades from order-based exchanges.\r\nTradeVolForOddLots('000) = TradeVol('000): Sum of trade volume from order-based exchanges.\r\n\r\nThe metrics:\r\n\r\nCancel-to-Trade = Cancels/LitTrades for Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX (& NYSE beginning May, 2017)\r\nTrade-to-Order-Volume = 100*LitVol/OrderVol for All Exchanges\r\nHidden Rate = 100*Hidden/TradesForHidden for Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX (& Amex and NYSE from 2014)\r\nHidden Volume = 100*HiddenVol/TradeVolForHidden for Arca, Bats-Y, Bats-Z, Boston, Edga-A, Edge-X, Nasdaq, PHLX (& Amex and NYSE from 2014)\r\nOddlot Rate=100*OddLots/TradesForOddLots for Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX (& NYSE beginning May, 2017)\r\nOddlot Volume=100*OddLotVol/TradeVolForOddLots for Arca, Bats-Y, Bats-Z, Boston, CHX, Edga-A, Edge-X, Nasdaq, NSX, PHLX (& NYSE beginning May, 2017)\r\n"
+        }
+      ]
+    }
+  ],
+  "quarters_audited": [
+    "2014 Q2",
+    "2016 Q1",
+    "2016 Q2",
+    "2016 Q3",
+    "2016 Q4",
+    "2019 Q4"
+  ],
+  "status": "SIX_QUARTER_README_AND_DERIVED_RATIO_AUDIT_COMPLETED",
+  "unique_readme_hashes": [
+    "418338bae8a331558c01be808238ac54e36f4db366e77cd0b265d0dd2f9a3499",
+    "49da9294b4c747d1602db623cbe381712c876ae94383a044375297afbc2a632a",
+    "e3adbdfe155957ade084188964c251e212c7dcbc54a1f95111c7cd8d8a7b49a0"
+  ]
+}
