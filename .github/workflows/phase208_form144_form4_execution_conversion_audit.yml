@@ -1,0 +1,68 @@
+name: Phase 208 Form 144 to Form 4 execution conversion audit
+on:
+  pull_request:
+    branches: [phase99-broad-pit-universe-charter]
+    paths:
+      - 'research/phase208_form144_form4_execution_conversion_audit.py'
+      - 'research/test_phase208_form144_form4_execution_conversion_audit.py'
+      - 'research/PHASE208_FORM144_FORM4_EXECUTION_CONVERSION_AUDIT_2026-11-08.md'
+      - 'research/phase208_form144_form4_execution_conversion_audit_result.json'
+      - '.github/workflows/phase208_form144_form4_execution_conversion_audit.yml'
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Download immutable Phase 69 Form 144 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: phase69-form144-incremental-fund-registrant-scan
+          repository: ${{ github.repository }}
+          run-id: 41959603351
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: phase208_input/form144
+      - name: Download immutable Phase 39 Form 4 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: phase39-sec-form4-actual-file-audit
+          repository: ${{ github.repository }}
+          run-id: 40606706518
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: phase208_input/form4
+      - name: Run offline regression tests
+        run: python -m unittest research/test_phase208_form144_form4_execution_conversion_audit.py -v
+      - name: Reproduce Form 144 to Form 4 conversion audit
+        run: |
+          python research/phase208_form144_form4_execution_conversion_audit.py \
+            --form144-csv phase208_input/form144/expanded_issuer_event_raw.csv \
+            --form4-zip phase208_input/form4/2026q3_form345.zip \
+            --output phase208_output/phase208_form144_form4_execution_conversion_audit_result.json
+      - name: Enforce immutable-sample invariants
+        run: |
+          python - <<'PY'
+          import json
+          p='phase208_output/phase208_form144_form4_execution_conversion_audit_result.json'
+          x=json.load(open(p))
+          assert x['sample']['form144_eligible_notices'] == 1451
+          assert x['post_notice']['one_to_one_matches'] == 441
+          assert x['post_notice']['exact_same_date_and_shares'] == 394
+          assert x['pre_notice_placebo']['one_to_one_matches'] == 53
+          assert x['class_check']['class_family_agree'] == 359
+          assert x['plan_flag_check']['concordant'] == 388
+          assert x['decision']['strict_pit_admitted'] is False
+          assert x['decision']['alpha_test_authorized'] is False
+          print('Phase 208 immutable-sample invariants passed.')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: phase208-form144-form4-execution-conversion-audit
+          path: phase208_output/phase208_form144_form4_execution_conversion_audit_result.json
+          if-no-files-found: error
+          retention-days: 90
