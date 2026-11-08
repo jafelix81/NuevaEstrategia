@@ -1812,3 +1812,11 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 - Added Companyfacts as-of selector and accession-specific class-axis XBRL extractor. Same-day facts are excluded; amendments affect only post-amendment events; conflicting facts are ambiguous; missing facts never become zero; class mismatch never falls back to entity-wide.
 - Local regression suite passed 15/15. No live SEC API request or raw Companyfacts response was obtained; no hosted Phase 224 CI is claimed. SEC_CONTACT_EMAIL remains empty; Phase 193 logs confirm zero requests and zero raw filing bytes.
 - Decision: Companyfacts is a conditional single-class candidate; raw as-filed XBRL is required for multi-class issuers; class crosswalk and broad historical coverage remain unresolved. No alpha test, no returns, no bootstrap/LOO, no OOS, no holdout, no production change. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen; legacy holdout remains CONSUMED_NOT_PRISTINE.
+
+
+## 2026-11-08 — Phase 224 repository preflight / CI audit
+- Re-read the Phase 224 branch state and verified the four Phase 224 files are present on branch head 0e6cb8f420cb9dd49b304887bd2dab90ff901af6.
+- That head is explicitly [skip ci]; fetch_commit_workflow_runs and combined status return no associated run/status. No new workflow was started.
+- Re-fetched the PR-triggered run set associated with CI commit 5ac79c08118c37208d148521c6dbcb0ada2d9a9e: 48 runs returned, all completed. Inspected jobs, steps, logs and artifacts for Phase 185 (42491346732), Phase 192 (42491346703), Phase 204 (42491346529) and Phase 193 (42417539372). Phase 193 remains blocked by an empty SEC_CONTACT_EMAIL and confirms zero requests / zero raw bytes.
+- PR #13 remains open and unmerged. Current compare reports 549 commits ahead and 1 behind main; GitHub's update response currently reports mergeable=false. No merge was attempted. Reconcile the base-branch divergence before any merge.
+- The 130-branch inventory remains the last completed paginated inventory; no branch was created or deleted in this phase.
