@@ -3,6 +3,7 @@
 from __future__ import annotations
 import argparse
 import json
+from math import isclose
 from pathlib import Path
 
 EVIDENCE = Path(__file__).with_name("phase220_nport_short_quantity_measurement_audit.json")
@@ -59,9 +60,10 @@ def build_audit(e: dict) -> dict:
 
     examples = e["synthetic_counterexamples"]
     for name, row in examples.items():
-        if row["delta_short_shares_pct"] != quantity_change_pct(
+        expected = quantity_change_pct(
             -row["prior_shares"], -row["current_shares"], 1.0
-        ):
+        )
+        if not isclose(row["delta_short_shares_pct"], expected, rel_tol=1e-9, abs_tol=1e-9):
             raise ValueError("synthetic_quantity_example_mismatch:" + name)
     if examples["unchanged_shares_price_rises_20pct"]["delta_short_pct_nav_percentage_points"] <= 0:
         raise ValueError("price_revaluation_counterexample_missing")
