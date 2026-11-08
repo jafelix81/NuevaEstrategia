@@ -25,10 +25,11 @@
     "first_two_months_of_fund_quarter_public": "no",
     "third_month_report_public_upon_filing": "yes",
     "current_regime_as_of_audit": "quarterly public dissemination",
-    "2024_monthly_reporting_amendments_effective_large_fund_groups": "2027-11-17",
     "2024_monthly_reporting_amendments_compliance_large_fund_groups": "2027-11-17",
     "2024_monthly_reporting_amendments_compliance_small_fund_groups": "2028-05-18",
-    "federal_register_source": "https://www.govinfo.gov/content/pkg/FR-2025-04-22/html/2025-06861.htm"
+    "federal_register_source": "https://www.govinfo.gov/content/pkg/FR-2025-04-22/html/2025-06861.htm",
+    "2024_monthly_reporting_amendments_effective_date": "2027-11-17",
+    "quarterly_dataset_cutoff_note": "SEC README states documents filed after 5:30 p.m. EST on the last business day of a quarter are included in the next quarterly posting."
   },
   "readme_semantics": {
     "readme_url": "https://www.sec.gov/files/nport_readme.pdf",
@@ -61,7 +62,8 @@
       "ISSUER_CUSIP",
       "IDENTIFIER_ISIN",
       "IDENTIFIER_TICKER"
-    ]
+    ],
+    "securities_lending_interpretation": "fund-reported holdings already on loan; not total lendable supply or borrow demand"
   },
   "filing_lag_sample": {
     "design": "purposive, search-indexed SEC filing-index sample; descriptive only, not random or representative",
@@ -366,9 +368,8 @@
   "research_decision": {
     "separate_hypotheses": [
       "lagged_public_fund_short_exposure_changes",
-      "fund_reported_security_lending_supply_changes"
+      "fund_reported_loaned_out_holding_changes"
     ],
-    "do_not_conflate_short_payoff_with_fund_lending_supply": true,
     "borrower_aggregate_is_not_security_level_borrow_demand": true,
     "nport_signal_admitted": false,
     "alpha_test_authorized": false,
@@ -378,7 +379,8 @@
     "vendor_contact": false,
     "f80_frozen": true,
     "holdout_status": "CONSUMED_NOT_PRISTINE",
-    "decision": "N-PORT remains a conditional source candidate. The official SEC archive has 28 quarterly datasets through 2026 Q3; Data.gov's catalog is one quarter stale. Public filings remain quarterly and are materially lagged. Preserve every accession/amendment as an as-filed vintage. Direct short positions and fund securities-lending disclosures are distinct constructs. No alpha test is authorized until raw files, PIT acceptance/publication, series/amendment lineage, effective-dated listing identity and broad-universe coverage pass."
+    "decision": "N-PORT remains a conditional source candidate. The official SEC archive has 28 quarterly datasets through 2026 Q3; Data.gov's catalog is one quarter stale. Public filings remain quarterly and are materially lagged. Preserve every accession/amendment as an as-filed vintage. Direct short positions and fund-reported loaned-out holdings are distinct constructs. No alpha test is authorized until raw files, PIT acceptance/publication, series/amendment lineage, effective-dated listing identity and broad-universe coverage pass.",
+    "do_not_conflate_short_payoff_with_fund_loaned_out_holdings": true
   },
   "gates": {
     "raw_submission_sha256": "NOT_VERIFIED",
