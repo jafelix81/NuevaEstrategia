@@ -1,0 +1,124 @@
+{
+  "phase": 211,
+  "date": "2026-11-08",
+  "status": "FILING_LEVEL_PIT_CLOCK_FEASIBLE_PILOT_PANEL_NOT_ADMITTED",
+  "sample_design": {
+    "source": "521 exact date-and-share Form 144/Form 4 links from Phase 210 exact-first graph",
+    "verified_pairs": 5,
+    "distinct_issuers": 5,
+    "selection": "five cross-issuer exact-link examples manually traced to SEC EDGAR filing-detail/header pages; not a representative panel audit",
+    "form144_snapshot": "2026 Q3 immutable Phase 69 artifact",
+    "form4_snapshot": "2026 Q3 immutable Phase 39 artifact"
+  },
+  "rules": {
+    "event_semantics": "Form 144 must be transmitted concurrently with placing a broker sell order or execution directly with a market maker; no waiting period is required when transmitted concurrently.",
+    "same_day_public_dissemination": "SEC states Forms 144/144-A and Forms 3/4/5 accepted during EDGAR hours, including after 5:30 p.m. and before 10:00 p.m. ET, receive the same-day filing date and are disseminated the same day.",
+    "conservative_execution_clock": "Use the first regular-session open strictly after ACCEPTANCE-DATETIME. Do not use the acceptance second as an intraday fill timestamp because exact public-dissemination latency and execution venue are not established.",
+    "form4_role": "Form 4 is ex-post linkage/confirmation only; it is not a feature at the Form 144 event time.",
+    "non_execution_caveat": "A Form 144 does not prove completion. SEC staff says no amendment is required solely because the person does not sell the securities.",
+    "time_zone": "America/New_York (EDGAR Eastern Time); all sample timestamps below are EDT (UTC-04:00)."
+  },
+  "sample": [
+    {
+      "ticker": "PINS",
+      "issuer": "Pinterest, Inc.",
+      "issuer_cik": "0001506293",
+      "sale_date": "2026-07-01",
+      "shares": 46875,
+      "form144_accession": "0001921094-26-000697",
+      "form144_accepted_at_et": "2026-07-01T16:07:20-04:00",
+      "first_session_open_after_form144_et": "2026-07-02T09:30:00-04:00",
+      "form4_accession": "0001773914-26-000012",
+      "form4_accepted_at_et": "2026-07-02T19:56:02-04:00",
+      "form4_after_first_session_open": true,
+      "sec_form144_url": "https://www.sec.gov/Archives/edgar/data/1506293/000192109426000697/0001921094-26-000697-index-headers.html",
+      "sec_form4_url": "https://www.sec.gov/Archives/edgar/data/1506293/000177391426000012/0001773914-26-00012-index-headers.html"
+    },
+    {
+      "ticker": "SCHW",
+      "issuer": "The Charles Schwab Corporation",
+      "issuer_cik": "0000316709",
+      "sale_date": "2026-07-29",
+      "shares": 95450,
+      "form144_accession": "0001949846-26-000451",
+      "form144_accepted_at_et": "2026-07-29T11:10:09-04:00",
+      "first_session_open_after_form144_et": "2026-07-30T09:30:00-04:00",
+      "form4_accession": "0000923738-26-000031",
+      "form4_accepted_at_et": "2026-07-30T20:57:55-04:00",
+      "form4_after_first_session_open": true,
+      "sec_form144_url": "https://www.sec.gov/Archives/edgar/data/316709/000194984626000451/0001949846-26-000451-index.htm",
+      "sec_form4_url": "https://www.sec.gov/Archives/edgar/data/316709/000092373826000031/0000923738-26-000031-index.htm"
+    },
+    {
+      "ticker": "SNOW",
+      "issuer": "Snowflake Inc.",
+      "issuer_cik": "0001640147",
+      "sale_date": "2026-07-21",
+      "shares": 10315,
+      "form144_accession": "0001959173-26-005295",
+      "form144_accepted_at_et": "2026-07-21T10:15:46-04:00",
+      "first_session_open_after_form144_et": "2026-07-22T09:30:00-04:00",
+      "form4_accession": "0001402348-26-000016",
+      "form4_accepted_at_et": "2026-07-22T19:51:39-04:00",
+      "form4_after_first_session_open": true,
+      "sec_form144_url": "https://www.sec.gov/Archives/edgar/data/1640147/000195917326005295/0001959173-26-005295-index.htm",
+      "sec_form4_url": "https://www.sec.gov/Archives/edgar/data/1640147/000140234826000016/0001402348-26-000016-index.htm"
+    },
+    {
+      "ticker": "ANET",
+      "issuer": "Arista Networks, Inc.",
+      "issuer_cik": "0001596532",
+      "sale_date": "2026-08-25",
+      "shares": 13809,
+      "form144_accession": "0001959173-26-006426",
+      "form144_accepted_at_et": "2026-08-25T11:44:04-04:00",
+      "first_session_open_after_form144_et": "2026-08-26T09:30:00-04:00",
+      "form4_accession": "0001596532-26-000216",
+      "form4_accepted_at_et": "2026-08-27T18:21:50-04:00",
+      "form4_after_first_session_open": true,
+      "sec_form144_url": "https://www.sec.gov/Archives/edgar/data/1596532/000195917326006426/0001959173-26-006426-index.html",
+      "sec_form4_url": "https://www.sec.gov/Archives/edgar/data/1596532/000159653226000216/0001596532-26-000216-index.htm"
+    },
+    {
+      "ticker": "RUN",
+      "issuer": "Sunrun Inc.",
+      "issuer_cik": "0001469367",
+      "sale_date": "2026-08-03",
+      "shares": 50000,
+      "form144_accession": "0001921094-26-000789",
+      "form144_accepted_at_et": "2026-08-03T16:08:54-04:00",
+      "first_session_open_after_form144_et": "2026-08-04T09:30:00-04:00",
+      "form4_acception": "0001469367-26-000055",
+      "form4_accepted_at_et": "2026-08-04T10:33:00-04:00",
+      "form4_after_first_session_open": true,
+      "sec_form144_url": "https://www.sec.gov/Archives/edgar/data/1469367/000192109426000789/0001921094-26-000789-index.htm",
+      "sec_form4_url": "https://www.sec.gov/Archives/edgar/data/1469367/000146936726000055/0001469367-26-000055-index.html"
+    }
+  ],
+  "summary": {
+    "form144_accepted_on_approximate_sale_date": 5,
+    "form144_accepted_during_regular_session_0930_1600": 3,
+    "form144_accepted_after_regular_close": 2,
+    "form4_acceptance_after_conservative_first_session_open": 5,
+    "pairs_with_form4_available_at_first_session_open": 0
+  },
+  "decision": {
+    "event_semantics_reclassified": "CONTEMPORANEOUS_SELL_ORDER_NOTICE_CANDIDATE",
+    "filing_level_pit_clock": "FEASIBLE",
+    "strict_panel_pit_admission": false,
+    "feature_admission": false,
+    "alpha_test_authorized": false,
+    "forward_return_test_run": false,
+    "holdout_used": false,
+    "legacy_holdout": "CONSUMED_NOT_PRISTINE",
+    "f80_frozen": true,
+    "production_changed": false,
+    "next_gate": "Bulk-recover and hash ACCEPTANCE-DATETIME headers for every Form 144 panel accession and adjacent-quarter Form 4 accession; validate coverage, amendments, dissemination policy, issuer/security-class mapping, and point-in-time universe membership before any event-return test."
+  },
+  "sources": {
+    "sec_form144_electronic_filing_guide": "https://www.sec.gov/submit-filings/filer-support-resources/how-do-i-guides/file-form-144-electronically",
+    "sec_determine_status_my_filing": "https://www.sec.gov/submit-filings/filer-support-resources/how-do-i-guides/determine-status-my-filing",
+    "sec_corporation_finance_exchange_act_rules_cfi_120_01": "https://www.sec.gov/rules-regulations/staff-guidance/corporation-finance-interpretations/exchange-act-rules",
+    "sec_securities_act_rules_cfi_136_01_136_05_136_09": "https://www.sec.gov/rules-regulations/staff-guidance/corporation-finance-interpretations/securities-act-rules"
+  }
+}
