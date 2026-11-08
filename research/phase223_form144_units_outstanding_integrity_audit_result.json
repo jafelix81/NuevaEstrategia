@@ -1,0 +1,108 @@
+{
+  "phase": 223,
+  "status": "FORM144_UNITS_OUTSTANDING_NOT_ADMITTED_AS_DENOMINATOR",
+  "panel_rows": 21634,
+  "unique_accessions": 21634,
+  "tranche_rows": 21863,
+  "missing_numeric": {
+    "units": 0,
+    "value": 0,
+    "outstanding": 0
+  },
+  "zero_values": {
+    "units_to_be_sold": 2,
+    "aggregate_market_value": 3,
+    "units_outstanding": 7
+  },
+  "positive_units_outstanding_below_10000": 4,
+  "raw_sale_to_outstanding_ratio": {
+    "finite_positive_denominator_rows": 21856,
+    "infinite_rows_positive_sale_zero_outstanding": 6,
+    "ratio_gt_1pct_rows": 105,
+    "ratio_gt_10pct_rows": 19,
+    "ratio_gt_100pct_rows": 8
+  },
+  "same_issuer_class_filing_date_reconciliation": {
+    "groups_with_two_or_more_accessions": 3342,
+    "groups_with_conflicting_outstanding_values": 222,
+    "conflict_rate": 0.06642728904847396,
+    "tranches_in_conflict_groups": 669,
+    "unique_accessions_in_conflict_groups": 660,
+    "unique_issuers_in_conflict_groups": 90,
+    "conflict_groups_relative_spread_gt_1pct": 84,
+    "conflict_groups_relative_spread_gt_10pct": 56,
+    "conflict_groups_relative_spread_ge_90pct": 18,
+    "conflict_groups_with_approximately_10x_scale": 8,
+    "conflict_groups_with_approximately_100x_scale": 2,
+    "conflict_groups_with_approximately_1000000x_scale": 1
+  },
+  "source": {
+    "run_id": 41959603351,
+    "artifact_id": 13385365595,
+    "artifact_zip_sha256": "f84644200a8925c6fc190a823ca0dcd6b40c7bee127a8d2740a5ea67cae56519",
+    "member": "expanded_issuer_event_raw.csv",
+    "csv_sha256": "7a54ee09e8d4520e1ec14cf22f2c0d1c62d077798b14d3db596826e3360a3659",
+    "csv_bytes": 67014714
+  },
+  "manual_source_cross_checks": [
+    {
+      "accession": "0001628280-26-020559",
+      "issuer": "CELESTICA INC",
+      "filing_date": "2026-03-23",
+      "units_to_be_sold": 39492,
+      "aggregate_market_value_usd": 10818563,
+      "units_outstanding_reported": 0,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1030894/000162828026020559/xsl144X01/primary_doc.xml",
+      "source_lines": "33-37"
+    },
+    {
+      "accession": "0001628280-26-014565",
+      "issuer": "Expedia Group, Inc.",
+      "filing_date": "2026-03-04",
+      "security_class": "Expedia Common (EXPE)",
+      "units_to_be_sold": 8225,
+      "aggregate_market_value_usd": 1815891.63,
+      "units_outstanding_reported": 1775,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1324424/000162828026014565/xsl144X01/primary_doc.xml",
+      "source_lines": "32-37",
+      "latest_prior_issuer_report": {
+        "accession": "0001324424-26-000008",
+        "form": "10-K",
+        "filed_date": "2026-02-13",
+        "common_shares_outstanding_as_of_2026-01-30": 117011421,
+        "class_b_shares_outstanding_as_of_2026-01-30": 5523452,
+        "source_url": "https://www.sec.gov/Archives/edgar/data/1324424/000132442426000008/expe-20251231.htm",
+        "source_lines": "71-73",
+        "common_share_count_to_form144_reported_ratio": 65921.92732394366
+      }
+    },
+    {
+      "issuer_cik": "0001327811",
+      "issuer": "Workday, Inc.",
+      "filing_date": "2023-07-05",
+      "accessions": [
+        "0001972362-23-000450",
+        "0001972362-23-000451",
+        "0001972362-23-000452",
+        "0001972362-23-000453",
+        "0001972362-23-000454",
+        "0001972362-23-000455"
+      ],
+      "same_issuer_class_date_reported_values": [
+        261,
+        261000000
+      ],
+      "interpretation": "panel-level scale inconsistency; primary-document review still pending"
+    }
+  ],
+  "decision": {
+    "units_outstanding_admitted_as_universal_denominator": false,
+    "raw_source_field_preserved": true,
+    "sale_to_outstanding_ratio_admitted_as_feature": false,
+    "independent_point_in_time_shares_outstanding_required": true,
+    "independent_point_in_time_float_and_adv_required_for_supply_pressure": true,
+    "alpha_test_authorized": false,
+    "holdout_used": false,
+    "f80_frozen": true
+  }
+}
