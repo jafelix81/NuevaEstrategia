@@ -25,13 +25,17 @@ class Phase218NportPublicationVintageTests(unittest.TestCase):
 
     def test_filing_sample_is_explicitly_nonrepresentative(self):
         self.assertIn("not random or representative", self.evidence["filing_lag_sample"]["design"])
-        self.assertEqual(self.result["filing_count"], 19)
+        self.assertEqual(self.result["filing_count"], 25)
 
     def test_filing_lag_summary_reproduces(self):
         self.assertEqual(
             self.result["report_to_filing_calendar_days"],
-            {"min": 49, "median": 58, "max": 60},
+            {"min": 17, "median": 59, "max": 60},
         )
+
+    def test_one_early_filing_is_not_hidden_by_typical_lag(self):
+        self.assertEqual(self.result["early_filing_count_below_50_days"], 1)
+        self.assertEqual(self.result["filings_within_50_to_60_days"], 24)
 
     def test_all_sample_accessions_are_unique_and_nport_p(self):
         self.assertTrue(self.result["all_accessions_unique"])
