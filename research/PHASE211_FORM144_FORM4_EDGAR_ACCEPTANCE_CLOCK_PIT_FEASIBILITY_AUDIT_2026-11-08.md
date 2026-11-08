@@ -6,11 +6,11 @@
 
 ## Executive decision
 
-Phase 210 established 521 exact date-and-share Form 144/Form 4 document links in one 2026 Q3 sample. Phase 211 resolves an important part of the event-timing question: SEC EDGAR filing-detail/header records expose `ACCEPTANCE-DATETIME`, and current SEC guidance states that Form 144 is transmitted concurrently with placing the broker sell order or executing directly with a market maker. No waiting period is required when the form is transmitted concurrently with the order; the SEC's September 25, 2026 interpretation also explains that “concurrently” means the same day.
+Phase 210 established 521 exact date-and-share Form 144/Form 4 document links in one 2026 Q3 sample. Phase 211 resolves an important part of the event-timing question: SEC EDGAR filing-detail/header records expose `ACCEPTANCE-DATETIME`, and current SEC guidance states that Form 144 is transmitted concurrently with placing the broker sell order or executing directly with a market maker. No waiting period is required when the form is transmitted concurrently with the order (CFI 136.05, updated September 25, 2026); the separate CFI 136.09 interpretation (March 4, 2011) explains that “concurrently” means the same day.
 
-This changes the economic interpretation. Form 144 is not merely a remote intention to sell. It is a **contemporaneous sell-order notice candidate**. It still does not prove that the proposed quantity was ultimately sold: SEC staff explicitly says no amendment is required solely because the person does not sell the securities.
+This changes the economic interpretation. Form 144 is not merely a remote intention to sell. It is a **contemporaneous sell-order or direct-execution notice candidate**. The two legal routes must be separated: a broker route is filed when the sell order is placed and may precede execution; a direct market-maker route is filed at execution and may be contemporaneous with an already completed sale. The current `broker_or_market_maker` field does not itself encode which route applies. Form 144 still does not prove that the proposed quantity was ultimately sold: SEC staff explicitly says no amendment is required solely because the person does not sell the securities.
 
-A five-pair cross-issuer pilot traced exact Phase 210 links to SEC EDGAR filing-detail/header pages:
+A five-pair cross-issuer pilot traced exact Phase 210 links to SEC filing-detail/header pages:
 
 - All five Form 144 filings were accepted on the approximate sale date.
 - Three were accepted during the regular session and two after the 16:00 ET close.
@@ -29,7 +29,8 @@ Official SEC sources establish the following:
 2. SEC Securities Act Rules CFI 136.05, updated September 25, 2026, says no waiting period is required between placing the broker order and execution if Form 144 is transmitted concurrently. CFI 136.09 says “concurrently” means on the same day. [SEC Securities Act Rules — CFI 136.05/136.09](https://www.sec.gov/rules-regulations/staff-guidance/corporation-finance-interpretations/securities-act-rules)
 3. CFI 136.01 says no amendment is required solely because the person does not sell the securities. Thus a missing Form 4 match cannot be classified as an unexecuted notice without additional evidence.
 4. SEC's electronic Form 144 guide says electronic filing became mandatory for Form 144s relating to reporting-company issuers on April 13, 2023; EDGAR accepts filings from 06:00 to 22:00 ET on business days, and Form 144 submissions accepted in that window are deemed filed and disseminated the same day. [SEC File Form 144 Electronically](https://www.sec.gov/submit-filings/filer-support-resources/how-do-i-guides/file-form-144-electronically)
-5. SEC's filing-status guide explicitly includes Forms 3, 4, 5, 144 and 144/A among forms accepted after 17:30 and before 22:00 ET that receive the same-day filing date and dissemination. [SEC Determine the Status of My Filing](https://www.sec.gov/submit-filings/filer-support-resources/how-do-i-guides/determine-status-my-filing)
+5. The SEC EDGAR Filer Manual Volume II (March 2025, v74) explicitly lists Forms 3/3-A, 4/4-A, 5/5-A, 144 and 144/A among submission types that retain the received-date filing date after 17:30 ET and are disseminated until 22:00 ET. [SEC EDGAR Filer Manual Volume II v74](https://www.sec.gov/files/edgar/filermanual/archive/efmvol2-v74.pdf)
+6. The SEC Form 144 guide distinguishes the reporting-person CIK (Filer CIK) from the issuer CIK, and says not to use the filing-agent CIK as the issuer CIK. It also says the form identifies each broker or market maker expected to participate, with a separate entry for each broker/market maker. [SEC File Form 144 Electronically](https://www.sec.gov/submit-filings/filer-support-resources/how-do-i-guides/file-form-144-electronically)
 
 Consequences for feature design:
 
@@ -43,13 +44,13 @@ Consequences for feature design:
 
 The five exact links below were selected across five issuers from the 521-edge Phase 210 exact graph and individually traced to SEC EDGAR filing-detail/header records. All timestamps are displayed in Eastern Time; the sample dates are during EDT (UTC-04:00).
 
-| Issuer | Approx. sale date | Shares | Form 144 accepted (ET) | First subsequent session open (ET) | Matched Form 4 accepted (ET) |
+| Issuer | Approx. sale date | Shares | Named intermediary (route not classified) | Form 144 accepted (ET) | First subsequent session open (ET) | Matched Form 4 accepted (ET) |
 |---|---:|---:|---|---|---|
-| Pinterest (PINS) | 2026-07-01 | 46,875 | 2026-07-01 16:07:20 | 2026-07-02 09:30 | 2026-07-02 19:56:02 |
-| Charles Schwab (SCHW) | 2026-07-29 | 95,450 | 2026-07-29 11:10:09 | 2026-07-30 09:30 | 2026-07-30 20:57:55 |
-| Snowflake (SNOW) | 2026-07-21 | 10,315 | 2026-07-21 10:15:46 | 2026-07-22 09:30 | 2026-07-22 19:51:39 |
-| Arista Networks (ANET) | 2026-08-25 | 13,809 | 2026-08-25 11:44:04 | 2026-08-26 09:30 | 2026-08-27 18:21:50 |
-| Sunrun (RUN) | 2026-08-03 | 50,000 | 2026-08-03 16:08:54 | 2026-08-04 09:30 | 2026-08-04 10:33:00 |
+| Pinterest (PINS) | 2026-07-01 | 46,875 | Charles Schwab & Co., Inc. | 2026-07-01 16:07:20 | 2026-07-02 09:30 | 2026-07-02 19:56:02 |
+| Charles Schwab (SCHW) | 2026-07-29 | 95,450 | The Charles Schwab Corporation | 2026-07-29 11:10:09 | 2026-07-30 09:30 | 2026-07-30 20:57:55 |
+| Snowflake (SNOW) | 2026-07-21 | 10,315 | Fidelity Brokerage Services LLC | 2026-07-21 10:15:46 | 2026-07-22 09:30 | 2026-07-22 19:51:39 |
+| Arista Networks (ANET) | 2026-08-25 | 13,809 | Fidelity Brokerage Services LLC | 2026-08-25 11:44:04 | 2026-08-26 09:30 | 2026-08-27 18:21:50 |
+| Sunrun (RUN) | 2026-08-03 | 50,000 | Charles Schwab & Co., Inc. | 2026-08-03 16:08:54 | 2026-08-04 09:30 | 2026-08-04 10:33:00 |
 
 ### Sample-level controls
 
@@ -66,7 +67,7 @@ The SEC filing detail pages show the `Accepted` time for the pairs. For the Pint
 
 Other SEC filing-detail pages in the sample:
 
-- [SCHW Form 144](https://www.sec.gov/Archives/edgar/data/316709/000194984626000451/0001949846-26-000451-index.htm) · [SCHW Form 4](https://wwww.sec.gov/Archives/edgar/data/316709/000092373826000031/0000923738-26-000031-index.htm)
+- [SCHW Form 144](https://www.sec.gov/Archives/edgar/data/316709/000194984626000451/0001949846-26-000451-index.htm) · [SCHW Form 4](https://www.sec.gov/Archives/edgar/data/316709/000092373826000031/0000923738-26-000031-index.htm)
 - [SNOW Form 144](https://www.sec.gov/Archives/edgar/data/1640147/000195917326005295/0001959173-26-005295-index.htm) · [SNOW Form 4](https://www.sec.gov/Archives/edgar/data/1640147/000140234826000016/0001402348-26-00016-index.htm)
 - [ANET Form 144](https://www.sec.gov/Archives/edgar/data/1596532/000195917326006426/0001959173-26-006426-index.html) · [ANET Form 4](https://www.sec.gov/Archives/edgar/data/1596532/000159653226000216/0001596532-26-000216-index.htm)
 - [RUN Form 144](https://www.sec.gov/Archives/edgar/data/1469367/000192109426000789/0001921094-26-000789-index.htm) · [RUN Form 4](https://www.sec.gov/Archives/edgar/data/1469367/000146936726000055/0001469367-26-000055-index.html)
@@ -89,12 +90,15 @@ The included parser (`phase211_edgar_acceptance_clock.py`) extracts the EDGAR ac
 
 ## 4. Revised economic hypothesis
 
-The primary hypothesis is now:
+The primary hypothesis is now split by route:
 
-> A publicly disseminated Form 144 identifies a contemporaneous affiliate sell-order event. Conditional on proposed size relative to point-in-time liquidity, class, broker/market-maker, seller type, 10b5-1 status and prior return/volume, does the event predict incremental supply pressure or negative abnormal returns after the first executable session open?
+> **H1 — Broker order placement:** when the named intermediary is a broker and Form 144 is transmitted with order placement, does the notice predict incremental supply pressure or negative abnormal returns after the first executable session open, conditional on proposed size relative to point-in-time liquidity, class, seller type, 10b5-1 status and prior return/volume?
+
+> **H2 — Direct market-maker execution:** when the notice is transmitted with direct execution to a market maker, does it behave as a contemporaneous completed-trade disclosure rather than a forward supply signal? This route should be analyzed separately and may have little or no post-event lead.
 
 Required controls before testing:
 
+- Resolve each named intermediary to broker versus direct market-maker route before testing; quarantine ambiguous entities.
 - Separate plan and non-plan notices; do not infer discretion from a missing plan date.
 - Use point-in-time ADV, float and shares outstanding; reject the Form 144 `shares outstanding` field until its scale anomalies are independently resolved.
 - Separate exact class-family links, unresolved/conflicting classes and fallback matches.
@@ -124,7 +128,7 @@ The automated SEC retrieval workflow remains blocked because repository secret `
 
 - No forward-return, event-study, alpha, bootstrap/LOO or OOS return test was run.
 - No holdout was used. The legacy holdout remains `CONSUMED_NOT_PRISTINE`.
-- `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+- `F80_TOP20_PARTIALL50_BASELINE_C20` is frozen.
 - No production, universe or portfolio change was made.
 - No data were purchased and no vendor was contacted.
 
