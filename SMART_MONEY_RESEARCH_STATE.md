@@ -1,6 +1,6 @@
 # Smart Money Research State
 
-Updated: 2026-11-07
+Updated: 2026-11-08
 
 ## Frozen control
 - F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
@@ -1645,3 +1645,18 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 - Phase 202 did not full-CRC test the archives, parse all rows or reconcile against the aggregate dataset. All three HTTP Last-Modified headers were 2020-12-19 and are not first-publication timestamps. Strict PIT remains NOT ADMITTED.
 - **Next gate:** Phase 203 compares a deterministic 250-ticker SHA-256 sample plus explicit negative-value control tickers across per-exchange and aggregate files for the same three quarters. It will compare additive fields, derive order-based-exchange denominators using date-effective README rules and attribute negative Hidden/HiddenVol residuals by exchange. Sample reconciliation is not an alpha test.
 
+
+
+## 2026-11-08 — Phase 212 Form 144 route-identifiability correction
+- **Disposition:** the Rule 144 broker-order vs direct-market-maker route is not encoded in the current public Form 144 intermediary field. Phase 211's two legal routes remain distinct, but the five audited primary documents all render the same `Name and Address of the Broker` field and expose no route flag. The SEC guide describes the named entry as a broker or market maker expected to participate; firm-name/CRD resolution is not transaction-level route evidence.
+- Five purposively selected Form 144 primary documents (PINS, SCHW, SNOW, ANET, RUN) were inspected. All five share the same intermediary header; three distinct intermediary strings appear. Four rows map to two current FINRA BrokerCheck identity candidates (Charles Schwab & Co., Inc., CRD 5393; Fidelity Brokerage Services LLC, CRD 7784). The SCHW filing names `THE CHARLES SCHWAB CORPORATION`, equal to the issuer name; it remains unresolved and must not be silently mapped to its broker-dealer subsidiary.
+- **Correction:** do not classify H1 broker-order placement or H2 direct-market-maker execution from Form 144 intermediary names. Route-specific H1/H2 alpha is not identifiable from this source alone. Retain only a mixed-route Form 144 notice-event hypothesis, conditional on full-panel PIT, amendment, issuer/class identity and historical universe coverage. Keep route `UNKNOWN_NOT_ENCODED`.
+- Rule 144 notice data are threshold-censored: reporting-issuer notice is required when sales during a three-month period exceed 5,000 shares/units or aggregate sale price exceeds $50,000. The panel is not a census of all insider selling.
+- Local deterministic invariants passed 9/9. No bulk SEC requests, alpha/return test, holdout use, data purchase, vendor contact, production or universe change. F80 remains frozen.
+- Report: `research/PHASE212_FORM144_INTERMEDIARY_FIELD_ROUTE_IDENTIFIABILITY_AUDIT_2026-11-08.md`; manifest/code/tests: `research/phase212_form144_route_identifiability_audit_result.json`, `research/phase212_form144_route_identifiability_audit.py`, `research/test_phase212_form144_route_identifiability_audit.py`.
+
+## 2026-11-08 — GitHub Actions and repository audit snapshot before Phase 212 commit
+- PR #13 is open, unmerged and mergeable; branch `phase99-broad-pit-universe-charter` was at `c7a2d8720305f4e8d4e425362977e52cb9064ccb` before this Phase 212 commit. Its message contains `[skip ci]`, so that exact head has no Actions run.
+- The latest 100 repository Actions runs were all completed/successful; zero were active. Those runs were associated with prior PR heads `6d1a7fd7a7ee7d6e14295a88ea9e7e883ef9ff82` and `a6d2755548e6adb300ba0c41c169c9a8af927e25`, not the current `c7a2...` head.
+- Phase 210 run 42470807562: audit job succeeded; artifact 13613231922 uploaded; logs confirm all committed linkage/placebo invariants and artifact upload. Phase 209 run 42470807411: audit job succeeded; artifact 13613667036 uploaded; logs confirm exact-first linkage invariants.
+- Branch listing spans 130 branches (100 on page 1, 30 on page 2). No active workflow was duplicated.
