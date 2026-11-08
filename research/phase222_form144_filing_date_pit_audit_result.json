@@ -1,0 +1,13 @@
+{
+  "phase": 222,
+  "status": "DAILY_PIT_CLOCK_FEASIBLE_VIA_SEC_FILED_DATE_PLUS_NEXT_XNYS_SESSION",
+  "daily_pit_clock_admitted": true,
+  "first_eligible_session_rule": "FIRST_XNYS_SESSION_OPEN_STRICTLY_AFTER_SEC_MASTER_INDEX_FILING_DATE",
+  "same_day_use": false,
+  "intraday_admitted": false,
+  "full_signal_panel_admitted": false,
+  "alpha_test_authorized": false,
+  "holdout_used": false,
+  "f80_frozen": true,
+  "decision": "PROCEED_TO_SECURITY_IDENTITY_AND_HISTORICAL_UNIVERSE_GATES_BEFORE_RETURNS"
+}

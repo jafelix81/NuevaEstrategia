@@ -1,0 +1,116 @@
+{
+  "phase": 222,
+  "audit_as_of": "2026-11-08",
+  "status": "DAILY_PIT_CLOCK_FEASIBLE_VIA_SEC_FILED_DATE_PLUS_NEXT_XNYS_SESSION",
+  "source": {
+    "phase69_run_id": 41959603351,
+    "phase69_artifact_id": 13385365595,
+    "artifact_zip_sha256": "f84644200a8925c6fc190a823ca0dcd6b40c7bee127a8d2740a5ea67cae56519",
+    "expanded_csv_sha256": "7a54ee09e8d4520e1ec14cf22f2c0d1c62d077798b14d3db596826e3360a3659",
+    "expanded_csv_bytes": 67014714
+  },
+  "panel": {
+    "rows": 21634,
+    "unique_accessions": 21634,
+    "clean_issuer_match_rows": 21633,
+    "ambiguous_issuer_match_rows": 1,
+    "filer_only_false_positives_excluded": 14,
+    "unique_issuer_ciks": 289,
+    "unique_current_tickers_with_events": 289,
+    "current_ticker_mapping_denominator": 335,
+    "descriptive_event_incidence_pct": 86.2687,
+    "forms": {
+      "144": 21438,
+      "144/A": 196
+    },
+    "amendments_with_previous_accession": 196,
+    "amendments_parent_inside_14_quarter_census": 195,
+    "filing_date_missing": 0,
+    "filing_date_min": "2023-04-13",
+    "filing_date_max": "2026-09-30",
+    "unique_filing_dates": 861,
+    "weekend_rows": 0,
+    "non_xnys_filing_date_rows": 0,
+    "notice_date_differs_from_filing_date_rows": 168,
+    "notice_date_lag_min_calendar_days": -4,
+    "notice_date_lag_max_calendar_days": 3
+  },
+  "calendar": {
+    "exchange": "XNYS",
+    "library": "exchange_calendars",
+    "library_version": "4.13.1",
+    "filing_dates_mapped": 861,
+    "next_session_missing": 0,
+    "unique_next_sessions": 861,
+    "next_session_early_close_count": 8,
+    "first_mapping": {
+      "filing_date": "2023-04-13",
+      "next_xnys_session": "2023-04-14"
+    },
+    "last_mapping": {
+      "filing_date": "2026-09-30",
+      "next_xnys_session": "2026-10-01"
+    }
+  },
+  "sec_rule": {
+    "electronic_filing_mandatory_start": "2023-04-13",
+    "accepted_window_et": "06:00-22:00 Monday-Friday except federal holidays",
+    "same_business_day_filing": true,
+    "same_day_public_dissemination": true,
+    "source_last_reviewed": "2025-12-22"
+  },
+  "acceptance_pilot": {
+    "verified_pairs": 5,
+    "filing_date_matches_acceptance_date": 5,
+    "next_session_matches": 5,
+    "examples": [
+      {
+        "ticker": "PINS",
+        "accession": "0001921094-26-000697",
+        "accepted_date": "2026-07-01",
+        "next_session": "2026-07-02"
+      },
+      {
+        "ticker": "SCHW",
+        "accession": "0001949846-26-000451",
+        "accepted_date": "2026-07-29",
+        "next_session": "2026-07-30"
+      },
+      {
+        "ticker": "SNOW",
+        "accession": "0001959173-26-005295",
+        "accepted_date": "2026-07-21",
+        "next_session": "2026-07-22"
+      },
+      {
+        "ticker": "ANET",
+        "accession": "0001959173-26-006426",
+        "accepted_date": "2026-08-25",
+        "next_session": "2026-08-26"
+      },
+      {
+        "ticker": "RUN",
+        "accession": "0001921094-26-000789",
+        "accepted_date": "2026-08-03",
+        "next_session": "2026-08-04"
+      }
+    ]
+  },
+  "decision": {
+    "daily_pit_clock_admitted": true,
+    "intraday_clock_admitted": false,
+    "full_signal_panel_admitted": false,
+    "alpha_test_authorized": false,
+    "return_test_run": false,
+    "bootstrap_loo_run": false,
+    "holdout_used": false,
+    "legacy_holdout": "CONSUMED_NOT_PRISTINE",
+    "f80_frozen": true,
+    "production_changed": false,
+    "universe_changed": false,
+    "data_purchase": false,
+    "vendor_contact": false,
+    "sec_requests_sent": false,
+    "next_gate": "Resolve historical active universe, effective-dated security class/listing identity, seller identity, independent PIT float/ADV and adjacent-quarter Form4 coverage before event-return testing."
+  }
+}

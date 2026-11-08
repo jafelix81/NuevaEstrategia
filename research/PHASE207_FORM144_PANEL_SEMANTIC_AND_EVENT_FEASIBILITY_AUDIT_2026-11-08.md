@@ -168,3 +168,8 @@ No feature, forward-return, bootstrap/LOO, OOS or final-holdout test is authoriz
       "f80_frozen": true,
       "legacy_holdout_status": "CONSUMED_NOT_PRISTINE"
     }
+
+
+## Supersession note — Phase 222 daily PIT clock (2026-11-08)
+
+Phase 222 supersedes only the statement that every Form 144 row requires an individual ACCEPTANCE-DATETIME before a **daily** PIT event study. The SEC's current electronic Form 144 guide states that accepted submissions in the 06:00–22:00 ET window are deemed filed and publicly disseminated the same business day. The Phase 69 panel's SEC master-index filing_date is complete for all 21,634 rows and starts at the 2023-04-13 mandatory-electronic boundary. Use the first XNYS session open strictly after filing_date; never same-day. Intraday timing still requires exact acceptance/dissemination evidence. Historical universe, security identity, seller identity, float/ADV and proposed-versus-completed-sale gates remain closed. See Phase 222.

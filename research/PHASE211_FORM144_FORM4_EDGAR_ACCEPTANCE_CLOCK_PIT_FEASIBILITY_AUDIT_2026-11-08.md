@@ -139,3 +139,8 @@ The automated SEC retrieval workflow remains blocked because repository secret `
 - Tests: `research/test_phase211_edgar_acceptance_clock.py`
 - Local test result: **8/8 passed**.
 - Phase 210 linkage source: `research/phase210_form144_form4_permutation_placebo_audit_result.json` (521 exact links; 481 class-family agreements; 40 class conflicts/unresolved).
+
+
+## Supersession note — Phase 222 daily clock (2026-11-08)
+
+The five-filing acceptance pilot remains valid, but bulk ACCEPTANCE-DATETIME recovery is no longer a prerequisite for a conservative **daily** clock: SEC's current Form 144 guide states same-business-day filing and same-day public dissemination for accepted electronic Form 144 submissions. Use SEC master-index filing_date plus the first XNYS session open strictly after that date; no same-day use. Exact acceptance/dissemination timestamps remain required for intraday research and any claim about first-public-receipt latency. Adjacent-quarter Form 4 coverage, security-class identity, historical universe and amendment-vintage gates remain open. See Phase 222.
