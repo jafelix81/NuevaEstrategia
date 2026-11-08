@@ -24,17 +24,17 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: phase69-form144-incremental-fund-registrant-scan
-          repository: \${{ github.repository }}
+          repository: ${{ github.repository }}
           run-id: 41959603351
-          github-token: \${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           path: phase209_input/form144
       - name: Download immutable Phase 39 Form 4 artifact
         uses: actions/download-artifact@v4
         with:
           name: phase39-sec-form4-actual-file-audit
-          repository: \${{ github.repository }}
+          repository: ${{ github.repository }}
           run-id: 40606706518
-          github-token: \${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           path: phase209_input/form4
       - name: Run offline regression tests
         run: python -m unittest discover -s research -p 'test_phase209_form144_form4_exact_first_matching_audit.py' -v
