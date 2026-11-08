@@ -63,7 +63,7 @@ class Phase202Tests(unittest.TestCase):
 
     def test_result_never_promotes_pit_or_alpha(self):
         inventory={"quarter_urls":{q:"https://example.invalid/"+q for q in SAMPLE_QUARTERS},"quarter_count":58}
-        results=[{"quarter":q,"archive_inspection":{"data_member_count":1,"nested_archives":[]}} for q in SAMPLE_QUARTERS]
+        results=[{"quarter":q,"archive_inspection":{"data_member_count":1,"nested_archives":[],"has_data_member_recursive":True}} for q in SAMPLE_QUARTERS]
         built=build_result(inventory,results)
         self.assertEqual(built["status"],"THREE_QUARTER_PER_EXCHANGE_ARCHIVE_STRUCTURE_AUDITED")
         self.assertFalse(built["interpretation"]["strict_pit_admitted"])
