@@ -39,7 +39,7 @@ class Phase200Tests(unittest.TestCase):
         result = audit_csv_bytes(make_csv([first, second]), "2016 Q2")
         self.assertEqual(result["rank_only_conflicting_groups"], 1)
         self.assertEqual(result["activity_conflicting_groups"], 0)
-        self.assertEqual(result["field_difference_group_counts"], {"McapRank": 1})
+        self.assertEqual(result["field_difference_group_counts"], {"mcaprank": 1})
 
     def test_activity_duplicate_is_classified(self):
         first = make_row(cancels="1")
@@ -47,7 +47,7 @@ class Phase200Tests(unittest.TestCase):
         result = audit_csv_bytes(make_csv([first, second]), "2016 Q2")
         self.assertEqual(result["activity_conflicting_groups"], 1)
         self.assertEqual(result["rank_only_conflicting_groups"], 0)
-        self.assertEqual(result["field_difference_group_counts"], {"Cancels": 1})
+        self.assertEqual(result["field_difference_group_counts"], {"cancels": 1})
 
     def test_exact_duplicate_is_classified(self):
         row = make_row()
