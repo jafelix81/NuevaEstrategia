@@ -193,11 +193,13 @@ def audit_zip_bytes(content: bytes, quarter: str, metadata: dict[str, object] | 
     with zipfile.ZipFile(io.BytesIO(content)) as archive:
         members = [item for item in archive.infolist() if not item.is_dir()]
         bad_member = archive.testzip()
-        csv_members = [item for item in members if item.filename.lower().endswith(".csv")]
-        if len(csv_members) != 1:
-            raise ValueError(f"{quarter}:expected_one_csv_member_found_{len(csv_members)}")
-        with archive.open(csv_members[0], "r") as stream:
-            csv_result = audit_csv_member(stream, csv_members[0].filename, quarter)
+        data_members = [item for item in members if item.filename.lower().endswith(".csv")]
+        if not data_members:
+            data_members = [item for item in members if item.filename.lower().endswith(".txt")]
+        if len(data_members) != 1:
+            raise ValueError(f"{quarter}:expected_one_csv_or_txt_member_found_{len(data_members)}")
+        with archive.open(data_members[0], "r") as stream:
+            csv_result = audit_csv_member(stream, data_members[0].filename, quarter)
         return {
             "quarter": quarter,
             "archive_sha256": archive_sha,

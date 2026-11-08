@@ -77,9 +77,14 @@ class Phase199Tests(unittest.TestCase):
         self.assertEqual(len(result["archive_sha256"]), 64)
         self.assertEqual(result["csv"]["rows_with_valid_ticker_and_date"], 1)
 
-    def test_zip_requires_one_csv_member(self):
+    def test_zip_accepts_txt_data_member(self):
+        result = audit_zip_bytes(make_zip(make_csv([make_row()]), "sample.txt"), "2016 Q2")
+        self.assertTrue(result["zip_crc_passed"])
+        self.assertEqual(result["csv"]["rows_with_valid_ticker_and_date"], 1)
+
+    def test_zip_rejects_non_data_member(self):
         with self.assertRaises(ValueError):
-            audit_zip_bytes(make_zip(make_csv([make_row()]), "sample.txt"), "2016 Q2")
+            audit_zip_bytes(make_zip(make_csv([make_row()]), "sample.bin"), "2016 Q2")
 
     def test_conflicting_duplicate_key_is_visible(self):
         row1 = make_row()
