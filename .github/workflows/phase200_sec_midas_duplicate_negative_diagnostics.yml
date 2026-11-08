@@ -1,0 +1,61 @@
+name: Phase 200 SEC MIDAS duplicate and negative-value diagnostics
+
+on:
+  pull_request:
+    types: [synchronize]
+    branches: [main]
+    paths:
+      - "research/phase200_sec_midas_duplicate_negative_diagnostics.py"
+      - "research/test_phase200_sec_midas_duplicate_negative_diagnostics.py"
+      - ".github/workflows/phase200_sec_midas_duplicate_negative_diagnostics.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase200-sec-midas-duplicate-negative-diagnostics
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile diagnostic and tests
+        run: python -m py_compile research/phase200_sec_midas_duplicate_negative_diagnostics.py research/test_phase200_sec_midas_duplicate_negative_diagnostics.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase200_sec_midas_duplicate_negative_diagnostics
+      - name: Download and diagnose six disputed SEC MIDAS quarters
+        run: python -m research.phase200_sec_midas_duplicate_negative_diagnostics --output-dir phase200_output
+      - name: Validate diagnostic-only and frozen controls
+        run: |
+          python - <<'PY'
+          import json
+          p = "phase200_output/phase200_sec_midas_duplicate_negative_diagnostics.json"
+          s = json.load(open(p, encoding="utf-8"))
+          assert s["phase"] == 200
+          assert s["status"] == "SIX_QUARTER_DUPLICATE_AND_NEGATIVE_VALUE_DIAGNOSTICS_COMPLETED"
+          assert len(s["quarter_results"]) == 6
+          assert all(x["rows_with_valid_ticker_and_date"] > 0 for x in s["quarter_results"])
+          assert s["interpretation"]["strict_pit_admitted"] is False
+          assert s["interpretation"]["alpha_test_authorized"] is False
+          assert s["interpretation"]["holdout_used"] is False
+          assert s["interpretation"]["production_changed"] is False
+          assert s["interpretation"]["duplicate_rows_deduplicated"] is False
+          assert s["interpretation"]["f80_frozen"] is True
+          print("PHASE200_STATUS=" + s["status"])
+          for q in s["quarter_results"]:
+              print(q["quarter"], q["duplicate_key_groups"], q["rank_only_conflicting_groups"], q["activity_conflicting_groups"], q["negative_fields"])
+          PY
+      - name: Upload metadata-only diagnostics
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase200-sec-midas-duplicate-negative-diagnostics
+          path: phase200_output/phase200_sec_midas_duplicate_negative_diagnostics.json
+          if-no-files-found: error
+          retention-days: 90
