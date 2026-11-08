@@ -1,0 +1,60 @@
+name: Phase 201 SEC MIDAS README and derived-ratio semantics audit
+
+on:
+  pull_request:
+    types: [synchronize]
+    branches: [main]
+    paths:
+      - "research/phase201_sec_midas_readme_ratio_semantics.py"
+      - "research/test_phase201_sec_midas_readme_ratio_semantics.py"
+      - ".github/workflows/phase201_sec_midas_readme_ratio_semantics.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase201-sec-midas-readme-ratio-semantics
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile audit and tests
+        run: python -m py_compile research/phase201_sec_midas_readme_ratio_semantics.py research/test_phase201_sec_midas_readme_ratio_semantics.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase201_sec_midas_readme_ratio_semantics
+      - name: Download six archives and inspect embedded READMEs and ratios
+        run: python -m research.phase201_sec_midas_readme_ratio_semantics --output-dir phase201_output
+      - name: Validate diagnostic-only controls
+        run: |
+          python - <<'PY'
+          import json
+          p="phase201_output/phase201_sec_midas_readme_ratio_semantics.json"
+          s=json.load(open(p,encoding="utf-8"))
+          assert s["phase"]==201
+          assert s["status"]=="SIX_QUARTER_README_AND_DERIVED_RATIO_AUDIT_COMPLETED"
+          assert len(s["quarter_results"])==6
+          assert all(x["ratio_diagnostics"]["valid_rows_parsed"]>0 for x in s["quarter_results"])
+          assert s["interpretation"]["strict_pit_admitted"] is False
+          assert s["interpretation"]["alpha_test_authorized"] is False
+          assert s["interpretation"]["holdout_used"] is False
+          assert s["interpretation"]["production_changed"] is False
+          assert s["interpretation"]["f80_frozen"] is True
+          print("PHASE201_STATUS="+s["status"])
+          for x in s["quarter_results"]:
+              print(x["quarter"], [d["sha256"] for d in x["readmes"]], x["ratio_diagnostics"]["ratios"])
+          PY
+      - name: Upload metadata-only README and ratio audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase201-sec-midas-readme-ratio-semantics
+          path: phase201_output/phase201_sec_midas_readme_ratio_semantics.json
+          if-no-files-found: error
+          retention-days: 90

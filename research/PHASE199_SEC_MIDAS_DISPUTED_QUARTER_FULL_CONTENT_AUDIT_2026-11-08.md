@@ -40,9 +40,9 @@ The audit key is (Ticker, Date, Security). Phase 199 found 61 duplicate groups i
 
 Phase 199 deliberately does not drop or resolve these rows. It did not yet compare field-by-field whether the new conflicts are limited to McapRank/TurnRank/VolatilityRank/PriceRank or affect activity measures. A deterministic deduplication policy is not admitted until that comparison is complete.
 
-### Negative values in hidden-rate and hidden-volume fields
+### Negative values in hidden-trade and hidden-volume numerators
 
-The SEC methodology defines Hidden Rate as hidden trades divided by trades and Hidden Volume as hidden trade volume divided by total trade volume. In the file, Hidden is the rate field; HiddenVol('000) is the hidden-volume numerator in thousands of shares, and TradeVolForHidden('000) is the corresponding denominator. A negative rate or negative volume numerator is invalid. The four archives contain the negative-value counts shown above in Hidden and HiddenVol('000); all other audited numeric fields had no negative values in these samples.
+The SEC methodology defines Hidden Rate as hidden trades divided by trades and Hidden Volume as hidden trade volume divided by total trade volume. In the file, Hidden is the raw hidden-trade-count numerator and TradesForHidden is its denominator; HiddenVol('000) is the hidden-volume numerator in thousands of shares and TradeVolForHidden('000) is its denominator. Negative values in either numerator are not ordinary ratio values. The four archives contain the negative-value counts shown above in Hidden and HiddenVol('000); all other audited numeric fields had no negative values in these samples.
 
 The Phase 199 metadata records counts, not the exact negative values or rows. Do not assume these are -1 sentinels. Phase 200 must inspect the value distribution, representative ticker/date rows and denominators, then determine whether they are missing-value codes, corrections or genuine source anomalies. Quarantine affected observations until resolved.
 
@@ -60,7 +60,7 @@ The Phase 199 metadata records counts, not the exact negative values or rows. Do
 
 Phase 200 should:
 1. compare duplicate rows field-by-field and classify rank-only versus activity-field conflicts;
-2. capture exact negative values and representative rows for the Hidden rate and HiddenVol numerator, including their denominators;
+2. capture exact negative values and representative rows for the Hidden and HiddenVol numerators, including their denominators;
 3. test whether the negative values are stable sentinels or unexplained anomalies;
 4. preserve every raw version/hash and prohibit silent deduplication;
 5. continue the separate first-publication ledger for all 58 quarterly releases.
