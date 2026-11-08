@@ -1749,3 +1749,13 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 - Phase 219 is preregistration only: no returns, alpha, bootstrap/LOO, holdout or production test. The legacy holdout remains CONSUMED_NOT_PRISTINE. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
 - Report: `research/PHASE219_NPORT_DIRECT_SHORT_EXPOSURE_CHANGE_HYPOTHESIS_PREREGISTRATION_2026-11-08.md`; evidence, validator and tests are stored alongside it. The validator/tests are not represented as hosted CI; this commit uses [skip ci].
 - Human dependency unchanged: configure the authorized GitHub Actions secret SEC_CONTACT_EMAIL before Phase 193 raw retrieval. No placeholder email or request bypass is permitted.
+
+
+## 2026-11-08 — Phase 220 N-PORT short-share quantity versus NAV-exposure measurement audit
+- Found a measurement confound in Phase 219: `delta_short_pct_nav` can rise with unchanged short-share quantity when the security price appreciates or fund NAV contracts. It is an exposure-state change, not a pure position-building measure.
+- Phase 220 preserves Phase 219 as the original preregistration but supersedes its primary feature before outcome inspection: `delta_short_shares_pct = 100 * (Q_current_adjusted_to_prior_share_basis / Q_prior - 1)`, only for explicit short rows in both periods, same series/security and verified corporate-action adjustment. Missing rows remain unknown; no initiation/covering inference.
+- `delta_short_pct_nav` is retained as a secondary exposure-state descriptor and may be decomposed into quantity, mark-to-market and NAV-denominator components only after field/unit validation.
+- Three synthetic counterexamples show that a 20% price rise or NAV contraction can each increase short % NAV by 0.20 percentage points with zero share-quantity change; a 10% share addition is detected as +10% quantity change.
+- Local pure-Python reproduction: 10/10 tests passed. No hosted CI run; Phase 220 files use `[skip ci]` to avoid PR-wide path-filter fan-out.
+- No raw filings, alpha/return, bootstrap/LOO, OOS or holdout test; raw SEC hashes, corporate-action adjustments, series/amendment lineage, PIT security identity and broad universe coverage remain open. F80 remains frozen; holdout remains `CONSUMED_NOT_PRISTINE`.
+- Report/code/tests/evidence: `research/PHASE220_NPORT_SHORT_QUANTITY_VS_NAV_EXPOSURE_MEASUREMENT_AUDIT_2026-11-08.md` and adjacent Phase 220 files.
