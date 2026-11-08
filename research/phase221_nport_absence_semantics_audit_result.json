@@ -1,0 +1,12 @@
+{
+  "phase": 221,
+  "status": "CONDITIONAL_ZERO_SEMANTICS_DEFINED_NO_RAW_PANEL_NO_ALPHA",
+  "synthetic_cases_validated": 13,
+  "conditional_zero_rule": "PRIOR_PUBLIC_PART_C_ONLY_ALL_GATES_REQUIRED",
+  "default_absence": "UNKNOWN_NOT_ZERO",
+  "alpha_test_authorized": false,
+  "raw_filings_downloaded": false,
+  "holdout_used": false,
+  "f80_frozen": true,
+  "decision": "WAIT_FOR_HASH_VERIFIED_RAW_FILINGS_SERIES_SECURITY_IDENTITY_AND_PIT_PANEL"
+}

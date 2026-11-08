@@ -1764,3 +1764,13 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 ### Phase 220 validation correction — 2026-11-08
 - The first local run exposed a strict floating-point equality in the synthetic +10% quantity example. Updated the auditor to use `math.isclose(rel_tol=1e-9, abs_tol=1e-9)` and tests to use a 9-place tolerance.
 - The final isolated reproduction passed 10/10 tests. This remains local validation only; no hosted workflow was run.
+
+
+## 2026-11-08 — Phase 221 N-PORT missing-row / Part-D semantics refinement
+- Phase 219/220's default remains absence = UNKNOWN, not zero. Phase 221 identified a narrow conditional exception from the SEC Form N-PORT rules: Part C reports each investment held; Part D may contain qualifying miscellaneous securities (aggregate cap 5% of total assets), but only if not previously publicly disclosed by name and other conditions are met; Part D information is nonpublic.
+- If the exact same security was previously disclosed in public Part C, the prior-public-disclosure restriction appears to bar moving that security into confidential Part D. Its absence from a complete subsequent public Part-C filing can therefore be classified as CONDITIONAL_ZERO_BY_PART_D_EXCLUSION, but only after exact series/security, complete filing/parser, public fiscal-quarter third-month, corporate-action and as-filed-vintage gates. This is a conditional regulatory interpretation, not an automatic zero rule.
+- Distinguish current_part_c_rows=None (incomplete/unknown parse) from [] (completed exact-security search with no Part-C row). Aggregate only verified explicit Short/NS/common-equity rows for the same exact issue. A long-only Part-C row establishes zero direct physical short in Part C, not zero total bearish exposure.
+- Only the third month of each Fund's fiscal quarter is public upon filing under current Form N-PORT instructions; use the Fund's fiscal calendar, not calendar-quarter assumptions. The SEC's S7-2026-05 / IC-35962 release remains listed as Proposed Rule as of 2026-11-08. Amendments must answer all items but are separate vintages known only from their own acceptance.
+- Phase 221 is regulatory semantics plus 13 synthetic cases only. No raw N-PORT filing was downloaded or hashed; no prevalence, alpha, return, bootstrap/LOO, holdout or production test. Phase 193 remains blocked because the actual Actions log shows SEC_CONTACT_EMAIL empty, zero requests and zero files downloaded.
+- Files: research/PHASE221_NPORT_MISSING_ROW_PART_D_CONDITIONAL_ZERO_SEMANTICS_AUDIT_2026-11-08.md, adjacent evidence JSON, pure-Python auditor, 14 regression tests and result JSON. Commit uses [skip ci]; no hosted CI run is claimed.
+- F80 remains frozen; legacy holdout remains CONSUMED_NOT_PRISTINE.
