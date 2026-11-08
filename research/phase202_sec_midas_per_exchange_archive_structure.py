@@ -175,6 +175,9 @@ def inspect_zip_bytes(content: bytes, nesting: int = 0) -> dict[str, object]:
             "readmes": readmes,
             "nested_zip_count": len(nested),
             "nested_archives": nested_results,
+            "has_data_member_recursive": bool(data_members) or any(
+                item["inspection"]["has_data_member_recursive"] for item in nested_results
+            ),
             "full_crc_validation_performed": False,
         }
 
@@ -182,7 +185,7 @@ def inspect_zip_bytes(content: bytes, nesting: int = 0) -> dict[str, object]:
 def build_result(inventory: dict[str, object], quarter_results: list[dict[str, object]]) -> dict[str, object]:
     links_complete = all(q in inventory["quarter_urls"] for q in SAMPLE_QUARTERS)
     archives_ok = len(quarter_results) == len(SAMPLE_QUARTERS) and all(
-        has_data_member(item["archive_inspection"]) for item in quarter_results
+        item["archive_inspection"]["has_data_member_recursive"] for item in quarter_results
     )
     return {
         "phase": 202,

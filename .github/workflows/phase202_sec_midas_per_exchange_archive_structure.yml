@@ -42,7 +42,7 @@ jobs:
           assert s["status"]=="THREE_QUARTER_PER_EXCHANGE_ARCHIVE_STRUCTURE_AUDITED"
           assert s["inventory"]["quarter_count"]==58
           assert len(s["quarter_results"])==3
-          assert all(any(n["inspection"]["data_member_count"]>0 for n in x["archive_inspection"]["nested_archives"]) or x["archive_inspection"]["data_member_count"]>0 for x in s["quarter_results"])
+          assert all(x["archive_inspection"]["has_data_member_recursive"] for x in s["quarter_results"])
           assert s["interpretation"]["full_row_reconciliation_performed"] is False
           assert s["interpretation"]["first_publication_time_verified"] is False
           assert s["interpretation"]["strict_pit_admitted"] is False

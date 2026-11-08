@@ -54,6 +54,7 @@ class Phase202Tests(unittest.TestCase):
         self.assertEqual(result["nested_zip_count"],1)
         self.assertEqual(result["nested_archives"][0]["inspection"]["data_member_count"],1)
         self.assertEqual(result["nested_archives"][0]["inspection"]["readme_count"],1)
+        self.assertTrue(result["has_data_member_recursive"])
 
     def test_readme_and_crc_metadata_are_not_overstated(self):
         result=inspect_zip_bytes(make_zip({"README.txt":b"sample readme","data.csv":make_csv()}))
