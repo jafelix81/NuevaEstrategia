@@ -1633,3 +1633,15 @@ No alpha result is claimed. No production changes, data purchases or vendor cont
 - Hidden Rate ratios were within [0,1] in all six samples. Hidden Volume share had two >1 observations in 2014 Q2 (max 2.2671), none in the other five.
 - **Phase 202 candidate:** SEC Metrics by Individual Security and Exchange has 58 quarterly archives from Jan 2012–Jun 2026. Inspect 2016 Q2, 2017 Q2 and 2019 Q4 archive layouts before venue-level reconciliation.
 - Permanent result: [Phase 201 report](https://github.com/jafelix81/NuevaEstrategia/blob/phase99-broad-pit-universe-charter/research/PHASE201_SEC_MIDAS_README_AND_RATIO_SEMANTICS_AUDIT_2026-11-08.md) · [artifact](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42436111867/artifacts/13599821005).
+
+
+## 2026-11-08 — Phase 202 SEC MIDAS per-security/per-exchange archive structure
+
+- **Status:** three-quarter archive/member-structure sample passed; no PIT or alpha admission.
+- SEC's official per-security/per-exchange page returned 58 quarterly archives (2012Q1–2026Q2). Full ZIP containers for 2016Q2, 2017Q2 and 2019Q4 were downloaded and inspected.
+- Each ZIP contains three monthly CSV members plus one README; there are no nested ZIPs in these samples. The monthly CSV schema has an explicit Exchange column. Exchange is not encoded only by filename or separate one-exchange files.
+- Sample member names: 2016Q2 apr16.csv, may16.csv, jun16.csv; 2017Q2 apr17.csv, may17.csv, jun17.csv; 2019Q4 oct19.csv, nov19.csv, dec19.csv. Each data member has 20 columns.
+- Archive ZIP SHA-256s and member/header metadata are committed in research/phase202_sec_midas_per_exchange_archive_structure_result.json; hosted run 42436593124, artifact 13600180470. Six offline tests passed.
+- Phase 202 did not full-CRC test the archives, parse all rows or reconcile against the aggregate dataset. All three HTTP Last-Modified headers were 2020-12-19 and are not first-publication timestamps. Strict PIT remains NOT ADMITTED.
+- **Next gate:** Phase 203 compares a deterministic 250-ticker SHA-256 sample plus explicit negative-value control tickers across per-exchange and aggregate files for the same three quarters. It will compare additive fields, derive order-based-exchange denominators using date-effective README rules and attribute negative Hidden/HiddenVol residuals by exchange. Sample reconciliation is not an alpha test.
+
