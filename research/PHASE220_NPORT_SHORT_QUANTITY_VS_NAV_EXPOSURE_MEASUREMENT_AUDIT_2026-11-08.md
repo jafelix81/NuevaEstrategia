@@ -66,3 +66,8 @@ The pure-Python auditor validates the measurement contract and three synthetic c
 No raw N-PORT holdings were downloaded or hashed. Series/amendment lineage, complete-holdings semantics, corporate-action factors, effective-dated listing identity and broad PIT universe coverage remain unestablished. No return/alpha test is authorized.
 
 **Decision:** Phase 220 supersedes only Phase 219's primary feature definition before outcome inspection. The hypothesis direction is unchanged. F80 remains frozen; the legacy holdout remains `CONSUMED_NOT_PRISTINE`.
+
+
+## Validation correction
+
+The first local execution exposed an exact floating-point equality check in the synthetic +10% quantity example (`110 / 100 - 1` is not represented exactly in binary floating point). The auditor and test now use a tight numeric tolerance (`1e-9)); no economic definition or example value changed. The final isolated local reproduction passed **10/10 tests**. No hosted CI run was started.
