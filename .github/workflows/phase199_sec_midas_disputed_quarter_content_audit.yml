@@ -1,0 +1,62 @@
+name: Phase 199 SEC MIDAS disputed-quarter full-content audit
+
+on:
+  pull_request:
+    types: [synchronize]
+    branches: [main]
+    paths:
+      - "research/phase199_sec_midas_disputed_quarter_content_audit.py"
+      - "research/test_phase199_sec_midas_disputed_quarter_content_audit.py"
+      - ".github/workflows/phase199_sec_midas_disputed_quarter_content_audit.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase199-sec-midas-disputed-quarter-content
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile audit and tests
+        run: python -m py_compile research/phase199_sec_midas_disputed_quarter_content_audit.py research/test_phase199_sec_midas_disputed_quarter_content_audit.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase199_sec_midas_disputed_quarter_content_audit
+      - name: Download and audit four disputed SEC MIDAS archives
+        run: python -m research.phase199_sec_midas_disputed_quarter_content_audit --output-dir phase199_output
+      - name: Validate content and no-lookahead controls
+        run: |
+          python - <<'PY'
+          import json
+          p = "phase199_output/phase199_sec_midas_disputed_quarter_content_audit.json"
+          s = json.load(open(p, encoding="utf-8"))
+          assert s["phase"] == 199
+          assert s["status"] == "ALL_FOUR_DISPUTED_QUARTERS_FULL_CONTENT_VALIDATED"
+          assert len(s["quarter_audits"]) == 4
+          assert all(x["zip_crc_passed"] and x["csv"]["schema_passed"] for x in s["quarter_audits"])
+          assert all(x["csv"]["rows_with_valid_ticker_and_date"] > 0 for x in s["quarter_audits"])
+          assert all(x["csv"]["out_of_quarter_rows"] == 0 for x in s["quarter_audits"])
+          assert s["interpretation"]["strict_pit_admitted"] is False
+          assert s["interpretation"]["alpha_test_authorized"] is False
+          assert s["interpretation"]["holdout_used"] is False
+          assert s["interpretation"]["production_changed"] is False
+          assert s["interpretation"]["f80_frozen"] is True
+          print("PHASE199_STATUS=" + s["status"])
+          for item in s["quarter_audits"]:
+              print(item["quarter"], item["csv"]["rows_with_valid_ticker_and_date"], item["csv"]["unique_tickers"], item["csv"]["unique_dates"], item["archive_sha256"])
+          PY
+      - name: Upload metadata-only content audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase199-sec-midas-disputed-quarter-content
+          path: phase199_output/phase199_sec_midas_disputed_quarter_content_audit.json
+          if-no-files-found: error
+          retention-days: 90
