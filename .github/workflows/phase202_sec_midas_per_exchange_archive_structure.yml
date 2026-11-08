@@ -1,0 +1,63 @@
+name: Phase 202 SEC MIDAS per-exchange archive structure audit
+
+on:
+  pull_request:
+    types: [synchronize]
+    branches: [main]
+    paths:
+      - "research/phase202_sec_midas_per_exchange_archive_structure.py"
+      - "research/test_phase202_sec_midas_per_exchange_archive_structure.py"
+      - ".github/workflows/phase202_sec_midas_per_exchange_archive_structure.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase202-sec-midas-per-exchange-structure
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile audit and tests
+        run: python -m py_compile research/phase202_sec_midas_per_exchange_archive_structure.py research/test_phase202_sec_midas_per_exchange_archive_structure.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase202_sec_midas_per_exchange_archive_structure
+      - name: Download three official per-exchange archives and inspect structure
+        run: python -m research.phase202_sec_midas_per_exchange_archive_structure --output-dir phase202_output
+      - name: Validate structure-only controls
+        run: |
+          python - <<'PY'
+          import json
+          p="phase202_output/phase202_sec_midas_per_exchange_archive_structure.json"
+          s=json.load(open(p,encoding="utf-8"))
+          assert s["phase"]==202
+          assert s["status"]=="THREE_QUARTER_PER_EXCHANGE_ARCHIVE_STRUCTURE_AUDITED"
+          assert s["inventory"]["quarter_count"]==58
+          assert len(s["quarter_results"])==3
+          assert all(any(n["inspection"]["data_member_count"]>0 for n in x["archive_inspection"]["nested_archives"]) or x["archive_inspection"]["data_member_count"]>0 for x in s["quarter_results"])
+          assert s["interpretation"]["full_row_reconciliation_performed"] is False
+          assert s["interpretation"]["first_publication_time_verified"] is False
+          assert s["interpretation"]["strict_pit_admitted"] is False
+          assert s["interpretation"]["alpha_test_authorized"] is False
+          assert s["interpretation"]["holdout_used"] is False
+          assert s["interpretation"]["production_changed"] is False
+          assert s["interpretation"]["f80_frozen"] is True
+          print("PHASE202_STATUS="+s["status"])
+          for q in s["quarter_results"]:
+              print(q["quarter"],q["archive_inspection"]["archive_bytes"],q["archive_inspection"]["member_count"],q["archive_inspection"]["data_member_count"],q["archive_inspection"]["nested_zip_count"])
+          PY
+      - name: Upload metadata-only per-exchange archive audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase202-sec-midas-per-exchange-structure
+          path: phase202_output/phase202_sec_midas_per_exchange_archive_structure.json
+          if-no-files-found: error
+          retention-days: 90
