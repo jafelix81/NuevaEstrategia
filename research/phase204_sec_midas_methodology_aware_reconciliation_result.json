@@ -1,0 +1,92 @@
+{
+  "phase": 204,
+  "audit_as_of_utc": "2026-11-08T02:36:05.759696+00:00",
+  "status": "THREE_QUARTER_METHOD_SPECIFIC_RECONCILIATION_DIAGNOSTIC_COMPLETED",
+  "archive_inventory": {
+    "aggregate_quarters": 58,
+    "exchange_quarters": 58,
+    "quarters_fully_audited": [
+      "2016 Q2",
+      "2017 Q2",
+      "2019 Q4"
+    ]
+  },
+  "quarter_results": [
+    {
+      "quarter": "2016 Q2",
+      "aggregate_rows": 338183,
+      "aggregate_tickers": 5393,
+      "exchange_rows": 2888147,
+      "exchange_tickers": 256,
+      "keys_compared": 16125,
+      "zip_crc_validated": true,
+      "readme_rule_mismatches": 0,
+      "all_exchange_sum_mismatches": {
+        "cancels": 5492,
+        "littrades": 5299,
+        "oddlots": 5031,
+        "oddlotvol": 5012,
+        "tradesforoddlots": 5321,
+        "tradevolforoddlots": 5317
+      }
+    },
+    {
+      "quarter": "2017 Q2",
+      "aggregate_rows": 330536,
+      "aggregate_tickers": 5353,
+      "exchange_rows": 2797885,
+      "exchange_tickers": 256,
+      "keys_compared": 15752,
+      "zip_crc_validated": true,
+      "readme_rule_mismatches": 0,
+      "all_exchange_sum_mismatches": {
+        "cancels": 2086,
+        "littrades": 2053,
+        "oddlots": 1963,
+        "oddlotvol": 1953,
+        "tradesforoddlots": 2058,
+        "tradevolforoddlots": 2058
+      }
+    },
+    {
+      "quarter": "2019 Q4",
+      "aggregate_rows": 369433,
+      "aggregate_tickers": 5902,
+      "exchange_rows": 4180726,
+      "exchange_tickers": 258,
+      "keys_compared": 16157,
+      "zip_crc_validated": true,
+      "readme_rule_mismatches": 0,
+      "all_exchange_sum_mismatches": {
+        "cancels": 12822,
+        "littrades": 7876,
+        "oddlots": 10281,
+        "oddlotvol": 10179,
+        "tradesforoddlots": 11762,
+        "tradevolforoddlots": 11723
+      }
+    }
+  ],
+  "field_rule": "The embedded README's field-specific exchange sets exactly reconcile all 12 shared fields on every sampled security-day key. Generic all-exchange summation is wrong for six methodology-sensitive fields; generic/effective order-based variants also fail in later samples.",
+  "timestamp": "All three aggregate and exchange archive pairs report Last-Modified on 2020-12-19; this is not original quarterly first-publication evidence.",
+  "interpretation": {
+    "complete_universe_reconciliation": false,
+    "first_publication_time_verified": false,
+    "strict_pit_admitted": false,
+    "historical_permanent_security_identity_admitted": false,
+    "participant_identity_available": false,
+    "off_exchange_flow_measure": false,
+    "alpha_test_authorized": false,
+    "holdout_used": false,
+    "production_changed": false,
+    "f80_frozen": true
+  },
+  "source_methodology_url": "https://www.sec.gov/featured-topics/market-structure-analytics/market-activity-report-methodology",
+  "artifact": {
+    "run_id": 42438958146,
+    "artifact_id": 13601285381,
+    "sha256": "66003a6db817617295996c4b28836c774350d661e6eb0badb825c3322a66dcda",
+    "url": "https://github.com/jafelix81/NuevaEstrategia/actions/runs/42438958146/artifacts/13601285381"
+  },
+  "code_url": "https://github.com/jafelix81/NuevaEstrategia/blob/phase99-broad-pit-universe-charter/research/phase204_sec_midas_methodology_aware_reconciliation.py"
+}
