@@ -35,10 +35,10 @@ jobs:
           --root .
           --output phase234_output/capture_attempt.json
         env:
-          GITHUB_EVENT_NAME: \${{ github.event_name }}
-          GITHUB_RUN_ID: \${{ github.run_id }}
-          GITHUB_RUN_ATTEMPT: \${{ github.run_attempt }}
-          GITHUB_SHA: \${{ github.sha }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_RUN_ATTEMPT: ${{ github.run_attempt }}
+          GITHUB_SHA: ${{ github.sha }}
 
       - name: Commit append-only report versions
         run: |
@@ -56,7 +56,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: phase234-cftc-bpr-capture-attempt-\${{ github.run_id }}
+          name: phase234-cftc-bpr-capture-attempt-${{ github.run_id }}
           path: phase234_output/capture_attempt.json
           if-no-files-found: warn
           retention-days: 90
