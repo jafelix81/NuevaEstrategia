@@ -1,6 +1,12 @@
 name: Phase 247 SEC N-PORT flattened UNIT field contract
 
 on:
+  push:
+    branches: [phase231-cboe-option-quotes-full-row-reparse]
+    paths:
+      - "research/phase247_sec_nport_unit_field_contract.py"
+      - "research/test_phase247_sec_nport_unit_field_contract.py"
+      - ".github/workflows/phase247_nport_unit_field_contract.yml"
   pull_request:
     branches: [phase99-broad-pit-universe-charter]
     paths:
