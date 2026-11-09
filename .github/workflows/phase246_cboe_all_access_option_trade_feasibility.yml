@@ -1,6 +1,12 @@
 name: Phase 246 Cboe All Access option trade feasibility
 
 on:
+  push:
+    branches: [phase231-cboe-option-quotes-full-row-reparse]
+    paths:
+      - "research/phase246_cboe_all_access_option_trade_feasibility.py"
+      - "research/test_phase246_cboe_all_access_option_trade_feasibility.py"
+      - ".github/workflows/phase246_cboe_all_access_option_trade_feasibility.yml"
   pull_request:
     branches: [phase99-broad-pit-universe-charter]
     paths:
