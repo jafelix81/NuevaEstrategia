@@ -88,8 +88,9 @@ The current report's explicit zero cells remain zero; blank category bank counts
 Local tests:
 
 - Phase 234 capture regression suite: 13 tests.
+- Phase 234 source-semantics/parser regression suite: 13 tests.
 - Phase 235 new tests: 10 tests.
-- **23/23 passed**, 0 failures, 0 errors.
+- **36/36 passed**, 0 failures, 0 errors.
 - Tests cover initial baseline state-only semantics, legacy metadata, manual versus scheduled capture, new report URLs, multiple catch-up links, revisions, URL/date consistency, blank versus explicit-zero semantics, total-only versus category-level coverage, reconciliation, and invalid values.
 
 No hosted Phase 235 workflow was run. The commits are marked \`[skip ci]\` to avoid broad PR workflow fan-out. Local tests are not represented as GitHub Actions results.
