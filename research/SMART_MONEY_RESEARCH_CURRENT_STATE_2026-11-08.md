@@ -47,7 +47,7 @@
 - PR #13 is open, 550 commits ahead / 1 behind main by compare; GitHub currently reports mergeable/clean. No merge was attempted.
 - Branch inventory: 130 branches.
 - Latest 100 Actions runs: 98 success, one failure and one cancellation; zero in-progress or queued. The Phase 214 failure was an earlier attempt; corrected run 42491346221 passed. The cancelled attempt was replaced.
-- Latest CI fan-out is on older commit 5ac79c0; current research head e9f661 has no associated workflow run because its commits use `[skip ci]`.
+- Latest CI fan-out is on older commit 5ac79c0; the current PR head has no associated workflow run because the Phase 225 research commit uses `[skip ci]`.
 
 ## Promotion rule
 
