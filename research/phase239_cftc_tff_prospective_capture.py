@@ -212,7 +212,7 @@ def _scheduled_after_release(event_name: str, receipt_time: datetime) -> bool:
     return event_name == "schedule" and et.weekday() < 5 and (et.hour, et.minute) >= (15, 30)
 
 
-def _metadata_records(root: Path, stream: str) -> list[dict]:
+def _all_metadata_records(root: Path, stream: str) -> list[dict]:
     folder = root / "data" / "cftc_tff" / "metadata"
     if not folder.exists():
         return []
@@ -222,9 +222,16 @@ def _metadata_records(root: Path, stream: str) -> list[dict]:
             record = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError) as exc:
             raise ValueError(f"malformed existing metadata: {path}") from exc
-        if record.get("stream") == stream and record.get("capture_protocol_version") == CAPTURE_PROTOCOL_VERSION:
+        if record.get("stream") == stream:
             records.append(record)
     return records
+
+
+def _metadata_records(root: Path, stream: str) -> list[dict]:
+    return [
+        record for record in _all_metadata_records(root, stream)
+        if record.get("capture_protocol_version") == CAPTURE_PROTOCOL_VERSION
+    ]
 
 
 def _latest_scheduled(root: Path, stream: str) -> Optional[dict]:
@@ -328,11 +335,42 @@ def _capture_one(*, root: Path, stream: str, url: str, raw_bytes: bytes,
                  event_name: str, env: dict) -> dict:
     parsed = parse_tff_file(raw_bytes, stream)
     raw_hash = parsed["raw_sha256"]
+    all_records = _all_metadata_records(root, stream)
     prior = _latest_scheduled(root, stream)
     previously_observed_report_date = any(
         item.get("report_date") == parsed["report_date"]
-        for item in _metadata_records(root, stream)
+        for item in all_records
     )
+
+    stamp = receipt_time.astimezone(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    raw_path = Path("data") / "cftc_tff" / "raw" / stream / f'{parsed["report_date"]}__{raw_hash[:16]}.txt.gz'
+    raw_file = root / raw_path
+    raw_snapshot_preexisting = raw_file.exists()
+    raw_metadata_matches = any(
+        item.get("report_date") == parsed["report_date"]
+        and item.get("raw_sha256") == raw_hash
+        for item in all_records
+    )
+    if raw_snapshot_preexisting:
+        try:
+            existing_raw_bytes = gzip.decompress(raw_file.read_bytes())
+        except (OSError, EOFError) as exc:
+            raise ValueError(f"existing TFF raw snapshot is not a valid gzip file: {raw_path}") from exc
+        existing_raw_hash = hashlib.sha256(existing_raw_bytes).hexdigest()
+        if existing_raw_hash != raw_hash:
+            raise ValueError(
+                f"existing TFF raw snapshot hash mismatch for {stream} {parsed['report_date']}: "
+                f"{existing_raw_hash} != {raw_hash}"
+            )
+    raw_snapshot_preexisting_without_metadata = raw_snapshot_preexisting and not raw_metadata_matches
+    previously_observed_report_date = (
+        previously_observed_report_date or raw_snapshot_preexisting_without_metadata
+    )
+    raw_snapshot_repaired_from_existing_metadata = False
+    if not raw_snapshot_preexisting and raw_metadata_matches:
+        _write_gzip_once(raw_file, raw_bytes)
+        raw_snapshot_repaired_from_existing_metadata = True
+
     classification = _classify(
         parsed, raw_hash, prior, event_name, receipt_time,
         previously_observed_report_date=previously_observed_report_date,
@@ -344,12 +382,12 @@ def _capture_one(*, root: Path, stream: str, url: str, raw_bytes: bytes,
             "event_type": "UNCHANGED",
             "new_snapshot": False,
             "pit_eligible_from_pipeline_receipt": False,
+            "raw_snapshot_preexisting_without_metadata": raw_snapshot_preexisting_without_metadata,
+            "raw_snapshot_repaired_from_existing_metadata": raw_snapshot_repaired_from_existing_metadata,
         }
 
-    stamp = receipt_time.astimezone(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    raw_path = Path("data") / "cftc_tff" / "raw" / stream / f'{parsed["report_date"]}__{raw_hash[:16]}.txt.gz'
     meta_path = Path("data") / "cftc_tff" / "metadata" / f'{stream}__{parsed["report_date"]}__{raw_hash[:16]}__{event_name}__{stamp}.json'
-    _write_gzip_once(root / raw_path, raw_bytes)
+    _write_gzip_once(raw_file, raw_bytes)
     et = receipt_time.astimezone(ET)
     metadata = {
         "source": "CFTC Traders in Financial Futures",
@@ -369,6 +407,8 @@ def _capture_one(*, root: Path, stream: str, url: str, raw_bytes: bytes,
         "workflow_sha": env.get("GITHUB_SHA"),
         "raw_snapshot_path": raw_path.as_posix(),
         "raw_compression": "gzip; decompression reproduces exact response bytes",
+        "raw_snapshot_preexisting_without_metadata": bool(raw_snapshot_preexisting_without_metadata),
+        "raw_snapshot_repaired_from_existing_metadata": bool(raw_snapshot_repaired_from_existing_metadata),
         **classification,
         "earliest_decision_session_policy": "first regular XNYS session strictly after observed_at_utc",
         "earliest_execution_policy": "close of that next XNYS session under the existing EOD discipline",
@@ -385,6 +425,8 @@ def _capture_one(*, root: Path, stream: str, url: str, raw_bytes: bytes,
         "state_usable_after_receipt": classification["state_usable_after_receipt"],
         "report_date_gap_days": classification["report_date_gap_days"],
         "sequence_gap_detected": classification["sequence_gap_detected"],
+        "raw_snapshot_preexisting_without_metadata": bool(raw_snapshot_preexisting_without_metadata),
+        "raw_snapshot_repaired_from_existing_metadata": bool(raw_snapshot_repaired_from_existing_metadata),
     }
 
 
