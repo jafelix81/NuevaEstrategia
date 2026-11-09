@@ -313,6 +313,7 @@ def _capture_one(*, root: Path, report_url: str, report_bytes: bytes,
         workflow_run_id=env.get("GITHUB_RUN_ID"),
         workflow_run_attempt=env.get("GITHUB_RUN_ATTEMPT"),
         workflow_sha=env.get("GITHUB_SHA"), initial_baseline=initial_baseline,
+        revision=revision,
     )
     if initial_baseline:
         metadata["receipt_kind"] = "INITIAL_BASELINE_STATE_ONLY"
