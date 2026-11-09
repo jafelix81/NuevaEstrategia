@@ -34,11 +34,20 @@
 - 12/12 local regression tests passed. No hosted Phase 233 workflow was run; files use skip-ci commits.
 - [Phase 233 report](PHASE233_CBOE_OPTION_SENTIMENT_FIELD_DIMENSION_AND_DIRECTIONAL_SEMANTICS_AUDIT_2026-11-09.md)
 
+### Phase 234 — CFTC Bank Participation Report (BPR) feasibility
+- Identified a separate monthly CFTC source with aggregate gross long/short positions of U.S. and Non-U.S. commercial banks; current report includes E-mini S&P 500, Nasdaq Mini, Russell E-mini, and DJIA $5 futures.
+- CFTC public archive retains only 25 months. BPR is not a stock-level dataset and is not all institutional investors; bank labels derive from Form 40 and staff approval. The separate options report is gross and not delta-adjusted.
+- November 2026 report date is 2026-11-03 and scheduled publication date 2026-11-06. Exact first public receipt time is not established; 2025 shutdown/catch-up history proves the nominal schedule can fail.
+- Rejected for standalone historical OOS/stock selection; retained only as a conditional prospective broad-market regime candidate. No returns tested and no alpha admission.
+- Added append-only raw-page/hash/receipt capture script and weekday 20:35 UTC workflow. Scheduled receipts are pipeline-availability candidates only after 15:30 ET; manual dispatches are non-PIT. Revisions append by hash; no raw snapshot has yet been captured.
+- 26/26 local tests passed across BPR semantics, reconciliation, unknown-vs-zero handling, capture idempotence, revisions, and delayed weekday receipts. No hosted workflow was run; the schedule activates only after the research branch reaches the default branch.
+- [Phase 234 report](PHASE234_CFTC_BANK_PARTICIPATION_REPORT_EQUITY_INDEX_FEASIBILITY_AUDIT_2026-11-09.md)
+
 ## Source decisions
 
 | Source | Current decision | Main blocker |
 |---|---|---|
-| FINRA 20C / short flow | Not promoted | Historical coverage and incremental value not established |
+| FINRA 20C / short flow | Not promoted | Historical coverage and incremental value not established |\n| CFTC BPR | Conditional prospective market-regime candidate only | 25-month rolling archive, monthly frequency, no historical first-receipt vintages, no stock-level coverage |
 | Form 4 | Standalone implementation discarded | Must distinguish transaction semantics and filing availability |
 | Form 144 | Conditional event candidate | Independent shares/float/ADV denominators and identity mapping |
 | SEC 13D/G | Separate 13D and 13G research tracks | Reporting-person economic identity and amendment chains |
@@ -63,7 +72,7 @@
 2. Before any Cboe paid historical order, obtain written answers on first-receipt logs, correction/revision policy, historical delisted coverage, licensing, and price. No order has been placed.
 
 ## Next research steps
-1. Keep Phase 231 parser and artifact metadata as the accepted sample diagnostic; do not generalize it to the full product.
+1. After PR14 reaches the default branch, begin the CFTC BPR prospective capture; accumulate an adequate multi-regime panel before any return test. Compare only as a market-regime overlay against QQQ risk state and frozen LTM/F80.\n1. Keep Phase 231 parser and artifact metadata as the accepted sample diagnostic; do not generalize it to the full product.
 2. For Option Sentiment, obtain written clarification of net_option_delta units/sign/multiplier, footnote mappings, cancellation scope, and any directional cross-tabs; require a representative sample, historical backfill completeness, correction vintages, and delivery logs before any paid data.
 3. If a sample becomes available, validate the 80-field schema, null semantics, per-day symbol coverage, corporate-action handling, and cross-field invariants.
 4. Do not normalize net_option_delta by underlying volume until its unit, sign, multiplier, and deliverable treatment are confirmed. If clarified, preregister one primary directional-flow hypothesis with prior-return controls; size and customer-directional hypotheses are unavailable in the documented schema.
