@@ -132,6 +132,7 @@ def build_capture_metadata(
     workflow_run_attempt: Optional[str] = None,
     workflow_sha: Optional[str] = None,
     initial_baseline: bool = False,
+    revision: bool = False,
 ) -> dict:
     receipt_et = receipt_time.astimezone(ET)
     scheduled_after_release = (
@@ -139,8 +140,11 @@ def build_capture_metadata(
         and receipt_et.weekday() < 5
         and (receipt_et.hour, receipt_et.minute) >= (15, 30)
     )
-    event_signal_eligible = scheduled_after_release and not initial_baseline
     state_usable = scheduled_after_release
+    revision_state_only = scheduled_after_release and revision and not initial_baseline
+    event_signal_eligible = (
+        scheduled_after_release and not initial_baseline and not revision
+    )
     if initial_baseline and state_usable:
         pit_rule = (
             "Initial report is a pre-existing baseline state, not a new release event. "
@@ -148,13 +152,20 @@ def build_capture_metadata(
             "not backdate to the report date or count it as an event signal."
         )
         event_type = "INITIAL_BASELINE_STATE_ONLY"
+    elif revision_state_only:
+        pit_rule = (
+            "A changed hash for an already-seen report date is a correction/revision. "
+            "Preserve this version as a state update from this pipeline receipt, but "
+            "do not treat it as a new report event or directional signal."
+        )
+        event_type = "NEW_REVISION_STATE_ONLY"
     elif event_signal_eligible:
         pit_rule = (
-            "Newly indexed report or observed revision. Use only after this pipeline's "
-            "recorded report-page receipt; earliest modeled trade is the next regular "
-            "XNYS session after receipt."
+            "A newly indexed report date is usable only after this pipeline's recorded "
+            "report-page receipt; earliest modeled trade is the next regular XNYS "
+            "session after receipt."
         )
-        event_type = "NEW_REPORT_OR_REVISION_EVENT"
+        event_type = "NEW_REPORT_FIRST_SCHEDULED_OBSERVATION"
     else:
         pit_rule = "Not PIT-admitted; manual or outside scheduled weekday release window."
         event_type = "MANUAL_OR_NONQUALIFYING_OBSERVATION"
