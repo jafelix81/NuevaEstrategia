@@ -1,0 +1,125 @@
+{
+  "phase": 225,
+  "status": "COMPLETED_STRATIFIED_13DG_EVENT_SEMANTICS_LAG_AUDIT",
+  "source": {
+    "phase124_run_id": 42073725379,
+    "phase124_artifact_id": 13436764625,
+    "artifact_zip_sha256": "85f69e083b5af65731c9bcfe24e8c75821fc0f2c2476bfa8ba573e2e884570dc",
+    "csv_sha256": "be2c592c6c26d9f1ea49bda5d29d20e944004b2e2f4a3c3f4fe1f732319c55d5",
+    "sample": "600 stratified index rows; 599 actual 13D/G; one index alias quarantined; 43 quarters 2016Q1-2026Q3"
+  },
+  "integrity": {
+    "raw_hashes_verified": 600,
+    "sec_headers_verified": 600,
+    "primary_13dg_verified": 599,
+    "xml_event_dates_verified": 102
+  },
+  "event_date_recovery": {
+    "parsed": 553,
+    "actual": 599,
+    "unweighted_pct": 92.32,
+    "html_nearest_label": 451,
+    "xml_dateOfEvent": 34,
+    "xml_eventDateRequiresFiling": 68,
+    "no_label": 35,
+    "label_no_date": 11
+  },
+  "family_overall": {
+    "13D": {
+      "n": 214,
+      "parsed": 205,
+      "weighted_coverage_pct": 96.0428,
+      "weighted_quarter_end_pct": 2.6303,
+      "weighted_median_lag_days": 4,
+      "weighted_p90_lag_days": 21,
+      "max_lag_days": 921
+    },
+    "13G": {
+      "n": 385,
+      "parsed": 348,
+      "weighted_coverage_pct": 90.7332,
+      "weighted_quarter_end_pct": 76.4355,
+      "weighted_median_lag_days": 40,
+      "weighted_p90_lag_days": 45,
+      "max_lag_days": 379
+    }
+  },
+  "cohorts": {
+    "13D_initial": {
+      "n": 86,
+      "parsed": 82,
+      "weighted_coverage_pct": 95.7005,
+      "weighted_quarter_end_pct": 3.4855,
+      "weighted_median_lag_days": 10,
+      "weighted_p90_lag_days": 48,
+      "max_lag_days": 921
+    },
+    "13D_amendment": {
+      "n": 128,
+      "parsed": 123,
+      "weighted_coverage_pct": 96.1427,
+      "weighted_quarter_end_pct": 2.3819,
+      "weighted_median_lag_days": 3,
+      "weighted_p90_lag_days": 17,
+      "max_lag_days": 313
+    },
+    "13G_initial": {
+      "n": 142,
+      "parsed": 131,
+      "weighted_coverage_pct": 92.9766,
+      "weighted_quarter_end_pct": 63.076,
+      "weighted_median_lag_days": 37,
+      "weighted_p90_lag_days": 47,
+      "max_lag_days": 379
+    },
+    "13G_amendment": {
+      "n": 243,
+      "parsed": 217,
+      "weighted_coverage_pct": 89.7874,
+      "weighted_quarter_end_pct": 82.2679,
+      "weighted_median_lag_days": 41,
+      "weighted_p90_lag_days": 45,
+      "max_lag_days": 181
+    }
+  },
+  "rule_subset_xml_13g": {
+    "n": 68,
+    "Rule 13d-1(b)": {
+      "n": 44,
+      "quarter_end_weighted_pct": 85.8018,
+      "weighted_median_lag_days": 36
+    },
+    "Rule 13d-1(c)": {
+      "n": 15,
+      "quarter_end_weighted_pct": 73.8397,
+      "weighted_median_lag_days": 43
+    },
+    "Rule 13d-1(d)": {
+      "n": 9,
+      "quarter_end_weighted_pct": 55.5993,
+      "weighted_median_lag_days": 38
+    }
+  },
+  "amendment_markers": {
+    "index_A": 371,
+    "cover_positive": 376,
+    "cover_zero": 4,
+    "cover_missing": 219,
+    "index_not_A_but_cover_positive": 11,
+    "index_A_without_positive_cover": 6
+  },
+  "additional": {
+    "same_day_event_filing": 31,
+    "future_event_dates": 0,
+    "lag_over_90_days": 19,
+    "lag_over_365_days": 3
+  },
+  "controls": {
+    "alpha_test": false,
+    "forward_returns": false,
+    "bootstrap_loo": false,
+    "holdout_used": false,
+    "production_changed": false,
+    "f80_changed": false
+  }
+}
