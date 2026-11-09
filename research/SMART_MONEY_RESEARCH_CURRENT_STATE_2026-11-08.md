@@ -24,7 +24,7 @@
 
 ## Conditional source candidates
 
-- **SEC 13D/G:** Phase 225 shows 13D and 13G event-date mechanics differ materially; keep them separate. Phase 226 recovers the family-specific group flags, but the flags are sparse and are not unique group IDs. Missing is unknown, not no group; ownership rows remain non-additive. Amendment state, owner identity and effective-dated security identity still block any economic test.
+- **SEC 13D/G:** Phase 225 shows 13D and 13G event-date mechanics differ materially; keep them separate. Phase 226 recovered family-specific group flags, but Phase 227 found its repeated-signature totals included all-zero tuples. Correct positive repeated-signature filings are 20/34 13D and 21/68 13G; zero signatures are separate. Group flags remain contextual, not unique group IDs. Amendment state, owner identity and effective-dated security identity still block any economic test.
 - **Form 144:** daily PIT clock is conservatively the first XNYS session after SEC filing date. Signal is not admitted: seller/security-class identity, historical active/delisted universe, independent PIT shares/float and ADV remain unresolved. Form 144 is a proposed sale notice, not execution.
 - **N-PORT short exposure:** distinct short-quantity hypothesis is preregistered, but the 23-row example is purposive and from one filing. Raw filing retrieval/hashes, series lineage, class/security identity and broad PIT coverage remain pending.
 - **Options:** Cboe C1 Open-Close EOD remains the leading conditional participant-capacity source; C1-only, not whole OPRA, and historical first-receipt/correction vintages are not established. IvyDB Open Interest / TradeFlow remain conditional candidates; no purchase or alpha admission.
@@ -58,7 +58,18 @@ No candidate becomes a model feature until historical coverage, ex-ante availabi
 
 - Re-downloaded Phase 124 artifact 13436764625 and verified ZIP SHA-256 85f69e083b5af65731c9bcfe24e8c75821fc0f2c2476bfa8ba573e2e884570dc, CSV SHA-256 be2c592c6c26d9f1ea49bda5d29d20e944004b2e2f4a3c3f4fe1f732319c55d5, and all 102 XML-bearing raw submission hashes.
 - 310 reporting-person blocks: 33 affirmative group flags, 108 disclaimer/relationship flags and 169 unreported. Only 5/102 filings affirm group membership; 75/102 have all group flags unreported.
-- Repeated ownership signatures occur in 21/34 13D and 27/68 13G filings. Repeated tuples remain non-additive; no positions were summed. Group flags do not establish a unique beneficial-owner graph.
+- Phase 226's 21/34 13D and 27/68 13G repeated-signature filing counts included zero-only repetitions. Phase 227 separates 50 positive repeated-signature groups from 8 all-zero groups; positive-repeat filings are 20/34 13D and 21/68 13G. Group flags do not establish a unique beneficial-owner graph.
 - 13G reporting-person CIK remains absent in 158/158 owner blocks; group flags do not repair identity.
 - Local validation: 14/14 tests passed, including full integration against the hash-pinned Phase 124 artifact. No hosted Phase 226 Actions run is claimed.
 - No returns, alpha, bootstrap/LOO, holdout, vendor purchase, production or F80 change.
+
+
+## Phase 227 — zero-signature exclusion and source-linked overlap adjudication
+
+- Re-downloaded Phase 124 run 42073725379 / artifact 13436764625; ZIP SHA-256 85f69e083b5af65731c9bcfe24e8c75821fc0f2c2476bfa8ba573e2e884570dc and CSV SHA-256 be2c592c6c26d9f1ea49bda5d29d20e944004b2e2f4a3c3f4fe1f732319c55d5 verified; all 102 XML-bearing raw-submission hashes reverified.
+- 58 repeated signature groups split into 50 positive groups (162 owner rows) and 8 all-zero groups (27 rows). Of 48 filings with any repeat, 41 have a positive repeated group, 7 are zero-only, and one 13G filing has both positive and zero groups.
+- Positive-repeat filings: 20/34 13D and 21/68 13G. Seven zero-only filings: Mobiquity, Instructure, Endeavor, SatixFy, CARGO Therapeutics, BlackRock MuniVest Fund II and Palisade Bio; Savara is the mixed 13G case.
+- Twelve source-linked examples reviewed. Eight support common-holder/adviser/GP/trustee attribution; Korsana is a multi-fund/instrument group aggregate; Vislink and Plum remain unresolved; Mobiquity is a zero-position control. Never sum repeated reporting-person rows.
+- Group flags a, b and missing all appear among overlap examples; they are not a deduplication key. Joint filing alone is not proof of a unique group or additive positions.
+- Local validation: 7/7 tests passed, including full integration against the hash-pinned 102-document sample. No hosted Phase 227 Actions run is claimed.
+- No forward returns, alpha, bootstrap/LOO, final holdout, vendor purchase, production, universe or F80 change.
