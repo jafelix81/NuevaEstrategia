@@ -1,0 +1,39 @@
+name: Phase 240 CFTC BPR/TFF PIT state-machine regression
+
+on:
+  pull_request:
+    branches: [phase99-broad-pit-universe-charter]
+    paths:
+      - "research/phase234_cftc_bpr_capture.py"
+      - "research/test_phase234_cftc_bpr_capture.py"
+      - "research/phase239_cftc_tff_prospective_capture.py"
+      - "research/test_phase239_cftc_tff_prospective_capture.py"
+      - ".github/workflows/phase240_cftc_pit_state_guard.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase240-cftc-pit-state-guard
+  cancel-in-progress: false
+
+jobs:
+  state-machine-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile CFTC capture code and tests
+        run: |
+          python -m py_compile \
+            research/phase234_cftc_bpr_capture.py \
+            research/test_phase234_cftc_bpr_capture.py \
+            research/phase239_cftc_tff_prospective_capture.py \
+            research/test_phase239_cftc_tff_prospective_capture.py
+      - name: Run BPR capture regression tests
+        run: python -m unittest -v research.test_phase234_cftc_bpr_capture
+      - name: Run TFF capture regression tests
+        run: python -m unittest -v research.test_phase239_cftc_tff_prospective_capture
