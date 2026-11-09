@@ -133,3 +133,9 @@
 - 29/29 local tests passed, including four official sample rows, 87-field schema, stream/date/duplicate/numeric gates, missing-versus-zero counts, EST/EDT timing, baseline/revision/manual classification, gzip round-trip and index deduplication. No hosted Phase 239 CI run is claimed.
 - No live capture was executed and no raw TFF snapshot has been persisted. The workflow remains inactive until the stacked PR chain reaches the default branch. No return test, alpha admission, holdout use, data purchase, production change or universe change.
 - [Phase 239 report](PHASE239_CFTC_TFF_PROSPECTIVE_CAPTURE_AND_PUBLICATION_REGIME_AUDIT_2026-11-09.md) · [capture code](phase239_cftc_tff_prospective_capture.py) · [tests](test_phase239_cftc_tff_prospective_capture.py) · [result](phase239_cftc_tff_prospective_capture_result.json)
+
+
+### Phase 241 — FINRA API versioning is not historical row-vintage recovery
+- FINRA's Query API Data Versioning (announced 2025-10-16) versions field structure/data representation for backward compatibility; it is not an as-of query or archive of prior row values. The `weeklySummaryHistoric` endpoint provides older reporting periods, not earlier published payload vintages.
+- Phase 117's FINRA ATS/OTC revision problem therefore remains unresolved: current final values cannot be backdated to initial publication, and future-known revision status cannot be used as a filter. Keep FINRA ATS/OTC conditional/context-only; no new return test is authorized.
+- Prospective immutable response capture can preserve future states only; it cannot reconstruct missing historical values. See [Phase 241](PHASE241_FINRA_API_SCHEMA_VERSIONING_VS_DATA_VINTAGES_2026-11-09.md).
