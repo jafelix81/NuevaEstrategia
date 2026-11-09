@@ -108,8 +108,8 @@ def build_capture_metadata(
         "report_date": report_date,
         "report_url": report_url,
         "report_sha256": report_sha256,
-        "first_observed_by_capture_pipeline_utc": _iso_z(receipt_time),
-        "first_observed_by_capture_pipeline_et": receipt_et.isoformat(),
+        "observed_at_utc": _iso_z(receipt_time),
+        "observed_at_et": receipt_et.isoformat(),
         "event_name": event_name,
         "pit_eligible_from_pipeline_receipt": bool(scheduled_window),
         "pit_rule": (
@@ -170,7 +170,7 @@ def capture_latest(
     scheduled_same_hash = [
         x for x in same_hash if x.get("pit_eligible_from_pipeline_receipt") is True
     ]
-    if scheduled_same_hash:
+    if event_name == "schedule" and scheduled_same_hash:
         return {
             "status": "UNCHANGED_ALREADY_CAPTURED",
             "report_date": report_date,
@@ -178,8 +178,17 @@ def capture_latest(
             "new_snapshot": False,
             "pit_eligible_from_pipeline_receipt": False,
         }
+    if event_name != "schedule" and same_hash:
+        return {
+            "status": "UNCHANGED_NON_PIT_VERSION",
+            "report_date": report_date,
+            "report_sha256": digest,
+            "new_snapshot": False,
+            "pit_eligible_from_pipeline_receipt": False,
+        }
 
     revision = bool(existing and not same_hash)
+    prior_manual_same_hash = bool(same_hash and not scheduled_same_hash and event_name == "schedule")
     raw_dir = root / "data" / "cftc_bpr" / "raw"
     meta_dir = root / "data" / "cftc_bpr" / "metadata"
     raw_dir.mkdir(parents=True, exist_ok=True)
@@ -201,14 +210,23 @@ def capture_latest(
         workflow_run_attempt=env.get("GITHUB_RUN_ATTEMPT"),
         workflow_sha=env.get("GITHUB_SHA"),
     )
-    metadata["receipt_kind"] = "NEW_REVISION" if revision else "FIRST_PIPELINE_OBSERVATION"
+    if revision:
+        metadata["receipt_kind"] = "NEW_REVISION"
+    elif prior_manual_same_hash:
+        metadata["receipt_kind"] = "FIRST_SCHEDULED_RECEIPT_OF_PREVIOUSLY_SEEN_VERSION"
+    else:
+        metadata["receipt_kind"] = "FIRST_PIPELINE_OBSERVATION"
     metadata["raw_snapshot_path"] = str(raw_path.relative_to(root))
     stamp = receipt_time.astimezone(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     meta_path = meta_dir / f"{report_date}__{digest[:12]}__{event_name}__{stamp}.json"
     meta_path.write_text(json.dumps(metadata, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
     return {
-        "status": "NEW_REVISION_CAPTURED" if revision else "NEW_REPORT_VERSION_CAPTURED",
+        "status": (
+            "NEW_REVISION_CAPTURED" if revision else
+            "FIRST_SCHEDULED_RECEIPT_CAPTURED" if prior_manual_same_hash else
+            "NEW_REPORT_VERSION_CAPTURED"
+        ),
         "report_date": report_date,
         "report_sha256": digest,
         "new_snapshot": True,
