@@ -1,0 +1,64 @@
+name: Phase 198 SEC MIDAS archive inventory and disputed-quarter probe
+
+on:
+  pull_request:
+    types: [synchronize]
+    branches: [main]
+    paths:
+      - "research/phase198_sec_midas_archive_inventory.py"
+      - "research/test_phase198_sec_midas_archive_inventory.py"
+      - "research/PHASE198_SEC_MIDAS_ARCHIVE_AND_SEMANTIC_ADMISSION_AUDIT_2026-11-07.md"
+      - ".github/workflows/phase198_sec_midas_archive_inventory.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase198-sec-midas-archive-inventory
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile audit and tests
+        run: |
+          python -m py_compile research/phase198_sec_midas_archive_inventory.py research/test_phase198_sec_midas_archive_inventory.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase198_sec_midas_archive_inventory
+      - name: Fetch SEC archive index and range-probe disputed ZIP assets
+        run: python -m research.phase198_sec_midas_archive_inventory --output-dir phase198_output
+      - name: Validate archive-only and frozen controls
+        run: |
+          python - <<'PY'
+          import json
+          p = "phase198_output/phase198_sec_midas_archive_inventory.json"
+          s = json.load(open(p, encoding="utf-8"))
+          assert s["phase"] == 198
+          assert s["status"] == "SEC_ARCHIVE_INDEX_COMPLETE_AND_DISPUTED_ZIPS_REACHABLE"
+          assert s["archive_quarter_count"] == 58
+          assert s["release_anchor_count"] == 3
+          assert s["interpretation"]["range_probe_only"] is True
+          assert s["interpretation"]["full_zip_downloaded"] is False
+          assert s["interpretation"]["strict_pit_admitted"] is False
+          assert s["interpretation"]["alpha_test_authorized"] is False
+          assert s["interpretation"]["holdout_used"] is False
+          assert s["interpretation"]["production_changed"] is False
+          assert s["interpretation"]["f80_frozen"] is True
+          print("PHASE198_STATUS=" + s["status"])
+          print("PHASE198_QUARTERS=" + str(s["archive_quarter_count"]))
+          print("PHASE198_DISPUTED_PROBES=" + json.dumps(s["disputed_quarter_probes"], sort_keys=True))
+          PY
+      - name: Upload metadata-only audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase198-sec-midas-archive-inventory
+          path: phase198_output/phase198_sec_midas_archive_inventory.json
+          if-no-files-found: error
+          retention-days: 90

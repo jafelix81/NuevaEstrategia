@@ -1,0 +1,83 @@
+name: Phase 210 Form 144/Form 4 linkage placebos and price concordance
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'research/phase210_form144_form4_permutation_placebo_audit.py'
+      - 'research/test_phase210_form144_form4_permutation_placebo_audit.py'
+      - 'research/PHASE210_FORM144_FORM4_CONDITIONAL_PERMUTATION_PLACEBO_AUDIT_2026-11-08.md'
+      - 'research/phase210_form144_form4_permutation_placebo_audit_result.json'
+      - '.github/workflows/phase210_form144_form4_permutation_placebo_audit.yml'
+      - 'research/phase209_form144_form4_exact_first_matching_audit.py'
+      - 'research/test_phase209_form144_form4_exact_first_matching_audit.py'
+      - '.github/workflows/phase209_form144_form4_exact_first_matching_audit.yml'
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Download immutable Phase 69 Form 144 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: phase69-form144-incremental-fund-registrant-scan
+          repository: ${{ github.repository }}
+          run-id: 41959603351
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: phase210_input/form144
+      - name: Download immutable Phase 39 Form 4 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: phase39-sec-form4-actual-file-audit
+          repository: ${{ github.repository }}
+          run-id: 40606706518
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: phase210_input/form4
+      - name: Run Phase 209 and Phase 210 regression tests
+        run: |
+          python -m unittest discover -s research -p 'test_phase209_form144_form4_exact_first_matching_audit.py' -v
+          python -m unittest discover -s research -p 'test_phase210_form144_form4_permutation_placebo_audit.py' -v
+      - name: Reproduce Phase 209 exact-first linkage
+        run: python -m research.phase209_form144_form4_exact_first_matching_audit --form144-csv phase210_input/form144/expanded_issuer_event_raw.csv --form4-zip phase210_input/form4/2026q3_form345.zip --output phase210_output/phase209_form144_form4_exact_first_matching_audit_result.json
+      - name: Reproduce Phase 210 linkage, price and permutation audit
+        run: python -m research.phase210_form144_form4_permutation_placebo_audit --form144-csv phase210_input/form144/expanded_issuer_event_raw.csv --form4-zip phase210_input/form4/2026q3_form345.zip --output phase210_output/phase210_form144_form4_permutation_placebo_audit_result.json --permutations 500 --seed 210
+      - name: Enforce immutable inputs, price, permutation and no-alpha controls
+        run: |
+          python - <<'PY'
+          import json
+          p209=json.load(open('phase210_output/phase209_form144_form4_exact_first_matching_audit_result.json'))
+          x=json.load(open('phase210_output/phase210_form144_form4_permutation_placebo_audit_result.json'))
+          assert p209['exact_edge_graph']['mutually_unique_edges'] == 521
+          assert x['exact_link_graph']['mutually_unique_edges'] == 521
+          assert x['exact_link_graph']['class_family_agree'] == 481
+          assert x['exact_link_graph']['normalized_class_text_equal'] == 52
+          assert x['exact_link_graph']['family_conflict_or_unknown'] == 40
+          assert x['price_concordance']['exact_links']['priced_matches'] == 521
+          assert x['price_concordance']['exact_links']['within_5pct'] == 521
+          assert x['price_concordance']['fallback_links']['within_5pct'] == 44
+          assert x['plan_flag_concordance']['concordant'] == 512
+          assert x['permutation_audit']['replicates'] == 500
+          assert x['permutation_audit']['placebos']['owner_identity_within_issuer']['null_replicates_at_or_above_observed'] == 0
+          assert x['permutation_audit']['placebos']['date_within_issuer_owner']['null_replicates_at_or_above_observed'] == 0
+          assert x['permutation_audit']['placebos']['shares_within_issuer_owner']['null_replicates_at_or_above_observed'] == 0
+          assert x['permutation_audit']['placebos']['date_and_shares_within_issuer_owner']['null_replicates_at_or_above_observed'] == 0
+          assert x['permutation_audit']['placebos']['price_within_5pct_within_issuer_owner']['null_replicates_at_or_above_observed'] == 0
+          assert x['decision']['strict_pit_admitted'] is False
+          assert x['decision']['alpha_test_authorized'] is False
+          assert x['decision']['holdout_used'] is False
+          assert x['decision']['f80_frozen'] is True
+          print('Phase 209/210 linkage, price, permutation and no-alpha invariants passed.')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: phase210-form144-form4-linkage-placebo-audit
+          path: phase210_output/*.json
+          if-no-files-found: error
+          retention-days: 90

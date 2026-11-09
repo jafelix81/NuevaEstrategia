@@ -1,0 +1,405 @@
+{
+  "phase": 218,
+  "audit_as_of": "2026-11-08",
+  "status": "PUBLICATION_AND_FIELD_SEMANTICS_AUDIT_PASS_NO_ALPHA",
+  "official_sec_archive": {
+    "page": "https://www.sec.gov/data-research/sec-markets-data/form-n-port-data-sets",
+    "history_start": "2019-10-01",
+    "history_end": "2026-09-30",
+    "quarter_count": 28,
+    "latest_archive": "2026 Q3",
+    "latest_archive_size_mb_decimal": 440.95,
+    "last_reviewed_or_updated": "2026-09-30",
+    "update_frequency": "quarterly",
+    "after_1730_et_last_business_day_of_quarter": "included_in_next_quarterly_posting"
+  },
+  "data_gov_catalog_comparison": {
+    "page": "https://catalog.data.gov/dataset/form-n-port-data-sets",
+    "resource_count": 27,
+    "history_end": "2026-06-30",
+    "discrepancy": "catalog is one quarterly archive behind the current SEC page"
+  },
+  "public_disclosure_regime": {
+    "reports_are_monthly": "yes",
+    "public_data_sets_are_quarterly": "yes",
+    "first_two_months_of_fund_quarter_public": "no",
+    "third_month_report_public_upon_filing": "yes",
+    "current_regime_as_of_audit": "quarterly public dissemination",
+    "2024_monthly_reporting_amendments_compliance_large_fund_groups": "2027-11-17",
+    "2024_monthly_reporting_amendments_compliance_small_fund_groups": "2028-05-18",
+    "federal_register_source": "https://www.govinfo.gov/content/pkg/FR-2025-04-22/html/2025-06861.htm",
+    "2024_monthly_reporting_amendments_effective_date": "2027-11-17",
+    "quarterly_dataset_cutoff_note": "SEC README states documents filed after 5:30 p.m. EST on the last business day of a quarter are included in the next quarterly posting."
+  },
+  "readme_semantics": {
+    "readme_url": "https://www.sec.gov/files/nport_readme.pdf",
+    "as_filed_data": "yes",
+    "amendments_included": "yes",
+    "possible_redundancies_inconsistencies": "yes",
+    "submission_primary_key": "ACCESSION_NUMBER",
+    "fund_reported_holding_key": [
+      "ACCESSION_NUMBER",
+      "HOLDING_ID"
+    ],
+    "securities_lending_key": [
+      "HOLDING_ID"
+    ],
+    "securities_lending_fields": [
+      "IS_LOAN_BY_FUND",
+      "LOAN_VALUE"
+    ],
+    "borrower_table_key": [
+      "ACCESSION_NUMBER",
+      "BORROWER_ID"
+    ],
+    "borrower_aggregate_value_scope": "aggregate value of all securities on loan to that borrower",
+    "security_level_borrower_to_holding_link": "not documented in the readme table schema",
+    "short_position_fields": [
+      "PAYOFF_PROFILE",
+      "BALANCE",
+      "CURRENCY_VALUE",
+      "PERCENTAGE",
+      "ISSUER_CUSIP",
+      "IDENTIFIER_ISIN",
+      "IDENTIFIER_TICKER"
+    ],
+    "securities_lending_interpretation": "fund-reported holdings already on loan; not total lendable supply or borrow demand"
+  },
+  "filing_lag_sample": {
+    "design": "purposive, search-indexed SEC filing-index sample; descriptive only, not random or representative",
+    "count": 25,
+    "lag_calendar_days_summary": {
+      "min": 17,
+      "median": 59,
+      "max": 60
+    },
+    "filings": [
+      {
+        "accession": "0001752724-20-067889",
+        "cik": "736054",
+        "report_date": "2020-01-31",
+        "filing_date": "2020-03-31",
+        "acceptance_et": "2020-03-31T15:07:53",
+        "form": "NPORT-P",
+        "description": "Vanguard Star Funds",
+        "report_to_filing_calendar_days": 60,
+        "index_url": "https://www.sec.gov/Archives/edgar/data/736054/000175272420067889/"
+      },
+      {
+        "accession": "0001752724-21-068625",
+        "cik": "745463",
+        "report_date": "2021-01-31",
+        "filing_date": "2021-03-31",
+        "acceptance_et": "2021-03-31T10:57:56",
+        "form": "NPORT-P",
+        "description": "Vanguard Total International Stock Index Fund",
+        "report_to_filing_calendar_days": 59,
+        "index_url": "https://www.sec.gov/Archives/edgar/data/745463/000175272421068625/"
+      },
+      {
+        "accession": "0001752724-22-078880",
+        "cik": "1039803",
+        "report_date": "2022-01-31",
+        "filing_date": "2022-03-31",
+        "acceptance_et": "2022-03-31T09:39:48",
+        "form": "NPORT-P",
+        "description": "Semiconductor UltraSector ProFund",
+        "report_to_filing_calendar_days": 59,
+        "index_url": "https://www.sec.gov/Archives/edgar/data/1039803/000175272422078880/"
+      },
+      {
+        "accession": "0001752724-22-120128",
+        "cik": "880195",
+        "report_date": "2022-03-31",
+        "filing_date": "2022-05-25",
+        "acceptance_et": "2022-05-25T12:02:20",
+        "form": "NPORT-P",
+        "description": "SEC filing sample 2022",
+        "report_to_filing_calendar_days": 55,
+        "index_url": "https://www.sec.gov/Archives/edgar/data/880195/000175272422120128/"
+      },
+      {
+        "accession": "0001145549-22-030043",
+        "cik": "2110",
+        "report_date": "2022-03-31",
+        "filing_date": "2022-05-25",
+        "acceptance_et": "2022-05-25T09:28:56",
+        "form": "NPORT-P",
+        "description": "SEC filing sample 2022",
+        "report_to_filing_calendar_days": 55,
+        "index_url": "https://www.sec.gov/Archives/edgar/data/2110/000114554922030043/"
+      },
+      {
+        "accession": "0001145549-22-030089",
+        "cik": "773757",
+        "report_date": "2022-03-31",
+        "filing_date": "2022-05-25",
+        "acceptance_et": "2022-05-25T09:32:58",
+        "form": "NPORT-P",
+        "description": "SEC filing sample 2022",
+        "report_to_filing_calendar_days": 55,
+        "index_url": "https://www.sec.gov/Archives/edgar/data/773757/000114554922030089/"
+      },
+      {
+        "accession": "0001752724-23-115973",
+        "cik": "1722388",
+        "report_date": "2023-03-31",
+        "filing_date": "2023-05-25",
+        "acceptance_et": "2023-05-25T13:15:56",
+        "form": "NPORT-P",
+        "description": "SEC filing sample 2023",
+        "report_to_filing_calendar_days": 55,
+        "index_url": "https://www.sec.gov/Archives/edgar/data/1722388/000175272423115973/"
+      },
+      {
+        "accession": "0001752724-24-123298",
+        "cik": "1100663",
+        "report_date": "2024-03-31",
+        "filing_date": "2024-05-28",
+        "acceptance_et": "2024-05-28T14:51:14",
+        "form": "NPORT-P",
+        "description": "iShares Trust",
+        "report_to_filing_calendar_days": 58,
+        "index_url": "https://www.sec.gov/Archives/edgar/data/1100663/000175272424123298/"
+      },
+      {
+        "accession": "0000810893-24-002680",
+        "cik": "810893",
+        "report_date": "2024-03-31",
+        "filing_date": "2024-05-29",
+        "acceptance_et": "2024-05-29T10:31:12",
+        "form": "NPORT-P",
+        "description": "PIMCO Funds",
+        "report_to_filing_calendar_days": 59,
+        "index_url": "https://www.sec.gov/Archives/edgar/data/810893/000081089324002680/"
+      },
+      {
+        "accession": "0001145549-24-033505",
+        "cik": "1683471",
+        "report_date": "2024-03-31",
+        "filing_date": "2024-05-29",
+        "acceptance_et": "2024-05-29T14:59:42",
+        "form": "NPORT-P",
+        "description": "TrueShares Structured Outcome (June) ETF",
+        "report_to_filing_calendar_days": 59,
+        "index_url": "https://www.sec.gov/Archives/edgar/data/1683471/000114554924033505/"
+      },
+      {
+        "accession": "0001145549-25-007574",
+        "cik": "1113229",
+        "report_date": "2024-12-31",
+        "filing_date": "2025-02-19",
+        "acceptance_et": "2025-02-19T16:53:44",
+        "form": "NPORT-P",
+        "description": "Kinetics Small Cap Portfolio",
+        "report_to_filing_calendar_days": 50,
+        "index_url": "https://www.sec.gov/Archives/edgar/data/1113229/000114554925007574/"
+      },
+      {
+        "accession": "0001145549-25-022700",
+        "cik": "1415726",
+        "report_date": "2025-01-31",
+        "filing_date": "2025-03-31",
+        "acceptance_et": "2025-03-31T13:10:47",
+        "form": "NPORT-P",
+        "description": "SEC filing sample 2025",
+        "report_to_filing_calendar_days": 59,
+        "index_url": "https://www.sec.gov/Archives/edgar/data/1415726/000114554925022700/"
+      },
+      {
+        "accession": "0001145549-25-022613",
+        "cik": "1415726",
+        "report_date": "2025-01-31",
+        "filing_date": "2025-03-31",
+        "acceptance_et": "2025-03-31T13:09:15",
+        "form": "NPORT-P",
+        "description": "SEC filing sample 2025",
+        "report_to_filing_calendar_days": 59,
+        "index_url": "https://www.sec.gov/Archives/edgar/data/1415726/000114554925022613/"
+      },
+      {
+        "accession": "0001752724-25-082708",
+        "cik": "702435",
+        "report_date": "2025-03-31",
+        "filing_date": "2025-04-17",
+        "acceptance_et": "2025-04-17T09:41:32",
+        "form": "NPORT-P",
+        "description": "SEC filing sample 2025",
+        "report_to_filing_calendar_days": 17,
+        "index_url": "https://www.sec.gov/Archives/edgar/data/702435/000175272425082708/"
+      },
+      {
+        "accession": "0001752724-25-125091",
+        "cik": "1064641",
+        "report_date": "2025-03-31",
+        "filing_date": "2025-05-28",
+        "acceptance_et": "2025-05-28T13:34:02",
+        "form": "NPORT-P",
+        "description": "SEC filing sample 2025",
+        "report_to_filing_calendar_days": 58,
+        "index_url": "https://www.sec.gov/Archives/edgar/data/1064641/000175272425125091/"
+      },
+      {
+        "accession": "0001752724-25-124153",
+        "cik": "1217286",
+        "report_date": "2025-03-31",
+        "filing_date": "2025-05-28",
+        "acceptance_et": "2025-05-28T11:46:31",
+        "form": "NPORT-P",
+        "description": "SEC filing sample 2025",
+        "report_to_filing_calendar_days": 58,
+        "index_url": "https://www.sec.gov/Archives/edgar/data/1217286/000175272425124153/"
+      },
+      {
+        "accession": "0001145549-25-034289",
+        "cik": "756913",
+        "report_date": "2025-03-31",
+        "filing_date": "2025-05-29",
+        "acceptance_et": "2025-05-29T10:27:41",
+        "form": "NPORT-P",
+        "description": "SEC filing sample 2025",
+        "report_to_filing_calendar_days": 59,
+        "index_url": "https://www.sec.gov/Archives/edgar/data/756913/000114554925034289/"
+      },
+      {
+        "accession": "0001145549-25-034330",
+        "cik": "1331971",
+        "report_date": "2025-03-31",
+        "filing_date": "2025-05-29",
+        "acceptance_et": "2025-05-29T10:29:25",
+        "form": "NPORT-P",
+        "description": "SEC filing sample 2025",
+        "report_to_filing_calendar_days": 59,
+        "index_url": "https://www.sec.gov/Archives/edgar/data/1331971/000114554925034330/"
+      },
+      {
+        "accession": "0001145549-25-035291",
+        "cik": "1316506",
+        "report_date": "2025-03-31",
+        "filing_date": "2025-05-29",
+        "acceptance_et": "2025-05-29T12:12:25",
+        "form": "NPORT-P",
+        "description": "Clipper Fund",
+        "report_to_filing_calendar_days": 59,
+        "index_url": "https://www.sec.gov/Archives/edgar/data/1316506/000114554925035291/"
+      },
+      {
+        "accession": "0001752724-25-128454",
+        "cik": "872323",
+        "report_date": "2025-03-31",
+        "filing_date": "2025-05-29",
+        "acceptance_et": "2025-05-29T15:25:37",
+        "form": "NPORT-P",
+        "description": "SEC filing sample 2025",
+        "report_to_filing_calendar_days": 59,
+        "index_url": "https://www.sec.gov/Archives/edgar/data/872323/000175272425128454/"
+      },
+      {
+        "accession": "0001752724-25-128920",
+        "cik": "1447247",
+        "report_date": "2025-03-31",
+        "filing_date": "2025-05-29",
+        "acceptance_et": "2025-05-29T16:11:41",
+        "form": "NPORT-P",
+        "description": "Partners Group Private Equity (Master Fund), LLC",
+        "report_to_filing_calendar_days": 59,
+        "index_url": "https://www.sec.gov/Archives/edgar/data/1447247/000175272425128920/"
+      },
+      {
+        "accession": "0001145549-25-036462",
+        "cik": "1660935",
+        "report_date": "2025-03-31",
+        "filing_date": "2025-05-29",
+        "acceptance_et": "2025-05-29T14:03:48",
+        "form": "NPORT-P",
+        "description": "SEC filing sample 2025",
+        "report_to_filing_calendar_days": 59,
+        "index_url": "https://www.sec.gov/Archives/edgar/data/1660935/000114554925036462/"
+      },
+      {
+        "accession": "0001145549-25-037369",
+        "cik": "1976322",
+        "report_date": "2025-03-31",
+        "filing_date": "2025-05-30",
+        "acceptance_et": "2025-05-30T11:35:36",
+        "form": "NPORT-P",
+        "description": "SEC filing sample 2025",
+        "report_to_filing_calendar_days": 60,
+        "index_url": "https://www.sec.gov/Archives/edgar/data/1976322/000114554925037369/"
+      },
+      {
+        "accession": "0001145549-25-052151",
+        "cik": "1113229",
+        "report_date": "2025-06-30",
+        "filing_date": "2025-08-21",
+        "acceptance_et": "2025-08-21T10:03:30",
+        "form": "NPORT-P",
+        "description": "Kinetics Global Portfolio",
+        "report_to_filing_calendar_days": 52,
+        "index_url": "https://www.sec.gov/Archives/edgar/data/1113229/000114554925052151/"
+      },
+      {
+        "accession": "0001145549-25-052238",
+        "cik": "356476",
+        "report_date": "2025-06-30",
+        "filing_date": "2025-08-21",
+        "acceptance_et": "2025-08-21T10:46:46",
+        "form": "NPORT-P",
+        "description": "Empower Lifetime 2065 Fund",
+        "report_to_filing_calendar_days": 52,
+        "index_url": "https://www.sec.gov/Archives/edgar/data/356476/000114554925052238/"
+      }
+    ],
+    "index_link_note": "Directory URLs are used because SEC filing index filenames vary between .htm and .html."
+  },
+  "phase217_reassessment": {
+    "accession": "0001145549-25-033457",
+    "report_date": "2025-03-31",
+    "accepted_et": "2025-05-28T16:04:35",
+    "report_to_filing_calendar_days": 58,
+    "selected_short_rows": 23,
+    "selected_sample_is_exhaustive": false,
+    "raw_submission_sha256_verified": false,
+    "raw_primary_xml_sha256_verified": false,
+    "first_public_receipt_capture_verified": false,
+    "prevalence_estimated": false,
+    "primary_doc_rendered_html_url": "https://www.sec.gov/Archives/edgar/data/1467631/000114554925033457/xslFormNPORT-P_X01/primary_doc.xml"
+  },
+  "research_decision": {
+    "separate_hypotheses": [
+      "lagged_public_fund_short_exposure_changes",
+      "fund_reported_loaned_out_holding_changes"
+    ],
+    "borrower_aggregate_is_not_security_level_borrow_demand": true,
+    "nport_signal_admitted": false,
+    "alpha_test_authorized": false,
+    "holdout_used": false,
+    "production_changed": false,
+    "data_purchase": false,
+    "vendor_contact": false,
+    "f80_frozen": true,
+    "holdout_status": "CONSUMED_NOT_PRISTINE",
+    "decision": "N-PORT remains a conditional source candidate. The official SEC archive has 28 quarterly datasets through 2026 Q3; Data.gov's catalog is one quarter stale. Public filings remain quarterly and are materially lagged. Preserve every accession/amendment as an as-filed vintage. Direct short positions and fund-reported loaned-out holdings are distinct constructs. No alpha test is authorized until raw files, PIT acceptance/publication, series/amendment lineage, effective-dated listing identity and broad-universe coverage pass.",
+    "do_not_conflate_short_payoff_with_fund_loaned_out_holdings": true
+  },
+  "gates": {
+    "raw_submission_sha256": "NOT_VERIFIED",
+    "raw_primary_xml_sha256": "NOT_VERIFIED",
+    "first_public_receipt": "NOT_VERIFIED",
+    "complete_historical_raw_xml_panel": "NOT_ESTABLISHED",
+    "series_and_amendment_lineage": "NOT_ESTABLISHED",
+    "effective_dated_security_listing_crosswalk": "NOT_ESTABLISHED",
+    "broad_universe_coverage": "NOT_ESTIMATED",
+    "alpha_test_authorized": false,
+    "holdout_used": false,
+    "f80_frozen": true
+  },
+  "source_urls": {
+    "sec_data_sets": "https://www.sec.gov/data-research/sec-markets-data/form-n-port-data-sets",
+    "sec_readme": "https://www.sec.gov/files/nport_readme.pdf",
+    "data_gov_data_sets": "https://catalog.data.gov/dataset/form-n-port-data-sets",
+    "data_gov_rights": "https://catalog.data.gov/dataset/edgar-form-n-port",
+    "federal_register_delay": "https://www.govinfo.gov/content/pkg/FR-2025-04-22/html/2025-06861.htm",
+    "phase217_filing_index": "https://www.sec.gov/Archives/edgar/data/1467631/000114554925033457/0001145549-25-033457-index.html"
+  }
+}

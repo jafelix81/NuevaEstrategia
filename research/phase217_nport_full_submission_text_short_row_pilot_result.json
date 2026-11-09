@@ -1,0 +1,22 @@
+{
+  "phase": 217,
+  "status": "FULL_SUBMISSION_TEXT_ROW_PILOT_PASS_RAW_HASH_PENDING",
+  "accession": "0001145549-25-033457",
+  "fund_name": "ACAP Strategic Fund",
+  "period_of_report": "2025-03-31",
+  "accepted_et": "2025-05-28T16:04:35",
+  "report_to_filing_lag_calendar_days": 58,
+  "complete_submission_text_lines": 6256,
+  "complete_submission_text_size_bytes": 238101,
+  "primary_xml_size_bytes": 236779,
+  "selected_direct_short_common_equity_examples": 23,
+  "unique_cusips": 23,
+  "first_public_receipt_verified": false,
+  "raw_submission_sha256_verified": false,
+  "raw_primary_xml_sha256_verified": false,
+  "prevalence_estimated": false,
+  "alpha_test_authorized": false,
+  "holdout_used": false,
+  "f80_frozen": true,
+  "decision": "Keep N-PORT as a conditional registered-fund short-exposure hypothesis. One full submission text provides 23 selected line-referenced direct-short common-equity examples; raw hashes, first receipt, series lineage, security crosswalk, broad coverage and predictive value remain unverified."
+}

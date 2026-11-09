@@ -1,0 +1,53 @@
+name: Phase 204 SEC MIDAS methodology-aware reconciliation
+on:
+  pull_request:
+    types: [synchronize]
+    branches: [main]
+    paths:
+      - "research/phase204_sec_midas_methodology_aware_reconciliation.py"
+      - ".github/workflows/phase204_sec_midas_methodology_aware_reconciliation.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: phase204-sec-midas-methodology-aware-reconciliation
+  cancel-in-progress: false
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile and run offline parser tests
+        run: |
+          python -m py_compile research/phase204_sec_midas_methodology_aware_reconciliation.py
+          python -m research.phase204_sec_midas_methodology_aware_reconciliation --self-test
+      - name: Download and reconcile official SEC archive pairs
+        run: python -m research.phase204_sec_midas_methodology_aware_reconciliation --output-dir phase204_output
+      - name: Validate PIT and alpha controls
+        run: |
+          python - <<'PY'
+          import json
+          p="phase204_output/phase204_sec_midas_methodology_aware_reconciliation.json"
+          s=json.load(open(p,encoding="utf-8"))
+          assert s["phase"]==204 and s["aggregate_archive_quarter_count"]==58 and s["exchange_archive_quarter_count"]==58
+          assert len(s["quarter_results"])==3
+          for k in ("full_zip_crc_validated_for_all_six_archives","monthly_exchange_csvs_fully_parsed","readme_bytes_hashed_and_rule_lines_preserved","methodology_aware_candidate_variants_compared","f80_frozen"):
+              assert s["interpretation"][k] is True
+          for k in ("complete_universe_reconciliation","first_publication_time_verified","strict_pit_admitted","historical_permanent_security_identity_admitted","alpha_test_authorized","holdout_used","production_changed"):
+              assert s["interpretation"][k] is False
+          for q in s["quarter_results"]:
+              assert q["aggregate_archive"]["zip_crc_passed"] and q["exchange_archive"]["zip_crc_passed"]
+              assert q["readme"]["sha256"] and q["comparison"]["field_variants"]
+              print(q["quarter"], {f:{v:x["mismatch_count"] for v,x in z.items()} for f,z in q["comparison"]["field_variants"].items()})
+          PY
+      - name: Upload methodology-aware reconciliation audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase204-sec-midas-methodology-aware-reconciliation
+          path: phase204_output/phase204_sec_midas_methodology_aware_reconciliation.json
+          if-no-files-found: error
+          retention-days: 90

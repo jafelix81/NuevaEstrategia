@@ -1,0 +1,192 @@
+{
+  "phase": 181,
+  "title": "IvyDB TradeFlow measurement validity and preregistered falsification protocol",
+  "audit_date": "2026-11-07",
+  "status": "PREREGISTERED_NOT_DATA_ADMITTED",
+  "source_evidence": {
+    "product_launch_date": "2026-09-30",
+    "vendor_advertised_history_start": "2016-01",
+    "vendor_advertised_scope": "Every US option across all US options exchanges; not independently sample-verified",
+    "methodology_example": {
+      "session": "SPY options, 2026-06-17 FOMC session",
+      "midpoint_volume_share": 0.102,
+      "midpoint_direction_assignment_share": 0.999,
+      "overall_unclassified_volume_share": 0.001,
+      "interpretation": "Coverage/assignment rate in one vendor-selected session; not independently measured directional accuracy"
+    },
+    "historical_availability": {
+      "retrospective_backfill_claim": true,
+      "contemporaneous_trade_date_delivery_proven": false,
+      "first_receipt_vintages_proven": false,
+      "methodology_version_history_proven": false,
+      "participant_field_start": "UNRESOLVED",
+      "legacy_lot_size_field_start": "2021"
+    }
+  },
+  "measurement_semantics": {
+    "buy_sell": "Aggressor-side direction, not opening/closing position status",
+    "institutional_2": "Aggressive liquidity-demand proxy only; excludes passive, midpoint, patient position-building and market-making activity",
+    "institutional_1_nested_in_2": true,
+    "retail_1_2_3_mutually_exclusive_vendor_claim": true,
+    "beneficial_owner_identity": false,
+    "open_close_status": false,
+    "midpoint_is_subset_of_inside_nbbo": true,
+    "multi_leg_legs_signed_individually": true,
+    "unclassified_volume_retained": true,
+    "vendor_accuracy_independent_validation": false
+  },
+  "literature_interpretation": {
+    "pan_poteshman_2006": "Buyer-initiated opening-position option volume predicts underlying returns in a proprietary dataset; TradeFlow does not provide opening-position status and cannot reproduce that measure directly.",
+    "bryzgalova_pavlova_sikorskaya_2023": "Retail option imbalance predicts next-day underlying returns in their sample but not weekly/monthly returns; authors interpret the short-lived pattern as more consistent with intermediary hedging/price pressure than informed retail trading.",
+    "option_order_flow_inventory_risk_2015": "Inventory-risk effects can dominate asymmetric-information effects in option prices; directional imbalance must not automatically be labelled informed flow.",
+    "implication": "Continuation, transient price pressure and reversal are competing hypotheses; none is assumed."
+  },
+  "candidate_features_not_computed": [
+    {
+      "id": "all_signed_contract_imbalance",
+      "definition": "(buyer_initiated_contracts - seller_initiated_contracts) / total_contracts",
+      "guard": "Keep unclassified contracts in total_contracts and report unclassified_share separately; do not renormalize only classified volume."
+    },
+    {
+      "id": "all_signed_delta_notional",
+      "definition": "Sum((buy_contracts - sell_contracts) * effective_delta * effective_multiplier * contemporaneous_underlying_price)",
+      "guard": "Only use Greeks and multipliers known by the interval's actual availability timestamp; otherwise use contract-level measures or a preregistered lagged Greek."
+    },
+    {
+      "id": "institutional_2_aggressive_delta_flow",
+      "definition": "Institutional_2 buyer-initiated minus seller-initiated flow, delta-notional weighted where eligible.",
+      "guard": "Use Institutional_2 alone; never add Institutional_1 because it is nested."
+    },
+    {
+      "id": "retail_proxy_flows",
+      "definition": "Retail_1, Retail_2 and Retail_3 signed flows, first tested separately; optional aggregate only after raw-sample mutual-exclusivity validation.",
+      "guard": "Do not treat proxy labels as account identity or ground truth."
+    },
+    {
+      "id": "execution_quality_and_mechanism",
+      "definition": "Unclassified share, NBBO-location shares, condition-code mix, multi-leg share and venue concentration.",
+      "guard": "Midpoint is nested inside inside-NBBO; use at_NBBO + inside_NBBO + outside_NBBO for total. Test multi-leg flow separately."
+    }
+  ],
+  "hypotheses_not_tested": [
+    {
+      "id": "H1_information_continuation",
+      "claim": "Signed flow predicts underlying returns beyond prior returns, volatility, liquidity and event controls.",
+      "falsification": "No incremental effect after controls, unstable signs across chronological OOS periods, or effect confined to same-session returns."
+    },
+    {
+      "id": "H2_hedging_or_temporary_price_pressure",
+      "claim": "Flow predicts contemporaneous/very-short-horizon movement followed by reversal.",
+      "falsification": "No short-lived response or reversal after costs and liquidity controls."
+    },
+    {
+      "id": "H3_participant_proxy_heterogeneity",
+      "claim": "Institutional_2 aggressive-flow proxy has different persistence from Retail_1/2/3 proxies.",
+      "falsification": "No stable difference, or results depend on overlapping/nested buckets or historical field backfill."
+    },
+    {
+      "id": "H4_flow_x_volatility_surface",
+      "claim": "Flow adds information conditional on contemporaneous IV/skew/term structure.",
+      "falsification": "Interaction disappears when using only time-aligned Greeks or after controlling for IV repricing."
+    },
+    {
+      "id": "H5_execution_mechanism",
+      "claim": "Condition, NBBO-location and venue composition explain variation in flow's predictive content.",
+      "falsification": "No incremental effect beyond total flow, liquidity and market-regime controls."
+    }
+  ],
+  "controls_required": [
+    "same-session and lagged underlying returns",
+    "realized volatility and contemporaneous/prior IV level, skew and term structure",
+    "option volume, open interest, bid-ask spread and underlying dollar ADV",
+    "DTE, delta/moneyness, call/put and contract multiplier",
+    "earnings, corporate actions and scheduled macro-event indicators",
+    "multi-leg share, trade-condition mix, venue concentration and unclassified share",
+    "market beta, size, sector and market regime"
+  ],
+  "horizon_grid": [
+    "remainder of session where receipt-time intraday replay is valid",
+    "overnight / next session",
+    "5 trading sessions",
+    "20 trading sessions",
+    "60 trading sessions",
+    "120 trading sessions"
+  ],
+  "pit_rules": {
+    "event_time_is_not_availability_time": true,
+    "first_usable_time": "Maximum of TradeFlow first receipt, required Greek/underlying data first receipt, and effective-dated identity availability.",
+    "historical_backfill": "2016+ vendor backfill may support retrospective predictive research only after proving every input is event-time causal and methodology-stable; it does not prove a strategy could have received the proprietary feature live in 2016.",
+    "intraday": "Use only snapshots actually received by the decision timestamp; do not assume nominal interval end equals delivery time.",
+    "interval_semantics": "Do not difference, sum or treat snapshots as incremental until interval boundaries and cumulative-versus-incremental semantics are confirmed.",
+    "corrections": "Preserve each vintage; never replace a historical decision-time value with a later corrected file.",
+    "greeks": "Never use a later 15:45 Greek for an earlier interval; use contemporaneous received data or a preregistered prior snapshot.",
+    "identity": "Use effective-dated option and underlying identifiers, including expired/delisted contracts and corporate actions."
+  },
+  "admission_gates": [
+    {
+      "gate": "Raw sample across 2016, 2020, 2023 and 2026, including active and inactive/delisted underlyings",
+      "status": "BLOCKED"
+    },
+    {
+      "gate": "Complete data dictionary, exact interval boundaries and cumulative-versus-incremental semantics",
+      "status": "BLOCKED"
+    },
+    {
+      "gate": "First-publication/first-receipt timestamps and actual delivery latency",
+      "status": "BLOCKED"
+    },
+    {
+      "gate": "Immutable corrections, cancellations, late-trade and revision-vintage policy",
+      "status": "BLOCKED"
+    },
+    {
+      "gate": "Classifier methodology versions and historical backfill consistency",
+      "status": "BLOCKED"
+    },
+    {
+      "gate": "Per-field participant/lot-size history, especially 2016 versus 2021",
+      "status": "BLOCKED"
+    },
+    {
+      "gate": "Independent direction-label validation by trade condition, midpoint, venue and market regime",
+      "status": "BLOCKED"
+    },
+    {
+      "gate": "Effective-dated security/contract identity and delisted coverage",
+      "status": "BLOCKED"
+    },
+    {
+      "gate": "Pricing, internal-use license and derived-data rights",
+      "status": "BLOCKED"
+    }
+  ],
+  "validation_protocol": {
+    "baseline": "F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen; compare incremental signal with identical exposure and costs.",
+    "chronology": "Use repository-approved chronological development/validation splits; do not random-split time series.",
+    "robustness": "Date-block bootstrap, ticker/sector/year leave-one-out, regime stability and multiple-testing control.",
+    "economics": "Include executable equity or option costs, spread/slippage, turnover, capacity and borrow where applicable.",
+    "return_chasing": "Separate same-session price impact from next-session and longer-horizon continuation/reversal; residualize or control for prior returns and IV repricing.",
+    "holdout": "Locked final holdout remains untouched until all definitions and model choices are frozen.",
+    "holding_period": "Evaluate the horizon grid; no minimum or maximum holding period is imposed."
+  },
+  "decision": {
+    "candidate_status": "CONDITIONAL_PRIORITY_RESEARCH_CANDIDATE",
+    "feature_admitted": false,
+    "backtest_authorized": false,
+    "alpha_admitted": false,
+    "holdout_used": false,
+    "vendor_contact": false,
+    "data_purchase": false,
+    "production_changed": false,
+    "frozen_control": "F80_TOP20_PARTIAL50_BASELINE_C20"
+  },
+  "sources": [
+    "https://optionmetrics.com/ivydb-tradeflow/",
+    "https://optionmetrics.com/wp-content/uploads/2026/09/IvyDB-TradeFlow-A-Framework-for-Options-Volume-Classification-and-Microstructure-Analytics.pdf",
+    "https://optionmetrics.com/wp-content/uploads/2024/08/Signed-Volume-Brochure_v6.pdf",
+    "https://optionmetrics.com/united-states-intraday/",
+    "https://doi.org/10.1093/rfs/hhj024",
+    "https://doi.org/10.1111/jofi.13285",
+    "https://doi.org/10.1111/jofi.12380"
+  ]
+}

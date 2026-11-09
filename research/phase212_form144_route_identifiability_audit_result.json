@@ -1,0 +1,105 @@
+{
+  "phase": 212,
+  "date": "2026-11-08",
+  "status": "FORM144_ROUTE_NOT_IDENTIFIABLE_FROM_PUBLIC_FIELDS_MIXED_EVENT_CONDITIONAL",
+  "sample_design": {
+    "source": "five cross-issuer SEC Form 144 primary documents from the Phase 211 acceptance-clock pilot",
+    "n": 5,
+    "selection": "purposive semantic verification; not a representative prevalence sample"
+  },
+  "observed": {
+    "same_rendered_intermediary_header_count": 5,
+    "intermediary_header": "Name and Address of the Broker",
+    "explicit_route_flag_count": 0,
+    "distinct_intermediary_strings": 3,
+    "rows_with_current_finra_brokercheck_identity_candidate": 4,
+    "distinct_current_finra_crd_candidates": ["5393", "7784"],
+    "unresolved_exact_intermediary_string_count": 1,
+    "unresolved_exact_intermediary_string": "THE CHARLES SCHWAB CORPORATION",
+    "route_identified_from_form144_alone": 0
+  },
+  "sample": [
+    {
+      "ticker": "PINS",
+      "accession": "0001921094-26-000697",
+      "intermediary": "Charles Schwab & Co., Inc.",
+      "intermediary_header": "Name and Address of the Broker",
+      "current_finra_crd_candidate": "5393",
+      "route": "UNKNOWN_NOT_ENCODED",
+      "primary_document_url": "https://www.sec.gov/Archives/edgar/data/1506293/000192109426000697/xsl144X01/primary_doc.xml"
+    },
+    {
+      "ticker": "SCHW",
+      "accession": "0001949846-26-000451",
+      "intermediary": "THE CHARLES SCHWAB CORPORATION",
+      "intermediary_header": "Name and Address of the Broker",
+      "current_finra_crd_candidate": null,
+      "route": "UNKNOWN_NOT_ENCODED",
+      "identity_note": "Named intermediary string equals issuer name; do not silently map to Charles Schwab & Co., Inc.",
+      "primary_document_url": "https://www.sec.gov/Archives/edgar/data/316709/000194984626000451/xsl144X01/primary_doc.xml"
+    },
+    {
+      "ticker": "SNOW",
+      "accession": "0001959173-26-005295",
+      "intermediary": "Fidelity Brokerage Services LLC",
+      "intermediary_header": "Name and Address of the Broker",
+      "current_finra_crd_candidate": "7784",
+      "route": "UNKNOWN_NOT_ENCODED",
+      "primary_document_url": "https://www.sec.gov/Archives/edgar/data/1640147/000195917326005295/xsl144X01/primary_doc.xml"
+    },
+    {
+      "ticker": "ANET",
+      "accession": "0001959173-26-006426",
+      "intermediary": "Fidelity Brokerage Services LLC",
+      "intermediary_header": "Name and Address of the Broker",
+      "current_finra_crd_candidate": "7784",
+      "route": "UNKNOWN_NOT_ENCODED",
+      "primary_document_url": "https://www.sec.gov/Archives/edgar/data/1596532/000195917326006426/xsl144X01/primary_doc.xml"
+    },
+    {
+      "ticker": "RUN",
+      "accession": "0001921094-26-000789",
+      "intermediary": "Charles Schwab & Co., Inc.",
+      "intermediary_header": "Name and Address of the Broker",
+      "current_finra_crd_candidate": "5393",
+      "route": "UNKNOWN_NOT_ENCODED",
+      "primary_document_url": "https://www.sec.gov/Archives/edgar/data/1469367/000192109426000789/xsl144X01/primary_doc.xml"
+    }
+  ],
+  "legal_semantics": {
+    "rule_144_f1": "Permitted manner-of-sale categories include broker transactions, direct transactions with a market maker, and qualifying riskless-principal transactions.",
+    "rule_144_h3": "Form 144 is transmitted concurrently with either placing a broker order or executing directly with a market maker.",
+    "sec_form144_guide": "The Securities Information section identifies each broker or market maker expected to participate; separate entries are required for each intermediary and each security.",
+    "route_inference": "The named intermediary field does not encode the transaction route. Firm registration/identity is not transaction-level execution evidence.",
+    "threshold_censoring": "For reporting issuers, Form 144 notice is required when Rule 144 sales during a three-month period exceed 5,000 shares/units or aggregate sale price exceeds $50,000."
+  },
+  "decision": {
+    "route_specific_h1_h2_test_authorized": false,
+    "route_feature_admitted": false,
+    "mixed_route_notice_event": "CONDITIONAL_ONLY",
+    "strict_panel_pit_admitted": false,
+    "alpha_test_authorized": false,
+    "forward_return_test_run": false,
+    "holdout_used": false,
+    "legacy_holdout": "CONSUMED_NOT_PRISTINE",
+    "f80_frozen": true,
+    "production_changed": false,
+    "next_gate": "Full-panel acceptance-header/amendment recovery, point-in-time issuer/class mapping, and historical universe coverage; keep transaction route unknown unless independent order/execution evidence is obtained."
+  },
+  "sources": {
+    "ecfr_17_cfr_230_144": "https://www.ecfr.gov/current/title-17/chapter-II/part-230/section-230.144",
+    "sec_form144_electronic_guide": "https://www.sec.gov/submit-filings/filer-support-resources/how-do-i-guides/file-form-144-electronically",
+    "finra_charles_schwab_co_crd5393": "https://files.brokercheck.finra.org/firm/firm_5393.pdf",
+    "finra_fidelity_brokerage_services_crd7784": "https://brokercheck.finra.org/firm/summary/7784"
+  },
+  "controls": {
+    "bulk_sec_requests_sent": 0,
+    "data_purchased": false,
+    "vendor_contacted": false,
+    "forward_return_or_alpha_test": false,
+    "holdout_used": false,
+    "production_changed": false,
+    "universe_changed": false,
+    "baseline_changed": false
+  }
+}

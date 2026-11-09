@@ -1,0 +1,130 @@
+{
+  "phase": 220,
+  "audit_as_of": "2026-11-08",
+  "status": "MEASUREMENT_SPEC_SUPERSEDES_PHASE219_PRIMARY_FEATURE_NO_ALPHA",
+  "supersedes": {
+    "phase": 219,
+    "prior_primary_feature": "delta_short_pct_nav",
+    "disposition": "retain as exposure-state descriptor; do not interpret as position-building behavior"
+  },
+  "measurement": {
+    "primary_feature": "delta_short_shares_pct",
+    "definition": "100 * (Q_current_adjusted_to_prior_share_basis / Q_prior - 1)",
+    "Q_definition": "absolute BALANCE for explicit PAYOFF_PROFILE=Short and UNIT=NS rows",
+    "eligible_pair": "same SERIES_ID and same effective-dated security_id across consecutive publicly disclosed report periods, with explicit short rows in both periods",
+    "corporate_actions": "require verified effective-dated split/recapitalization adjustment; otherwise exclude the pair",
+    "zero_or_missing_prior": "undefined; no zero imputation and no initiation/covering inference",
+    "interpretation": "change in reported share quantity between two report dates; not trade flow and not a trade timestamp"
+  },
+  "secondary_measurements": {
+    "delta_short_pct_nav": "retain as reported portfolio exposure-state change only",
+    "decomposition": [
+      "quantity_change_at_prior_mark_over_prior_NAV",
+      "mark_to_market_effect",
+      "NAV_denominator_effect"
+    ],
+    "prior_mark_and_NAV": "only calculate if prior USD fair value, prior shares and fund net assets or validated pctVal-derived NAV are available and sign/unit checks pass"
+  },
+  "point_in_time": {
+    "preserve_each_accession_as_filed": true,
+    "compare_report_periods_not_future_corrected_state": true,
+    "amendments_update_state_only_after_own_acceptance": true,
+    "knowledge_time": "SEC ACCEPTANCE-DATETIME",
+    "earliest_daily_trade_boundary": "first full regular U.S. equity session whose open is strictly after acceptance",
+    "report_date_is_knowledge_time": false,
+    "fixed_filing_lag": false
+  },
+  "aggregation": {
+    "first_collapse_multiple_series_within_registrant_cik": true,
+    "registrant_cik_is_identity_proxy_not_ultimate_manager": true,
+    "cross_registrant_features": [
+      "median_delta_short_shares_pct",
+      "fraction_of_registrant_clusters_with_positive_quantity_change",
+      "eligible_registrant_count",
+      "concentration_of_largest_registrant"
+    ]
+  },
+  "economic_test": {
+    "fixed_direction": "larger positive short-share quantity changes predict lower subsequent residual equity returns",
+    "horizons_trading_sessions": [
+      5,
+      20,
+      63,
+      126
+    ],
+    "controls": [
+      "lagged_returns_20_60_120",
+      "volatility",
+      "ADV_liquidity",
+      "size",
+      "beta",
+      "sector",
+      "report_age_and_filing_lag"
+    ],
+    "benchmark": "frozen LTM/F80 on identical eligible securities, dates, exposure and costs",
+    "resampling": [
+      "block_bootstrap_by_formation_date",
+      "cluster_bootstrap_by_registrant",
+      "leave_one_registrant_out",
+      "leave_one_fund_series_out",
+      "leave_one_issuer_out"
+    ],
+    "chronological_validation": true,
+    "prospective_confirmation_required": true,
+    "alpha_test_authorized": false
+  },
+  "synthetic_counterexamples": {
+    "unchanged_shares_price_rises_20pct": {
+      "prior_shares": 100,
+      "current_shares": 100,
+      "prior_price": 100,
+      "current_price": 120,
+      "prior_nav": 1000000,
+      "current_nav": 1000000,
+      "delta_short_pct_nav_percentage_points": 0.2,
+      "delta_short_shares_pct": 0
+    },
+    "unchanged_shares_nav_falls": {
+      "prior_shares": 100,
+      "current_shares": 100,
+      "prior_price": 100,
+      "current_price": 100,
+      "prior_nav": 1000000,
+      "current_nav": 833333.3333333334,
+      "delta_short_pct_nav_percentage_points": 0.2,
+      "delta_short_shares_pct": 0
+    },
+    "short_shares_increase_10pct": {
+      "prior_shares": 100,
+      "current_shares": 110,
+      "prior_price": 100,
+      "current_price": 100,
+      "prior_nav": 1000000,
+      "current_nav": 1000000,
+      "delta_short_pct_nav_percentage_points": 0.1,
+      "delta_short_shares_pct": 10
+    }
+  },
+  "admission_gates": {
+    "raw_five_accession_hashes": "NOT_VERIFIED",
+    "complete_deterministic_holdings_parse": "NOT_VERIFIED",
+    "series_and_amendment_lineage": "NOT_ESTABLISHED",
+    "effective_dated_security_listing_crosswalk": "NOT_ESTABLISHED",
+    "corporate_action_adjustments": "NOT_ESTABLISHED",
+    "broad_pit_universe_coverage": "NOT_ESTIMATED"
+  },
+  "controls": {
+    "return_test_run": false,
+    "alpha_test_run": false,
+    "bootstrap_loo_run": false,
+    "holdout_used": false,
+    "f80_frozen": true,
+    "production_changed": false,
+    "universe_changed": false,
+    "data_purchase": false,
+    "vendor_contact": false,
+    "sec_requests_sent": false,
+    "legacy_holdout": "CONSUMED_NOT_PRISTINE"
+  },
+  "decision": "Use share-quantity change as the behavioral candidate; retain delta_short_pct_nav only as exposure-state context. No return test until raw filings, amendments, corporate actions and PIT security identity pass."
+}

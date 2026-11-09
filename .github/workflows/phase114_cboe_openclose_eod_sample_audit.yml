@@ -1,0 +1,40 @@
+name: Phase 114 Cboe Open-Close EOD public sample audit
+
+on:
+  push:
+    branches:
+      - phase99-broad-pit-universe-charter
+    paths:
+      - research/PHASE114_CBOE_OPENCLOSE_EOD_SAMPLE_AUDIT_2026-11-05.md
+      - research/phase114_cboe_openclose_eod_sample_audit.py
+      - research/test_phase114_cboe_openclose_eod_sample_audit.py
+
+permissions:
+  contents: read
+
+jobs:
+  sample-audit:
+    if: contains(github.event.head_commit.message, '[phase114-live]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependency
+        run: python -m pip install --upgrade requests
+      - name: Offline parser tests
+        run: python -m unittest -v research/test_phase114_cboe_openclose_eod_sample_audit.py
+      - name: Download and audit public sample
+        run: python research/phase114_cboe_openclose_eod_sample_audit.py --output phase114_cboe_openclose_output
+      - name: Upload sample audit artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase114-cboe-openclose-eod-sample-audit
+          path: phase114_cboe_openclose_output/
+          if-no-files-found: error
+          retention-days: 90

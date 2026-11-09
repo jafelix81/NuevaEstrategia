@@ -1,0 +1,192 @@
+{
+  "phase": 195,
+  "status": "MAPPINGS_RECONCILED",
+  "workflow_run_id": 42418568678,
+  "workflow_url": "https://github.com/jafelix81/NuevaEstrategia/actions/runs/42418568678",
+  "artifact_id": 13592581894,
+  "artifact_name": "phase195-cboe-trade-condition-exchange-mapping-audit",
+  "artifact_retention_days": 90,
+  "tests_passed": 11,
+  "audit_as_of_utc": "2026-11-07T22:01:02.250740+00:00",
+  "condition_mapping": {
+    "url": "https://datashop.cboe.com/documents/livevol_trade_condition_ids.xlsx",
+    "sha256": "23c94bd8d16229c8ce462a1e351636821670932553c66e84046797275a74cc65",
+    "bytes": 26854,
+    "rows": 80,
+    "headers": [
+      "id",
+      "name",
+      "security_type"
+    ],
+    "last_modified": "Thu, 08 Oct 2026 20:33:43 GMT",
+    "message_type_field_present": false,
+    "effective_date_fields": [],
+    "historical_pit_verified": false
+  },
+  "exchange_mapping": {
+    "url": "https://datashop.cboe.com/documents/livevol_exchange_ids.csv",
+    "sha256": "1b5cab0414cdc96aee6f2cfea098d36c12a4f7d06b7ad15909e3370b90d3c87f",
+    "bytes": 1703,
+    "rows": 40,
+    "headers": [
+      "id",
+      "display_name",
+      "full_name",
+      "security_type"
+    ],
+    "last_modified": "Thu, 29 Oct 2026 20:48:45 GMT",
+    "effective_date_fields": [],
+    "historical_pit_verified": false
+  },
+  "sample": {
+    "url": "https://datashop.cboe.com/download/sample/216",
+    "sha256": "a02504e156db28b3f007d9d25a534e4c88ffd8d24ac43f3bf84885583a3d10b8",
+    "bytes": 3561778,
+    "date": "2026-01-07",
+    "member_count": 2,
+    "populated_rows_per_member": 74999,
+    "canceled_trade_condition_id_counts": {
+      "0": 74999
+    },
+    "condition_id_distributions_match_across_members": true,
+    "exchange_id_distributions_match_across_members": true,
+    "all_observed_condition_ids_mapped": true,
+    "all_observed_exchange_ids_mapped": true,
+    "observed_condition_id_count": 15,
+    "observed_exchange_id_count": 18
+  },
+  "condition_counts": {
+    "18": 40334,
+    "95": 2165,
+    "114": 20070,
+    "115": 20,
+    "116": 1,
+    "118": 14,
+    "119": 4659,
+    "120": 6385,
+    "122": 15,
+    "123": 1258,
+    "124": 23,
+    "125": 4,
+    "126": 10,
+    "127": 40,
+    "129": 1
+  },
+  "condition_names": {
+    "18": "AutoExecution",
+    "95": "IntermarketSweep",
+    "114": "SingLegAuctNonISO",
+    "115": "SingLegAuctISO",
+    "116": "SingLegCrossNonISO",
+    "118": "SingLegFlr",
+    "119": "MultLegAutoEx",
+    "120": "MultLegAuct",
+    "122": "MultLegFlr",
+    "123": "MultLegAutoSingLeg",
+    "124": "StkOptAuct",
+    "125": "MultLegAuctSingLeg",
+    "126": "MultLegFlrSingLeg",
+    "127": "StkOptAutoEx",
+    "129": "StkOptFlr"
+  },
+  "condition_groups": {
+    "auto_execution": 40334,
+    "intermarket_sweep": 2165,
+    "single_leg_auction_or_cross": 20091,
+    "single_leg_floor": 14,
+    "multi_leg": 12331,
+    "stock_option": 64
+  },
+  "exchange_counts": {
+    "1": 1708,
+    "4": 7320,
+    "5": 8686,
+    "6": 4372,
+    "7": 8204,
+    "9": 7830,
+    "11": 2462,
+    "22": 3870,
+    "31": 1473,
+    "42": 1857,
+    "43": 7563,
+    "47": 1453,
+    "60": 3384,
+    "65": 3774,
+    "69": 2484,
+    "71": 4400,
+    "120": 2143,
+    "121": 2016
+  },
+  "exchange_names": {
+    "1": "NASD",
+    "4": "AMEX",
+    "5": "CBOE",
+    "6": "ISE",
+    "7": "ARCA",
+    "9": "PHLX",
+    "11": "BOX",
+    "22": "MRX",
+    "31": "GEMX",
+    "42": "C2",
+    "43": "MIAX",
+    "47": "NASDBX",
+    "60": "BZX",
+    "65": "EDGX",
+    "69": "PEARL",
+    "71": "EMLD",
+    "120": "MEMX",
+    "121": "SPHR"
+  },
+  "exchange_top5": [
+    {
+      "id": 5,
+      "name": "CBOE",
+      "rows": 8686
+    },
+    {
+      "id": 7,
+      "name": "ARCA",
+      "rows": 8204
+    },
+    {
+      "id": 9,
+      "name": "PHLX",
+      "rows": 7830
+    },
+    {
+      "id": 43,
+      "name": "MIAX",
+      "rows": 7563
+    },
+    {
+      "id": 4,
+      "name": "AMEX",
+      "rows": 7320
+    }
+  ],
+  "mapping_reconciliation": {
+    "unmapped_condition_ids": [],
+    "unmapped_exchange_ids": [],
+    "sample_core_id_counts_match_across_members": true,
+    "candidate_side_eligible_condition_ids": [],
+    "candidate_side_eligible_rows_under_strict_rule": 0,
+    "mapping_effective_dates_verified": false,
+    "historical_mapping_pit_verified": false,
+    "first_receipt_verified": false
+  },
+  "controls": {
+    "raw_trade_rows_persisted": false,
+    "raw_symbols_persisted": false,
+    "raw_contracts_persisted": false,
+    "raw_mapping_files_persisted": false,
+    "data_purchase": false,
+    "vendor_contact": false,
+    "strict_pit_admitted": false,
+    "signed_flow_feature_admitted": false,
+    "alpha_admission": false,
+    "holdout_used": false,
+    "production_changed": false,
+    "f80_frozen": true
+  },
+  "conclusion": "All observed condition and exchange IDs map to current Cboe reference files, but the workbook lacks message_type and effective dates. The sample's trade-condition mix includes many auction, multi-leg and stock-option executions; no condition qualifies under the strict regular/normal rule. Current mapping improves descriptive labeling only; no PIT or alpha admission."
+}

@@ -1,0 +1,149 @@
+{
+  "phase": 216,
+  "audit_date": "2026-11-08",
+  "status": "NO_OPTION_OR_MICROSTRUCTURE_SOURCE_STRICT_PIT_ADMITTED",
+  "source_baseline": "research/phase183_options_smart_money_source_gate_matrix.json",
+  "latest_actions_window": {
+    "runs": 100,
+    "success": 98,
+    "failure": 1,
+    "cancelled": 1,
+    "active": 0,
+    "queued": 0,
+    "waiting": 0,
+    "requested": 0
+  },
+  "current_pr_head": "1399ba42f5a19db939fa2683d068104250badd67",
+  "pr_number": 13,
+  "branch_count": 130,
+  "sources": [
+    {
+      "id": "cboe_open_close",
+      "role": "participant_capacity_open_close",
+      "status": "CONDITIONAL_NO_STRICT_PIT",
+      "strict_pit_rows": 0,
+      "live_floor_10m": "2020-08-03",
+      "live_floor_1m": "2025-07-13",
+      "first_possible_1m_session": "2025-07-14",
+      "cumulative_snapshots": true,
+      "first_receipt_verified": false
+    },
+    {
+      "id": "nasdaq_trade_outline",
+      "role": "venue_option_microstructure",
+      "status": "CONDITIONAL_NO_STRICT_PIT",
+      "venues": 6,
+      "strict_pit_venues": 0,
+      "route_away_flag": false,
+      "monthly_intraday_usd": 12000,
+      "history_36m_discounted_usd": 57000
+    },
+    {
+      "id": "orats_near_eod",
+      "role": "quote_iv_oi_context",
+      "status": "SCHEMA_SAMPLE_ONLY_NO_STRICT_PIT",
+      "rows": 716822,
+      "underlyings": 5787,
+      "updated_at_field_present": false,
+      "first_receipt_verified": false
+    },
+    {
+      "id": "orats_time_sales",
+      "role": "inferred_aggressor_flow",
+      "status": "PROSPECTIVE_CAPTURE_ONLY_NO_STRICT_PIT",
+      "estimated_requests_335_names": 351324,
+      "continuous_days_at_rate_limit": 24.4,
+      "first_receipt_verified": false
+    },
+    {
+      "id": "cboe_option_trades_calcs",
+      "role": "trade_level_measurement",
+      "status": "ONE_DAY_ONE_UNDERLYING_DIAGNOSTIC_ONLY",
+      "rows": 74999,
+      "underlyings": 1,
+      "contracts": 308,
+      "classified_rows": 52346,
+      "unclassified_volume": 149838,
+      "unclassified_volume_share": 0.2821,
+      "ask_minus_bid_contracts": -36763,
+      "delta_imbalance": -0.08385819,
+      "option_demand_delta_imbalance": 0.00285221,
+      "strict_pit": false
+    },
+    {
+      "id": "cboe_option_eod_summary",
+      "role": "prior_night_oi_and_iv_context",
+      "status": "CONDITIONAL_NO_STRICT_PIT",
+      "oi_semantics": "previous_night_occ_eod_at_start_of_quote_date",
+      "sample_underlyings": 4,
+      "legacy_335_overlap": 1,
+      "first_receipt_verified": false
+    },
+    {
+      "id": "ivydb_open_interest",
+      "role": "long_history_contract_state",
+      "status": "CONDITIONAL_SAMPLE_AND_RECEIPT_GATES_BLOCKED",
+      "advertised_history_start": "1996-01",
+      "morning_delivery_schedule": "09:00 ET",
+      "actual_first_receipt_verified": false,
+      "oi_is_directional": false,
+      "patch_chain_verified": false
+    },
+    {
+      "id": "ivydb_tradeflow",
+      "role": "signed_aggressor_flow_and_vendor_proxies",
+      "status": "CONDITIONAL_NO_PIT",
+      "advertised_history_start": "2016-01",
+      "product_launch_date": "2026-09-30",
+      "classifier_version_history_verified": false,
+      "first_receipt_verified": false,
+      "beneficial_owner_identity": false
+    },
+    {
+      "id": "ivolatility_signed_flow",
+      "role": "signed_aggressor_flow",
+      "status": "NOT_SAMPLE_OR_PIT_ADMITTED",
+      "raw_sample_verified": false,
+      "first_receipt_verified": false
+    },
+    {
+      "id": "cboe_volatility_surfaces",
+      "role": "iv_skew_term_structure_context",
+      "status": "SCHEMA_ONLY",
+      "sample_underlyings": 1,
+      "first_receipt_verified": false
+    },
+    {
+      "id": "databento_security_master",
+      "role": "reference_identity_infrastructure",
+      "status": "DOCUMENTATION_ONLY_NOT_ALPHA",
+      "advertised_history_start": "2005-01-01",
+      "sample_downloaded": false,
+      "first_customer_receipt_verified": false
+    },
+    {
+      "id": "sec_form_sho",
+      "role": "future_aggregate_short_position_context",
+      "status": "FUTURE_ONLY",
+      "first_reporting_period": "2028-01",
+      "first_filing_due": "2028-02-14"
+    },
+    {
+      "id": "finra_slate",
+      "role": "future_anonymized_securities_lending_context",
+      "status": "FUTURE_ONLY",
+      "required_public_dissemination": "2029-03-29"
+    }
+  ],
+  "controls": {
+    "alpha_test_run": false,
+    "forward_returns_tested": false,
+    "bootstrap_loo_run": false,
+    "holdout_used": false,
+    "holdout_status": "CONSUMED_NOT_PRISTINE",
+    "vendor_contact": false,
+    "data_purchase": false,
+    "production_changed": false,
+    "f80_frozen": true
+  }
+}

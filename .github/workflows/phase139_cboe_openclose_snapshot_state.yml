@@ -1,0 +1,33 @@
+name: Phase 139 Cboe Open-Close snapshot state regression
+
+on:
+  push:
+    branches:
+      - phase99-broad-pit-universe-charter
+    paths:
+      - research/phase139_cboe_openclose_snapshot_state.py
+      - research/test_phase139_cboe_openclose_snapshot_state.py
+      - research/PHASE139_CBOE_OPENCLOSE_SNAPSHOT_STATE_AND_NOV08_SCHEMA_CUTOVER_2026-11-05.md
+      - .github/workflows/phase139_cboe_openclose_snapshot_state.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase139-cboe-openclose-snapshot-state
+  cancel-in-progress: false
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile state engine
+        run: python -m py_compile research/phase139_cboe_openclose_snapshot_state.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase139_cboe_openclose_snapshot_state

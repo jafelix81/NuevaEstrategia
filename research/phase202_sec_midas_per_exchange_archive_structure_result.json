@@ -1,0 +1,412 @@
+{
+  "phase": 202,
+  "status": "THREE_QUARTER_PER_EXCHANGE_ARCHIVE_STRUCTURE_AUDITED",
+  "audit_as_of_utc": "2026-11-08T01:59:55.681527+00:00",
+  "inventory": {
+    "page_url": "https://www.sec.gov/data-research/sec-markets-data/market-structure-data-security-exchange",
+    "http_status": 200,
+    "last_modified": "Sun, 08 Nov 2026 01:53:16 GMT",
+    "http_date": "Sun, 08 Nov 2026 01:59:48 GMT",
+    "quarter_count": 58,
+    "min_quarter": "2012 Q1",
+    "max_quarter": "2026 Q2",
+    "html_sha256": "5c9b6fb3a34f25134a369cca3d9ac8d55b2f225523cb0ae40d68c73c26a0b3e0"
+  },
+  "sample_quarters": [
+    "2016 Q2",
+    "2017 Q2",
+    "2019 Q4"
+  ],
+  "quarter_results": [
+    {
+      "quarter": "2016 Q2",
+      "url": "https://www.sec.gov/files/opa/data/market-structure/metrics-individual-security-and-exchange/individual_security_exchange_2016_q2.zip",
+      "http_metadata": {
+        "content_length_header": "93597355",
+        "download_attempt": 1,
+        "etag": null,
+        "final_url": "https://www.sec.gov/files/opa/data/market-structure/metrics-individual-security-and-exchange/individual_security_exchange_2016_q2.zip",
+        "http_date": "Sun, 08 Nov 2026 01:59:49 GMT",
+        "http_status": 200,
+        "last_modified": "Sat, 19 Dec 2020 10:15:14 GMT"
+      },
+      "archive_inspection": {
+        "archive_sha256": "69113781212297bf73c9b352a625f4735b99110f4e54f85bfe23b1de252f84b6",
+        "archive_bytes": 93597355,
+        "nesting_depth": 0,
+        "member_count": 4,
+        "total_uncompressed_member_bytes": 356465144,
+        "extension_counts": {
+          ".csv": 3,
+          ".txt": 1
+        },
+        "nested_zip_count": 0,
+        "data_member_count": 3,
+        "data_members": [
+          {
+            "member": "jun16.csv",
+            "compressed_bytes": 32289548,
+            "uncompressed_bytes": 122550742,
+            "crc32_from_central_directory": "b256fed4",
+            "header_sha256": "5374430900a7fec851dcf744d160f62f380c012f6004fda6a815ffa8cb51e8d3",
+            "exchange_column_present": true,
+            "normalized_header": [
+              "cancels",
+              "date",
+              "exchange",
+              "hidden",
+              "hiddenvol",
+              "littrades",
+              "litvol",
+              "mcaprank",
+              "oddlots",
+              "oddlotvol",
+              "ordervol",
+              "pricerank",
+              "security",
+              "ticker",
+              "trades",
+              "tradesforhidden",
+              "tradevol",
+              "tradevolforhidden",
+              "turnrank",
+              "volatilityrank"
+            ]
+          },
+          {
+            "member": "may16.csv",
+            "compressed_bytes": 30678184,
+            "uncompressed_bytes": 116953485,
+            "crc32_from_central_directory": "d85089d0",
+            "header_sha256": "5374430900a7fec851dcf744d160f62f380c012f6004fda6a815ffa8cb51e8d3",
+            "exchange_column_present": true,
+            "normalized_header": [
+              "cancels",
+              "date",
+              "exchange",
+              "hidden",
+              "hiddenvol",
+              "littrades",
+              "litvol",
+              "mcaprank",
+              "oddlots",
+              "oddlotvol",
+              "ordervol",
+              "pricerank",
+              "security",
+              "ticker",
+              "trades",
+              "tradesforhidden",
+              "tradevol",
+              "tradevolforhidden",
+              "turnrank",
+              "volatilityrank"
+            ]
+          },
+          {
+            "member": "apr16.csv",
+            "compressed_bytes": 30628279,
+            "uncompressed_bytes": 116957315,
+            "crc32_from_central_directory": "f992f275",
+            "header_sha256": "5374430900a7fec851dcf744d160f62f380c012f6004fda6a815ffa8cb51e8d3",
+            "exchange_column_present": true,
+            "normalized_header": [
+              "cancels",
+              "date",
+              "exchange",
+              "hidden",
+              "hiddenvol",
+              "littrades",
+              "litvol",
+              "mcaprank",
+              "oddlots",
+              "oddlotvol",
+              "ordervol",
+              "pricerank",
+              "security",
+              "ticker",
+              "trades",
+              "tradesforhidden",
+              "tradevol",
+              "tradevolforhidden",
+              "turnrank",
+              "volatilityrank"
+            ]
+          }
+        ],
+        "readmes": [
+          {
+            "member": "README.txt",
+            "bytes": 3602,
+            "sha256": "e3adbdfe155957ade084188964c251e212c7dcbc54a1f95111c7cd8d8a7b49a0"
+          }
+        ]
+      }
+    },
+    {
+      "quarter": "2017 Q2",
+      "url": "https://www.sec.gov/files/opa/data/market-structure/metrics-individual-security-and-exchange/individual_security_exchange_2017_q2.zip",
+      "http_metadata": {
+        "content_length_header": "91406464",
+        "download_attempt": 1,
+        "etag": null,
+        "final_url": "https://www.sec.gov/files/opa/data/market-structure/metrics-individual-security-and-exchange/individual_security_exchange_2017_q2.zip",
+        "http_date": "Sun, 08 Nov 2026 01:59:52 GMT",
+        "http_status": 200,
+        "last_modified": "Thu, 01 Jan 1970 00:00:00 GMT"
+      },
+      "archive_inspection": {
+        "archive_sha256": "56015592f4e64aee718e9a2fd648693c150d7dce216cf13c12a7b20138b9a061",
+        "archive_bytes": 91406464,
+        "nesting_depth": 0,
+        "member_count": 4,
+        "total_uncompressed_member_bytes": 342191475,
+        "extension_counts": {
+          ".csv": 3,
+          ".txt": 1
+        },
+        "nested_zip_count": 0,
+        "data_member_count": 3,
+        "data_members": [
+          {
+            "member": "apr17.csv",
+            "compressed_bytes": 27417966,
+            "uncompressed_bytes": 102549875,
+            "crc32_from_central_directory": "68608fe3",
+            "header_sha256": "5374430900a7fec851dcf744d160f62f380c012f6004fda6a815ffa8cb51e8d3",
+            "exchange_column_present": true,
+            "normalized_header": [
+              "cancels",
+              "date",
+              "exchange",
+              "hidden",
+              "hiddenvol",
+              "littrades",
+              "litvol",
+              "mcaprank",
+              "oddlots",
+              "oddlotvol",
+              "ordervol",
+              "pricerank",
+              "security",
+              "ticker",
+              "trades",
+              "tradesforhidden",
+              "tradevol",
+              "tradevolforhidden",
+              "turnrank",
+              "volatilityrank"
+            ]
+          },
+          {
+            "member": "jun17.csv",
+            "compressed_bytes": 32157655,
+            "uncompressed_bytes": 120282140,
+            "crc32_from_central_directory": "c1786bce",
+            "header_sha256": "5374430900a7fec851dcf744d160f62f380c012f6004fda6a815ffa8cb51e8d3",
+            "exchange_column_present": true,
+            "normalized_header": [
+              "cancels",
+              "date",
+              "exchange",
+              "hidden",
+              "hiddenvol",
+              "littrades",
+              "litvol",
+              "mcaprank",
+              "oddlots",
+              "oddlotvol",
+              "ordervol",
+              "pricerank",
+              "security",
+              "ticker",
+              "trades",
+              "tradesforhidden",
+              "tradevol",
+              "tradevolforhidden",
+              "turnrank",
+              "volatilityrank"
+            ]
+          },
+          {
+            "member": "may17.csv",
+            "compressed_bytes": 31829386,
+            "uncompressed_bytes": 119355463,
+            "crc32_from_central_directory": "49f70e85",
+            "header_sha256": "5374430900a7fec851dcf744d160f62f380c012f6004fda6a815ffa8cb51e8d3",
+            "exchange_column_present": true,
+            "normalized_header": [
+              "cancels",
+              "date",
+              "exchange",
+              "hidden",
+              "hiddenvol",
+              "littrades",
+              "litvol",
+              "mcaprank",
+              "oddlots",
+              "oddlotvol",
+              "ordervol",
+              "pricerank",
+              "security",
+              "ticker",
+              "trades",
+              "tradesforhidden",
+              "tradevol",
+              "tradevolforhidden",
+              "turnrank",
+              "volatilityrank"
+            ]
+          }
+        ],
+        "readmes": [
+          {
+            "member": "README.txt",
+            "bytes": 3997,
+            "sha256": "e4b6339b1d1bc8e0b2845e8d7ba8a6fb0474d8748b2857ee9f7819175e7ace1e"
+          }
+        ]
+      }
+    },
+    {
+      "quarter": "2019 Q4",
+      "url": "https://www.sec.gov/files/node/add/data_distribution/individual_security_exchange_2019_q4.zip",
+      "http_metadata": {
+        "content_length_header": "126219647",
+        "download_attempt": 1,
+        "etag": null,
+        "final_url": "https://www.sec.gov/files/node/add/data_distribution/individual_security_exchange_2019_q4.zip",
+        "http_date": "Sun, 08 Nov 2026 01:59:54 GMT",
+        "http_status": 200,
+        "last_modified": "Sat, 19 Dec 2020 10:12:07 GMT"
+      },
+      "archive_inspection": {
+        "archive_sha256": "7a3f9c008889c4972a4adda37e7ac84d1553335a471063262f509e817fec6db1",
+        "archive_bytes": 126219647,
+        "nesting_depth": 0,
+        "member_count": 4,
+        "total_uncompressed_member_bytes": 484555221,
+        "extension_counts": {
+          ".csv": 3,
+          ".txt": 1
+        },
+        "nested_zip_count": 0,
+        "data_member_count": 3,
+        "data_members": [
+          {
+            "member": "dec19.csv",
+            "compressed_bytes": 41959475,
+            "uncompressed_bytes": 161331910,
+            "crc32_from_central_directory": "b2a2cf4e",
+            "header_sha256": "5374430900a7fec851dcf744d160f62f380c012f6004fda6a815ffa8cb51e8d3",
+            "exchange_column_present": true,
+            "normalized_header": [
+              "cancels",
+              "date",
+              "exchange",
+              "hidden",
+              "hiddenvol",
+              "littrades",
+              "litvol",
+              "mcaprank",
+              "oddlots",
+              "oddlotvol",
+              "ordervol",
+              "pricerank",
+              "security",
+              "ticker",
+              "trades",
+              "tradesforhidden",
+              "tradevol",
+              "tradevolforhidden",
+              "turnrank",
+              "volatilityrank"
+            ]
+          },
+          {
+            "member": "nov19.csv",
+            "compressed_bytes": 39191036,
+            "uncompressed_bytes": 150735678,
+            "crc32_from_central_directory": "e919a1da",
+            "header_sha256": "5374430900a7fec851dcf744d160f62f380c012f6004fda6a815ffa8cb51e8d3",
+            "exchange_column_present": true,
+            "normalized_header": [
+              "cancels",
+              "date",
+              "exchange",
+              "hidden",
+              "hiddenvol",
+              "littrades",
+              "litvol",
+              "mcaprank",
+              "oddlots",
+              "oddlotvol",
+              "ordervol",
+              "pricerank",
+              "security",
+              "ticker",
+              "trades",
+              "tradesforhidden",
+              "tradevol",
+              "tradevolforhidden",
+              "turnrank",
+              "volatilityrank"
+            ]
+          },
+          {
+            "member": "oct19.csv",
+            "compressed_bytes": 45067567,
+            "uncompressed_bytes": 172483254,
+            "crc32_from_central_directory": "c00d4fd7",
+            "header_sha256": "5374430900a7fec851dcf744d160f62f380c012f6004fda6a815ffa8cb51e8d3",
+            "exchange_column_present": true,
+            "normalized_header": [
+              "cancels",
+              "date",
+              "exchange",
+              "hidden",
+              "hiddenvol",
+              "littrades",
+              "litvol",
+              "mcaprank",
+              "oddlots",
+              "oddlotvol",
+              "ordervol",
+              "pricerank",
+              "security",
+              "ticker",
+              "trades",
+              "tradesforhidden",
+              "tradevol",
+              "tradevolforhidden",
+              "turnrank",
+              "volatilityrank"
+            ]
+          }
+        ],
+        "readmes": [
+          {
+            "member": "README.txt",
+            "bytes": 4379,
+            "sha256": "418338bae8a331558c01be808238ac54e36f4db366e77cd0b265d0dd2f9a3499"
+          }
+        ]
+      }
+    }
+  ],
+  "interpretation": {
+    "alpha_test_authorized": false,
+    "data_purchase": false,
+    "f80_frozen": true,
+    "first_publication_time_verified": false,
+    "full_archive_crc_verified": false,
+    "full_row_reconciliation_performed": false,
+    "holdout_used": false,
+    "official_archive_page_lists_58_quarters": true,
+    "per_exchange_dimension_structure_identified": true,
+    "production_changed": false,
+    "strict_pit_admitted": false,
+    "vendor_contact": false
+  },
+  "decision": "Structure/feasibility audit only. The official SEC page describes per-security metrics partitioned by exchange and lists 58 quarterly archives from January 2012 through June 2026. This phase inspects three ZIP layouts and schemas; it does not fully CRC-validate, reconcile all rows or establish publication-time PIT."
+}

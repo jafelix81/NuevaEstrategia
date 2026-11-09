@@ -1,0 +1,58 @@
+name: Phase 180 IvyDB TradeFlow documentation feasibility audit
+
+on:
+  pull_request:
+    paths:
+      - "research/phase180_ivydb_tradeflow_documentation_feasibility.py"
+      - "research/test_phase180_ivydb_tradeflow_documentation_feasibility.py"
+      - "research/phase180_ivydb_tradeflow_documentation_feasibility.json"
+      - "research/PHASE180_IVYDB_TRADEFLOW_DOCUMENTATION_FEASIBILITY_AUDIT_2026-11-07.md"
+      - ".github/workflows/phase180_ivydb_tradeflow_documentation_feasibility.yml"
+      - "SMART_MONEY_RESEARCH_STATE.md"
+  push:
+    branches:
+      - phase99-broad-pit-universe-charter
+    paths:
+      - "research/phase180_ivydb_tradeflow_documentation_feasibility.py"
+      - "research/test_phase180_ivydb_tradeflow_documentation_feasibility.py"
+      - "research/phase180_ivydb_tradeflow_documentation_feasibility.json"
+      - "research/PHASE180_IVYDB_TRADEFLOW_DOCUMENTATION_FEASIBILITY_AUDIT_2026-11-07.md"
+      - ".github/workflows/phase180_ivydb_tradeflow_documentation_feasibility.yml"
+      - "SMART_MONEY_RESEARCH_STATE.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile audit and tests
+        run: |
+          python -m py_compile research/phase180_ivydb_tradeflow_documentation_feasibility.py research/test_phase180_ivydb_tradeflow_documentation_feasibility.py
+      - name: Run regression tests
+        run: python -m unittest research.test_phase180_ivydb_tradeflow_documentation_feasibility -v
+      - name: Generate and compare audit artifact
+        run: |
+          python -m research.phase180_ivydb_tradeflow_documentation_feasibility --output-dir phase180_output
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          tracked = json.loads(Path("research/phase180_ivydb_tradeflow_documentation_feasibility.json").read_text())
+          generated = json.loads(Path("phase180_output/phase180_ivydb_tradeflow_documentation_feasibility.json").read_text())
+          assert tracked == generated
+          assert tracked["decision"]["alpha_admitted"] is False
+          print("PHASE180_ARTIFACT_MATCHES_TRACKED_SUMMARY")
+          PY
+      - name: Upload audit artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase180-ivydb-tradeflow-documentation-feasibility
+          path: phase180_output/phase180_ivydb_tradeflow_documentation_feasibility.json
+          retention-days: 90

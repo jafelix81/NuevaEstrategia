@@ -1,0 +1,281 @@
+{
+  "13d_item4_complete_strict_key": 46,
+  "13d_item4_nonamendment_unconfirmed": 55,
+  "all_relaxed_collisions_fail_filer_and_owner": true,
+  "alpha_admission": false,
+  "amendment_candidates": 316,
+  "cross_family_collision_count": 3,
+  "cross_family_collision_pairs": [
+    {
+      "child_accession": "0000902664-19-004602",
+      "child_family": "13D",
+      "child_filing_date": "2019-12-16",
+      "child_role": "A",
+      "match_tier": "cross_family_issuer+valid_CUSIP_only",
+      "parent_accession": "0000902219-18-000239",
+      "parent_family": "13G",
+      "parent_filing_date": "2018-02-08",
+      "parent_role": "A",
+      "same_filer": false,
+      "same_first_owner_hash": false,
+      "same_issuer_hash": true,
+      "same_valid_cusip": true,
+      "verified_parent_edge": false
+    },
+    {
+      "child_accession": "0001193125-21-208169",
+      "child_family": "13D",
+      "child_filing_date": "2021-07-06",
+      "child_role": "A",
+      "match_tier": "cross_family_issuer+valid_CUSIP_only",
+      "parent_accession": "0001549575-20-000008",
+      "parent_family": "13G",
+      "parent_filing_date": "2020-06-10",
+      "parent_role": "N",
+      "same_filer": false,
+      "same_first_owner_hash": false,
+      "same_issuer_hash": true,
+      "same_valid_cusip": true,
+      "verified_parent_edge": false
+    },
+    {
+      "child_accession": "0000921895-22-003020",
+      "child_family": "13D",
+      "child_filing_date": "2022-11-14",
+      "child_role": "A",
+      "match_tier": "cross_family_issuer+valid_CUSIP_only",
+      "parent_accession": "0001628280-21-001940",
+      "parent_family": "13G",
+      "parent_filing_date": "2021-02-11",
+      "parent_role": "A",
+      "same_filer": false,
+      "same_first_owner_hash": false,
+      "same_issuer_hash": true,
+      "same_valid_cusip": true,
+      "verified_parent_edge": false
+    }
+  ],
+  "decision": "The full 497-row legacy HTML sample still does not support parent reconstruction. Only two strict same-family amendment-to-amendment candidates survive; both have no earlier strict anchor. Three same-family and three cross-family issuer/CUSIP-only collisions all fail both filer and first-owner continuity. Keep non-/A forms unconfirmed; no state edges, features, returns tests or alpha admission.",
+  "f80_modified": false,
+  "family_counts": {
+    "13D": 180,
+    "13G": 317
+  },
+  "family_role_counts": {
+    "13D": {
+      "A": 108,
+      "C": 4,
+      "N": 68
+    },
+    "13G": {
+      "A": 204,
+      "C": 0,
+      "N": 113
+    }
+  },
+  "feature_admission": false,
+  "final_holdout_used": false,
+  "initial_status_confirmed": 0,
+  "input": {
+    "csv_sha256": "6d0cc2a0841dc58a362be1e2b61d055a4e300da53ff157dedb9df5096d919626",
+    "item4_text_persisted": false,
+    "raw_names_persisted": false,
+    "representation": "compact_csv_rebuilt_in_memory_from_pinned_phase157_phase159_artifacts"
+  },
+  "input_rows": 497,
+  "issuer_cusip_amendment_candidates_all_families": {
+    "ambiguous_candidate": 0,
+    "candidate_edges": 8,
+    "children": 316,
+    "eligible": 278,
+    "missing_or_invalid_key": 38,
+    "unique_candidate": 8,
+    "with_candidate": 8,
+    "without_candidate": 270
+  },
+  "issuer_cusip_amendment_candidates_same_family": {
+    "ambiguous_candidate": 0,
+    "candidate_edges": 5,
+    "children": 316,
+    "eligible": 278,
+    "missing_or_invalid_key": 38,
+    "unique_candidate": 5,
+    "with_candidate": 5,
+    "without_candidate": 273
+  },
+  "issuer_cusip_nonamendment_candidates_same_family": {
+    "ambiguous_candidate": 0,
+    "candidate_edges": 0,
+    "children": 181,
+    "eligible": 162,
+    "missing_or_invalid_key": 19,
+    "unique_candidate": 0,
+    "with_candidate": 0,
+    "without_candidate": 162
+  },
+  "nonamendment_status_unconfirmed": 181,
+  "phase": 179,
+  "source": {
+    "phase157_artifact_id": 13567167891,
+    "phase157_csv_sha256": "154b628436d6c438e54bb953f7d77b0a82f89b5c19373e9f1b642a5140f20072",
+    "phase157_run_id": 42354802427,
+    "phase159_13d_rows_reconciled": 180,
+    "phase159_artifact_id": 13566809056,
+    "phase159_csv_sha256": "bb6411e78fc3eca1ca8c7aae6c76a1b26e6ef03138bb5eb622d8747cf330cfa4",
+    "phase159_raw_hash_matches": 180,
+    "phase159_run_id": 42354802447
+  },
+  "status": "IN_SAMPLE_PREDECESSOR_COVERAGE_INSUFFICIENT_497_ROW_COHORT",
+  "strict_13d_item4_nonamendment_candidates": {
+    "ambiguous_candidate": 0,
+    "candidate_edges": 0,
+    "children": 55,
+    "eligible": 46,
+    "missing_or_invalid_key": 9,
+    "unique_candidate": 0,
+    "with_candidate": 0,
+    "without_candidate": 46
+  },
+  "strict_amendment_candidates_all_families": {
+    "ambiguous_candidate": 0,
+    "candidate_edges": 2,
+    "children": 316,
+    "eligible": 276,
+    "missing_or_invalid_key": 40,
+    "unique_candidate": 2,
+    "with_candidate": 2,
+    "without_candidate": 274
+  },
+  "strict_amendment_candidates_same_family": {
+    "ambiguous_candidate": 0,
+    "candidate_edges": 2,
+    "children": 316,
+    "eligible": 276,
+    "missing_or_invalid_key": 40,
+    "unique_candidate": 2,
+    "with_candidate": 2,
+    "without_candidate": 274
+  },
+  "strict_candidate_pairs": [
+    {
+      "child_accession": "0001011438-19-000110",
+      "child_family": "13D",
+      "child_filing_date": "2019-08-21",
+      "child_role": "A",
+      "match_tier": "issuer+valid_CUSIP+filer+first_owner",
+      "parent_accession": "0000921895-18-001641",
+      "parent_family": "13D",
+      "parent_filing_date": "2018-05-11",
+      "parent_role": "A",
+      "same_filer": true,
+      "same_first_owner_hash": true,
+      "same_issuer_hash": true,
+      "same_valid_cusip": true,
+      "verified_parent_edge": false
+    },
+    {
+      "child_accession": "0000807249-20-000135",
+      "child_family": "13D",
+      "child_filing_date": "2020-06-02",
+      "child_role": "A",
+      "match_tier": "issuer+valid_CUSIP+filer+first_owner",
+      "parent_accession": "0000807249-18-000020",
+      "parent_family": "13D",
+      "parent_filing_date": "2018-02-07",
+      "parent_role": "A",
+      "same_filer": true,
+      "same_first_owner_hash": true,
+      "same_issuer_hash": true,
+      "same_valid_cusip": true,
+      "verified_parent_edge": false
+    }
+  ],
+  "strict_candidate_parent_anchor_counts": [
+    0,
+    0
+  ],
+  "strict_candidate_parents_are_amendments": true,
+  "strict_candidate_parents_have_no_earlier_strict_anchor": true,
+  "strict_nonamendment_candidates_same_family": {
+    "ambiguous_candidate": 0,
+    "candidate_edges": 0,
+    "children": 181,
+    "eligible": 161,
+    "missing_or_invalid_key": 20,
+    "unique_candidate": 0,
+    "with_candidate": 0,
+    "without_candidate": 161
+  },
+  "three_key_without_filer_same_family": {
+    "ambiguous_candidate": 0,
+    "candidate_edges": 2,
+    "children": 316,
+    "eligible": 276,
+    "missing_or_invalid_key": 40,
+    "unique_candidate": 2,
+    "with_candidate": 2,
+    "without_candidate": 274
+  },
+  "three_key_without_owner_same_family": {
+    "ambiguous_candidate": 0,
+    "candidate_edges": 2,
+    "eligible": 278,
+    "missing_or_invalid_key": 38,
+    "unique_candidate": 2,
+    "with_candidate": 2,
+    "without_candidate": 276
+  },
+  "unique_accessions": 497,
+  "verified_parent_edges": 0,
+  "weak_same_family_collision_count": 3,
+  "weak_same_family_collision_pairs": [
+    {
+      "child_accession": "0001104659-20-017149",
+      "child_family": "13G",
+      "child_filing_date": "2020-02-12",
+      "child_role": "A",
+      "match_tier": "issuer+valid_CUSIP_only",
+      "parent_accession": "0000215457-18-001222",
+      "parent_family": "13G",
+      "parent_filing_date": "2018-01-19",
+      "parent_role": "A",
+      "same_filer": false,
+      "same_first_owner_hash": false,
+      "same_issuer_hash": true,
+      "same_valid_cusip": true,
+      "verified_parent_edge": false
+    },
+    {
+      "child_accession": "0000834237-21-001256",
+      "child_family": "13G",
+      "child_filing_date": "2021-01-26",
+      "child_role": "A",
+      "match_tier": "issuer+valid_CUSIP_only",
+      "parent_accession": "0001258897-18-000859",
+      "parent_family": "13G",
+      "parent_filing_date": "2018-02-09",
+      "parent_role": "A",
+      "same_filer": false,
+      "same_first_owner_hash": false,
+      "same_issuer_hash": true,
+      "same_valid_cusip": true,
+      "verified_parent_edge": false
+    },
+    {
+      "child_accession": "0000834237-22-008758",
+      "child_family": "13G",
+      "child_filing_date": "2022-02-24",
+      "child_role": "A",
+      "match_tier": "issuer+valid_CUSIP_only",
+      "parent_accession": "0001011438-22-000162",
+      "parent_family": "13G",
+      "parent_filing_date": "2022-02-14",
+      "parent_role": "A",
+      "same_filer": false,
+      "same_first_owner_hash": false,
+      "same_issuer_hash": true,
+      "same_valid_cusip": true,
+      "verified_parent_edge": false
+    }
+  ]
+}

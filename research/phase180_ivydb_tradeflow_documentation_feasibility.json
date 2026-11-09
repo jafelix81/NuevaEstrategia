@@ -1,0 +1,272 @@
+{
+  "phase": 180,
+  "title": "IvyDB TradeFlow documentation and data-feasibility audit",
+  "audit_date": "2026-11-07",
+  "status": "CONDITIONAL_CANDIDATE_NOT_FEATURE_ADMITTED",
+  "product": {
+    "name": "IvyDB TradeFlow",
+    "launch_date": "2026-09-30",
+    "predecessor": "IvyDB Signed Volume",
+    "advertised_history_start": "2016-01",
+    "advertised_coverage": "Every U.S. option, all U.S. options exchanges (vendor claim; not independently sample-verified)",
+    "intervals": [
+      "5-minute",
+      "30-minute",
+      "end-of-day"
+    ],
+    "tables": [
+      "Signed_Volume",
+      "Trade_Conditions",
+      "Market_Structure",
+      "Signed_Exchange"
+    ],
+    "record_grain": "Option series aggregated by reporting interval; exact interval boundaries and cumulative-versus-incremental semantics require raw-sample verification",
+    "vendor_data_claims_not_independently_verified": true
+  },
+  "sources": [
+    {
+      "id": "tradeflow_product",
+      "url": "https://optionmetrics.com/ivydb-tradeflow/",
+      "publication_date": null,
+      "retrieved_date": "2026-11-07",
+      "type": "vendor_product_page"
+    },
+    {
+      "id": "tradeflow_launch",
+      "url": "https://optionmetrics.com/news/optionmetrics-launches-ivydb-tradeflow/",
+      "publication_date": "2026-09-30",
+      "retrieved_date": "2026-11-07",
+      "type": "vendor_announcement"
+    },
+    {
+      "id": "tradeflow_methodology",
+      "url": "https://optionmetrics.com/wp-content/uploads/2026/09/IvyDB-TradeFlow-A-Framework-for-Options-Volume-Classification-and-Microstructure-Analytics.pdf",
+      "publication_date": "2026-09",
+      "retrieved_date": "2026-11-07",
+      "type": "vendor_methodology_paper"
+    },
+    {
+      "id": "tradeflow_brochure",
+      "url": "https://optionmetrics.com/wp-content/uploads/2026/08/TradeFlow-Brochure-1-1.pdf",
+      "publication_date": "2026-08",
+      "retrieved_date": "2026-11-07",
+      "type": "vendor_brochure"
+    },
+    {
+      "id": "signed_volume_legacy_brochure",
+      "url": "https://optionmetrics.com/wp-content/uploads/2024/08/Signed-Volume-Brochure_v6.pdf",
+      "publication_date": "2024-08",
+      "retrieved_date": "2026-11-07",
+      "type": "vendor_legacy_brochure"
+    },
+    {
+      "id": "ivydb_us_intraday_product",
+      "url": "https://optionmetrics.com/united-states-intraday/",
+      "publication_date": null,
+      "retrieved_date": "2026-11-07",
+      "type": "vendor_product_page"
+    },
+    {
+      "id": "ivydb_us_intraday_brochure",
+      "url": "https://optionmetrics.com/wp-content/uploads/2025/07/OM_IvyDB-US_Intraday_Flyer_WEB.pdf",
+      "publication_date": "2025-07",
+      "retrieved_date": "2026-11-07",
+      "type": "vendor_brochure"
+    }
+  ],
+  "classifier": {
+    "stages": [
+      "screen trade conditions indicating execution against a previously posted passive order",
+      "classify remaining trades with exchange-auction price-improvement characteristics",
+      "compare remaining trades with prevailing quote; nearer offer is buyer-initiated and nearer bid is seller-initiated",
+      "resolve midpoint trades with supplementary contemporaneous market information",
+      "classify remaining unresolved trades by price movement versus the prior trade"
+    ],
+    "unresolved_volume_retained": true,
+    "vendor_code_or_full_threshold_spec_public": false,
+    "direction_assignment_accuracy_claim": {
+      "sample": "SPY options, 2026-06-17 FOMC session only",
+      "total_contracts": 12932090,
+      "midpoint_contracts": 1321280,
+      "midpoint_share": 0.102,
+      "midpoint_volume_direction_assigned": 0.999,
+      "total_volume_unclassified_share": 0.001,
+      "representative_historical_accuracy": false
+    }
+  },
+  "participant_proxies": {
+    "retail_1": "SLAN single-leg auction prints below 10 contracts; strictest vendor retail proxy",
+    "retail_2": "Automatic executions below 10 contracts at bid or offer; vendor notes some institutional-algorithmic contamination",
+    "retail_3": "Automatic executions below 10 contracts and below $5,000 notional inside the NBBO; vendor describes as consistent with wholesaler internalization",
+    "retail_1_2_3_mutually_exclusive": true,
+    "institutional_1": "ISOs executing at or through the prevailing quote",
+    "institutional_2": "Institutional 1 plus automatic executions at or through the quote exceeding both 10 contracts and $5,000 notional",
+    "institutional_1_is_subset_of_institutional_2": true,
+    "institutional_1_and_2_additive": false,
+    "institutional_2_is_aggressive_liquidity_demand_proxy": true,
+    "institutional_proxy_is_total_institutional_participation": false,
+    "excluded_from_institutional_proxies": [
+      "passive execution",
+      "midpoint prints",
+      "patient position-building",
+      "market-making activity"
+    ],
+    "beneficial_owner_or_account_identity_available": false,
+    "labels_are_vendor_proxies_not_ground_truth": true
+  },
+  "microstructure_semantics": {
+    "signed_volume_fields": [
+      "buyer-initiated volume",
+      "seller-initiated volume",
+      "unclassified volume",
+      "buy VWAP",
+      "sell VWAP",
+      "lot-size buckets"
+    ],
+    "trade_conditions": "Per-condition trade counts by direction and lot-size bucket",
+    "market_structure_categories": [
+      "at_NBBO",
+      "inside_NBBO",
+      "midpoint",
+      "outside_NBBO"
+    ],
+    "midpoint_is_subset_of_inside_NBBO": true,
+    "total_volume_reconciliation": "at_NBBO + inside_NBBO + outside_NBBO; do not add midpoint separately",
+    "signed_exchange": "Venue-level volume by direction; vendor says venue rows reconcile to Signed_Volume",
+    "multi_leg_legs_signed_individually": true,
+    "multi_leg_requires_separate_filter_or_sensitivity": true,
+    "open_close_position_status_provided": false,
+    "buy_sell_means_aggressor_direction_not_opening_or_closing": true
+  },
+  "historical_field_coverage": {
+    "core_signed_volume_advertised_start": "2016-01",
+    "legacy_signed_volume_lot_size_fields_start": "2021",
+    "tradeflow_lot_size_and_participant_proxy_backfill_start": "UNRESOLVED",
+    "reason": "The 2024 Signed Volume brochure says lot-size fields begin in 2021; the 2026 TradeFlow brochure advertises every option daily since 2016 but does not state per-field backfill dates. Do not assume the new size/participant fields are homogeneous back to 2016."
+  },
+  "complementary_data": {
+    "ivydb_us_intraday": {
+      "advertised_history_start": "2018-01",
+      "snapshots_et": [
+        "10:00",
+        "14:00",
+        "15:45"
+      ],
+      "fields": [
+        "option bid/ask",
+        "volume",
+        "implied volatility",
+        "delta",
+        "gamma",
+        "vega",
+        "theta",
+        "underlying price",
+        "volatility surfaces"
+      ],
+      "security_identity": "Permanent instrument IDs plus underlying names/ticker-change history are advertised",
+      "delivery": "Nightly FTP updates are stated in the 2025 brochure",
+      "use": "Potential delta/IV/skew marks for TradeFlow; three daily snapshots do not provide exact trade-time Greeks for every 5-minute interval",
+      "first_receipt_pit_verified": false
+    },
+    "cboe_open_close": {
+      "role": "Complementary source, not a substitute",
+      "distinction": "Cboe provides capacity and open/close position-side buckets on Cboe venues; TradeFlow provides aggressor-side classification across all U.S. options exchanges",
+      "interpretation": "Do not treat the two classification systems as equivalent or either as beneficial-owner identity"
+    }
+  },
+  "data_gates": [
+    {
+      "gate": "Advertised 2016+ history and all-exchange scope",
+      "status": "VENDOR_CLAIM_NOT_INDEPENDENTLY_VERIFIED"
+    },
+    {
+      "gate": "Per-year, per-underlying, per-contract and inactive/delisted coverage",
+      "status": "BLOCKED_NO_RAW_SAMPLE"
+    },
+    {
+      "gate": "Exact 5-minute/30-minute interval boundaries and cumulative-versus-incremental semantics",
+      "status": "BLOCKED_NEEDS_DICTIONARY_AND_SAMPLE"
+    },
+    {
+      "gate": "First-publication and first-receipt timestamps/latency",
+      "status": "BLOCKED_NOT_PUBLICLY_DOCUMENTED"
+    },
+    {
+      "gate": "Late trades, cancellations, corrections and revision vintages",
+      "status": "BLOCKED_NOT_PUBLICLY_DOCUMENTED"
+    },
+    {
+      "gate": "Historical methodology version and uniform backfill of new classifier",
+      "status": "BLOCKED_NOT_PUBLICLY_DOCUMENTED"
+    },
+    {
+      "gate": "Lot-size and participant-proxy field history (2016 versus 2021)",
+      "status": "BLOCKED_DOCUMENTATION_CONFLICT"
+    },
+    {
+      "gate": "Security-ID continuity for TradeFlow inactive/delisted contracts and underlying corporate actions",
+      "status": "CONDITIONAL_CROSS_REFERENCE_CLAIM_ONLY"
+    },
+    {
+      "gate": "Raw sample and full data dictionary",
+      "status": "BLOCKED_NO_PUBLIC_RAW_SAMPLE"
+    },
+    {
+      "gate": "Price, internal-use license and derived-data rights",
+      "status": "BLOCKED_NOT_PUBLICLY_DISCLOSED"
+    },
+    {
+      "gate": "TradeFlow versus IvyDB US Intraday timestamp alignment for delta/IV joins",
+      "status": "BLOCKED_NEEDS_SAMPLE_AND_DELIVERY_METADATA"
+    }
+  ],
+  "candidate_hypotheses_not_tested": [
+    {
+      "id": "aggressive_institutional_proxy_net_delta",
+      "definition": "Institutional 2 buyer-initiated minus seller-initiated volume, delta/multiplier/underlying-price weighted where time-aligned Greeks exist",
+      "interpretation": "Aggressive liquidity-demand proxy only"
+    },
+    {
+      "id": "retail_proxy_net_delta",
+      "definition": "Retail 1, Retail 2 and Retail 3 separately, with mutually exclusive aggregation only after validation",
+      "interpretation": "Retail-flow proxies with differing contamination/coverage"
+    },
+    {
+      "id": "all_signed_net_delta",
+      "definition": "All buyer-initiated minus seller-initiated volume, with unclassified volume retained as a separate quality feature",
+      "interpretation": "Overall aggressor-side pressure"
+    },
+    {
+      "id": "execution_mechanism_and_venue",
+      "definition": "Condition-code, NBBO-location and venue concentration/dispersion features",
+      "interpretation": "Microstructure/liquidity controls, not standalone smart-money labels"
+    },
+    {
+      "id": "flow_x_skew_iv",
+      "definition": "Interactions between signed flow and contemporaneous IV/skew/term structure",
+      "interpretation": "Test whether flow contains information beyond hedging/volatility repricing"
+    }
+  ],
+  "no_lookahead_and_validation": {
+    "first_use": "No feature admission until actual first-receipt timestamps and correction-vintage rules are verified; EOD features become usable only after actual receipt, never by nominal trade date alone",
+    "intraday": "Use only the snapshot actually received by the decision timestamp; do not backfill later corrections into earlier snapshots",
+    "interval_semantics": "Do not difference or sum snapshots until the vendor confirms interval versus cumulative semantics and correction handling",
+    "identity": "Use effective-dated option/security identity; do not backdate current ticker mappings",
+    "greeks": "For delta-equivalent flow, use only contemporaneously available Greeks or a preregistered lagged prior snapshot; never use a later 15:45 Greek for earlier intervals",
+    "model_comparison": "Incremental tests versus frozen LTM/F80 with identical exposure and costs; chronological development/validation; block bootstrap and leave-one-out; preserve the locked final holdout",
+    "holding_periods": "Evaluate multiple horizons without imposing a fixed minimum or maximum holding period",
+    "return_chasing": "Control for same-day/prior underlying returns, IV/skew changes, liquidity, event calendar, DTE/moneyness and option volume"
+  },
+  "decision": {
+    "candidate_status": "CONDITIONAL",
+    "feature_admitted": false,
+    "alpha_admitted": false,
+    "backtest_authorized": false,
+    "holdout_used": false,
+    "data_purchase": false,
+    "vendor_contact": false,
+    "raw_data_request": false,
+    "production_changed": false,
+    "frozen_control": "F80_TOP20_PARTIAL50_BASELINE_C20"
+  }
+}

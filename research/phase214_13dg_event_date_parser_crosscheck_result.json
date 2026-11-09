@@ -1,0 +1,77 @@
+{
+  "phase": 214,
+  "status": "PASS_INDEPENDENT_DOM_CROSS_PARSER_REPLICATION",
+  "source": {
+    "phase124_run_id": 42073725379,
+    "phase124_artifact_id": 13436764625,
+    "phase124_artifact_zip_sha256": "85f69e083b5af65731c9bcfe24e8c75821fc0f2c2476bfa8ba573e2e884570dc",
+    "phase124_artifact_zip_sha256_verified": true,
+    "phase124_csv_sha256": "be2c592c6c26d9f1ea49bda5d29d20e944004b2e2f4a3c3f4fe1f732319c55d5"
+  },
+  "integrity": {
+    "source_rows": 600,
+    "index_aliases_quarantined": 1,
+    "raw_submission_sha256_verified": 600,
+    "sec_header_accession_acceptance_filing_date_verified": 600,
+    "actual_primary_13dg_documents_verified": 599,
+    "structured_xml_event_dates_reproduced": 102
+  },
+  "legacy_html_cross_parser": {
+    "rows": 497,
+    "same_date_and_status_outcomes": 497,
+    "parsed_dates": 451,
+    "no_label": 35,
+    "label_without_unambiguous_date": 11,
+    "conflicts": 0,
+    "reference_engine": "Python html.parser / Phase 213",
+    "independent_engine": "BeautifulSoup 4.14.3 + lxml 6.1.1",
+    "nearest_label_distance_chars": {
+      "n": 451,
+      "min": 2,
+      "median": 2,
+      "p90": 59,
+      "max": 96
+    }
+  },
+  "combined_event_date_recovery": {
+    "actual_submissions": 599,
+    "parsed_event_dates": 553,
+    "parsed_unweighted_pct": 92.3205,
+    "unresolved": 46,
+    "by_family": {
+      "13D": {
+        "n": 214,
+        "parsed_n": 205,
+        "coverage_sample_weighted_pct": 96.0428,
+        "quarter_end_weighted_pct_within_parsed": 2.6303,
+        "median_filing_minus_event_days": 4,
+        "max_filing_minus_event_days": 921,
+        "over_30_days_n": 19,
+        "over_90_days_n": 12,
+        "over_365_days_n": 2
+      },
+      "13G": {
+        "n": 385,
+        "parsed_n": 348,
+        "coverage_sample_weighted_pct": 90.7332,
+        "quarter_end_weighted_pct_within_parsed": 76.4355,
+        "median_filing_minus_event_days": 31,
+        "max_filing_minus_event_days": 379,
+        "over_30_days_n": 175,
+        "over_90_days_n": 7,
+        "over_365_days_n": 1
+      }
+    }
+  },
+  "interpretation_limits": [
+    "Cross-parser agreement validates implementation reproducibility, not legal or economic meaning.",
+    "Both engines use the same conservative label and nearest-date rule; no independent gold-standard labels exist.",
+    "Event date is not public-knowledge time; preserve SEC-header ACCEPTANCE-DATETIME and use next full regular session conservatively.",
+    "No issuer/security crosswalk, amendment-state reconstruction, returns, alpha, bootstrap/LOO or OOS test."
+  ],
+  "alpha_test_performed": false,
+  "forward_returns_used": false,
+  "final_holdout_used": false,
+  "production_changed": false,
+  "f80_changed": false
+}

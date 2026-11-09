@@ -1,0 +1,59 @@
+name: Phase 124 Global SEC 13D-G stratified submission audit
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  global-submission-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile auditor
+        run: python -m py_compile research/phase124_global_sec_13dg_stratified_submission_audit.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase124_global_sec_13dg_stratified_submission_audit
+      - name: Download immutable Phase 82 global index artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: phase82-global-13dg-index-coverage-audit
+          path: inputs/phase82
+          repository: ${{ github.repository }}
+          run-id: 41892370262
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download immutable Phase 84 current pilot artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: phase84-13dg-role-aware-identity-validation
+          path: inputs/phase84
+          repository: ${{ github.repository }}
+          run-id: 41914491120
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download immutable Phase 120 predecessor audit artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: phase120-sec-13dg-predecessor-content-audit
+          path: inputs/phase120
+          repository: ${{ github.repository }}
+          run-id: 42058411930
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build global hash-stratified sample and fetch SEC submissions
+        run: >-
+          python research/phase124_global_sec_13dg_stratified_submission_audit.py
+          --phase82-dir inputs/phase82 --phase84-dir inputs/phase84
+          --phase120-dir inputs/phase120 --output-dir out
+      - name: Upload immutable global 13D/G feasibility audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase124-global-sec-13dg-stratified-submission-audit
+          path: out/
+          if-no-files-found: warn
+          retention-days: 90

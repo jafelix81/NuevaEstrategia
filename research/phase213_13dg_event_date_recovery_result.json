@@ -1,0 +1,125 @@
+{
+  "phase": 213,
+  "status": "COMPLETED_HASH_PINNED_13DG_LEGACY_EVENT_DATE_AND_AMENDMENT_AUDIT",
+  "source": {
+    "run_id": 42073725379,
+    "artifact_id": 13436764625,
+    "artifact_zip_sha256": "85f69e083b5af65731c9bcfe24e8c75821fc0f2c2476bfa8ba573e2e884570dc",
+    "csv_sha256": "be2c592c6c26d9f1ea49bda5d29d20e944004b2e2f4a3c3f4fe1f732319c55d5",
+    "source_run_conclusion": "failure",
+    "source_run_exit_code": 2,
+    "source_run_summary_status": "PASS_WITH_INDEX_ALIAS_QUARANTINE"
+  },
+  "integrity": {
+    "source_rows": 600,
+    "actual_13dg": 599,
+    "index_aliases_quarantined": 1,
+    "raw_file_sha256_verified": 600,
+    "sec_header_accession_acceptance_filing_date_verified": 600,
+    "primary_13dg_documents_found": 599,
+    "structured_xml_event_dates_exact_to_phase124": 102,
+    "structured_xml_amendment_numbers_exact_to_phase124_including_absence": 102
+  },
+  "event_date_recovery": {
+    "parsed_n": 553,
+    "parsed_unweighted_pct": 92.3205,
+    "parsed_sample_weighted_pct": 91.6897,
+    "unresolved_n": 46,
+    "method_counts": {
+      "HTML_LABEL_NEAREST_DATE": 451,
+      "XML_dateOfEvent": 34,
+      "XML_eventDateRequiresFilingThisStatement": 68,
+      "LABEL_NO_DATE": 11,
+      "NO_LABEL": 35
+    },
+    "by_family": {
+      "13D": {
+        "n": 214,
+        "event_date_n": 205,
+        "coverage_unweighted_pct": 95.7944,
+        "coverage_sample_weighted_pct": 96.0428,
+        "quarter_end_weighted_pct": 2.6303,
+        "median_filing_minus_event_days": 4,
+        "p90": 27.6,
+        "over_30_days": 19,
+        "over_90_days": 12,
+        "over_365_days": 2,
+        "max_lag": 921
+      },
+      "13G": {
+        "n": 385,
+        "event_date_n": 348,
+        "coverage_unweighted_pct": 90.3896,
+        "coverage_sample_weighted_pct": 90.7332,
+        "quarter_end_weighted_pct": 76.4355,
+        "median_filing_minus_event_days": 31,
+        "p90": 45,
+        "over_30_days": 175,
+        "over_90_days": 7,
+        "over_365_days": 1,
+        "max_lag": 379
+      }
+    },
+    "reform_era": {
+      "13D_pre_2024-02-05": {
+        "n": 162,
+        "parsed": 154,
+        "median_lag": 5
+      },
+      "13D_post_2024-02-05": {
+        "n": 52,
+        "parsed": 51,
+        "median_lag": 4
+      },
+      "13G_pre_2024-09-30": {
+        "n": 308,
+        "parsed": 272,
+        "quarter_end_weighted_pct": 74.7961,
+        "median_lag": 25.5
+      },
+      "13G_post_2024-09-30": {
+        "n": 77,
+        "parsed": 76,
+        "quarter_end_weighted_pct": 81.7308,
+        "median_lag": 38
+      }
+    },
+    "13G_rule_designation_xml_subset": {
+      "Rule 13d-1(b)": {
+        "n": 44,
+        "quarter_end_weighted_pct": 85.8018
+      },
+      "Rule 13d-1(c)": {
+        "n": 15,
+        "quarter_end_weighted_pct": 73.8397
+      },
+      "Rule 13d-1(d)": {
+        "n": 9,
+        "quarter_end_weighted_pct": 55.5993
+      }
+    }
+  },
+  "amendment_marker_audit": {
+    "index_form_suffix_A_n": 371,
+    "cover_amendment_number_positive_n": 376,
+    "cover_amendment_number_zero_n": 4,
+    "cover_amendment_number_missing_n": 219,
+    "html_legacy_number_parsed_n": 321,
+    "html_legacy_label_no_number_n": 123,
+    "html_legacy_label_absent_n": 53,
+    "xml_amendment_number_tag_n": 59,
+    "xml_amendment_number_absent_n": 43,
+    "index_not_A_but_positive_cover_number_n": 11,
+    "index_A_but_no_positive_cover_number_n": 6
+  },
+  "knowledge_clock": {
+    "event_date_is_knowledge_timestamp": false,
+    "availability_field": "SEC-header ACCEPTANCE-DATETIME",
+    "daily_feature_rule": "next full regular session after acceptance; no same-day use"
+  },
+  "alpha_test_performed": false,
+  "forward_returns_used": false,
+  "final_holdout_used": false,
+  "production_changed": false,
+  "f80_changed": false
+}

@@ -1,0 +1,3943 @@
+{
+  "audit_as_of_utc": "2026-11-08T01:50:06.879661+00:00",
+  "decision": "This is a data-quality diagnostic only. Duplicate security-day keys are compared field-by-field and negative Hidden/HiddenVol values are counted with value histograms and denominator context. No deduplication or sentinel interpretation is applied automatically. PIT, security identity and alpha remain unadmitted.",
+  "interpretation": {
+    "alpha_test_authorized": false,
+    "daily_calendar_completeness_verified": false,
+    "data_purchase": false,
+    "duplicate_fields_compared": true,
+    "duplicate_rows_deduplicated": false,
+    "f80_frozen": true,
+    "first_publication_time_verified_for_all": false,
+    "holdout_used": false,
+    "negative_hidden_values_distribution_captured": true,
+    "negative_hiddenvol_values_distribution_captured": true,
+    "negative_values_are_officially_documented_sentinels": false,
+    "production_changed": false,
+    "strict_pit_admitted": false,
+    "vendor_contact": false
+  },
+  "phase": 200,
+  "quarter_results": [
+    {
+      "activity_conflicting_groups": 0,
+      "archive_metadata": {
+        "archive_layers": [
+          {
+            "bytes": 13044750,
+            "member_count": 1,
+            "members": [
+              {
+                "bytes": 13044496,
+                "crc32": "a3efb7f3",
+                "name": "Market Activity by Individual Security 2014 Q2/individual_security_2014_q2.zip"
+              }
+            ],
+            "sha256": "55b5d81438cca01f0451d6e4fcc3cad6efc4a345f4784e423ba2803403adc883",
+            "zip_crc_passed": true
+          },
+          {
+            "bytes": 13044496,
+            "member_count": 2,
+            "members": [
+              {
+                "bytes": 2398,
+                "crc32": "5ba640b5",
+                "name": "README2_q.txt"
+              },
+              {
+                "bytes": 33212023,
+                "crc32": "4f64ba44",
+                "name": "q2_2014_all.csv"
+              }
+            ],
+            "sha256": "746ebefd33c82501367f09a133fee4800d93ab55d27c6921a2c7ff0467cdfc21",
+            "zip_crc_passed": true
+          }
+        ],
+        "container_depth": 1,
+        "data_bytes": 33212023,
+        "data_member": "q2_2014_all.csv",
+        "data_sha256": "b9b308a84e7bf9ddfa441e871e91e0b9de08974258f603df19cbbb0615064375",
+        "nested_member_path": "Market Activity by Individual Security 2014 Q2/individual_security_2014_q2.zip"
+      },
+      "blank_rows": 0,
+      "blank_ticker_rows": 0,
+      "csv_sha256": "b9b308a84e7bf9ddfa441e871e91e0b9de08974258f603df19cbbb0615064375",
+      "derived_hidden_volume_share": {
+        "count": 305880,
+        "denominator_zero_count": 12533,
+        "greater_than_one": 2,
+        "max": 2.267144319344933,
+        "min": 0,
+        "negative_or_missing_rows": 12609
+      },
+      "duplicate_examples": [],
+      "duplicate_key_groups": 0,
+      "duplicate_rows_beyond_first": 0,
+      "exact_duplicate_key_groups": 0,
+      "field_difference_group_counts": {},
+      "header": [
+        "Date",
+        "Security",
+        "Ticker",
+        "McapRank",
+        "TurnRank",
+        "VolatilityRank",
+        "PriceRank",
+        "LitVol('000)",
+        "OrderVol('000)",
+        "Hidden",
+        "TradesForHidden",
+        "HiddenVol('000)",
+        "TradeVolForHidden('000)",
+        "Cancels",
+        "LitTrades",
+        "OddLots",
+        "TradesForOddLots",
+        "OddLotVol('000)",
+        "TradeVolForOddLots('000)"
+      ],
+      "header_sha256": "901dc2ca6f2ce05e6cb5c7900c9a4d9e1fdd2e0b4d3847f031f99738a242aeaf",
+      "http_metadata": {
+        "content_length_header": "13044750",
+        "download_attempt": 1,
+        "etag": null,
+        "final_url": "https://www.sec.gov/files/opa/data/market-structure/metrics-individual-security/individual_security_2014_q2.zip",
+        "http_date": "Sun, 08 Nov 2026 01:49:08 GMT",
+        "http_status": 200,
+        "last_modified": "Sat, 19 Dec 2020 10:17:22 GMT"
+      },
+      "invalid_date_rows": 0,
+      "malformed_rows": 0,
+      "max_date": "2014-06-30",
+      "min_date": "2014-04-01",
+      "negative_fields": {
+        "hidden": {
+          "count": 75,
+          "denominator_missing_count": 0,
+          "denominator_negative_count": 0,
+          "denominator_zero_count": 0,
+          "examples": [
+            {
+              "date": "2014-04-01",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 179,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -27
+            },
+            {
+              "date": "2014-04-02",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 213,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -73
+            },
+            {
+              "date": "2014-04-03",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 156,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -13
+            },
+            {
+              "date": "2014-04-04",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 159,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -19
+            },
+            {
+              "date": "2014-04-07",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 182,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -35
+            },
+            {
+              "date": "2014-04-07",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 6,
+              "security": "Stock",
+              "ticker": "GLOW",
+              "value": -1
+            },
+            {
+              "date": "2014-04-08",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 549,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -184
+            },
+            {
+              "date": "2014-04-09",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 137,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -38
+            },
+            {
+              "date": "2014-04-10",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 238,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -44
+            },
+            {
+              "date": "2014-04-11",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 169,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -18
+            },
+            {
+              "date": "2014-04-14",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 226,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -53
+            },
+            {
+              "date": "2014-04-14",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 297,
+              "security": "Stock",
+              "ticker": "FAC",
+              "value": -36
+            }
+          ],
+          "histogram": {
+            "-1": 4,
+            "-12": 5,
+            "-13": 1,
+            "-14": 4,
+            "-15": 1,
+            "-18": 2,
+            "-184": 1,
+            "-19": 3,
+            "-2": 1,
+            "-21": 2,
+            "-22": 3,
+            "-23": 1,
+            "-24": 2,
+            "-26": 2,
+            "-27": 1,
+            "-28": 1,
+            "-29": 2,
+            "-3": 4,
+            "-31": 2,
+            "-32": 2,
+            "-33": 2,
+            "-35": 1,
+            "-36": 1,
+            "-38": 2,
+            "-39": 1,
+            "-4": 1,
+            "-40": 1,
+            "-41": 1,
+            "-44": 3,
+            "-45": 1,
+            "-49": 2,
+            "-5": 2,
+            "-53": 1,
+            "-55": 1,
+            "-57": 1,
+            "-6": 2,
+            "-7": 2,
+            "-73": 1,
+            "-8": 3,
+            "-87": 1,
+            "-93": 1
+          },
+          "max": -1,
+          "min": -184
+        },
+        "hiddenvol('000)": {
+          "count": 76,
+          "denominator_missing_count": 0,
+          "denominator_negative_count": 0,
+          "denominator_zero_count": 0,
+          "examples": [
+            {
+              "date": "2014-04-01",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 0.205,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -0.054
+            },
+            {
+              "date": "2014-04-02",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 0.247,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -0.079
+            },
+            {
+              "date": "2014-04-03",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 0.161,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -0.025
+            },
+            {
+              "date": "2014-04-04",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 0.16,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -0.017
+            },
+            {
+              "date": "2014-04-07",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 0.198,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -0.047
+            },
+            {
+              "date": "2014-04-07",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 1.8,
+              "security": "Stock",
+              "ticker": "GLOW",
+              "value": -0.2
+            },
+            {
+              "date": "2014-04-08",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 0.718,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -0.034
+            },
+            {
+              "date": "2014-04-09",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 0.164,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -0.055
+            },
+            {
+              "date": "2014-04-10",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 0.271,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -0.076
+            },
+            {
+              "date": "2014-04-11",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 0.171,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -0.022
+            },
+            {
+              "date": "2014-04-14",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 0.249,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -0.083
+            },
+            {
+              "date": "2014-04-14",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 48.358,
+              "security": "Stock",
+              "ticker": "FAC",
+              "value": -1.452
+            }
+          ],
+          "histogram": {
+            "-0.001": 1,
+            "-0.004": 1,
+            "-0.005": 2,
+            "-0.007": 1,
+            "-0.009": 1,
+            "-0.011": 1,
+            "-0.012": 1,
+            "-0.015": 2,
+            "-0.017": 3,
+            "-0.02": 1,
+            "-0.021": 1,
+            "-0.022": 2,
+            "-0.023": 2,
+            "-0.024": 1,
+            "-0.025": 2,
+            "-0.031": 3,
+            "-0.034": 2,
+            "-0.035": 1,
+            "-0.037": 3,
+            "-0.038": 2,
+            "-0.039": 2,
+            "-0.04": 1,
+            "-0.042": 1,
+            "-0.043": 2,
+            "-0.044": 1,
+            "-0.047": 1,
+            "-0.049": 1,
+            "-0.051": 1,
+            "-0.052": 1,
+            "-0.053": 1,
+            "-0.054": 1,
+            "-0.055": 1,
+            "-0.056": 2,
+            "-0.058": 2,
+            "-0.06": 1,
+            "-0.062": 1,
+            "-0.066": 1,
+            "-0.076": 1,
+            "-0.077": 1,
+            "-0.079": 1,
+            "-0.082": 1,
+            "-0.083": 2,
+            "-0.085": 1,
+            "-0.09": 1,
+            "-0.094": 1,
+            "-0.1": 1,
+            "-0.147": 1,
+            "-0.153": 1,
+            "-0.162": 1,
+            "-0.2": 1,
+            "-0.303": 1,
+            "-1.203": 1,
+            "-1.452": 1,
+            "-1.587": 1,
+            "-1.95": 1,
+            "-27.568": 1,
+            "-3.343": 1,
+            "-4.795": 1
+          },
+          "max": -0.001,
+          "min": -27.568
+        }
+      },
+      "nonnegative_value_ranges": {
+        "hidden": {
+          "count": 318414,
+          "greater_than_one": 279955,
+          "max": 75683,
+          "min": 0
+        },
+        "hiddenvol('000)": {
+          "count": 318413,
+          "greater_than_one": 247088,
+          "max": 23148.098,
+          "min": 0
+        }
+      },
+      "numeric_invalid_by_field": {},
+      "numeric_negative_by_field": {
+        "hidden": 75,
+        "hiddenvol('000)": 76
+      },
+      "out_of_quarter_rows": 0,
+      "quarter": "2014 Q2",
+      "rank_only_conflicting_groups": 0,
+      "rows_with_valid_ticker_and_date": 318489,
+      "security_class_counts": {
+        "ETF": 83666,
+        "Stock": 234823
+      },
+      "unique_dates": 63,
+      "unique_tickers": 5168
+    },
+    {
+      "activity_conflicting_groups": 0,
+      "archive_metadata": {
+        "archive_layers": [
+          {
+            "bytes": 15177551,
+            "member_count": 2,
+            "members": [
+              {
+                "bytes": 3602,
+                "crc32": "45278408",
+                "name": "README.txt"
+              },
+              {
+                "bytes": 46271163,
+                "crc32": "423568df",
+                "name": "q1_2016_all.csv"
+              }
+            ],
+            "sha256": "d627631e65301d24f94c60733bdcbad5cb8bab16ae3b34f32df043a142ce00a8",
+            "zip_crc_passed": true
+          }
+        ],
+        "container_depth": 0,
+        "data_bytes": 46271163,
+        "data_member": "q1_2016_all.csv",
+        "data_sha256": "077e7a3c0edfe2fc5994e4af20ad22e47fbb3cffdf42dd22b270ed9b75ad5762"
+      },
+      "blank_rows": 0,
+      "blank_ticker_rows": 0,
+      "csv_sha256": "077e7a3c0edfe2fc5994e4af20ad22e47fbb3cffdf42dd22b270ed9b75ad5762",
+      "derived_hidden_volume_share": {
+        "count": 304324,
+        "denominator_zero_count": 18800,
+        "greater_than_one": 0,
+        "max": 1,
+        "min": 0,
+        "negative_or_missing_rows": 19130
+      },
+      "duplicate_examples": [
+        {
+          "changed_fields": [
+            "McapRank",
+            "TurnRank",
+            "PriceRank"
+          ],
+          "date": "2016-02-22",
+          "duplicate_values": {
+            "McapRank": "2.0",
+            "PriceRank": "1.0",
+            "TurnRank": "1.0"
+          },
+          "first_values": {
+            "McapRank": "",
+            "PriceRank": "",
+            "TurnRank": ""
+          },
+          "security": "ETF",
+          "ticker": "YMLI"
+        },
+        {
+          "changed_fields": [
+            "McapRank",
+            "TurnRank",
+            "PriceRank"
+          ],
+          "date": "2016-02-22",
+          "duplicate_values": {
+            "McapRank": "2.0",
+            "PriceRank": "1.0",
+            "TurnRank": "3.0"
+          },
+          "first_values": {
+            "McapRank": "",
+            "PriceRank": "",
+            "TurnRank": ""
+          },
+          "security": "ETF",
+          "ticker": "YMLP"
+        }
+      ],
+      "duplicate_key_groups": 2,
+      "duplicate_rows_beyond_first": 2,
+      "exact_duplicate_key_groups": 0,
+      "field_difference_group_counts": {
+        "mcaprank": 2,
+        "pricerank": 2,
+        "turnrank": 2
+      },
+      "header": [
+        "Date",
+        "Security",
+        "Ticker",
+        "McapRank",
+        "TurnRank",
+        "VolatilityRank",
+        "PriceRank",
+        "LitVol('000)",
+        "OrderVol('000)",
+        "Hidden",
+        "TradesForHidden",
+        "HiddenVol('000)",
+        "TradeVolForHidden('000)",
+        "Cancels",
+        "LitTrades",
+        "OddLots",
+        "TradesForOddLots",
+        "OddLotVol('000)",
+        "TradeVolForOddLots('000)"
+      ],
+      "header_sha256": "901dc2ca6f2ce05e6cb5c7900c9a4d9e1fdd2e0b4d3847f031f99738a242aeaf",
+      "http_metadata": {
+        "content_length_header": "15177551",
+        "download_attempt": 1,
+        "etag": null,
+        "final_url": "https://www.sec.gov/files/opa/data/market-structure/metrics-individual-security/individual_security_2016_q1.zip",
+        "http_date": "Sun, 08 Nov 2026 01:49:17 GMT",
+        "http_status": 200,
+        "last_modified": "Sat, 19 Dec 2020 10:17:31 GMT"
+      },
+      "invalid_date_rows": 0,
+      "malformed_rows": 0,
+      "max_date": "2016-03-31",
+      "min_date": "2016-01-04",
+      "negative_fields": {
+        "hidden": {
+          "count": 82,
+          "denominator_missing_count": 0,
+          "denominator_negative_count": 0,
+          "denominator_zero_count": 0,
+          "examples": [
+            {
+              "date": "2016-01-04",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 570,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -167
+            },
+            {
+              "date": "2016-01-05",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 105,
+              "security": "Stock",
+              "ticker": "NNVC",
+              "value": -1
+            },
+            {
+              "date": "2016-01-06",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 452,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -37
+            },
+            {
+              "date": "2016-01-06",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 6,
+              "security": "Stock",
+              "ticker": "DDE",
+              "value": -1
+            },
+            {
+              "date": "2016-01-08",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 265,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -64
+            },
+            {
+              "date": "2016-01-11",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 186,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -36
+            },
+            {
+              "date": "2016-01-12",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 198,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -47
+            },
+            {
+              "date": "2016-01-12",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 110,
+              "security": "Stock",
+              "ticker": "PVCT",
+              "value": -1
+            },
+            {
+              "date": "2016-01-13",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 314,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -108
+            },
+            {
+              "date": "2016-01-13",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 11,
+              "security": "Stock",
+              "ticker": "UAMY",
+              "value": -1
+            },
+            {
+              "date": "2016-01-14",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 189,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -34
+            },
+            {
+              "date": "2016-01-15",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 365,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -45
+            }
+          ],
+          "histogram": {
+            "-1": 14,
+            "-108": 1,
+            "-129": 1,
+            "-160": 1,
+            "-167": 1,
+            "-17": 1,
+            "-18": 2,
+            "-19": 1,
+            "-2": 6,
+            "-20": 1,
+            "-22": 4,
+            "-24": 1,
+            "-26": 1,
+            "-3": 5,
+            "-33": 2,
+            "-34": 1,
+            "-36": 1,
+            "-37": 3,
+            "-38": 2,
+            "-39": 3,
+            "-4": 2,
+            "-42": 2,
+            "-45": 2,
+            "-46": 1,
+            "-47": 1,
+            "-48": 1,
+            "-52": 1,
+            "-54": 1,
+            "-55": 4,
+            "-56": 1,
+            "-57": 1,
+            "-61": 1,
+            "-64": 2,
+            "-66": 1,
+            "-71": 1,
+            "-72": 1,
+            "-76": 1,
+            "-77": 1,
+            "-83": 2,
+            "-86": 1,
+            "-87": 1,
+            "-88": 1
+          },
+          "max": -1,
+          "min": -167
+        },
+        "hiddenvol('000)": {
+          "count": 184,
+          "denominator_missing_count": 0,
+          "denominator_negative_count": 0,
+          "denominator_zero_count": 0,
+          "examples": [
+            {
+              "date": "2016-01-04",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 84.277,
+              "security": "Stock",
+              "ticker": "BPI",
+              "value": -10.845000000000006
+            },
+            {
+              "date": "2016-01-04",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 0.6699999999999999,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -0.10200000000000001
+            },
+            {
+              "date": "2016-01-04",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 50.936,
+              "security": "Stock",
+              "ticker": "ERN",
+              "value": -16.514999999999997
+            },
+            {
+              "date": "2016-01-05",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 15.738,
+              "security": "Stock",
+              "ticker": "NNVC",
+              "value": -0.37399999999999983
+            },
+            {
+              "date": "2016-01-06",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 46.53,
+              "security": "Stock",
+              "ticker": "AST",
+              "value": -2.3419999999999996
+            },
+            {
+              "date": "2016-01-06",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 284.382,
+              "security": "Stock",
+              "ticker": "AXN",
+              "value": -11.845999999999988
+            },
+            {
+              "date": "2016-01-06",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 0.549,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -0.03400000000000001
+            },
+            {
+              "date": "2016-01-06",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 0.302,
+              "security": "Stock",
+              "ticker": "DDE",
+              "value": -0.0020000000000000018
+            },
+            {
+              "date": "2016-01-06",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 58.454,
+              "security": "Stock",
+              "ticker": "HTM",
+              "value": -4.034999999999998
+            },
+            {
+              "date": "2016-01-06",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 11.013,
+              "security": "Stock",
+              "ticker": "IBIO",
+              "value": -3.175
+            },
+            {
+              "date": "2016-01-07",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 15.536,
+              "security": "Stock",
+              "ticker": "ADK",
+              "value": -0.5009999999999999
+            },
+            {
+              "date": "2016-01-07",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 201.325,
+              "security": "Stock",
+              "ticker": "WAIR",
+              "value": -7.696999999999994
+            }
+          ],
+          "histogram": {
+            "-0.001": 2,
+            "-0.002": 3,
+            "-0.003": 1,
+            "-0.00300000000000011": 1,
+            "-0.006": 1,
+            "-0.021": 1,
+            "-0.022": 1,
+            "-0.024": 1,
+            "-0.025": 1,
+            "-0.0270000000000001": 1,
+            "-0.028": 1,
+            "-0.029": 1,
+            "-0.03": 1,
+            "-0.031": 1,
+            "-0.032": 1,
+            "-0.034": 1,
+            "-0.038": 1,
+            "-0.04": 1,
+            "-0.042": 2,
+            "-0.044": 1,
+            "-0.045": 1,
+            "-0.046": 2,
+            "-0.047": 1,
+            "-0.049": 1,
+            "-0.05": 1,
+            "-0.051": 2,
+            "-0.052": 2,
+            "-0.054": 2,
+            "-0.055": 1,
+            "-0.057": 1,
+            "-0.058": 1,
+            "-0.0590000000000001": 1,
+            "-0.064": 1,
+            "-0.066": 1,
+            "-0.069": 1,
+            "-0.07": 2,
+            "-0.071": 1,
+            "-0.075": 2,
+            "-0.079": 1,
+            "-0.082": 1,
+            "-0.083": 1,
+            "-0.084": 2,
+            "-0.085": 1,
+            "-0.086": 1,
+            "-0.091": 1,
+            "-0.096": 1,
+            "-0.1": 2,
+            "-0.102": 3,
+            "-0.105": 1,
+            "-0.107": 1,
+            "-0.111": 1,
+            "-0.114": 1,
+            "-0.123": 1,
+            "-0.124": 1,
+            "-0.127": 1,
+            "-0.13": 1,
+            "-0.137": 1,
+            "-0.145": 1,
+            "-0.173": 1,
+            "-0.177": 1,
+            "-0.192": 1,
+            "-0.201": 1,
+            "-0.206": 1,
+            "-0.256": 1,
+            "-0.259000000000001": 1,
+            "-0.272000000000001": 1,
+            "-0.3": 1,
+            "-0.374": 1,
+            "-0.387": 1,
+            "-0.398000000000001": 1,
+            "-0.4": 1,
+            "-0.421": 1,
+            "-0.5": 1,
+            "-0.501": 1,
+            "-0.612": 1,
+            "-0.7": 1,
+            "-0.720999999999993": 1,
+            "-0.73": 1,
+            "-0.737999999999996": 1,
+            "-0.873000000000002": 1,
+            "-0.936999999999999": 1,
+            "-1.01": 1,
+            "-1.018": 1,
+            "-1.03": 1,
+            "-1.1": 1,
+            "-1.11022302462516e-16": 1,
+            "-1.119": 1,
+            "-1.13": 1,
+            "-1.13499999999999": 1,
+            "-1.225": 1,
+            "-1.236": 1,
+            "-1.24": 1,
+            "-1.247": 1,
+            "-1.3": 1,
+            "-1.372": 1,
+            "-1.398": 1,
+            "-1.401": 1,
+            "-1.53300000000001": 1,
+            "-1.602": 1,
+            "-1.706": 1,
+            "-1.749": 1,
+            "-1.75": 1,
+            "-1.998": 1,
+            "-10.845": 1,
+            "-1016.26": 1,
+            "-11.846": 1,
+            "-12.837": 1,
+            "-13.426": 1,
+            "-13.525": 1,
+            "-13.613": 1,
+            "-13.63": 1,
+            "-14.331": 1,
+            "-145.602": 1,
+            "-15": 1,
+            "-16.515": 1,
+            "-17.644": 1,
+            "-17.998": 1,
+            "-1748.74": 1,
+            "-18.089": 1,
+            "-18.362": 1,
+            "-2.086": 1,
+            "-2.11099999999999": 1,
+            "-2.127": 1,
+            "-2.158": 1,
+            "-2.223": 1,
+            "-2.34": 1,
+            "-2.342": 1,
+            "-2.517": 1,
+            "-2.72399999999999": 1,
+            "-2.76": 1,
+            "-22.084": 1,
+            "-2527.154": 1,
+            "-26.723": 1,
+            "-27.49": 1,
+            "-29.87": 1,
+            "-290.905": 1,
+            "-3.175": 1,
+            "-3.2": 1,
+            "-3.3": 1,
+            "-3.38": 1,
+            "-3.408": 1,
+            "-3.54199999999999": 1,
+            "-3.914": 1,
+            "-3.942": 1,
+            "-33.093": 1,
+            "-35.588": 1,
+            "-360.087": 1,
+            "-4.035": 1,
+            "-4.275": 1,
+            "-4.305": 1,
+            "-4.73900000000001": 1,
+            "-5.432": 1,
+            "-5.435": 1,
+            "-5.791": 1,
+            "-5.892": 1,
+            "-5.923": 1,
+            "-59.603": 1,
+            "-6.524": 1,
+            "-63.022": 1,
+            "-7.419": 1,
+            "-7.423": 1,
+            "-7.69699999999999": 1,
+            "-73.9779999999999": 1,
+            "-74.0950000000002": 1,
+            "-8.4": 1,
+            "-8.628": 1,
+            "-8.886": 1,
+            "-9.05": 1,
+            "-9.30699999999996": 1,
+            "-91.571": 1
+          },
+          "max": -1.1102230246251565e-16,
+          "min": -2527.1540000000005
+        }
+      },
+      "nonnegative_value_ranges": {
+        "hidden": {
+          "count": 323226,
+          "greater_than_one": 275666,
+          "max": 89895,
+          "min": 0
+        },
+        "hiddenvol('000)": {
+          "count": 323124,
+          "greater_than_one": 242651,
+          "max": 33670.200000000004,
+          "min": 0
+        }
+      },
+      "numeric_invalid_by_field": {},
+      "numeric_negative_by_field": {
+        "hidden": 82,
+        "hiddenvol('000)": 184
+      },
+      "out_of_quarter_rows": 0,
+      "quarter": "2016 Q1",
+      "rank_only_conflicting_groups": 2,
+      "rows_with_valid_ticker_and_date": 323454,
+      "security_class_counts": {
+        "ETF": 95431,
+        "Stock": 228023
+      },
+      "unique_dates": 61,
+      "unique_tickers": 5393
+    },
+    {
+      "activity_conflicting_groups": 0,
+      "archive_metadata": {
+        "archive_layers": [
+          {
+            "bytes": 15643843,
+            "member_count": 2,
+            "members": [
+              {
+                "bytes": 48069485,
+                "crc32": "85000f12",
+                "name": "q2_2016_all.csv"
+              },
+              {
+                "bytes": 3602,
+                "crc32": "45278408",
+                "name": "README.txt"
+              }
+            ],
+            "sha256": "0074161916f1aa11390f6d5da59d6de919baa1111df4d81f5fa81f63d499bf4b",
+            "zip_crc_passed": true
+          }
+        ],
+        "container_depth": 0,
+        "data_bytes": 48069485,
+        "data_member": "q2_2016_all.csv",
+        "data_sha256": "8a6c77ffd5a2deb6b1bfaecccfc08d33de4abfa176d570eb4fe367db5733ca0c"
+      },
+      "blank_rows": 0,
+      "blank_ticker_rows": 0,
+      "csv_sha256": "8a6c77ffd5a2deb6b1bfaecccfc08d33de4abfa176d570eb4fe367db5733ca0c",
+      "derived_hidden_volume_share": {
+        "count": 317010,
+        "denominator_zero_count": 21026,
+        "greater_than_one": 0,
+        "max": 1,
+        "min": 0,
+        "negative_or_missing_rows": 21173
+      },
+      "duplicate_examples": [
+        {
+          "changed_fields": [],
+          "date": "2016-04-08",
+          "duplicate_values": {},
+          "first_values": {},
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [],
+          "date": "2016-04-11",
+          "duplicate_values": {},
+          "first_values": {},
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [],
+          "date": "2016-04-12",
+          "duplicate_values": {},
+          "first_values": {},
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [],
+          "date": "2016-04-13",
+          "duplicate_values": {},
+          "first_values": {},
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank"
+          ],
+          "date": "2016-04-14",
+          "duplicate_values": {
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "TurnRank": "9.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank"
+          ],
+          "date": "2016-04-15",
+          "duplicate_values": {
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "TurnRank": "9.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank"
+          ],
+          "date": "2016-04-18",
+          "duplicate_values": {
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "TurnRank": "9.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank"
+          ],
+          "date": "2016-04-19",
+          "duplicate_values": {
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "TurnRank": "7.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank"
+          ],
+          "date": "2016-04-20",
+          "duplicate_values": {
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "TurnRank": "8.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank",
+            "PriceRank"
+          ],
+          "date": "2016-04-21",
+          "duplicate_values": {
+            "PriceRank": "9.0",
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "PriceRank": "8.0",
+            "TurnRank": "9.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank",
+            "PriceRank"
+          ],
+          "date": "2016-04-22",
+          "duplicate_values": {
+            "PriceRank": "9.0",
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "PriceRank": "8.0",
+            "TurnRank": "9.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank",
+            "PriceRank"
+          ],
+          "date": "2016-04-25",
+          "duplicate_values": {
+            "PriceRank": "9.0",
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "PriceRank": "8.0",
+            "TurnRank": "8.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank",
+            "PriceRank"
+          ],
+          "date": "2016-04-26",
+          "duplicate_values": {
+            "PriceRank": "9.0",
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "PriceRank": "8.0",
+            "TurnRank": "8.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank"
+          ],
+          "date": "2016-04-27",
+          "duplicate_values": {
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "TurnRank": "6.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank"
+          ],
+          "date": "2016-04-28",
+          "duplicate_values": {
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "TurnRank": "7.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "McapRank",
+            "TurnRank",
+            "PriceRank"
+          ],
+          "date": "2016-04-29",
+          "duplicate_values": {
+            "McapRank": "",
+            "PriceRank": "",
+            "TurnRank": ""
+          },
+          "first_values": {
+            "McapRank": "6.0",
+            "PriceRank": "4.0",
+            "TurnRank": "10.0"
+          },
+          "security": "Stock",
+          "ticker": "PNK"
+        },
+        {
+          "changed_fields": [
+            "TurnRank"
+          ],
+          "date": "2016-04-29",
+          "duplicate_values": {
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "TurnRank": "7.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank"
+          ],
+          "date": "2016-05-02",
+          "duplicate_values": {
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "TurnRank": "6.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "McapRank",
+            "TurnRank",
+            "PriceRank"
+          ],
+          "date": "2016-05-02",
+          "duplicate_values": {
+            "McapRank": "",
+            "PriceRank": "",
+            "TurnRank": ""
+          },
+          "first_values": {
+            "McapRank": "3.0",
+            "PriceRank": "2.0",
+            "TurnRank": "4.0"
+          },
+          "security": "ETF",
+          "ticker": "FCG"
+        },
+        {
+          "changed_fields": [
+            "TurnRank"
+          ],
+          "date": "2016-05-03",
+          "duplicate_values": {
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "TurnRank": "7.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        }
+      ],
+      "duplicate_key_groups": 61,
+      "duplicate_rows_beyond_first": 61,
+      "exact_duplicate_key_groups": 6,
+      "field_difference_group_counts": {
+        "mcaprank": 2,
+        "pricerank": 6,
+        "turnrank": 55
+      },
+      "header": [
+        "Date",
+        "Security",
+        "Ticker",
+        "McapRank",
+        "TurnRank",
+        "VolatilityRank",
+        "PriceRank",
+        "LitVol('000)",
+        "OrderVol('000)",
+        "Hidden",
+        "TradesForHidden",
+        "HiddenVol('000)",
+        "TradeVolForHidden('000)",
+        "Cancels",
+        "LitTrades",
+        "OddLots",
+        "TradesForOddLots",
+        "OddLotVol('000)",
+        "TradeVolForOddLots('000)"
+      ],
+      "header_sha256": "901dc2ca6f2ce05e6cb5c7900c9a4d9e1fdd2e0b4d3847f031f99738a242aeaf",
+      "http_metadata": {
+        "content_length_header": "15643843",
+        "download_attempt": 1,
+        "etag": null,
+        "final_url": "https://www.sec.gov/files/opa/data/market-structure/metrics-individual-security/individual_security_2016_q2.zip",
+        "http_date": "Sun, 08 Nov 2026 01:49:27 GMT",
+        "http_status": 200,
+        "last_modified": "Sat, 19 Dec 2020 10:17:32 GMT"
+      },
+      "invalid_date_rows": 0,
+      "malformed_rows": 0,
+      "max_date": "2016-06-30",
+      "min_date": "2016-04-01",
+      "negative_fields": {
+        "hidden": {
+          "count": 77,
+          "denominator_missing_count": 0,
+          "denominator_negative_count": 0,
+          "denominator_zero_count": 0,
+          "examples": [
+            {
+              "date": "2016-04-01",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 198,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -74
+            },
+            {
+              "date": "2016-04-04",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 141,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -45
+            },
+            {
+              "date": "2016-04-05",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 141,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -61
+            },
+            {
+              "date": "2016-04-05",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 2,
+              "security": "Stock",
+              "ticker": "MOC",
+              "value": -1
+            },
+            {
+              "date": "2016-04-06",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 127,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -45
+            },
+            {
+              "date": "2016-04-06",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 11,
+              "security": "Stock",
+              "ticker": "MKC.V",
+              "value": -2
+            },
+            {
+              "date": "2016-04-06",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 5,
+              "security": "Stock",
+              "ticker": "STZ.B",
+              "value": -1
+            },
+            {
+              "date": "2016-04-07",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 96,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -23
+            },
+            {
+              "date": "2016-04-08",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 85,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -42
+            },
+            {
+              "date": "2016-04-11",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 63,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -20
+            },
+            {
+              "date": "2016-04-12",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 120,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -55
+            },
+            {
+              "date": "2016-04-13",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 219,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -96
+            }
+          ],
+          "histogram": {
+            "-1": 6,
+            "-102": 1,
+            "-11": 1,
+            "-112": 1,
+            "-12": 1,
+            "-123": 1,
+            "-126": 1,
+            "-16": 1,
+            "-193": 1,
+            "-2": 3,
+            "-20": 1,
+            "-22": 1,
+            "-23": 2,
+            "-24": 2,
+            "-25": 1,
+            "-3": 2,
+            "-30": 1,
+            "-31": 2,
+            "-32": 2,
+            "-33": 1,
+            "-34": 3,
+            "-36": 3,
+            "-37": 1,
+            "-38": 1,
+            "-39": 1,
+            "-41": 2,
+            "-42": 2,
+            "-43": 2,
+            "-45": 3,
+            "-46": 1,
+            "-5": 1,
+            "-50": 3,
+            "-51": 2,
+            "-53": 2,
+            "-55": 2,
+            "-56": 2,
+            "-59": 1,
+            "-61": 1,
+            "-70": 1,
+            "-71": 1,
+            "-74": 1,
+            "-80": 1,
+            "-86": 2,
+            "-9": 1,
+            "-90": 1,
+            "-91": 1,
+            "-92": 1,
+            "-96": 1,
+            "-97": 1
+          },
+          "max": -1,
+          "min": -193
+        },
+        "hiddenvol('000)": {
+          "count": 147,
+          "denominator_missing_count": 0,
+          "denominator_negative_count": 0,
+          "denominator_zero_count": 0,
+          "examples": [
+            {
+              "date": "2016-04-01",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 0.256,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -0.11699999999999999
+            },
+            {
+              "date": "2016-04-04",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 0.14700000000000002,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -0.049
+            },
+            {
+              "date": "2016-04-05",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 0.183,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -0.09399999999999997
+            },
+            {
+              "date": "2016-04-05",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 0.041,
+              "security": "Stock",
+              "ticker": "MOC",
+              "value": -1.4220000000000002
+            },
+            {
+              "date": "2016-04-06",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 0.136,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -0.05200000000000002
+            },
+            {
+              "date": "2016-04-06",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 1.463,
+              "security": "Stock",
+              "ticker": "MKC.V",
+              "value": -0.2
+            },
+            {
+              "date": "2016-04-06",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 0.006,
+              "security": "Stock",
+              "ticker": "SIF",
+              "value": -0.198
+            },
+            {
+              "date": "2016-04-06",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 0.319,
+              "security": "Stock",
+              "ticker": "STZ.B",
+              "value": -0.098
+            },
+            {
+              "date": "2016-04-07",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 0.10300000000000001,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -0.027999999999999997
+            },
+            {
+              "date": "2016-04-07",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 167.891,
+              "security": "Stock",
+              "ticker": "PIP",
+              "value": -4.867000000000003
+            },
+            {
+              "date": "2016-04-08",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 0.086,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -0.03899999999999999
+            },
+            {
+              "date": "2016-04-11",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 0.067,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -0.024000000000000004
+            }
+          ],
+          "histogram": {
+            "-0.0109999999999999": 1,
+            "-0.014": 1,
+            "-0.016": 1,
+            "-0.019999999999995": 1,
+            "-0.022": 1,
+            "-0.024": 1,
+            "-0.025": 4,
+            "-0.027": 1,
+            "-0.028": 1,
+            "-0.03": 1,
+            "-0.035": 1,
+            "-0.036": 2,
+            "-0.037": 3,
+            "-0.038": 2,
+            "-0.039": 2,
+            "-0.04": 1,
+            "-0.043": 3,
+            "-0.044": 1,
+            "-0.045": 1,
+            "-0.046": 1,
+            "-0.047": 1,
+            "-0.048": 1,
+            "-0.049": 1,
+            "-0.05": 1,
+            "-0.0500000000000001": 1,
+            "-0.051": 1,
+            "-0.052": 2,
+            "-0.053": 1,
+            "-0.056": 1,
+            "-0.058": 2,
+            "-0.061": 1,
+            "-0.063": 3,
+            "-0.0660000000000003": 1,
+            "-0.068": 1,
+            "-0.07": 1,
+            "-0.073": 1,
+            "-0.075": 1,
+            "-0.078": 1,
+            "-0.084": 1,
+            "-0.085": 1,
+            "-0.092": 1,
+            "-0.094": 1,
+            "-0.095": 1,
+            "-0.097": 1,
+            "-0.098": 1,
+            "-0.100000000000001": 1,
+            "-0.102": 1,
+            "-0.105": 1,
+            "-0.108": 1,
+            "-0.109": 1,
+            "-0.111": 1,
+            "-0.117": 1,
+            "-0.118": 1,
+            "-0.126": 1,
+            "-0.133": 1,
+            "-0.135": 1,
+            "-0.14": 1,
+            "-0.15": 1,
+            "-0.198": 1,
+            "-0.2": 1,
+            "-0.201": 1,
+            "-0.253000000000001": 1,
+            "-0.264": 1,
+            "-0.281": 1,
+            "-0.293": 1,
+            "-0.294": 1,
+            "-0.3": 1,
+            "-0.300000000000001": 1,
+            "-0.337": 1,
+            "-0.448": 1,
+            "-0.6": 1,
+            "-0.610999999999969": 1,
+            "-0.617999999999999": 1,
+            "-0.750000000000003": 1,
+            "-0.777": 1,
+            "-0.992000000000002": 1,
+            "-1.007": 1,
+            "-1.253": 1,
+            "-1.32700000000002": 1,
+            "-1.335": 1,
+            "-1.422": 1,
+            "-1.445": 1,
+            "-1.505": 1,
+            "-1.552": 1,
+            "-1.712": 1,
+            "-1.9": 1,
+            "-1.934": 1,
+            "-10.507": 1,
+            "-117.762": 1,
+            "-121.968": 1,
+            "-127.641": 1,
+            "-16.5240000000001": 1,
+            "-179.788": 1,
+            "-18.184": 1,
+            "-19.128": 1,
+            "-2.45": 1,
+            "-2.501": 1,
+            "-2.705": 1,
+            "-22.199": 1,
+            "-24.264": 1,
+            "-25.452": 1,
+            "-3.106": 1,
+            "-3.379": 1,
+            "-3.422": 1,
+            "-3.517": 1,
+            "-3.599": 1,
+            "-31.246": 1,
+            "-34.552": 1,
+            "-347.084": 1,
+            "-37.0989999999999": 1,
+            "-39.6469999999999": 1,
+            "-4.342": 1,
+            "-4.8": 1,
+            "-4.867": 1,
+            "-43.187": 1,
+            "-469.43": 1,
+            "-5.691": 1,
+            "-5.778": 1,
+            "-5.958": 1,
+            "-6.192": 1,
+            "-6.336": 1,
+            "-68.975": 1,
+            "-7.09": 1,
+            "-7.7": 1,
+            "-72.704": 1,
+            "-74.183": 1,
+            "-77.664": 1,
+            "-8.401": 1,
+            "-8.846": 1,
+            "-88.998": 1,
+            "-9.531": 1,
+            "-92.3869999999999": 1,
+            "-98.5750000000001": 1
+          },
+          "max": -0.010999999999999907,
+          "min": -469.43000000000006
+        }
+      },
+      "nonnegative_value_ranges": {
+        "hidden": {
+          "count": 338106,
+          "greater_than_one": 287905,
+          "max": 64866,
+          "min": 0
+        },
+        "hiddenvol('000)": {
+          "count": 338036,
+          "greater_than_one": 252909,
+          "max": 20937.222,
+          "min": 0
+        }
+      },
+      "numeric_invalid_by_field": {},
+      "numeric_negative_by_field": {
+        "hidden": 77,
+        "hiddenvol('000)": 147
+      },
+      "out_of_quarter_rows": 0,
+      "quarter": "2016 Q2",
+      "rank_only_conflicting_groups": 55,
+      "rows_with_valid_ticker_and_date": 338183,
+      "security_class_counts": {
+        "ETF": 101275,
+        "Stock": 236908
+      },
+      "unique_dates": 64,
+      "unique_tickers": 5393
+    },
+    {
+      "activity_conflicting_groups": 0,
+      "archive_metadata": {
+        "archive_layers": [
+          {
+            "bytes": 15566189,
+            "member_count": 2,
+            "members": [
+              {
+                "bytes": 3602,
+                "crc32": "45278408",
+                "name": "README.txt"
+              },
+              {
+                "bytes": 47955250,
+                "crc32": "27e3068f",
+                "name": "q3_2016_all.csv"
+              }
+            ],
+            "sha256": "b95521f684d9ee873080e14ffc95802607d6fae486ead051f169d6bfacf7cd97",
+            "zip_crc_passed": true
+          }
+        ],
+        "container_depth": 0,
+        "data_bytes": 47955250,
+        "data_member": "q3_2016_all.csv",
+        "data_sha256": "64f3a9d3cd739b3393bf969c4396b3fe57c421388c0884f086e09fb6229bffec"
+      },
+      "blank_rows": 0,
+      "blank_ticker_rows": 0,
+      "csv_sha256": "64f3a9d3cd739b3393bf969c4396b3fe57c421388c0884f086e09fb6229bffec",
+      "derived_hidden_volume_share": {
+        "count": 316812,
+        "denominator_zero_count": 21134,
+        "greater_than_one": 0,
+        "max": 1,
+        "min": 0,
+        "negative_or_missing_rows": 21287
+      },
+      "duplicate_examples": [
+        {
+          "changed_fields": [
+            "TurnRank"
+          ],
+          "date": "2016-07-01",
+          "duplicate_values": {
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "TurnRank": "5.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank"
+          ],
+          "date": "2016-07-05",
+          "duplicate_values": {
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "TurnRank": "4.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank"
+          ],
+          "date": "2016-07-06",
+          "duplicate_values": {
+            "TurnRank": "9.0"
+          },
+          "first_values": {
+            "TurnRank": "4.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank"
+          ],
+          "date": "2016-07-07",
+          "duplicate_values": {
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "TurnRank": "4.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank"
+          ],
+          "date": "2016-07-08",
+          "duplicate_values": {
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "TurnRank": "4.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank"
+          ],
+          "date": "2016-07-11",
+          "duplicate_values": {
+            "TurnRank": "9.0"
+          },
+          "first_values": {
+            "TurnRank": "3.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank"
+          ],
+          "date": "2016-07-12",
+          "duplicate_values": {
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "TurnRank": "5.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank"
+          ],
+          "date": "2016-07-13",
+          "duplicate_values": {
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "TurnRank": "5.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank"
+          ],
+          "date": "2016-07-14",
+          "duplicate_values": {
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "TurnRank": "5.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank"
+          ],
+          "date": "2016-07-15",
+          "duplicate_values": {
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "TurnRank": "5.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank"
+          ],
+          "date": "2016-07-18",
+          "duplicate_values": {
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "TurnRank": "3.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "McapRank",
+            "TurnRank",
+            "PriceRank"
+          ],
+          "date": "2016-07-18",
+          "duplicate_values": {
+            "McapRank": "2.0",
+            "PriceRank": "2.0",
+            "TurnRank": "1.0"
+          },
+          "first_values": {
+            "McapRank": "",
+            "PriceRank": "",
+            "TurnRank": ""
+          },
+          "security": "ETF",
+          "ticker": "SPXH"
+        },
+        {
+          "changed_fields": [
+            "McapRank",
+            "TurnRank",
+            "PriceRank"
+          ],
+          "date": "2016-07-18",
+          "duplicate_values": {
+            "McapRank": "1.0",
+            "PriceRank": "2.0",
+            "TurnRank": "4.0"
+          },
+          "first_values": {
+            "McapRank": "",
+            "PriceRank": "",
+            "TurnRank": ""
+          },
+          "security": "ETF",
+          "ticker": "TRSK"
+        },
+        {
+          "changed_fields": [
+            "TurnRank"
+          ],
+          "date": "2016-07-19",
+          "duplicate_values": {
+            "TurnRank": "9.0"
+          },
+          "first_values": {
+            "TurnRank": "5.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank"
+          ],
+          "date": "2016-07-20",
+          "duplicate_values": {
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "TurnRank": "6.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank"
+          ],
+          "date": "2016-07-21",
+          "duplicate_values": {
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "TurnRank": "4.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank"
+          ],
+          "date": "2016-07-22",
+          "duplicate_values": {
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "TurnRank": "4.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank"
+          ],
+          "date": "2016-07-25",
+          "duplicate_values": {
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "TurnRank": "8.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank"
+          ],
+          "date": "2016-07-26",
+          "duplicate_values": {
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "TurnRank": "9.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank"
+          ],
+          "date": "2016-07-27",
+          "duplicate_values": {
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "TurnRank": "6.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        }
+      ],
+      "duplicate_key_groups": 68,
+      "duplicate_rows_beyond_first": 68,
+      "exact_duplicate_key_groups": 0,
+      "field_difference_group_counts": {
+        "mcaprank": 4,
+        "pricerank": 24,
+        "turnrank": 68
+      },
+      "header": [
+        "Date",
+        "Security",
+        "Ticker",
+        "McapRank",
+        "TurnRank",
+        "VolatilityRank",
+        "PriceRank",
+        "LitVol('000)",
+        "OrderVol('000)",
+        "Hidden",
+        "TradesForHidden",
+        "HiddenVol('000)",
+        "TradeVolForHidden('000)",
+        "Cancels",
+        "LitTrades",
+        "OddLots",
+        "TradesForOddLots",
+        "OddLotVol('000)",
+        "TradeVolForOddLots('000)"
+      ],
+      "header_sha256": "901dc2ca6f2ce05e6cb5c7900c9a4d9e1fdd2e0b4d3847f031f99738a242aeaf",
+      "http_metadata": {
+        "content_length_header": "15566189",
+        "download_attempt": 1,
+        "etag": null,
+        "final_url": "https://www.sec.gov/files/opa/data/market-structure/metrics-individual-security/individual_security_2016_q3.zip",
+        "http_date": "Sun, 08 Nov 2026 01:49:37 GMT",
+        "http_status": 200,
+        "last_modified": "Sat, 19 Dec 2020 10:17:32 GMT"
+      },
+      "invalid_date_rows": 0,
+      "malformed_rows": 0,
+      "max_date": "2016-09-30",
+      "min_date": "2016-07-01",
+      "negative_fields": {
+        "hidden": {
+          "count": 70,
+          "denominator_missing_count": 0,
+          "denominator_negative_count": 0,
+          "denominator_zero_count": 0,
+          "examples": [
+            {
+              "date": "2016-07-01",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 164,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -61
+            },
+            {
+              "date": "2016-07-05",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 123,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -39
+            },
+            {
+              "date": "2016-07-06",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 131,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -34
+            },
+            {
+              "date": "2016-07-07",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 196,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -50
+            },
+            {
+              "date": "2016-07-08",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 142,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -45
+            },
+            {
+              "date": "2016-07-11",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 118,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -55
+            },
+            {
+              "date": "2016-07-12",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 174,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -86
+            },
+            {
+              "date": "2016-07-13",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 223,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -74
+            },
+            {
+              "date": "2016-07-13",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 2,
+              "security": "Stock",
+              "ticker": "GTN.A",
+              "value": -4
+            },
+            {
+              "date": "2016-07-14",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 153,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -41
+            },
+            {
+              "date": "2016-07-15",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 93,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -39
+            },
+            {
+              "date": "2016-07-18",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 286,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -36
+            }
+          ],
+          "histogram": {
+            "-10": 1,
+            "-11": 1,
+            "-114": 1,
+            "-121": 1,
+            "-131": 1,
+            "-15": 1,
+            "-155": 1,
+            "-19": 2,
+            "-2": 4,
+            "-21": 1,
+            "-22": 2,
+            "-24": 2,
+            "-25": 1,
+            "-28": 1,
+            "-3": 2,
+            "-30": 1,
+            "-32": 1,
+            "-33": 3,
+            "-34": 1,
+            "-36": 1,
+            "-37": 2,
+            "-38": 2,
+            "-39": 4,
+            "-4": 1,
+            "-41": 4,
+            "-42": 2,
+            "-45": 1,
+            "-46": 1,
+            "-47": 4,
+            "-48": 1,
+            "-49": 1,
+            "-50": 1,
+            "-53": 1,
+            "-55": 1,
+            "-56": 1,
+            "-57": 1,
+            "-61": 1,
+            "-62": 1,
+            "-63": 1,
+            "-65": 1,
+            "-69": 1,
+            "-73": 1,
+            "-74": 1,
+            "-80": 1,
+            "-83": 1,
+            "-84": 1,
+            "-86": 1,
+            "-88": 1,
+            "-92": 1
+          },
+          "max": -2,
+          "min": -155
+        },
+        "hiddenvol('000)": {
+          "count": 153,
+          "denominator_missing_count": 0,
+          "denominator_negative_count": 0,
+          "denominator_zero_count": 0,
+          "examples": [
+            {
+              "date": "2016-07-01",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 0.19,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -0.07400000000000001
+            },
+            {
+              "date": "2016-07-05",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 0.133,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -0.044999999999999984
+            },
+            {
+              "date": "2016-07-06",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 0.136,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -0.036
+            },
+            {
+              "date": "2016-07-07",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 0.24700000000000003,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -0.06599999999999998
+            },
+            {
+              "date": "2016-07-07",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 26.371000000000002,
+              "security": "Stock",
+              "ticker": "ETAK",
+              "value": -2
+            },
+            {
+              "date": "2016-07-07",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 46.169,
+              "security": "Stock",
+              "ticker": "IGC",
+              "value": -8.7
+            },
+            {
+              "date": "2016-07-08",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 0.15100000000000002,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -0.049000000000000016
+            },
+            {
+              "date": "2016-07-08",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 359.31899999999996,
+              "security": "Stock",
+              "ticker": "BZH",
+              "value": -17.791999999999963
+            },
+            {
+              "date": "2016-07-08",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 254.53099999999998,
+              "security": "Stock",
+              "ticker": "SSY",
+              "value": -6.438000000000013
+            },
+            {
+              "date": "2016-07-11",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 0.127,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -0.059
+            },
+            {
+              "date": "2016-07-11",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 302.18600000000004,
+              "security": "Stock",
+              "ticker": "DPW",
+              "value": -1.9080000000000066
+            },
+            {
+              "date": "2016-07-11",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 44.028,
+              "security": "Stock",
+              "ticker": "WYY",
+              "value": -7.179000000000003
+            }
+          ],
+          "histogram": {
+            "-0.012": 2,
+            "-0.015": 1,
+            "-0.017": 1,
+            "-0.019": 1,
+            "-0.02": 1,
+            "-0.022": 2,
+            "-0.024": 1,
+            "-0.027": 2,
+            "-0.028": 1,
+            "-0.029": 1,
+            "-0.03": 1,
+            "-0.035": 1,
+            "-0.036": 2,
+            "-0.039": 1,
+            "-0.04": 2,
+            "-0.041": 2,
+            "-0.043": 2,
+            "-0.045": 2,
+            "-0.048": 1,
+            "-0.049": 1,
+            "-0.05": 1,
+            "-0.052": 2,
+            "-0.053": 1,
+            "-0.056": 1,
+            "-0.057": 1,
+            "-0.058": 1,
+            "-0.059": 2,
+            "-0.06": 1,
+            "-0.061": 1,
+            "-0.063": 1,
+            "-0.064": 2,
+            "-0.065": 2,
+            "-0.066": 1,
+            "-0.074": 1,
+            "-0.075": 1,
+            "-0.08": 1,
+            "-0.081": 1,
+            "-0.083": 1,
+            "-0.089": 1,
+            "-0.092": 1,
+            "-0.097": 1,
+            "-0.099": 2,
+            "-0.1": 3,
+            "-0.106": 1,
+            "-0.108": 1,
+            "-0.112": 1,
+            "-0.114": 1,
+            "-0.118": 1,
+            "-0.125": 1,
+            "-0.127": 1,
+            "-0.133": 1,
+            "-0.142": 1,
+            "-0.165": 1,
+            "-0.171": 1,
+            "-0.208000000000003": 1,
+            "-0.21": 1,
+            "-0.252000000000001": 1,
+            "-0.255": 1,
+            "-0.322": 1,
+            "-0.368": 1,
+            "-0.374": 1,
+            "-0.4": 3,
+            "-0.420000000000001": 1,
+            "-0.475": 1,
+            "-0.5": 1,
+            "-0.599999999999999": 1,
+            "-0.6": 1,
+            "-0.749000000000001": 1,
+            "-0.816000000000013": 1,
+            "-0.819000000000003": 1,
+            "-0.893000000000001": 1,
+            "-1.1": 1,
+            "-1.18": 1,
+            "-1.204": 1,
+            "-1.239": 1,
+            "-1.278": 1,
+            "-1.287": 1,
+            "-1.3": 1,
+            "-1.306": 1,
+            "-1.389": 1,
+            "-1.41200000000001": 1,
+            "-1.5": 1,
+            "-1.637": 1,
+            "-1.743": 1,
+            "-1.774": 1,
+            "-1.783": 1,
+            "-1.90800000000001": 1,
+            "-1.915": 1,
+            "-1.938": 1,
+            "-10.7": 1,
+            "-100.081": 1,
+            "-109.18": 1,
+            "-11.824": 1,
+            "-11.967": 1,
+            "-14.7": 1,
+            "-17.342": 1,
+            "-17.792": 1,
+            "-19.044": 1,
+            "-2": 1,
+            "-2.01": 1,
+            "-2.106": 1,
+            "-2.161": 1,
+            "-2.216": 1,
+            "-2.6": 1,
+            "-2.705": 1,
+            "-2.777": 1,
+            "-2.91": 1,
+            "-2.972": 1,
+            "-2.985": 1,
+            "-20.084": 1,
+            "-20.134": 1,
+            "-20.386": 1,
+            "-20.481": 1,
+            "-22.7250000000001": 1,
+            "-25.525": 1,
+            "-26.612": 1,
+            "-28.668": 1,
+            "-3.092": 1,
+            "-3.832": 1,
+            "-3.92": 1,
+            "-30.978": 1,
+            "-4.323": 1,
+            "-4.67600000000001": 1,
+            "-40.223": 1,
+            "-47.906": 1,
+            "-5.32": 1,
+            "-5.359": 1,
+            "-5.905": 1,
+            "-6.271": 1,
+            "-6.43800000000001": 1,
+            "-6.717": 1,
+            "-7.179": 1,
+            "-7.767": 1,
+            "-8.7": 1,
+            "-9.378": 1,
+            "-9.759": 1
+          },
+          "max": -0.011999999999999997,
+          "min": -109.18000000000005
+        }
+      },
+      "nonnegative_value_ranges": {
+        "hidden": {
+          "count": 338029,
+          "greater_than_one": 291488,
+          "max": 82537,
+          "min": 0
+        },
+        "hiddenvol('000)": {
+          "count": 337946,
+          "greater_than_one": 253706,
+          "max": 15296.414999999997,
+          "min": 0
+        }
+      },
+      "numeric_invalid_by_field": {},
+      "numeric_negative_by_field": {
+        "hidden": 70,
+        "hiddenvol('000)": 153
+      },
+      "out_of_quarter_rows": 0,
+      "quarter": "2016 Q3",
+      "rank_only_conflicting_groups": 68,
+      "rows_with_valid_ticker_and_date": 338099,
+      "security_class_counts": {
+        "ETF": 102962,
+        "Stock": 235137
+      },
+      "unique_dates": 64,
+      "unique_tickers": 5400
+    },
+    {
+      "activity_conflicting_groups": 0,
+      "archive_metadata": {
+        "archive_layers": [
+          {
+            "bytes": 15371263,
+            "member_count": 2,
+            "members": [
+              {
+                "bytes": 47158035,
+                "crc32": "2920c146",
+                "name": "q4_2016_all.csv"
+              },
+              {
+                "bytes": 3602,
+                "crc32": "45278408",
+                "name": "README.txt"
+              }
+            ],
+            "sha256": "46b63d9b771a2b45cd03068142c3b317953e42ee269b9c90bb24ad88cb236e76",
+            "zip_crc_passed": true
+          }
+        ],
+        "container_depth": 0,
+        "data_bytes": 47158035,
+        "data_member": "q4_2016_all.csv",
+        "data_sha256": "5ca048764e879507160b9eef9788464361df1afa4b462f9373b4a0b4ef697060"
+      },
+      "blank_rows": 0,
+      "blank_ticker_rows": 0,
+      "csv_sha256": "5ca048764e879507160b9eef9788464361df1afa4b462f9373b4a0b4ef697060",
+      "derived_hidden_volume_share": {
+        "count": 311939,
+        "denominator_zero_count": 19692,
+        "greater_than_one": 0,
+        "max": 1,
+        "min": 0,
+        "negative_or_missing_rows": 19936
+      },
+      "duplicate_examples": [
+        {
+          "changed_fields": [
+            "TurnRank",
+            "PriceRank"
+          ],
+          "date": "2016-10-03",
+          "duplicate_values": {
+            "PriceRank": "8.0",
+            "TurnRank": "9.0"
+          },
+          "first_values": {
+            "PriceRank": "7.0",
+            "TurnRank": "5.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank",
+            "PriceRank"
+          ],
+          "date": "2016-10-04",
+          "duplicate_values": {
+            "PriceRank": "8.0",
+            "TurnRank": "9.0"
+          },
+          "first_values": {
+            "PriceRank": "7.0",
+            "TurnRank": "5.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank",
+            "PriceRank"
+          ],
+          "date": "2016-10-05",
+          "duplicate_values": {
+            "PriceRank": "8.0",
+            "TurnRank": "9.0"
+          },
+          "first_values": {
+            "PriceRank": "7.0",
+            "TurnRank": "6.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank",
+            "PriceRank"
+          ],
+          "date": "2016-10-06",
+          "duplicate_values": {
+            "PriceRank": "8.0",
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "PriceRank": "7.0",
+            "TurnRank": "4.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank",
+            "PriceRank"
+          ],
+          "date": "2016-10-07",
+          "duplicate_values": {
+            "PriceRank": "8.0",
+            "TurnRank": "9.0"
+          },
+          "first_values": {
+            "PriceRank": "7.0",
+            "TurnRank": "3.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank",
+            "PriceRank"
+          ],
+          "date": "2016-10-10",
+          "duplicate_values": {
+            "PriceRank": "8.0",
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "PriceRank": "7.0",
+            "TurnRank": "4.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank",
+            "PriceRank"
+          ],
+          "date": "2016-10-11",
+          "duplicate_values": {
+            "PriceRank": "8.0",
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "PriceRank": "7.0",
+            "TurnRank": "4.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank",
+            "PriceRank"
+          ],
+          "date": "2016-10-12",
+          "duplicate_values": {
+            "PriceRank": "8.0",
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "PriceRank": "7.0",
+            "TurnRank": "5.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank",
+            "PriceRank"
+          ],
+          "date": "2016-10-13",
+          "duplicate_values": {
+            "PriceRank": "8.0",
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "PriceRank": "7.0",
+            "TurnRank": "4.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank",
+            "PriceRank"
+          ],
+          "date": "2016-10-14",
+          "duplicate_values": {
+            "PriceRank": "8.0",
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "PriceRank": "7.0",
+            "TurnRank": "4.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank",
+            "PriceRank"
+          ],
+          "date": "2016-10-17",
+          "duplicate_values": {
+            "PriceRank": "8.0",
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "PriceRank": "7.0",
+            "TurnRank": "3.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank",
+            "PriceRank"
+          ],
+          "date": "2016-10-18",
+          "duplicate_values": {
+            "PriceRank": "8.0",
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "PriceRank": "7.0",
+            "TurnRank": "4.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank",
+            "PriceRank"
+          ],
+          "date": "2016-10-19",
+          "duplicate_values": {
+            "PriceRank": "8.0",
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "PriceRank": "7.0",
+            "TurnRank": "4.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank",
+            "PriceRank"
+          ],
+          "date": "2016-10-20",
+          "duplicate_values": {
+            "PriceRank": "8.0",
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "PriceRank": "7.0",
+            "TurnRank": "6.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank",
+            "PriceRank"
+          ],
+          "date": "2016-10-21",
+          "duplicate_values": {
+            "PriceRank": "8.0",
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "PriceRank": "7.0",
+            "TurnRank": "6.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank",
+            "PriceRank"
+          ],
+          "date": "2016-10-24",
+          "duplicate_values": {
+            "PriceRank": "8.0",
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "PriceRank": "7.0",
+            "TurnRank": "5.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [],
+          "date": "2016-10-25",
+          "duplicate_values": {},
+          "first_values": {},
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [],
+          "date": "2016-10-26",
+          "duplicate_values": {},
+          "first_values": {},
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank"
+          ],
+          "date": "2016-10-27",
+          "duplicate_values": {
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "TurnRank": "9.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        },
+        {
+          "changed_fields": [
+            "TurnRank"
+          ],
+          "date": "2016-10-28",
+          "duplicate_values": {
+            "TurnRank": "10.0"
+          },
+          "first_values": {
+            "TurnRank": "8.0"
+          },
+          "security": "Stock",
+          "ticker": "UA"
+        }
+      ],
+      "duplicate_key_groups": 43,
+      "duplicate_rows_beyond_first": 43,
+      "exact_duplicate_key_groups": 2,
+      "field_difference_group_counts": {
+        "mcaprank": 1,
+        "pricerank": 31,
+        "turnrank": 40
+      },
+      "header": [
+        "Date",
+        "Security",
+        "Ticker",
+        "McapRank",
+        "TurnRank",
+        "VolatilityRank",
+        "PriceRank",
+        "LitVol('000)",
+        "OrderVol('000)",
+        "Hidden",
+        "TradesForHidden",
+        "HiddenVol('000)",
+        "TradeVolForHidden('000)",
+        "Cancels",
+        "LitTrades",
+        "OddLots",
+        "TradesForOddLots",
+        "OddLotVol('000)",
+        "TradeVolForOddLots('000)"
+      ],
+      "header_sha256": "901dc2ca6f2ce05e6cb5c7900c9a4d9e1fdd2e0b4d3847f031f99738a242aeaf",
+      "http_metadata": {
+        "content_length_header": "15371263",
+        "download_attempt": 1,
+        "etag": null,
+        "final_url": "https://www.sec.gov/files/opa/data/market-structure/metrics-individual-security/individual_security_2016_q4.zip",
+        "http_date": "Sun, 08 Nov 2026 01:49:47 GMT",
+        "http_status": 200,
+        "last_modified": "Sat, 19 Dec 2020 10:17:33 GMT"
+      },
+      "invalid_date_rows": 0,
+      "malformed_rows": 0,
+      "max_date": "2016-12-30",
+      "min_date": "2016-10-03",
+      "negative_fields": {
+        "hidden": {
+          "count": 78,
+          "denominator_missing_count": 0,
+          "denominator_negative_count": 0,
+          "denominator_zero_count": 0,
+          "examples": [
+            {
+              "date": "2016-10-03",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 165,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -61
+            },
+            {
+              "date": "2016-10-04",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 125,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -41
+            },
+            {
+              "date": "2016-10-05",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 84,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -43
+            },
+            {
+              "date": "2016-10-06",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 112,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -33
+            },
+            {
+              "date": "2016-10-07",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 208,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -36
+            },
+            {
+              "date": "2016-10-10",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 58,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -21
+            },
+            {
+              "date": "2016-10-11",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 153,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -28
+            },
+            {
+              "date": "2016-10-12",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 83,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -32
+            },
+            {
+              "date": "2016-10-12",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 17,
+              "security": "Stock",
+              "ticker": "DSS",
+              "value": -3
+            },
+            {
+              "date": "2016-10-13",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 432,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -55
+            },
+            {
+              "date": "2016-10-14",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 124,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -43
+            },
+            {
+              "date": "2016-10-17",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 79,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -14
+            }
+          ],
+          "histogram": {
+            "-1": 7,
+            "-10": 1,
+            "-110": 2,
+            "-113": 1,
+            "-133": 1,
+            "-14": 1,
+            "-15": 1,
+            "-152": 1,
+            "-17": 1,
+            "-19": 2,
+            "-2": 4,
+            "-21": 2,
+            "-22": 3,
+            "-25": 2,
+            "-251": 1,
+            "-26": 1,
+            "-28": 2,
+            "-3": 7,
+            "-32": 2,
+            "-33": 1,
+            "-34": 1,
+            "-35": 1,
+            "-36": 1,
+            "-37": 1,
+            "-41": 2,
+            "-42": 1,
+            "-43": 2,
+            "-45": 1,
+            "-46": 2,
+            "-48": 2,
+            "-49": 2,
+            "-50": 1,
+            "-51": 1,
+            "-52": 2,
+            "-53": 1,
+            "-54": 3,
+            "-55": 1,
+            "-59": 2,
+            "-6": 2,
+            "-61": 1,
+            "-62": 1,
+            "-72": 1,
+            "-81": 1,
+            "-91": 2
+          },
+          "max": -1,
+          "min": -251
+        },
+        "hiddenvol('000)": {
+          "count": 244,
+          "denominator_missing_count": 0,
+          "denominator_negative_count": 0,
+          "denominator_zero_count": 0,
+          "examples": [
+            {
+              "date": "2016-10-03",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 3.4429999999999996,
+              "security": "Stock",
+              "ticker": "AMS",
+              "value": -6.938893903907228e-17
+            },
+            {
+              "date": "2016-10-03",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 0.185,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -0.07900000000000001
+            },
+            {
+              "date": "2016-10-03",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 7.031000000000001,
+              "security": "Stock",
+              "ticker": "CUO",
+              "value": -0.26599999999999974
+            },
+            {
+              "date": "2016-10-03",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 16.079,
+              "security": "Stock",
+              "ticker": "FSI",
+              "value": -3.2419999999999978
+            },
+            {
+              "date": "2016-10-04",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 0.135,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -0.05200000000000001
+            },
+            {
+              "date": "2016-10-04",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 21.234,
+              "security": "Stock",
+              "ticker": "GMO",
+              "value": -8.399999999999999
+            },
+            {
+              "date": "2016-10-04",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 39.157,
+              "security": "Stock",
+              "ticker": "HEB",
+              "value": -1.9409999999999976
+            },
+            {
+              "date": "2016-10-05",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 0.095,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -0.049
+            },
+            {
+              "date": "2016-10-06",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 0.13,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -0.038
+            },
+            {
+              "date": "2016-10-06",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 111.17399999999999,
+              "security": "Stock",
+              "ticker": "EGY",
+              "value": -6.008000000000002
+            },
+            {
+              "date": "2016-10-07",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 0.22799999999999998,
+              "security": "Stock",
+              "ticker": "BRK.A",
+              "value": -0.040999999999999995
+            },
+            {
+              "date": "2016-10-07",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 2.1109999999999998,
+              "security": "Stock",
+              "ticker": "EVI",
+              "value": -3.0829999999999997
+            }
+          ],
+          "histogram": {
+            "-0.00499999999999998": 1,
+            "-0.00899999999999984": 1,
+            "-0.0119999999999993": 1,
+            "-0.014": 2,
+            "-0.017": 1,
+            "-0.019": 1,
+            "-0.021": 2,
+            "-0.022": 3,
+            "-0.023": 2,
+            "-0.024": 1,
+            "-0.026": 1,
+            "-0.027": 2,
+            "-0.029": 1,
+            "-0.0299999999999998": 1,
+            "-0.03": 1,
+            "-0.032": 1,
+            "-0.033": 1,
+            "-0.034": 2,
+            "-0.036": 2,
+            "-0.038": 1,
+            "-0.041": 1,
+            "-0.047": 1,
+            "-0.048": 1,
+            "-0.049": 1,
+            "-0.0519999999999964": 1,
+            "-0.052": 2,
+            "-0.053": 2,
+            "-0.059": 1,
+            "-0.06": 1,
+            "-0.061": 1,
+            "-0.062": 2,
+            "-0.063": 3,
+            "-0.065": 1,
+            "-0.066": 2,
+            "-0.067": 1,
+            "-0.07": 2,
+            "-0.072": 1,
+            "-0.075": 1,
+            "-0.076": 1,
+            "-0.079": 1,
+            "-0.083": 1,
+            "-0.088": 1,
+            "-0.089": 1,
+            "-0.0900000000000001": 1,
+            "-0.092": 1,
+            "-0.0999999999999996": 1,
+            "-0.0999999999999999": 2,
+            "-0.1": 8,
+            "-0.101": 1,
+            "-0.102": 1,
+            "-0.104": 1,
+            "-0.105": 1,
+            "-0.11": 1,
+            "-0.112": 1,
+            "-0.127000000000002": 1,
+            "-0.129": 1,
+            "-0.136": 1,
+            "-0.15": 1,
+            "-0.162": 1,
+            "-0.16699999999999": 1,
+            "-0.17": 2,
+            "-0.172000000000002": 1,
+            "-0.179": 1,
+            "-0.19": 1,
+            "-0.198": 1,
+            "-0.201": 1,
+            "-0.205": 1,
+            "-0.215999999999999": 1,
+            "-0.223": 1,
+            "-0.228999999999998": 1,
+            "-0.231": 1,
+            "-0.24": 1,
+            "-0.246": 1,
+            "-0.255999999999999": 1,
+            "-0.266": 1,
+            "-0.281": 2,
+            "-0.285": 1,
+            "-0.299999999999999": 1,
+            "-0.300999999999996": 1,
+            "-0.331000000000001": 1,
+            "-0.34": 1,
+            "-0.34400000000002": 1,
+            "-0.355999999999999": 1,
+            "-0.359999999999999": 1,
+            "-0.4": 1,
+            "-0.412000000000001": 1,
+            "-0.435": 1,
+            "-0.439000000000004": 1,
+            "-0.446000000000001": 1,
+            "-0.448000000000001": 1,
+            "-0.467": 1,
+            "-0.497999999999999": 1,
+            "-0.52": 1,
+            "-0.520999999999998": 1,
+            "-0.521": 1,
+            "-0.537000000000001": 1,
+            "-0.583": 1,
+            "-0.595": 1,
+            "-0.597": 1,
+            "-0.611": 1,
+            "-0.612000000000001": 1,
+            "-0.628": 1,
+            "-0.646": 1,
+            "-0.670000000000001": 1,
+            "-0.675": 1,
+            "-0.7": 2,
+            "-0.714": 1,
+            "-0.715": 1,
+            "-0.74": 1,
+            "-0.757999999999999": 1,
+            "-0.78": 1,
+            "-0.800000000000001": 1,
+            "-0.877000000000001": 1,
+            "-0.900000000000003": 1,
+            "-0.945000000000002": 1,
+            "-0.946": 1,
+            "-1.014": 2,
+            "-1.03899999999999": 1,
+            "-1.137": 1,
+            "-1.259": 1,
+            "-1.27400000000001": 1,
+            "-1.344": 1,
+            "-1.41": 1,
+            "-1.418": 1,
+            "-1.482": 1,
+            "-1.60299999999999": 1,
+            "-1.744": 1,
+            "-1.828": 1,
+            "-1.941": 1,
+            "-1.98300000000001": 1,
+            "-10.0419999999999": 1,
+            "-10.7": 1,
+            "-10.779": 1,
+            "-106.771": 1,
+            "-11.01": 1,
+            "-11.152": 1,
+            "-12.418": 1,
+            "-12.475": 1,
+            "-13.035": 1,
+            "-13.25": 1,
+            "-13.989": 1,
+            "-139.424": 1,
+            "-14.338": 1,
+            "-14.345": 1,
+            "-14.7019999999999": 1,
+            "-15.505": 1,
+            "-15.726": 1,
+            "-18.1": 1,
+            "-18.566": 1,
+            "-2.001": 1,
+            "-2.05": 1,
+            "-2.378": 1,
+            "-2.569": 1,
+            "-2.605": 1,
+            "-2.715": 1,
+            "-2.85": 1,
+            "-21.191": 1,
+            "-23.825": 1,
+            "-23.944": 1,
+            "-24.482": 1,
+            "-24.544": 1,
+            "-251.161": 1,
+            "-26.763": 1,
+            "-3.083": 1,
+            "-3.08999999999999": 1,
+            "-3.209": 1,
+            "-3.242": 1,
+            "-3.419": 1,
+            "-3.424": 1,
+            "-3.47": 1,
+            "-3.5": 1,
+            "-3.648": 1,
+            "-3.65300000000001": 1,
+            "-3.767": 1,
+            "-3.8": 1,
+            "-3.802": 1,
+            "-3.863": 1,
+            "-31.099": 1,
+            "-39.232": 1,
+            "-4.052": 1,
+            "-4.376": 1,
+            "-4.45": 1,
+            "-4.543": 1,
+            "-42.405": 1,
+            "-42.729": 1,
+            "-5.16499999999999": 1,
+            "-5.168": 1,
+            "-5.16899999999997": 1,
+            "-5.258": 1,
+            "-5.267": 1,
+            "-5.564": 1,
+            "-5.894": 1,
+            "-52.188": 1,
+            "-54.797": 1,
+            "-58.649": 1,
+            "-6.008": 1,
+            "-6.25500000000001": 1,
+            "-6.37": 1,
+            "-6.664": 1,
+            "-6.715": 1,
+            "-6.793": 1,
+            "-6.92400000000001": 1,
+            "-6.93889390390723e-17": 2,
+            "-64.887": 1,
+            "-7": 1,
+            "-7.313": 1,
+            "-7.7": 1,
+            "-7.738": 1,
+            "-7.77000000000001": 1,
+            "-7.9": 1,
+            "-8.08600000000001": 1,
+            "-8.096": 1,
+            "-8.299": 1,
+            "-8.4": 1,
+            "-80.326": 1,
+            "-9.384": 1
+          },
+          "max": -6.938893903907228e-17,
+          "min": -251.16100000000043
+        }
+      },
+      "nonnegative_value_ranges": {
+        "hidden": {
+          "count": 331797,
+          "greater_than_one": 286629,
+          "max": 95591,
+          "min": 0
+        },
+        "hiddenvol('000)": {
+          "count": 331631,
+          "greater_than_one": 251310,
+          "max": 20169.103000000006,
+          "min": 0
+        }
+      },
+      "numeric_invalid_by_field": {},
+      "numeric_negative_by_field": {
+        "hidden": 78,
+        "hiddenvol('000)": 244
+      },
+      "out_of_quarter_rows": 0,
+      "quarter": "2016 Q4",
+      "rank_only_conflicting_groups": 41,
+      "rows_with_valid_ticker_and_date": 331875,
+      "security_class_counts": {
+        "ETF": 101836,
+        "Stock": 230039
+      },
+      "unique_dates": 63,
+      "unique_tickers": 5365
+    },
+    {
+      "activity_conflicting_groups": 0,
+      "archive_metadata": {
+        "archive_layers": [
+          {
+            "bytes": 17235618,
+            "member_count": 2,
+            "members": [
+              {
+                "bytes": 51462991,
+                "crc32": "abb79fe2",
+                "name": "q4_2019_all.csv"
+              },
+              {
+                "bytes": 4379,
+                "crc32": "52c659dc",
+                "name": "README.txt"
+              }
+            ],
+            "sha256": "7291906f9993bbb8bc3d2c20b451c32999856c6d6738ef06fdfb644cd31c376b",
+            "zip_crc_passed": true
+          }
+        ],
+        "container_depth": 0,
+        "data_bytes": 51462991,
+        "data_member": "q4_2019_all.csv",
+        "data_sha256": "74a99c04584cff49ee1225f76e4d3a60cc87b7728db218ff06a2f00213b4879b"
+      },
+      "blank_rows": 0,
+      "blank_ticker_rows": 0,
+      "csv_sha256": "74a99c04584cff49ee1225f76e4d3a60cc87b7728db218ff06a2f00213b4879b",
+      "derived_hidden_volume_share": {
+        "count": 348121,
+        "denominator_zero_count": 21303,
+        "greater_than_one": 0,
+        "max": 1,
+        "min": 0,
+        "negative_or_missing_rows": 21312
+      },
+      "duplicate_examples": [
+        {
+          "changed_fields": [
+            "McapRank",
+            "TurnRank",
+            "PriceRank"
+          ],
+          "date": "2019-10-07",
+          "duplicate_values": {
+            "McapRank": "3.0",
+            "PriceRank": "1.0",
+            "TurnRank": "3.0"
+          },
+          "first_values": {
+            "McapRank": "",
+            "PriceRank": "",
+            "TurnRank": ""
+          },
+          "security": "ETF",
+          "ticker": "YYY"
+        },
+        {
+          "changed_fields": [
+            "McapRank",
+            "TurnRank",
+            "PriceRank"
+          ],
+          "date": "2019-11-20",
+          "duplicate_values": {
+            "McapRank": "",
+            "PriceRank": "",
+            "TurnRank": ""
+          },
+          "first_values": {
+            "McapRank": "5.0",
+            "PriceRank": "3.0",
+            "TurnRank": "10.0"
+          },
+          "security": "Stock",
+          "ticker": "GCI"
+        },
+        {
+          "changed_fields": [
+            "McapRank",
+            "TurnRank",
+            "PriceRank"
+          ],
+          "date": "2019-12-16",
+          "duplicate_values": {
+            "McapRank": "1.0",
+            "PriceRank": "2.0",
+            "TurnRank": "2.0"
+          },
+          "first_values": {
+            "McapRank": "",
+            "PriceRank": "",
+            "TurnRank": ""
+          },
+          "security": "ETF",
+          "ticker": "LSLT"
+        },
+        {
+          "changed_fields": [
+            "McapRank",
+            "TurnRank",
+            "PriceRank"
+          ],
+          "date": "2019-12-16",
+          "duplicate_values": {
+            "McapRank": "1.0",
+            "PriceRank": "1.0",
+            "TurnRank": "4.0"
+          },
+          "first_values": {
+            "McapRank": "",
+            "PriceRank": "",
+            "TurnRank": ""
+          },
+          "security": "ETF",
+          "ticker": "USAI"
+        },
+        {
+          "changed_fields": [
+            "McapRank",
+            "TurnRank",
+            "PriceRank"
+          ],
+          "date": "2019-12-18",
+          "duplicate_values": {
+            "McapRank": "3.0",
+            "PriceRank": "2.0",
+            "TurnRank": "1.0"
+          },
+          "first_values": {
+            "McapRank": "",
+            "PriceRank": "",
+            "TurnRank": ""
+          },
+          "security": "ETF",
+          "ticker": "CCOR"
+        },
+        {
+          "changed_fields": [
+            "McapRank",
+            "TurnRank",
+            "PriceRank"
+          ],
+          "date": "2019-12-30",
+          "duplicate_values": {
+            "McapRank": "2.0",
+            "PriceRank": "3.0",
+            "TurnRank": "1.0"
+          },
+          "first_values": {
+            "McapRank": "",
+            "PriceRank": "",
+            "TurnRank": ""
+          },
+          "security": "ETF",
+          "ticker": "FLRT"
+        }
+      ],
+      "duplicate_key_groups": 6,
+      "duplicate_rows_beyond_first": 6,
+      "exact_duplicate_key_groups": 0,
+      "field_difference_group_counts": {
+        "mcaprank": 6,
+        "pricerank": 6,
+        "turnrank": 6
+      },
+      "header": [
+        "Date",
+        "Security",
+        "Ticker",
+        "McapRank",
+        "TurnRank",
+        "VolatilityRank",
+        "PriceRank",
+        "LitVol('000)",
+        "OrderVol('000)",
+        "Hidden",
+        "TradesForHidden",
+        "HiddenVol('000)",
+        "TradeVolForHidden('000)",
+        "Cancels",
+        "LitTrades",
+        "OddLots",
+        "TradesForOddLots",
+        "OddLotVol('000)",
+        "TradeVolForOddLots('000)"
+      ],
+      "header_sha256": "901dc2ca6f2ce05e6cb5c7900c9a4d9e1fdd2e0b4d3847f031f99738a242aeaf",
+      "http_metadata": {
+        "content_length_header": "17235618",
+        "download_attempt": 1,
+        "etag": null,
+        "final_url": "https://www.sec.gov/files/node/add/data_distribution/individual_security_2019_q4.zip",
+        "http_date": "Sun, 08 Nov 2026 01:49:57 GMT",
+        "http_status": 200,
+        "last_modified": "Sat, 19 Dec 2020 10:12:05 GMT"
+      },
+      "invalid_date_rows": 0,
+      "malformed_rows": 0,
+      "max_date": "2019-12-31",
+      "min_date": "2019-10-01",
+      "negative_fields": {
+        "hidden": {
+          "count": 4,
+          "denominator_missing_count": 0,
+          "denominator_negative_count": 0,
+          "denominator_zero_count": 0,
+          "examples": [
+            {
+              "date": "2019-10-11",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 45,
+              "security": "Stock",
+              "ticker": "FTNW",
+              "value": -19
+            },
+            {
+              "date": "2019-10-15",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 6,
+              "security": "Stock",
+              "ticker": "NTN",
+              "value": -5
+            },
+            {
+              "date": "2019-11-13",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 26,
+              "security": "Stock",
+              "ticker": "TGC",
+              "value": -1
+            },
+            {
+              "date": "2019-12-19",
+              "denominator_field": "tradesforhidden",
+              "denominator_value": 9,
+              "security": "Stock",
+              "ticker": "NTN",
+              "value": -1
+            }
+          ],
+          "histogram": {
+            "-1": 2,
+            "-19": 1,
+            "-5": 1
+          },
+          "max": -1,
+          "min": -19
+        },
+        "hiddenvol('000)": {
+          "count": 9,
+          "denominator_missing_count": 0,
+          "denominator_negative_count": 0,
+          "denominator_zero_count": 0,
+          "examples": [
+            {
+              "date": "2019-10-11",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 15.745,
+              "security": "Stock",
+              "ticker": "FTNW",
+              "value": -8.401000000000002
+            },
+            {
+              "date": "2019-10-15",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 0.224,
+              "security": "Stock",
+              "ticker": "NTN",
+              "value": -0.39399999999999996
+            },
+            {
+              "date": "2019-11-13",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 3.6020000000000003,
+              "security": "Stock",
+              "ticker": "TGC",
+              "value": -0.07499999999999996
+            },
+            {
+              "date": "2019-12-02",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 392.07000000000005,
+              "security": "Stock",
+              "ticker": "NAVB",
+              "value": -8.138000000000059
+            },
+            {
+              "date": "2019-12-03",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 89.49199999999999,
+              "security": "Stock",
+              "ticker": "YCBD",
+              "value": -6.211000000000002
+            },
+            {
+              "date": "2019-12-19",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 0.312,
+              "security": "Stock",
+              "ticker": "NTN",
+              "value": -0.003000000000000003
+            },
+            {
+              "date": "2019-12-26",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 3.138,
+              "security": "Stock",
+              "ticker": "BTN",
+              "value": -0.5189999999999999
+            },
+            {
+              "date": "2019-12-27",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 20.483999999999998,
+              "security": "Stock",
+              "ticker": "DPW",
+              "value": -0.01599999999999982
+            },
+            {
+              "date": "2019-12-30",
+              "denominator_field": "tradevolforhidden('000)",
+              "denominator_value": 1.5180000000000002,
+              "security": "Stock",
+              "ticker": "XTNT",
+              "value": -0.03900000000000005
+            }
+          ],
+          "histogram": {
+            "-0.003": 1,
+            "-0.0159999999999998": 1,
+            "-0.039": 1,
+            "-0.075": 1,
+            "-0.394": 1,
+            "-0.519": 1,
+            "-6.211": 1,
+            "-8.13800000000006": 1,
+            "-8.401": 1
+          },
+          "max": -0.003000000000000003,
+          "min": -8.401000000000002
+        }
+      },
+      "nonnegative_value_ranges": {
+        "hidden": {
+          "count": 369429,
+          "greater_than_one": 315258,
+          "max": 111274,
+          "min": 0
+        },
+        "hiddenvol('000)": {
+          "count": 369424,
+          "greater_than_one": 264653,
+          "max": 21763.384,
+          "min": 0
+        }
+      },
+      "numeric_invalid_by_field": {},
+      "numeric_negative_by_field": {
+        "hidden": 4,
+        "hiddenvol('000)": 9
+      },
+      "out_of_quarter_rows": 0,
+      "quarter": "2019 Q4",
+      "rank_only_conflicting_groups": 6,
+      "rows_with_valid_ticker_and_date": 369433,
+      "security_class_counts": {
+        "ETF": 137099,
+        "Stock": 232334
+      },
+      "unique_dates": 64,
+      "unique_tickers": 5902
+    }
+  ],
+  "quarters_audited": [
+    "2014 Q2",
+    "2016 Q1",
+    "2016 Q2",
+    "2016 Q3",
+    "2016 Q4",
+    "2019 Q4"
+  ],
+  "status": "SIX_QUARTER_DUPLICATE_AND_NEGATIVE_VALUE_DIAGNOSTICS_COMPLETED"
+}

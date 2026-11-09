@@ -1,0 +1,67 @@
+name: Phase 203 SEC MIDAS exchange-to-aggregate reconciliation
+
+on:
+  pull_request:
+    types: [synchronize]
+    branches: [main]
+    paths:
+      - "research/phase203_sec_midas_exchange_aggregate_reconciliation.py"
+      - "research/test_phase203_sec_midas_exchange_aggregate_reconciliation.py"
+      - ".github/workflows/phase203_sec_midas_exchange_aggregate_reconciliation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase203-sec-midas-exchange-aggregate
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile audit and tests
+        run: python -m py_compile research/phase203_sec_midas_exchange_aggregate_reconciliation.py research/test_phase203_sec_midas_exchange_aggregate_reconciliation.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase203_sec_midas_exchange_aggregate_reconciliation
+      - name: Download and reconcile three official SEC archive pairs
+        run: python -m research.phase203_sec_midas_exchange_aggregate_reconciliation --output-dir phase203_output
+      - name: Validate PIT and alpha controls
+        run: |
+          python - <<'PY'
+          import json
+          p="phase203_output/phase203_sec_midas_exchange_aggregate_reconciliation.json"
+          s=json.load(open(p,encoding="utf-8"))
+          assert s["phase"]==203
+          assert s["status"]=="THREE_QUARTER_EXCHANGE_TO_AGGREGATE_SAMPLE_RECONCILIATION_COMPLETED"
+          assert s["aggregate_archive_quarter_count"]==58
+          assert s["exchange_archive_quarter_count"]==58
+          assert len(s["quarter_results"])==3
+          assert s["interpretation"]["full_zip_crc_validated_for_all_six_archives"] is True
+          assert s["interpretation"]["monthly_exchange_csvs_fully_parsed"] is True
+          assert s["interpretation"]["exchange_to_aggregate_reconciliation_performed"] is True
+          assert s["interpretation"]["first_publication_time_verified"] is False
+          assert s["interpretation"]["strict_pit_admitted"] is False
+          assert s["interpretation"]["alpha_test_authorized"] is False
+          assert s["interpretation"]["holdout_used"] is False
+          assert s["interpretation"]["production_changed"] is False
+          assert s["interpretation"]["f80_frozen"] is True
+          for q in s["quarter_results"]:
+              assert q["aggregate"]["zip_crc_passed"] is True
+              assert q["exchange"]["zip_crc_passed"] is True
+              assert q["exchange"]["monthly_members"]
+              print(q["quarter"],q["comparison"]["coverage"],q["comparison"]["all_shared_additive_fields_reconcile_within_tolerance"])
+          PY
+      - name: Upload metadata-only reconciliation audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase203-sec-midas-exchange-aggregate-reconciliation
+          path: phase203_output/phase203_sec_midas_exchange_aggregate_reconciliation.json
+          if-no-files-found: error
+          retention-days: 90

@@ -1,0 +1,47 @@
+name: Phase 177 SEC 13D PAC date reconciliation
+
+on:
+  pull_request:
+    paths:
+      - "research/phase177_sec_13d_pac_date_reconciliation.json"
+      - "research/phase177_sec_13d_pac_date_reconciliation.py"
+      - "research/test_phase177_sec_13d_pac_date_reconciliation.py"
+      - "research/PHASE177_SEC_13D_POST_ACCEPTANCE_CORRECTION_RECONCILIATION_2026-11-07.md"
+      - ".github/workflows/phase177_sec_13d_pac_date_reconciliation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile audit
+        run: python -m py_compile research/phase177_sec_13d_pac_date_reconciliation.py
+      - name: Run regression tests
+        working-directory: research
+        run: python -m unittest -v test_phase177_sec_13d_pac_date_reconciliation.py
+      - name: Generate metadata-only audit
+        run: python research/phase177_sec_13d_pac_date_reconciliation.py > phase177_sec_13d_pac_audit.json
+      - name: Enforce expected result
+        run: |
+          python - <<'PY'
+          import json
+          r = json.load(open("phase177_sec_13d_pac_audit.json", encoding="utf-8"))
+          assert r["record_count"] == 2
+          assert r["pac_compatible_unverified"] == 2
+          assert r["same_day_intraday_quarantined"] == 2
+          assert r["alpha_test_performed"] is False
+          assert r["final_holdout_used"] is False
+          print("PHASE177_STATUS=" + r["status"])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: phase177-sec-13d-pac-date-reconciliation
+          path: phase177_sec_13d_pac_audit.json
+          retention-days: 90

@@ -1,0 +1,68 @@
+{
+  "phase": 177,
+  "date": "2026-11-07",
+  "source": {
+    "phase124_run_id": 42073725379,
+    "phase124_artifact_id": 13436764625,
+    "phase124_raw_hashes_verified_in_phase176": "600/600",
+    "phase158_artifact_id": 13561732564,
+    "phase159_artifact_id": 13561009769,
+    "sec_faq": "https://www.sec.gov/about/webmaster-frequently-asked-questions",
+    "sec_pds_spec": "https://www.sec.gov/info/edgar/specifications/pds_dissemination_spec.pdf"
+  },
+  "cohort_55": {
+    "acceptance_date_vs_filing_date": {
+      "same": 42,
+      "before": 11,
+      "after": 2
+    },
+    "date_as_of_change_vs_acceptance_day": {
+      "same": 54,
+      "missing": 1
+    },
+    "date_as_of_change_vs_filed_as_of_date": {
+      "before": 11,
+      "same": 41,
+      "after": 2,
+      "missing": 1
+    }
+  },
+  "records": [
+    {
+      "accession": "0001213900-19-010653",
+      "subject_issuer": "Medicine Man Technologies, Inc.",
+      "subject_cik": "0001622879",
+      "filer_cik": "0001779135",
+      "phase124_filing_date": "2019-06-13",
+      "sec_document_date": "20190614",
+      "sec_header_date": "20190614",
+      "acceptance_datetime": "20190614090012",
+      "filed_as_of_date": "20190613",
+      "date_as_of_change": "20190614",
+      "event_date": null,
+      "raw_sha256": "a89650a858558a6d7e564257bcf448b888bb1c54b146ff7d867962705f40841b"
+    },
+    {
+      "accession": "0000898822-19-000061",
+      "subject_issuer": "Braemar Hotels & Resorts Inc.",
+      "subject_cik": "0001574085",
+      "filer_cik": "0001786586",
+      "phase124_filing_date": "2019-08-29",
+      "sec_document_date": "20190830",
+      "sec_header_date": "20190830",
+      "acceptance_datetime": "20190830093859",
+      "filed_as_of_date": "20190829",
+      "date_as_of_change": "20190830",
+      "event_date": "2019-08-19",
+      "raw_sha256": "56ac3a8e0db0cef9f86de45677e081c176be3206803aecf5b07b87d03fc0f1ce"
+    }
+  ],
+  "constraints": {
+    "raw_submission_text_persisted": false,
+    "exact_pac_message_retrieved": false,
+    "first_public_availability_timestamp_verified": false,
+    "timezone_conversion_applied": false,
+    "date_imputation_applied": false,
+    "backdating_allowed": false
+  }
+}

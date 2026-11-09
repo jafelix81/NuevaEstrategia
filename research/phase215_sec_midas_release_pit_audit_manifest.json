@@ -1,0 +1,85 @@
+{
+  "phase": 215,
+  "audit_as_of_utc": "2026-11-08T15:00:00Z",
+  "source": "SEC MIDAS public Market Structure Data Downloads and dated SEC Data Highlights",
+  "status": "QUARTERLY_BATCH_RELEASE_CONFIRMED_EXACT_PER_QUARTER_VINTAGES_UNRESOLVED",
+  "release_evidence": {
+    "public_market_structure_site_launch_date": "2013-10-09",
+    "launch_evidence": "SEC Data Highlights 2013-01/02/03 are dated 2013-10-09 and describe public market-structure data.",
+    "daily_stock_by_stock_release_cadence": "quarterly",
+    "cadence_evidence": "SEC Data Highlight 2013-03 says daily stock-by-stock data are released on a quarterly basis.",
+    "as_of_2014_01_09": {
+      "previously_published_daily_stock_by_stock_history_months": 15,
+      "q4_2013_stock_by_stock_data_expected_update": "mid-February 2014",
+      "expected_date_is_not_confirmed_actual_release": true
+    },
+    "current_archive_inventory": {
+      "quarter_count": 58,
+      "first_quarter": "2012Q1",
+      "last_quarter": "2026Q2",
+      "page_last_updated": "2026-06-30"
+    },
+    "legacy_archive_http_last_modified": "2020-12-19",
+    "last_modified_is_first_publication_timestamp": false,
+    "per_quarter_first_publication_timestamps_available": false
+  },
+  "measurement_scope": {
+    "public_security_level_metrics_are_on_exchange_market_activity": true,
+    "participant_or_beneficial_owner_identity": false,
+    "off_exchange_execution_flow": false,
+    "hidden_order_metrics_are_dark_pool_flow": false,
+    "row_date_is_public_knowledge_date": false
+  },
+  "admission": {
+    "quarterly_batch_availability_must_be_used": true,
+    "exact_available_at_required": true,
+    "strict_daily_pit_admitted": false,
+    "quarterly_context_candidate_only": true,
+    "alpha_test_authorized": false,
+    "holdout_used": false,
+    "production_changed": false,
+    "f80_frozen": true
+  },
+  "sources": [
+    {
+      "url": "https://www.sec.gov/newsroom/meetings-events/news-conference-announce-launch-market-structure-data-analysis-website-100913",
+      "claim": "SEC public market-structure website launch",
+      "date": "2013-10-09"
+    },
+    {
+      "url": "https://www.sec.gov/about/odd-lot-rates",
+      "claim": "Data Highlight 2013-03; daily stock-by-stock downloads released quarterly",
+      "date": "2013-10-09"
+    },
+    {
+      "url": "https://www.sec.gov/about/odd-lot-rates-post-transparency-world",
+      "claim": "15 months of stock-by-stock data already published by 2014-01-09; Q4 2013 data expected in mid-February",
+      "date": "2014-01-09"
+    },
+    {
+      "url": "https://www.sec.gov/data-research/market-structure-data",
+      "claim": "Current archive inventory and page-level update date",
+      "date": "2026-06-30"
+    },
+    {
+      "url": "https://www.sec.gov/data-research/sec-markets-data/marketstructuredata-security",
+      "claim": "58 quarterly security-level archives from 2012Q1 through 2026Q2",
+      "date": "2026-06-30"
+    },
+    {
+      "url": "https://www.sec.gov/opa/data/market-structure/market-structure-data-security-and-exchange.html",
+      "claim": "58 quarterly security-and-exchange archives from 2012Q1 through 2026Q2",
+      "date": "2026-06-30"
+    }
+  ],
+  "controls": {
+    "raw_data_downloaded": false,
+    "vendor_contact": false,
+    "data_purchase": false,
+    "returns_used": false,
+    "alpha_test_run": false,
+    "holdout_used": false,
+    "production_changed": false,
+    "f80_frozen": true
+  }
+}

@@ -1,0 +1,66 @@
+name: Phase 157 SEC 13D-G legacy HTML PIT feasibility
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "research/phase157_*"
+      - "research/test_phase157_*"
+      - "research/PHASE157_*"
+      - ".github/workflows/phase157_sec_13dg_legacy_html_pit_feasibility.yml"
+      - "SMART_MONEY_RESEARCH_STATE.md"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: phase157-sec-13dg-legacy-html-pit-feasibility
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Download immutable Phase 124 role-aware sample
+        uses: actions/download-artifact@v4
+        with:
+          name: phase124-global-sec-13dg-stratified-submission-audit
+          run-id: 42073725379
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: phase124_source
+      - name: Download immutable Phase 127 legacy CUSIP audit
+        uses: actions/download-artifact@v4
+        with:
+          name: phase127-sec-13dg-xml-cusip-schema-correction
+          run-id: 42079517644
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: phase127_source
+      - name: Compile and run regression tests
+        env:
+          PHASE124_DIR: phase124_source
+          PHASE127_DIR: phase127_source
+        run: |
+          python -m py_compile research/phase157_13dg_legacy_html_pit_feasibility.py
+          python -m unittest discover -s research -p 'test_phase157_*.py' -v
+      - name: Recompute legacy HTML coverage and PIT audit
+        run: |
+          python research/phase157_13dg_legacy_html_pit_feasibility.py \
+            --phase124-dir phase124_source \
+            --phase127-dir phase127_source \
+            --output-dir phase157_output
+      - name: Upload reproducible legacy HTML audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase157-sec-13dg-legacy-html-pit-feasibility
+          path: |
+            phase157_output/phase157_legacy_13dg_html_field_audit.csv
+            phase157_output/phase157_legacy_13dg_html_summary.json
+          if-no-files-found: error
+          retention-days: 30

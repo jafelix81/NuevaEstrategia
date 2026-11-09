@@ -1,0 +1,44 @@
+name: Phase 192 SEC N-PORT direct short-equity sample discovery
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "research/phase192_nport_direct_short_equity_sample_discovery.py"
+      - "research/phase192_nport_direct_short_equity_sample_discovery.json"
+      - "research/test_phase192_nport_direct_short_equity_sample_discovery.py"
+      - ".github/workflows/phase192_nport_direct_short_equity_sample_discovery.yml"
+      - "SMART_MONEY_RESEARCH_STATE.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase192-nport-direct-short-equity-sample-discovery
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile audit and tests
+        run: python -m py_compile research/phase192_nport_direct_short_equity_sample_discovery.py research/test_phase192_nport_direct_short_equity_sample_discovery.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase192_nport_direct_short_equity_sample_discovery
+      - name: Build deterministic discovery audit
+        run: python -m research.phase192_nport_direct_short_equity_sample_discovery --output phase192_output/phase192_nport_short_discovery_audit.json
+      - name: Validate generated audit JSON
+        run: python -c "import json; json.load(open('phase192_output/phase192_nport_short_discovery_audit.json', encoding='utf-8'))"
+      - name: Upload metadata-only audit artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase192-nport-direct-short-equity-sample-discovery
+          path: phase192_output/phase192_nport_short_discovery_audit.json
+          if-no-files-found: error
+          retention-days: 90

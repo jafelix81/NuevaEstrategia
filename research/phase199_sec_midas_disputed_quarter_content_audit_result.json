@@ -1,0 +1,395 @@
+{
+  "audit_as_of_utc": "2026-11-08T01:43:04.645419+00:00",
+  "decision": "Full ZIP/CSV content validation addresses only archive reachability, CRC, schema, populated rows and quarter date bounds. Phase 103 previously validated 2016 Q1 and 2019 Q4; if this phase passes, all six disputed SEC-hosted assets have actual content evidence. This does not prove daily-calendar completeness, first public release time, PIT availability, permanent security identity, off-exchange flow, participant identity or predictive value. No alpha test is authorized.",
+  "interpretation": {
+    "all_six_third_party_disputed_assets_content_validated_across_phases_103_199": true,
+    "alpha_test_authorized": false,
+    "csv_schema_passed_for_all_four": true,
+    "daily_calendar_completeness_verified": false,
+    "data_purchase": false,
+    "f80_frozen": true,
+    "first_publication_time_verified_for_all": false,
+    "full_zip_downloaded_for_all_four": true,
+    "holdout_used": false,
+    "populated_daily_rows_verified": true,
+    "production_changed": false,
+    "strict_pit_admitted": false,
+    "vendor_contact": false,
+    "zip_crc_passed_for_all_four": true
+  },
+  "phase": 199,
+  "prior_phase103_content_validated_disputed_quarters": [
+    "2016 Q1",
+    "2019 Q4"
+  ],
+  "quarter_audits": [
+    {
+      "archive_bytes": 13044750,
+      "archive_sha256": "55b5d81438cca01f0451d6e4fcc3cad6efc4a345f4784e423ba2803403adc883",
+      "container_depth": 1,
+      "crc_failure_member": null,
+      "csv": {
+        "blank_rows": 0,
+        "blank_ticker_rows": 0,
+        "conflicting_duplicate_key_groups": 0,
+        "delimiter": "comma",
+        "duplicate_key_groups": 0,
+        "duplicate_rows_beyond_first": 0,
+        "exact_duplicate_key_groups": 0,
+        "header": [
+          "Date",
+          "Security",
+          "Ticker",
+          "McapRank",
+          "TurnRank",
+          "VolatilityRank",
+          "PriceRank",
+          "LitVol('000)",
+          "OrderVol('000)",
+          "Hidden",
+          "TradesForHidden",
+          "HiddenVol('000)",
+          "TradeVolForHidden('000)",
+          "Cancels",
+          "LitTrades",
+          "OddLots",
+          "TradesForOddLots",
+          "OddLotVol('000)",
+          "TradeVolForOddLots('000)"
+        ],
+        "header_sha256": "901dc2ca6f2ce05e6cb5c7900c9a4d9e1fdd2e0b4d3847f031f99738a242aeaf",
+        "invalid_date_rows": 0,
+        "malformed_rows": 0,
+        "max_date": "2014-06-30",
+        "member": "q2_2014_all.csv",
+        "min_date": "2014-04-01",
+        "missing_required_columns": [],
+        "numeric_invalid_by_field": {},
+        "numeric_negative_by_field": {
+          "hidden": 75,
+          "hiddenvol('000)": 76
+        },
+        "out_of_quarter_rows": 0,
+        "rows_with_valid_ticker_and_date": 318489,
+        "schema_passed": true,
+        "security_class_counts": {
+          "ETF": 83666,
+          "Stock": 234823
+        },
+        "unique_dates": 63,
+        "unique_tickers": 5168
+      },
+      "data_archive_bytes": 13044496,
+      "data_archive_sha256": "746ebefd33c82501367f09a133fee4800d93ab55d27c6921a2c7ff0467cdfc21",
+      "data_member": "q2_2014_all.csv",
+      "http_metadata": {
+        "content_length_header": "13044750",
+        "download_attempt": 1,
+        "etag": null,
+        "final_url": "https://www.sec.gov/files/opa/data/market-structure/metrics-individual-security/individual_security_2014_q2.zip",
+        "http_date": "Sun, 08 Nov 2026 01:42:37 GMT",
+        "http_status": 200,
+        "last_modified": "Sat, 19 Dec 2020 10:17:22 GMT"
+      },
+      "last_modified_is_not_publication_time": true,
+      "member_count": 2,
+      "members": [
+        {
+          "compressed_bytes": 709,
+          "crc32": "5ba640b5",
+          "name": "README2_q.txt",
+          "uncompressed_bytes": 2398
+        },
+        {
+          "compressed_bytes": 13043557,
+          "crc32": "4f64ba44",
+          "name": "q2_2014_all.csv",
+          "uncompressed_bytes": 33212023
+        }
+      ],
+      "nested_archive_bytes": 13044496,
+      "nested_archive_sha256": "746ebefd33c82501367f09a133fee4800d93ab55d27c6921a2c7ff0467cdfc21",
+      "outer_crc_failure_member": null,
+      "outer_member_count": 1,
+      "outer_members": [
+        {
+          "compressed_bytes": 13044496,
+          "crc32": "a3efb7f3",
+          "name": "Market Activity by Individual Security 2014 Q2/individual_security_2014_q2.zip",
+          "uncompressed_bytes": 13044496
+        }
+      ],
+      "quarter": "2014 Q2",
+      "zip_crc_passed": true
+    },
+    {
+      "archive_bytes": 15643843,
+      "archive_sha256": "0074161916f1aa11390f6d5da59d6de919baa1111df4d81f5fa81f63d499bf4b",
+      "container_depth": 0,
+      "crc_failure_member": null,
+      "csv": {
+        "blank_rows": 0,
+        "blank_ticker_rows": 0,
+        "conflicting_duplicate_key_groups": 55,
+        "delimiter": "comma",
+        "duplicate_key_groups": 61,
+        "duplicate_rows_beyond_first": 61,
+        "exact_duplicate_key_groups": 6,
+        "header": [
+          "Date",
+          "Security",
+          "Ticker",
+          "McapRank",
+          "TurnRank",
+          "VolatilityRank",
+          "PriceRank",
+          "LitVol('000)",
+          "OrderVol('000)",
+          "Hidden",
+          "TradesForHidden",
+          "HiddenVol('000)",
+          "TradeVolForHidden('000)",
+          "Cancels",
+          "LitTrades",
+          "OddLots",
+          "TradesForOddLots",
+          "OddLotVol('000)",
+          "TradeVolForOddLots('000)"
+        ],
+        "header_sha256": "901dc2ca6f2ce05e6cb5c7900c9a4d9e1fdd2e0b4d3847f031f99738a242aeaf",
+        "invalid_date_rows": 0,
+        "malformed_rows": 0,
+        "max_date": "2016-06-30",
+        "member": "q2_2016_all.csv",
+        "min_date": "2016-04-01",
+        "missing_required_columns": [],
+        "numeric_invalid_by_field": {},
+        "numeric_negative_by_field": {
+          "hidden": 77,
+          "hiddenvol('000)": 147
+        },
+        "out_of_quarter_rows": 0,
+        "rows_with_valid_ticker_and_date": 338183,
+        "schema_passed": true,
+        "security_class_counts": {
+          "ETF": 101275,
+          "Stock": 236908
+        },
+        "unique_dates": 64,
+        "unique_tickers": 5393
+      },
+      "data_archive_bytes": 15643843,
+      "data_archive_sha256": "0074161916f1aa11390f6d5da59d6de919baa1111df4d81f5fa81f63d499bf4b",
+      "data_member": "q2_2016_all.csv",
+      "http_metadata": {
+        "content_length_header": "15643843",
+        "download_attempt": 1,
+        "etag": null,
+        "final_url": "https://www.sec.gov/files/opa/data/market-structure/metrics-individual-security/individual_security_2016_q2.zip",
+        "http_date": "Sun, 08 Nov 2026 01:42:43 GMT",
+        "http_status": 200,
+        "last_modified": "Sat, 19 Dec 2020 10:17:32 GMT"
+      },
+      "last_modified_is_not_publication_time": true,
+      "member_count": 2,
+      "members": [
+        {
+          "compressed_bytes": 15642675,
+          "crc32": "85000f12",
+          "name": "q2_2016_all.csv",
+          "uncompressed_bytes": 48069485
+        },
+        {
+          "compressed_bytes": 944,
+          "crc32": "45278408",
+          "name": "README.txt",
+          "uncompressed_bytes": 3602
+        }
+      ],
+      "quarter": "2016 Q2",
+      "zip_crc_passed": true
+    },
+    {
+      "archive_bytes": 15566189,
+      "archive_sha256": "b95521f684d9ee873080e14ffc95802607d6fae486ead051f169d6bfacf7cd97",
+      "container_depth": 0,
+      "crc_failure_member": null,
+      "csv": {
+        "blank_rows": 0,
+        "blank_ticker_rows": 0,
+        "conflicting_duplicate_key_groups": 68,
+        "delimiter": "comma",
+        "duplicate_key_groups": 68,
+        "duplicate_rows_beyond_first": 68,
+        "exact_duplicate_key_groups": 0,
+        "header": [
+          "Date",
+          "Security",
+          "Ticker",
+          "McapRank",
+          "TurnRank",
+          "VolatilityRank",
+          "PriceRank",
+          "LitVol('000)",
+          "OrderVol('000)",
+          "Hidden",
+          "TradesForHidden",
+          "HiddenVol('000)",
+          "TradeVolForHidden('000)",
+          "Cancels",
+          "LitTrades",
+          "OddLots",
+          "TradesForOddLots",
+          "OddLotVol('000)",
+          "TradeVolForOddLots('000)"
+        ],
+        "header_sha256": "901dc2ca6f2ce05e6cb5c7900c9a4d9e1fdd2e0b4d3847f031f99738a242aeaf",
+        "invalid_date_rows": 0,
+        "malformed_rows": 0,
+        "max_date": "2016-09-30",
+        "member": "q3_2016_all.csv",
+        "min_date": "2016-07-01",
+        "missing_required_columns": [],
+        "numeric_invalid_by_field": {},
+        "numeric_negative_by_field": {
+          "hidden": 70,
+          "hiddenvol('000)": 153
+        },
+        "out_of_quarter_rows": 0,
+        "rows_with_valid_ticker_and_date": 338099,
+        "schema_passed": true,
+        "security_class_counts": {
+          "ETF": 102962,
+          "Stock": 235137
+        },
+        "unique_dates": 64,
+        "unique_tickers": 5400
+      },
+      "data_archive_bytes": 15566189,
+      "data_archive_sha256": "b95521f684d9ee873080e14ffc95802607d6fae486ead051f169d6bfacf7cd97",
+      "data_member": "q3_2016_all.csv",
+      "http_metadata": {
+        "content_length_header": "15566189",
+        "download_attempt": 1,
+        "etag": null,
+        "final_url": "https://www.sec.gov/files/opa/data/market-structure/metrics-individual-security/individual_security_2016_q3.zip",
+        "http_date": "Sun, 08 Nov 2026 01:42:50 GMT",
+        "http_status": 200,
+        "last_modified": "Sat, 19 Dec 2020 10:17:32 GMT"
+      },
+      "last_modified_is_not_publication_time": true,
+      "member_count": 2,
+      "members": [
+        {
+          "compressed_bytes": 944,
+          "crc32": "45278408",
+          "name": "README.txt",
+          "uncompressed_bytes": 3602
+        },
+        {
+          "compressed_bytes": 15565021,
+          "crc32": "27e3068f",
+          "name": "q3_2016_all.csv",
+          "uncompressed_bytes": 47955250
+        }
+      ],
+      "quarter": "2016 Q3",
+      "zip_crc_passed": true
+    },
+    {
+      "archive_bytes": 15371263,
+      "archive_sha256": "46b63d9b771a2b45cd03068142c3b317953e42ee269b9c90bb24ad88cb236e76",
+      "container_depth": 0,
+      "crc_failure_member": null,
+      "csv": {
+        "blank_rows": 0,
+        "blank_ticker_rows": 0,
+        "conflicting_duplicate_key_groups": 41,
+        "delimiter": "comma",
+        "duplicate_key_groups": 43,
+        "duplicate_rows_beyond_first": 43,
+        "exact_duplicate_key_groups": 2,
+        "header": [
+          "Date",
+          "Security",
+          "Ticker",
+          "McapRank",
+          "TurnRank",
+          "VolatilityRank",
+          "PriceRank",
+          "LitVol('000)",
+          "OrderVol('000)",
+          "Hidden",
+          "TradesForHidden",
+          "HiddenVol('000)",
+          "TradeVolForHidden('000)",
+          "Cancels",
+          "LitTrades",
+          "OddLots",
+          "TradesForOddLots",
+          "OddLotVol('000)",
+          "TradeVolForOddLots('000)"
+        ],
+        "header_sha256": "901dc2ca6f2ce05e6cb5c7900c9a4d9e1fdd2e0b4d3847f031f99738a242aeaf",
+        "invalid_date_rows": 0,
+        "malformed_rows": 0,
+        "max_date": "2016-12-30",
+        "member": "q4_2016_all.csv",
+        "min_date": "2016-10-03",
+        "missing_required_columns": [],
+        "numeric_invalid_by_field": {},
+        "numeric_negative_by_field": {
+          "hidden": 78,
+          "hiddenvol('000)": 244
+        },
+        "out_of_quarter_rows": 0,
+        "rows_with_valid_ticker_and_date": 331875,
+        "schema_passed": true,
+        "security_class_counts": {
+          "ETF": 101836,
+          "Stock": 230039
+        },
+        "unique_dates": 63,
+        "unique_tickers": 5365
+      },
+      "data_archive_bytes": 15371263,
+      "data_archive_sha256": "46b63d9b771a2b45cd03068142c3b317953e42ee269b9c90bb24ad88cb236e76",
+      "data_member": "q4_2016_all.csv",
+      "http_metadata": {
+        "content_length_header": "15371263",
+        "download_attempt": 1,
+        "etag": null,
+        "final_url": "https://www.sec.gov/files/opa/data/market-structure/metrics-individual-security/individual_security_2016_q4.zip",
+        "http_date": "Sun, 08 Nov 2026 01:42:58 GMT",
+        "http_status": 200,
+        "last_modified": "Sat, 19 Dec 2020 10:17:33 GMT"
+      },
+      "last_modified_is_not_publication_time": true,
+      "member_count": 2,
+      "members": [
+        {
+          "compressed_bytes": 15370061,
+          "crc32": "2920c146",
+          "name": "q4_2016_all.csv",
+          "uncompressed_bytes": 47158035
+        },
+        {
+          "compressed_bytes": 942,
+          "crc32": "45278408",
+          "name": "README.txt",
+          "uncompressed_bytes": 3602
+        }
+      ],
+      "quarter": "2016 Q4",
+      "zip_crc_passed": true
+    }
+  ],
+  "quarters_audited": [
+    "2014 Q2",
+    "2016 Q2",
+    "2016 Q3",
+    "2016 Q4"
+  ],
+  "source": "SEC Metrics by Individual Security quarterly public archive",
+  "status": "ALL_FOUR_DISPUTED_QUARTERS_FULL_CONTENT_VALIDATED"
+}

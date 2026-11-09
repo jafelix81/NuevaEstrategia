@@ -1,0 +1,65 @@
+{
+  "phase": 224,
+  "status": "COMPANYFACTS_PARTIAL_PIT_SOURCE_RAW_XBRL_REQUIRED_FOR_MULTI_CLASS",
+  "source": {
+    "phase69_run_id": 41959603351,
+    "phase69_artifact_id": 13385365595,
+    "artifact_zip_sha256": "f84644200a8925c6fc190a823ca0dcd6b40c7bee127a8d2740a5ea67cae56519",
+    "expanded_csv_sha256": "7a54ee09e8d4520e1ec14cf22f2c0d1c62d077798b14d3db596826e3360a3659"
+  },
+  "form144_panel": {
+    "accessions": 21634,
+    "sale_tranches": 21863,
+    "issuer_ciks": 289,
+    "seller_name_strings": 4162,
+    "exact_class_text_labels": 170,
+    "issuer_exact_class_text_pairs": 915,
+    "issuers_with_more_than_one_exact_class_text_label": 233,
+    "note": "233 is a text-normalization diagnostic, not an actual multi-class issuer count."
+  },
+  "sec_api_contract": {
+    "authentication_required": false,
+    "companyfacts_scope": "standard taxonomy facts applying to the entire filing entity",
+    "typical_xbrl_processing_delay": "under one minute after filing dissemination; may be longer at peak",
+    "bulk_zip_republication": "nightly approximately 03:00 ET",
+    "point_in_time_rule": "use filing date/accession as availability provenance; never use retrieval date or measurement date as the knowledge clock"
+  },
+  "xbrl_class_rule": {
+    "concept": "dei:EntityCommonStockSharesOutstanding",
+    "periodic_forms": [
+      "10-K",
+      "10-Q",
+      "20-F",
+      "40-F"
+    ],
+    "multi_class": "separate contexts with explicit stock-class axis members",
+    "companyfacts_sufficient_for_multi_class": false,
+    "raw_accession_specific_xbrl_required": true
+  },
+  "public_float": {
+    "concept": "dei:EntityPublicFloat",
+    "unit": "USD",
+    "shares_denominator": false,
+    "decision": "keep separate; do not convert to float shares without a dated price and separately validated method"
+  },
+  "implementation": {
+    "local_regression_tests": 15,
+    "local_regression_tests_passed": 15,
+    "hosted_ci_run": false,
+    "live_sec_api_requests": 0,
+    "raw_companyfacts_responses_downloaded": 0
+  },
+  "blockers": [
+    "SEC_CONTACT_EMAIL remains empty in GitHub Actions; no live SEC retrieval was attempted."
+  ],
+  "decision": {
+    "companyfacts_single_class": "CONDITIONAL_CANDIDATE",
+    "companyfacts_multi_class": "INSUFFICIENT_ALONE",
+    "raw_as_filed_xbrl": "REQUIRED_FALLBACK",
+    "class_crosswalk": "UNRESOLVED",
+    "independent_pit_adv": "REQUIRED",
+    "alpha_test_authorized": false,
+    "holdout_used": false,
+    "f80_frozen": true
+  }
+}

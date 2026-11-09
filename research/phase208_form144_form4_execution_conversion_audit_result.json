@@ -1,0 +1,84 @@
+{
+  "phase": 208,
+  "inputs": {
+    "form144_csv_sha256": "7a54ee09e8d4520e1ec14cf22f2c0d1c62d077798b14d3db596826e3360a3659",
+    "form144_run_id": 41959603351,
+    "form144_artifact_id": 13385365595,
+    "form4_q3_zip_sha256": "a4e6a681cfcfa43a3d9e4ca9cfec1fd26a59d0a01eac7e9f7b5a0122092c90f3",
+    "form4_run_id": 40606706518,
+    "form4_artifact_id": 12781850078
+  },
+  "sample": {
+    "form144_panel_rows": 21634,
+    "form144_q3_original_notices": 1487,
+    "form144_eligible_notices": 1451,
+    "form144_eligible_tranches": 1460,
+    "form144_excluded_right_censor_or_unparseable": 36,
+    "form4_submissions": 38152,
+    "form4_original_submissions": 33521,
+    "form4a_excluded": 627,
+    "form4_nonderivative_rows": 59885,
+    "form4_unique_owner_sale_blocks": 10525,
+    "form4_max_filing_date": "2026-09-30",
+    "form4_duplicate_transaction_keys": 0
+  },
+  "post_notice": {
+    "candidate_pairs": 695,
+    "candidate_tranches": 590,
+    "candidate_form4_blocks": 598,
+    "one_to_one_matches": 441,
+    "one_to_one_notice_count": 441,
+    "one_to_one_rate": 0.303928,
+    "same_date": 423,
+    "exact_same_date_and_shares": 394,
+    "exact_rate": 0.271537,
+    "within_20pct": 418,
+    "within_20pct_rate": 0.947846,
+    "ratio_p10": 1,
+    "ratio_p50": 1,
+    "ratio_p90": 1,
+    "form4_lag_p50": 2,
+    "form4_lag_p90": 4
+  },
+  "pre_notice_placebo": {
+    "window_days": [
+      -2,
+      -1
+    ],
+    "candidate_pairs": 92,
+    "one_to_one_matches": 53,
+    "one_to_one_rate": 0.036527,
+    "exact_same_date_and_shares": 0
+  },
+  "class_check": {
+    "exact_matches": 394,
+    "class_checked": 394,
+    "class_family_agree": 359,
+    "class_family_agreement_rate": 0.911168,
+    "literal_class_string_agree": 30,
+    "conflict_or_unresolved": 35,
+    "class_family_rule": "explicit Class A/B/C/D, Series A-Z, Preferred, Ordinary, Depositary, then generic Common; mismatches remain quarantined"
+  },
+  "plan_flag_check": {
+    "exact_matches": 394,
+    "cells": {
+      "plan_date_present|form4_true": 225,
+      "plan_date_present|form4_false": 2,
+      "no_plan_date|form4_false": 163,
+      "no_plan_date|form4_true": 4
+    },
+    "concordant": 388,
+    "concordance_rate": 0.984772
+  },
+  "decision": {
+    "execution_conversion": "SUPPORTED_IN_ONE_2026Q3_SAMPLE_WITH_CLASS_AND_IDENTITY_CAVEATS",
+    "strict_pit_admitted": false,
+    "feature_admitted": false,
+    "alpha_test_authorized": false,
+    "return_test_run": false,
+    "holdout_used": false,
+    "legacy_holdout": "CONSUMED_NOT_PRISTINE",
+    "f80_frozen": true,
+    "production_changed": false
+  }
+}

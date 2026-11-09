@@ -1,0 +1,121 @@
+{
+  "phase": 209,
+  "inputs": {
+    "form144_sha256": "7a54ee09e8d4520e1ec14cf22f2c0d1c62d077798b14d3db596826e3360a3659",
+    "form144_artifact_run_id": 41959603351,
+    "form144_artifact_id": 13385365595,
+    "form4_sha256": "a4e6a681cfcfa43a3d9e4ca9cfec1fd26a59d0a01eac7e9f7b5a0122092c90f3",
+    "form4_artifact_run_id": 40606706518,
+    "form4_artifact_id": 12781850078
+  },
+  "sample": {
+    "form144_panel_rows": 21634,
+    "form144_q3_original_notices": 1487,
+    "eligible_notices": 1451,
+    "eligible_tranches": 1460,
+    "form4_submissions": 38152,
+    "form4_nonderivative_rows": 59885,
+    "form4_unique_owner_sale_blocks": 10525
+  },
+  "phase208_broad_window_baseline": {
+    "window_days": [
+      0,
+      2
+    ],
+    "candidate_pairs": 695,
+    "mutually_unique_pairs": 441,
+    "exact_date_and_share_pairs_after_broad_uniqueness": 394,
+    "pre_notice_candidate_pairs": 92,
+    "pre_notice_mutually_unique_pairs": 53
+  },
+  "exact_edge_graph": {
+    "edges": 521,
+    "distinct_tranches": 521,
+    "distinct_form4_blocks": 521,
+    "ambiguous_tranches": 0,
+    "ambiguous_form4_blocks": 0,
+    "mutually_unique_edges": 521,
+    "class_family_agree": 481,
+    "class_family_conflict_or_unresolved": 40,
+    "class_family_agreement_rate": 0.923225
+  },
+  "broad_window_collision_diagnostic": {
+    "exact_edges_removed_by_phase208_broad_uniqueness": 127,
+    "collision_patterns": {
+      "tranche_collision|form4_collision": 20,
+      "tranche_collision|form4_unique": 52,
+      "tranche_unique|form4_collision": 55,
+      "tranche_unique|form4_unique": 394
+    }
+  },
+  "exact_first_hierarchical_linkage": {
+    "exact_date_and_share_matches": 521,
+    "fallback_candidate_pairs_after_reserving_exact_nodes": 80,
+    "additional_mutually_unique_fallback_matches": 49,
+    "fallback_gap_counts": {
+      "0": 31,
+      "1": 16,
+      "2": 2
+    },
+    "total_one_to_one_links": 570,
+    "distinct_notices_linked": 570,
+    "rate_of_eligible_notices": 0.392833,
+    "exact_date_and_share_rate_of_eligible_notices": 0.359063
+  },
+  "window_sensitivity": [
+    {
+      "window": "same_day",
+      "candidate_pairs": 577,
+      "mutually_unique_pairs": 556,
+      "exact_date_and_share_pairs": 519
+    },
+    {
+      "window": "0_1d",
+      "candidate_pairs": 659,
+      "mutually_unique_pairs": 465,
+      "exact_date_and_share_pairs": 419
+    },
+    {
+      "window": "0_2d",
+      "candidate_pairs": 695,
+      "mutually_unique_pairs": 441,
+      "exact_date_and_share_pairs": 394
+    },
+    {
+      "window": "0_3d",
+      "candidate_pairs": 732,
+      "mutually_unique_pairs": 413,
+      "exact_date_and_share_pairs": 368
+    },
+    {
+      "window": "0_4d",
+      "candidate_pairs": 765,
+      "mutually_unique_pairs": 396,
+      "exact_date_and_share_pairs": 355
+    },
+    {
+      "window": "minus_1d",
+      "candidate_pairs": 60,
+      "mutually_unique_pairs": 60,
+      "exact_date_and_share_pairs": 0
+    },
+    {
+      "window": "minus_2_1d",
+      "candidate_pairs": 92,
+      "mutually_unique_pairs": 53,
+      "exact_date_and_share_pairs": 0
+    }
+  ],
+  "decision": {
+    "phase208_matching_order_requires_correction": true,
+    "exact_first_linkage": "PROVISIONAL_DESCRIPTIVE_LINKAGE_ONLY",
+    "strict_pit_admitted": false,
+    "feature_admitted": false,
+    "alpha_test_authorized": false,
+    "return_test_run": false,
+    "holdout_used": false,
+    "legacy_holdout": "CONSUMED_NOT_PRISTINE",
+    "f80_frozen": true,
+    "production_changed": false
+  }
+}

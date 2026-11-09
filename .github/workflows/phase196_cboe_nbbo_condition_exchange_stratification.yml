@@ -1,0 +1,67 @@
+name: Phase 196 Cboe NBBO-side decomposition by condition and exchange
+
+on:
+  pull_request:
+    types: [synchronize]
+    branches: [main]
+    paths:
+      - "research/phase196_cboe_nbbo_condition_exchange_stratification.py"
+      - "research/test_phase196_cboe_nbbo_condition_exchange_stratification.py"
+      - ".github/workflows/phase196_cboe_nbbo_condition_exchange_stratification.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase196-cboe-nbbo-condition-exchange-stratification
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile audit and dependencies
+        run: >-
+          python -m py_compile
+          research/phase196_cboe_nbbo_condition_exchange_stratification.py
+          research/phase194_cboe_option_trades_daily_flow_sample_audit.py
+          research/phase195_cboe_trade_condition_exchange_mapping_audit.py
+          research/test_phase196_cboe_nbbo_condition_exchange_stratification.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase196_cboe_nbbo_condition_exchange_stratification
+      - name: Download and stratify public Cboe sample in memory
+        run: python -m research.phase196_cboe_nbbo_condition_exchange_stratification --output-dir phase196_output
+      - name: Validate sample-only reconciliation and frozen controls
+        run: |
+          python - <<'PY'
+          import json
+          p = "phase196_output/phase196_cboe_nbbo_condition_exchange_stratification.json"
+          s = json.load(open(p, encoding="utf-8"))
+          assert s["phase"] == 196
+          assert s["status"] == "STRATIFIED_SAMPLE_DIAGNOSTIC_PASS"
+          assert all(s["reconciliation"].values())
+          assert s["interpretation"]["strict_pit_admitted"] is False
+          assert s["interpretation"]["alpha_admission"] is False
+          assert s["interpretation"]["return_test_run"] is False
+          assert s["interpretation"]["holdout_used"] is False
+          assert s["interpretation"]["production_changed"] is False
+          assert s["interpretation"]["data_purchase"] is False
+          assert s["interpretation"]["vendor_contact"] is False
+          assert s["interpretation"]["f80_frozen"] is True
+          print("PHASE196_STATUS=" + s["status"])
+          print("PHASE196_ROWS=" + str(s["totals"]["rows"]))
+          print("PHASE196_CANDIDATE_NET=" + str(s["totals"]["candidate_signed_contract_volume_at_ask_minus_bid"]))
+          PY
+      - name: Upload metadata-only stratification audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase196-cboe-nbbo-condition-exchange-stratification
+          path: phase196_output/phase196_cboe_nbbo_condition_exchange_stratification.json
+          if-no-files-found: error
+          retention-days: 90

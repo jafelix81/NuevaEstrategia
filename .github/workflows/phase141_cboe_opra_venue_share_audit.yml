@@ -1,0 +1,29 @@
+name: Phase 141 Cboe OPRA venue-share audit regression
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "research/phase141_cboe_opra_venue_share_audit.py"
+      - "research/test_phase141_cboe_opra_venue_share_audit.py"
+      - "research/PHASE141_CBOE_OPRA_DENOMINATOR_AND_VENUE_SHARE_AUDIT_2026-11-05.md"
+      - "research/PHASE142_IVYDB_TRADEFLOW_FEASIBILITY_AND_PIT_AUDIT_2026-11-05.md"
+      - ".github/workflows/phase141_cboe_opra_venue_share_audit.yml"
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile audit
+        run: python -m py_compile research/phase141_cboe_opra_venue_share_audit.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase141_cboe_opra_venue_share_audit

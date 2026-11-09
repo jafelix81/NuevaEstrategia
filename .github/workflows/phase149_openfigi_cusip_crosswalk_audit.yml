@@ -1,0 +1,45 @@
+name: Phase 149 OpenFIGI CUSIP crosswalk feasibility
+
+on:
+  pull_request:
+    types: [opened, reopened]
+    paths:
+      - "research/phase149_cusip_input.json"
+      - "research/phase149_openfigi_cusip_crosswalk_audit.py"
+      - "research/test_phase149_openfigi_cusip_crosswalk_audit.py"
+      - ".github/workflows/phase149_openfigi_cusip_crosswalk_audit.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase149-openfigi-cusip-audit
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile audit
+        run: python -m py_compile research/phase149_openfigi_cusip_crosswalk_audit.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase149_openfigi_cusip_crosswalk_audit
+      - name: Query OpenFIGI current CUSIP mappings
+        run: >-
+          python research/phase149_openfigi_cusip_crosswalk_audit.py
+          --input research/phase149_cusip_input.json
+          --output-dir phase149_output
+          --delay-seconds 2.5
+      - name: Upload mapping audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase149-openfigi-cusip-crosswalk-audit
+          path: phase149_output/phase149_openfigi_cusip_audit.json
+          if-no-files-found: error
+          retention-days: 30

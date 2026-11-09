@@ -1,0 +1,85 @@
+name: Phase 166 SEC 13(f) cross-format content and PIT metadata bridge
+
+on:
+  push:
+    branches:
+      - phase99-broad-pit-universe-charter
+    paths:
+      - research/phase166_sec13f_cross_format_pit_bridge.py
+      - research/test_phase166_sec13f_cross_format_pit_bridge.py
+      - .github/workflows/phase166_sec13f_cross_format_pit_bridge.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: phase166-sec13f-cross-format-pit-bridge
+  cancel-in-progress: false
+
+jobs:
+  bridge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compile Phase 166
+        run: python -m py_compile research/phase166_sec13f_cross_format_pit_bridge.py
+      - name: Run Phase 165 and Phase 166 regression suites
+        run: |
+          python -m unittest -v research.test_phase165_sec13f_resumable_audit
+          python -m unittest -v research.test_phase166_sec13f_cross_format_pit_bridge
+      - name: Download Phase 165 compact sample input
+        uses: actions/download-artifact@v4
+        with:
+          name: phase165-sec13f-sample-input
+          path: inputs
+          repository: jafelix81/NuevaEstrategia
+          run-id: 42278657127
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download all-PDF Phase 165 shard artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: phase165-sec13f-shard-*
+          path: pdf_shards
+          merge-multiple: true
+          repository: jafelix81/NuevaEstrategia
+          run-id: 42278015855
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download TXT-first Phase 165 shard artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: phase165-sec13f-shard-*
+          path: content_shards
+          merge-multiple: true
+          repository: jafelix81/NuevaEstrategia
+          run-id: 42278657127
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download TXT-first Phase 165 aggregate artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: phase165-sec13f-resumable-overlap-audit
+          path: content_aggregate
+          repository: jafelix81/NuevaEstrategia
+          run-id: 42278657127
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Reconcile format concordance and PDF PIT metadata
+        run: >-
+          python -m research.phase166_sec13f_cross_format_pit_bridge
+          --pdf-shards pdf_shards
+          --content-shards content_shards
+          --sample-csv inputs/phase165_sample.csv
+          --content-summary-json content_aggregate/phase165_sec13f_resumable_summary.json
+          --output-dir final
+      - name: Upload Phase 166 reconciliation artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase166-sec13f-cross-format-pit-bridge
+          path: final/
+          if-no-files-found: error
+          retention-days: 90

@@ -1,0 +1,51 @@
+name: Phase 183 cross-source Smart Money data-admission matrix
+
+on:
+  pull_request:
+    paths:
+      - "research/phase183_options_smart_money_source_gate_matrix.json"
+      - "research/phase183_options_smart_money_source_gate_matrix.py"
+      - "research/test_phase183_options_smart_money_source_gate_matrix.py"
+      - "research/PHASE183_CROSS_SOURCE_SMART_MONEY_DATA_ADMISSION_MATRIX_2026-11-07.md"
+      - ".github/workflows/phase183_options_smart_money_source_gate_matrix.yml"
+      - "SMART_MONEY_RESEARCH_STATE.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile auditor and tests
+        run: |
+          python -m py_compile research/phase183_options_smart_money_source_gate_matrix.py research/test_phase183_options_smart_money_source_gate_matrix.py
+      - name: Run regression tests
+        run: python -m unittest research.test_phase183_options_smart_money_source_gate_matrix -v
+      - name: Generate metadata-only matrix
+        run: |
+          python -m research.phase183_options_smart_money_source_gate_matrix --output-dir phase183_output
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          tracked = json.loads(Path("research/phase183_options_smart_money_source_gate_matrix.json").read_text())
+          generated = json.loads(Path("phase183_output/phase183_source_gate_matrix_audit.json").read_text())
+          assert generated["status"] == tracked["status"]
+          assert generated["source_count"] == len(tracked["sources"])
+          assert generated["pit_admitted_count"] == 0
+          assert generated["alpha_admitted_count"] == 0
+          assert generated["controls"]["f80_frozen"] is True
+          print("PHASE183_SOURCE_GATE_MATRIX_GENERATED")
+          PY
+      - name: Upload metadata-only artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase183-cross-source-smart-money-gate-matrix
+          path: phase183_output/phase183_source_gate_matrix_audit.json
+          retention-days: 90

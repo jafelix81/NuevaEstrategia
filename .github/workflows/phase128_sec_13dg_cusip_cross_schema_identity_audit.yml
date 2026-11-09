@@ -1,0 +1,60 @@
+name: Phase 128 SEC 13D-G CUSIP cross-schema identity feasibility
+
+on:
+  push:
+    branches:
+      - phase99-broad-pit-universe-charter
+    paths:
+      - research/phase128_sec_13dg_cusip_cross_schema_identity_audit.py
+      - research/test_phase128_sec_13dg_cusip_cross_schema_identity_audit.py
+      - .github/workflows/phase128_sec_13dg_cusip_cross_schema_identity_audit.yml
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  cross-schema-identity-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile audit
+        run: python -m py_compile research/phase128_sec_13dg_cusip_cross_schema_identity_audit.py
+      - name: Run offline regression tests
+        run: |
+          python -m unittest -v research.test_phase124_global_sec_13dg_stratified_submission_audit
+          python -m unittest -v research.test_phase125_sec_13dg_exact_cusip_audit
+          python -m unittest -v research.test_phase126_sec_13dg_body_issuer_identity_audit
+          python -m unittest -v research.test_phase128_sec_13dg_cusip_cross_schema_identity_audit
+      - name: Download immutable Phase 124 global sample artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: phase124-global-sec-13dg-stratified-submission-audit
+          path: inputs/phase124
+          repository: ${{ github.repository }}
+          run-id: 42073725379
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download immutable Phase 127 corrected CUSIP artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: phase127-sec-13dg-xml-cusip-schema-correction
+          path: inputs/phase127
+          repository: ${{ github.repository }}
+          run-id: 42079517644
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Audit repeated CUSIP groups and cross-schema identity
+        run: >-
+          python -m research.phase128_sec_13dg_cusip_cross_schema_identity_audit
+          --phase124-dir inputs/phase124 --phase127-dir inputs/phase127 --output-dir out
+      - name: Upload immutable Phase 128 CUSIP identity audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase128-sec-13dg-cusip-cross-schema-identity-audit
+          path: out/
+          if-no-files-found: warn
+          retention-days: 90

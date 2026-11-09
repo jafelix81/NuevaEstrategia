@@ -1,0 +1,59 @@
+name: Phase 126 SEC 13D-G body-first issuer identity audit
+
+on:
+  push:
+    branches:
+      - phase99-broad-pit-universe-charter
+    paths:
+      - research/phase126_sec_13dg_body_issuer_identity_audit.py
+      - research/test_phase126_sec_13dg_body_issuer_identity_audit.py
+      - .github/workflows/phase126_sec_13dg_body_issuer_identity_audit.yml
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  body-first-identity-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile audit
+        run: python -m py_compile research/phase126_sec_13dg_body_issuer_identity_audit.py
+      - name: Run offline regression tests
+        run: |
+          python -m unittest -v research.test_phase124_global_sec_13dg_stratified_submission_audit
+          python -m unittest -v research.test_phase125_sec_13dg_exact_cusip_audit
+          python -m unittest -v research.test_phase126_sec_13dg_body_issuer_identity_audit
+      - name: Download immutable Phase 124 global sample artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: phase124-global-sec-13dg-stratified-submission-audit
+          path: inputs/phase124
+          repository: ${{ github.repository }}
+          run-id: 42073725379
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download immutable Phase 125 exact cover-page CUSIP artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: phase125-sec-13dg-exact-cusip-audit
+          path: inputs/phase125
+          repository: ${{ github.repository }}
+          run-id: 42077788015
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Reconcile body issuer identity and header CIK roles
+        run: >-
+          python -m research.phase126_sec_13dg_body_issuer_identity_audit
+          --phase124-dir inputs/phase124 --phase125-dir inputs/phase125 --output-dir out
+      - name: Upload immutable Phase 126 body-first identity audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase126-sec-13dg-body-issuer-identity-audit
+          path: out/
+          if-no-files-found: warn
+          retention-days: 90

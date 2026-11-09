@@ -1,0 +1,291 @@
+{
+  "phase": 221,
+  "audit_as_of": "2026-11-08",
+  "status": "CONDITIONAL_ZERO_SEMANTICS_DEFINED_NO_RAW_PANEL_NO_ALPHA",
+  "prior_phase": 220,
+  "regulatory_basis": {
+    "form_version_effective": "2023-12-11",
+    "part_c_rule": "Disclose each investment held by the Fund and consolidated subsidiaries.",
+    "part_d": {
+      "aggregate_cap_pct_total_assets": 5,
+      "unrestricted_only": true,
+      "maximum_holding_age_years": 1,
+      "prior_public_disclosure_prohibited": true,
+      "public_information": false
+    },
+    "public_availability": "Third month of each Fund fiscal quarter is public upon filing; first and second months are not fund-identifiable public holdings.",
+    "amendment_rule": "An amendment must respond to all Form N-PORT items; it is a new as-filed vintage known only from its own acceptance.",
+    "2026_proposal": {
+      "file_number": "S7-2026-05",
+      "release": "IC-35962",
+      "status_as_of_audit": "PROPOSED_NOT_FINAL"
+    }
+  },
+  "interpretation": {
+    "default_absence": "UNKNOWN_NOT_ZERO",
+    "conditional_zero_rule": "A prior exact security disclosed by name in public Part C is conditionally ineligible for later confidential Part D; if absent from a complete later public Part-C filing, infer zero reported direct physical position only after all identity, series, corporate-action and vintage gates pass.",
+    "scope": "Reported direct physical common-equity short position in the exact issue only; not trade flow, cover timestamp, beneficial-owner intent or total bearish exposure.",
+    "legal_reading_confidence": "CONDITIONAL_CONSERVATIVE",
+    "fiscal_calendar": "Use each Fund's fiscal-quarter third month; do not assume calendar quarter."
+  },
+  "required_gates": [
+    "prior_exact_security_public_part_c_disclosure",
+    "current_public_third_fiscal_quarter_month",
+    "complete_current_filing_and_part_c_parse",
+    "same_exact_fund_series",
+    "same_effective_dated_security_issue",
+    "part_d_prior_public_exclusion_applies",
+    "corporate_actions_resolved",
+    "as_filed_vintage_known_by_signal_cutoff",
+    "next_full_regular_session_after_acceptance"
+  ],
+  "synthetic_cases": [
+    {
+      "name": "prior_public_absent_current_complete",
+      "expected": "CONDITIONAL_ZERO_BY_PART_D_EXCLUSION",
+      "inputs": {
+        "prior_public_part_c": true,
+        "current_period_public": true,
+        "current_filing_complete": true,
+        "same_series": true,
+        "same_security": true,
+        "corporate_action_clear": true,
+        "current_vintage_as_of_signal": true,
+        "part_d_ineligible_due_prior_public": true,
+        "current_part_c_rows": []
+      }
+    },
+    {
+      "name": "never_public_absence",
+      "expected": "UNKNOWN",
+      "inputs": {
+        "prior_public_part_c": false,
+        "current_period_public": true,
+        "current_filing_complete": true,
+        "same_series": true,
+        "same_security": true,
+        "corporate_action_clear": true,
+        "current_vintage_as_of_signal": true,
+        "part_d_ineligible_due_prior_public": false,
+        "current_part_c_rows": []
+      }
+    },
+    {
+      "name": "part_d_not_excluded",
+      "expected": "UNKNOWN",
+      "inputs": {
+        "prior_public_part_c": true,
+        "current_period_public": true,
+        "current_filing_complete": true,
+        "same_series": true,
+        "same_security": true,
+        "corporate_action_clear": true,
+        "current_vintage_as_of_signal": true,
+        "part_d_ineligible_due_prior_public": false,
+        "current_part_c_rows": []
+      }
+    },
+    {
+      "name": "nonpublic_fiscal_month",
+      "expected": "UNKNOWN",
+      "inputs": {
+        "prior_public_part_c": true,
+        "current_period_public": false,
+        "current_filing_complete": true,
+        "same_series": true,
+        "same_security": true,
+        "corporate_action_clear": true,
+        "current_vintage_as_of_signal": true,
+        "part_d_ineligible_due_prior_public": true,
+        "current_part_c_rows": []
+      }
+    },
+    {
+      "name": "incomplete_filing",
+      "expected": "UNKNOWN",
+      "inputs": {
+        "prior_public_part_c": true,
+        "current_period_public": true,
+        "current_filing_complete": false,
+        "same_series": true,
+        "same_security": true,
+        "corporate_action_clear": true,
+        "current_vintage_as_of_signal": true,
+        "part_d_ineligible_due_prior_public": true,
+        "current_part_c_rows": []
+      }
+    },
+    {
+      "name": "series_mismatch",
+      "expected": "UNKNOWN",
+      "inputs": {
+        "prior_public_part_c": true,
+        "current_period_public": true,
+        "current_filing_complete": true,
+        "same_series": false,
+        "same_security": true,
+        "corporate_action_clear": true,
+        "current_vintage_as_of_signal": true,
+        "part_d_ineligible_due_prior_public": true,
+        "current_part_c_rows": []
+      }
+    },
+    {
+      "name": "security_mismatch",
+      "expected": "UNKNOWN",
+      "inputs": {
+        "prior_public_part_c": true,
+        "current_period_public": true,
+        "current_filing_complete": true,
+        "same_series": true,
+        "same_security": false,
+        "corporate_action_clear": true,
+        "current_vintage_as_of_signal": true,
+        "part_d_ineligible_due_prior_public": true,
+        "current_part_c_rows": []
+      }
+    },
+    {
+      "name": "corporate_action_unresolved",
+      "expected": "UNKNOWN",
+      "inputs": {
+        "prior_public_part_c": true,
+        "current_period_public": true,
+        "current_filing_complete": true,
+        "same_series": true,
+        "same_security": true,
+        "corporate_action_clear": false,
+        "current_vintage_as_of_signal": true,
+        "part_d_ineligible_due_prior_public": true,
+        "current_part_c_rows": []
+      }
+    },
+    {
+      "name": "future_amendment_not_yet_knowable",
+      "expected": "UNKNOWN",
+      "inputs": {
+        "prior_public_part_c": true,
+        "current_period_public": true,
+        "current_filing_complete": true,
+        "same_series": true,
+        "same_security": true,
+        "corporate_action_clear": true,
+        "current_vintage_as_of_signal": false,
+        "part_d_ineligible_due_prior_public": true,
+        "current_part_c_rows": []
+      }
+    },
+    {
+      "name": "two_valid_short_rows",
+      "expected": "OBSERVED_SHORT_POSITION",
+      "expected_short_shares": 100,
+      "inputs": {
+        "prior_public_part_c": true,
+        "current_period_public": true,
+        "current_filing_complete": true,
+        "same_series": true,
+        "same_security": true,
+        "corporate_action_clear": true,
+        "current_vintage_as_of_signal": true,
+        "part_d_ineligible_due_prior_public": true,
+        "current_part_c_rows": [
+          {
+            "payoff_profile": "Short",
+            "unit": "NS",
+            "asset_cat": "EC",
+            "issuer_cat": "CORP",
+            "title": "Common Stock",
+            "balance": -40
+          },
+          {
+            "payoff_profile": "Short",
+            "unit": "NS",
+            "asset_cat": "EC",
+            "issuer_cat": "CORP",
+            "title": "Common Stock",
+            "balance": -60
+          }
+        ]
+      }
+    },
+    {
+      "name": "long_only_part_c_rows",
+      "expected": "OBSERVED_ZERO_DIRECT_SHORT_IN_PART_C",
+      "expected_short_shares": 0,
+      "inputs": {
+        "prior_public_part_c": true,
+        "current_period_public": true,
+        "current_filing_complete": true,
+        "same_series": true,
+        "same_security": true,
+        "corporate_action_clear": true,
+        "current_vintage_as_of_signal": true,
+        "part_d_ineligible_due_prior_public": true,
+        "current_part_c_rows": [
+          {
+            "payoff_profile": "Long",
+            "unit": "NS",
+            "asset_cat": "EC",
+            "issuer_cat": "CORP",
+            "title": "Common Stock",
+            "balance": 75
+          }
+        ]
+      }
+    },
+    {
+      "name": "malformed_short_row",
+      "expected": "UNKNOWN",
+      "inputs": {
+        "prior_public_part_c": true,
+        "current_period_public": true,
+        "current_filing_complete": true,
+        "same_series": true,
+        "same_security": true,
+        "corporate_action_clear": true,
+        "current_vintage_as_of_signal": true,
+        "part_d_ineligible_due_prior_public": true,
+        "current_part_c_rows": [
+          {
+            "payoff_profile": "Short",
+            "unit": "USD",
+            "asset_cat": "EC",
+            "issuer_cat": "CORP",
+            "title": "Common Stock",
+            "balance": -40
+          }
+        ]
+      }
+    },
+    {
+      "name": "part_c_parse_missing",
+      "expected": "UNKNOWN",
+      "inputs": {
+        "prior_public_part_c": true,
+        "current_period_public": true,
+        "current_filing_complete": true,
+        "same_series": true,
+        "same_security": true,
+        "corporate_action_clear": true,
+        "current_vintage_as_of_signal": true,
+        "part_d_ineligible_due_prior_public": true,
+        "current_part_c_rows": null
+      }
+    }
+  ],
+  "controls": {
+    "raw_filings_downloaded": false,
+    "raw_hashes_verified": false,
+    "alpha_test_authorized": false,
+    "return_test_run": false,
+    "bootstrap_loo_run": false,
+    "holdout_used": false,
+    "production_changed": false,
+    "universe_changed": false,
+    "data_purchase": false,
+    "vendor_contact": false,
+    "sec_requests_sent": false,
+    "f80_frozen": true,
+    "legacy_holdout": "CONSUMED_NOT_PRISTINE"
+  }
+}

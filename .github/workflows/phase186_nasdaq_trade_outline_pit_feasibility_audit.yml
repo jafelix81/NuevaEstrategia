@@ -1,0 +1,55 @@
+name: Phase 186 Nasdaq Trade Outline PIT Feasibility Audit
+
+on:
+  push:
+    branches: [phase99-broad-pit-universe-charter]
+    paths:
+      - "research/PHASE186_NASDAQ_TRADE_OUTLINE_CROSS_VENUE_PIT_FEASIBILITY_AUDIT_2026-11-07.md"
+      - "research/phase186_nasdaq_trade_outline_pit_feasibility_audit.json"
+      - "research/phase186_nasdaq_trade_outline_pit_feasibility_audit.py"
+      - "research/test_phase186_nasdaq_trade_outline_pit_feasibility_audit.py"
+      - ".github/workflows/phase186_nasdaq_trade_outline_pit_feasibility_audit.yml"
+      - "research/PHASE185_CBOE_OPENCLOSE_LIVE_VS_BACKFILL_PIT_CHRONOLOGY_2026-11-07.md"
+      - "research/phase185_cboe_openclose_live_backfill_pit_chronology.json"
+  pull_request:
+    branches: [main]
+    paths:
+      - "research/PHASE186_NASDAQ_TRADE_OUTLINE_CROSS_VENUE_PIT_FEASIBILITY_AUDIT_2026-11-07.md"
+      - "research/phase186_nasdaq_trade_outline_pit_feasibility_audit.json"
+      - "research/phase186_nasdaq_trade_outline_pit_feasibility_audit.py"
+      - "research/test_phase186_nasdaq_trade_outline_pit_feasibility_audit.py"
+      - ".github/workflows/phase186_nasdaq_trade_outline_pit_feasibility_audit.yml"
+      - "research/PHASE185_CBOE_OPENCLOSE_LIVE_VS_BACKFILL_PIT_CHRONOLOGY_2026-11-07.md"
+      - "research/phase185_cboe_openclose_live_backfill_pit_chronology.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile audit and tests
+        run: |
+          python -m py_compile research/phase186_nasdaq_trade_outline_pit_feasibility_audit.py research/test_phase186_nasdaq_trade_outline_pit_feasibility_audit.py
+      - name: Run deterministic tests
+        working-directory: research
+        run: python -m unittest -v test_phase186_nasdaq_trade_outline_pit_feasibility_audit.py
+      - name: Generate validated snapshot
+        run: |
+          python research/phase186_nasdaq_trade_outline_pit_feasibility_audit.py --output phase186_output/phase186_nasdaq_trade_outline_pit_feasibility_summary.json
+      - name: Upload audit artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase186-nasdaq-trade-outline-pit-feasibility
+          path: phase186_output/phase186_nasdaq_trade_outline_pit_feasibility_summary.json
+          if-no-files-found: error
+          retention-days: 30

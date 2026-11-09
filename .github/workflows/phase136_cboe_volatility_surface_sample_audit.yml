@@ -1,0 +1,43 @@
+name: Phase 136 Cboe Volatility Surfaces public sample audit
+
+on:
+  push:
+    branches:
+      - phase99-broad-pit-universe-charter
+    paths:
+      - research/phase136_cboe_volatility_surface_sample_audit.py
+      - research/test_phase136_cboe_volatility_surface_sample_audit.py
+      - research/PHASE136_CBOE_VOLATILITY_SURFACES_SAMPLE_AUDIT_SPEC_2026-11-05.md
+      - .github/workflows/phase136_cboe_volatility_surface_sample_audit.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase136-cboe-volatility-surface-sample-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile auditor
+        run: python -m py_compile research/phase136_cboe_volatility_surface_sample_audit.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase136_cboe_volatility_surface_sample_audit
+      - name: Download and audit public sample
+        run: python -u research/phase136_cboe_volatility_surface_sample_audit.py
+      - name: Upload aggregate sample audit only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase136-cboe-volatility-surface-sample-audit
+          path: phase136_cboe_volatility_surface_sample_audit/
+          retention-days: 90
+          if-no-files-found: warn

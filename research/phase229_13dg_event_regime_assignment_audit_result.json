@@ -1,0 +1,171 @@
+{
+  "phase": 229,
+  "status": "COMPLETED_EVENT_DATE_PROXY_REGIME_ASSIGNMENT_AUDIT_NO_ALPHA",
+  "source": {
+    "phase124_run_id": 42073725379,
+    "phase124_artifact_id": 13436764625,
+    "phase124_zip_sha256": "85f69e083b5af65731c9bcfe24e8c75821fc0f2c2476bfa8ba573e2e884570dc",
+    "phase124_csv_sha256": "be2c592c6c26d9f1ea49bda5d29d20e944004b2e2f4a3c3f4fe1f732319c55d5",
+    "source_rows": 600,
+    "actual_13dg_filings": 599,
+    "raw_submission_hashes_verified": 600,
+    "sec_headers_verified": 600,
+    "primary_documents_verified": 599,
+    "event_dates_parsed": 553,
+    "event_dates_unknown": 46
+  },
+  "cutoffs": {
+    "13D": "2024-02-05",
+    "13G": "2024-09-30",
+    "structured_data_format_break": "2024-12-18"
+  },
+  "classification_counts_parsed_rows": {
+    "13D": {
+      "filing_date": {
+        "pre": 154,
+        "post": 51
+      },
+      "event_date_proxy": {
+        "pre": 155,
+        "post": 50,
+        "unknown": 9
+      }
+    },
+    "13G": {
+      "filing_date": {
+        "pre": 272,
+        "post": 76
+      },
+      "event_date_proxy": {
+        "pre": 272,
+        "post": 76,
+        "unknown": 37
+      }
+    }
+  },
+  "boundary_crossings": [
+    {
+      "accession": "0001554855-24-000055",
+      "form": "SC 13D/A",
+      "event_date": "2024-01-31",
+      "filing_date": "2024-02-08",
+      "acceptance_datetime": "2024-02-08T16:33:22",
+      "filing_date_regime": "post",
+      "event_date_proxy_regime": "pre",
+      "calendar_lag_days": 8
+    }
+  ],
+  "event_date_proxy_weighted_summaries": {
+    "13D": {
+      "pre": {
+        "n": 155,
+        "median_lag_days": 4,
+        "p90_lag_days": 27,
+        "quarter_end_weighted_pct": 3.4958
+      },
+      "post": {
+        "n": 50,
+        "median_lag_days": 2,
+        "p90_lag_days": 18,
+        "quarter_end_weighted_pct": 0
+      }
+    },
+    "13G": {
+      "pre": {
+        "n": 272,
+        "median_lag_days": 41,
+        "p90_lag_days": 45,
+        "quarter_end_weighted_pct": 74.7961
+      },
+      "post": {
+        "n": 76,
+        "median_lag_days": 38,
+        "p90_lag_days": 45,
+        "quarter_end_weighted_pct": 81.7308
+      }
+    }
+  },
+  "event_date_proxy_initial_amendment_weighted_summaries": {
+    "13D_initial": {
+      "pre": {
+        "n": 62,
+        "median": 10,
+        "p90": 48
+      },
+      "post": {
+        "n": 20,
+        "median": 7,
+        "p90": 86
+      }
+    },
+    "13D_amendment": {
+      "pre": {
+        "n": 93,
+        "median": 3,
+        "p90": 17
+      },
+      "post": {
+        "n": 30,
+        "median": 2,
+        "p90": 13
+      }
+    },
+    "13G_initial": {
+      "pre": {
+        "n": 100,
+        "median": 38,
+        "p90": 47
+      },
+      "post": {
+        "n": 31,
+        "median": 29,
+        "p90": 45
+      }
+    },
+    "13G_amendment": {
+      "pre": {
+        "n": 172,
+        "median": 41,
+        "p90": 45
+      },
+      "post": {
+        "n": 45,
+        "median": 39,
+        "p90": 45
+      }
+    }
+  },
+  "limitations": [
+    "Event date is a cover-page/XML event-date proxy, not a verified trade date or universally exact legal trigger.",
+    "13G filing deadlines vary by filer category and rule trigger; this audit is not a compliance test.",
+    "46 event dates remain unknown and are not imputed.",
+    "The Phase 124 source is a stratified sample; weighted results are descriptive.",
+    "No forward returns, alpha, bootstrap, LOO, OOS, or holdout analysis was performed."
+  ],
+  "governance": {
+    "f80_frozen": true,
+    "legacy_holdout": "CONSUMED_NOT_PRISTINE",
+    "production_changed": false,
+    "universe_changed": false,
+    "vendor_purchase": false
+  },
+  "workflow_execution": {
+    "dedicated_phase229_workflow": false,
+    "commit_triggered_existing_pr_workflow_fanout": true,
+    "fanout_head_sha": "c2d733ea28112d1943d8842a6666339737ac9771",
+    "fanout_head_runs": {
+      "success": 57,
+      "failed": 0,
+      "cancelled": 0,
+      "active": 0
+    },
+    "superseded_older_head_runs_cancelled": 12,
+    "latest_100_runs": {
+      "success": 88,
+      "failed": 0,
+      "cancelled": 12,
+      "active_or_queued": 0
+    },
+    "note": "This was a repository push-triggered fan-out, not a dedicated Phase 229 test run. Subsequent Phase 230 commits use [skip ci]."
+  }
+}

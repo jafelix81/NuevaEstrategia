@@ -1,0 +1,66 @@
+name: Phase 193 SEC N-PORT raw filing and acceptance-time audit
+
+on:
+  pull_request:
+    types: [opened, reopened]
+    branches: [main]
+    paths:
+      - "research/phase193_nport_raw_filing_retrieval.py"
+      - "research/phase193_nport_raw_filing_retrieval.json"
+      - "research/test_phase193_nport_raw_filing_retrieval.py"
+      - ".github/workflows/phase193_nport_raw_filing_retrieval.yml"
+      - "SMART_MONEY_RESEARCH_STATE.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase193-nport-raw-filing-retrieval
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SEC_CONTACT_EMAIL: ${{ secrets.SEC_CONTACT_EMAIL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile audit and tests
+        run: python -m py_compile research/phase193_nport_raw_filing_retrieval.py research/test_phase193_nport_raw_filing_retrieval.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase193_nport_raw_filing_retrieval
+      - name: Retrieve and audit the five public SEC filing samples when authorized
+        run: python -m research.phase193_nport_raw_filing_retrieval --output-dir phase193_output
+      - name: Validate audit output and frozen-baseline controls
+        run: |
+          python - <<'PY'
+          import json
+          p = "phase193_output/phase193_nport_raw_filing_audit.json"
+          s = json.load(open(p, encoding="utf-8"))
+          assert s["phase"] == 193
+          assert s["f80_frozen"] is True
+          assert s["alpha_test_authorized"] is False
+          assert s["holdout_used"] is False
+          assert s["production_changed"] is False
+          assert s["data_purchase"] is False
+          assert s["vendor_contact"] is False
+          assert s["status"] in {
+              "BLOCKED_MISSING_SEC_CONTACT_EMAIL",
+              "RETRIEVAL_FAILED",
+              "PARTIAL_RETRIEVAL_OR_RECONCILIATION",
+              "RAW_SAMPLE_RETRIEVED_ACCEPTANCE_RECONCILED",
+          }
+          print("PHASE193_STATUS=" + s["status"])
+          PY
+      - name: Upload raw public filing sample and metadata artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase193-nport-raw-filing-audit
+          path: phase193_output/
+          if-no-files-found: error
+          retention-days: 90

@@ -1,0 +1,74 @@
+{
+  "phase": 204,
+  "revalidation_as_of_utc": "2026-11-08T14:50:13Z",
+  "status": "THREE_QUARTER_METHOD_SPECIFIC_RECONCILIATION_DIAGNOSTIC_COMPLETED",
+  "run_id": 42491346529,
+  "artifact_id": 13622036454,
+  "artifact_name": "phase204-sec-midas-methodology-aware-reconciliation",
+  "artifact_zip_sha256": "647d480e5c1729a8b588c9d583fc7f698f2f0e36710d388012d469e298aab677",
+  "archive_inventory": {
+    "aggregate_quarters": 58,
+    "exchange_quarters": 58
+  },
+  "full_zip_crc_validated_for_all_six_archives": true,
+  "readme_bytes_hashed_and_rule_lines_preserved": true,
+  "monthly_exchange_csvs_fully_parsed": true,
+  "all_12_shared_fields_reconcile_under_readme_field_specific_rules": true,
+  "quarter_results": [
+    {
+      "quarter": "2016 Q2",
+      "unique_sample_tickers": 256,
+      "security_day_keys": 16125,
+      "readme_rule_mismatches": 0,
+      "all_exchange_sum_mismatches": {
+        "cancels": 5492,
+        "littrades": 5299,
+        "oddlots": 5031,
+        "oddlotvol": 5012,
+        "tradesforoddlots": 5321,
+        "tradevolforoddlots": 5317
+      }
+    },
+    {
+      "quarter": "2017 Q2",
+      "unique_sample_tickers": 256,
+      "security_day_keys": 15752,
+      "readme_rule_mismatches": 0,
+      "all_exchange_sum_mismatches": {
+        "cancels": 2086,
+        "littrades": 2053,
+        "oddlots": 1963,
+        "oddlotvol": 1953,
+        "tradesforoddlots": 2058,
+        "tradevolforoddlots": 2058
+      }
+    },
+    {
+      "quarter": "2019 Q4",
+      "unique_sample_tickers": 258,
+      "security_day_keys": 16157,
+      "readme_rule_mismatches": 0,
+      "all_exchange_sum_mismatches": {
+        "cancels": 12822,
+        "littrades": 7876,
+        "oddlots": 10281,
+        "oddlotvol": 10179,
+        "tradesforoddlots": 11762,
+        "tradevolforoddlots": 11723
+      }
+    }
+  ],
+  "limitations": {
+    "complete_universe_reconciliation": false,
+    "first_publication_time_verified": false,
+    "strict_pit_admitted": false,
+    "historical_permanent_security_identity_admitted": false,
+    "participant_identity_available": false,
+    "off_exchange_flow_measure": false,
+    "alpha_test_authorized": false,
+    "holdout_used": false,
+    "production_changed": false,
+    "f80_frozen": true
+  },
+  "artifact_url": "https://github.com/jafelix81/NuevaEstrategia/actions/runs/42491346529/artifacts/13622036454"
+}

@@ -1,0 +1,51 @@
+name: Phase 154 SEC 13D-G event-date semantics audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "research/phase154_*"
+      - ".github/workflows/phase154_13dg_event_date_semantics_audit.yml"
+      - "SMART_MONEY_RESEARCH_STATE.md"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: phase154-13dg-event-date-semantics
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Download immutable Phase 35/28D source artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: phase35-13dg-pit-event-crosswalk-audit
+          run-id: 41575083622
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: phase35_source
+      - name: Compile audit and run offline regression tests
+        run: |
+          python -m py_compile research/phase154_13dg_event_date_semantics_audit.py
+          python -m unittest discover -s research -p 'test_phase154_*.py' -v
+      - name: Reproduce event-date semantics audit
+        run: |
+          python research/phase154_13dg_event_date_semantics_audit.py \
+            --input phase35_source \
+            --output phase154_output/phase154_13dg_event_date_semantics_summary.json
+      - name: Upload reproducible Phase 154 summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase154-13dg-event-date-semantics-audit
+          path: phase154_output/phase154_13dg_event_date_semantics_summary.json
+          if-no-files-found: error
+          retention-days: 30

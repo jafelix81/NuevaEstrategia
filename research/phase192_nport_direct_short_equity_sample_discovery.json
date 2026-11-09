@@ -1,0 +1,298 @@
+{
+  "phase": 192,
+  "audit_as_of": "2026-11-07",
+  "source": "SEC EDGAR NPORT-P primary_doc.xml search-indexed excerpts",
+  "status": "DISCOVERY_PASS_RAW_RETRIEVAL_PENDING",
+  "classification": "registered_fund_direct_non_derivative_common_equity_short_discovery_not_universal_institutional_short_interest",
+  "discovery_method": "Purposive discovery from search-indexed excerpts of SEC-hosted primary_doc.xml files. Full raw XML files were not retrieved or hashed in this phase; this is not a representative prevalence sample.",
+  "complete_short_rows": [
+    {
+      "filing_year": 2020,
+      "accession": "0001752724-20-163166",
+      "registrant_cik": "0001408970",
+      "security_name": "Gap Inc/The",
+      "ticker": "GPS",
+      "cusip": "364760108",
+      "balance": -118992,
+      "units": "NS",
+      "currency_value_usd": -1501679.04,
+      "pct_net_assets": -1.32870556954,
+      "payoff_profile": "Short",
+      "asset_category": "EC",
+      "issuer_category": "CORP",
+      "investment_country": "US",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1408970/000175272420163166/primary_doc.xml"
+    },
+    {
+      "filing_year": 2020,
+      "accession": "0001752724-20-163166",
+      "registrant_cik": "0001408970",
+      "security_name": "Coty Inc",
+      "ticker": "COTY",
+      "cusip": "222070203",
+      "balance": -160663,
+      "units": "NS",
+      "currency_value_usd": -718163.61,
+      "pct_net_assets": -0.63544070539,
+      "payoff_profile": "Short",
+      "asset_category": "EC",
+      "issuer_category": "CORP",
+      "investment_country": "US",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1408970/000175272420163166/primary_doc.xml"
+    },
+    {
+      "filing_year": 2020,
+      "accession": "0001752724-20-163166",
+      "registrant_cik": "0001408970",
+      "security_name": "Terex Corp",
+      "ticker": "TEX",
+      "cusip": "880779103",
+      "balance": -70653,
+      "units": "NS",
+      "currency_value_usd": -1326156.81,
+      "pct_net_assets": -1.17340116802,
+      "payoff_profile": "Short",
+      "asset_category": "EC",
+      "issuer_category": "CORP",
+      "investment_country": "US",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1408970/000175272420163166/primary_doc.xml"
+    },
+    {
+      "filing_year": 2020,
+      "accession": "0001752724-20-163166",
+      "registrant_cik": "0001408970",
+      "security_name": "Occidental Petroleum Corp",
+      "ticker": "OXY",
+      "cusip": "674599105",
+      "balance": -66741,
+      "units": "NS",
+      "currency_value_usd": -1221360.3,
+      "pct_net_assets": -1.08067582339,
+      "payoff_profile": "Short",
+      "asset_category": "EC",
+      "issuer_category": "CORP",
+      "investment_country": "US",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1408970/000175272420163166/primary_doc.xml"
+    },
+    {
+      "filing_year": 2022,
+      "accession": "0001145549-22-056239",
+      "registrant_cik": "0001511699",
+      "security_name": "Carrier Global Corp",
+      "ticker": "CARR",
+      "cusip": "14448C104",
+      "balance": -16602,
+      "units": "NS",
+      "currency_value_usd": -672879.06,
+      "pct_net_assets": -0.5124550815,
+      "payoff_profile": "Short",
+      "asset_category": "EC",
+      "issuer_category": "CORP",
+      "investment_country": "US",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1511699/000114554922056239/primary_doc.xml"
+    },
+    {
+      "filing_year": 2022,
+      "accession": "0001145549-22-056239",
+      "registrant_cik": "0001511699",
+      "security_name": "Caterpillar Inc",
+      "ticker": "CAT",
+      "cusip": "149123101",
+      "balance": -4439,
+      "units": "NS",
+      "currency_value_usd": -880031.75,
+      "pct_net_assets": -0.6702196114,
+      "payoff_profile": "Short",
+      "asset_category": "EC",
+      "issuer_category": "CORP",
+      "investment_country": "US",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1511699/000114554922056239/primary_doc.xml"
+    },
+    {
+      "filing_year": 2022,
+      "accession": "0001145549-22-056239",
+      "registrant_cik": "0001511699",
+      "security_name": "Chevron Corp",
+      "ticker": "CVX",
+      "cusip": "166764100",
+      "balance": -17008,
+      "units": "NS",
+      "currency_value_usd": -2785570.24,
+      "pct_net_assets": -2.1214505089,
+      "payoff_profile": "Short",
+      "asset_category": "EC",
+      "issuer_category": "CORP",
+      "investment_country": "US",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1511699/000114554922056239/primary_doc.xml"
+    },
+    {
+      "filing_year": 2022,
+      "accession": "0001145549-22-056239",
+      "registrant_cik": "0001511699",
+      "security_name": "Cintas Corp",
+      "ticker": "CTAS",
+      "cusip": "172908105",
+      "balance": -6376,
+      "units": "NS",
+      "currency_value_usd": -2712924.24,
+      "pct_net_assets": -2.0661243529,
+      "payoff_profile": "Short",
+      "asset_category": "EC",
+      "issuer_category": "CORP",
+      "investment_country": "US",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1511699/000114554922056239/primary_doc.xml"
+    },
+    {
+      "filing_year": 2024,
+      "accession": "0001145549-24-075135",
+      "registrant_cik": "0001000351",
+      "security_name": "CarMax Inc",
+      "ticker": "KMX",
+      "cusip": "143130102",
+      "balance": -3379,
+      "units": "NS",
+      "currency_value_usd": -261467.02,
+      "pct_net_assets": -0.5606062471,
+      "payoff_profile": "Short",
+      "asset_category": "EC",
+      "issuer_category": "CORP",
+      "investment_country": "US",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1000351/000114554924075135/primary_doc.xml"
+    },
+    {
+      "filing_year": 2024,
+      "accession": "0001145549-24-075135",
+      "registrant_cik": "0001000351",
+      "security_name": "EQT Corp",
+      "ticker": "EQT",
+      "cusip": "26884L109",
+      "balance": -13868,
+      "units": "NS",
+      "currency_value_usd": -508123.52,
+      "pct_net_assets": -0.9420030191,
+      "payoff_profile": "Short",
+      "asset_category": "EC",
+      "issuer_category": "CORP",
+      "investment_country": "US",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1000351/000114554924075135/primary_doc.xml"
+    },
+    {
+      "filing_year": 2025,
+      "accession": "0001145549-25-033457",
+      "registrant_cik": "0001467631",
+      "security_name": "NOT_CAPTURED_IN_SEARCH_SNIPPET",
+      "ticker": null,
+      "cusip": "31428X106",
+      "balance": -141878,
+      "units": "NS",
+      "currency_value_usd": -34587018.84,
+      "pct_net_assets": -0.4247602977,
+      "payoff_profile": "Short",
+      "asset_category": "EC",
+      "issuer_category": "CORP",
+      "investment_country": "US",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1467631/000114554925033457/primary_doc.xml"
+    }
+  ],
+  "partial_filing_discoveries": [
+    {
+      "filing_year": 2023,
+      "accession": "0001145549-23-060491",
+      "registrant_cik": "0000811030",
+      "payoff_profile": "Short",
+      "asset_category": "EC",
+      "issuer_category": "CORP",
+      "investment_country": "US",
+      "security_name_cusip_value_not_captured": true,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/811030/000114554923060491/primary_doc.xml"
+    }
+  ],
+  "timestamp_observations": [
+    {
+      "accession": "0001752724-20-163166",
+      "registrant_cik": "0001408970",
+      "sec_archive_directory_timestamp_text": "2020-08-21 12:55:43",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1408970/",
+      "timezone_and_acceptance_semantics_verified": false
+    },
+    {
+      "accession": "0001145549-23-060491",
+      "registrant_cik": "0000811030",
+      "sec_archive_directory_timestamp_text": "2023-09-29 14:46:20",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/811030/",
+      "timezone_and_acceptance_semantics_verified": false
+    },
+    {
+      "accession": "0001145549-25-033457",
+      "registrant_cik": "0001467631",
+      "sec_archive_directory_timestamp_text": "2025-05-28 16:04:35",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1467631/",
+      "timezone_and_acceptance_semantics_verified": false
+    },
+    {
+      "accession": "0001145549-22-056239",
+      "registrant_cik": "0001511699",
+      "sec_archive_directory_timestamp_text": "2022-09-15 14:23:22",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1511699/",
+      "timezone_and_acceptance_semantics_verified": false
+    }
+  ],
+  "admission_gates": {
+    "indexed_xml_short_row_discovery": "PASS_PURPOSIVE_SAMPLE",
+    "raw_xml_retrieval_and_sha256": "NOT_VERIFIED",
+    "deterministic_full_xml_parser": "NOT_VERIFIED",
+    "filing_index_acceptance_timestamp_reconciliation": "NOT_VERIFIED",
+    "amendment_append_only_version_ledger": "NOT_VERIFIED",
+    "fund_series_and_share_class_deduplication": "NOT_VERIFIED",
+    "historical_cusip_to_listing_crosswalk": "NOT_ESTABLISHED",
+    "historical_active_and_delisted_universe": "NOT_ESTABLISHED",
+    "broad_pit_universe": "NOT_ADMITTED",
+    "alpha_test": "NOT_AUTHORIZED"
+  },
+  "controls": {
+    "raw_xml_files_downloaded": false,
+    "raw_xml_sha256_verified": false,
+    "representative_random_sample": false,
+    "prevalence_estimated": false,
+    "return_test_run": false,
+    "alpha_test_run": false,
+    "bootstrap_or_loo_run": false,
+    "holdout_used": false,
+    "production_changed": false,
+    "data_purchase": false,
+    "vendor_contact": false,
+    "f80_frozen": true,
+    "phase27o_long_accumulation_results_reused": false
+  },
+  "decision": "SEC-hosted XML search excerpts establish that direct non-derivative US corporate common-equity short rows exist in multiple historical filing years. This materially advances Phase 191 from documentation-only to purposive row discovery. It does not establish prevalence, raw-file integrity, full-series deduplication, acceptance/first-receipt timing, historical listing identity, broad-universe coverage or predictive value. Next gate: retrieve and hash the complete raw XML and filing-index records for the stratified sample, parse all holdings deterministically, reconcile each accession to SEC-HEADER and the bulk dataset, then validate series/amendment/security identity. No returns or alpha test until these gates pass.",
+  "references": [
+    {
+      "title": "SEC NPORT-P primary_doc.xml, 2020 accession 0001752724-20-163166",
+      "url": "https://www.sec.gov/Archives/edgar/data/1408970/000175272420163166/primary_doc.xml"
+    },
+    {
+      "title": "SEC NPORT-P primary_doc.xml, 2022 accession 0001145549-22-056239",
+      "url": "https://www.sec.gov/Archives/edgar/data/1511699/000114554922056239/primary_doc.xml"
+    },
+    {
+      "title": "SEC NPORT-P primary_doc.xml, 2023 accession 0001145549-23-060491",
+      "url": "https://www.sec.gov/Archives/edgar/data/811030/000114554923060491/primary_doc.xml"
+    },
+    {
+      "title": "SEC NPORT-P primary_doc.xml, 2024 accession 0001145549-24-075135",
+      "url": "https://www.sec.gov/Archives/edgar/data/1000351/000114554924075135/primary_doc.xml"
+    },
+    {
+      "title": "SEC NPORT-P primary_doc.xml, 2025 accession 0001145549-25-033457",
+      "url": "https://www.sec.gov/Archives/edgar/data/1467631/000114554925033457/primary_doc.xml"
+    },
+    {
+      "title": "SEC Form N-PORT Data Sets",
+      "url": "https://www.sec.gov/data-research/sec-markets-data/form-n-port-data-sets"
+    },
+    {
+      "title": "SEC N-PORT Data Sets Readme",
+      "url": "https://www.sec.gov/files/nport_readme.pdf"
+    }
+  ]
+}

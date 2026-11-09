@@ -1,0 +1,57 @@
+name: Phase 213 SEC 13D/G legacy event-date and amendment-marker recovery
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "research/phase213_13dg_legacy_event_date_recovery.py"
+      - "research/test_phase213_13dg_legacy_event_date_recovery.py"
+      - "research/phase213_13dg_event_date_recovery_result.json"
+      - "research/PHASE213_SEC_13DG_LEGACY_EVENT_DATE_AND_AMENDMENT_MARKER_AUDIT_2026-11-08.md"
+      - "SMART_MONEY_RESEARCH_STATE.md"
+      - ".github/workflows/phase213_sec_13dg_legacy_event_date_recovery.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: phase213-sec-13dg-event-date-recovery
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile and run offline regression tests
+        run: |
+          python -m py_compile research/phase213_13dg_legacy_event_date_recovery.py
+          python -m unittest discover -s research -p 'test_phase213_*.py' -v
+      - name: Download immutable Phase 124 sample artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: phase124-global-sec-13dg-stratified-submission-audit
+          path: phase213_input/phase124
+          repository: jafelix81/NuevaEstrategia
+          run-id: 42073725379
+          github-token: ${{ github.token }}
+      - name: Recompute hash-pinned event-date and amendment audit
+        run: |
+          python research/phase213_13dg_legacy_event_date_recovery.py \
+            --input-dir phase213_input/phase124 \
+            --output-dir phase213_output
+      - name: Upload reproducible Phase 213 outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase213-sec-13dg-event-date-recovery
+          path: |
+            phase213_output/phase213_13dg_event_date_recovery_result.json
+            phase213_output/phase213_13dg_event_date_recovery_rows.csv
+          if-no-files-found: error
+          retention-days: 30

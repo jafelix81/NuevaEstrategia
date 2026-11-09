@@ -1,0 +1,206 @@
+{
+  "phase": 205,
+  "audit_date": "2026-11-08",
+  "scope": "SEC Form 13F accession-level acceptance clock and amendment event-state semantics",
+  "source": "Official SEC EDGAR filing-detail pages and primary Form 13F XML",
+  "sample_design": "Purposive edge-case sample covering original reports, full restatements, and confidential-treatment add-new-holdings releases; not a random or representative sample.",
+  "sample_size": 10,
+  "sample_counts": {
+    "original_13f_hr": 4,
+    "restatement_13f_hr_a": 4,
+    "new_holdings_confidential_release_13f_hr_a": 2,
+    "accepted_after_1600_et": 5,
+    "filing_date_calendar_date_differs_from_acceptance_date": 5
+  },
+  "original_report_to_acceptance_days": {
+    "values": [
+      45,
+      48,
+      44,
+      45
+    ],
+    "min": 44,
+    "max": 48
+  },
+  "amendment_report_to_acceptance_days": {
+    "values": [
+      60,
+      501,
+      136,
+      862,
+      1137,
+      222
+    ],
+    "min": 60,
+    "max": 1137,
+    "median": 361.5
+  },
+  "filing_date_minus_acceptance_date_days": {
+    "values": [
+      0,
+      0,
+      1,
+      0,
+      3,
+      0,
+      0,
+      1,
+      1,
+      1
+    ]
+  },
+  "filings": [
+    {
+      "label": "Irenic original",
+      "accession": "0001929389-25-000002",
+      "form": "13F-HR",
+      "event_type": "ORIGINAL",
+      "report_period_end": "2024-12-31",
+      "filing_date": "2025-02-14",
+      "accepted_et": "2025-02-14 10:19:17",
+      "report_to_acceptance_calendar_days": 45,
+      "filing_date_minus_acceptance_date_days": 0,
+      "evidence_url": "https://www.sec.gov/Archives/edgar/data/1929389/000192938925000002/0001929389-25-000002-index.html"
+    },
+    {
+      "label": "Opti original",
+      "accession": "0000919574-26-001163",
+      "form": "13F-HR",
+      "event_type": "ORIGINAL",
+      "report_period_end": "2025-12-31",
+      "filing_date": "2026-02-17",
+      "accepted_et": "2026-02-17 15:01:02",
+      "report_to_acceptance_calendar_days": 48,
+      "filing_date_minus_acceptance_date_days": 0,
+      "evidence_url": "https://www.sec.gov/Archives/edgar/data/1738654/000091957426001163/0000919574-26-001163-index.html"
+    },
+    {
+      "label": "Arex original",
+      "accession": "0000919574-25-003057",
+      "form": "13F-HR",
+      "event_type": "ORIGINAL",
+      "report_period_end": "2025-03-31",
+      "filing_date": "2025-05-15",
+      "accepted_et": "2025-05-14 17:54:36",
+      "report_to_acceptance_calendar_days": 44,
+      "filing_date_minus_acceptance_date_days": 1,
+      "evidence_url": "https://www.sec.gov/Archives/edgar/data/1800261/000091957425003057/0000919574-25-003057-index.html"
+    },
+    {
+      "label": "Silvercrest original",
+      "accession": "0001193125-26-225668",
+      "form": "13F-HR",
+      "event_type": "ORIGINAL",
+      "report_period_end": "2026-03-31",
+      "filing_date": "2026-05-15",
+      "accepted_et": "2026-05-15 10:30:18",
+      "report_to_acceptance_calendar_days": 45,
+      "filing_date_minus_acceptance_date_days": 0,
+      "evidence_url": "https://www.sec.gov/Archives/edgar/data/1232395/000119312526225668/0001193125-26-225668-index.htm"
+    },
+    {
+      "label": "Modern Wealth restatement",
+      "accession": "0002001900-25-000019",
+      "form": "13F-HR/A",
+      "event_type": "RESTATEMENT",
+      "report_period_end": "2025-03-31",
+      "filing_date": "2025-06-02",
+      "accepted_et": "2025-05-30 17:32:17",
+      "report_to_acceptance_calendar_days": 60,
+      "filing_date_minus_acceptance_date_days": 3,
+      "evidence_url": "https://www.sec.gov/Archives/edgar/data/2001900/000200190025000019/0002001900-25-000019-index.html"
+    },
+    {
+      "label": "RK Capital confidential-treatment denial release",
+      "accession": "0001214659-25-012049",
+      "form": "13F-HR/A",
+      "event_type": "NEW_HOLDINGS_CONFIDENTIAL_TREATMENT_DENIED",
+      "report_period_end": "2024-03-31",
+      "filing_date": "2025-08-14",
+      "accepted_et": "2025-08-14 09:02:51",
+      "report_to_acceptance_calendar_days": 501,
+      "filing_date_minus_acceptance_date_days": 0,
+      "confidentiality_event_date": "2025-07-14",
+      "evidence_url": "https://www.sec.gov/Archives/edgar/data/1905218/000121465925012049/0001214659-25-012049-index.htm",
+      "primary_xml_url": "https://www.sec.gov/Archives/edgar/data/1905218/000121465925012049/primary_doc.xml"
+    },
+    {
+      "label": "Farallon confidential-treatment expiry release",
+      "accession": "0000908834-26-000434",
+      "form": "13F-HR/A",
+      "event_type": "NEW_HOLDINGS_CONFIDENTIAL_TREATMENT_EXPIRED",
+      "report_period_end": "2026-03-31",
+      "filing_date": "2026-08-14",
+      "accepted_et": "2026-08-14 09:34:05",
+      "report_to_acceptance_calendar_days": 136,
+      "filing_date_minus_acceptance_date_days": 0,
+      "confidentiality_event_date": "2026-08-14",
+      "evidence_url": "https://www.sec.gov/Archives/edgar/data/909661/000090883426000434/0000908834-26-000434-index.htm",
+      "primary_xml_url": "https://www.sec.gov/Archives/edgar/data/909661/000090883426000434/xslForm13F_X02/primary_doc.xml"
+    },
+    {
+      "label": "Algert restatement 2024Q1",
+      "accession": "0001275218-26-000008",
+      "form": "13F-HR/A",
+      "event_type": "RESTATEMENT",
+      "report_period_end": "2024-03-31",
+      "filing_date": "2026-08-11",
+      "accepted_et": "2026-08-10 18:34:09",
+      "report_to_acceptance_calendar_days": 862,
+      "filing_date_minus_acceptance_date_days": 1,
+      "evidence_url": "https://www.sec.gov/Archives/edgar/data/1275218/000127521826000008/0001275218-26-000008-index.htm"
+    },
+    {
+      "label": "Algert restatement 2023Q2",
+      "accession": "0001275218-26-000005",
+      "form": "13F-HR/A",
+      "event_type": "RESTATEMENT",
+      "report_period_end": "2023-06-30",
+      "filing_date": "2026-08-11",
+      "accepted_et": "2026-08-10 18:19:56",
+      "report_to_acceptance_calendar_days": 1137,
+      "filing_date_minus_acceptance_date_days": 1,
+      "evidence_url": "https://www.sec.gov/Archives/edgar/data/1275218/000127521826000005/0001275218-26-000005-index.htm"
+    },
+    {
+      "label": "Algert restatement 2025Q4",
+      "accession": "0001275218-26-000015",
+      "form": "13F-HR/A",
+      "event_type": "RESTATEMENT",
+      "report_period_end": "2025-12-31",
+      "filing_date": "2026-08-11",
+      "accepted_et": "2026-08-10 19:01:07",
+      "report_to_acceptance_calendar_days": 222,
+      "filing_date_minus_acceptance_date_days": 1,
+      "evidence_url": "https://www.sec.gov/Archives/edgar/data/1275218/000127521826000015/0001275218-26-000015-index.htm"
+    }
+  ],
+  "source_rules": {
+    "bulk_data_coverage": "July 2013–August 2026 as of the SEC page reviewed for this audit; quarterly as-filed extracts.",
+    "bulk_submission_table": "ACCESSION_NUMBER and FILING_DATE do not provide the EDGAR acceptance time-of-day; accession-level metadata is required.",
+    "restatement": "A restatement is a full corrected filing and supersedes the prior reported state only from its own acceptance/availability time.",
+    "new_holdings": "An add-new-holdings amendment supplements the public state only from its own acceptance/availability time; it must not be backdated to the report quarter.",
+    "confidentiality": "Confidential-treatment denial/expiry can create add-only amendments long after quarter-end. The SEC FAQ says the amendment must be filed within six business days of denial/expiry; multiple amendments may be necessary.",
+    "feature_availability": "Use SEC acceptance as the event clock and conservatively make it tradable no earlier than the next regular session after acceptance. This is not independent proof of exact first public dissemination."
+  },
+  "historical_identity_gate": {
+    "phase22c_name_mapping_coverage": "70.43% in 2016Q1 to 93.02% in 2024Q1 on the frozen 335-name candidate set",
+    "phase22c_direct_cusip_minimum": "54.8% in 2016Q1 for non-derivative common-equity mapping",
+    "phase166_clarification": "The 83.18% Phase 166 result is a 13(f)-eligibility-list match for 553 unique CUSIPs in a 13D/G sample, not Form 13F holdings-panel coverage."
+  },
+  "interpretation": {
+    "sample_is_representative": false,
+    "filing_date_is_acceptance_timestamp": false,
+    "quarter_end_is_knowledge_date": false,
+    "amendments_are_new_information_only_when_public": false,
+    "add_new_holdings_is_a_new_trade": false,
+    "security_identity_gate_passed": false,
+    "broad_universe_coverage_passed": false,
+    "strict_pit_admitted": false,
+    "alpha_test_authorized": false,
+    "holdout_used": false,
+    "production_changed": false,
+    "f80_frozen": true
+  },
+  "decision": "Keep Form 13F parked for stock-selection/production. Preserve it only as a conditional delayed-disclosure hypothesis pending deterministic historical security identity and broad-universe coverage. No alpha test."
+}

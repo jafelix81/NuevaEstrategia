@@ -1,0 +1,43 @@
+name: Phase 133 OCC Flex Reports historical equity OI feasibility
+
+on:
+  push:
+    branches:
+      - phase99-broad-pit-universe-charter
+    paths:
+      - research/phase133_occ_flex_oi_historical_audit.py
+      - research/test_phase133_occ_flex_oi_historical_audit.py
+      - research/PHASE133_OCC_FLEX_OI_HISTORICAL_FEASIBILITY_SPEC_2026-11-05.md
+      - .github/workflows/phase133_occ_flex_oi_historical_audit.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase133-occ-flex-oi-historical-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile audit
+        run: python -m py_compile research/phase133_occ_flex_oi_historical_audit.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase133_occ_flex_oi_historical_audit
+      - name: Audit fixed historical OCC Flex OI dates
+        run: python -u research/phase133_occ_flex_oi_historical_audit.py
+      - name: Upload aggregate audit outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase133-occ-flex-oi-historical-audit
+          path: phase133_occ_flex_oi_historical_audit/
+          retention-days: 90
+          if-no-files-found: warn
