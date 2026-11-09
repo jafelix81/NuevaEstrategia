@@ -3,8 +3,8 @@ name: Phase 234 CFTC BPR prospective first-receipt capture
 on:
   schedule:
     # 20:35 UTC is 15:35 EST / 16:35 EDT, after the CFTC's 15:30 ET release target.
-    # Run every Friday so delayed/catch-up reports are still observed.
-    - cron: "35 20 * * 5"
+    # Poll every weekday to capture delayed/catch-up reports without assuming a release day.
+    - cron: "35 20 * * 1-5"
   workflow_dispatch:
 
 permissions:
