@@ -68,7 +68,7 @@
 | FINRA 20C / short flow | Not promoted | Historical coverage and incremental value not established |
 | CFTC BPR | Conditional prospective market-regime candidate only | 25-month rolling archive, monthly frequency, no historical first-receipt vintages, no stock-level coverage; first capture is baseline state-only, later new URLs/revisions require scheduled receipt |
 | Form 4 | Standalone implementation discarded | Must distinguish transaction semantics and filing availability |
-| Form 144 | Conditional event candidate | Independent shares/float/ADV denominators and identity mapping |
+| Form 144 | Conditional event candidate; class-share path feasible via raw inline XBRL, not admitted | Exact class mapping, 289-issuer coverage, PIT float/ADV and security identity |
 | SEC 13D/G | Separate 13D and 13G research tracks | Reporting-person economic identity and amendment chains |
 | N-PORT | Conditional short-side hypothesis | Original XML retrieval blocked by missing authorized \`SEC_CONTACT_EMAIL\` |
 | Cboe Option Quotes | Sample parser gate passes on unambiguous rows only | PIT receipt/vintage, broad history/universe, licensing |
@@ -94,7 +94,17 @@
 ## Next research steps
 1. After PR14 reaches the default branch, begin CFTC BPR capture. Treat the first scheduled receipt as a baseline state only; treat later newly indexed reports/revisions as events only from their own receipt timestamps. Accumulate an adequate multi-regime panel before any return test, and compare only as a market-regime overlay against QQQ risk state and frozen LTM/F80.
 2. Keep Phase 231 parser and artifact metadata as the accepted sample diagnostic; do not generalize it to the full product.
-3. Prioritize a lawful Cboe TBT sample or eligible one-month trial only if available without purchase; validate row grain, paired sides, EXEC_ID/COMPLEX_EXEC_ID, trade-type coverage, timestamp/GTH rules, C1 share of OPRA and correction vintages before feature work.
+3. Prioritize a lawful Cboe TBT sample or eligible one-month trial only if available without purchase; validate row grain, paired sides, EXEC_ID/COMPLEX_EXEC_ID, trade-type coverage, timestamp/GTH rules, C1 share of OPRA and correction vintages before feature work.\n4. Build a raw inline-XBRL class-share pilot for Form 144 issuers; measure exact class-member mapping and coverage before any supply-pressure feature.
 4. Do not purchase TBT at the located $12,000/month subscription or $8,000/month historical rate without explicit approval; confirm internal-use/derived-feature rights and actual first-receipt logs.
 5. Keep Option Sentiment lower priority: obtain written clarification of net_option_delta units/sign/multiplier, footnote mappings and cancellation scope; do not normalize it or test alpha until its measurement and PIT gates pass.
 6. Compare incremental information to frozen LTM/F80 under identical exposure and costs; do not use the consumed holdout.
+
+
+### Phase 237 — Form 144 class-specific shares-outstanding denominator feasibility
+- SEC Company Facts aggregates non-custom-taxonomy facts applying to the entire filing entity; the July 2025 EDGAR XBRL Guide requires multi-class common shares to be reported in separate class-dimensioned instant contexts. Company Facts alone is therefore insufficient for multi-class class-specific denominators; raw as-filed inline XBRL is required.
+- Noodles & Company 2015 10-Q/A demonstrates that an amendment can correct a class share count; preserve each accession as a separate PIT vintage. Flowco 2026 cover page demonstrates separate Class A/B counts. Phase 223's Expedia cross-check remains the denominator-quality control.
+- Added fail-closed normalized-fact resolver. It requires exact class-member mapping, instant shares facts, filed-date eligibility, immutable amendment vintages, and blocks stale fallback after a newer invalid fact. Public float (market value) and ADV remain separate from shares outstanding.
+- 21/21 local standard-library fixture tests passed. This is not a raw inline-XBRL parser test, not a 289-issuer coverage estimate, and not hosted CI.
+- **Decision:** class-specific shares-outstanding retrieval is feasible in principle via raw inline XBRL; Company Facts-only multi-class path rejected. Form 144 denominator, PIT float/ADV, security identity and alpha remain NOT ADMITTED. No SEC API request, raw filing download, return test, holdout use, purchase or production change.
+- [Phase 237 report](PHASE237_FORM144_XBRL_CLASS_SHARES_OUTSTANDING_PIT_DENOMINATOR_FEASIBILITY_AUDIT_2026-11-09.md) · [result](phase237_form144_xbrl_class_shares_pit_audit_result.json)
+
