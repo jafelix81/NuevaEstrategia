@@ -1,7 +1,7 @@
 # Smart Money Research — Current State
 
 **Updated:** 2026-11-09  
-**Research branch:** \`phase99-broad-pit-universe-charter\`  
+**Active PR branch:** `phase231-cboe-option-quotes-full-row-reparse` (stacked on `phase99-broad-pit-universe-charter`)  
 **Frozen production baseline:** \`F80_TOP20_PARTIAL50_BASELINE_C20\` — unchanged
 
 ## Latest material updates
@@ -67,6 +67,7 @@
 |---|---|---|
 | FINRA 20C / short flow | Not promoted | Historical coverage and incremental value not established |
 | CFTC BPR | Conditional prospective market-regime candidate only | 25-month rolling archive, monthly frequency, no historical first-receipt vintages, no stock-level coverage; first capture is baseline state-only, later new URLs/revisions require scheduled receipt |
+| CFTC TFF | Conditional prospective broad-market regime candidate only | Historical release dates available only for the latest 13 months; category labels are not trader identities; no stock-level coverage; no raw capture yet |
 | Form 4 | Standalone implementation discarded | Must distinguish transaction semantics and filing availability |
 | Form 144 | Conditional event candidate; class-share path feasible via raw inline XBRL, not admitted | Exact class mapping, 289-issuer coverage, PIT float/ADV and security identity |
 | SEC 13D/G | Separate 13D and 13G research tracks | Reporting-person economic identity and amendment chains |
@@ -92,7 +93,7 @@
 2. Before any Cboe paid historical order, obtain written answers on first-receipt logs, correction/revision policy, historical delisted coverage, licensing, and price. No order has been placed.
 
 ## Next research steps
-1. After PR14 reaches the default branch, begin CFTC BPR capture. Treat the first scheduled receipt as a baseline state only; treat later newly indexed reports/revisions as events only from their own receipt timestamps. Accumulate an adequate multi-regime panel before any return test, and compare only as a market-regime overlay against QQQ risk state and frozen LTM/F80.
+1. After the stacked PR14/PR13 chain reaches main, the existing Phase 234 workflow captures both BPR and TFF. Each stream's first scheduled receipt is baseline-only; later new reports are usable only from their own pipeline observation timestamp.
 2. Keep Phase 231 parser and artifact metadata as the accepted sample diagnostic; do not generalize it to the full product.
 3. Prioritize a lawful Cboe TBT sample or eligible one-month trial only if available without purchase; validate row grain, paired sides, EXEC_ID/COMPLEX_EXEC_ID, trade-type coverage, timestamp/GTH rules, C1 share of OPRA and correction vintages before feature work.\n4. Build a raw inline-XBRL class-share pilot for Form 144 issuers; measure exact class-member mapping and coverage before any supply-pressure feature.
 4. Do not purchase TBT at the located $12,000/month subscription or $8,000/month historical rate without explicit approval; confirm internal-use/derived-feature rights and actual first-receipt logs.
@@ -118,3 +119,17 @@
 - Added immutable-input auditor, five offline regression tests, and JSON result. Local tests: 5/5 passed; 20,000-permutation CLI reproduction completed. No hosted CI run, no returns, no alpha, no holdout, no production/universe change.
 - **Decision:** no Form 144 feature admission and no alpha test. Continue only after full-panel EDGAR acceptance vintages, effective-dated issuer/class identity, and independent PIT shares/float/ADV are admitted. F80 remains frozen.
 - [Phase 238 report](PHASE238_FORM144_FORM4_REVERSE_LINKAGE_SELECTION_AUDIT_2026-11-09.md) · [auditor](phase238_form144_form4_selection_coverage_audit.py) · [tests](test_phase238_form144_form4_selection_coverage_audit.py) · [result](phase238_form144_form4_selection_coverage_audit_result.json)
+
+
+### Phase 239 — CFTC TFF prospective capture and publication-regime audit
+- The current CFTC COT page links separate 87-field TFF files: futures-only (FinFutWk.txt) and futures-and-options combined (FinComWk.txt). The current report/as-of date is 2026-11-03; the 2026 release schedule lists 2026-11-06 as the scheduled release.
+- TFF historical positions begin 2006-06-13, but the CFTC FAQ says only the most recent 13 months of release dates are available. Report date is not publication date; long-history strict PIT is therefore not admitted.
+- TFF categories are Dealer/Intermediary, Asset Manager/Institutional, Leveraged Funds and Other Reportables. They are not named beneficial owners or verified informed traders; classification is based on predominant business purpose self-reported on Form 40, and the CFTC says it does not know the specific reason for positions. Contract markets can disappear below the 20-trader reporting threshold; absence is not zero.
+- Four official current-file sample rows (S&P 500 futures-only/combined and Canadian Dollar futures-only/combined) were transcribed into fixtures. The 87-field parser passed all four; this is row-level schema validation, not a full-file download.
+- The S&P 500 2026-11-03 sample shows a descriptive divergence: futures-only Asset Manager net +930,713 (+46.22% OI), Leveraged Funds net -366,870 (-18.22% OI), Dealer net -693,326 (-34.43% OI). The combined stream has separate OI and different ratios. This is one report date, not predictive evidence.
+- CFTC announced a plan on 2026-10-27 to publish COT twice weekly by end-2026. The current official schedule page still shows the weekly Friday schedule as of 2026-11-09, and the announcement does not explicitly confirm TFF financial-contract scope. The capture therefore polls every weekday without assuming TFF has changed cadence.
+- Extended the existing Phase 234 BPR workflow; no duplicate CFTC workflow was created. The shared 20:35 UTC weekday schedule, concurrency lock and append-only commit are retained. TFF raw files are gzip-preserved with hashes; the HTTP Date header is recorded but never used as availability.
+- First scheduled capture per stream is INITIAL_BASELINE_STATE_ONLY. Later new report dates are usable only from pipeline observation; same-date revisions are state-only; manual dispatch and rollback/backfill are non-PIT. Earliest decision is the next regular XNYS session after observation, with EOD execution at that session's close.
+- 29/29 local tests passed, including four official sample rows, 87-field schema, stream/date/duplicate/numeric gates, missing-versus-zero counts, EST/EDT timing, baseline/revision/manual classification, gzip round-trip and index deduplication. No hosted Phase 239 CI run is claimed.
+- No live capture was executed and no raw TFF snapshot has been persisted. The workflow remains inactive until the stacked PR chain reaches the default branch. No return test, alpha admission, holdout use, data purchase, production change or universe change.
+- [Phase 239 report](PHASE239_CFTC_TFF_PROSPECTIVE_CAPTURE_AND_PUBLICATION_REGIME_AUDIT_2026-11-09.md) · [capture code](phase239_cftc_tff_prospective_capture.py) · [tests](test_phase239_cftc_tff_prospective_capture.py) · [result](phase239_cftc_tff_prospective_capture_result.json)
