@@ -70,6 +70,19 @@ Combined bank net may be calculated from the explicit total row when both total 
 - Each scheduled run compares the full link set, captures every newly appearing report URL (including multiple catch-up links), and re-fetches the latest report page to detect a latest-page revision.
 - Older, non-latest report pages are not polled continuously for later revisions; this remains a documented limitation.
 
+## November 2026 source-linked parser sanity check
+
+The revised parser reproduces the combined bank net positions from the current CFTC report. These are descriptive gross-position differences, not buy/sell signals:
+
+| Contract | Total bank long | Total bank short | Net | Market OI | Net / OI |
+|---|---:|---:|---:|---:|---:|
+| CME E-mini S&P 500 | 55,308 | 345,453 | -290,145 | 1,986,532 | -14.61% |
+| CME Nasdaq Mini | 26,644 | 24,168 | +2,476 | 292,587 | +0.85% |
+| CME Russell E-mini | 40,943 | 21,075 | +19,868 | 449,399 | +4.42% |
+| CBT DJIA x $5 | 6,719 | 22,200 | -15,481 | 87,410 | -17.71% |
+
+The current report's explicit zero cells remain zero; blank category bank counts remain unknown. These four contracts are a small market-regime sample, not evidence of stock-level predictive coverage.
+
 ## Validation
 
 Local tests:
