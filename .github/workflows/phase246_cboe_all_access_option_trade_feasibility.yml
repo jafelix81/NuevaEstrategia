@@ -1,0 +1,39 @@
+name: Phase 246 Cboe All Access option trade feasibility
+
+on:
+  pull_request:
+    branches: [phase99-broad-pit-universe-charter]
+    paths:
+      - "research/phase246_cboe_all_access_option_trade_feasibility.py"
+      - "research/test_phase246_cboe_all_access_option_trade_feasibility.py"
+      - ".github/workflows/phase246_cboe_all_access_option_trade_feasibility.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase246-cboe-all-access-option-trade-feasibility
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile audit and tests
+        run: python -m py_compile research/phase246_cboe_all_access_option_trade_feasibility.py research/test_phase246_cboe_all_access_option_trade_feasibility.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase246_cboe_all_access_option_trade_feasibility
+      - name: Build deterministic feasibility artifact
+        run: python -m research.phase246_cboe_all_access_option_trade_feasibility --output phase246_output/phase246_cboe_all_access_option_trade_feasibility.json
+      - name: Upload metadata-only artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase246-cboe-all-access-option-trade-feasibility
+          path: phase246_output/phase246_cboe_all_access_option_trade_feasibility.json
+          if-no-files-found: error
+          retention-days: 90

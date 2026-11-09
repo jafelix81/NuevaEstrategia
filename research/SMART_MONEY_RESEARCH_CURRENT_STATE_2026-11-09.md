@@ -74,6 +74,7 @@
 | SEC 13D/G | Separate 13D and 13G research tracks | Reporting-person economic identity and amendment chains |
 | N-PORT | Conditional short-side hypothesis | Original XML retrieval blocked by missing authorized \`SEC_CONTACT_EMAIL\` |
 | Cboe Option Quotes | Sample parser gate passes on unambiguous rows only | PIT receipt/vintage, broad history/universe, licensing |
+| Cboe All Access API Time & Sales | High-priority conditional sample-acquisition candidate; historical option trades advertised from 2003; no PIT/alpha admission | Trial historical OPRA-field access, venue coverage, correction vintages, first receipt, delisted/adjusted-contract identity and licensing unverified; 14-day trial requires card authorization |
 | Cboe TBT | High-priority conditional C1 execution-measurement candidate; no PIT/alpha admission | first-receipt/correction vintages, sample row-grain/ID pairing, C1-vs-OPRA coverage, inactive symbols, licensing and cost |
 | Cboe Option Sentiment | Conditional lower-priority candidate; no PIT/alpha admission | net_option_delta units/sign/multiplier and field semantics; no directional size/participant cross-tabs; historical receipts/vintages, delisted coverage, sample, price/license |
 | SEC MIDAS | Microstructure context only | Historical publication vintages and PIT identity |
@@ -92,6 +93,7 @@
 ## Human/technical blockers
 1. Set an authorized \`SEC_CONTACT_EMAIL\` in GitHub Actions to enable SEC N-PORT original-document retrieval.
 2. Before any Cboe paid historical order, obtain written answers on first-receipt logs, correction/revision policy, historical delisted coverage, licensing, and price. No order has been placed.
+3. Cboe All Access trial: 14 days and 500 points/day; card authorization is required although Cboe says the trial is not charged. Trial SIP access is excluded and historical OPRA-price access is unverified. No signup or card authorization without explicit approval.
 
 ## Next research steps
 1. After the stacked PR14/PR13 chain reaches main, the existing Phase 234 workflow captures both BPR and TFF. Each stream's first scheduled receipt is baseline-only; later new reports are usable only from their own pipeline observation timestamp.
@@ -183,3 +185,14 @@
 - The row-level “early/on time/late” badge is not reconciled to one documented date field: the 2026-10 row's “3 days early” matches Retrieved, while 2016-10 and 2009-07 labels match File Time. The page's 28.4/50.8/20.7 percentages therefore cannot be treated as a calibrated first-publication delay distribution.
 - **Decision:** downgrade ChartExchange FTD timeline to contextual release/metadata evidence only. No historical PIT or alpha admission.
 - [Phase 245 report](PHASE245_SEC_FTD_EXTERNAL_TIMELINE_BACKFILL_AND_LABEL_SEMANTICS_CORRECTION_2026-11-09.md) · [result](phase245_sec_ftd_external_timeline_backfill_result.json)
+
+
+### Phase 246 — Cboe All Access API option time-and-sales feasibility
+- Identified an additional trade-level options candidate with vendor-advertised historical data from 2003. The documented API exposes trade price/size, exchange and condition IDs, sequence fields, cancellation flags, NBBO-relative trade-price classification and an optional Greeks endpoint.
+- Cboe publishes a 14-day trial with 500 points/day; a historical request costs 15 points, allowing at most 33 full requests/day or 462 over the trial before pagination. Card authorization is required, although the product page says no charge. Trial SIP access is excluded; historical OPRA price-field availability during the trial is not confirmed.
+- Paid reference tiers are $2,499/month for 1.25m points and $4,599/month for 4m points. No account was created, no card authorized, no terms accepted, no API request or purchase made.
+- option_trade_at is only a price-relative-to-market proxy: ask-side classes may indicate buy-side pressure, bid-side classes sell-side pressure; midpoint/crossed/no-market are unknown. It does not identify participant capacity, beneficial owner, or open/close.
+- cancel_flag 0/1/2, sequence linkage, EST/DST timestamp semantics, NBBO freshness, exchange/OPRA breadth, inactive/delisted coverage, adjusted contracts, historical correction vintages and first-receipt timing remain unverified.
+- **Decision:** high-priority conditional sample-acquisition candidate because of the advertised long history and low-cost trial route; no PIT or alpha admission. Historical backfill cannot be treated as historically available data.
+- [Phase 246 report](PHASE246_CBOE_ALL_ACCESS_OPTION_TRADE_FEASIBILITY_AND_TRIAL_GATE_2026-11-09.md) · [deterministic audit script](phase246_cboe_all_access_option_trade_feasibility.py)
+
