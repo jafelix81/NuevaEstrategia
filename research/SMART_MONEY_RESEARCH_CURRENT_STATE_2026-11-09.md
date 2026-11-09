@@ -51,6 +51,16 @@
 - 36/36 local regression tests passed (13 Phase 234 capture + 13 Phase 234 parser/semantics + 10 Phase 235). No hosted CI was run and no BPR capture has occurred.
 - [Phase 235 report](PHASE235_CFTC_BPR_PIT_BOOTSTRAP_AND_MISSINGNESS_AUDIT_2026-11-09.md)
 
+### Phase 236 — Cboe Trade-by-Trade (TBT) execution-detail feasibility
+- Identified a materially richer C1 options execution dataset than Option Sentiment/Open-Close for side × open/close × capacity × size × trade-type research, with NBBO/local BBO and simple/complex execution IDs.
+- The current archive advertises history from 2019-10-07, but the first located public launch evidence is Cboe Traders Weekly 2026-02-20. Pre-launch rows are retrospective backfill, not strict PIT. The post-launch window is under nine months and actual per-file first-receipt logs remain unavailable.
+- C1 only. C2/BZX expansion proposals were noticed 2026-11-06; EDGX is still described as planned. Do not infer all-OPRA coverage.
+- T+1 delivery is typically 00:30–01:30 ET; use TRADING_DT around GTH midnight. SIDE is Buy/Sell, not automatically aggressor direction; CAPACITY is not beneficial-owner identity; OPEN_CLOSE is not OI. EXEC_ID/COMPLEX_EXEC_ID row grain and paired-side/complex-leg behavior require sample validation.
+- Last located C1 fee schedule (2026-04-21): $12,000/month subscription and $8,000/month historical ad hoc; eligible one-month trial. No sample bytes obtained, no trial requested, no vendor contact or purchase.
+- 15/15 local guardrail tests passed. No hosted CI, return test, PIT admission or alpha claim.
+- Decision: high-priority conditional C1 execution-measurement candidate, ahead of Option Sentiment for crossed directional/opening-flow hypotheses; not strict-PIT or alpha admitted.
+- [Phase 236 report](PHASE236_CBOE_TBT_EXECUTION_DETAIL_FEASIBILITY_AND_PIT_AUDIT_2026-11-09.md)
+
 ## Source decisions
 
 | Source | Current decision | Main blocker |
@@ -62,7 +72,8 @@
 | SEC 13D/G | Separate 13D and 13G research tracks | Reporting-person economic identity and amendment chains |
 | N-PORT | Conditional short-side hypothesis | Original XML retrieval blocked by missing authorized \`SEC_CONTACT_EMAIL\` |
 | Cboe Option Quotes | Sample parser gate passes on unambiguous rows only | PIT receipt/vintage, broad history/universe, licensing |
-| Cboe Option Sentiment | Conditional candidate; no PIT/alpha admission | net_option_delta units/sign/multiplier and field semantics; no directional size/participant cross-tabs; historical receipts/vintages, delisted coverage, sample, price/license |
+| Cboe TBT | High-priority conditional C1 execution-measurement candidate; no PIT/alpha admission | first-receipt/correction vintages, sample row-grain/ID pairing, C1-vs-OPRA coverage, inactive symbols, licensing and cost |
+| Cboe Option Sentiment | Conditional lower-priority candidate; no PIT/alpha admission | net_option_delta units/sign/multiplier and field semantics; no directional size/participant cross-tabs; historical receipts/vintages, delisted coverage, sample, price/license |
 | SEC MIDAS | Microstructure context only | Historical publication vintages and PIT identity |
 | Cboe Open-Close | Not admitted to daily PIT | First-receipt/vintage and venue coverage controls |
 
@@ -83,7 +94,7 @@
 ## Next research steps
 1. After PR14 reaches the default branch, begin CFTC BPR capture. Treat the first scheduled receipt as a baseline state only; treat later newly indexed reports/revisions as events only from their own receipt timestamps. Accumulate an adequate multi-regime panel before any return test, and compare only as a market-regime overlay against QQQ risk state and frozen LTM/F80.
 2. Keep Phase 231 parser and artifact metadata as the accepted sample diagnostic; do not generalize it to the full product.
-3. For Option Sentiment, obtain written clarification of net_option_delta units/sign/multiplier, footnote mappings, cancellation scope, and any directional cross-tabs; require a representative sample, historical backfill completeness, correction vintages, and delivery logs before any paid data.
-4. If a sample becomes available, validate the 80-field schema, null semantics, per-day symbol coverage, corporate-action handling, and cross-field invariants.
-5. Do not normalize net_option_delta by underlying volume until its unit, sign, multiplier, and deliverable treatment are confirmed. If clarified, preregister one primary directional-flow hypothesis with prior-return controls; size and customer-directional hypotheses are unavailable in the documented schema.
+3. Prioritize a lawful Cboe TBT sample or eligible one-month trial only if available without purchase; validate row grain, paired sides, EXEC_ID/COMPLEX_EXEC_ID, trade-type coverage, timestamp/GTH rules, C1 share of OPRA and correction vintages before feature work.
+4. Do not purchase TBT at the located $12,000/month subscription or $8,000/month historical rate without explicit approval; confirm internal-use/derived-feature rights and actual first-receipt logs.
+5. Keep Option Sentiment lower priority: obtain written clarification of net_option_delta units/sign/multiplier, footnote mappings and cancellation scope; do not normalize it or test alpha until its measurement and PIT gates pass.
 6. Compare incremental information to frozen LTM/F80 under identical exposure and costs; do not use the consumed holdout.
