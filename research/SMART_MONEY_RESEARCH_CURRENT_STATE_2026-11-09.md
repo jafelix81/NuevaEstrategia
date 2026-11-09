@@ -68,6 +68,7 @@
 | FINRA 20C / short flow | Not promoted | Historical coverage and incremental value not established |
 | CFTC BPR | Conditional prospective market-regime candidate only | 25-month rolling archive, monthly frequency, no historical first-receipt vintages, no stock-level coverage; first capture is baseline state-only, later new URLs/revisions require scheduled receipt |
 | CFTC TFF | Conditional prospective broad-market regime candidate only | Historical release dates available only for the latest 13 months; category labels are not trader identities; no stock-level coverage; no raw capture yet |
+| SEC FTD | Context-only; not historical PIT or alpha admitted | ChartExchange history contains later bulk backfills; first/latest receipt semantics, badge algorithm, immutable value vintages and effective-dated identity are unverified |
 | Form 4 | Standalone implementation discarded | Must distinguish transaction semantics and filing availability |
 | Form 144 | Conditional event candidate; class-share path feasible via raw inline XBRL, not admitted | Exact class mapping, 289-issuer coverage, PIT float/ADV and security identity |
 | SEC 13D/G | Separate 13D and 13G research tracks | Reporting-person economic identity and amendment chains |
@@ -174,3 +175,11 @@
 - **Decision:** do not use current FTD values in historical PIT/alpha tests. Retain the external retrieval date only as a conditional proxy pending receipt semantics and immutable value vintages. Prior Phase 102/106 security-identity and 2008 threshold gates remain open.
 - [Phase 244 report](PHASE244_SEC_FTD_EXTERNAL_RELEASE_RECEIPT_TIMELINE_AUDIT_2026-11-09.md) · [result](phase244_sec_ftd_external_release_receipt_timeline_result.json)
 - No returns, alpha, bootstrap/LOO, OOS or holdout test; no vendor contact/purchase; no production or universe change.
+
+
+## Phase 245 — SEC FTD external timeline backfill and status-label correction
+- Corrected Phase 244's incomplete description of the page span: the current ChartExchange timeline includes records as far back as July 2009, with examples from 2010–2013, 2016, and 2026.
+- Older rows are visibly batch-backfilled: 2016-10 first-half shows File Time 2016-10-28 but Retrieved 2021-10-08; 2009-07 second-half shows File Time 2009-08-04 but Retrieved 2022-05-03. These are not contemporaneous historical receipts.
+- The row-level “early/on time/late” badge is not reconciled to one documented date field: the 2026-10 row's “3 days early” matches Retrieved, while 2016-10 and 2009-07 labels match File Time. The page's 28.4/50.8/20.7 percentages therefore cannot be treated as a calibrated first-publication delay distribution.
+- **Decision:** downgrade ChartExchange FTD timeline to contextual release/metadata evidence only. No historical PIT or alpha admission.
+- [Phase 245 report](PHASE245_SEC_FTD_EXTERNAL_TIMELINE_BACKFILL_AND_LABEL_SEMANTICS_CORRECTION_2026-11-09.md) · [result](phase245_sec_ftd_external_timeline_backfill_result.json)
