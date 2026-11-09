@@ -63,10 +63,15 @@ jobs:
 
       - name: Commit append-only CFTC report versions
         run: |
-          if [ -n "$(git status --porcelain data/cftc_bpr data/cftc_tff)" ]; then
+          if [ -d data/cftc_bpr ]; then
+            git add -A -- data/cftc_bpr
+          fi
+          if [ -d data/cftc_tff ]; then
+            git add -A -- data/cftc_tff
+          fi
+          if ! git diff --cached --quiet; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add data/cftc_bpr data/cftc_tff
             git commit -m "Capture CFTC BPR and TFF report versions [skip ci]"
             git push
           else
