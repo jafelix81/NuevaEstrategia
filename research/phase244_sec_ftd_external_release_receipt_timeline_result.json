@@ -1,0 +1,114 @@
+{
+  "phase": 244,
+  "date": "2026-11-09",
+  "source": "SEC Fails-to-Deliver Data",
+  "status": "CONDITIONAL_EXTERNAL_OBSERVATION_PROXY_NOT_STRICT_PIT",
+  "control": "F80_TOP20_PARTIAL50_BASELINE_C20_FROZEN",
+  "official_sec": {
+    "coverage_start": "2004-02",
+    "coverage_end": "2026-09",
+    "first_half_nominal": "month-end",
+    "second_half_nominal": "about the 15th of the following month",
+    "exact_posting_date_guaranteed": false,
+    "measurement": "aggregate net fails-to-deliver balance across NSCC CNS members",
+    "threshold_break_date": "2008-09-16",
+    "pre_break_minimum_shares": 10000,
+    "source_url": "https://www.sec.gov/data/foiadocsfailsdatahtm"
+  },
+  "third_party_timeline": {
+    "provider": "ChartExchange",
+    "url": "https://chartexchange.com/docs/ftd-release-history/",
+    "audit_date": "2026-11-09",
+    "fields": [
+      "expected_date",
+      "file_modified_date",
+      "importer_retrieved_date"
+    ],
+    "page_summary_percentages": {
+      "early": 28.4,
+      "on_time": 50.8,
+      "late": 20.7
+    },
+    "visible_recent_sequence": "2021-10 through 2026-09 monthly first/second-half entries, plus 2026-10 first-half",
+    "examples": [
+      {
+        "file": "2026-09 second half",
+        "expected": "2026-10-15",
+        "file_time": "2026-10-01",
+        "retrieved": "2026-10-15"
+      },
+      {
+        "file": "2026-09 first half",
+        "expected": "2026-09-30",
+        "file_time": "2026-09-15",
+        "retrieved": "2026-09-29"
+      },
+      {
+        "file": "2026-01 first half",
+        "expected": "2026-02-02",
+        "file_time": "2026-01-15",
+        "retrieved": "2026-02-03"
+      },
+      {
+        "file": "2025-10 first half",
+        "expected": "2025-10-31",
+        "file_time": "2025-10-15",
+        "retrieved": "2025-11-13"
+      },
+      {
+        "file": "2023-10 first half",
+        "expected": "2023-10-31",
+        "file_time": "2023-11-21",
+        "retrieved": "2023-11-21"
+      },
+      {
+        "file": "2026-10 first half",
+        "expected": "2026-11-02",
+        "file_time": "2026-10-15",
+        "retrieved": "2026-10-30"
+      }
+    ],
+    "backfill_examples": [
+      {
+        "file": "2021-08/09 records",
+        "retrieved": "2021-10-08",
+        "interpretation": "bulk/backfill observation, not contemporaneous"
+      },
+      {
+        "file": "2009-07 records",
+        "retrieved": "2022-05-03",
+        "interpretation": "historical backfill, not contemporaneous"
+      }
+    ],
+    "caveats": [
+      "retrieval date is date-only, not time-of-day",
+      "documentation does not specify first versus latest importer retrieval",
+      "no immutable ZIP bytes/hash tied to each historical retrieval date",
+      "no historical correction-vintage sequence",
+      "manual rendered-page audit, not programmatic complete census"
+    ]
+  },
+  "prior_identity_gates": {
+    "phase102": "sample archive/schema continuity passed; 2008 threshold break confirmed",
+    "phase106": "same-day CUSIP-symbol identity mostly clean in seven samples; permanent security identity and PIT still open"
+  },
+  "gate_status": {
+    "official_archive_schema": true,
+    "nominal_release_cadence": true,
+    "independent_date_only_retrieval_proxy": "conditional",
+    "exact_first_receipt_timestamp": false,
+    "immutable_historical_value_vintages": false,
+    "effective_dated_permanent_security_id": false,
+    "inactive_delisted_return_linkage": false,
+    "alpha_test_authorized": false
+  },
+  "returns_tested": false,
+  "bootstrap_or_loo": false,
+  "chronological_oos": false,
+  "holdout_used": false,
+  "vendor_contact": false,
+  "data_purchase": false,
+  "production_changed": false,
+  "universe_changed": false,
+  "decision": "KEEP_FTD_OUT_OF_HISTORICAL_PIT_AND_ALPHA_TESTS; RETAIN_CHARTEXCHANGE_RETRIEVAL_DATE_AS_CONDITIONAL_EXTERNAL_KNOWN_BY_PROXY"
+}
