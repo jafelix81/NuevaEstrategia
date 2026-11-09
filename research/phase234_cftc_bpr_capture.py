@@ -116,7 +116,7 @@ def build_capture_metadata(
             "Use only after this pipeline's recorded receipt; earliest modeled "
             "trade is the next regular XNYS session after receipt."
             if scheduled_window else
-            "Not PIT-admitted; manual or outside scheduled Friday release window."
+            "Not PIT-admitted; manual or outside scheduled weekday release window."
         ),
         "http_date_header_recorded_not_used_as_availability": http_date_header,
         "index_sha256": index_sha256,
