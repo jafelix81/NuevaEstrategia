@@ -24,6 +24,16 @@
 - No raw sample or paid history obtained. Candidate only; strict PIT and alpha gates remain closed.
 - 10/10 local documentation-audit tests passed. No hosted CI was run for this static feasibility audit.
 
+### Phase 233 — Cboe Option Sentiment field dimensionality and directional semantics
+- Audited the official DataShop specification v1.4 (05/25), its footnotes, and Cboe's early-exercise research.
+- Found three inconsistent footnote references: net_option_delta, calls_sold, and puts_sold point to note 2, although note 2 is the blank-field list and note 3 contains the midpoint direction rule.
+- The 80-field schema does not expose direction by trade size, OCC participant category, DTX, or moneyness. The proposed large-size-directional and customer-net-directional hypotheses are therefore unimplementable with this file and are killed as measurement designs, not empirically falsified.
+- Non-ITM put/call volume is retained only as a non-directional activity/composition control. Customer/firm/market-maker totals are context only; they do not identify beneficial owners.
+- net_option_delta units, sign, multiplier/deliverable treatment, and complete field-specific rules are unspecified. Its feature definition and normalization by underlying volume are suspended pending written provider clarification.
+- Historical orders are delivered at order-processing completion; original historical first-receipt and immutable correction vintages remain unverified. Strict PIT remains blocked.
+- 12/12 local regression tests passed. No hosted Phase 233 workflow was run; files use skip-ci commits.
+- [Phase 233 report](PHASE233_CBOE_OPTION_SENTIMENT_FIELD_DIMENSION_AND_DIRECTIONAL_SEMANTICS_AUDIT_2026-11-09.md)
+
 ## Source decisions
 
 | Source | Current decision | Main blocker |
@@ -34,7 +44,7 @@
 | SEC 13D/G | Separate 13D and 13G research tracks | Reporting-person economic identity and amendment chains |
 | N-PORT | Conditional short-side hypothesis | Original XML retrieval blocked by missing authorized \`SEC_CONTACT_EMAIL\` |
 | Cboe Option Quotes | Sample parser gate passes on unambiguous rows only | PIT receipt/vintage, broad history/universe, licensing |
-| Cboe Option Sentiment | High-priority conditional candidate | Historical first-receipt/vintage, sample schema, delisted coverage, price/license |
+| Cboe Option Sentiment | Conditional candidate; no PIT/alpha admission | net_option_delta units/sign/multiplier and field semantics; no directional size/participant cross-tabs; historical receipts/vintages, delisted coverage, sample, price/license |
 | SEC MIDAS | Microstructure context only | Historical publication vintages and PIT identity |
 | Cboe Open-Close | Not admitted to daily PIT | First-receipt/vintage and venue coverage controls |
 
@@ -54,7 +64,7 @@
 
 ## Next research steps
 1. Keep Phase 231 parser and artifact metadata as the accepted sample diagnostic; do not generalize it to the full product.
-2. For Option Sentiment, seek a public sample or written provider confirmation of field definitions, historical backfill completeness, correction vintages, and delivery logs before any paid data.
+2. For Option Sentiment, obtain written clarification of net_option_delta units/sign/multiplier, footnote mappings, cancellation scope, and any directional cross-tabs; require a representative sample, historical backfill completeness, correction vintages, and delivery logs before any paid data.
 3. If a sample becomes available, validate the 80-field schema, null semantics, per-day symbol coverage, corporate-action handling, and cross-field invariants.
 4. Only then preregister one primary directional-flow hypothesis (\`net_option_delta\` scaled by underlying volume) with prior-return controls and secondary size/non-ITM tests.
 5. Compare incremental information to frozen LTM/F80 under identical exposure and costs; do not use the consumed holdout.
