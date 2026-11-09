@@ -112,7 +112,7 @@ Added an offline resolver that accepts normalized filing facts and rejects:
 - conflicting same-day vintages without acceptance ordering;
 - stale fallback when a newer as-of fact is invalid.
 
-The resolver explicitly distinguishes entity-wide single-class facts from exact class-dimensioned facts. It does not fetch or parse raw inline XBRL and does not infer the number of issuer classes from tickers.
+The resolver explicitly distinguishes entity-wide single-class facts from exact class-dimensioned facts. Its current prototype accepts the two US-GAAP axis QNames documented in the sample; other standard-taxonomy namespaces are not yet admitted and must be quarantined until explicitly supported. It does not fetch or parse raw inline XBRL and does not infer the number of issuer classes from tickers.
 
 Local validation: **21/21 standard-library regression tests passed**, including amendment-as-of, multi-class, companyfacts-scope, unknown-vs-zero, and denominator non-substitution cases. These are fixture tests, not SEC raw-filing integration tests or hosted CI.
 
@@ -126,7 +126,7 @@ Local validation: **21/21 standard-library regression tests passed**, including 
 | Raw inline-XBRL path identified | PASS |
 | Amendment/as-filed PIT rule specified | PASS |
 | Offline normalized-fact guardrails | PASS — 21/21 |
-| Raw multi-class XBRL parser validated against filings | NOT TESTED |
+| Raw multi-class XBRL parser validated against filings | NOT TESTED |\n| Non-US-GAAP standard class axes supported | NOT TESTED / QUARANTINE |
 | Company Facts vs raw-filing omission measured | NOT MEASURED |
 | Class-member-to-Form-144 security mapping | NOT ESTABLISHED |
 | Coverage across 289 Form 144 issuer CIKs | NOT MEASURED |
