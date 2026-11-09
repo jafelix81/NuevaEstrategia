@@ -99,13 +99,13 @@ The current 25-month public archive and monthly frequency are insufficient for a
 
 A research-only workflow is added:
 
-- Poll the CFTC BPR index every Friday at **20:35 UTC**. This is after 3:30 p.m. ET in both U.S. daylight and standard time.
-- Polling every Friday, rather than only the first Friday, allows the capture pipeline to observe delayed reports and catch-up publication.
+- Poll the CFTC BPR index every weekday at **20:35 UTC**. This is after 3:30 p.m. ET in both U.S. daylight and standard time.
+- Polling every weekday, rather than only on the nominal first Friday, allows the capture pipeline to observe delayed reports and catch-up publication.
 - Resolve the newest Futures link from the CFTC index, download the report page, parse its report date, and compute SHA-256.
 - Store raw HTML by \`report_date + content hash\`; never overwrite a previous version.
 - Store a separate receipt metadata record containing the pipeline's actual first-observed UTC/ET time, HTTP Date header (recorded but not used as availability), workflow run identifiers, report date, URL, and content hash.
 - Manual dispatch is always marked non-PIT.
-- A scheduled receipt is only a pipeline-availability candidate when it is observed on Friday after 3:30 p.m. ET. The signal cannot be used before that receipt and cannot be traded before the next regular XNYS session.
+- A scheduled receipt is only a pipeline-availability candidate when it is observed on a weekday after 3:30 p.m. ET. The signal cannot be used before that receipt and cannot be traded before the next regular XNYS session.
 - If CFTC revises a report, the new hash is appended as a new version; the earlier version and receipt remain intact.
 - The workflow does not run on pull requests and will not activate until the branch is merged into the default branch.
 
