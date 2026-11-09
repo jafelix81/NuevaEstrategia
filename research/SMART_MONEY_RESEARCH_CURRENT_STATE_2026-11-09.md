@@ -73,8 +73,9 @@
 2. Before any Cboe paid historical order, obtain written answers on first-receipt logs, correction/revision policy, historical delisted coverage, licensing, and price. No order has been placed.
 
 ## Next research steps
-1. After PR14 reaches the default branch, begin the CFTC BPR prospective capture; accumulate an adequate multi-regime panel before any return test. Compare only as a market-regime overlay against QQQ risk state and frozen LTM/F80.\n1. Keep Phase 231 parser and artifact metadata as the accepted sample diagnostic; do not generalize it to the full product.
-2. For Option Sentiment, obtain written clarification of net_option_delta units/sign/multiplier, footnote mappings, cancellation scope, and any directional cross-tabs; require a representative sample, historical backfill completeness, correction vintages, and delivery logs before any paid data.
-3. If a sample becomes available, validate the 80-field schema, null semantics, per-day symbol coverage, corporate-action handling, and cross-field invariants.
-4. Do not normalize net_option_delta by underlying volume until its unit, sign, multiplier, and deliverable treatment are confirmed. If clarified, preregister one primary directional-flow hypothesis with prior-return controls; size and customer-directional hypotheses are unavailable in the documented schema.
-5. Compare incremental information to frozen LTM/F80 under identical exposure and costs; do not use the consumed holdout.
+1. After PR14 reaches the default branch, begin the CFTC BPR prospective capture; accumulate an adequate multi-regime panel before any return test. Compare only as a market-regime overlay against QQQ risk state and frozen LTM/F80.
+2. Keep Phase 231 parser and artifact metadata as the accepted sample diagnostic; do not generalize it to the full product.
+3. For Option Sentiment, obtain written clarification of net_option_delta units/sign/multiplier, footnote mappings, cancellation scope, and any directional cross-tabs; require a representative sample, historical backfill completeness, correction vintages, and delivery logs before any paid data.
+4. If a sample becomes available, validate the 80-field schema, null semantics, per-day symbol coverage, corporate-action handling, and cross-field invariants.
+5. Do not normalize net_option_delta by underlying volume until its unit, sign, multiplier, and deliverable treatment are confirmed. If clarified, preregister one primary directional-flow hypothesis with prior-return controls; size and customer-directional hypotheses are unavailable in the documented schema.
+6. Compare incremental information to frozen LTM/F80 under identical exposure and costs; do not use the consumed holdout.
