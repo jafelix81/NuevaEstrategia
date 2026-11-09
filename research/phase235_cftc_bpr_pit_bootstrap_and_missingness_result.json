@@ -87,7 +87,7 @@
     "open_interest_denominator": "must be positive and observed"
   },
   "local_validation": {
-    "phase234_regression_tests": 13,
+    "phase234_regression_tests": 26,
     "phase235_new_tests": 10,
     "total_tests_passed": 36,
     "failures": 0,
