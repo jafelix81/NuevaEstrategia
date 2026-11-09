@@ -231,6 +231,7 @@ def _latest_scheduled(root: Path, stream: str) -> Optional[dict]:
     records = [
         x for x in _metadata_records(root, stream)
         if x.get("event_name") == "schedule"
+        and x.get("state_usable_after_receipt") is True
     ]
     return max(records, key=lambda x: x.get("observed_at_utc", "")) if records else None
 
