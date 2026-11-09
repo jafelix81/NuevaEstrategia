@@ -1,0 +1,62 @@
+name: Phase 234 CFTC BPR prospective first-receipt capture
+
+on:
+  schedule:
+    # 20:35 UTC is 15:35 EST / 16:35 EDT, after the CFTC's 15:30 ET release target.
+    # Run every Friday so delayed/catch-up reports are still observed.
+    - cron: "35 20 * * 5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: phase234-cftc-bpr-capture
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout research repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Capture latest CFTC BPR futures report
+        run: >-
+          python -m research.phase234_cftc_bpr_capture
+          --root .
+          --output phase234_output/capture_attempt.json
+        env:
+          GITHUB_EVENT_NAME: \${{ github.event_name }}
+          GITHUB_RUN_ID: \${{ github.run_id }}
+          GITHUB_RUN_ATTEMPT: \${{ github.run_attempt }}
+          GITHUB_SHA: \${{ github.sha }}
+
+      - name: Commit append-only report versions
+        run: |
+          if [ -n "$(git status --porcelain data/cftc_bpr)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add data/cftc_bpr
+            git commit -m "Capture CFTC BPR report version [skip ci]"
+            git push
+          else
+            echo "No new BPR report version; repository unchanged."
+          fi
+
+      - name: Preserve capture attempt metadata
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase234-cftc-bpr-capture-attempt-\${{ github.run_id }}
+          path: phase234_output/capture_attempt.json
+          if-no-files-found: warn
+          retention-days: 90
