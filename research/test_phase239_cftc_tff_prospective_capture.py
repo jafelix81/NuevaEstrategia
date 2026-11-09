@@ -221,6 +221,47 @@ class Phase239Tests(unittest.TestCase):
             capture_current_reports(root=root, event_name="schedule", now=now, fetcher=fetcher)
             self.assertEqual(_latest_scheduled(root, "futures_only")["event_type"], "INITIAL_BASELINE_STATE_ONLY")
 
+    def test_scheduled_rollback_does_not_replace_last_usable_state(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            html = b'<a href="/dea/newcot/FinFutWk.txt">F</a><a href="/dea/newcot/FinComWk.txt">C</a>'
+            state = {"report_date": "2026-11-03"}
+
+            def fetcher(url):
+                if url == INDEX_URL:
+                    return html, {}
+                kind = "futures_only" if url.endswith("FinFutWk.txt") else "futures_options_combined"
+                return make_file(kind=kind, rows=[
+                    make_row(report_date=state["report_date"], kind=kind)
+                ]), {}
+
+            def capture(at):
+                return capture_current_reports(
+                    root=root, event_name="schedule", now=at,
+                    fetcher=fetcher, env={"GITHUB_RUN_ID": "240"},
+                )
+
+            baseline = capture(datetime(2026, 11, 6, 20, 45, tzinfo=timezone.utc))
+            self.assertEqual(baseline["pit_event_count"], 0)
+
+            state["report_date"] = "2026-11-10"
+            new_report = capture(datetime(2026, 11, 13, 20, 45, tzinfo=timezone.utc))
+            self.assertEqual(new_report["pit_event_count"], 2)
+
+            state["report_date"] = "2026-11-03"
+            rollback = capture(datetime(2026, 11, 16, 20, 45, tzinfo=timezone.utc))
+            self.assertEqual(rollback["pit_event_count"], 0)
+            self.assertTrue(all(
+                x["event_type"] == "LATE_OR_ROLLBACK_OBSERVATION_NON_PIT"
+                for x in rollback["captures"]
+            ))
+
+            state["report_date"] = "2026-11-10"
+            restored = capture(datetime(2026, 11, 17, 20, 45, tzinfo=timezone.utc))
+            self.assertEqual(restored["pit_event_count"], 0)
+            self.assertEqual(restored["new_snapshot_count"], 0)
+            self.assertTrue(all(x["status"] == "UNCHANGED" for x in restored["captures"]))
+
     def test_identical_index_snapshot_is_deduplicated(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
