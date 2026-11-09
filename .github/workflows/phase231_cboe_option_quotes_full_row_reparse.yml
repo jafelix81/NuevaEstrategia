@@ -1,0 +1,54 @@
+name: Phase 231 Cboe Option Quotes full raw-row reparse
+on:
+  pull_request:
+    branches: [phase99-broad-pit-universe-charter]
+    paths:
+      - "research/phase231_cboe_option_quotes_full_row_reparse.py"
+      - "research/test_phase231_cboe_option_quotes_full_row_reparse.py"
+      - ".github/workflows/phase231_cboe_option_quotes_full_row_reparse.yml"
+permissions:
+  contents: read
+concurrency:
+  group: phase231-cboe-option-quotes-full-row-reparse
+  cancel-in-progress: false
+jobs:
+  full-row-reparse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile Phase 231
+        run: python -m py_compile research/phase231_cboe_option_quotes_full_row_reparse.py research/test_phase231_cboe_option_quotes_full_row_reparse.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase231_cboe_option_quotes_full_row_reparse
+      - name: Download and fully reparse public Cboe sample
+        run: python -m research.phase231_cboe_option_quotes_full_row_reparse --output phase231_output/phase231_cboe_option_quotes_full_row_reparse.json
+      - name: Upload metadata-only full-row audit artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase231-cboe-option-quotes-full-row-reparse
+          path: phase231_output/phase231_cboe_option_quotes_full_row_reparse.json
+          if-no-files-found: error
+          retention-days: 90
+      - name: Enforce complete diagnostic and immutable input without alpha admission
+        run: |
+          python - <<'PY'
+          import json, sys
+          p='phase231_output/phase231_cboe_option_quotes_full_row_reparse.json'
+          r=json.load(open(p, encoding='utf-8'))
+          print('PHASE231_STATUS='+str(r.get('overall_status')))
+          if r.get('download_status') != 'PASS':
+              sys.exit(1)
+          if not r.get('archive_integrity_match'):
+              sys.exit(2)
+          if not r.get('full_row_reparse_completed'):
+              sys.exit(3)
+          if not r.get('all_member_date_counter_reconciliation_pass'):
+              sys.exit(4)
+          if r.get('sample_admission') or r.get('pit_admission') or r.get('alpha_admission'):
+              sys.exit(5)
+          PY
