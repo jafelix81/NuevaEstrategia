@@ -262,6 +262,47 @@ class Phase239Tests(unittest.TestCase):
             self.assertEqual(restored["new_snapshot_count"], 0)
             self.assertTrue(all(x["status"] == "UNCHANGED" for x in restored["captures"]))
 
+
+    def test_manually_observed_new_report_is_not_promoted_by_later_schedule(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            html = b'<a href="/dea/newcot/FinFutWk.txt">F</a><a href="/dea/newcot/FinComWk.txt">C</a>'
+            state = {"report_date": "2026-11-03"}
+
+            def fetcher(url):
+                if url == INDEX_URL:
+                    return html, {}
+                stream_label = "FutOnly" if url.endswith("FinFutWk.txt") else "Combined"
+                return make_file(kind=stream_label, rows=[
+                    make_row(report_date=state["report_date"], kind=stream_label)
+                ]), {}
+
+            baseline_time = datetime(2026, 11, 6, 20, 45, tzinfo=timezone.utc)
+            capture_current_reports(root=root, event_name="schedule", now=baseline_time,
+                                    fetcher=fetcher, env={"GITHUB_RUN_ID": "242"})
+            state["report_date"] = "2026-11-10"
+            manual = capture_current_reports(
+                root=root, event_name="workflow_dispatch",
+                now=datetime(2026, 11, 12, 20, 45, tzinfo=timezone.utc),
+                fetcher=fetcher, env={"GITHUB_RUN_ID": "242"},
+            )
+            self.assertEqual(manual["pit_event_count"], 0)
+            scheduled = capture_current_reports(
+                root=root, event_name="schedule",
+                now=datetime(2026, 11, 13, 20, 45, tzinfo=timezone.utc),
+                fetcher=fetcher, env={"GITHUB_RUN_ID": "242"},
+            )
+            self.assertEqual(scheduled["pit_event_count"], 0)
+            self.assertEqual(scheduled["new_snapshot_count"], 2)
+            self.assertTrue(all(
+                x["event_type"] == "PREVIOUSLY_OBSERVED_REPORT_DATE_STATE_ONLY"
+                for x in scheduled["captures"]
+            ))
+            self.assertTrue(all(
+                x["state_usable_after_receipt"] and not x["pit_eligible_from_pipeline_receipt"]
+                for x in scheduled["captures"]
+            ))
+
     def test_identical_index_snapshot_is_deduplicated(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

@@ -29,7 +29,7 @@ TFF_LINKS = {
     "futures_options_combined": "FinComWk.txt",
 }
 EXPECTED_FIELDS = 87
-CAPTURE_PROTOCOL_VERSION = 1
+CAPTURE_PROTOCOL_VERSION = 2
 ET = ZoneInfo("America/New_York")
 
 
@@ -249,7 +249,8 @@ def _write_json_once(path: Path, payload: dict) -> None:
 
 
 def _classify(parsed: dict, raw_hash: str, prior: Optional[dict],
-              event_name: str, receipt_time: datetime) -> dict:
+              event_name: str, receipt_time: datetime,
+              previously_observed_report_date: bool = False) -> dict:
     scheduled = _scheduled_after_release(event_name, receipt_time)
     if not scheduled:
         return {
@@ -298,6 +299,17 @@ def _classify(parsed: dict, raw_hash: str, prior: Optional[dict],
             "report_date_gap_days": 0,
             "sequence_gap_detected": False,
         }
+    if previously_observed_report_date:
+        gap = (current_date - prior_date).days
+        return {
+            "event_type": "PREVIOUSLY_OBSERVED_REPORT_DATE_STATE_ONLY",
+            "state_usable_after_receipt": True,
+            "event_signal_eligible": False,
+            "pit_eligible_from_pipeline_receipt": False,
+            "previously_observed_report_date": True,
+            "report_date_gap_days": gap,
+            "sequence_gap_detected": gap > 8,
+        }
     if raw_hash == prior["raw_sha256"]:
         raise ValueError("report date advanced but raw hash is unchanged")
     gap = (current_date - prior_date).days
@@ -317,7 +329,14 @@ def _capture_one(*, root: Path, stream: str, url: str, raw_bytes: bytes,
     parsed = parse_tff_file(raw_bytes, stream)
     raw_hash = parsed["raw_sha256"]
     prior = _latest_scheduled(root, stream)
-    classification = _classify(parsed, raw_hash, prior, event_name, receipt_time)
+    previously_observed_report_date = any(
+        item.get("report_date") == parsed["report_date"]
+        for item in _metadata_records(root, stream)
+    )
+    classification = _classify(
+        parsed, raw_hash, prior, event_name, receipt_time,
+        previously_observed_report_date=previously_observed_report_date,
+    )
     if classification["event_type"] == "UNCHANGED":
         return {
             "status": "UNCHANGED",

@@ -22,7 +22,7 @@ from zoneinfo import ZoneInfo
 INDEX_URL = "https://www.cftc.gov/MarketReports/BankParticipationReports/index.htm"
 BASE_URL = "https://www.cftc.gov"
 BPR_FUTURES_PATH = re.compile(r"/MarketReports/BankParticipation/dea([a-z]{3})(\d{2})f$", re.I)
-CAPTURE_PROTOCOL_VERSION = 2
+CAPTURE_PROTOCOL_VERSION = 3
 ET = ZoneInfo("America/New_York")
 
 class LinkCollector(HTMLParser):
@@ -133,6 +133,7 @@ def build_capture_metadata(
     workflow_sha: Optional[str] = None,
     initial_baseline: bool = False,
     revision: bool = False,
+    previously_observed: bool = False,
 ) -> dict:
     receipt_et = receipt_time.astimezone(ET)
     scheduled_after_release = (
@@ -142,8 +143,13 @@ def build_capture_metadata(
     )
     state_usable = scheduled_after_release
     revision_state_only = scheduled_after_release and revision and not initial_baseline
+    previously_observed_state_only = (
+        scheduled_after_release and previously_observed
+        and not initial_baseline and not revision
+    )
     event_signal_eligible = (
-        scheduled_after_release and not initial_baseline and not revision
+        scheduled_after_release and not initial_baseline
+        and not revision and not previously_observed
     )
     if initial_baseline and state_usable:
         pit_rule = (
@@ -159,6 +165,13 @@ def build_capture_metadata(
             "do not treat it as a new report event or directional signal."
         )
         event_type = "NEW_REVISION_STATE_ONLY"
+    elif previously_observed_state_only:
+        pit_rule = (
+            "This exact report date was already observed in an earlier non-PIT or "
+            "prior-protocol capture. The scheduled receipt may establish a usable "
+            "current state, but must not promote it into a new release event."
+        )
+        event_type = "PREVIOUSLY_OBSERVED_VERSION_STATE_ONLY"
     elif event_signal_eligible:
         pit_rule = (
             "A newly indexed report date is usable only after this pipeline's recorded "
@@ -179,6 +192,7 @@ def build_capture_metadata(
         "observed_at_et": receipt_et.isoformat(),
         "event_name": event_name,
         "initial_baseline": bool(initial_baseline),
+        "previously_observed": bool(previously_observed),
         "historical_publication_time_verified": False,
         "prospective_state_usable_after_receipt": bool(state_usable),
         "event_signal_eligible": bool(event_signal_eligible),
@@ -215,7 +229,8 @@ def _latest_scheduled_index_snapshot(root: Path) -> Optional[dict]:
             record = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError) as exc:
             raise ValueError(f"malformed CFTC index snapshot: {path}") from exc
-        if record.get("event_name") == "schedule":
+        if (record.get("event_name") == "schedule"
+                and record.get("capture_protocol_version") == CAPTURE_PROTOCOL_VERSION):
             records.append(record)
     return max(records, key=lambda x: x.get("observed_at_utc", "")) if records else None
 
@@ -268,22 +283,22 @@ def _capture_one(*, root: Path, report_url: str, report_bytes: bytes,
     digest = hashlib.sha256(report_bytes).hexdigest()
     existing = _existing_metadata(root, report_date)
     same_hash = [x for x in existing if x.get("report_sha256") == digest]
-    scheduled_v2_same_hash = [
+    scheduled_current_protocol_same_hash = [
         x for x in same_hash
         if x.get("event_name") == "schedule"
         and x.get("capture_protocol_version") == CAPTURE_PROTOCOL_VERSION
     ]
-    if event_name == "schedule" and scheduled_v2_same_hash:
+    if event_name == "schedule" and scheduled_current_protocol_same_hash:
         return {
             "status": "UNCHANGED_ALREADY_CAPTURED",
             "report_date": report_date,
             "report_sha256": digest,
             "new_snapshot": False,
             "pit_eligible_from_pipeline_receipt": any(
-                x.get("pit_eligible_from_pipeline_receipt") is True for x in scheduled_v2_same_hash
+                x.get("pit_eligible_from_pipeline_receipt") is True for x in scheduled_current_protocol_same_hash
             ),
             "prospective_state_usable_after_receipt": any(
-                x.get("prospective_state_usable_after_receipt") is True for x in scheduled_v2_same_hash
+                x.get("prospective_state_usable_after_receipt") is True for x in scheduled_current_protocol_same_hash
             ),
         }
     if event_name != "schedule" and same_hash:
@@ -297,7 +312,7 @@ def _capture_one(*, root: Path, report_url: str, report_bytes: bytes,
         }
 
     revision = bool(existing and not same_hash)
-    prior_manual_same_hash = bool(same_hash and event_name == "schedule" and not initial_baseline)
+    previously_observed = bool(existing)
     raw_dir = root / "data" / "cftc_bpr" / "raw"
     meta_dir = root / "data" / "cftc_bpr" / "metadata"
     raw_dir.mkdir(parents=True, exist_ok=True)
@@ -313,7 +328,7 @@ def _capture_one(*, root: Path, report_url: str, report_bytes: bytes,
         workflow_run_id=env.get("GITHUB_RUN_ID"),
         workflow_run_attempt=env.get("GITHUB_RUN_ATTEMPT"),
         workflow_sha=env.get("GITHUB_SHA"), initial_baseline=initial_baseline,
-        revision=revision,
+        revision=revision, previously_observed=previously_observed,
     )
     if initial_baseline:
         metadata["receipt_kind"] = "INITIAL_BASELINE_STATE_ONLY"
@@ -322,8 +337,8 @@ def _capture_one(*, root: Path, report_url: str, report_bytes: bytes,
             "NEW_REVISION_STATE_ONLY" if event_name == "schedule"
             else "MANUAL_REVISION_NON_PIT"
         )
-    elif prior_manual_same_hash:
-        metadata["receipt_kind"] = "FIRST_SCHEDULED_RECEIPT_OF_PREVIOUSLY_SEEN_VERSION"
+    elif previously_observed:
+        metadata["receipt_kind"] = "PREVIOUSLY_OBSERVED_VERSION_FIRST_SCHEDULED_RECEIPT_STATE_ONLY"
     elif event_name == "schedule":
         metadata["receipt_kind"] = "NEW_REPORT_FIRST_SCHEDULED_OBSERVATION"
     else:
@@ -347,11 +362,13 @@ def _capture_one(*, root: Path, report_url: str, report_bytes: bytes,
 
 def capture_latest(*, root: Path, event_name: str, now: Optional[datetime] = None,
                    fetcher=None, env: Optional[dict] = None) -> dict:
-    """Capture a baseline, newly indexed reports, and latest-page revisions.
+    """Capture the full retained BPR archive and preserve every observed vintage.
 
-    The first scheduled capture is state-only, not a new release event. Later
-    scheduled runs compare the full link set, capture all new URLs, and re-fetch
-    the latest report for revisions. Manual runs never advance the baseline.
+    The first scheduled run bootstraps every currently retained report as
+    state-only. Later scheduled runs poll every retained report page so a
+    correction to an older, non-latest report is not silently missed. New URLs
+    are event candidates only when they have never been observed before.
+    Manual runs capture only the latest page and never advance the schedule baseline.
     """
     env = env or os.environ
     if fetcher is None:
@@ -371,14 +388,9 @@ def capture_latest(*, root: Path, event_name: str, now: Optional[datetime] = Non
     if event_name == "schedule":
         previous = _latest_scheduled_index_snapshot(root)
         initial_baseline = previous is None
-        if initial_baseline:
-            candidate_urls = [latest_url]
-        else:
-            previous_urls = set(previous.get("futures_urls", []))
-            new_urls = [url for url in futures_urls if url not in previous_urls]
-            candidate_urls = list(new_urls)
-            if latest_url not in candidate_urls:
-                candidate_urls.append(latest_url)
+        # Poll every retained URL on every scheduled run. The archive is small
+        # (about 25 monthly reports); this detects revisions to non-latest pages.
+        candidate_urls = list(futures_urls)
     else:
         candidate_urls = [latest_url]
 
