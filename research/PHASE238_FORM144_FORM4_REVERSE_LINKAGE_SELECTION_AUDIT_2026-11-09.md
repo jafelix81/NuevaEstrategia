@@ -83,7 +83,7 @@ I therefore ran a conditional randomization diagnostic that preserves the number
 
 Each test uses 20,000 permutations and plus-one p-value correction (seeds 238 and 239). The null assumes AFF10B5ONE labels are exchangeable within the stated strata; it is a diagnostic, not a causal test. The issuer × role result provides no evidence that the raw plan-flag gap survives this coarse conditioning. Sparse mixed strata and remaining differences in sale size, security class, affiliate status, restrictions, and timing remain limitations.
 
-The role table is retained in the JSON result for transparency. Several role cells are small and should not be interpreted independently.
+The conditional test uses the exact reporting-owner relationship string. Individual role cells are sparse and are not interpreted independently.
 
 ## 5. Sale-size diagnostic
 
