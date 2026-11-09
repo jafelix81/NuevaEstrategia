@@ -318,7 +318,10 @@ def _capture_one(*, root: Path, report_url: str, report_bytes: bytes,
     if initial_baseline:
         metadata["receipt_kind"] = "INITIAL_BASELINE_STATE_ONLY"
     elif revision:
-        metadata["receipt_kind"] = "NEW_REVISION"
+        metadata["receipt_kind"] = (
+            "NEW_REVISION_STATE_ONLY" if event_name == "schedule"
+            else "MANUAL_REVISION_NON_PIT"
+        )
     elif prior_manual_same_hash:
         metadata["receipt_kind"] = "FIRST_SCHEDULED_RECEIPT_OF_PREVIOUSLY_SEEN_VERSION"
     elif event_name == "schedule":
