@@ -73,3 +73,15 @@ No candidate becomes a model feature until historical coverage, ex-ante availabi
 - Group flags a, b and missing all appear among overlap examples; they are not a deduplication key. Joint filing alone is not proof of a unique group or additive positions.
 - Auditor: phase227_13dg_overlap_adjudication.py; tests: test_phase227_13dg_overlap_adjudication.py; result: phase227_13dg_overlap_adjudication_result.json. Local validation: 7/7 tests passed, including full integration against the hash-pinned 102-document sample. No hosted Phase 227 Actions run is claimed.
 - No forward returns, alpha, bootstrap/LOO, final holdout, vendor purchase, production, universe or F80 change.
+
+
+## Phase 228 — 13D/G regulatory-deadline regime split
+
+- Re-downloaded Phase 124 artifact 13436764625 and verified ZIP SHA-256 `85f69e083b5af65731c9bcfe24e8c75821fc0f2c2476bfa8ba573e2e884570dc`, CSV SHA-256 `be2c592c6c26d9f1ea49bda5d29d20e944004b2e2f4a3c3f4fe1f732319c55d5`, 600/600 raw hashes and SEC headers, 599 primary filings, and 102 structured XML event dates.
+- Applied the correct distinct compliance cutoffs: 13D 2024-02-05; 13G 2024-09-30; structured-data mandate 2024-12-18 is a separate format break.
+- 13D weighted median event-to-filing lag: 4 days pre / 2 days post; weighted P90 27 / 18. Post-reform initial cohort is small (21 filings) and its weighted P90 is 86 days due to a long-lag observation.
+- 13G weighted median: 41 days pre / 38 post; weighted P90 remains 45 days; weighted quarter-end concentration 74.80% / 81.73%. 13G remains a delayed quarter-end ownership-disclosure cohort, not transaction-level flow.
+- Split by initial/amendment cohort and kept all statistics descriptive. Sample is stratified; no causal inference, significance testing, returns or alpha.
+- The committed Phase 225 result JSON omitted the regime split calculated by its audit logic. Phase 228 publishes a separate hash-pinned result; no historical artifact was overwritten.
+- Files: `PHASE228_SEC_13DG_REGULATORY_DEADLINE_REGIME_SPLIT_AUDIT_2026-11-08.md`, `phase228_13dg_regulatory_regime_split_audit.py`, `test_phase228_13dg_regulatory_regime_split_audit.py`, and `phase228_13dg_regulatory_regime_split_audit_result.json`. Four local unit tests passed; the hash-pinned source was independently re-parsed locally.
+- No alpha, forward returns, bootstrap/LOO, holdout, production, universe or F80 changes.
