@@ -1,0 +1,55 @@
+{
+  "phase": 228,
+  "status": "PASS_HASH_PINNED_REGULATORY_ERA_RECONSTRUCTION_DESCRIPTIVE_ONLY",
+  "source": {
+    "phase124_run_id": 42073725379,
+    "phase124_artifact_id": 13436764625,
+    "artifact_zip_sha256": "85f69e083b5af65731c9bcfe24e8c75821fc0f2c2476bfa8ba573e2e884570dc",
+    "csv_sha256": "be2c592c6c26d9f1ea49bda5d29d20e944004b2e2f4a3c3f4fe1f732319c55d5",
+    "source_rows": 600,
+    "actual_filings": 599,
+    "index_aliases_quarantined": 1,
+    "raw_hashes_verified": 600,
+    "headers_verified": 600,
+    "primary_documents_verified": 599,
+    "xml_event_dates_verified": 102,
+    "sampling_frame": "43 quarters, 2016Q1-2026Q3; stratified quarter x form-family x amendment sample",
+    "sample_design_warning": "Descriptive stratified sample, not an unstratified random sample; no causal inference or population-prevalence claim."
+  },
+  "compliance_cutoffs": {
+    "13D": {"date": "2024-02-05", "basis": "Revised 13D deadlines effective; initial filing five business days, amendments two business days."},
+    "13G": {"date": "2024-09-30", "basis": "Compliance date for revised 13G deadlines; not the general February 2024 effective date."},
+    "structured_data": {"date": "2024-12-18", "basis": "Separate structured-data compliance date; affects format/field coverage, not knowledge time."}
+  },
+  "by_family_and_regulatory_era": {
+    "13D_pre": {"n": 162, "parsed_n": 154, "weighted_coverage_pct": 95.0856, "quarter_end_weighted_pct": 3.5329, "weighted_median_lag_days": 4, "weighted_p90_lag_days": 27},
+    "13D_post": {"n": 52, "parsed_n": 51, "weighted_coverage_pct": 98.9457, "quarter_end_weighted_pct": 0.0, "weighted_median_lag_days": 2, "weighted_p90_lag_days": 18},
+    "13G_pre": {"n": 308, "parsed_n": 272, "weighted_coverage_pct": 88.4739, "quarter_end_weighted_pct": 74.7961, "weighted_median_lag_days": 41, "weighted_p90_lag_days": 45},
+    "13G_post": {"n": 77, "parsed_n": 76, "weighted_coverage_pct": 98.8903, "quarter_end_weighted_pct": 81.7308, "weighted_median_lag_days": 38, "weighted_p90_lag_days": 45}
+  },
+  "by_family_era_and_index_amendment_cohort": {
+    "13D_pre_initial": {"n": 65, "parsed_n": 62, "weighted_median_lag_days": 10, "weighted_p90_lag_days": 48},
+    "13D_post_initial": {"n": 21, "parsed_n": 20, "weighted_median_lag_days": 7, "weighted_p90_lag_days": 86},
+    "13D_pre_amendment": {"n": 97, "parsed_n": 92, "weighted_median_lag_days": 3, "weighted_p90_lag_days": 17},
+    "13D_post_amendment": {"n": 31, "parsed_n": 31, "weighted_median_lag_days": 2, "weighted_p90_lag_days": 13},
+    "13G_pre_initial": {"n": 110, "parsed_n": 100, "weighted_median_lag_days": 38, "weighted_p90_lag_days": 47, "quarter_end_weighted_pct": 58.6842},
+    "13G_post_initial": {"n": 32, "parsed_n": 31, "weighted_median_lag_days": 29, "weighted_p90_lag_days": 45, "quarter_end_weighted_pct": 75.3201},
+    "13G_pre_amendment": {"n": 198, "parsed_n": 172, "weighted_median_lag_days": 41, "weighted_p90_lag_days": 45, "quarter_end_weighted_pct": 81.4707},
+    "13G_post_amendment": {"n": 45, "parsed_n": 45, "weighted_median_lag_days": 39, "weighted_p90_lag_days": 45, "quarter_end_weighted_pct": 85.0241}
+  },
+  "prior_phase225_result_missing_regime_split": true,
+  "interpretation": {
+    "13D": "Weighted median event-to-filing lag falls from 4 to 2 days overall; post-reform initial cohort is small and has an 86-day weighted P90 outlier.",
+    "13G": "Weighted median changes from 41 to 38 days, P90 remains 45 days, and quarter-end concentration remains high.",
+    "event_date": "Declared event date is not a verified trade timestamp or public-knowledge timestamp. SEC acceptance datetime remains the knowledge clock."
+  },
+  "controls": {
+    "forward_returns_used": false,
+    "alpha_test": false,
+    "bootstrap_loo": false,
+    "holdout_used": false,
+    "production_changed": false,
+    "f80_changed": false,
+    "ownership_rows_summed": false
+  }
+}
