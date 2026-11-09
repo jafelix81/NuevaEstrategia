@@ -18,16 +18,18 @@ NUMBER = re.compile(r"^\d[\d,]*(?:\.\d+)?$")
 class BankRow:
     category: str
     bank_count: Optional[int]
-    long_positions: int
-    long_pct_oi: float
-    short_positions: int
-    short_pct_oi: float
+    long_positions: Optional[int]
+    long_pct_oi: Optional[float]
+    short_positions: Optional[int]
+    short_pct_oi: Optional[float]
     open_interest: Optional[int]
 
 def _clean(value: str) -> str:
-    return " ".join(value.replace("\xa0", " ").strip().split())
+    if value is None:
+        return ""
+    return " ".join(str(value).replace("\xa0", " ").strip().split())
 
-def _int_or_none(value: str) -> Optional[int]:
+def _int_or_none(value) -> Optional[int]:
     value = _clean(value)
     if not value:
         return None
@@ -35,19 +37,28 @@ def _int_or_none(value: str) -> Optional[int]:
         raise ValueError(f"invalid integer field: {value!r}")
     return int(value.replace(",", ""))
 
-def _float(value: str) -> float:
+def _float_or_none(value) -> Optional[float]:
     value = _clean(value)
+    if not value:
+        return None
     if not NUMBER.match(value):
         raise ValueError(f"invalid numeric field: {value!r}")
     return float(value.replace(",", ""))
 
-def parse_bank_row(line: str, category: str) -> BankRow:
-    """Parse one U.S. or NON U.S. BPR table row.
+def _nonnegative_optional(value, field: str) -> Optional[int]:
+    parsed = _int_or_none(value)
+    if parsed is not None and parsed < 0:
+        raise ValueError(f"negative {field}")
+    return parsed
 
-    Expected cells after the optional commodity label:
-      bank type | bank count | long | long % OI | short | short % OI | OI
-    Blank bank counts remain None (CFTC confidentiality suppression), never 0.
-    """
+def _nonnegative_float_or_none(value, field: str) -> Optional[float]:
+    parsed = _float_or_none(value)
+    if parsed is not None and parsed < 0:
+        raise ValueError(f"negative {field}")
+    return parsed
+
+def parse_bank_row(line: str, category: str) -> BankRow:
+    """Parse a pipe-delimited audit row, preserving every blank as UNKNOWN."""
     cells = [_clean(x) for x in line.split("|")]
     if len(cells) < 7:
         raise ValueError("BPR row has fewer than seven cells")
@@ -63,56 +74,79 @@ def parse_bank_row(line: str, category: str) -> BankRow:
             raise ValueError("NON_US row category mismatch")
     else:
         raise ValueError("category must be US or NON_US")
-
     fields = cells[offset:offset + 6]
     if len(fields) != 6:
         raise ValueError("BPR row has incomplete fields")
     count, long_pos, long_pct, short_pos, short_pct, oi = fields
-    long_value = _int_or_none(long_pos)
-    short_value = _int_or_none(short_pos)
     return BankRow(
         category=category,
-        bank_count=_int_or_none(count),
-        long_positions=0 if long_value is None else long_value,
-        long_pct_oi=_float(long_pct) if long_pct else 0.0,
-        short_positions=0 if short_value is None else short_value,
-        short_pct_oi=_float(short_pct) if short_pct else 0.0,
-        open_interest=_int_or_none(oi),
+        bank_count=_nonnegative_optional(count, "bank_count"),
+        long_positions=_nonnegative_optional(long_pos, "long_positions"),
+        long_pct_oi=_nonnegative_float_or_none(long_pct, "long_pct_oi"),
+        short_positions=_nonnegative_optional(short_pos, "short_positions"),
+        short_pct_oi=_nonnegative_float_or_none(short_pct, "short_pct_oi"),
+        open_interest=_nonnegative_optional(oi, "open_interest"),
     )
 
 def aggregate_contract(us: BankRow, non_us: BankRow, total_row: dict) -> dict:
-    """Aggregate bank gross positions; do not infer missing category counts."""
+    """Use observed total-row/category values; never coerce blanks to zero."""
     if us.category != "US" or non_us.category != "NON_US":
         raise ValueError("category order/identity mismatch")
-    if us.open_interest is None:
-        raise ValueError("US row must carry the market open-interest denominator")
-    total_long = us.long_positions + non_us.long_positions
-    total_short = us.short_positions + non_us.short_positions
-    if total_long != int(total_row["long_positions"]):
-        raise ValueError("total long positions do not reconcile")
-    if total_short != int(total_row["short_positions"]):
-        raise ValueError("total short positions do not reconcile")
-    if total_long < 0 or total_short < 0 or us.open_interest <= 0:
-        raise ValueError("invalid position or open-interest value")
-    net = total_long - total_short
+    if us.open_interest is None or us.open_interest <= 0:
+        raise ValueError("US row must carry a positive market open-interest denominator")
+    total_long = _nonnegative_optional(total_row.get("long_positions"), "total_long_positions")
+    total_short = _nonnegative_optional(total_row.get("short_positions"), "total_short_positions")
+    category_values = (us.long_positions, us.short_positions,
+                       non_us.long_positions, non_us.short_positions)
+    category_complete = all(value is not None for value in category_values)
+    category_sum_reconciled = None
+    if category_complete:
+        category_long = us.long_positions + non_us.long_positions
+        category_short = us.short_positions + non_us.short_positions
+        if total_long is not None and category_long != total_long:
+            raise ValueError("total long positions do not reconcile")
+        if total_short is not None and category_short != total_short:
+            raise ValueError("total short positions do not reconcile")
+        effective_total_long = category_long
+        effective_total_short = category_short
+        category_sum_reconciled = (
+            True if total_long is not None and total_short is not None else None
+        )
+    else:
+        effective_total_long = total_long
+        effective_total_short = total_short
+    if effective_total_long is not None and effective_total_short is not None:
+        net = effective_total_long - effective_total_short
+        coverage = "OBSERVED_FULL_CATEGORY_BREAKDOWN" if category_complete else "OBSERVED_TOTAL_ONLY"
+        net_to_oi = net / us.open_interest
+    else:
+        net = None
+        coverage = "UNKNOWN_TOTAL_POSITION"
+        net_to_oi = None
+    us_net = (us.long_positions - us.short_positions
+              if us.long_positions is not None and us.short_positions is not None else None)
+    non_us_net = (non_us.long_positions - non_us.short_positions
+                  if non_us.long_positions is not None and non_us.short_positions is not None else None)
     return {
         "us_bank_count": us.bank_count,
         "non_us_bank_count": non_us.bank_count,
-        "total_bank_count": (
-            None if total_row.get("bank_count") is None
-            else int(total_row["bank_count"])
-        ),
+        "total_bank_count": _nonnegative_optional(total_row.get("bank_count"), "total_bank_count"),
         "us_long": us.long_positions,
         "us_short": us.short_positions,
+        "us_net_long_minus_short": us_net,
         "non_us_long": non_us.long_positions,
         "non_us_short": non_us.short_positions,
-        "total_long": total_long,
-        "total_short": total_short,
+        "non_us_net_long_minus_short": non_us_net,
+        "total_long": effective_total_long,
+        "total_short": effective_total_short,
         "net_long_minus_short": net,
         "open_interest": us.open_interest,
-        "net_to_open_interest": net / us.open_interest,
-        "coverage_status": "OBSERVED",
+        "net_to_open_interest": net_to_oi,
+        "category_breakdown_complete": category_complete,
+        "category_sum_reconciled": category_sum_reconciled,
+        "coverage_status": coverage,
     }
+
 
 def build_audit() -> dict:
     """Return the reproducible source-feasibility decision and sample checks."""
@@ -183,6 +217,7 @@ def build_audit() -> dict:
             "markets_require_at_least_five_banks": True,
             "category_count_suppressed_when_category_has_fewer_than_four_banks": True,
             "blank_bank_count_is_unknown_not_zero": True,
+            "blank_position_or_percentage_is_unknown_not_zero": True,
             "missing_market_is_unknown_not_zero": True,
             "options_report_is_separate_and_gross_not_delta_adjusted": True,
             "open_interest_denominator_is_market_total": True,
@@ -211,7 +246,7 @@ def build_audit() -> dict:
             "interest-rate regime",
             "month-end and release-week effects"
         ],
-        "pit_rule": "Do not use the report date as the availability date. Use the first captured receipt timestamp; trade no earlier than the next regular XNYS session after receipt.",
+        "pit_rule": "Use the pipeline receipt, never report date; initial scheduled observation is a baseline state only (not a release event); later new report URLs/revisions may qualify from receipt onward.",
         "decision": "CONDITIONAL_PROSPECTIVE_REGIME_RESEARCH_ONLY",
     }
 
