@@ -103,5 +103,39 @@
   "production_changed": false,
   "universe_changed": false,
   "baseline": "F80_TOP20_PARTIAL50_BASELINE_C20_FROZEN",
-  "holdout": "CONSUMED_NOT_PRISTINE"
+  "holdout": "CONSUMED_NOT_PRISTINE",
+  "sample_contract_reproduction": {
+    "report_date": "2026-11-03",
+    "interpretation": "descriptive combined gross bank long-minus-short positions divided by total market open interest; not a trading signal",
+    "contracts": {
+      "CME E-mini S&P 500": {
+        "long": 55308,
+        "short": 345453,
+        "net": -290145,
+        "open_interest": 1986532,
+        "net_oi_pct": -14.6056
+      },
+      "CME Nasdaq Mini": {
+        "long": 26644,
+        "short": 24168,
+        "net": 2476,
+        "open_interest": 292587,
+        "net_oi_pct": 0.8462
+      },
+      "CME Russell E-mini": {
+        "long": 40943,
+        "short": 21075,
+        "net": 19868,
+        "open_interest": 449399,
+        "net_oi_pct": 4.421
+      },
+      "CBT DJIA x $5": {
+        "long": 6719,
+        "short": 22200,
+        "net": -15481,
+        "open_interest": 87410,
+        "net_oi_pct": -17.7108
+      }
+    }
+  }
 }
