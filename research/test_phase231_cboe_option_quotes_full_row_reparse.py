@@ -33,6 +33,7 @@ class Phase231Tests(unittest.TestCase):
         def fake_archive(data):
             m=p174.audit_csv_bytes(b"dummy",0)
             return {"members":[m],"sample_schema_gate_pass":m["schema_gate_pass"],
+                    "archive_sha256":hashlib.sha256(payload).hexdigest(),
                     "download_status":"PASS","sample_admission":False}
         diag={"expiration_interpretation_counts":{"single_format_interpretation":10},
               "quote_datetime_interpretation_counts":{"single_format_interpretation":10},
@@ -42,6 +43,7 @@ class Phase231Tests(unittest.TestCase):
              patch.object(p175,"diagnose_csv_bytes",lambda data:diag), \
              patch.object(p231,"EXPECTED_ARCHIVE_SHA256",hashlib.sha256(payload).hexdigest()):
             result=p231.audit_archive(payload)
+        self.assertTrue(result["archive_integrity_match"])
         self.assertTrue(result["clean_unambiguous_subset_gate_pass"])
         self.assertTrue(result["all_member_date_counter_reconciliation_pass"])
         self.assertFalse(result["pit_admission"])
@@ -61,6 +63,7 @@ class Phase231Tests(unittest.TestCase):
         def fake_archive(data):
             m=p174.audit_csv_bytes(b"dummy",0)
             return {"members":[m],"sample_schema_gate_pass":m["schema_gate_pass"],
+                    "archive_sha256":hashlib.sha256(payload).hexdigest(),
                     "download_status":"PASS","sample_admission":False}
         diag={"expiration_interpretation_counts":{"ambiguous_multiple_interpretations":1},
               "quote_datetime_interpretation_counts":{"single_format_interpretation":10},
@@ -70,6 +73,7 @@ class Phase231Tests(unittest.TestCase):
              patch.object(p175,"diagnose_csv_bytes",lambda data:diag), \
              patch.object(p231,"EXPECTED_ARCHIVE_SHA256",hashlib.sha256(payload).hexdigest()):
             result=p231.audit_archive(payload)
+        self.assertTrue(result["archive_integrity_match"])
         self.assertFalse(result["sample_schema_gate_pass"])
         self.assertTrue(result["clean_unambiguous_subset_gate_pass"])
         self.assertEqual(result["total_ambiguous_expiration_rows"],1)
