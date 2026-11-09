@@ -137,6 +137,7 @@ def audit_archive(payload: bytes) -> dict:
     clean=bool(members) and all(x.get("unambiguous_subset_gate_pass",False) for x in members)
     result["phase"]=231
     result["phase174_source_archive_sha256"]=EXPECTED_ARCHIVE_SHA256
+    result["archive_integrity_match"]=(result.get("archive_sha256")==EXPECTED_ARCHIVE_SHA256)
     result["full_row_reparse_completed"]=bool(members) and len(members)==5
     result["clean_unambiguous_subset_gate_pass"]=clean
     result["total_ambiguous_expiration_rows"]=sum(x.get("ambiguous_expiration_rows",0) for x in members)
