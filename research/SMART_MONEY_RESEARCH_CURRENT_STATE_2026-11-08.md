@@ -24,7 +24,7 @@
 
 ## Conditional source candidates
 
-- **SEC 13D/G:** Phase 225 shows 13D and 13G event-date mechanics differ materially. Keep them separate; 13G is heavily quarter-end weighted. Event date is not knowledge time. Continue amendment state, reporting-person/group and effective-dated CUSIP/security identity before any economic test.
+- **SEC 13D/G:** Phase 225 shows 13D and 13G event-date mechanics differ materially; keep them separate. Phase 226 recovers the family-specific group flags, but the flags are sparse and are not unique group IDs. Missing is unknown, not no group; ownership rows remain non-additive. Amendment state, owner identity and effective-dated security identity still block any economic test.
 - **Form 144:** daily PIT clock is conservatively the first XNYS session after SEC filing date. Signal is not admitted: seller/security-class identity, historical active/delisted universe, independent PIT shares/float and ADV remain unresolved. Form 144 is a proposed sale notice, not execution.
 - **N-PORT short exposure:** distinct short-quantity hypothesis is preregistered, but the 23-row example is purposive and from one filing. Raw filing retrieval/hashes, series lineage, class/security identity and broad PIT coverage remain pending.
 - **Options:** Cboe C1 Open-Close EOD remains the leading conditional participant-capacity source; C1-only, not whole OPRA, and historical first-receipt/correction vintages are not established. IvyDB Open Interest / TradeFlow remain conditional candidates; no purchase or alpha admission.
@@ -44,11 +44,21 @@
 ## Technical blockers and repository state
 
 - N-PORT raw SEC retrieval previously failed closed because the authorized SEC contact configuration was missing. Do not invent an email or bypass SEC fair-access requirements.
-- PR #13 is open, 550 commits ahead / 1 behind main by compare; GitHub currently reports mergeable/clean. No merge was attempted.
+- PR #13 is open, 553 commits ahead / 1 behind main by compare after Phase 226; GitHub reports mergeable/clean. No merge was attempted.
 - Branch inventory: 130 branches.
 - Latest 100 Actions runs: 98 success, one failure and one cancellation; zero in-progress or queued. The Phase 214 failure was an earlier attempt; corrected run 42491346221 passed. The cancelled attempt was replaced.
-- Latest CI fan-out is on older commit 5ac79c0; the current PR head has no associated workflow run because the Phase 225 research commit uses `[skip ci]`.
+- Latest CI fan-out is on older commit 5ac79c0; latest run 42491346732 (Phase 185) succeeded, its audit job completed and artifact 13621239943 was uploaded (945 bytes; SHA-256 d9575f5e9df29fce61eaef81955105b1d4f88827f65980f4630acaecd9e1efc9). The current PR head has no check-runs because research commits use `[skip ci]`.
 
 ## Promotion rule
 
 No candidate becomes a model feature until historical coverage, ex-ante availability, stable identifiers, survivorship/delisting treatment, incremental information versus frozen LTM/F80, chronological OOS and economic costs all pass. A plausible institutional interpretation is a hypothesis, not evidence.
+
+
+## Phase 226 — 13D/G reporting-person group flags
+
+- Re-downloaded Phase 124 artifact 13436764625 and verified ZIP SHA-256 85f69e083b5af65731c9bcfe24e8c75821fc0f2c2476bfa8ba573e2e884570dc, CSV SHA-256 be2c592c6c26d9f1ea49bda5d29d20e944004b2e2f4a3c3f4fe1f732319c55d5, and all 102 XML-bearing raw submission hashes.
+- 310 reporting-person blocks: 33 affirmative group flags, 108 disclaimer/relationship flags and 169 unreported. Only 5/102 filings affirm group membership; 75/102 have all group flags unreported.
+- Repeated ownership signatures occur in 21/34 13D and 27/68 13G filings. Repeated tuples remain non-additive; no positions were summed. Group flags do not establish a unique beneficial-owner graph.
+- 13G reporting-person CIK remains absent in 158/158 owner blocks; group flags do not repair identity.
+- Local validation: 14/14 tests passed, including full integration against the hash-pinned Phase 124 artifact. No hosted Phase 226 Actions run is claimed.
+- No returns, alpha, bootstrap/LOO, holdout, vendor purchase, production or F80 change.

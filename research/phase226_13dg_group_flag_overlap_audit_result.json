@@ -1,0 +1,112 @@
+{
+  "phase": 226,
+  "status": "COMPLETED_GROUP_FLAG_AND_NONADDITIVE_OWNERSHIP_SEMANTICS_AUDIT",
+  "source": {
+    "phase124_run_id": 42073725379,
+    "phase124_artifact_id": 13436764625,
+    "artifact_zip_sha256_expected": "85f69e083b5af65731c9bcfe24e8c75821fc0f2c2476bfa8ba573e2e884570dc",
+    "artifact_zip_sha256_observed": "85f69e083b5af65731c9bcfe24e8c75821fc0f2c2476bfa8ba573e2e884570dc",
+    "artifact_zip_sha256_verified_in_this_run": true,
+    "csv_sha256_verified": "be2c592c6c26d9f1ea49bda5d29d20e944004b2e2f4a3c3f4fe1f732319c55d5",
+    "source_index_rows": 600,
+    "actual_13dg_filings": 599,
+    "structured_xml_filings": 102,
+    "raw_submission_sha256_verified": 102,
+    "quarters": [
+      "2024Q4",
+      "2025Q1",
+      "2025Q2",
+      "2025Q3",
+      "2025Q4",
+      "2026Q1",
+      "2026Q2",
+      "2026Q3"
+    ]
+  },
+  "group_flag_schema": {
+    "13D": "memberOfGroup",
+    "13G": "memberGroup",
+    "a": "AFFIRMED_GROUP",
+    "b": "DISCLAIMED_OR_RELATIONSHIP_WITHOUT_AFFIRMATION",
+    "missing": "UNREPORTED_NOT_NO_GROUP",
+    "invalid_values": 0
+  },
+  "by_family": {
+    "13D": {
+      "filings": 34,
+      "owner_blocks": 152,
+      "owner_group_flag_status": {
+        "AFFIRMED_GROUP": 31,
+        "DISCLAIMED_OR_RELATIONSHIP_WITHOUT_AFFIRMATION": 65,
+        "UNREPORTED": 56
+      },
+      "filing_group_status": {
+        "AFFIRMED_PRESENT": 4,
+        "ALL_UNREPORTED": 20,
+        "DISCLAIMED_OR_RELATIONSHIP_ONLY": 10
+      },
+      "filings_with_any_affirmed_group": 4,
+      "filings_with_any_disclaimed_or_relationship_flag": 10,
+      "filings_with_all_group_flags_unreported": 20,
+      "reporting_person_cik_present": 90,
+      "reporting_person_cik_missing": 62,
+      "filings_with_repeated_ownership_signatures": 21,
+      "repeated_signature_groups": 26,
+      "owner_rows_inside_repeated_signature_groups": 94,
+      "repeated_signature_groups_by_group_flag": {
+        "AFFIRMED_GROUP": 5,
+        "DISCLAIMED_OR_RELATIONSHIP_WITHOUT_AFFIRMATION": 9,
+        "UNREPORTED": 12
+      },
+      "repeated_signature_groups_with_mixed_group_flags": 0,
+      "filings_where_all_owner_signatures_are_identical": 9
+    },
+    "13G": {
+      "filings": 68,
+      "owner_blocks": 158,
+      "owner_group_flag_status": {
+        "AFFIRMED_GROUP": 2,
+        "DISCLAIMED_OR_RELATIONSHIP_WITHOUT_AFFIRMATION": 43,
+        "UNREPORTED": 113
+      },
+      "filing_group_status": {
+        "AFFIRMED_PRESENT": 1,
+        "ALL_UNREPORTED": 55,
+        "DISCLAIMED_OR_RELATIONSHIP_ONLY": 12
+      },
+      "filings_with_any_affirmed_group": 1,
+      "filings_with_any_disclaimed_or_relationship_flag": 12,
+      "filings_with_all_group_flags_unreported": 55,
+      "reporting_person_cik_present": 0,
+      "reporting_person_cik_missing": 158,
+      "filings_with_repeated_ownership_signatures": 27,
+      "repeated_signature_groups": 32,
+      "owner_rows_inside_repeated_signature_groups": 95,
+      "repeated_signature_groups_by_group_flag": {
+        "AFFIRMED_GROUP": 1,
+        "DISCLAIMED_OR_RELATIONSHIP_WITHOUT_AFFIRMATION": 11,
+        "UNREPORTED": 20
+      },
+      "repeated_signature_groups_with_mixed_group_flags": 0,
+      "filings_where_all_owner_signatures_are_identical": 22
+    }
+  },
+  "binding_interpretation": [
+    "The group checkbox is a reporting-person-level disclosure, not a unique group identifier.",
+    "A means group membership is expressly affirmed; b means membership is disclaimed or a relationship is described without affirming a group.",
+    "A missing group flag is unreported/unknown, not evidence that no group exists; joint-filing rules can make the b box unnecessary.",
+    "Repeated ownership tuples are not additive positions and must not be summed.",
+    "Even a repeated tuple with an affirmed group flag does not identify every group member or prove a unique beneficial-owner graph.",
+    "Reporting-person CIK coverage is incomplete, especially for 13G; names and filer CIKs are not stable substitutes for a permanent owner identifier.",
+    "This stratified 102-XML sample is not a population prevalence estimate and covers only 2024Q4-2026Q3 structured filings."
+  ],
+  "controls": {
+    "forward_returns_used": false,
+    "alpha_test_performed": false,
+    "bootstrap_loo_performed": false,
+    "final_holdout_used": false,
+    "production_changed": false,
+    "f80_changed": false,
+    "ownership_rows_summed": false
+  }
+}
