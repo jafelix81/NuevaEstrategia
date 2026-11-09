@@ -1,9 +1,9 @@
-name: Phase 234 CFTC BPR prospective first-receipt capture
+name: Phase 234/239 CFTC BPR and TFF prospective first-receipt capture
 
 on:
   schedule:
     # 20:35 UTC is 15:35 EST / 16:35 EDT, after the CFTC's 15:30 ET release target.
-    # Poll every weekday to capture delayed/catch-up reports without assuming a release day.
+    # Poll every weekday to handle delayed releases and any future cadence change.
     - cron: "35 20 * * 1-5"
   workflow_dispatch:
 
@@ -17,7 +17,7 @@ concurrency:
 jobs:
   capture:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - name: Checkout research repository
         uses: actions/checkout@v4
@@ -29,7 +29,14 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Validate TFF capture parser and PIT protocol
+        run: |
+          python -m py_compile research/phase239_cftc_tff_prospective_capture.py research/test_phase239_cftc_tff_prospective_capture.py
+          python -m unittest -v research.test_phase239_cftc_tff_prospective_capture
+
       - name: Capture latest CFTC BPR futures report
+        id: bpr
+        continue-on-error: true
         run: >-
           python -m research.phase234_cftc_bpr_capture
           --root .
@@ -40,23 +47,45 @@ jobs:
           GITHUB_RUN_ATTEMPT: ${{ github.run_attempt }}
           GITHUB_SHA: ${{ github.sha }}
 
-      - name: Commit append-only report versions
+      - name: Capture latest CFTC TFF futures-only and combined reports
+        id: tff
+        continue-on-error: true
+        run: >-
+          python -m research.phase239_cftc_tff_prospective_capture
+          --root .
+          --output phase239_output/capture_attempt.json
+          --event-name ${{ github.event_name }}
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_RUN_ATTEMPT: ${{ github.run_attempt }}
+          GITHUB_SHA: ${{ github.sha }}
+
+      - name: Commit append-only CFTC report versions
         run: |
-          if [ -n "$(git status --porcelain data/cftc_bpr)" ]; then
+          if [ -n "$(git status --porcelain data/cftc_bpr data/cftc_tff)" ]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add data/cftc_bpr
-            git commit -m "Capture CFTC BPR report version [skip ci]"
+            git add data/cftc_bpr data/cftc_tff
+            git commit -m "Capture CFTC BPR and TFF report versions [skip ci]"
             git push
           else
-            echo "No new BPR report version; repository unchanged."
+            echo "No new BPR or TFF report version; repository unchanged."
           fi
 
-      - name: Preserve capture attempt metadata
+      - name: Preserve BPR and TFF capture attempt metadata
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: phase234-cftc-bpr-capture-attempt-${{ github.run_id }}
-          path: phase234_output/capture_attempt.json
+          name: phase234-239-cftc-capture-attempt-${{ github.run_id }}
+          path: |
+            phase234_output/capture_attempt.json
+            phase239_output/capture_attempt.json
           if-no-files-found: warn
           retention-days: 90
+
+      - name: Surface any source capture failure after preserving successful source data
+        if: always() && (steps.bpr.outcome == 'failure' || steps.tff.outcome == 'failure')
+        run: |
+          echo "At least one CFTC capture failed; inspect the source-specific step and artifacts."
+          exit 1
