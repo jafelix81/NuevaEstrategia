@@ -1,0 +1,72 @@
+{
+  "admission": {
+    "alpha_admitted": false,
+    "bootstrap_loo_tested": false,
+    "chronological_oos_tested": false,
+    "f80_changed": false,
+    "f80_status": "FROZEN",
+    "final_holdout_used": false,
+    "forward_returns_tested": false,
+    "legacy_holdout_status": "CONSUMED_NOT_PRISTINE",
+    "production_changed": false,
+    "sample_schema_admitted": false,
+    "strict_pit_admitted": false,
+    "universe_changed": false
+  },
+  "counts": {
+    "data_members": 5,
+    "expiration_ambiguous_row_instances_all_members": 3304,
+    "expiration_unique_interpretation_row_instances_all_members": 112313,
+    "expiration_unparsed_or_missing_row_instances": 0,
+    "originally_failed_rows_still_ambiguous": 3304,
+    "originally_failed_rows_with_unique_expiration_interpretation": 91303,
+    "phase174_iso_only_invalid_contract_row_instances": 94607,
+    "populated_row_instances": 115617,
+    "quote_datetime_ambiguous_row_instances": 0,
+    "quote_datetime_unique_interpretation_row_instances": 115617,
+    "quote_datetime_unparsed_or_missing_row_instances": 0
+  },
+  "format_counts": {
+    "expiration_candidate_formats": {"dmy_slash": 3304, "iso_extended": 21010, "us_slash": 94607},
+    "quote_datetime_candidate_formats": {"iso_second": 21010, "us_slash_minute": 94607},
+    "schema_variants": {"17cols_calcs0_oi0": 1, "18cols_calcs0_oi1": 1, "25cols_calcs1_oi0": 1, "26cols_calcs1_oi1": 2}
+  },
+  "interpretation": {
+    "112313_counts_row_instances_across_five_members_not_unique_contracts": true,
+    "2023_sample_members_use_us_slash_minute_timestamps_while_2022_member_uses_iso_seconds": true,
+    "3304_row_instances_remain_ambiguous_and_must_be_quarantined": true,
+    "91303_of_those_row_instances_have_one_unique_non_iso_expiration_interpretation": true,
+    "all_115617_quote_datetime_values_have_one_unique_candidate_interpretation": true,
+    "phase174_failed_94607_rows_because_expiration_parser_only_accepted_iso_extended_dates": true,
+    "row_level_contract_keys_duplicates_and_numeric_gates_were_not_recomputed": true,
+    "this_is_a_metadata_level_reclassification_not_a_full_raw_row_reparse": true
+  },
+  "limitations": [
+    "No raw sample rows, symbols, strikes, roots, expirations, or contract keys were retained by Phase 174/175; unique contracts cannot be counted or deduplicated here.",
+    "The 3304 ambiguous expiration row instances have multiple distinct locale interpretations and are not assigned a date.",
+    "The sample contains only five members spanning two quote dates; it does not establish historical coverage, interval continuity, inactive/delisted-underlying coverage, or first receipt.",
+    "A full parser rerun with unique-only locale handling is still required before any sample-level row/schema gate can be marked passed.",
+    "First-receipt vintages, immutable corrections, licensing, and broad point-in-time universe coverage remain unverified."
+  ],
+  "members": [
+    {"expiration_ambiguous_rows":826,"expiration_max_unique":"2025-06-20","expiration_min_unique":"2023-09-22","expiration_unique_interpretation_rows":21784,"header_columns":17,"member_index":0,"phase174_invalid_contract_rows":22610,"populated_rows":22610,"quote_datetime_ambiguous_rows":0,"quote_datetime_formats":{"us_slash_minute":22610},"quote_datetime_max":"2023-09-21T16:15:00","quote_datetime_min":"2023-09-21T10:30:00","quote_datetime_unique_interpretation_rows":22610},
+    {"expiration_ambiguous_rows":826,"expiration_max_unique":"2024-02-16","expiration_min_unique":"2023-09-22","expiration_unique_interpretation_rows":21173,"header_columns":25,"member_index":1,"phase174_invalid_contract_rows":21999,"populated_rows":21999,"quote_datetime_ambiguous_rows":0,"quote_datetime_formats":{"us_slash_minute":21999},"quote_datetime_max":"2023-09-21T16:15:00","quote_datetime_min":"2023-09-21T10:30:00","quote_datetime_unique_interpretation_rows":21999},
+    {"expiration_ambiguous_rows":826,"expiration_max_unique":"2024-03-15","expiration_min_unique":"2023-09-22","expiration_unique_interpretation_rows":24173,"header_columns":26,"member_index":2,"phase174_invalid_contract_rows":24999,"populated_rows":24999,"quote_datetime_ambiguous_rows":0,"quote_datetime_formats":{"us_slash_minute":24999},"quote_datetime_max":"2023-09-21T16:15:00","quote_datetime_min":"2023-09-21T10:30:00","quote_datetime_unique_interpretation_rows":24999},
+    {"expiration_ambiguous_rows":826,"expiration_max_unique":"2024-03-15","expiration_min_unique":"2023-09-22","expiration_unique_interpretation_rows":24173,"header_columns":18,"member_index":3,"phase174_invalid_contract_rows":24999,"populated_rows":24999,"quote_datetime_ambiguous_rows":0,"quote_datetime_formats":{"us_slash_minute":24999},"quote_datetime_max":"2023-09-21T16:15:00","quote_datetime_min":"2023-09-21T10:30:00","quote_datetime_unique_interpretation_rows":24999},
+    {"expiration_ambiguous_rows":0,"expiration_max_unique":"2026-12-18","expiration_min_unique":"2022-02-02","expiration_unique_interpretation_rows":21010,"header_columns":26,"member_index":4,"phase174_invalid_contract_rows":0,"populated_rows":21010,"quote_datetime_ambiguous_rows":0,"quote_datetime_formats":{"iso_second":21010},"quote_datetime_max":"2022-02-02T09:39:00","quote_datetime_min":"2022-02-02T09:39:00","quote_datetime_unique_interpretation_rows":21010}
+  ],
+  "phase": 230,
+  "source": {
+    "archive_bytes": 2628937,
+    "archive_sha256": "7645a6cc94f1a984e98264a4b494f748e373c30ecde85de25ceadb83a5c56782",
+    "phase174_artifact_id": 13650205761,
+    "phase174_run_id": 42562292847,
+    "phase175_artifact_id": 13649604168,
+    "phase175_artifact_zip_sha256": "7a3f988b6edb6e41e987399f94b85122ae7b712b8922326203e03087e877ea7f",
+    "phase175_condensed_summary_sha256": "c69f4aa08b220d00a11903339d57c60a0deb6c84492286487d0fff74440f831d",
+    "phase175_run_id": 42562292743,
+    "product": "Cboe Option Quotes / Option Quote Intervals",
+    "sample_url": "https://datashop.cboe.com/download/sample/215"
+  },
+  "status": "DATE_LOCALE_RECLASSIFICATION_COMPLETE_FULL_ROW_GATE_NOT_RECOMPUTED"
+}
