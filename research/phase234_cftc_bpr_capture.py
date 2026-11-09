@@ -100,7 +100,7 @@ def build_capture_metadata(
     receipt_et = receipt_time.astimezone(ET)
     scheduled_window = (
         event_name == "schedule"
-        and receipt_et.weekday() == 4
+        and receipt_et.weekday() < 5
         and (receipt_et.hour, receipt_et.minute) >= (15, 30)
     )
     return {
