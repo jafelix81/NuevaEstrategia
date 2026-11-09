@@ -1,0 +1,48 @@
+{
+  "phase": 234,
+  "source": "CFTC Bank Participation Report (BPR), futures-in-contract",
+  "report_date": "2026-11-03",
+  "scheduled_release_date": "2026-11-06",
+  "first_receipt_timestamp": null,
+  "archive_retention_months": 25,
+  "archive_long_history_gate": false,
+  "prospective_capture_candidate": true,
+  "prospective_capture_started": false,
+  "historical_pit_admission": false,
+  "alpha_admission": false,
+  "stock_level_universe_coverage": false,
+  "market_regime_candidate_only": true,
+  "bpr_release_cadence": "monthly",
+  "bpr_schedule_change_confirmed": false,
+  "sample_contracts": {
+    "CME E-MINI S&P 500": {
+      "total_long": 55308,
+      "total_short": 345453,
+      "open_interest": 1986532,
+      "net_long_minus_short": -290145,
+      "net_to_open_interest": -0.1460560413826709
+    },
+    "CME NASDAQ MINI": {
+      "total_long": 26644,
+      "total_short": 24168,
+      "open_interest": 292587,
+      "net_long_minus_short": 2476,
+      "net_to_open_interest": 0.008462440231452525
+    },
+    "CME RUSSELL E-MINI": {
+      "total_long": 40943,
+      "total_short": 21075,
+      "open_interest": 449399,
+      "net_long_minus_short": 19868,
+      "net_to_open_interest": 0.04421015623087724
+    },
+    "CBT DJIA x $5": {
+      "total_long": 6719,
+      "total_short": 22200,
+      "open_interest": 87410,
+      "net_long_minus_short": -15481,
+      "net_to_open_interest": -0.17710788239331884
+    }
+  },
+  "decision": "CONDITIONAL_PROSPECTIVE_REGIME_RESEARCH_ONLY"
+}
