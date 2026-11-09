@@ -1,3 +1,4 @@
+import hashlib
 import json
 import tempfile
 import unittest
@@ -249,6 +250,79 @@ class Phase234CaptureTests(unittest.TestCase):
             self.assertFalse(dec["pit_eligible_from_pipeline_receipt"])
             self.assertTrue(dec["prospective_state_usable_after_receipt"])
 
+
+
+    def test_orphan_raw_snapshot_is_state_only_not_promoted(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            def fetcher(index):
+                def inner(url):
+                    if url.endswith("index.htm"):
+                        return index.encode(), {}
+                    return report_for_url(url), {}
+                return inner
+            baseline = datetime(2026, 11, 6, 20, 35, tzinfo=timezone.utc)
+            capture_latest(root=root, event_name="schedule", now=baseline,
+                fetcher=fetcher(INDEX_FIXTURE), env={})
+
+            orphan_bytes = report_for_url(DEC_URL)
+            orphan_hash = hashlib.sha256(orphan_bytes).hexdigest()
+            raw_path = root / "data/cftc_bpr/raw" / f"2026-12-01__{orphan_hash[:12]}.html"
+            raw_path.parent.mkdir(parents=True, exist_ok=True)
+            raw_path.write_bytes(orphan_bytes)  # Simulate a committed raw file after metadata-write failure.
+
+            scheduled = capture_latest(root=root, event_name="schedule", now=baseline,
+                fetcher=fetcher(INDEX_WITH_DECEMBER), env={})
+            dec = next(x for x in scheduled["captures"] if x.get("report_date") == "2026-12-01")
+            self.assertFalse(dec["pit_eligible_from_pipeline_receipt"])
+            self.assertTrue(dec["prospective_state_usable_after_receipt"])
+            self.assertTrue(dec["raw_snapshot_preexisting_without_metadata"])
+            self.assertEqual(
+                dec["status"],
+                "PREVIOUSLY_OBSERVED_VERSION_FIRST_SCHEDULED_RECEIPT_STATE_ONLY",
+            )
+            meta_path = root / dec["metadata_path"]
+            metadata = json.loads(meta_path.read_text())
+            self.assertTrue(metadata["raw_snapshot_preexisting_without_metadata"])
+            self.assertFalse(metadata["event_signal_eligible"])
+
+    def test_corrupt_orphan_raw_snapshot_fails_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            def fetcher(index):
+                def inner(url):
+                    if url.endswith("index.htm"):
+                        return index.encode(), {}
+                    return report_for_url(url), {}
+                return inner
+            baseline = datetime(2026, 11, 6, 20, 35, tzinfo=timezone.utc)
+            capture_latest(root=root, event_name="schedule", now=baseline,
+                fetcher=fetcher(INDEX_FIXTURE), env={})
+            expected = report_for_url(DEC_URL)
+            digest = hashlib.sha256(expected).hexdigest()
+            raw_path = root / "data/cftc_bpr/raw" / f"2026-12-01__{digest[:12]}.html"
+            raw_path.parent.mkdir(parents=True, exist_ok=True)
+            raw_path.write_bytes(b"corrupt bytes")
+            with self.assertRaisesRegex(ValueError, "raw snapshot hash mismatch"):
+                capture_latest(root=root, event_name="schedule", now=baseline,
+                    fetcher=fetcher(INDEX_WITH_DECEMBER), env={})
+
+    def test_missing_raw_snapshot_is_repaired_from_existing_receipt_metadata(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            def fetcher(url):
+                if url.endswith("index.htm"):
+                    return INDEX_FIXTURE.encode(), {}
+                return report_for_url(url), {}
+            now = datetime(2026, 11, 6, 20, 35, tzinfo=timezone.utc)
+            first = capture_latest(root=root, event_name="schedule", now=now, fetcher=fetcher, env={})
+            nov = next(x for x in first["captures"] if x.get("report_date") == "2026-11-03")
+            raw_path = root / nov["raw_snapshot_path"]
+            raw_path.unlink()
+            second = capture_latest(root=root, event_name="schedule", now=now, fetcher=fetcher, env={})
+            self.assertFalse(second["new_snapshot"])
+            self.assertTrue(raw_path.exists())
+            self.assertEqual(hashlib.sha256(raw_path.read_bytes()).hexdigest(), nov["report_sha256"])
 
 if __name__ == "__main__":
     unittest.main()
