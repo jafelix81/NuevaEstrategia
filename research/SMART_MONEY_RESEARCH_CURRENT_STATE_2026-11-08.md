@@ -85,3 +85,13 @@ No candidate becomes a model feature until historical coverage, ex-ante availabi
 - The committed Phase 225 result JSON omitted the regime split calculated by its audit logic. Phase 228 publishes a separate hash-pinned result; no historical artifact was overwritten.
 - Files: `PHASE228_SEC_13DG_REGULATORY_DEADLINE_REGIME_SPLIT_AUDIT_2026-11-08.md`, `phase228_13dg_regulatory_regime_split_audit.py`, `test_phase228_13dg_regulatory_regime_split_audit.py`, and `phase228_13dg_regulatory_regime_split_audit_result.json`. Four local unit tests passed; the hash-pinned source was independently re-parsed locally.
 - No alpha, forward returns, bootstrap/LOO, holdout, production, universe or F80 changes.
+
+
+## Repository / Actions status after Phase 228
+
+- Research branch head: `554dbce98d1c8a9f1b1ce5541491bb4da44729a7`.
+- PR #13 remains open, unmerged and GitHub reports mergeable; compare is 565 commits ahead / 1 behind main, 497 changed files. No merge was attempted.
+- Latest 100 repository Actions runs: 98 success, 1 failure, 1 cancelled; zero in-progress or queued. Latest run remains 42491346732 (Phase 185), completed successfully. Its audit job steps/log and artifact 13621239943 (945 bytes; digest d9575f5e9df29fce61eaef81955105b1d4f88827f65980f4630acaecd9e1efc9) were inspected.
+- Phase 185 artifact/log confirms zero strict-PIT-admitted Cboe Open-Close rows; all audited 1-minute archive history before the 2025-07-13 product floor is retrospective, and even post-floor data require actual first-receipt logs and immutable correction vintages.
+- The new Phase 228 head has no associated PR workflow runs because all research commits used `[skip ci]`; local tests are not represented as hosted CI.
+- Branch inventory: 130 (100 first page + 30 second page).
