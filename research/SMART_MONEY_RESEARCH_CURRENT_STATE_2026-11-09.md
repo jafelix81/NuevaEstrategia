@@ -66,5 +66,5 @@
 1. Keep Phase 231 parser and artifact metadata as the accepted sample diagnostic; do not generalize it to the full product.
 2. For Option Sentiment, obtain written clarification of net_option_delta units/sign/multiplier, footnote mappings, cancellation scope, and any directional cross-tabs; require a representative sample, historical backfill completeness, correction vintages, and delivery logs before any paid data.
 3. If a sample becomes available, validate the 80-field schema, null semantics, per-day symbol coverage, corporate-action handling, and cross-field invariants.
-4. Only then preregister one primary directional-flow hypothesis (\`net_option_delta\` scaled by underlying volume) with prior-return controls and secondary size/non-ITM tests.
+4. Do not normalize net_option_delta by underlying volume until its unit, sign, multiplier, and deliverable treatment are confirmed. If clarified, preregister one primary directional-flow hypothesis with prior-return controls; size and customer-directional hypotheses are unavailable in the documented schema.
 5. Compare incremental information to frozen LTM/F80 under identical exposure and costs; do not use the consumed holdout.
