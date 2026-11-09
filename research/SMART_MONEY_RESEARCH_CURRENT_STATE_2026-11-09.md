@@ -13,7 +13,7 @@
 - 112,313 unambiguous rows passed the full row-level contract/numeric/duplicate/OI checks.
 - 0 invalid quote timestamps, 0 numeric errors, 0 duplicate contract/interval keys, 0 inconsistent start-of-day OI contract-days, 0 bid-above-ask rows.
 - Independent Phase 175 all-row date diagnostics reconciled on all five members.
-- Latest current-head GitHub Actions run 42711341867 succeeded; 9/9 regression tests; artifact 13715947104 (2,422 bytes).
+- Latest current-head GitHub Actions run 42719093680 succeeded; 9/9 regression tests; 115,617 populated rows inspected, 112,313 unambiguous rows accepted and 3,304 ambiguous-expiration rows quarantined; artifact 13718924050 (2,422 bytes).
 - Sample remains too narrow (two quote dates and only one or two underlyings per file) for historical coverage. Source is not PIT- or alpha-admitted.
 
 ### Phase 232 — Cboe Option Sentiment feasibility
@@ -167,7 +167,7 @@
 - Phase 240 CFTC regression: [run 42669436293](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42669436293), job 129341718918, completed successfully; logs confirm BPR 16/16 and TFF 31/31 (47/47). No artifact was emitted.
 - Phase 231 Cboe reparse: [run 42669444831](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42669444831), job 129341962705, completed successfully with 9/9 tests; artifact [13698615572](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42669444831/artifacts/13698615572), ZIP digest `45e571790d9f6ae428ef44f36fc59f47f9f5fc4465000c463e6f1fc3b2503069`.
 - Phase 243 hosted regression is confirmed by run [42676258774](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42676258774): 53/53 tests passed. Phase 231 current-head reparse [42676263668](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42676263668) passed 9/9 tests and emitted metadata-only artifact [13701350271](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42676263668/artifacts/13701350271), 2,422 bytes, SHA-256 `b40b613aa0efb5b0fcf1f17451d19e457e7ad9426eb5a499193605c9913a82b9`.
-- Branch inventory: 131. PR #13 and PR #14 remain open and unmerged; no automatic merge was performed.
+- Branch inventory: 131. PR #13 remains open/mergeable (580 commits, 506 files); PR #14 remains open/mergeable and stacked on PR #13 (128 commits, 66 files). Neither was merged.
 
 
 ## Phase 244 — SEC FTD external release/receipt timeline audit
@@ -194,6 +194,7 @@
 - option_trade_at is only a price-relative-to-market proxy: ask-side classes may indicate buy-side pressure, bid-side classes sell-side pressure; midpoint/crossed/no-market are unknown. It does not identify participant capacity, beneficial owner, or open/close.
 - cancel_flag 0/1/2, sequence linkage, EST/DST timestamp semantics, NBBO freshness, exchange/OPRA breadth, inactive/delisted coverage, adjusted contracts, historical correction vintages and first-receipt timing remain unverified.
 - **Decision:** high-priority conditional sample-acquisition candidate because of the advertised long history and low-cost trial route; no PIT or alpha admission. Historical backfill cannot be treated as historically available data.
+- Latest hosted Phase 246 validation: 7/7 tests in run 42719093681; artifact 13718859080 (1,909 bytes). No trial/account/card authorization or API query was made.
 - [Phase 246 report](PHASE246_CBOE_ALL_ACCESS_OPTION_TRADE_FEASIBILITY_AND_TRIAL_GATE_2026-11-09.md) · [deterministic audit script](phase246_cboe_all_access_option_trade_feasibility.py)
 
 
@@ -202,7 +203,7 @@
 - Audited the existing separate Phase 27K–27O N-PORT work rather than restarting source feasibility.
 - Confirmed a blocking schema mismatch in the legacy Phase 27O workflow: its TSV reader accesses UNITS, while the SEC flattened FUND_REPORTED_HOLDING table defines UNIT (singular) plus BALANCE. The raw XML tag is <units>, which is not the flattened TSV column name.
 - Consequence: the legacy NS share-balance test never succeeds on the documented flat-file schema; its share accumulator remains zero, and the ranker requiring positive prior/current shares cannot form valid candidates. Phase 27O output is quarantined; this is a code defect, not evidence for or against N-PORT alpha. Its workflow output was not independently verified here.
-- Added a fail-closed parser contract and 11 offline regression tests; hosted GitHub Actions validation passed 11/11 in run 42711044193 (artifact 13715358092). The helper accepts only UNIT=NS, ASSET_CAT=EC, explicit PAYOFF_PROFILE=LONG and finite positive BALANCE. It rejects XML-only UNITS, conflicting aliases, non-share units, non-equity, short/unknown payoff and invalid balances.
+- Added a fail-closed parser contract and 11 offline regression tests; hosted GitHub Actions validation passed 11/11 in latest run 42719093659 (artifact 13719602027). The helper accepts only UNIT=NS, ASSET_CAT=EC, explicit PAYOFF_PROFILE=LONG and finite positive BALANCE. It rejects XML-only UNITS, conflicting aliases, non-share units, non-equity, short/unknown payoff and invalid balances.
 - Official SEC data-set coverage is October 2019–September 2026 (28 quarterly archives); archives are quarterly compiled, contain publicly disseminated filings and include amendments. They are not a live PIT feed and omit full acceptance metadata.
 - Current public regime remains quarterly filing with only each fund's third fiscal-quarter month public upon filing; the 2024 monthly/publication amendments were delayed to 2027/2028.
 - Next N-PORT design must use accession-level original/amendment vintages, actual EDGAR public dissemination, asynchronous per-series reporting cadence, effective-dated CUSIP/ISIN mapping, and separate quantity from market-value changes. Amendments are state corrections, not new trades.
@@ -211,10 +212,10 @@
 
 
 ## Phase 231 — latest Cboe full-row reparse confirmation
-- GitHub Actions run 42711044384 completed successfully; the full-row reparse and reconciliation finished.
+- Latest GitHub Actions run 42719093680 completed successfully; the full-row reparse and reconciliation finished.
 - 115,617 populated rows were inspected; 112,313 rows passed the unambiguous contract and 3,304 rows with ambiguous expiration dates were quarantined. No ambiguous quote timestamps were reported.
 - The clean unambiguous subset passed; the full sample gate remains false because the ambiguous rows are not silently accepted. No raw rows were persisted and no alpha test was run.
-- Artifact 13715513640; SHA-256 14f9c13151c155ed2ecce9ff8782efbbde05171ed521b0223de38907a1531708.
+- Latest artifact 13718924050 (2,422 bytes); ambiguous expiration rows remain quarantined and no raw rows were persisted.
 
 
 ### Phase 248 — Cboe Open-Close EOD directional feature contract
@@ -225,6 +226,6 @@
 - Use only final EOD files. Preliminary/final revisions, actual first receipt, daily archive completeness and inactive/delisted coverage remain unverified. Historical backfill is not PIT.
 - Primary homogeneous panel starts 2019-10-07 to avoid C1 volume/OI convention breaks; control the 2023-12-11 GTH start and exclude FLEX series type F (added 2024-10-16) from the primary cohort. Equity and ETF cohorts remain separate.
 - The EOD file lacks Greeks/IV, beneficial-owner identity and complex-order linkage. No delta-weighted or institutional interpretation is admitted.
-- 29 synthetic regression tests pass locally; hosted validation pending after the final schema-hardening commit. No raw historical sample was reprocessed in Phase 248, no returns were tested, and alpha/PIT gates remain closed.
+- 29 synthetic regression tests passed locally and in hosted run 42719093860; metadata-only artifact 13719158402 (1,460 bytes). The helper normalizes MM/DD/YYYY and ISO dates, rejects dates before 2019-10-07, excludes FLEX/unknown series types from the primary cohort, and rejects capacity volume exceeding total_exchange_vol. No raw historical sample was reprocessed in Phase 248, no returns were tested, and alpha/PIT gates remain closed.
 - **Decision:** retain as a high-priority conditional options-flow measurement candidate; do not authorize returns until final-file receipt, historical archive coverage, effective-dated security identity and broad PIT universe coverage pass.
 - [Phase 248 report](PHASE248_CBOE_OPENCLOSE_EOD_DIRECTIONAL_FEATURE_PREREGISTRATION_2026-11-09.md) · [helper](phase248_cboe_openclose_feature_contract.py) · [tests](test_phase248_cboe_openclose_feature_contract.py) · [result](phase248_cboe_openclose_feature_contract_result.json)

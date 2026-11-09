@@ -123,7 +123,7 @@ Do not use the consumed holdout. No minimum or maximum holding period is imposed
 
 ## 7. Validation and disposition
 
-- 29 deterministic synthetic tests pass locally.
+- 29 deterministic synthetic tests pass locally and in hosted GitHub Actions run 42719093860 (artifact 13719158402, 1,460 bytes).
 - The helper computes a measurement contract only; no raw Cboe sample was reprocessed in Phase 248.
 - Strict PIT, return testing and alpha admission remain false.
 - No purchase, card authorization, vendor contact or terms acceptance occurred.
