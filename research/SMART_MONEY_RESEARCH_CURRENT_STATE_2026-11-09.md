@@ -108,3 +108,13 @@
 - **Decision:** class-specific shares-outstanding retrieval is feasible in principle via raw inline XBRL; Company Facts-only multi-class path rejected. Form 144 denominator, PIT float/ADV, security identity and alpha remain NOT ADMITTED. No SEC API request, raw filing download, return test, holdout use, purchase or production change.
 - [Phase 237 report](PHASE237_FORM144_XBRL_CLASS_SHARES_OUTSTANDING_PIT_DENOMINATOR_FEASIBILITY_AUDIT_2026-11-09.md) · [result](phase237_form144_xbrl_class_shares_pit_audit_result.json)
 
+
+
+### Phase 238 — Form 144 / Form 4 reverse-linkage selection audit
+- Reversed the Phase 208–210 linkage perspective using the immutable Phase 69 Form 144 panel and Phase 39 2026 Q3 Form 4 bulk snapshot.
+- In the 289-issuer panel, 1,665 eligible single-owner Form 4 code-S disposition blocks were found; 570 (34.23%) linked one-to-one to eligible Form 144 notices under exact-first matching (521 exact date/share, 49 fallback 0–2 day). The 1,095 unmatched blocks are not classified as missing or noncompliant notices.
+- The raw Form 4 AFF10B5ONE plan-flag linkage gap (29.17% vs 47.99%) is not robust after issuer and issuer × reporting-owner-role conditional randomization: p=0.557 and p=0.960, respectively, with 20,000 permutations. Do not use the plan flag alone as a Form 144 linkage predictor.
+- Form 144 remains a threshold-censored Rule 144 notice source, not a census of insider sales. Form 4 code S includes open-market or private sales. This is one quarter, current-universe selected coverage, and not strict PIT.
+- Added immutable-input auditor, five offline regression tests, and JSON result. Local tests: 5/5 passed; 20,000-permutation CLI reproduction completed. No hosted CI run, no returns, no alpha, no holdout, no production/universe change.
+- **Decision:** no Form 144 feature admission and no alpha test. Continue only after full-panel EDGAR acceptance vintages, effective-dated issuer/class identity, and independent PIT shares/float/ADV are admitted. F80 remains frozen.
+- [Phase 238 report](PHASE238_FORM144_FORM4_REVERSE_LINKAGE_SELECTION_AUDIT_2026-11-09.md) · [auditor](phase238_form144_form4_selection_coverage_audit.py) · [tests](test_phase238_form144_form4_selection_coverage_audit.py) · [result](phase238_form144_form4_selection_coverage_audit_result.json)

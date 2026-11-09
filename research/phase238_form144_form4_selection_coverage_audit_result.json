@@ -1,0 +1,141 @@
+{
+  "phase": 238,
+  "status": "FORM144_FORM4_CAPTURE_IS_SELECTIVE;_PLAN_FLAG_GAP_NOT_ROBUST_WITHIN_ISSUER_ROLE",
+  "inputs": {
+    "form144": {
+      "run_id": 41959603351,
+      "artifact_id": 13385365595,
+      "sha256": "7a54ee09e8d4520e1ec14cf22f2c0d1c62d077798b14d3db596826e3360a3659"
+    },
+    "form4": {
+      "run_id": 40606706518,
+      "artifact_id": 12781850078,
+      "sha256": "a4e6a681cfcfa43a3d9e4ca9cfec1fd26a59d0a01eac7e9f7b5a0122092c90f3",
+      "snapshot_end": "2026-09-30"
+    }
+  },
+  "sample": {
+    "form144_panel_rows": 21634,
+    "form144_panel_issuer_ciks": 289,
+    "form144_q3_original_notices": 1487,
+    "form144_eligible_notices": 1451,
+    "form144_eligible_tranches": 1460,
+    "form144_excluded_notices": 36,
+    "form4_submissions": 38152,
+    "form4_nonderivative_rows": 59885,
+    "form4_duplicate_transaction_keys": 0,
+    "form4_eligible_sale_blocks": 1665,
+    "form4_panel_issuers": 220,
+    "unknown_plan_flags": 0
+  },
+  "linkage": {
+    "exact_edges": 521,
+    "exact_unique": 521,
+    "ambiguous_exact_tranches": 0,
+    "ambiguous_exact_blocks": 0,
+    "fallback_edges": 80,
+    "fallback_unique": 49,
+    "fallback_gap_counts": {
+      "0": 31,
+      "1": 16,
+      "2": 2
+    },
+    "total_links": 570,
+    "matched_notices": 570,
+    "matched_form4_blocks": 570,
+    "unmatched_form4_blocks": 1095,
+    "matched_issuers": 137,
+    "form4_block_linkage_rate": 0.34234234234234234,
+    "class_family_agree": 481,
+    "class_family_total_exact": 521,
+    "class_family_agreement_rate": 0.9232245681381958
+  },
+  "plan_flag": {
+    "true": {
+      "n": 1217,
+      "matched": 355,
+      "rate": 0.29170090386195563,
+      "wilson95": [
+        0.2668500769155042,
+        0.3178626327431443
+      ]
+    },
+    "false": {
+      "n": 448,
+      "matched": 215,
+      "rate": 0.4799107142857143,
+      "wilson95": [
+        0.434015024893989,
+        0.5261480056901803
+      ]
+    },
+    "unadjusted_difference": -0.18820981042375867,
+    "within_issuer": {
+      "mixed_strata": 63,
+      "blocks": 851,
+      "plan_n": 637,
+      "nonplan_n": 214,
+      "observed_difference": -0.15828430581434588,
+      "permutations": 20000,
+      "seed": 238,
+      "p_two_sided_plus_one": 0.5568721563921804
+    },
+    "within_issuer_role": {
+      "mixed_strata": 55,
+      "blocks": 313,
+      "plan_n": 206,
+      "nonplan_n": 107,
+      "observed_difference": -0.06959441067053806,
+      "permutations": 20000,
+      "seed": 239,
+      "p_two_sided_plus_one": 0.960001999900005
+    }
+  },
+  "share_size": {
+    "matched_median_shares": 7717.5,
+    "unmatched_median_shares": 10000,
+    "bins": {
+      "<=1000": {
+        "blocks": 219,
+        "matched": 91,
+        "rate": 0.4155251141552511
+      },
+      "1001_5000": {
+        "blocks": 412,
+        "matched": 155,
+        "rate": 0.3762135922330097
+      },
+      "5001_10000": {
+        "blocks": 304,
+        "matched": 82,
+        "rate": 0.26973684210526316
+      },
+      "10001_50000": {
+        "blocks": 532,
+        "matched": 174,
+        "rate": 0.32706766917293234
+      },
+      "50001_100000": {
+        "blocks": 84,
+        "matched": 31,
+        "rate": 0.36904761904761907
+      },
+      ">100000": {
+        "blocks": 114,
+        "matched": 37,
+        "rate": 0.32456140350877194
+      }
+    }
+  },
+  "decision": {
+    "form144_is_census": "REJECTED",
+    "feature_admitted": false,
+    "alpha_test_authorized": false,
+    "strict_pit_admitted": false,
+    "holdout_used": false,
+    "legacy_holdout": "CONSUMED_NOT_PRISTINE",
+    "f80_frozen": true,
+    "production_changed": false,
+    "universe_changed": false
+  }
+}
