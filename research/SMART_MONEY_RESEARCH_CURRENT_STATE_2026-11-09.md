@@ -149,3 +149,19 @@
 - This is a capture-integrity improvement, **not** a predictive result. No CFTC raw capture or SEC request was executed; no historical PIT admission, return test, bootstrap/LOO, OOS, holdout use, data purchase, vendor contact, production change, or universe change. The shared capture workflow remains inactive on `main` until the stacked PR chain is merged.
 - **Decision:** retain BPR/TFF as conditional prospective broad-market regime candidates only. First-publication timestamps remain unverified; the pipeline receipt is the conservative known-by time. No stock-level Smart Money signal is admitted. F80 remains frozen.
 - [Phase 242 report](PHASE242_CFTC_BPR_TFF_CAPTURE_VINTAGE_COMPLETENESS_AND_EVENT_PROMOTION_HARDENING_2026-11-09.md) · [result](phase242_cftc_capture_vintage_hardening_result.json)
+
+
+### Phase 243 — CFTC raw/metadata partial-commit PIT guard
+- Found a failure path created by the existing capture workflow's `continue-on-error: true` source steps and later shared commit step: a source can write its raw file, fail before metadata is written, and still have that raw-only file committed. On the next scheduled run, BPR/TFF previously could treat the already-observed report as a new first event because no receipt metadata existed.
+- BPR now verifies any pre-existing raw HTML file against the full SHA-256; a raw-only orphan is treated as previously observed and state-only, never promoted to a new event. If receipt metadata exists but its matching raw file is missing, the fetched bytes repair the raw archive while preserving the original receipt.
+- TFF now scans metadata across protocol versions for prior report-date observations, verifies pre-existing gzip bytes against the full SHA-256, quarantines raw-only orphans as state-only, and repairs missing raw files when matching receipt metadata exists. Corrupt or mismatched raw files fail closed.
+- Added three BPR and three TFF regression tests: orphan raw state-only, corrupt orphan hash rejection, and missing-raw repair. Expected suite counts are 19/19 BPR and 34/34 TFF (53 total); these are test inventory counts, **not a hosted pass claim**.
+- Existing Phase 240 workflow was reused; no duplicate workflow was created. The code/test commits are BPR code `9aa8c01f7012e9ad58bd7b9379e898850de2d4e1`, BPR tests `1e2b6ad2e9fe2f43d8dc9b5cbd370c2e17dc0d0e`, TFF code `a019b923d62c46cf54d4d4d849ce9defdc25e01d`, and TFF tests `d2d86a0e187cd8979979c19450d53fc10fd4a250`.
+- Hosted validation remains **UNVERIFIED**: the available Actions lookup returns only PR-triggered runs, while the reused regression workflow is push-triggered; the combined commit-status endpoint returned no status contexts for the push commit. Do not admit the pipeline until hosted tests are confirmed.
+- No live CFTC capture, historical PIT admission, returns, alpha, bootstrap/LOO, chronological OOS, or holdout use. No vendor contact/purchase, production/universe change, or baseline change. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+### Latest verified Actions evidence — 2026-11-09
+- Phase 240 CFTC regression: [run 42669436293](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42669436293), job 129341718918, completed successfully; logs confirm BPR 16/16 and TFF 31/31 (47/47). No artifact was emitted.
+- Phase 231 Cboe reparse: [run 42669444831](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42669444831), job 129341962705, completed successfully with 9/9 tests; artifact [13698615572](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42669444831/artifacts/13698615572), ZIP digest `45e571790d9f6ae428ef44f36fc59f47f9f5fc4465000c463e6f1fc3b2503069`.
+- Phase 243 push-triggered hosted validation could not be independently enumerated with the available run lookup; no pass is claimed.
+- Branch inventory: 131. PR #13 and PR #14 remain open and unmerged; no automatic merge was performed.
