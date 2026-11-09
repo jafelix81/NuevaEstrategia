@@ -64,7 +64,9 @@
       "us-gaap:StatementClassOfStockAxis",
       "us-gaap:ClassesOfShareCapitalAxis"
     ],
-    "other_standard_taxonomy_axes": "NOT_YET_SUPPORTED; QUARANTINE"
+    "other_standard_taxonomy_axes": "NOT_YET_SUPPORTED; QUARANTINE",
+    "same_day_acceptance_tie_with_conflicting_values": "UNKNOWN",
+    "multi_class_facts_require_same_instant_date": true
   },
   "denominator_semantics": {
     "shares_outstanding": "class-specific total shares outstanding",
@@ -86,8 +88,8 @@
     "alpha_test_authorized": false
   },
   "validation": {
-    "local_standard_library_tests": 21,
-    "passed": 21,
+    "local_standard_library_tests": 23,
+    "passed": 23,
     "failed": 0,
     "hosted_ci_run": false,
     "raw_sec_filing_bytes_downloaded": false,
