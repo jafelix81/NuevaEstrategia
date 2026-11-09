@@ -59,7 +59,12 @@
     "same_day_conflicting_vintages_without_acceptance_order": "UNKNOWN",
     "later_amendment_rewrites_prior_state": false,
     "newer_invalid_fact_blocks_stale_fallback": true,
-    "companyfacts_dimensioned_fact_use": false
+    "companyfacts_dimensioned_fact_use": false,
+    "supported_class_axes": [
+      "us-gaap:StatementClassOfStockAxis",
+      "us-gaap:ClassesOfShareCapitalAxis"
+    ],
+    "other_standard_taxonomy_axes": "NOT_YET_SUPPORTED; QUARANTINE"
   },
   "denominator_semantics": {
     "shares_outstanding": "class-specific total shares outstanding",
