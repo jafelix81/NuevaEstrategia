@@ -251,7 +251,7 @@ def _write_scheduled_index_snapshot(*, root: Path, index_bytes: bytes,
     }
     path = folder / f"{stamp}__{links_hash[:12]}.json"
     if not path.exists():
-        path.write_text(json.dumps(record, indent=2, sort_keys=True) + "\\n", encoding="utf-8")
+        path.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return True
 
 
@@ -332,7 +332,7 @@ def _capture_one(*, root: Path, report_url: str, report_bytes: bytes,
     stamp = receipt_time.astimezone(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     meta_path = meta_dir / f"{report_date}__{digest[:12]}__{event_name}__{stamp}.json"
     if not meta_path.exists():
-        meta_path.write_text(json.dumps(metadata, indent=2, sort_keys=True) + "\\n", encoding="utf-8")
+        meta_path.write_text(json.dumps(metadata, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return {
         "status": metadata["receipt_kind"],
         "report_date": report_date,
