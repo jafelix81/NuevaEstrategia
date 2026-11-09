@@ -9,7 +9,7 @@
 
 Cboe C1 Open-Close EOD remains the strongest currently identified options-flow candidate in this project, but the raw fields support only **capacity-classified, volume-only directional proxies**. They do not provide option Greeks, participant identity, beneficial-owner identity or complex-order linkage.
 
-Phase 248 converts the public 86-field schema into a fail-closed feature contract and pre-registers a narrow post-2019 study. Twenty-four synthetic regression tests cover call/put signs, opening/closing separation, capacity buckets, aggregation, missingness, duplicate series and denominator handling. This does not apply the feature to the historical sample or establish alpha.
+Phase 248 converts the public 86-field schema into a fail-closed feature contract and pre-registers a narrow post-2019 study. Twenty-nine synthetic regression tests cover call/put signs, opening/closing separation, capacity buckets, aggregation, missingness, duplicate series and denominator handling. This does not apply the feature to the historical sample or establish alpha.
 
 ## 1. Verified public sample evidence
 
@@ -61,7 +61,7 @@ For each capacity/action/size bucket, calculate:
 3. signed net / total_industry_vol when that denominator is present and positive;
 4. signed net / gross capacity volume when gross volume is positive.
 
-At the underlying/date level, sum signed numerators and denominators across unique option-series keys, then calculate ratios. Never average series-level ratios. Reject mixed dates, mixed underlyings, mixed security types, duplicate option-series keys, missing volume fields, negative values and non-integer contract volumes. A zero denominator yields an undefined ratio, not zero. Missing values remain UNKNOWN.
+At the underlying/date level, sum signed numerators and denominators across unique option-series keys, then calculate ratios. Never average series-level ratios. Normalize the source MM/DD/YYYY quote_date and reject invalid/pre-2019-10-07 dates, mixed dates, mixed underlyings, mixed security types, duplicate option-series keys, FLEX/unknown series types, missing volume fields, negative values, non-integer contract volumes and capacity volume exceeding the reported exchange total. A zero denominator yields an undefined ratio, not zero. Missing values remain UNKNOWN.
 
 ### Primary candidates
 
@@ -123,7 +123,7 @@ Do not use the consumed holdout. No minimum or maximum holding period is imposed
 
 ## 7. Validation and disposition
 
-- 24 deterministic synthetic tests pass locally.
+- 29 deterministic synthetic tests pass locally.
 - The helper computes a measurement contract only; no raw Cboe sample was reprocessed in Phase 248.
 - Strict PIT, return testing and alpha admission remain false.
 - No purchase, card authorization, vendor contact or terms acceptance occurred.

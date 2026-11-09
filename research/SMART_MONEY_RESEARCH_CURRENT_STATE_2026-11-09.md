@@ -225,6 +225,6 @@
 - Use only final EOD files. Preliminary/final revisions, actual first receipt, daily archive completeness and inactive/delisted coverage remain unverified. Historical backfill is not PIT.
 - Primary homogeneous panel starts 2019-10-07 to avoid C1 volume/OI convention breaks; control the 2023-12-11 GTH start and exclude FLEX series type F (added 2024-10-16) from the primary cohort. Equity and ETF cohorts remain separate.
 - The EOD file lacks Greeks/IV, beneficial-owner identity and complex-order linkage. No delta-weighted or institutional interpretation is admitted.
-- 24 synthetic regression tests pass locally; hosted validation pending at commit. No raw historical sample was reprocessed in Phase 248, no returns were tested, and alpha/PIT gates remain closed.
+- 29 synthetic regression tests pass locally; hosted validation pending after the final schema-hardening commit. No raw historical sample was reprocessed in Phase 248, no returns were tested, and alpha/PIT gates remain closed.
 - **Decision:** retain as a high-priority conditional options-flow measurement candidate; do not authorize returns until final-file receipt, historical archive coverage, effective-dated security identity and broad PIT universe coverage pass.
 - [Phase 248 report](PHASE248_CBOE_OPENCLOSE_EOD_DIRECTIONAL_FEATURE_PREREGISTRATION_2026-11-09.md) · [helper](phase248_cboe_openclose_feature_contract.py) · [tests](test_phase248_cboe_openclose_feature_contract.py) · [result](phase248_cboe_openclose_feature_contract_result.json)

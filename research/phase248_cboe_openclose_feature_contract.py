@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import json
 from decimal import Decimal, InvalidOperation
+from datetime import datetime
 from pathlib import Path
 from typing import Iterable
 
@@ -68,8 +69,8 @@ def compute_row_feature(row: dict, capacity: str, action: str = "open", size_buc
     signed_net = buy - sell if call_put == "C" else sell - buy
     gross_capacity_volume = buy + sell
     total_c1_volume = _required_nonnegative_integer(row, "total_exchange_vol")
-    if total_c1_volume == 0 and gross_capacity_volume > 0:
-        raise ValueError("CAPACITY_VOLUME_WITH_ZERO_TOTAL_EXCHANGE_VOLUME")
+    if gross_capacity_volume > total_c1_volume:
+        raise ValueError("CAPACITY_VOLUME_EXCEEDS_TOTAL_EXCHANGE_VOLUME")
     total_industry_volume = _optional_nonnegative_integer(row, "total_industry_vol")
     imbalance = Decimal(signed_net) / Decimal(gross_capacity_volume) if gross_capacity_volume > 0 else None
     net_share_of_c1 = Decimal(signed_net) / Decimal(total_c1_volume) if total_c1_volume > 0 else None
@@ -92,22 +93,39 @@ def compute_row_feature(row: dict, capacity: str, action: str = "open", size_buc
     }
 
 
+def _normalize_quote_date(value: object) -> str:
+    raw = str(value or "").strip()
+    for fmt in ("%Y-%m-%d", "%m/%d/%Y"):
+        try:
+            return datetime.strptime(raw, fmt).date().isoformat()
+        except ValueError:
+            pass
+    raise ValueError("INVALID_QUOTE_DATE")
+
+
 def aggregate_underlying_rows(rows: Iterable[dict], capacity: str, action: str = "open", size_bucket: str | None = None) -> dict:
     """Aggregate unique option-series rows for one underlying/date; fail closed on any row."""
     rows = list(rows)
     if not rows:
         raise ValueError("EMPTY_UNDERLYING_GROUP")
-    dates = {str(r.get("quote_date") or "").strip() for r in rows}
+    dates = {_normalize_quote_date(r.get("quote_date")) for r in rows}
     symbols = {str(r.get("underlying_symbol") or "").strip().upper() for r in rows}
     security_types = {str(r.get("security_type") or "").strip() for r in rows}
-    if len(dates) != 1 or "" in dates:
+    if len(dates) != 1:
         raise ValueError("MIXED_OR_MISSING_QUOTE_DATE")
+    if next(iter(dates)) < "2019-10-07":
+        raise ValueError("PRE_PRIMARY_HISTORY_START")
     if len(symbols) != 1 or "" in symbols:
         raise ValueError("MIXED_OR_MISSING_UNDERLYING")
     if len(security_types) != 1 or "" in security_types:
         raise ValueError("MIXED_OR_MISSING_SECURITY_TYPE")
     if next(iter(security_types)) not in {"1", "2"}:
         raise ValueError("UNSUPPORTED_SECURITY_TYPE_FOR_EQUITY_ETF_RESEARCH")
+    series_types = {str(r.get("series_type") or "").strip().upper() for r in rows}
+    if "F" in series_types:
+        raise ValueError("FLEX_SERIES_EXCLUDED_FROM_PRIMARY")
+    if not series_types.issubset({"S", "N"}):
+        raise ValueError("UNSUPPORTED_SERIES_TYPE")
     series_keys = []
     for row in rows:
         required = ("option_symbol", "expiration_date", "strike_price", "call_put_flag", "series_type")

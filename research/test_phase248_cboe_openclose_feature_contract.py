@@ -94,9 +94,9 @@ class Phase248OpenCloseFeatureContractTests(unittest.TestCase):
         self.assertIsNone(result["net_share_of_c1_volume"])
         self.assertEqual(result["signed_directional_net_contracts"], 0)
 
-    def test_zero_total_exchange_volume_with_capacity_activity_is_rejected(self):
-        row = make_row("C", total=0); row["cust_lt_100_open_buy_vol"] = "1"
-        with self.assertRaisesRegex(ValueError, "CAPACITY_VOLUME_WITH_ZERO_TOTAL_EXCHANGE_VOLUME"):
+    def test_capacity_volume_cannot_exceed_total_exchange_volume(self):
+        row = make_row("C", total=5); row["cust_lt_100_open_buy_vol"] = "6"
+        with self.assertRaisesRegex(ValueError, "CAPACITY_VOLUME_EXCEEDS_TOTAL_EXCHANGE_VOLUME"):
             compute_row_feature(row, "customer")
 
     def test_missing_industry_volume_does_not_become_zero(self):
@@ -127,6 +127,30 @@ class Phase248OpenCloseFeatureContractTests(unittest.TestCase):
         a = make_row("C"); b = make_row("C"); b["quote_date"] = "2025-03-31"; b["option_symbol"] = "ABCOPT2"
         with self.assertRaisesRegex(ValueError, "MIXED_OR_MISSING_QUOTE_DATE"):
             aggregate_underlying_rows([a, b], "customer")
+
+    def test_mm_dd_yyyy_quote_date_is_normalized(self):
+        row = make_row("C"); row["quote_date"] = "03/28/2025"
+        self.assertEqual(aggregate_underlying_rows([row], "customer")["quote_date"], "2025-03-28")
+
+    def test_pre_primary_history_date_is_rejected(self):
+        row = make_row("C"); row["quote_date"] = "10/04/2019"
+        with self.assertRaisesRegex(ValueError, "PRE_PRIMARY_HISTORY_START"):
+            aggregate_underlying_rows([row], "customer")
+
+    def test_invalid_quote_date_is_rejected(self):
+        row = make_row("C"); row["quote_date"] = "2025-02-30"
+        with self.assertRaisesRegex(ValueError, "INVALID_QUOTE_DATE"):
+            aggregate_underlying_rows([row], "customer")
+
+    def test_flex_series_are_excluded_from_primary_cohort(self):
+        row = make_row("C"); row["series_type"] = "F"
+        with self.assertRaisesRegex(ValueError, "FLEX_SERIES_EXCLUDED_FROM_PRIMARY"):
+            aggregate_underlying_rows([row], "customer")
+
+    def test_unknown_series_type_is_rejected(self):
+        row = make_row("C"); row["series_type"] = "X"
+        with self.assertRaisesRegex(ValueError, "UNSUPPORTED_SERIES_TYPE"):
+            aggregate_underlying_rows([row], "customer")
 
     def test_mixed_security_types_cannot_be_aggregated(self):
         a = make_row("C"); b = make_row("C"); b["security_type"] = "2"; b["option_symbol"] = "ABCOPT2"
