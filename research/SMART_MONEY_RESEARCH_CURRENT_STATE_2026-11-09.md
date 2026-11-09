@@ -47,7 +47,8 @@
 
 | Source | Current decision | Main blocker |
 |---|---|---|
-| FINRA 20C / short flow | Not promoted | Historical coverage and incremental value not established |\n| CFTC BPR | Conditional prospective market-regime candidate only | 25-month rolling archive, monthly frequency, no historical first-receipt vintages, no stock-level coverage |
+| FINRA 20C / short flow | Not promoted | Historical coverage and incremental value not established |
+| CFTC BPR | Conditional prospective market-regime candidate only | 25-month rolling archive, monthly frequency, no historical first-receipt vintages, no stock-level coverage |
 | Form 4 | Standalone implementation discarded | Must distinguish transaction semantics and filing availability |
 | Form 144 | Conditional event candidate | Independent shares/float/ADV denominators and identity mapping |
 | SEC 13D/G | Separate 13D and 13G research tracks | Reporting-person economic identity and amendment chains |
