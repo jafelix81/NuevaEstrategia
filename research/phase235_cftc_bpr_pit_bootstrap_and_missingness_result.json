@@ -89,10 +89,13 @@
   "local_validation": {
     "phase234_regression_tests": 13,
     "phase235_new_tests": 10,
-    "total_tests_passed": 23,
+    "total_tests_passed": 36,
     "failures": 0,
     "errors": 0,
-    "hosted_ci_run": false
+    "hosted_ci_run": false,
+    "phase234_capture_regression_tests": 13,
+    "phase234_semantics_parser_regression_tests": 13,
+    "test_command": "PYTHONPATH=. python -m unittest research.test_phase234_cftc_bpr_capture research.test_phase234_cftc_bpr_equity_index_feasibility_audit research.test_phase235_cftc_bpr_pit_bootstrap_and_missingness -v"
   },
   "data_capture_performed": false,
   "new_bpr_snapshot_created": false,
