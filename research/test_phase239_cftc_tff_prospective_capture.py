@@ -318,5 +318,107 @@ class Phase239Tests(unittest.TestCase):
             self.assertEqual(len(list((root / "data/cftc_tff/index_snapshots").glob("*.html.gz"))), 1)
 
 
+
+    def test_orphan_raw_snapshot_is_state_only_not_promoted(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            html = b'<a href="/dea/newcot/FinFutWk.txt">F</a><a href="/dea/newcot/FinComWk.txt">C</a>'
+            state = {"report_date": "2026-11-03"}
+
+            def fetcher(url):
+                if url == INDEX_URL:
+                    return html, {}
+                kind = "FutOnly" if url.endswith("FinFutWk.txt") else "Combined"
+                return make_file(kind=kind, rows=[
+                    make_row(report_date=state["report_date"], kind=kind)
+                ]), {}
+
+            baseline_time = datetime(2026, 11, 6, 20, 45, tzinfo=timezone.utc)
+            capture_current_reports(root=root, event_name="schedule", now=baseline_time,
+                                    fetcher=fetcher)
+            state["report_date"] = "2026-11-10"
+            for stream, kind in (("futures_only", "FutOnly"),
+                                 ("futures_options_combined", "Combined")):
+                raw = make_file(kind=kind, rows=[
+                    make_row(report_date=state["report_date"], kind=kind)
+                ])
+                digest = hashlib.sha256(raw).hexdigest()
+                raw_path = root / "data/cftc_tff/raw" / stream / f"2026-11-10__{digest[:16]}.txt.gz"
+                raw_path.parent.mkdir(parents=True, exist_ok=True)
+                raw_path.write_bytes(gzip.compress(raw, mtime=0))  # Simulate a raw commit after metadata failure.
+
+            scheduled = capture_current_reports(
+                root=root, event_name="schedule",
+                now=datetime(2026, 11, 13, 20, 45, tzinfo=timezone.utc),
+                fetcher=fetcher,
+            )
+            self.assertEqual(scheduled["pit_event_count"], 0)
+            self.assertEqual(scheduled["new_snapshot_count"], 2)
+            self.assertTrue(all(
+                x["event_type"] == "PREVIOUSLY_OBSERVED_REPORT_DATE_STATE_ONLY"
+                for x in scheduled["captures"]
+            ))
+            metadata_files = list((root / "data/cftc_tff/metadata").glob("*2026-11-10*.json"))
+            self.assertEqual(len(metadata_files), 2)
+            for path in metadata_files:
+                metadata = json.loads(path.read_text())
+                self.assertTrue(metadata["raw_snapshot_preexisting_without_metadata"])
+                self.assertFalse(metadata["pit_eligible_from_pipeline_receipt"])
+
+    def test_corrupt_orphan_raw_snapshot_fails_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            html = b'<a href="/dea/newcot/FinFutWk.txt">F</a><a href="/dea/newcot/FinComWk.txt">C</a>'
+            state = {"report_date": "2026-11-03"}
+
+            def fetcher(url):
+                if url == INDEX_URL:
+                    return html, {}
+                kind = "FutOnly" if url.endswith("FinFutWk.txt") else "Combined"
+                return make_file(kind=kind, rows=[
+                    make_row(report_date=state["report_date"], kind=kind)
+                ]), {}
+
+            baseline_time = datetime(2026, 11, 6, 20, 45, tzinfo=timezone.utc)
+            capture_current_reports(root=root, event_name="schedule", now=baseline_time,
+                                    fetcher=fetcher)
+            state["report_date"] = "2026-11-10"
+            raw = make_file(kind="FutOnly", rows=[
+                make_row(report_date=state["report_date"], kind="FutOnly")
+            ])
+            digest = hashlib.sha256(raw).hexdigest()
+            raw_path = root / "data/cftc_tff/raw/futures_only" / f"2026-11-10__{digest[:16]}.txt.gz"
+            raw_path.parent.mkdir(parents=True, exist_ok=True)
+            raw_path.write_bytes(gzip.compress(b"corrupt bytes", mtime=0))
+            with self.assertRaisesRegex(ValueError, "raw snapshot hash mismatch"):
+                capture_current_reports(
+                    root=root, event_name="schedule",
+                    now=datetime(2026, 11, 13, 20, 45, tzinfo=timezone.utc),
+                    fetcher=fetcher,
+                )
+
+    def test_missing_raw_snapshot_is_repaired_from_existing_receipt_metadata(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            html = b'<a href="/dea/newcot/FinFutWk.txt">F</a><a href="/dea/newcot/FinComWk.txt">C</a>'
+            mapping = {
+                INDEX_URL: (html, {}),
+                "https://www.cftc.gov/dea/newcot/FinFutWk.txt": (make_file(), {}),
+                "https://www.cftc.gov/dea/newcot/FinComWk.txt": (make_file(kind="Combined"), {}),
+            }
+            now = datetime(2026, 11, 6, 20, 45, tzinfo=timezone.utc)
+            capture_current_reports(root=root, event_name="schedule", now=now,
+                                    fetcher=lambda url: mapping[url])
+            metadata = _latest_scheduled(root, "futures_only")
+            raw_path = root / metadata["raw_snapshot_path"]
+            raw_path.unlink()
+            repaired = capture_current_reports(root=root, event_name="schedule", now=now,
+                                               fetcher=lambda url: mapping[url])
+            self.assertEqual(repaired["new_snapshot_count"], 0)
+            self.assertTrue(raw_path.exists())
+            self.assertEqual(hashlib.sha256(gzip.decompress(raw_path.read_bytes())).hexdigest(),
+                             metadata["raw_sha256"])
+
+
 if __name__ == "__main__":
     unittest.main()
