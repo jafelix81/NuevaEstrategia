@@ -6,7 +6,7 @@ construct a security master, estimate float/ADV, or authorize alpha testing.
 from __future__ import annotations
 
 from collections import defaultdict
-from datetime import date
+from datetime import date, datetime, timezone
 from typing import Any, Iterable
 
 SHARES_CONCEPT = "dei:EntityCommonStockSharesOutstanding"
@@ -24,6 +24,18 @@ def _d(value: str | None) -> date | None:
         return date.fromisoformat(value[:10])
     except (TypeError, ValueError):
         return None
+
+
+def _aware_dt(value: str | None) -> datetime | None:
+    if not value:
+        return None
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except (TypeError, ValueError):
+        return None
+    if parsed.tzinfo is None:
+        return None
+    return parsed.astimezone(timezone.utc)
 
 
 def companyfacts_can_supply_fact(fact: dict[str, Any]) -> bool:
@@ -68,6 +80,9 @@ def _resolve_accession_group(
     target_member: str | None,
     known_common_class_count: int | None,
 ) -> dict[str, Any]:
+    end_dates = {_d(r.get("end")) for r in rows}
+    if len(end_dates) != 1:
+        return {"status": "MIXED_CLASS_FACT_DATES", "shares": None}
     dimensions = [r.get("dimensions") or [] for r in rows]
     dimensioned = [bool(x) for x in dimensions]
     if any(dimensioned) and not all(dimensioned):
@@ -171,7 +186,8 @@ def resolve_asof_shares(
                 "rejected": dict(rejected)}
     latest = [r for r in valid if r["filed"] == latest_filed]
     if len(latest) > 1:
-        if any(not r.get("acceptance_datetime") for r in latest):
+        parsed_times = [_aware_dt(r.get("acceptance_datetime")) for r in latest]
+        if any(t is None for t in parsed_times):
             values = {r["shares"] for r in latest}
             if len(values) == 1:
                 return {"status": "SAME_DAY_SAME_VALUE_MULTIPLE_ACCESSIONS",
@@ -181,8 +197,21 @@ def resolve_asof_shares(
             return {"status": "AMBIGUOUS_SAME_DAY_VINTAGE", "shares": None,
                     "accessions": sorted(r["accession"] for r in latest),
                     "rejected": dict(rejected)}
-        latest.sort(key=lambda r: (r["acceptance_datetime"], r["accession"]))
-    chosen = latest[-1]
+        latest_time = max(parsed_times)
+        winners = [r for r, t in zip(latest, parsed_times) if t == latest_time]
+        if len(winners) > 1:
+            values = {r["shares"] for r in winners}
+            if len(values) == 1:
+                return {"status": "SAME_DAY_SAME_VALUE_MULTIPLE_ACCESSIONS",
+                        "shares": values.pop(), "filed": latest_filed,
+                        "accessions": sorted(r["accession"] for r in winners),
+                        "rejected": dict(rejected)}
+            return {"status": "AMBIGUOUS_SAME_DAY_VINTAGE", "shares": None,
+                    "accessions": sorted(r["accession"] for r in winners),
+                    "rejected": dict(rejected)}
+        chosen = winners[0]
+    else:
+        chosen = latest[0]
     return {"status": chosen["status"], "shares": chosen["shares"],
             "filed": chosen["filed"], "end": chosen["end"],
             "accession": chosen["accession"], "rejected": dict(rejected)}
