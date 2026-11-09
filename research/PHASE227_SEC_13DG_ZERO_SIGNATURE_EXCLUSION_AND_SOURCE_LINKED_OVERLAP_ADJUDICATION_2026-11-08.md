@@ -73,7 +73,12 @@ These are filing-text measurement judgments, not legal determinations. The exact
 
 ## Reproducibility and decision
 
-A local standalone audit rechecked the pinned source and all 102 XML-bearing submissions. **7/7 local tests passed**, including the full-artifact integration and expected-count assertions. No hosted Phase 227 Actions run is claimed; this phase was not used to trigger the broad PR workflow fan-out.
+Reproducibility files:
+- Auditor: [phase227_13dg_overlap_adjudication.py](https://github.com/jafelix81/NuevaEstrategia/blob/phase99-broad-pit-universe-charter/research/phase227_13dg_overlap_adjudication.py)
+- Tests: [test_phase227_13dg_overlap_adjudication.py](https://github.com/jafelix81/NuevaEstrategia/blob/phase99-broad-pit-universe-charter/research/test_phase227_13dg_overlap_adjudication.py)
+- Result: [phase227_13dg_overlap_adjudication_result.json](https://github.com/jafelix81/NuevaEstrategia/blob/phase99-broad-pit-universe-charter/research/phase227_13dg_overlap_adjudication_result.json)
+
+The standalone auditor rechecks the pinned ZIP/CSV, all 102 raw-submission hashes and expected positive/zero counts. **7/7 local tests passed**, including full-artifact integration and expected-count assertions. No hosted Phase 227 Actions run is claimed; the commits use skip-ci to avoid broad PR workflow fan-out.
 
 No forward returns, alpha test, bootstrap/LOO, final-holdout use, vendor purchase, production change, universe change or F80 change. The case review is not admitted as a predictive feature.
 
