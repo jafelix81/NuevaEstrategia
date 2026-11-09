@@ -155,8 +155,13 @@ class Phase234CaptureTests(unittest.TestCase):
             first = capture_latest(root=root, event_name="schedule", now=now, fetcher=fetcher, env={})
             second = capture_latest(root=root, event_name="schedule", now=now, fetcher=fetcher, env={})
             self.assertTrue(first["new_snapshot"])
-            self.assertEqual(second["status"], "NEW_REVISION")
-            self.assertTrue(second["pit_eligible_from_pipeline_receipt"])
+            self.assertEqual(second["status"], "NEW_REVISION_STATE_ONLY")
+            self.assertFalse(second["pit_eligible_from_pipeline_receipt"])
+            self.assertTrue(second["prospective_state_usable_after_receipt"])
+            stored = [json.loads(p.read_text()) for p in (root/"data/cftc_bpr/metadata").glob("*.json")]
+            revision_record = next(x for x in stored if x.get("receipt_kind") == "NEW_REVISION_STATE_ONLY")
+            self.assertEqual(revision_record["event_type"], "NEW_REVISION_STATE_ONLY")
+            self.assertFalse(revision_record["event_signal_eligible"])
             raw_files = list((root/"data/cftc_bpr/raw").glob("*.html"))
             self.assertEqual(len(raw_files), 2)
 
