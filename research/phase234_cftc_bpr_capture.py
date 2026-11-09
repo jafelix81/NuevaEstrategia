@@ -16,12 +16,13 @@ from datetime import datetime, timezone
 from html.parser import HTMLParser
 from pathlib import Path
 from typing import Optional
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 from zoneinfo import ZoneInfo
 
 INDEX_URL = "https://www.cftc.gov/MarketReports/BankParticipationReports/index.htm"
 BASE_URL = "https://www.cftc.gov"
-BPR_FUTURES_PATH = re.compile(r"/MarketReports/BankParticipation/dea[a-z]{3}\d{2}f$", re.I)
+BPR_FUTURES_PATH = re.compile(r"/MarketReports/BankParticipation/dea([a-z]{3})(\d{2})f$", re.I)
+CAPTURE_PROTOCOL_VERSION = 2
 ET = ZoneInfo("America/New_York")
 
 class LinkCollector(HTMLParser):
@@ -59,15 +60,49 @@ class TextCollector(HTMLParser):
     def text(self):
         return " ".join(self.parts)
 
-def select_latest_futures_url(index_html: str) -> str:
+def report_month_from_url(url: str) -> tuple[int, int]:
+    parsed = urlparse(url)
+    match = BPR_FUTURES_PATH.search(parsed.path)
+    if not match:
+        raise ValueError(f"not a CFTC BPR futures URL: {url!r}")
+    month_abbr, yy = match.groups()
+    try:
+        month = datetime.strptime(month_abbr.title(), "%b").month
+    except ValueError as exc:
+        raise ValueError(f"invalid month in CFTC BPR URL: {url!r}") from exc
+    return 2000 + int(yy), month
+
+
+def list_futures_links(index_html: str) -> list[str]:
+    """Return all distinct Futures URLs sorted by report month."""
     parser = LinkCollector()
     parser.feed(index_html)
+    by_month = {}
     for href, label in parser.links:
+        if label.strip().lower() != "futures":
+            continue
         absolute = urljoin(BASE_URL, href)
-        path = absolute.split("?", 1)[0]
-        if BPR_FUTURES_PATH.search(path) and label.strip().lower() == "futures":
-            return absolute
-    raise ValueError("latest CFTC BPR futures link not found")
+        parsed = urlparse(absolute)
+        if parsed.scheme != "https" or parsed.hostname not in {"www.cftc.gov", "cftc.gov"}:
+            continue
+        clean = parsed._replace(query="", fragment="").geturl()
+        try:
+            month_key = report_month_from_url(clean)
+        except ValueError:
+            continue
+        prior = by_month.get(month_key)
+        if prior is not None and prior != clean:
+            raise ValueError(f"multiple CFTC BPR futures links for {month_key}: {prior}, {clean}")
+        by_month[month_key] = clean
+    if not by_month:
+        raise ValueError("CFTC BPR futures links not found")
+    return [by_month[key] for key in sorted(by_month)]
+
+
+def select_latest_futures_url(index_html: str) -> str:
+    """Select by encoded report month, never by HTML row order."""
+    return list_futures_links(index_html)[-1]
+
 
 def extract_report_date(report_html: str) -> str:
     parser = TextCollector()
@@ -96,34 +131,56 @@ def build_capture_metadata(
     workflow_run_id: Optional[str] = None,
     workflow_run_attempt: Optional[str] = None,
     workflow_sha: Optional[str] = None,
+    initial_baseline: bool = False,
 ) -> dict:
     receipt_et = receipt_time.astimezone(ET)
-    scheduled_window = (
+    scheduled_after_release = (
         event_name == "schedule"
         and receipt_et.weekday() < 5
         and (receipt_et.hour, receipt_et.minute) >= (15, 30)
     )
+    event_signal_eligible = scheduled_after_release and not initial_baseline
+    state_usable = scheduled_after_release
+    if initial_baseline and state_usable:
+        pit_rule = (
+            "Initial report is a pre-existing baseline state, not a new release event. "
+            "It may be used only as a state snapshot after this pipeline receipt; do "
+            "not backdate to the report date or count it as an event signal."
+        )
+        event_type = "INITIAL_BASELINE_STATE_ONLY"
+    elif event_signal_eligible:
+        pit_rule = (
+            "Newly indexed report or observed revision. Use only after this pipeline's "
+            "recorded report-page receipt; earliest modeled trade is the next regular "
+            "XNYS session after receipt."
+        )
+        event_type = "NEW_REPORT_OR_REVISION_EVENT"
+    else:
+        pit_rule = "Not PIT-admitted; manual or outside scheduled weekday release window."
+        event_type = "MANUAL_OR_NONQUALIFYING_OBSERVATION"
     return {
         "source": "CFTC Bank Participation Report — Futures IN CONTRACT",
+        "capture_protocol_version": CAPTURE_PROTOCOL_VERSION,
         "report_date": report_date,
         "report_url": report_url,
         "report_sha256": report_sha256,
         "observed_at_utc": _iso_z(receipt_time),
         "observed_at_et": receipt_et.isoformat(),
         "event_name": event_name,
-        "pit_eligible_from_pipeline_receipt": bool(scheduled_window),
-        "pit_rule": (
-            "Use only after this pipeline's recorded receipt; earliest modeled "
-            "trade is the next regular XNYS session after receipt."
-            if scheduled_window else
-            "Not PIT-admitted; manual or outside scheduled weekday release window."
-        ),
+        "initial_baseline": bool(initial_baseline),
+        "historical_publication_time_verified": False,
+        "prospective_state_usable_after_receipt": bool(state_usable),
+        "event_signal_eligible": bool(event_signal_eligible),
+        "pit_eligible_from_pipeline_receipt": bool(event_signal_eligible),
+        "event_type": event_type,
+        "pit_rule": pit_rule,
         "http_date_header_recorded_not_used_as_availability": http_date_header,
         "index_sha256": index_sha256,
         "workflow_run_id": workflow_run_id,
         "workflow_run_attempt": workflow_run_attempt,
         "workflow_sha": workflow_sha,
     }
+
 
 def _existing_metadata(root: Path, report_date: str) -> list[dict]:
     folder = root / "data" / "cftc_bpr" / "metadata"
@@ -137,46 +194,86 @@ def _existing_metadata(root: Path, report_date: str) -> list[dict]:
             raise ValueError(f"malformed existing metadata: {path}")
     return records
 
-def capture_latest(
-    *,
-    root: Path,
-    event_name: str,
-    now: Optional[datetime] = None,
-    fetcher=None,
-    env: Optional[dict] = None,
-) -> dict:
-    """Fetch latest BPR futures page and append a raw/version receipt."""
-    env = env or os.environ
-    if fetcher is None:
-        def fetcher(url):
-            request = urllib.request.Request(
-                url,
-                headers={"User-Agent": "NuevaEstrategia-CFTC-BPR-research/1.0"},
-            )
-            with urllib.request.urlopen(request, timeout=30) as response:
-                return response.read(), dict(response.headers.items())
+def _latest_scheduled_index_snapshot(root: Path) -> Optional[dict]:
+    folder = root / "data" / "cftc_bpr" / "index_snapshots"
+    if not folder.exists():
+        return None
+    records = []
+    for path in sorted(folder.glob("*.json")):
+        try:
+            record = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            raise ValueError(f"malformed CFTC index snapshot: {path}") from exc
+        if record.get("event_name") == "schedule":
+            records.append(record)
+    return max(records, key=lambda x: x.get("observed_at_utc", "")) if records else None
 
-    index_bytes, _ = fetcher(INDEX_URL)
-    index_html = index_bytes.decode("utf-8", errors="replace")
-    report_url = select_latest_futures_url(index_html)
-    report_bytes, report_headers = fetcher(report_url)
-    receipt_time = now or datetime.now(timezone.utc)
+
+def _write_scheduled_index_snapshot(*, root: Path, index_bytes: bytes,
+                                    futures_urls: list[str], receipt_time: datetime,
+                                    env: dict) -> bool:
+    canonical = json.dumps(sorted(futures_urls), separators=(",", ":")).encode("utf-8")
+    links_hash = hashlib.sha256(canonical).hexdigest()
+    previous = _latest_scheduled_index_snapshot(root)
+    if previous and previous.get("futures_links_sha256") == links_hash:
+        return False
+    folder = root / "data" / "cftc_bpr" / "index_snapshots"
+    raw_folder = folder / "raw"
+    raw_folder.mkdir(parents=True, exist_ok=True)
+    stamp = receipt_time.astimezone(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    index_digest = hashlib.sha256(index_bytes).hexdigest()
+    raw_path = raw_folder / f"{stamp}__{index_digest[:12]}.html"
+    if not raw_path.exists():
+        raw_path.write_bytes(index_bytes)
+    record = {
+        "source": INDEX_URL,
+        "capture_protocol_version": CAPTURE_PROTOCOL_VERSION,
+        "event_name": "schedule",
+        "observed_at_utc": _iso_z(receipt_time),
+        "index_html_sha256": index_digest,
+        "raw_index_snapshot_path": str(raw_path.relative_to(root)),
+        "futures_links_sha256": links_hash,
+        "futures_urls": sorted(futures_urls),
+        "workflow_run_id": env.get("GITHUB_RUN_ID"),
+        "workflow_run_attempt": env.get("GITHUB_RUN_ATTEMPT"),
+        "workflow_sha": env.get("GITHUB_SHA"),
+    }
+    path = folder / f"{stamp}__{links_hash[:12]}.json"
+    if not path.exists():
+        path.write_text(json.dumps(record, indent=2, sort_keys=True) + "\\n", encoding="utf-8")
+    return True
+
+
+def _capture_one(*, root: Path, report_url: str, report_bytes: bytes,
+                 report_headers: dict, receipt_time: datetime, event_name: str,
+                 index_sha256: str, env: dict, initial_baseline: bool) -> dict:
     report_html = report_bytes.decode("utf-8", errors="replace")
     report_date = extract_report_date(report_html)
+    report_year_month = tuple(int(x) for x in report_date[:7].split("-"))
+    if report_month_from_url(report_url) != report_year_month:
+        raise ValueError(
+            f"CFTC link month {report_month_from_url(report_url)} does not match report date {report_date}"
+        )
     digest = hashlib.sha256(report_bytes).hexdigest()
     existing = _existing_metadata(root, report_date)
-
     same_hash = [x for x in existing if x.get("report_sha256") == digest]
-    scheduled_same_hash = [
-        x for x in same_hash if x.get("pit_eligible_from_pipeline_receipt") is True
+    scheduled_v2_same_hash = [
+        x for x in same_hash
+        if x.get("event_name") == "schedule"
+        and x.get("capture_protocol_version") == CAPTURE_PROTOCOL_VERSION
     ]
-    if event_name == "schedule" and scheduled_same_hash:
+    if event_name == "schedule" and scheduled_v2_same_hash:
         return {
             "status": "UNCHANGED_ALREADY_CAPTURED",
             "report_date": report_date,
             "report_sha256": digest,
             "new_snapshot": False,
-            "pit_eligible_from_pipeline_receipt": False,
+            "pit_eligible_from_pipeline_receipt": any(
+                x.get("pit_eligible_from_pipeline_receipt") is True for x in scheduled_v2_same_hash
+            ),
+            "prospective_state_usable_after_receipt": any(
+                x.get("prospective_state_usable_after_receipt") is True for x in scheduled_v2_same_hash
+            ),
         }
     if event_name != "schedule" and same_hash:
         return {
@@ -185,55 +282,138 @@ def capture_latest(
             "report_sha256": digest,
             "new_snapshot": False,
             "pit_eligible_from_pipeline_receipt": False,
+            "prospective_state_usable_after_receipt": False,
         }
 
     revision = bool(existing and not same_hash)
-    prior_manual_same_hash = bool(same_hash and not scheduled_same_hash and event_name == "schedule")
+    prior_manual_same_hash = bool(same_hash and event_name == "schedule" and not initial_baseline)
     raw_dir = root / "data" / "cftc_bpr" / "raw"
     meta_dir = root / "data" / "cftc_bpr" / "metadata"
     raw_dir.mkdir(parents=True, exist_ok=True)
     meta_dir.mkdir(parents=True, exist_ok=True)
-
     raw_path = raw_dir / f"{report_date}__{digest[:12]}.html"
     if not raw_path.exists():
         raw_path.write_bytes(report_bytes)
 
     metadata = build_capture_metadata(
-        report_date=report_date,
-        report_url=report_url,
-        report_sha256=digest,
-        receipt_time=receipt_time,
-        event_name=event_name,
-        http_date_header=report_headers.get("Date"),
-        index_sha256=hashlib.sha256(index_bytes).hexdigest(),
+        report_date=report_date, report_url=report_url, report_sha256=digest,
+        receipt_time=receipt_time, event_name=event_name,
+        http_date_header=report_headers.get("Date"), index_sha256=index_sha256,
         workflow_run_id=env.get("GITHUB_RUN_ID"),
         workflow_run_attempt=env.get("GITHUB_RUN_ATTEMPT"),
-        workflow_sha=env.get("GITHUB_SHA"),
+        workflow_sha=env.get("GITHUB_SHA"), initial_baseline=initial_baseline,
     )
-    if revision:
+    if initial_baseline:
+        metadata["receipt_kind"] = "INITIAL_BASELINE_STATE_ONLY"
+    elif revision:
         metadata["receipt_kind"] = "NEW_REVISION"
     elif prior_manual_same_hash:
         metadata["receipt_kind"] = "FIRST_SCHEDULED_RECEIPT_OF_PREVIOUSLY_SEEN_VERSION"
+    elif event_name == "schedule":
+        metadata["receipt_kind"] = "NEW_REPORT_FIRST_SCHEDULED_OBSERVATION"
     else:
-        metadata["receipt_kind"] = "FIRST_PIPELINE_OBSERVATION"
+        metadata["receipt_kind"] = "MANUAL_NON_PIT"
     metadata["raw_snapshot_path"] = str(raw_path.relative_to(root))
     stamp = receipt_time.astimezone(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     meta_path = meta_dir / f"{report_date}__{digest[:12]}__{event_name}__{stamp}.json"
-    meta_path.write_text(json.dumps(metadata, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-
+    if not meta_path.exists():
+        meta_path.write_text(json.dumps(metadata, indent=2, sort_keys=True) + "\\n", encoding="utf-8")
     return {
-        "status": (
-            "NEW_REVISION_CAPTURED" if revision else
-            "FIRST_SCHEDULED_RECEIPT_CAPTURED" if prior_manual_same_hash else
-            "NEW_REPORT_VERSION_CAPTURED"
-        ),
+        "status": metadata["receipt_kind"],
         "report_date": report_date,
         "report_sha256": digest,
         "new_snapshot": True,
         "pit_eligible_from_pipeline_receipt": metadata["pit_eligible_from_pipeline_receipt"],
+        "prospective_state_usable_after_receipt": metadata["prospective_state_usable_after_receipt"],
         "raw_snapshot_path": str(raw_path.relative_to(root)),
         "metadata_path": str(meta_path.relative_to(root)),
     }
+
+
+def capture_latest(*, root: Path, event_name: str, now: Optional[datetime] = None,
+                   fetcher=None, env: Optional[dict] = None) -> dict:
+    """Capture a baseline, newly indexed reports, and latest-page revisions.
+
+    The first scheduled capture is state-only, not a new release event. Later
+    scheduled runs compare the full link set, capture all new URLs, and re-fetch
+    the latest report for revisions. Manual runs never advance the baseline.
+    """
+    env = env or os.environ
+    if fetcher is None:
+        def fetcher(url):
+            request = urllib.request.Request(
+                url, headers={"User-Agent": "NuevaEstrategia-CFTC-BPR-research/2.0"}
+            )
+            with urllib.request.urlopen(request, timeout=30) as response:
+                return response.read(), dict(response.headers.items())
+
+    index_bytes, _ = fetcher(INDEX_URL)
+    index_html = index_bytes.decode("utf-8", errors="replace")
+    futures_urls = list_futures_links(index_html)
+    latest_url = futures_urls[-1]
+    index_digest = hashlib.sha256(index_bytes).hexdigest()
+    initial_baseline = False
+    if event_name == "schedule":
+        previous = _latest_scheduled_index_snapshot(root)
+        initial_baseline = previous is None
+        if initial_baseline:
+            candidate_urls = [latest_url]
+        else:
+            previous_urls = set(previous.get("futures_urls", []))
+            new_urls = [url for url in futures_urls if url not in previous_urls]
+            candidate_urls = list(new_urls)
+            if latest_url not in candidate_urls:
+                candidate_urls.append(latest_url)
+    else:
+        candidate_urls = [latest_url]
+
+    captures = []
+    for report_url in candidate_urls:
+        report_bytes, report_headers = fetcher(report_url)
+        receipt_time = now or datetime.now(timezone.utc)
+        captures.append(_capture_one(
+            root=root, report_url=report_url, report_bytes=report_bytes,
+            report_headers=report_headers, receipt_time=receipt_time,
+            event_name=event_name, index_sha256=index_digest, env=env,
+            initial_baseline=initial_baseline,
+        ))
+
+    index_snapshot_written = False
+    if event_name == "schedule":
+        index_receipt = now or datetime.now(timezone.utc)
+        index_snapshot_written = _write_scheduled_index_snapshot(
+            root=root, index_bytes=index_bytes, futures_urls=futures_urls,
+            receipt_time=index_receipt, env=env,
+        )
+    new_captures = [x for x in captures if x.get("new_snapshot")]
+    pit_any = any(x.get("pit_eligible_from_pipeline_receipt") for x in new_captures)
+    state_any = any(x.get("prospective_state_usable_after_receipt") for x in captures)
+    if not new_captures:
+        status = "UNCHANGED_ALREADY_CAPTURED" if event_name == "schedule" else "UNCHANGED_NON_PIT_VERSION"
+    elif initial_baseline:
+        status = "INITIAL_BASELINE_CAPTURED_STATE_ONLY"
+    elif len(new_captures) == 1:
+        status = new_captures[0]["status"]
+    else:
+        status = "MULTIPLE_NEW_REPORT_VERSIONS_CAPTURED"
+    result = {
+        "status": status,
+        "capture_protocol_version": CAPTURE_PROTOCOL_VERSION,
+        "initial_baseline": initial_baseline,
+        "latest_report_url": latest_url,
+        "latest_report_date": next((x.get("report_date") for x in reversed(captures)
+                                    if x.get("report_date")), None),
+        "new_snapshot": bool(new_captures),
+        "pit_eligible_from_pipeline_receipt": pit_any,
+        "prospective_state_usable_after_receipt": state_any,
+        "index_snapshot_written": index_snapshot_written,
+        "captures": captures,
+    }
+    if len(new_captures) == 1:
+        result.update({k: v for k, v in new_captures[0].items()
+                       if k in {"report_date", "report_sha256", "raw_snapshot_path", "metadata_path"}})
+    return result
+
 
 def main() -> dict:
     parser = argparse.ArgumentParser()
