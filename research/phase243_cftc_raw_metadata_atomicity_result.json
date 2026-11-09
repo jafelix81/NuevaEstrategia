@@ -2,7 +2,7 @@
   "phase": 243,
   "date": "2026-11-09",
   "branch": "phase231-cboe-option-quotes-full-row-reparse",
-  "status": "IMPLEMENTED_HOSTED_VALIDATION_UNVERIFIED",
+  "status": "IMPLEMENTED_HOSTED_VALIDATION_PASSED",
   "root_cause": "Source steps use continue-on-error and a later shared commit persists raw files. A failure between raw and metadata writes can leave an orphan raw file that a later scheduled run might misclassify as a new PIT event.",
   "changes": {
     "bpr": [
@@ -20,23 +20,23 @@
     ]
   },
   "tests": {
-    "bpr_expected": 19,
-    "tff_expected": 34,
-    "total_expected": 53,
+    "bpr": 19,
+    "tff": 34,
+    "total": 53,
     "added": {
       "bpr": 3,
       "tff": 3
     }
   },
-  "commits": {
-    "bpr_code": "9aa8c01f7012e9ad58bd7b9379e898850de2d4e1",
-    "bpr_tests": "1e2b6ad2e9fe2f43d8dc9b5cbd370c2e17dc0d0e",
-    "tff_code": "a019b923d62c46cf54d4d4d849ce9defdc25e01d",
-    "tff_tests": "d2d86a0e187cd8979979c19450d53fc10fd4a250"
-  },
   "hosted_validation": {
-    "verified": false,
-    "reason": "Available Actions run lookup returns only PR-triggered runs; the reused regression workflow is push-triggered. Combined commit-status endpoint returned no status contexts."
+    "verified": true,
+    "workflow_run_id": 42676258774,
+    "job_id": 129358311974,
+    "commit_sha": "d2d86a0e187cd8979979c19450d53fc10fd4a250",
+    "bpr_passed": 19,
+    "tff_passed": 34,
+    "total_passed": 53,
+    "conclusion": "success"
   },
   "raw_capture_performed": false,
   "historical_pit_admission": false,
@@ -51,5 +51,5 @@
   "universe_changed": false,
   "f80_baseline": "F80_TOP20_PARTIAL50_BASELINE_C20_FROZEN",
   "holdout_status": "CONSUMED_NOT_PRISTINE",
-  "decision": "KEEP_CFTC_CAPTURE_BLOCKED_PENDING_HOSTED_REGRESSION_VALIDATION"
+  "decision": "KEEP_CFTC_CAPTURE_AND_PREDICTIVE_USE_BLOCKED_PENDING_ACTUAL_PROSPECTIVE_RECEIPT_HISTORY"
 }
