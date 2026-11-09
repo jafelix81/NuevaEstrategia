@@ -208,3 +208,10 @@
 - Next N-PORT design must use accession-level original/amendment vintages, actual EDGAR public dissemination, asynchronous per-series reporting cadence, effective-dated CUSIP/ISIN mapping, and separate quantity from market-value changes. Amendments are state corrections, not new trades.
 - No full archive audit, 335-name effective-dated coverage census, return test, alpha, bootstrap/LOO, OOS or holdout use. F80 remains frozen; production and universe unchanged.
 - [Phase 247 report](PHASE247_NPORT_FLATTENED_UNIT_FIELD_AND_PIT_DESIGN_AUDIT_2026-11-09.md) · [schema contract](phase247_sec_nport_unit_field_contract.py) · [tests](test_phase247_sec_nport_unit_field_contract.py) · [result](phase247_nport_unit_field_contract_result.json)
+
+
+## Phase 231 — latest Cboe full-row reparse confirmation
+- GitHub Actions run 42711044384 completed successfully; the full-row reparse and reconciliation finished.
+- 115,617 populated rows were inspected; 112,313 rows passed the unambiguous contract and 3,304 rows with ambiguous expiration dates were quarantined. No ambiguous quote timestamps were reported.
+- The clean unambiguous subset passed; the full sample gate remains false because the ambiguous rows are not silently accepted. No raw rows were persisted and no alpha test was run.
+- Artifact 13715513640; SHA-256 14f9c13151c155ed2ecce9ff8782efbbde05171ed521b0223de38907a1531708.
