@@ -114,6 +114,20 @@ class Phase237Tests(unittest.TestCase):
         r = resolve_asof_shares(rows, "2026-05-10", "Common", 1)
         self.assertEqual(r["status"], "UNDATED_SOURCE_FACT_PRESENT")
 
+    def test_same_acceptance_timestamp_conflicting_versions_are_ambiguous(self):
+        rows = [fact(1000, accession="A1", acceptance_datetime="2026-05-06T16:00:00Z"),
+                fact(900, accession="A2", acceptance_datetime="2026-05-06T16:00:00Z")]
+        r = resolve_asof_shares(rows, "2026-05-07", "Common", 1)
+        self.assertEqual(r["status"], "AMBIGUOUS_SAME_DAY_VINTAGE")
+
+    def test_multi_class_facts_must_share_same_instant_date(self):
+        a = [{"axis":"us-gaap:StatementClassOfStockAxis","member":"A"}]
+        b = [{"axis":"us-gaap:StatementClassOfStockAxis","member":"B"}]
+        rows = [fact(400, dimensions=a, end="2026-05-01"),
+                fact(600, dimensions=b, end="2026-05-02", accession="A1")]
+        r = resolve_asof_shares(rows, "2026-05-07", "A", 2)
+        self.assertEqual(r["status"], "NO_RESOLVED_CLASS_FACT")
+
     def test_denominators_are_not_substitutable(self):
         s = denominator_semantics()
         self.assertIn("not a share count", s["public_float"])
