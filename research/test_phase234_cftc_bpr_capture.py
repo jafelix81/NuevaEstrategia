@@ -112,6 +112,23 @@ class Phase234CaptureTests(unittest.TestCase):
             self.assertEqual(len(metadata_files), 2)
             stored = [json.loads(p.read_text()) for p in metadata_files]
             self.assertEqual(sum(bool(x["pit_eligible_from_pipeline_receipt"]) for x in stored), 1)
+            self.assertEqual(scheduled["status"], "FIRST_SCHEDULED_RECEIPT_CAPTURED")
+            self.assertIn("FIRST_SCHEDULED_RECEIPT_OF_PREVIOUSLY_SEEN_VERSION",
+                          {x["receipt_kind"] for x in stored})
+
+    def test_repeated_manual_backfill_is_not_duplicated(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            def fetcher(url):
+                if url.endswith("index.htm"):
+                    return INDEX_FIXTURE.encode(), {}
+                return REPORT_FIXTURE.encode(), {}
+            now = datetime(2026, 11, 6, 20, 35, tzinfo=timezone.utc)
+            first = capture_latest(root=root, event_name="workflow_dispatch", now=now, fetcher=fetcher, env={})
+            second = capture_latest(root=root, event_name="workflow_dispatch", now=now, fetcher=fetcher, env={})
+            self.assertTrue(first["new_snapshot"])
+            self.assertEqual(second["status"], "UNCHANGED_NON_PIT_VERSION")
+            self.assertEqual(len(list((root/"data/cftc_bpr/metadata").glob("*.json"))), 1)
 
     def test_revision_is_append_only(self):
         with tempfile.TemporaryDirectory() as tmp:
