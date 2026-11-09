@@ -281,8 +281,25 @@ def _capture_one(*, root: Path, report_url: str, report_bytes: bytes,
             f"CFTC link month {report_month_from_url(report_url)} does not match report date {report_date}"
         )
     digest = hashlib.sha256(report_bytes).hexdigest()
+    raw_dir = root / "data" / "cftc_bpr" / "raw"
+    meta_dir = root / "data" / "cftc_bpr" / "metadata"
+    raw_path = raw_dir / f"{report_date}__{digest[:12]}.html"
+    raw_snapshot_preexisting = raw_path.exists()
+    if raw_snapshot_preexisting:
+        existing_raw_digest = hashlib.sha256(raw_path.read_bytes()).hexdigest()
+        if existing_raw_digest != digest:
+            raise ValueError(
+                f"existing BPR raw snapshot hash mismatch for {report_date}: "
+                f"{existing_raw_digest} != {digest}"
+            )
     existing = _existing_metadata(root, report_date)
     same_hash = [x for x in existing if x.get("report_sha256") == digest]
+    raw_snapshot_preexisting_without_metadata = raw_snapshot_preexisting and not same_hash
+    raw_snapshot_repaired_from_existing_metadata = False
+    if not raw_snapshot_preexisting and same_hash:
+        raw_dir.mkdir(parents=True, exist_ok=True)
+        raw_path.write_bytes(report_bytes)
+        raw_snapshot_repaired_from_existing_metadata = True
     scheduled_current_protocol_same_hash = [
         x for x in same_hash
         if x.get("event_name") == "schedule"
@@ -300,6 +317,7 @@ def _capture_one(*, root: Path, report_url: str, report_bytes: bytes,
             "prospective_state_usable_after_receipt": any(
                 x.get("prospective_state_usable_after_receipt") is True for x in scheduled_current_protocol_same_hash
             ),
+            "raw_snapshot_repaired_from_existing_metadata": raw_snapshot_repaired_from_existing_metadata,
         }
     if event_name != "schedule" and same_hash:
         return {
@@ -309,15 +327,13 @@ def _capture_one(*, root: Path, report_url: str, report_bytes: bytes,
             "new_snapshot": False,
             "pit_eligible_from_pipeline_receipt": False,
             "prospective_state_usable_after_receipt": False,
+            "raw_snapshot_repaired_from_existing_metadata": raw_snapshot_repaired_from_existing_metadata,
         }
 
     revision = bool(existing and not same_hash)
-    previously_observed = bool(existing)
-    raw_dir = root / "data" / "cftc_bpr" / "raw"
-    meta_dir = root / "data" / "cftc_bpr" / "metadata"
+    previously_observed = bool(existing) or raw_snapshot_preexisting_without_metadata
     raw_dir.mkdir(parents=True, exist_ok=True)
     meta_dir.mkdir(parents=True, exist_ok=True)
-    raw_path = raw_dir / f"{report_date}__{digest[:12]}.html"
     if not raw_path.exists():
         raw_path.write_bytes(report_bytes)
 
@@ -329,6 +345,12 @@ def _capture_one(*, root: Path, report_url: str, report_bytes: bytes,
         workflow_run_attempt=env.get("GITHUB_RUN_ATTEMPT"),
         workflow_sha=env.get("GITHUB_SHA"), initial_baseline=initial_baseline,
         revision=revision, previously_observed=previously_observed,
+    )
+    metadata["raw_snapshot_preexisting_without_metadata"] = bool(
+        raw_snapshot_preexisting_without_metadata
+    )
+    metadata["raw_snapshot_repaired_from_existing_metadata"] = bool(
+        raw_snapshot_repaired_from_existing_metadata
     )
     if initial_baseline:
         metadata["receipt_kind"] = "INITIAL_BASELINE_STATE_ONLY"
@@ -355,6 +377,8 @@ def _capture_one(*, root: Path, report_url: str, report_bytes: bytes,
         "new_snapshot": True,
         "pit_eligible_from_pipeline_receipt": metadata["pit_eligible_from_pipeline_receipt"],
         "prospective_state_usable_after_receipt": metadata["prospective_state_usable_after_receipt"],
+        "raw_snapshot_preexisting_without_metadata": bool(raw_snapshot_preexisting_without_metadata),
+        "raw_snapshot_repaired_from_existing_metadata": bool(raw_snapshot_repaired_from_existing_metadata),
         "raw_snapshot_path": str(raw_path.relative_to(root)),
         "metadata_path": str(meta_path.relative_to(root)),
     }
