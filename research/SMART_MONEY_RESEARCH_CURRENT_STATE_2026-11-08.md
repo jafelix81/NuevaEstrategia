@@ -1,6 +1,6 @@
 # Smart Money Research — Current State
 
-**Updated:** 2026-11-08  
+**Updated:** 2026-11-09  
 **Repository:** jafelix81/NuevaEstrategia  
 **Research branch:** phase99-broad-pit-universe-charter  
 **PR:** #13, open and currently mergeable; do not merge automatically.
@@ -95,3 +95,26 @@ No candidate becomes a model feature until historical coverage, ex-ante availabi
 - Phase 185 artifact/log confirms zero strict-PIT-admitted Cboe Open-Close rows; all audited 1-minute archive history before the 2025-07-13 product floor is retrospective, and even post-floor data require actual first-receipt logs and immutable correction vintages.
 - The new Phase 228 head has no associated PR workflow runs because all research commits used `[skip ci]`; local tests are not represented as hosted CI.
 - Branch inventory: 130 (100 first page + 30 second page).
+
+
+## Phase 229 — regulatory cohort assignment by event-date proxy (2026-11-09)
+
+- Phase 228's pre/post descriptive split used filing date. Phase 229 retains that view but adds event-date-proxy assignment, because the revised filing regime applies to the event/trigger that generated the obligation rather than the later disclosure date.
+- Re-downloaded Phase 124 run 42073725379 / artifact 13436764625. ZIP SHA-256 `85f69e083b5af65731c9bcfe24e8c75821fc0f2c2476bfa8ba573e2e884570dc`; CSV SHA-256 `be2c592c6c26d9f1ea49bda5d29d20e944004b2e2f4a3c3f4fe1f732319c55d5`.
+- Rechecked 600/600 raw SHA-256 values, 600/600 SEC headers, 599 primary 13D/G documents, and 102/102 structured XML event-date values. Parsed event dates remain 553/599; 46 remain unknown and unclassified.
+- Exactly one parsed 13D/A crosses the 2024-02-05 boundary: accession 0001554855-24-000055, event 2024-01-31, filed 2024-02-08. Filing-date assignment called it post-cutoff; event-date-proxy assignment calls it pre-cutoff. No parsed 13G filing crosses 2024-09-30.
+- The event-date-proxy reclassification changes 13D amendment cohort membership (pre 93 vs 92; post 30 vs 31) but leaves family-level weighted medians/P90 unchanged: 13D 4/27 pre and 2/18 post; 13G 41/45 pre and 38/45 post. This is descriptive only; no compliance or causal inference.
+- 8/8 Phase 229 unit tests passed locally. The full raw-source reparse and hash/header/XML integrity checks were also run locally. No hosted Phase 229 Actions run is claimed; no workflow was launched.
+- Files: `PHASE229_SEC_13DG_REGULATORY_COHORT_ASSIGNMENT_BY_EVENT_DATE_AUDIT_2026-11-09.md`, `phase229_13dg_event_date_regime_assignment_audit.py`, `test_phase229_13dg_event_date_regime_assignment_audit.py`, and `phase229_13dg_event_regime_assignment_audit_result.json`.
+- 13G deadlines remain filer-category/trigger-specific. The cover-page event date is only a proxy, not a trade date or universal legal trigger. SEC acceptance datetime remains the knowledge clock; no same-session use.
+
+## Repository / Actions status verified 2026-11-09
+
+- Research branch at the start of Phase 229: `4779fd7be65666292f2be59d760d431dc29ec55c`; Phase 229 artifacts were then committed on the same research branch. Do not infer that the state-file update commit is the branch head.
+- PR #13 remains open and unmerged; at the pre-Phase-229 check GitHub reported `mergeable=true`, 566 commits ahead / 1 behind main, 497 changed files. No merge or rebase was attempted.
+- Latest 100 Actions runs: 98 success, 1 failure, 1 cancelled; zero in-progress or queued. The 100-result second page was also checked; no active run was found there.
+- Latest run 42491346732 (Phase 185) succeeded. Job 128764198338 completed every step; artifact 13621239943 is 945 bytes with SHA-256 `d9575f5e9df29fce61eaef81955105b1d4f88827f65980f4630acaecd9e1efc9`. Its log still reports zero strict-PIT-admitted Cboe Open-Close rows.
+- The only failure in the latest 100 was the first Phase 214 attempt 42491263644: two unit tests expected a three-value return while the parser returned two. It was superseded by successful run 42491346221; the cancelled attempt 42491341126 has no completed jobs.
+- Branch inventory: 130 (100 first page + 30 second page).
+- Current PR head before Phase 229 was `4779fd7`; the branch has advanced through the Phase 229 file commits. No Phase 229 hosted workflow/check-run is claimed because the commits did not trigger CI.
+- N-PORT raw retrieval remains blocked by missing authorized `SEC_CONTACT_EMAIL`. No address was invented and no SEC fair-access control was bypassed.
