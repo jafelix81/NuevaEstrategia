@@ -196,3 +196,15 @@
 - **Decision:** high-priority conditional sample-acquisition candidate because of the advertised long history and low-cost trial route; no PIT or alpha admission. Historical backfill cannot be treated as historically available data.
 - [Phase 246 report](PHASE246_CBOE_ALL_ACCESS_OPTION_TRADE_FEASIBILITY_AND_TRIAL_GATE_2026-11-09.md) · [deterministic audit script](phase246_cboe_all_access_option_trade_feasibility.py)
 
+
+
+## Phase 247 — SEC N-PORT flattened UNIT field defect and PIT design audit
+- Audited the existing separate Phase 27K–27O N-PORT work rather than restarting source feasibility.
+- Confirmed a blocking schema mismatch in the legacy Phase 27O workflow: its TSV reader accesses UNITS, while the SEC flattened FUND_REPORTED_HOLDING table defines UNIT (singular) plus BALANCE. The raw XML tag is <units>, which is not the flattened TSV column name.
+- Consequence: the legacy NS share-balance test never succeeds on the documented flat-file schema; its share accumulator remains zero, and the ranker requiring positive prior/current shares cannot form valid candidates. Phase 27O output is quarantined; this is a code defect, not evidence for or against N-PORT alpha. Its workflow output was not independently verified here.
+- Added a fail-closed parser contract and 10 offline regression tests. The helper accepts only UNIT=NS, ASSET_CAT=EC, explicit PAYOFF_PROFILE=LONG and finite positive BALANCE. It rejects XML-only UNITS, conflicting aliases, non-share units, non-equity, short/unknown payoff and invalid balances.
+- Official SEC data-set coverage is October 2019–September 2026 (28 quarterly archives); archives are quarterly compiled, contain publicly disseminated filings and include amendments. They are not a live PIT feed and omit full acceptance metadata.
+- Current public regime remains quarterly filing with only each fund's third fiscal-quarter month public upon filing; the 2024 monthly/publication amendments were delayed to 2027/2028.
+- Next N-PORT design must use accession-level original/amendment vintages, actual EDGAR public dissemination, asynchronous per-series reporting cadence, effective-dated CUSIP/ISIN mapping, and separate quantity from market-value changes. Amendments are state corrections, not new trades.
+- No full archive audit, 335-name effective-dated coverage census, return test, alpha, bootstrap/LOO, OOS or holdout use. F80 remains frozen; production and universe unchanged.
+- [Phase 247 report](PHASE247_NPORT_FLATTENED_UNIT_FIELD_AND_PIT_DESIGN_AUDIT_2026-11-09.md) · [schema contract](phase247_sec_nport_unit_field_contract.py) · [tests](test_phase247_sec_nport_unit_field_contract.py) · [result](phase247_nport_unit_field_contract_result.json)
