@@ -43,12 +43,20 @@
 - 26/26 local tests passed across BPR semantics, reconciliation, unknown-vs-zero handling, capture idempotence, revisions, and delayed weekday receipts. No hosted workflow was run; the schedule activates only after the research branch reaches the default branch.
 - [Phase 234 report](PHASE234_CFTC_BANK_PARTICIPATION_REPORT_EQUITY_INDEX_FEASIBILITY_AUDIT_2026-11-09.md)
 
+### Phase 235 — CFTC BPR PIT bootstrap and missingness hardening
+- Separated the first scheduled capture from a new release event: it is a baseline state usable only after its actual pipeline receipt, not an event signal and never backdated to report date. Subsequent newly indexed URLs and observed revisions can qualify from their own scheduled receipt.
+- The capture protocol now stores append-only raw index HTML and link-set snapshots, selects the latest report by month encoded in its URL rather than page order, validates URL month against report date, and captures multiple newly indexed catch-up reports. Manual dispatches do not advance the scheduled baseline.
+- Legacy protocol-v1 metadata cannot suppress the v2 baseline. Older non-latest report pages are not continuously polled for revisions; this remains a limitation.
+- BPR blanks in bank counts, positions, and percentages remain UNKNOWN; explicit numeric zero remains zero. Combined net requires observed total long/short or complete category rows; positive market OI is mandatory.
+- 23/23 local regression tests passed (13 Phase 234 + 10 Phase 235). No hosted CI was run and no BPR capture has occurred.
+- [Phase 235 report](PHASE235_CFTC_BPR_PIT_BOOTSTRAP_AND_MISSINGNESS_AUDIT_2026-11-09.md)
+
 ## Source decisions
 
 | Source | Current decision | Main blocker |
 |---|---|---|
 | FINRA 20C / short flow | Not promoted | Historical coverage and incremental value not established |
-| CFTC BPR | Conditional prospective market-regime candidate only | 25-month rolling archive, monthly frequency, no historical first-receipt vintages, no stock-level coverage |
+| CFTC BPR | Conditional prospective market-regime candidate only | 25-month rolling archive, monthly frequency, no historical first-receipt vintages, no stock-level coverage; first capture is baseline state-only, later new URLs/revisions require scheduled receipt |
 | Form 4 | Standalone implementation discarded | Must distinguish transaction semantics and filing availability |
 | Form 144 | Conditional event candidate | Independent shares/float/ADV denominators and identity mapping |
 | SEC 13D/G | Separate 13D and 13G research tracks | Reporting-person economic identity and amendment chains |
@@ -73,7 +81,7 @@
 2. Before any Cboe paid historical order, obtain written answers on first-receipt logs, correction/revision policy, historical delisted coverage, licensing, and price. No order has been placed.
 
 ## Next research steps
-1. After PR14 reaches the default branch, begin the CFTC BPR prospective capture; accumulate an adequate multi-regime panel before any return test. Compare only as a market-regime overlay against QQQ risk state and frozen LTM/F80.
+1. After PR14 reaches the default branch, begin CFTC BPR capture. Treat the first scheduled receipt as a baseline state only; treat later newly indexed reports/revisions as events only from their own receipt timestamps. Accumulate an adequate multi-regime panel before any return test, and compare only as a market-regime overlay against QQQ risk state and frozen LTM/F80.
 2. Keep Phase 231 parser and artifact metadata as the accepted sample diagnostic; do not generalize it to the full product.
 3. For Option Sentiment, obtain written clarification of net_option_delta units/sign/multiplier, footnote mappings, cancellation scope, and any directional cross-tabs; require a representative sample, historical backfill completeness, correction vintages, and delivery logs before any paid data.
 4. If a sample becomes available, validate the 80-field schema, null semantics, per-day symbol coverage, corporate-action handling, and cross-field invariants.
