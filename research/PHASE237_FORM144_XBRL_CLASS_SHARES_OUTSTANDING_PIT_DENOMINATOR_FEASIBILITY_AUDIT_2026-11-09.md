@@ -114,7 +114,7 @@ Added an offline resolver that accepts normalized filing facts and rejects:
 
 The resolver explicitly distinguishes entity-wide single-class facts from exact class-dimensioned facts. Its current prototype accepts the two US-GAAP axis QNames documented in the sample; other standard-taxonomy namespaces are not yet admitted and must be quarantined until explicitly supported. It does not fetch or parse raw inline XBRL and does not infer the number of issuer classes from tickers.
 
-Local validation: **21/21 standard-library regression tests passed**, including amendment-as-of, multi-class, companyfacts-scope, unknown-vs-zero, and denominator non-substitution cases. These are fixture tests, not SEC raw-filing integration tests or hosted CI.
+Local validation: **23/23 standard-library regression tests passed**, including amendment-as-of, multi-class, companyfacts-scope, unknown-vs-zero, same-day acceptance ties, same-instant class contexts and denominator non-substitution cases. These are fixture tests, not SEC raw-filing integration tests or hosted CI.
 
 ## 7. Admission gates
 
