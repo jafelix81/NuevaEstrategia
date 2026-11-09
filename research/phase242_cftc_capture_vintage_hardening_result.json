@@ -1,0 +1,54 @@
+{
+  "phase": 242,
+  "date": "2026-11-09",
+  "branch": "phase231-cboe-option-quotes-full-row-reparse",
+  "code_commit": "14adc44bd73fbeb6f9b550fc60777345c91e3547",
+  "status": "CFTC_CAPTURE_PIT_STATE_HARDENED_NO_RAW_CAPTURE",
+  "changes": {
+    "bpr_protocol_version": 3,
+    "bpr_initial_scheduled_capture": "all currently indexed Futures report pages; baseline state only",
+    "bpr_scheduled_poll": "all currently indexed Futures report pages on every scheduled run",
+    "bpr_nonlatest_revisions": "append-only state-only; never event eligible",
+    "bpr_manual_or_prior_protocol_observation": "state-only; never promoted to a new event",
+    "tff_protocol_version": 2,
+    "tff_manual_or_previously_observed_report_date": "state-only; never promoted to a new event",
+    "tff_streams": [
+      "FinFutWk.txt",
+      "FinComWk.txt"
+    ]
+  },
+  "hosted_validation": {
+    "workflow": "Phase 240 CFTC BPR/TFF PIT state-machine regression",
+    "run_id": 42669436293,
+    "job_id": 129341718918,
+    "conclusion": "success",
+    "compile": "passed",
+    "bpr_tests": {
+      "passed": 16,
+      "failed": 0
+    },
+    "tff_tests": {
+      "passed": 31,
+      "failed": 0
+    },
+    "total_tests": {
+      "passed": 47,
+      "failed": 0
+    }
+  },
+  "data_capture_performed": false,
+  "historical_pit_admission": false,
+  "alpha_admission": false,
+  "returns_tested": false,
+  "bootstrap_or_loo": false,
+  "oos_tested": false,
+  "holdout_used": false,
+  "vendor_contact": false,
+  "data_purchase": false,
+  "production_changed": false,
+  "universe_changed": false,
+  "f80_baseline": "F80_TOP20_PARTIAL50_BASELINE_C20_FROZEN",
+  "holdout_status": "CONSUMED_NOT_PRISTINE",
+  "workflow_active_on_main": false,
+  "decision": "CONDITIONAL_PROSPECTIVE_MARKET_REGIME_CANDIDATES_ONLY"
+}
