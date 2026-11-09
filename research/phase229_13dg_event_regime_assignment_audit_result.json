@@ -21,12 +21,26 @@
   },
   "classification_counts_parsed_rows": {
     "13D": {
-      "filing_date": {"pre": 154, "post": 51},
-      "event_date_proxy": {"pre": 155, "post": 50, "unknown": 9}
+      "filing_date": {
+        "pre": 154,
+        "post": 51
+      },
+      "event_date_proxy": {
+        "pre": 155,
+        "post": 50,
+        "unknown": 9
+      }
     },
     "13G": {
-      "filing_date": {"pre": 272, "post": 76},
-      "event_date_proxy": {"pre": 272, "post": 76, "unknown": 37}
+      "filing_date": {
+        "pre": 272,
+        "post": 76
+      },
+      "event_date_proxy": {
+        "pre": 272,
+        "post": 76,
+        "unknown": 37
+      }
     }
   },
   "boundary_crossings": [
@@ -43,19 +57,83 @@
   ],
   "event_date_proxy_weighted_summaries": {
     "13D": {
-      "pre": {"n": 155, "median_lag_days": 4, "p90_lag_days": 27, "quarter_end_weighted_pct": 3.4958},
-      "post": {"n": 50, "median_lag_days": 2, "p90_lag_days": 18, "quarter_end_weighted_pct": 0.0}
+      "pre": {
+        "n": 155,
+        "median_lag_days": 4,
+        "p90_lag_days": 27,
+        "quarter_end_weighted_pct": 3.4958
+      },
+      "post": {
+        "n": 50,
+        "median_lag_days": 2,
+        "p90_lag_days": 18,
+        "quarter_end_weighted_pct": 0
+      }
     },
     "13G": {
-      "pre": {"n": 272, "median_lag_days": 41, "p90_lag_days": 45, "quarter_end_weighted_pct": 74.7961},
-      "post": {"n": 76, "median_lag_days": 38, "p90_lag_days": 45, "quarter_end_weighted_pct": 81.7308}
+      "pre": {
+        "n": 272,
+        "median_lag_days": 41,
+        "p90_lag_days": 45,
+        "quarter_end_weighted_pct": 74.7961
+      },
+      "post": {
+        "n": 76,
+        "median_lag_days": 38,
+        "p90_lag_days": 45,
+        "quarter_end_weighted_pct": 81.7308
+      }
     }
   },
   "event_date_proxy_initial_amendment_weighted_summaries": {
-    "13D_initial": {"pre": {"n": 62, "median": 10, "p90": 48}, "post": {"n": 20, "median": 7, "p90": 86}},
-    "13D_amendment": {"pre": {"n": 93, "median": 3, "p90": 17}, "post": {"n": 30, "median": 2, "p90": 13}},
-    "13G_initial": {"pre": {"n": 100, "median": 38, "p90": 47}, "post": {"n": 31, "median": 29, "p90": 45}},
-    "13G_amendment": {"pre": {"n": 172, "median": 41, "p90": 45}, "post": {"n": 45, "median": 39, "p90": 45}}
+    "13D_initial": {
+      "pre": {
+        "n": 62,
+        "median": 10,
+        "p90": 48
+      },
+      "post": {
+        "n": 20,
+        "median": 7,
+        "p90": 86
+      }
+    },
+    "13D_amendment": {
+      "pre": {
+        "n": 93,
+        "median": 3,
+        "p90": 17
+      },
+      "post": {
+        "n": 30,
+        "median": 2,
+        "p90": 13
+      }
+    },
+    "13G_initial": {
+      "pre": {
+        "n": 100,
+        "median": 38,
+        "p90": 47
+      },
+      "post": {
+        "n": 31,
+        "median": 29,
+        "p90": 45
+      }
+    },
+    "13G_amendment": {
+      "pre": {
+        "n": 172,
+        "median": 41,
+        "p90": 45
+      },
+      "post": {
+        "n": 45,
+        "median": 39,
+        "p90": 45
+      }
+    }
   },
   "limitations": [
     "Event date is a cover-page/XML event-date proxy, not a verified trade date or universally exact legal trigger.",
@@ -70,5 +148,24 @@
     "production_changed": false,
     "universe_changed": false,
     "vendor_purchase": false
+  },
+  "workflow_execution": {
+    "dedicated_phase229_workflow": false,
+    "commit_triggered_existing_pr_workflow_fanout": true,
+    "fanout_head_sha": "c2d733ea28112d1943d8842a6666339737ac9771",
+    "fanout_head_runs": {
+      "success": 57,
+      "failed": 0,
+      "cancelled": 0,
+      "active": 0
+    },
+    "superseded_older_head_runs_cancelled": 12,
+    "latest_100_runs": {
+      "success": 88,
+      "failed": 0,
+      "cancelled": 12,
+      "active_or_queued": 0
+    },
+    "note": "This was a repository push-triggered fan-out, not a dedicated Phase 229 test run. Subsequent Phase 230 commits use [skip ci]."
   }
 }
