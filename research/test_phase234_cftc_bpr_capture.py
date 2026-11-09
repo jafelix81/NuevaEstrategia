@@ -84,7 +84,8 @@ class Phase234CaptureTests(unittest.TestCase):
             now = datetime(2026, 11, 6, 20, 35, tzinfo=timezone.utc)
             result = capture_latest(root=root, event_name="schedule", now=now, fetcher=fetcher, env={})
             self.assertTrue(result["new_snapshot"])
-            self.assertTrue(result["pit_eligible_from_pipeline_receipt"])
+            self.assertFalse(result["pit_eligible_from_pipeline_receipt"])
+            self.assertTrue(result["prospective_state_usable_after_receipt"])
             self.assertTrue((root / result["raw_snapshot_path"]).exists())
             self.assertTrue((root / result["metadata_path"]).exists())
             self.assertEqual(len(calls), 2)
@@ -103,7 +104,7 @@ class Phase234CaptureTests(unittest.TestCase):
             self.assertEqual(second["status"], "UNCHANGED_ALREADY_CAPTURED")
             self.assertFalse(second["new_snapshot"])
 
-    def test_manual_backfill_then_scheduled_receipt_creates_pit_metadata(self):
+    def test_manual_backfill_then_scheduled_receipt_is_baseline_state_only(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             def fetcher(url):
@@ -114,15 +115,16 @@ class Phase234CaptureTests(unittest.TestCase):
             manual = capture_latest(root=root, event_name="workflow_dispatch", now=now, fetcher=fetcher, env={})
             scheduled = capture_latest(root=root, event_name="schedule", now=now, fetcher=fetcher, env={})
             self.assertFalse(manual["pit_eligible_from_pipeline_receipt"])
-            self.assertTrue(scheduled["pit_eligible_from_pipeline_receipt"])
+            self.assertFalse(scheduled["pit_eligible_from_pipeline_receipt"])
+            self.assertTrue(scheduled["prospective_state_usable_after_receipt"])
+            self.assertTrue(scheduled["initial_baseline"])
             self.assertTrue(scheduled["new_snapshot"])
             metadata_files = list((root/"data/cftc_bpr/metadata").glob("*.json"))
             self.assertEqual(len(metadata_files), 2)
             stored = [json.loads(p.read_text()) for p in metadata_files]
-            self.assertEqual(sum(bool(x["pit_eligible_from_pipeline_receipt"]) for x in stored), 1)
-            self.assertEqual(scheduled["status"], "FIRST_SCHEDULED_RECEIPT_CAPTURED")
-            self.assertIn("FIRST_SCHEDULED_RECEIPT_OF_PREVIOUSLY_SEEN_VERSION",
-                          {x["receipt_kind"] for x in stored})
+            self.assertEqual(sum(bool(x["pit_eligible_from_pipeline_receipt"]) for x in stored), 0)
+            self.assertEqual(scheduled["status"], "INITIAL_BASELINE_CAPTURED_STATE_ONLY")
+            self.assertIn("INITIAL_BASELINE_STATE_ONLY", {x["receipt_kind"] for x in stored})
 
     def test_repeated_manual_backfill_is_not_duplicated(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -153,7 +155,8 @@ class Phase234CaptureTests(unittest.TestCase):
             first = capture_latest(root=root, event_name="schedule", now=now, fetcher=fetcher, env={})
             second = capture_latest(root=root, event_name="schedule", now=now, fetcher=fetcher, env={})
             self.assertTrue(first["new_snapshot"])
-            self.assertEqual(second["status"], "NEW_REVISION_CAPTURED")
+            self.assertEqual(second["status"], "NEW_REVISION")
+            self.assertTrue(second["pit_eligible_from_pipeline_receipt"])
             raw_files = list((root/"data/cftc_bpr/raw").glob("*.html"))
             self.assertEqual(len(raw_files), 2)
 
