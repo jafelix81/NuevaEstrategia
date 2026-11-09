@@ -28,5 +28,13 @@
     "production_changed": false,
     "universe_changed": false
   },
-  "tests": "10 offline schema-contract regression tests; hosted result pending"
+  "tests": "11 hosted offline schema-contract regression tests passed in GitHub Actions run 42711044193",
+  "hosted_validation": {
+    "run_id": 42711044193,
+    "job": "audit",
+    "conclusion": "success",
+    "tests_passed": 11,
+    "artifact_id": 13715358092,
+    "artifact_sha256": "9b732aeae52c5a711979459feb0f094f320f8ce03ef598193be12ab7cc6ef575"
+  }
 }
