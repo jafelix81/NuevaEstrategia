@@ -71,5 +71,5 @@ No candidate becomes a model feature until historical coverage, ex-ante availabi
 - Positive-repeat filings: 20/34 13D and 21/68 13G. Seven zero-only filings: Mobiquity, Instructure, Endeavor, SatixFy, CARGO Therapeutics, BlackRock MuniVest Fund II and Palisade Bio; Savara is the mixed 13G case.
 - Twelve source-linked examples reviewed. Eight support common-holder/adviser/GP/trustee attribution; Korsana is a multi-fund/instrument group aggregate; Vislink and Plum remain unresolved; Mobiquity is a zero-position control. Never sum repeated reporting-person rows.
 - Group flags a, b and missing all appear among overlap examples; they are not a deduplication key. Joint filing alone is not proof of a unique group or additive positions.
-- Local validation: 7/7 tests passed, including full integration against the hash-pinned 102-document sample. No hosted Phase 227 Actions run is claimed.
+- Auditor: phase227_13dg_overlap_adjudication.py; tests: test_phase227_13dg_overlap_adjudication.py; result: phase227_13dg_overlap_adjudication_result.json. Local validation: 7/7 tests passed, including full integration against the hash-pinned 102-document sample. No hosted Phase 227 Actions run is claimed.
 - No forward returns, alpha, bootstrap/LOO, final holdout, vendor purchase, production, universe or F80 change.
