@@ -1,0 +1,107 @@
+{
+  "phase": 235,
+  "date": "2026-11-09",
+  "source": "CFTC Bank Participation Report (BPR), futures-in-contract",
+  "decision": "CONDITIONAL_PROSPECTIVE_REGIME_RESEARCH_ONLY",
+  "prior_phase": 234,
+  "repository_precheck": {
+    "latest_100_actions_runs": {
+      "success": 87,
+      "failure": 1,
+      "cancelled": 12,
+      "queued_or_in_progress": 0
+    },
+    "latest_run_id": 42568771468,
+    "latest_run_conclusion": "success",
+    "latest_run_job": "full-row-reparse",
+    "latest_run_job_steps_all_completed_successfully": true,
+    "latest_artifact_id": 13651429847,
+    "latest_artifact_sha256": "b65e594b48b1467bf22aefecf7b9afab78f4a18e2caf47e30569a57453f0a924",
+    "branches": 131,
+    "pr13_open_unmerged": true,
+    "pr14_open_unmerged": true,
+    "active_or_queued_runs": 0,
+    "failed_prior_run_id": 42568562899,
+    "failed_prior_run_reason": "archive_integrity_match gate returned false; later attempts succeeded"
+  },
+  "official_source_observations": {
+    "index_url": "https://www.cftc.gov/MarketReports/BankParticipationReports/index.htm",
+    "index_current_latest_report": "November 2026",
+    "index_order_observed": "descending_month",
+    "current_report_url": "https://www.cftc.gov/MarketReports/BankParticipation/deanov26f",
+    "current_report_date": "2026-11-03",
+    "scheduled_release_date": "2026-11-06",
+    "official_explanatory_notes_confirm_25_month_retention": true,
+    "explicit_zero_values_observed": true,
+    "suppressed_blank_bank_counts_observed": true,
+    "source_first_receipt_timestamp_available": false
+  },
+  "findings": [
+    {
+      "id": "BASELINE_STATE_VS_EVENT",
+      "severity": "high",
+      "description": "The prior capture stored a conservative pipeline receipt timestamp but did not clearly distinguish a pre-existing baseline state from a newly published report event. This could misclassify the initial baseline as an event observation if consumers ignored receipt_kind. No scheduled capture had run; no live data was mislabeled.",
+      "status": "fixed"
+    },
+    {
+      "id": "BLANK_NUMERIC_TO_ZERO",
+      "severity": "high",
+      "description": "The BPR parser converted blank long/short positions and percentages to numeric zero. Explicit zeros are printed as numeric 0 in the source; blank numeric fields must remain UNKNOWN.",
+      "status": "fixed"
+    },
+    {
+      "id": "HTML_ORDER_DEPENDENCE",
+      "severity": "medium",
+      "description": "Latest report selection relied on the first Futures link. Selection now sorts the encoded report month and validates report-date month.",
+      "status": "fixed"
+    },
+    {
+      "id": "CATCH_UP_LINK_COVERAGE",
+      "severity": "medium",
+      "description": "A single-latest-link capture could miss multiple newly indexed catch-up reports. Protocol v2 compares the full futures-link set and captures all newly appearing URLs.",
+      "status": "fixed"
+    }
+  ],
+  "protocol_v2": {
+    "first_scheduled_capture": "INITIAL_BASELINE_STATE_ONLY",
+    "baseline_prospective_state_usable_after_receipt": true,
+    "baseline_event_signal_eligible": false,
+    "baseline_historical_publication_time_verified": false,
+    "newly_indexed_urls": "captured append-only at actual report-page receipt time and event eligible after scheduled time gate",
+    "latest_report_revision": "re-fetched each scheduled run; new hash appended as revision",
+    "catch_up_reports": "all newly appearing report URLs captured in one scheduled run",
+    "index_snapshots": "append-only raw index HTML plus URL-set/hash/receipt records",
+    "manual_dispatch": "non-PIT and does not advance scheduled index baseline",
+    "legacy_protocol_v1_metadata": "ignored for v2 bootstrap; forces a fresh baseline",
+    "report_slug_date_validation": "required",
+    "older_nonlatest_revisions": "not continuously polled; residual limitation"
+  },
+  "parser_semantics": {
+    "blank_bank_count": "UNKNOWN",
+    "blank_long_or_short_positions": "UNKNOWN",
+    "blank_position_percentages": "UNKNOWN",
+    "explicit_numeric_zero": 0,
+    "combined_net_from_total_row": "allowed only when both total long and short observed",
+    "combined_net_from_category_rows": "allowed when both category rows are complete",
+    "category_breakdown": "UNKNOWN if any category position is blank",
+    "open_interest_denominator": "must be positive and observed"
+  },
+  "local_validation": {
+    "phase234_regression_tests": 13,
+    "phase235_new_tests": 10,
+    "total_tests_passed": 23,
+    "failures": 0,
+    "errors": 0,
+    "hosted_ci_run": false
+  },
+  "data_capture_performed": false,
+  "new_bpr_snapshot_created": false,
+  "historical_pit_admission": false,
+  "prospective_baseline_state_capture_implemented": true,
+  "event_alpha_admission": false,
+  "alpha_tested": false,
+  "production_changed": false,
+  "universe_changed": false,
+  "baseline": "F80_TOP20_PARTIAL50_BASELINE_C20_FROZEN",
+  "holdout": "CONSUMED_NOT_PRISTINE"
+}
