@@ -48,7 +48,7 @@
 - The capture protocol now stores append-only raw index HTML and link-set snapshots, selects the latest report by month encoded in its URL rather than page order, validates URL month against report date, and captures multiple newly indexed catch-up reports. Manual dispatches do not advance the scheduled baseline.
 - Legacy protocol-v1 metadata cannot suppress the v2 baseline. Older non-latest report pages are not continuously polled for revisions; this remains a limitation.
 - BPR blanks in bank counts, positions, and percentages remain UNKNOWN; explicit numeric zero remains zero. Combined net requires observed total long/short or complete category rows; positive market OI is mandatory.
-- 23/23 local regression tests passed (13 Phase 234 + 10 Phase 235). No hosted CI was run and no BPR capture has occurred.
+- 36/36 local regression tests passed (13 Phase 234 capture + 13 Phase 234 parser/semantics + 10 Phase 235). No hosted CI was run and no BPR capture has occurred.
 - [Phase 235 report](PHASE235_CFTC_BPR_PIT_BOOTSTRAP_AND_MISSINGNESS_AUDIT_2026-11-09.md)
 
 ## Source decisions
