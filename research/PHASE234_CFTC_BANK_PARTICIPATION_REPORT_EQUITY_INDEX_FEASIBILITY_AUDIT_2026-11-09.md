@@ -48,7 +48,7 @@ The CFTC's explanatory notes establish:
 
 The official special-announcements page records that BPR processing/publication was interrupted from October 1 through November 12, 2025 because of a lapse in appropriations, after which reports were published in chronological order. This is direct evidence that the nominal schedule is not a reliable substitute for a first-receipt log.
 
-A separate CFTC announcement on October 27, 2026 concerns increasing the **COT Report** publication frequency. The current BPR index and release schedule still describe BPR as monthly. This audit does not assume that the COT change alters BPR.
+A separate [CFTC announcement on October 27, 2026](https://www.cftc.gov/PressRoom/PressReleases/9316-26) concerns increasing the **COT Report** publication frequency. The current BPR index and release schedule still describe BPR as monthly. This audit does not assume that the COT change alters BPR.
 
 ## Current public coverage and worked sample
 
