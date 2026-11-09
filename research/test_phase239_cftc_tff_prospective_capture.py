@@ -230,9 +230,9 @@ class Phase239Tests(unittest.TestCase):
             def fetcher(url):
                 if url == INDEX_URL:
                     return html, {}
-                kind = "futures_only" if url.endswith("FinFutWk.txt") else "futures_options_combined"
-                return make_file(kind=kind, rows=[
-                    make_row(report_date=state["report_date"], kind=kind)
+                stream_label = "FutOnly" if url.endswith("FinFutWk.txt") else "Combined"
+                return make_file(kind=stream_label, rows=[
+                    make_row(report_date=state["report_date"], kind=stream_label)
                 ]), {}
 
             def capture(at):
