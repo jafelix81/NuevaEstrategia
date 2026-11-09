@@ -116,3 +116,11 @@ N-PORT covers registered management investment companies and eligible ETFs, not 
 - SEC filing index with period end and accepted timestamp: https://www.sec.gov/Archives/edgar/data/1424958/0001145549-25-044643-index.htm
 - SEC EDGAR filing-date/dissemination guidance: https://www.sec.gov/submit-filings/filer-support-resources/how-do-i-guides/determine-status-my-filing
 - SEC 2025 N-PORT amendment compliance-date delay: https://www.federalregister.gov/documents/2025/04/22/2025-06861/form-n-port-and-form-n-cen-reporting-guidance-on-open-end-fund-liquidity-risk-management-programs-delay-of
+
+
+## Hosted validation
+- GitHub Actions run: https://github.com/jafelix81/NuevaEstrategia/actions/runs/42711044193
+- Job: audit — SUCCESS.
+- Regression suite: 11/11 tests passed.
+- Deterministic artifact: https://github.com/jafelix81/NuevaEstrategia/actions/runs/42711044193/artifacts/13715358092
+- Artifact SHA-256: 9b732aeae52c5a711979459feb0f094f320f8ce03ef598193be12ab7cc6ef575
