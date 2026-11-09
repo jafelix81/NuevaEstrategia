@@ -48,6 +48,14 @@ class Phase234CaptureTests(unittest.TestCase):
         )
         self.assertTrue(m["pit_eligible_from_pipeline_receipt"])
 
+    def test_delayed_weekday_publication_is_captured_after_release_time(self):
+        receipt = datetime(2026, 11, 9, 20, 35, tzinfo=timezone.utc)  # Monday 15:35 EST
+        m = build_capture_metadata(
+            report_date="2026-11-03", report_url="https://x", report_sha256="abc",
+            receipt_time=receipt, event_name="schedule"
+        )
+        self.assertTrue(m["pit_eligible_from_pipeline_receipt"])
+
     def test_manual_dispatch_never_pit(self):
         receipt = datetime(2026, 11, 6, 20, 35, tzinfo=timezone.utc)
         m = build_capture_metadata(
