@@ -13,7 +13,7 @@
 - 112,313 unambiguous rows passed the full row-level contract/numeric/duplicate/OI checks.
 - 0 invalid quote timestamps, 0 numeric errors, 0 duplicate contract/interval keys, 0 inconsistent start-of-day OI contract-days, 0 bid-above-ask rows.
 - Independent Phase 175 all-row date diagnostics reconciled on all five members.
-- Latest current-head GitHub Actions run 42719093680 succeeded; 9/9 regression tests; 115,617 populated rows inspected, 112,313 unambiguous rows accepted and 3,304 ambiguous-expiration rows quarantined; artifact 13718924050 (2,422 bytes).
+- Latest code-validation run 42719093680 (code commit a277581f8cf2d7caed4c83da9cfa9b7d8cc2870b) succeeded; 9/9 regression tests; 115,617 populated rows inspected, 112,313 unambiguous rows accepted and 3,304 ambiguous-expiration rows quarantined; artifact 13718924050 (2,422 bytes).
 - Sample remains too narrow (two quote dates and only one or two underlyings per file) for historical coverage. Source is not PIT- or alpha-admitted.
 
 ### Phase 232 — Cboe Option Sentiment feasibility
@@ -167,7 +167,7 @@
 - Phase 240 CFTC regression: [run 42669436293](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42669436293), job 129341718918, completed successfully; logs confirm BPR 16/16 and TFF 31/31 (47/47). No artifact was emitted.
 - Phase 231 Cboe reparse: [run 42669444831](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42669444831), job 129341962705, completed successfully with 9/9 tests; artifact [13698615572](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42669444831/artifacts/13698615572), ZIP digest `45e571790d9f6ae428ef44f36fc59f47f9f5fc4465000c463e6f1fc3b2503069`.
 - Phase 243 hosted regression is confirmed by run [42676258774](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42676258774): 53/53 tests passed. Phase 231 current-head reparse [42676263668](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42676263668) passed 9/9 tests and emitted metadata-only artifact [13701350271](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42676263668/artifacts/13701350271), 2,422 bytes, SHA-256 `b40b613aa0efb5b0fcf1f17451d19e457e7ad9426eb5a499193605c9913a82b9`.
-- Branch inventory: 131. PR #13 remains open/mergeable (580 commits, 506 files); PR #14 remains open/mergeable and stacked on PR #13 (128 commits, 66 files). Neither was merged.
+- Branch inventory: 131. PR #13 and PR #14 remain open and unmerged; PR #14 is stacked on PR #13. No merge was performed. The final documentation-only commit was marked skip-CI, so mergeability was not recalculated for that head.
 
 
 ## Phase 244 — SEC FTD external release/receipt timeline audit
