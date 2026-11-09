@@ -150,8 +150,10 @@ def audit(input_dir: Path, zip_path: Path | None = None) -> tuple[list[dict[str,
         raise ValueError("Unexpected 13D event-date-proxy pre parsed cohort size")
     if classification_counts["13D"]["event_date_proxy"]["post"] != 50:
         raise ValueError("Unexpected 13D event-date-proxy post parsed cohort size")
-    if classification_counts["13G"]["filing_date"] != classification_counts["13G"]["event_date_proxy"]:
+    if any(classification_counts["13G"]["filing_date"][k] != classification_counts["13G"]["event_date_proxy"][k] for k in ("pre", "post")):
         raise ValueError("Unexpected 13G cutoff crossing")
+    if classification_counts["13G"]["event_date_proxy"]["unknown"] != 37:
+        raise ValueError("Unexpected number of unknown 13G event dates")
 
     summary = {
         "phase": 229,
@@ -209,7 +211,7 @@ def write_outputs(rows: list[dict[str, Any]], summary: dict[str, Any], output_di
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--input-dir", type=Path, required=True)
-    parser.add_argument("--zip-path", type=Path)
+    parser.add_argument("--zip-path", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     args = parser.parse_args()
     rows, summary = audit(args.input_dir, args.zip_path)
