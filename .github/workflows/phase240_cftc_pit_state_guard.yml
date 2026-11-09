@@ -1,8 +1,8 @@
 name: Phase 240 CFTC BPR/TFF PIT state-machine regression
 
 on:
-  pull_request:
-    branches: [phase99-broad-pit-universe-charter]
+  push:
+    branches: [phase231-cboe-option-quotes-full-row-reparse]
     paths:
       - "research/phase234_cftc_bpr_capture.py"
       - "research/test_phase234_cftc_bpr_capture.py"
