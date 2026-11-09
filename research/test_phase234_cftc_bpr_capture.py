@@ -245,7 +245,7 @@ class Phase234CaptureTests(unittest.TestCase):
             scheduled = capture_latest(root=root, event_name="schedule", now=manual_time,
                 fetcher=fetcher(INDEX_WITH_DECEMBER), env={})
             dec = next(x for x in scheduled["captures"] if x.get("report_date") == "2026-12-01")
-            self.assertEqual(dec["status"], "PREVIOUSLY_OBSERVED_VERSION_STATE_ONLY")
+            self.assertEqual(dec["status"], "PREVIOUSLY_OBSERVED_VERSION_FIRST_SCHEDULED_RECEIPT_STATE_ONLY")
             self.assertFalse(dec["pit_eligible_from_pipeline_receipt"])
             self.assertTrue(dec["prospective_state_usable_after_receipt"])
 
