@@ -49,8 +49,9 @@ The helper implements only the post-migration volume-based feature family and re
 For each venue-specific option-series row:
 1. Validate the exchange/date against the advertised archive start.
 2. Reject C1 legacy-schema rows before 2011-01-02 from the post-migration feature family.
-3. Validate the option-series key and reject duplicate rows within the same exchange. The same option series appearing on different exchanges is allowed and is not treated as a duplicate.
-4. Compute the Phase 250 call/put directional contract proxy for the requested capacity/action/size bucket.
+3. Restrict the primary cohort to standard `S` series. Non-standard `N` and FLEX `F` series are quarantined until an OCC deliverable/multiplier crosswalk is available; raw contract counts are not economically comparable across adjusted deliverables by assumption.
+4. Validate the EOD file-level option key and reject duplicate rows within the same exchange. The same standard option series appearing on different exchanges is allowed and is not treated as a duplicate. This file-level key is not represented as a permanent OCC deliverable identity.
+5. Compute the Phase 250 call/put directional contract proxy for the requested capacity/action/size bucket.
 5. Apply the C1 historical total-exchange-volume scale of 2 through 2019-10-04; no undocumented scale is applied to BZX, C2 or EDGX total exchange volume.
 6. Aggregate signed net contracts, gross capacity contracts and adjusted venue-specific exchange volume across the observed exchange rows.
 
@@ -68,11 +69,12 @@ The helper deliberately does **not**:
 - use previous close as an underlying-price series;
 - interpret an absent venue row or absent venue file as zero;
 - claim complete venue coverage from a partial set of rows;
+- claim that the EOD file-level option key resolves OCC adjusted deliverables;
 - infer that capacity categories identify institutions or informed traders.
 
 ## 4. Data-feasibility and PIT decision
 
-This phase establishes that a four-venue feature panel is structurally plausible from 2018-01-02, and that its venue-specific convention breaks can be encoded. It does **not** establish that daily files can be obtained lawfully and continuously for the full history, that every historical file is complete, or that every symbol is covered.
+This phase establishes that a four-venue feature panel is structurally plausible from 2018-01-02, and that its venue-specific convention breaks can be encoded. The primary feature cohort is standard `S` series only; `N` and `F` are excluded pending deliverable/multiplier identity work. It does **not** establish that daily files can be obtained lawfully and continuously for the full history, that every historical file is complete, or that every symbol is covered.
 
 The EOD specification describes historical files as one file per trade date per exchange. Subscriptions normally deliver preliminary and final files the following morning (typically 00:30–01:00 ET). The preliminary file can use OPRA-sourced total industry volume and OI; the final file uses OCC-sourced values that may differ. The Cboe FAQ allows delays, including a prior-day file arriving after the next market open. A trade date or nominal delivery target is therefore not a historical first-receipt timestamp.
 
