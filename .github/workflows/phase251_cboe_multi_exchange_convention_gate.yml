@@ -1,0 +1,57 @@
+name: Phase 251 Cboe multi-exchange convention gate
+
+on:
+  push:
+    branches: [phase231-cboe-option-quotes-full-row-reparse]
+    paths:
+      - "research/phase251_cboe_multi_exchange_convention_gate.py"
+      - "research/test_phase251_cboe_multi_exchange_convention_gate.py"
+      - ".github/workflows/phase251_cboe_multi_exchange_convention_gate.yml"
+  pull_request:
+    branches: [phase99-broad-pit-universe-charter]
+    paths:
+      - "research/phase251_cboe_multi_exchange_convention_gate.py"
+      - "research/test_phase251_cboe_multi_exchange_convention_gate.py"
+      - ".github/workflows/phase251_cboe_multi_exchange_convention_gate.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase251-cboe-multi-exchange-convention-gate
+  cancel-in-progress: false
+
+jobs:
+  convention-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile Phase 251 and dependency
+        run: |
+          python -m py_compile research/phase250_cboe_openclose_convention_gate.py research/phase251_cboe_multi_exchange_convention_gate.py research/test_phase251_cboe_multi_exchange_convention_gate.py
+      - name: Run deterministic regression tests
+        run: python -m unittest -v research.test_phase251_cboe_multi_exchange_convention_gate
+      - name: Enforce exchange and PIT boundaries
+        run: |
+          python - <<'PY'
+          from research.phase251_cboe_multi_exchange_convention_gate import classify_exchange_date
+          c1 = classify_exchange_date("C1", "2011-01-02")
+          bzx = classify_exchange_date("BZX", "2018-01-02")
+          c1_old = classify_exchange_date("C1", "2019-10-04")
+          c2_old = classify_exchange_date("C2", "2018-05-11")
+          assert c1["post_migration_feature_eligible"]
+          assert bzx["history_available"]
+          assert c1_old["total_exchange_volume_multiplier"] == 2
+          assert c2_old["total_industry_volume_multiplier"] == "0.5"
+          assert not c1["strict_pit_admitted"]
+          print("PHASE251=PASS")
+          print("FOUR_VENUE_PANEL_START=2018-01-02")
+          print("C1_POST_MIGRATION_DIRECTIONAL_START=2011-01-02")
+          print("C1_OLD_VOLUME_SCALE=2")
+          print("C2_OLD_INDUSTRY_VOLUME_SCALE=0.5")
+          print("STRICT_PIT_ALPHA=NOT_ADMITTED")
+          PY
