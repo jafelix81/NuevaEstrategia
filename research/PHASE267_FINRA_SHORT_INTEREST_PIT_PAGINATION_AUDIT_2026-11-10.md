@@ -123,6 +123,12 @@ These are historical diagnostic outputs only. They are not valid PIT/OOS evidenc
 
 The SEC records that proposed FINRA rule change SR-FINRA-2026-012, which would have increased short-interest reporting frequency and granularity, was **withdrawn on 2026-08-05**. Do not assume weekly reporting has commenced. Continue using the official twice-monthly FINRA publication schedule until FINRA/SEC publish a new effective rule and schedule.
 
+## 8. Current API authentication contract
+
+The current FINRA Developer Center documentation lists Public, Firm, and Organization credential types for Consolidated Short Interest and states that Query API requests require an OAuth 2.0 Bearer token. The Phase 25B/25C client sends only Accept and Content-Type headers and contains no token flow. Although the historical GitHub runs returned data, that does not establish that the old unauthenticated request is a reproducible current access method.
+
+A future live capture must first verify the current Public-credential onboarding and terms. No FINRA credential was created, no API terms were accepted, and no live request was made in Phase 267. This becomes a user-authorized setup step only if we decide to deploy prospective FINRA capture.
+
 ## Rebuild path
 
 1. Correct the historical API fetcher and prove full pagination with response-header accounting.
@@ -135,7 +141,7 @@ The SEC records that proposed FINRA rule change SR-FINRA-2026-012, which would h
 
 ## Official sources
 
-- [FINRA Developer Center — Query API documentation](https://developer.finra.org/docs): Consolidated Short Interest is available by 4:40 p.m. ET on publication date; synchronous requests max out at 5,000 records; synchronous payloads max out at 3 MB; pagination headers include Record-Total, Record-Offset, Record-Limit, and Record-Max-Limit.
+- [FINRA Developer Center — Query API documentation](https://developer.finra.org/docs): Consolidated Short Interest is available by 4:40 p.m. ET on publication date; the dataset supports Public/Firm/Organization credentials; Query API requests require OAuth 2.0 Bearer authorization; synchronous requests max out at 5,000 records and 3 MB; pagination headers include Record-Total, Record-Offset, Record-Limit, and Record-Max-Limit.
 - [FINRA — Short Interest Reporting](https://www.finra.org/filing-reporting/regulatory-filing-systems/short-interest): official settlement, due, and publication schedule.
 - [SEC — SR-FINRA-2026-012](https://www.sec.gov/rules-regulations/self-regulatory-organization-rulemaking/sr-finra-2026-012): withdrawn August 5, 2026.
 
