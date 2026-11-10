@@ -58,7 +58,7 @@ class Phase266CftcWorkflowSecurityTests(unittest.TestCase):
         self.assertIn("timeout-minutes: 20", self.text)
 
     def test_all_actions_are_pinned_to_verified_immutable_commits(self):
-        uses = re.findall(r"^\\s*uses:\\s*([^\\s]+)", self.text, re.MULTILINE)
+        uses = re.findall(r"^\s*uses:\s*([^\s]+)", self.text, re.MULTILINE)
         self.assertEqual(len(uses), 3)
         for action_ref in uses:
             self.assertRegex(action_ref, r"^[^@]+@[0-9a-f]{40}$")
