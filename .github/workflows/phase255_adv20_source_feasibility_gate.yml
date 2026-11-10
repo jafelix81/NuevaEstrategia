@@ -82,3 +82,5 @@ jobs:
           retention-days: 90
 
 # Re-run after canonical Decimal output assertion correction.
+
+# Re-run after fractional-volume and split-invariance regressions were added.
