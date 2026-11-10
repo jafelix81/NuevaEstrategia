@@ -106,3 +106,11 @@ Next, only if authorized access is separately approved, request a small stratifi
 This source may solve part of the identity problem shared by several research lines, but it is not a Smart Money signal and does not solve ADV20 market-data licensing.
 
 `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen. No production, universe, capital, or model parameters changed.
+
+
+## Official documentation references
+
+1. Databento, [Security Master dataset specification](https://databento.com/docs/datasets/security-master) — history start, listed/delisted/global coverage, listing-level records, symbol suffix and continuity caveats.
+2. Databento, [Security Master API reference](https://databento.com/docs/api-reference-data/security-master?lang=python) — `get_range` with `ts_effective` / `ts_record`, and the AAPL example showing historical effective/record dates with 2024 database creation.
+3. Databento, [Security Master field schema](https://databento.com/docs/schemas/security-master) — definitions of `ts_effective`, `ts_record`, and `ts_created`.
+4. Databento, [Security Master product page](https://databento.com/security-master) — product update cadence and internal-use / no-external-redistribution language. Its cadence statement conflicts with the dataset specification's weekly update frequency; the conflict is left unresolved.
