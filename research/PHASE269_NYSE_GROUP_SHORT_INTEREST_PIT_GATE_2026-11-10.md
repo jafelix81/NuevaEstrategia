@@ -32,7 +32,7 @@ The 2026 NYSE calendar gives:
 
 FINRA's official 2026 calendar lists the same release dates for those settlement dates. FINRA's developer documentation states that the Consolidated Short Interest dataset is available by **4:40 p.m. ET** on the publication date.
 
-The scheduled difference is 160 minutes. For an end-of-day strategy, a report actually received at 2:00 p.m. could potentially be used with that day's closing price. This is eligible only if the file is truly received and validated before the close. The scheduled time is not a substitute for an immutable first-receipt timestamp. Late or missing deliveries must move entry to the next eligible session; never backdate availability.
+The scheduled difference is 160 minutes. For an end-of-day strategy, a report actually received at 2:00 p.m. could potentially be used with that day's closing price. This is eligible only if the file is truly received and validated before the actual XNYS close on that date. On an early-close session (for example, a 1:00 p.m. close), a 2:00 p.m. delivery is already post-close and entry must move to the next session. The scheduled time is not a substitute for an immutable first-receipt timestamp. Late or missing deliveries must move entry to the next eligible session; never backdate availability.
 
 ## 3. Relationship to FINRA: same underlying reports, not independent information
 
