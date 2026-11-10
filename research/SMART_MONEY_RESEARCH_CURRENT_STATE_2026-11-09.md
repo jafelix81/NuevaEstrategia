@@ -275,7 +275,8 @@
 
 ### Phase 251 operational status at last check
 - Phase 251 passed 42/42.
-- Phase 246, 247, 248 and 250 same-head regression workflows also completed successfully.
-- Phase 249 same-head real-sample reprocessing completed successfully.
-- Phase 231 same-head full-row reparse was still running at the last check; do not start another run until it completes.
+- On the last code-bearing PR head `9e8815975854bb6f28867135ea6b156a38530093`, Phase 251 passed 42/42; Phase 249 passed 11/11 and reprocessed the public C1 sample; Phase 231 passed 9/9 and completed the full-row reparse. Phase 246/247/248/250 also completed successfully on that head.
+- Phase 249 run [42743447658](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42743447658) emitted metadata-only artifact [13729249675](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42743447658/artifacts/13729249675), 1,919 bytes; 23,179 sample rows, 23,179 exact participant-volume reconciliations, 18,516/18,516 feature groups, 1,543 underlying groups. This remains a single-date 20% C1 sample, not PIT or alpha evidence.
+- Phase 231 run [42743447707](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42743447707) passed 9/9 and emitted metadata-only artifact [13730600781](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42743447707/artifacts/13730600781), 2,422 bytes, SHA-256 `cfb0bbe1f1c165b542d6b5a4b5d63e3c4405be3d800e52aa88eb7b61c96bd5f1`. It parsed 115,617 rows; 112,313 were unambiguous and 3,304 remained quarantined for ambiguous expiration dates.
+- The subsequent state/report/result commits used `[skip ci]`; no workflows are active on the current PR head as of the last query.
 - PR #14 remains open and unmerged, stacked on PR #13. No merge was performed.
