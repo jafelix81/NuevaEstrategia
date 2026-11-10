@@ -1,0 +1,54 @@
+name: Phase 269 NYSE Group Short Interest PIT gate
+
+on:
+  pull_request:
+    branches: [phase99-broad-pit-universe-charter]
+    paths:
+      - "research/phase269_nyse_group_short_interest_pit_gate.py"
+      - "research/test_phase269_nyse_group_short_interest_pit_gate.py"
+      - "research/PHASE269_NYSE_GROUP_SHORT_INTEREST_PIT_GATE_2026-11-10.md"
+      - ".github/workflows/phase269_nyse_group_short_interest_pit_gate.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase269-nyse-group-short-interest-pit-gate
+  cancel-in-progress: false
+
+jobs:
+  source-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile Phase 269
+        run: python -m py_compile research/phase269_nyse_group_short_interest_pit_gate.py research/test_phase269_nyse_group_short_interest_pit_gate.py
+      - name: Run deterministic source-gate tests
+        run: python -m unittest -v research.test_phase269_nyse_group_short_interest_pit_gate
+      - name: Build deterministic source-gate artifact
+        run: python -m research.phase269_nyse_group_short_interest_pit_gate --output phase269_output/phase269_nyse_group_short_interest_pit_gate_result.json
+      - name: Enforce no-alpha, no-purchase and frozen-baseline controls
+        run: |
+          python - <<'PY'
+          import json
+          p = "phase269_output/phase269_nyse_group_short_interest_pit_gate_result.json"
+          r = json.load(open(p, encoding="utf-8"))
+          assert r["research_decision"]["historical_pit_admitted"] is False
+          assert r["research_decision"]["alpha_admitted"] is False
+          assert r["research_decision"]["f80_frozen"] is True
+          assert r["research_decision"]["holdout_used"] is False
+          assert r["commercial_and_operational"]["purchase_authorized"] is False
+          assert r["commercial_and_operational"]["vendor_contact_authorized"] is False
+          print("PHASE269_STATUS=" + r["research_decision"]["classification"])
+          PY
+      - name: Upload metadata-only source-gate artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase269-nyse-group-short-interest-pit-gate
+          path: phase269_output/phase269_nyse_group_short_interest_pit_gate_result.json
+          if-no-files-found: error
+          retention-days: 90
