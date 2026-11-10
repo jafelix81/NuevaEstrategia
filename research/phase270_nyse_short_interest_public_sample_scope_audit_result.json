@@ -1,0 +1,156 @@
+{
+  "phase": 270,
+  "as_of_date": "2026-11-10",
+  "source": "NYSE Group Short Interest",
+  "scope_correction": {
+    "official_product_page_links_to_reference_data_samples": true,
+    "sample_directory": "https://ftp.nyse.com/Reference%20Data%20Samples/NYSE%20GROUP%20SHORT%20INTEREST/",
+    "sample_is_security_level": true,
+    "sample_is_exchange_level_aggregate_only": false,
+    "basis": [
+      "official product page Sample Data link resolves to the Reference Data Samples directory",
+      "indexed sample text preview shows one security issue per pipe-delimited row",
+      "official specification defines 16 security-level fields including ticker, suffix, CUSIP and current short position"
+    ],
+    "separate_aggregate_report_directory": "https://ftp.nyse.com/NYSEGroupConsolidatedShortInterest/",
+    "separate_aggregate_report_must_not_be_conflated_with_product_sample": true,
+    "third_party_aggregate_only_description_applies_to_separate_report_path": true,
+    "full_sample_downloaded_or_parsed": false
+  },
+  "official_product": {
+    "historical_start_advertised": "1988-01",
+    "frequency": "semi-monthly",
+    "venues_product_page": [
+      "NYSE",
+      "NYSE Arca",
+      "NYSE American"
+    ],
+    "venues_specification_v1_7": [
+      "NYSE",
+      "NYSE American",
+      "NYSE Arca",
+      "NYSE Texas"
+    ],
+    "subscription_required_for_full_history": true,
+    "technical_specification_version": "1.7",
+    "technical_specification_date": "2025-04-10",
+    "release_delivery_time_et": "14:00",
+    "field_count": 16,
+    "fields": [
+      "Stock_Symbol",
+      "Standard_Suffix",
+      "CUSIP",
+      "Legal_Issuer_Name",
+      "Issue_Name",
+      "Primary_Market",
+      "Revision_Indicator",
+      "Split_Indicator",
+      "Free_Float",
+      "Current_Short_Interest_Position",
+      "Previous_Short_Interest_Position",
+      "Change_In_Short_Interest_Position",
+      "Average_Daily_Volume",
+      "Change_In_Average_Daily_Volume",
+      "Current_Days_To_Cover",
+      "Change_In_Days_To_Cover"
+    ],
+    "primary_market_codes": {
+      "N": "NYSE",
+      "A": "NYSE American",
+      "P": "NYSE Arca",
+      "M": "NYSE Texas"
+    }
+  },
+  "public_sample_directory": {
+    "listing_modified_date": "2026-09-30",
+    "files": [
+      {
+        "settlement_date": "2026-07-15",
+        "txt_bytes": 750412,
+        "xls_bytes": 2130432,
+        "xml_bytes": 4300106,
+        "indexed_text_lines": 5877,
+        "line_count_is_not_claimed_as_fully_parsed_record_count": true
+      },
+      {
+        "settlement_date": "2026-07-31",
+        "txt_bytes": 751053,
+        "xls_bytes": 2132480,
+        "xml_bytes": 4308024,
+        "indexed_text_lines": 5889,
+        "line_count_is_not_claimed_as_fully_parsed_record_count": true
+      }
+    ],
+    "number_of_sample_settlement_dates": 2,
+    "historical_1988_to_present_archive_in_sample_directory": false,
+    "full_history_requires_subscription": true
+  },
+  "schema_and_identity": {
+    "delimiter": "pipe",
+    "trailing_delimiter_present_in_indexed_preview": true,
+    "field_count_from_specification": 16,
+    "ticker_is_not_a_unique_issue_key": true,
+    "multiple_issue_rows_per_ticker_observed_in_indexed_preview": true,
+    "cusip_and_suffix_required_for_issue_level_matching": true,
+    "cusip_is_not_a_permanent_effective_dated_security_identifier": true,
+    "free_float_zero_means_unavailable": true,
+    "revision_flag_R_means_previous_period_revised": true,
+    "split_flag_S_means_split_during_current_period": true,
+    "full_file_schema_validation_performed": false,
+    "exact_unique_issue_count_calculated": false,
+    "universe_overlap_calculated": false
+  },
+  "availability_and_pit": {
+    "scheduled_release_time_et": "14:00",
+    "finra_api_available_by_et": "16:40",
+    "scheduled_distribution_difference_minutes": 160,
+    "same_underlying_finra_rule_4560_reporting_pipeline": true,
+    "independent_underlying_smart_money_source": false,
+    "sample_directory_modified_timestamp_is_first_receipt": false,
+    "original_as_published_vintages_verified": false,
+    "revision_chain_verified": false,
+    "delisted_security_coverage_verified": false,
+    "prospective_first_receipt_capture_would_be_required": true,
+    "early_close_execution_rule_required": true
+  },
+  "license_and_use": {
+    "ice_terms_last_reviewed": "2026-11-10",
+    "website_license_limited_to_personal_noncommercial_use": true,
+    "terms_exclude_data_mining_robots_or_similar_extraction": true,
+    "systematic_retrieval_or_electronic_extraction_requires_prior_written_permission": true,
+    "ftp_host_explicitly_named_in_ice_terms": false,
+    "terms_scope_over_ftp_sample_path_confirmed": false,
+    "automated_download_authorized": false,
+    "automated_parsing_or_feature_extraction_authorized": false,
+    "vendor_contact_authorized": false,
+    "purchase_authorized": false,
+    "decision": "DO_NOT_AUTOMATE_UNTIL_ICE_CONFIRMS_LICENSE_SCOPE_OR_WRITTEN_PERMISSION"
+  },
+  "research_decision": {
+    "classification": "CONDITIONAL_SECURITY_LEVEL_SOURCE_SAMPLE_CONFIRMED_BUT_LICENSE_SCOPE_AND_HISTORICAL_PIT_BLOCKED",
+    "sample_scope_admitted": true,
+    "historical_pit_admitted": false,
+    "alpha_admitted": false,
+    "backtest_performed": false,
+    "purchase_or_vendor_contact": false,
+    "production_change": false,
+    "f80_frozen": true,
+    "holdout_used": false
+  },
+  "future_gates_if_written_permission_or_license_is_obtained": [
+    "Obtain explicit permission/license covering automated download, storage, parsing, derived features and intended use.",
+    "Acquire a representative multi-year historical sample including inactive/delisted issues and original release vintages.",
+    "Capture immutable first receipt timestamps, raw hashes, corrections, revision chains and split states.",
+    "Build an effective-dated CUSIP-to-security/listing crosswalk and measure overlap with an immutable F80 universe snapshot.",
+    "Compare NYSE 14:00 ET receipt with FINRA 16:40 ET receipt using the same report values and next eligible execution prices.",
+    "Test short-interest level, change and days-to-cover as crowding/risk features versus frozen LTM/F80 with identical exposure and costs."
+  ],
+  "source_urls": [
+    "https://www.nyse.com/data-products/catalog/nyse-group-short-interest",
+    "https://www.nyse.com/publicdocs/nyse/data/NYSE_Group_Short_Interest_Client_Specification_v1.7.pdf",
+    "https://ftp.nyse.com/Reference%20Data%20Samples/NYSE%20GROUP%20SHORT%20INTEREST/",
+    "https://ftp.nyse.com/NYSEGroupConsolidatedShortInterest/",
+    "https://www.ice.com/privacy-security-center/terms-of-use",
+    "https://developer.finra.org/docs"
+  ]
+}

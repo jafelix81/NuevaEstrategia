@@ -44,11 +44,11 @@ The specification defines market codes N, A, P and M (NYSE Texas). The product p
 
 The latter does not establish that the former is aggregate-only. Phase 269's conditional source classification remains, but its sample-scope description is corrected by this phase.
 
-## 3. Legal/use restriction is now the immediate blocker
+## 3. License scope is unresolved and must be clarified before automated ingestion
 
-ICE's currently posted Terms of Use apply to the NYSE website and provide a limited download/use license for personal, non-commercial purposes, while expressly excluding data mining, robots or similar data-gathering/extraction methods. The permissible-use section also prohibits systematic retrieval, electronic extraction/scrubbing, compilation and derivative works without prior written permission.
+ICE's currently posted Terms of Use, linked from NYSE's product/technical pages, grant a limited website license for personal, non-commercial use and exclude data mining, robots or similar data-gathering/extraction methods. The permissible-use section also restricts systematic retrieval and electronic extraction/scrubbing without prior written permission. However, the posted terms define the covered Website by named ICE/NYSE web domains and do not explicitly name ftp.nyse.com. We therefore cannot assert that the FTP sample directory is definitively within that agreement's scope; applicability to the sample host remains unresolved.
 
-Consequently, **do not automate downloads, parse the sample into a research dataset, or calculate features from it unless NYSE/ICE grants written permission or a suitable data license is obtained**. No sample was downloaded or stored, no automated extraction was run, no vendor was contacted, and no purchase or terms acceptance occurred.
+Conservative operational decision: **do not automate download, parse, store, or calculate derived features from the sample until ICE/NYSE clarifies in writing the applicable terms or a suitable data license is obtained**. No sample was downloaded or stored, no automated extraction was run, no vendor was contacted, and no purchase or terms acceptance occurred.
 
 This is a material change from a mere technical feasibility issue: the data are security-level, but permitted research ingestion/derived-feature use is not established.
 

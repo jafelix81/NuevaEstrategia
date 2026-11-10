@@ -91,6 +91,13 @@ class Phase270NYSEPublicSampleScopeTests(unittest.TestCase):
     def test_full_contract(self):
         validate_result(self.result)
 
+    def test_ice_terms_scope_over_ftp_host_is_not_assumed(self):
+        terms = self.result["license_and_use"]
+        self.assertFalse(terms["ftp_host_explicitly_named_in_ice_terms"])
+        self.assertFalse(terms["terms_scope_over_ftp_sample_path_confirmed"])
+        self.assertFalse(terms["automated_download_authorized"])
+        self.assertFalse(terms["automated_parsing_or_feature_extraction_authorized"])
+
 
 if __name__ == "__main__":
     unittest.main()

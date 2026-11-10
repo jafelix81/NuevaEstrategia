@@ -109,11 +109,13 @@ def build_result() -> dict:
             "website_license_limited_to_personal_noncommercial_use": True,
             "terms_exclude_data_mining_robots_or_similar_extraction": True,
             "systematic_retrieval_or_electronic_extraction_requires_prior_written_permission": True,
+            "ftp_host_explicitly_named_in_ice_terms": False,
+            "terms_scope_over_ftp_sample_path_confirmed": False,
             "automated_download_authorized": False,
             "automated_parsing_or_feature_extraction_authorized": False,
             "vendor_contact_authorized": False,
             "purchase_authorized": False,
-            "decision": "DO_NOT_AUTOMATE_DOWNLOAD_PARSE_OR_FEATURE_EXTRACTION_WITHOUT_WRITTEN_PERMISSION",
+            "decision": "DO_NOT_AUTOMATE_UNTIL_ICE_CONFIRMS_LICENSE_SCOPE_OR_WRITTEN_PERMISSION",
         },
         "research_decision": {
             "classification": "CONDITIONAL_SECURITY_LEVEL_SOURCE_SAMPLE_CONFIRMED_BUT_LICENSE_AND_HISTORICAL_PIT_BLOCKED",
@@ -137,7 +139,7 @@ def build_result() -> dict:
         "source_urls": [
             "https://www.nyse.com/data-products/catalog/nyse-group-short-interest",
             "https://www.nyse.com/publicdocs/nyse/data/NYSE_Group_Short_Interest_Client_Specification_v1.7.pdf",
-            "https://ftp.nyse.com/Reference%20DataSamples/NYSE%20GROUP%20SHORT%20INTEREST/",
+            "https://ftp.nyse.com/Reference%20Data%20Samples/NYSE%20GROUP%20SHORT%20INTEREST/",
             "https://ftp.nyse.com/NYSEGroupConsolidatedShortInterest/",
             "https://www.ice.com/privacy-security-center/terms-of-use",
             "https://developer.finra.org/docs",
@@ -183,6 +185,8 @@ def validate_result(result: dict) -> None:
     terms = result["license_and_use"]
     assert terms["terms_exclude_data_mining_robots_or_similar_extraction"] is True
     assert terms["systematic_retrieval_or_electronic_extraction_requires_prior_written_permission"] is True
+    assert terms["ftp_host_explicitly_named_in_ice_terms"] is False
+    assert terms["terms_scope_over_ftp_sample_path_confirmed"] is False
     assert terms["automated_download_authorized"] is False
     assert terms["automated_parsing_or_feature_extraction_authorized"] is False
 
@@ -201,7 +205,7 @@ def main() -> None:
     args = parser.parse_args()
     result = build_result()
     validate_result(result)
-    rendered = json.dumps(result, indent=2, sort_keys=True) + "\\n"
+    rendered = json.dumps(result, indent=2, sort_keys=True) + "\n"
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(rendered, encoding="utf-8")

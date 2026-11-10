@@ -8,6 +8,7 @@ on:
       - "research/test_phase270_nyse_short_interest_public_sample_scope_audit.py"
       - "research/PHASE270_NYSE_SHORT_INTEREST_PUBLIC_SAMPLE_SCOPE_AUDIT_2026-11-10.md"
       - ".github/workflows/phase270_nyse_short_interest_public_sample_scope_audit.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read
