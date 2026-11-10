@@ -1,0 +1,41 @@
+name: Phase 265 FINRA short-flow PIT calendar and execution audit
+
+on:
+  push:
+    branches:
+      - phase231-cboe-option-quotes-full-row-reparse
+    paths:
+      - research/phase265_finra_shortflow_pit_calendar_execution_audit.py
+      - research/test_phase265_finra_shortflow_pit_calendar_execution_audit.py
+      - research/phase265_finra_shortflow_pit_calendar_execution_audit_result.json
+      - .github/workflows/phase265_finra_shortflow_pit_calendar_execution_audit.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase265-finra-shortflow-pit-calendar-$\u007b\u007b github.ref \u007d\u007d
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run deterministic contract tests
+        run: python -m unittest research.test_phase265_finra_shortflow_pit_calendar_execution_audit -v
+      - name: Rebuild deterministic result
+        run: |
+          python -m research.phase265_finra_shortflow_pit_calendar_execution_audit --output /tmp/phase265_result.json
+          cmp /tmp/phase265_result.json research/phase265_finra_shortflow_pit_calendar_execution_audit_result.json
+      - name: Upload metadata-only result
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase265-finra-shortflow-pit-calendar-audit
+          path: research/phase265_finra_shortflow_pit_calendar_execution_audit_result.json
+          if-no-files-found: error
+          retention-days: 90

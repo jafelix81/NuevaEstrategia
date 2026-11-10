@@ -1,4 +1,4 @@
-# Smart Money Research — Current State
+# Smart Money Research — current state (Phase 265, 2026-11-10 UTC)
 
 **Updated:** 2026-11-10 UTC  
 **Active branch:** phase231-cboe-option-quotes-full-row-reparse (PR #14, stacked on PR #13)  
@@ -185,3 +185,13 @@ No alpha/OOS result from Phase 253. No returns, bootstrap/LOO, chronological OOS
 - Latest live GitHub checks: Phase 231 run [42813734395](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42813734395) completed successfully (job 129821575614; metadata artifact 13764207248); Phase 263 run [42813725617](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42813725617) completed successfully (job 129821373917; artifact 13763672338). Their job steps and logs were inspected. The 10-run same-head PR regression wave is complete; no active or queued run was observed in the latest run page.
 - PR #13 remains open on `main`; PR #14 remains open and is stacked on PR #13. No PR was merged. Activation therefore remains blocked until the stacked change is reviewed and reaches `main`, or an explicitly reviewed equivalent default-branch deployment is made.
 - This is an operational capture-readiness issue, not evidence of a CFTC signal. No raw capture, return/alpha test, bootstrap/LOO/OOS, holdout use, production, universe, capital or F80 change occurred.
+
+
+## Phase 265 — FINRA short-flow PIT, calendar and execution audit (2026-11-10 UTC)
+- Re-inspected the original Phase 20C source, run [40098425254](https://github.com/jafelix81/NuevaEstrategia/actions/runs/40098425254), job 120885427795, artifact [12562171831](https://github.com/jafelix81/NuevaEstrategia/actions/runs/40098425254/artifacts/12562171831); artifact ZIP SHA-256 `c15f75340bdedfbb37c82f79bb563a450dd1da11989d09e18bb745d93b7d3a5c`.
+- Corrected the 2026-10-24 audit's PIT characterization: Phase 20C selects the FINRA row for the signal trade date and uses that same date's close as the forward-return denominator. Its download audit stores only Date and Status; no per-file first receipt, raw hash or immutable correction vintage exists. Chronological selection is not strict PIT.
+- Corrected the coverage interpretation: Phase 20C requests every calendar date from D−100 through D inclusive for each signal. 1,382/2,020 = 68.416% is not XNYS-session coverage; weekends/holidays are in the denominator. Actual expected-session coverage remains NOT MEASURED pending an explicit XNYS calendar.
+- The 12 pseudo-OOS dates show mean replacement-minus-blocked deltas of +0.141% (H5; median -0.049%), -1.686% (H10) and -0.858% (H20). Factor selection migrated across three features. This is diagnostic evidence only; no incremental alpha or PIT admission.
+- Decision: quarantine Phase 20C as chronological but non-PIT diagnostic; do not rerun/retune the same dates; do not use the legacy holdout. New strict-PIT work requires first-receipt UTC, immutable raw hashes/vintages, XNYS-session coverage and next-session execution.
+- [Phase 265 report](PHASE265_FINRA_SHORTFLOW_PIT_CALENDAR_AND_EXECUTION_AUDIT_2026-11-10.md) · [code](phase265_finra_shortflow_pit_calendar_execution_audit.py) · [tests](test_phase265_finra_shortflow_pit_calendar_execution_audit.py) · [result](phase265_finra_shortflow_pit_calendar_execution_audit_result.json) · [workflow](../.github/workflows/phase265_finra_shortflow_pit_calendar_execution_audit.yml)
+- F80 remains frozen; no return test, bootstrap/LOO/OOS, holdout use, production, universe or capital change.
