@@ -2,7 +2,12 @@
   "phase": 251,
   "status": "MULTI_EXCHANGE_MEASUREMENT_CONTRACT_PENDING_HOSTED_VALIDATION",
   "source": "Cboe Open-Close EOD",
-  "exchanges": ["C1", "BZX", "C2", "EDGX"],
+  "exchanges": [
+    "C1",
+    "BZX",
+    "C2",
+    "EDGX"
+  ],
   "advertised_history_start": {
     "C1": "2005-01-03",
     "BZX": "2018-01-02",
@@ -49,5 +54,12 @@
   "capital_changed": false,
   "vendor_contact": false,
   "data_purchase": false,
-  "trial_or_card_authorized": false
+  "trial_or_card_authorized": false,
+  "primary_series_type": "S",
+  "excluded_series_types": [
+    "N",
+    "F"
+  ],
+  "nonstandard_series_reason": "EOD file does not establish OCC adjusted deliverable/multiplier identity",
+  "test_count_expected": 42
 }
