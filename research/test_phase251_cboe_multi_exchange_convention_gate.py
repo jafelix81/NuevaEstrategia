@@ -246,6 +246,11 @@ class Phase251MultiExchangeGateTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "FLEX_SERIES_EXCLUDED"):
             aggregate_multi_exchange_underlying_rows([row], "customer")
 
+    def test_nonstandard_series_requires_deliverable_mapping(self):
+        row = make_row(exchange="C1", series_type="N")
+        with self.assertRaisesRegex(ValueError, "NONSTANDARD_SERIES_REQUIRES_DELIVERABLE_MAPPING"):
+            aggregate_multi_exchange_underlying_rows([row], "customer")
+
     def test_unknown_series_type_is_rejected(self):
         row = make_row(exchange="C1", series_type="X")
         with self.assertRaisesRegex(ValueError, "UNSUPPORTED_SERIES_TYPE"):
@@ -299,6 +304,7 @@ class Phase251MultiExchangeGateTests(unittest.TestCase):
     def test_result_never_claims_consolidated_opra_coverage_or_pit(self):
         result = aggregate_multi_exchange_underlying_rows([make_row(exchange="C1")], "customer")
         self.assertFalse(result["consolidated_opra_coverage"])
+        self.assertEqual(result["series_identity_scope"], "EOD_FILE_KEY_ONLY_NOT_OCC_DELIVERABLE_IDENTITY")
         self.assertFalse(result["strict_pit_admitted"])
         self.assertFalse(result["alpha_admission"])
 
