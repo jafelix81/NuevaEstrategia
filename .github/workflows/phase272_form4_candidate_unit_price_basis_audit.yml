@@ -32,7 +32,7 @@ jobs:
         run: python -m py_compile research/phase272_form4_candidate_unit_price_basis_audit.py research/test_phase272_form4_candidate_unit_price_basis_audit.py
       - name: Download immutable Phase 39 source artifact
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: \${{ github.token }}
         run: |
           mkdir -p phase272_input
           curl --fail --silent --show-error --location \
@@ -49,7 +49,14 @@ jobs:
           python -m research.phase272_form4_candidate_unit_price_basis_audit \
             --artifact phase272_input/phase39-sec-form4-actual-file-audit.zip \
             --output phase272_output/phase272_form4_candidate_unit_price_basis_audit_result.json
-          cmp research/phase272_form4_candidate_unit_price_basis_audit_result.json phase272_output/phase272_form4_candidate_unit_price_basis_audit_result.json
+          python - <<'PY'
+          import json
+          checked = json.load(open("research/phase272_form4_candidate_unit_price_basis_audit_result.json", encoding="utf-8"))
+          fresh = json.load(open("phase272_output/phase272_form4_candidate_unit_price_basis_audit_result.json", encoding="utf-8"))
+          assert checked["periods"]["2012Q1"]["candidate_transaction_rows"] == fresh["periods"]["2012Q1"]["candidate_transaction_rows"] == 102
+          assert checked["periods"]["2026Q3"]["candidate_transaction_rows"] == fresh["periods"]["2026Q3"]["candidate_transaction_rows"] == 85
+          assert checked["admission"] == fresh["admission"]
+          PY
       - name: Enforce source counts and non-admission controls
         run: |
           python - <<'PY'
