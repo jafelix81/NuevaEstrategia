@@ -21,7 +21,10 @@ def context(
     class_member="us-gaap:CommonClassAMember", listing_axis="dei:EntityListingsExchangeAxis",
     listing_member="exch:XNYS", exchange="NYSE",
 ):
-    facts = {"dei:Security12bTitle": [title], "dei:SecurityExchangeName": [exchange]}
+    if exchange is None:
+        facts = {"dei:Security12gTitle": [title]}
+    else:
+        facts = {"dei:Security12bTitle": [title], "dei:SecurityExchangeName": [exchange]}
     if symbol is not None:
         facts["dei:TradingSymbol"] = [symbol]
     dims = []
@@ -184,6 +187,25 @@ class Phase254Tests(unittest.TestCase):
             "Class A common stock", [context(symbol=None)], vintage,
         )
         self.assertEqual(result["status"], "TRADING_SYMBOL_UNKNOWN")
+
+    def test_single_class_without_listing_is_not_a_unique_listing(self):
+        result = resolve_form144_class_scoped(
+            "Class A common stock",
+            [context(exchange=None, listing_axis=None, listing_member=None)],
+            self.selected(),
+        )
+        self.assertEqual(result["status"], "UNIQUE_CLASS_SYMBOL_LISTING_UNKNOWN")
+
+    def test_mixed_known_and_unknown_listing_scope_is_not_multiple_listings(self):
+        result = resolve_form144_class_scoped(
+            "Class A common stock",
+            [
+                context(listing_member="exch:XNYS", exchange="NYSE"),
+                context(exchange=None, listing_axis=None, listing_member=None),
+            ],
+            self.selected(),
+        )
+        self.assertEqual(result["status"], "LISTING_SCOPE_UNKNOWN")
 
     def test_no_fuzzy_title_join(self):
         result = resolve_form144_class_scoped(
