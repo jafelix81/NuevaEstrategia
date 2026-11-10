@@ -1,0 +1,82 @@
+name: Phase 255 ADV20 source and dollar-volume contract
+
+on:
+  push:
+    branches: [phase255-adv20-source-ci]
+    paths:
+      - "research/phase255_adv20_source_feasibility.py"
+      - "research/test_phase255_adv20_source_feasibility.py"
+      - ".github/workflows/phase255_adv20_source_feasibility_gate.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase255-adv20-source-ci
+  cancel-in-progress: false
+
+jobs:
+  adv20-source-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile helper and tests
+        run: python -m py_compile research/phase255_adv20_source_feasibility.py research/test_phase255_adv20_source_feasibility.py
+      - name: Run ADV20 and PIT integrity regressions
+        run: python -m unittest -v research.test_phase255_adv20_source_feasibility
+      - name: Enforce strict pre-event session and no-zero-fill boundary
+        run: |
+          python - <<'PY'
+          from research.phase255_adv20_source_feasibility import compute_adv20
+          from research.test_phase255_adv20_source_feasibility import bars, SESSIONS
+          good = compute_adv20(bars(), SESSIONS, "2025-03-31")
+          assert good["status"] == "VALID_ADV20"
+          same_day = bars()
+          same_day[-1]["date"] = "2025-03-31"
+          rejected = compute_adv20(same_day, SESSIONS, "2025-03-31")
+          assert rejected["status"] == "LOOKAHEAD_SESSION_REJECTED"
+          missing = compute_adv20(bars()[:-1], SESSIONS, "2025-03-31")
+          assert missing["status"] == "MISSING_OR_EXTRA_SESSION"
+          print("PHASE255=PASS")
+          print("VWAP_TIMES_VOLUME=PASS")
+          print("STRICTLY_PRIOR_20_SESSIONS=PASS")
+          print("MISSING_BAR_NOT_ZERO_FILLED=PASS")
+          print("SOURCE_PIT_AND_LICENSE=NOT_ADMITTED")
+          PY
+      - name: Write metadata-only validation artifact
+        run: |
+          mkdir -p phase255_output
+          python - <<'PY'
+          import json
+          import unittest
+          suite = unittest.defaultTestLoader.loadTestsFromName(
+              "research.test_phase255_adv20_source_feasibility"
+          )
+          count = suite.countTestCases()
+          result = {
+              "phase": 255,
+              "status": "ADV20_FEATURE_CONTRACT_PASS_SOURCE_ACCESS_AND_PIT_NOT_ADMITTED",
+              "tests_passed": count,
+              "tests_total": count,
+              "raw_vendor_data_acquired": False,
+              "source_license_admitted": False,
+              "historical_vendor_vintages_verified": False,
+              "security_master_coverage_measured": False,
+              "adv20_computed_for_form144_panel": False,
+              "alpha_admitted": False,
+              "holdout_used": False,
+              "f80_frozen": True
+          }
+          with open("phase255_output/phase255_validation.json", "w", encoding="utf-8") as f:
+              json.dump(result, f, indent=2, sort_keys=True)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: phase255-adv20-source-contract
+          path: phase255_output/phase255_validation.json
+          if-no-files-found: error
+          retention-days: 90
