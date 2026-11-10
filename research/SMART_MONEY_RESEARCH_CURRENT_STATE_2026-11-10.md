@@ -11,7 +11,7 @@ SEC registered-security Inline XBRL is a conditional positive identity source, n
 
 The Phase 69 Form 144 panel has 21,653 original sale tranches across 289 issuer CIKs: 166 raw security-class labels (135 after case/whitespace normalization); 205/289 issuers have multiple normalized labels; 71 have explicit class-letter labels. The generic label Common occurs in 12,562 tranches, including 11,036 in multi-label issuers and 3,297 in issuers with explicit class-letter labels. These are text-heterogeneity diagnostics, not counts of legal classes.
 
-Normalized XBRL context, exact-title join and as-filed vintage prototype: 23/23 local tests passed. Raw iXBRL parsing and issuer-panel coverage remain untested.
+Normalized XBRL context, exact-title join and as-filed vintage prototype: **23/23 hosted tests passed** on isolated CI run [42755137270](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42755137270); metadata-only artifact [13734524132](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42755137270/artifacts/13734524132). Raw iXBRL parsing and issuer-panel coverage remain untested.
 
 - Phase 253 report: PHASE253_FORM144_XBRL_REGISTERED_SECURITY_CROSSWALK_AUDIT_2026-11-10.md
 - Helper: phase253_form144_xbrl_registered_security_crosswalk_audit.py
