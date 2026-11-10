@@ -24,16 +24,16 @@ EXPECTED_INNER_SHA256 = {
     "2012q1_form345.zip": "0cac6f943813dae94c20ecc8bca63fda692e2b8ac6d02ce2c322ab411f45c357",
     "2026q3_form345.zip": "a4e6a681cfcfa43a3d9e4ca9cfec1fd26a59d0a01eac7e9f7b5a0122092c90f3",
 }
-FOOTNOTE_ID_RE = re.compile(r"F\\d+")
-OPEN_MARKET_RE = re.compile(r"\\bopen[- ]market\\b", re.I)
-PRIVATE_RE = re.compile(r"\\bprivate\\b", re.I)
-PLAN_RE = re.compile(r"\\b(?:10b5[- ]?1|plan|ESPP|employee stock purchase)\\b", re.I)
+FOOTNOTE_ID_RE = re.compile(r"F\d+")
+OPEN_MARKET_RE = re.compile(r"\bopen[- ]market\b", re.I)
+PRIVATE_RE = re.compile(r"\bprivate\b", re.I)
+PLAN_RE = re.compile(r"\b(?:10b5[- ]?1|plan|ESPP|employee stock purchase)\b", re.I)
 MECHANICAL_RE = re.compile(
-    r"\\b(?:tax|withhold|exercise|grant|vesting|gift|automatic|option|award|"
-    r"compensation|employee|match(?:ing)?)\\b",
+    r"\b(?:tax|withhold|exercise|grant|vesting|gift|automatic|option|award|"
+    r"compensation|employee|match(?:ing)?)\b",
     re.I,
 )
-COMMON_RE = re.compile(r"\\bcommon (?:stock|shares)\\b", re.I)
+COMMON_RE = re.compile(r"\bcommon (?:stock|shares)\b", re.I)
 
 
 def sha256_bytes(data: bytes) -> str:
@@ -43,7 +43,7 @@ def sha256_bytes(data: bytes) -> str:
 def read_tsv(zf: zipfile.ZipFile, name: str) -> list[dict[str, str]]:
     with zf.open(name) as raw:
         wrapper = io.TextIOWrapper(raw, encoding="utf-8-sig", newline="")
-        return list(csv.DictReader(wrapper, delimiter="\\t"))
+        return list(csv.DictReader(wrapper, delimiter="\t"))
 
 
 def normalize_aff(value: str | None) -> str:
@@ -241,7 +241,7 @@ def main() -> None:
     args = parser.parse_args()
     result = analyze_artifact(args.artifact)
     Path(args.output).parent.mkdir(parents=True, exist_ok=True)
-    Path(args.output).write_text(json.dumps(result, indent=2, sort_keys=True) + "\\n", encoding="utf-8")
+    Path(args.output).write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print("PHASE271_STATUS=EXPLICIT_OPEN_MARKET_PURCHASE_CANDIDATES_ONLY_NO_PIT_NO_ALPHA")
     for period, data in result["periods"].items():
         print(f"{period}: {data['candidate_rows']} rows / {data['candidate_accessions']} accessions / {data['candidate_issuer_ciks']} issuers")
