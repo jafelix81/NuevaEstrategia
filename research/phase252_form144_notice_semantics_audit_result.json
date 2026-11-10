@@ -1,0 +1,79 @@
+{
+  "phase": 252,
+  "status": "REAL_ARTIFACT_SEMANTICS_AUDIT_PASS_NO_PIT_NO_ALPHA",
+  "source": {
+    "workflow_run_id": 41959603351,
+    "artifact_id": 13385365595,
+    "zip_sha256": "f84644200a8925c6fc190a823ca0dcd6b40c7bee127a8d2740a5ea67cae56519",
+    "expanded_csv_sha256": "7a54ee09e8d4520e1ec14cf22f2c0d1c62d077798b14d3db596826e3360a3659",
+    "rows": 21634,
+    "filing_date_min": "2023-04-13",
+    "filing_date_max": "2026-09-30"
+  },
+  "panel": {
+    "original_144": 21438,
+    "144a_amendments": 196,
+    "issuer_ciks_with_events": 289,
+    "current_universe_tickers": 335,
+    "issuer_cik_current_ticker_map": {
+      "unique_one_ticker": 288,
+      "ambiguous_dual_class": 1,
+      "unmapped": 0,
+      "effective_dated": false
+    },
+    "candidate_ticker_multi_rows": 291,
+    "candidate_ticker_combinations": {"Z;ZG": 290, "AMT;ASTS": 1},
+    "candidate_ticker_cross_cik_mismatch_rows": 1
+  },
+  "plan_date_semantics": {
+    "original_plan_date_present": 12029,
+    "original_mentions_10b5_1_true": 1411,
+    "original_plan_present_keyword_false": 10665,
+    "original_keyword_true_without_plan_date": 47,
+    "all_forms_plan_date_text_rows": 12130,
+    "parsed_plan_date_tokens": 12132,
+    "median_plan_date_days_before_filing": 193,
+    "plan_date_after_filing": 1
+  },
+  "amendment_vintages": {
+    "linked_to_original": 188,
+    "unmatched_previous_accession": 8,
+    "same_plan_date_text": 168,
+    "added_plan_date": 5,
+    "removed_plan_date": 7,
+    "changed_nonempty_plan_date": 8
+  },
+  "date_semantics": {
+    "notice_date_mismatch_all": 168,
+    "notice_date_mismatch_original": 156,
+    "original_sale_tranches": 21653,
+    "original_approx_sale_date_same_day": 20708,
+    "original_approx_sale_date_before_filing": 432,
+    "original_approx_sale_date_after_filing": 513,
+    "prior_sales_after_filing": 4
+  },
+  "proposed_notional": {
+    "missing_units": 0,
+    "zero_units": 2,
+    "missing_aggregate_market_value": 0,
+    "zero_aggregate_market_value": 3,
+    "candidate": "sum(proposed aggregate market value) / trailing 20-session ADV$",
+    "computed": false
+  },
+  "repeat_groups": {
+    "original_accessions_beyond_first": 273,
+    "tranches_beyond_first": 488,
+    "rows_dropped": 0
+  },
+  "admission": {
+    "strict_pit": false,
+    "alpha": false,
+    "returns_tested": false,
+    "bootstrap_loo_oos": false,
+    "holdout_used": false,
+    "f80_frozen": true,
+    "production_universe_capital_changed": false,
+    "vendor_contact_or_purchase": false
+  },
+  "local_tests": {"passed": 10, "total": 10, "hosted_ci_claimed": false}
+}
