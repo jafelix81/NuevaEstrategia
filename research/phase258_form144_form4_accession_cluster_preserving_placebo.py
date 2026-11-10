@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Phase 258: accession-cluster-preserving Form 144/Form 4 linkage placebo."""
+"""Phase 258: accession-cluster-preserving Form 144/Form 4 linkage placebo.
+
+The null freezes multi-date accessions rather than splitting their filing clusters.
+"""
 from __future__ import annotations
 import argparse, json, random, zipfile
 from collections import defaultdict
