@@ -10,7 +10,7 @@ class Phase259EconomicAuditTests(unittest.TestCase):
     def valid_ledger(self):
         dates=pd.to_datetime(["2023-12-28","2023-12-29","2024-01-02","2024-01-03"])
         equity=np.array([1000.,1010.,1000.,1020.])
-        ret=np.array([0.,0.01,1000./1010.-1.,1.02])
+        ret=np.array([0.,0.01,1000./1010.-1.,0.02])
         cash=np.zeros(4)
         gross_value=equity.copy()
         return pd.DataFrame({"Date":dates,"Equity":equity,"DailyReturn":ret,
