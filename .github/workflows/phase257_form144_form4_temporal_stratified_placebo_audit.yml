@@ -1,14 +1,14 @@
 name: Phase 257 Form 144/Form 4 temporal-stratified placebo sensitivity
 on:
-  push:
-    branches: [phase231-cboe-option-quotes-full-row-reparse]
+  pull_request:
+    types: [opened, synchronize, reopened]
     paths:
       - 'research/phase257_form144_form4_temporal_stratified_placebo_audit.py'
       - 'research/test_phase257_form144_form4_temporal_stratified_placebo_audit.py'
       - '.github/workflows/phase257_form144_form4_temporal_stratified_placebo_audit.yml'
   workflow_dispatch:
 concurrency:
-  group: phase257-form144-temporal-placebo-${{ github.ref }}
+  group: phase257-form144-temporal-placebo
   cancel-in-progress: true
 permissions:
   actions: read
