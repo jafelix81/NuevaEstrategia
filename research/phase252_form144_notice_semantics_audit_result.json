@@ -2,28 +2,47 @@
   "phase": 252,
   "status": "REAL_ARTIFACT_SEMANTICS_AUDIT_PASS_NO_PIT_NO_ALPHA",
   "source": {
-    "workflow_run_id": 41959603351,
+    "run_id": 41959603351,
     "artifact_id": 13385365595,
     "zip_sha256": "f84644200a8925c6fc190a823ca0dcd6b40c7bee127a8d2740a5ea67cae56519",
-    "expanded_csv_sha256": "7a54ee09e8d4520e1ec14cf22f2c0d1c62d077798b14d3db596826e3360a3659",
+    "csv_sha256": "7a54ee09e8d4520e1ec14cf22f2c0d1c62d077798b14d3db596826e3360a3659",
     "rows": 21634,
     "filing_date_min": "2023-04-13",
     "filing_date_max": "2026-09-30"
   },
   "panel": {
     "original_144": 21438,
-    "144a_amendments": 196,
+    "amendments_144a": 196,
     "issuer_ciks_with_events": 289,
     "current_universe_tickers": 335,
     "issuer_cik_current_ticker_map": {
-      "unique_one_ticker": 288,
-      "ambiguous_dual_class": 1,
+      "unique": 288,
+      "ambiguous": 1,
       "unmapped": 0,
       "effective_dated": false
     },
     "candidate_ticker_multi_rows": 291,
-    "candidate_ticker_combinations": {"Z;ZG": 290, "AMT;ASTS": 1},
-    "candidate_ticker_cross_cik_mismatch_rows": 1
+    "candidate_ticker_combinations": {
+      "Z;ZG": 290,
+      "AMT;ASTS": 1
+    },
+    "candidate_ticker_cross_cik_mismatch_rows": 1,
+    "zillow_effective_dated_class_crosswalk": {
+      "issuer_cik": "0001617640",
+      "valid_from": "2015-08-17",
+      "source": "SEC 10-K: Class A=ZG; Class C=Z",
+      "tranches_by_raw_class": {
+        "common class c": 283,
+        "common class a": 8,
+        "common": 7
+      },
+      "tranches_mapped_by_ticker": {
+        "Z": 283,
+        "ZG": 8,
+        "AMBIGUOUS": 7
+      },
+      "ambiguous_tranches": 7
+    }
   },
   "plan_date_semantics": {
     "original_plan_date_present": 12029,
@@ -75,5 +94,9 @@
     "production_universe_capital_changed": false,
     "vendor_contact_or_purchase": false
   },
-  "local_tests": {"passed": 10, "total": 10, "hosted_ci_claimed": false}
+  "local_tests": {
+    "passed": 14,
+    "total": 14,
+    "hosted_ci_claimed": false
+  }
 }
