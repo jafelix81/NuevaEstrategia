@@ -2,7 +2,7 @@
 
 **Date:** 2026-11-10 UTC  
 **Disposition:** Phase 20C remains a chronological diagnostic, but it is **not strict PIT**. The reported 1,382/2,020 file ratio is not a valid market-session coverage rate. No feature or alpha admission.  
-**Scope:** source-code and immutable run-artifact audit only. No new FINRA download, return test, holdout use, provider contact, purchase or production change.
+**Scope:** source-code, run-log and artifact-metadata audit only. The 145.9 MB Phase 20C archive was not downloaded or rehashed in this phase; its ZIP digest below is the upload digest recorded in the completed GitHub Actions log. No new FINRA download, return test, holdout use, provider contact, purchase or production change.
 
 ## Executive decision
 
@@ -87,7 +87,13 @@ Added a fail-closed offline contract for:
 
 The deterministic suite contains 21 tests. It does not fetch data or calculate returns. The committed result intentionally records XNYS coverage as NOT MEASURED.
 
-## 7. Final disposition
+## 7. Hosted validation
+
+- Phase 265 GitHub Actions: [run 42865680262](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42865680262), job 130003254392.
+- Result: **21/21 deterministic tests passed**; the workflow regenerated the committed JSON and its byte-for-byte comparison passed.
+- Metadata-only artifact: [13787227070](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42865680262/artifacts/13787227070), ZIP SHA-256 `430c9344619d5af2060d81b4532e531766ecc419fa81acac6d881fb3ec9a1208`.
+
+## 8. Final disposition
 
 | Gate | Result |
 |---|---|
