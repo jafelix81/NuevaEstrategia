@@ -140,7 +140,9 @@ def _series_key(row: dict, exchange: str) -> tuple:
     series_type = str(row["series_type"]).strip().upper()
     if series_type == "F":
         raise ValueError("FLEX_SERIES_EXCLUDED_FROM_PRIMARY")
-    if series_type not in {"S", "N"}:
+    if series_type == "N":
+        raise ValueError("NONSTANDARD_SERIES_REQUIRES_DELIVERABLE_MAPPING")
+    if series_type != "S":
         raise ValueError("UNSUPPORTED_SERIES_TYPE")
     return (
         exchange,
@@ -169,7 +171,6 @@ def aggregate_multi_exchange_underlying_rows(
     if not rows:
         raise ValueError("EMPTY_UNDERLYING_GROUP")
 
-    normalized = []
     dates = set()
     underlyings = set()
     security_types = set()
@@ -220,8 +221,6 @@ def aggregate_multi_exchange_underlying_rows(
         venue_row_counts[exchange] = venue_row_counts.get(exchange, 0) + 1
         venue_volume[exchange] = venue_volume.get(exchange, 0) + adjusted_exchange_volume
         venue_multipliers[exchange] = multiplier
-        normalized.append((exchange, key))
-
     if len(dates) != 1:
         raise ValueError("MIXED_OR_MISSING_QUOTE_DATE")
     if len(underlyings) != 1:
@@ -248,6 +247,7 @@ def aggregate_multi_exchange_underlying_rows(
         "venues_observed": sorted(venue_row_counts),
         "venue_row_counts": dict(sorted(venue_row_counts.items())),
         "unique_option_series_across_observed_venues": len(observed_series),
+        "series_identity_scope": "EOD_FILE_KEY_ONLY_NOT_OCC_DELIVERABLE_IDENTITY",
         "signed_directional_net_contracts": signed_total,
         "gross_capacity_contracts": gross_total,
         "observed_cboe_exchange_volume_adjusted": total_observed_cboe_volume,
