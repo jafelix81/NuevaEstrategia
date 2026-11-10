@@ -1,6 +1,6 @@
 {
   "phase": 251,
-  "status": "MULTI_EXCHANGE_MEASUREMENT_CONTRACT_PENDING_HOSTED_VALIDATION",
+  "status": "HOSTED_MEASUREMENT_CONTRACT_PASS_42_OF_42_NO_PIT_NO_ALPHA",
   "source": "Cboe Open-Close EOD",
   "exchanges": [
     "C1",
@@ -61,5 +61,14 @@
     "F"
   ],
   "nonstandard_series_reason": "EOD file does not establish OCC adjusted deliverable/multiplier identity",
-  "test_count_expected": 42
+  "test_count_expected": 42,
+  "test_count": 42,
+  "hosted_validation": {
+    "run_id": 42743448141,
+    "job_id": 129589843456,
+    "conclusion": "success",
+    "tests_passed": 42,
+    "tests_failed": 0,
+    "artifact_produced": false
+  }
 }
