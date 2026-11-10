@@ -182,7 +182,22 @@ def resolve_form144_class_scoped(security_label, contexts, selected_vintage):
         "symbol": symbol,
         "context_count": len(matches),
     }
-    if len(listings) > 1:
+    listing_scope_unknown = any(
+        not ((context.get("listing_axis") and context.get("listing_member"))
+             or context.get("exchange"))
+        for context in matches
+    )
+    if listing_scope_unknown:
+        result["status"] = (
+            "UNIQUE_CLASS_SYMBOL_LISTING_UNKNOWN"
+            if len(matches) == 1 else "LISTING_SCOPE_UNKNOWN"
+        )
+        result["known_listings"] = [
+            {"axis": axis, "member": member, "exchange": exchange}
+            for axis, member, exchange in sorted(listings, key=str)
+            if axis or member or exchange
+        ]
+    elif len(listings) > 1:
         result["status"] = "MULTIPLE_LISTINGS_SAME_CLASS"
         result["listings"] = [
             {"axis": axis, "member": member, "exchange": exchange}
@@ -190,9 +205,6 @@ def resolve_form144_class_scoped(security_label, contexts, selected_vintage):
         ]
     else:
         axis, member, exchange = next(iter(listings))
-        if axis or member or exchange:
-            result["status"] = "UNIQUE_CLASS_LISTING"
-            result["listing"] = {"axis": axis, "member": member, "exchange": exchange}
-        else:
-            result["status"] = "UNIQUE_CLASS_SYMBOL_LISTING_UNKNOWN"
+        result["status"] = "UNIQUE_CLASS_LISTING"
+        result["listing"] = {"axis": axis, "member": member, "exchange": exchange}
     return result
