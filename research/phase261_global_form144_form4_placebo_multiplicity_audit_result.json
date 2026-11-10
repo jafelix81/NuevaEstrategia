@@ -1,0 +1,188 @@
+{
+  "phase": 261,
+  "status": "GLOBAL_MULTIPLICITY_AUDIT_COMPLETED_EXPLORATORY_LINKAGE_ONLY",
+  "family": {
+    "size": 13,
+    "phases": {
+      "256": 4,
+      "257": 3,
+      "258": 3,
+      "260": 3
+    },
+    "method": "Holm step-down FWER correction",
+    "caveat": "Post-hoc family of nested sensitivities on one selected one-quarter sample; dependence is allowed by Holm, but sample selection and exchangeability assumptions remain."
+  },
+  "inputs": {
+    "form144_sha256": "7a54ee09e8d4520e1ec14cf22f2c0d1c62d077798b14d3db596826e3360a3659",
+    "form4_sha256": "a4e6a681cfcfa43a3d9e4ca9cfec1fd26a59d0a01eac7e9f7b5a0122092c90f3",
+    "form4_snapshot_end": "2026-09-30",
+    "sample": {
+      "eligible_notices": 1451,
+      "eligible_tranches": 1460,
+      "form4_sale_blocks": 10525,
+      "exact_date_share_links": 521,
+      "fallback_links": 49
+    },
+    "artifact_zip_sha256s": {
+      "256": "f7fe3191ce54c22d2c35014aba7b65cc78457569fb27b0433ea5bbb77b7b9765",
+      "257": "b2ec9653ab66da858bf3e7f42376176a67011413de4d543d8ff93fd74dba7c2f",
+      "258": "e5f51d3d123f653275934f2cdfcc6e9fc491eeb09391a11dfa4533be3877602f",
+      "260": "0962fa7dd62ecaba0992f0c2537b11ac79147e2466ddb23d5915909ee4daf565"
+    }
+  },
+  "summary": {
+    "tests": 13,
+    "zero_exceedance_tests": 11,
+    "global_holm_significant_05": 12,
+    "minimum_global_holm_p": 0.012987012987012988,
+    "maximum_global_holm_p": 0.5334665334665335,
+    "phase260_iso_week_global_holm_p": 0.5334665334665335
+  },
+  "tests": [
+    [
+      256,
+      "owner_identity_within_issuer",
+      475,
+      156.8,
+      184,
+      0,
+      0.000999000999000999,
+      0.012987012987012988
+    ],
+    [
+      256,
+      "filing_lag_within_issuer_owner",
+      340,
+      210.735,
+      238,
+      0,
+      0.000999000999000999,
+      0.012987012987012988
+    ],
+    [
+      256,
+      "shares_within_issuer_owner",
+      340,
+      194.945,
+      223,
+      0,
+      0.000999000999000999,
+      0.012987012987012988
+    ],
+    [
+      256,
+      "filing_lag_and_shares_within_issuer_owner",
+      340,
+      139.296,
+      172,
+      0,
+      0.000999000999000999,
+      0.012987012987012988
+    ],
+    [
+      257,
+      "issuer_owner",
+      241,
+      111.604,
+      141,
+      0,
+      0.000999000999000999,
+      0.012987012987012988
+    ],
+    [
+      257,
+      "issuer_owner_month",
+      169,
+      83.976,
+      111,
+      0,
+      0.000999000999000999,
+      0.012987012987012988
+    ],
+    [
+      257,
+      "issuer_owner_iso_week",
+      139,
+      85.332,
+      112,
+      0,
+      0.000999000999000999,
+      0.012987012987012988
+    ],
+    [
+      258,
+      "issuer_owner_cik",
+      127,
+      58.848,
+      80,
+      0,
+      0.000999000999000999,
+      0.012987012987012988
+    ],
+    [
+      258,
+      "issuer_owner_cik_month",
+      56,
+      26.249,
+      43,
+      0,
+      0.000999000999000999,
+      0.012987012987012988
+    ],
+    [
+      258,
+      "issuer_owner_cik_iso_week",
+      28,
+      14.208,
+      24,
+      0,
+      0.000999000999000999,
+      0.012987012987012988
+    ],
+    [
+      260,
+      "issuer_owner_cik_weekday",
+      25,
+      12.481,
+      23,
+      0,
+      0.000999000999000999,
+      0.012987012987012988
+    ],
+    [
+      260,
+      "issuer_owner_cik_month_weekday",
+      9,
+      4.486,
+      9,
+      21,
+      0.02197802197802198,
+      0.04395604395604396
+    ],
+    [
+      260,
+      "issuer_owner_cik_iso_week_weekday",
+      1,
+      0.533,
+      1,
+      533,
+      0.5334665334665335,
+      0.5334665334665335
+    ]
+  ],
+  "controls": {
+    "document_linkage_only": true,
+    "independent_replication": false,
+    "strict_pit_admitted": false,
+    "feature_admitted": false,
+    "alpha_test_authorized": false,
+    "return_test_run": false,
+    "bootstrap_loo_oos_run": false,
+    "holdout_used": false,
+    "legacy_holdout": "CONSUMED_NOT_PRISTINE",
+    "f80_frozen": true,
+    "production_changed": false,
+    "universe_changed": false,
+    "capital_changed": false
+  }
+}
