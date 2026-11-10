@@ -44,7 +44,7 @@ Strict PIT, return-test and alpha gates remain closed. The first future schedule
 
 ## Hosted result — 2026-11-10 UTC
 
-<badge>PASS — real sample reprocessed</badge>
+**Status: PASS — real sample reprocessed.**
 
 - GitHub Actions run [42726166910](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42726166910) completed successfully; job 129532318774.
 - **11/11 offline regression tests passed.**
