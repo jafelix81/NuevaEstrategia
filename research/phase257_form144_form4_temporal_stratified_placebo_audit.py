@@ -107,13 +107,37 @@ def run_stratified_placebo(tranches, blocks, exact_unique, mode, reps=1000, seed
         raise ValueError("Use at least 100 permutations")
     groups = build_temporal_groups(blocks, mode)
     mutable, permutable_group_count = mutable_indices(groups, blocks)
+    structure = summarize_group_structure(groups, blocks, mutable, permutable_group_count, exact_unique)
+    base = {
+        **structure,
+        "stratification": mode,
+        "seed": seed,
+        "interpretation": (
+            "conditional document-linkage placebo; filing dates fixed; observed filing lags "
+            "permuted only within issuer-owner and the specified local time stratum; "
+            "not a return-alpha p-value"
+        ),
+    }
     if not mutable:
-        raise ValueError(f"no genuinely permutable groups for {mode}")
+        return {
+            **base,
+            "status": "INSUFFICIENT_PERMUTABLE_GROUPS",
+            "observed_mutable_exact_links": 0,
+            "mutable_form4_blocks": 0,
+            "replicates": 0,
+            "null_mean": None,
+            "null_median": None,
+            "null_p95": None,
+            "null_max": None,
+            "null_replicates_at_or_above_observed": None,
+            "empirical_tail_plus_one": None,
+            "zero_exceedance_one_sided_95pct_upper": None,
+            "holm_adjusted_tail": None,
+        }
+
     block_index = {(block["accession"], block["date"]): i for i, block in enumerate(blocks)}
     exact_ids = {block_index[(block["accession"], block["date"])] for _, block, _ in exact_unique}
     observed = len(exact_ids & mutable)
-    if observed <= 0:
-        raise ValueError(f"no exact links in genuinely permutable groups for {mode}")
     owners = [block["owner"] for block in blocks]
     shares = [block["shares"] for block in blocks]
     rng = random.Random(seed)
@@ -124,19 +148,11 @@ def run_stratified_placebo(tranches, blocks, exact_unique, mode, reps=1000, seed
             raise AssertionError("permuted lag escaped the 0-4 day eligibility envelope")
         counts.append(count_unique_mutable_matches_fast(tranches, blocks, owners, dates, shares, mutable))
     summary = summarize_counts(counts, observed, len(mutable))
-    summary.update(summarize_group_structure(groups, blocks, mutable, permutable_group_count, exact_unique))
-    summary["stratification"] = mode
-    summary["seed"] = seed
-    summary["interpretation"] = (
-        "conditional document-linkage placebo; filing dates fixed; observed filing lags "
-        "permuted only within issuer-owner and the specified local time stratum; "
-        "not a return-alpha p-value"
-    )
-    return summary
+    return {**base, **summary, "status": "COMPLETED"}
 
 
 def holm_adjust(p_values):
-    """Holm step-down adjustment for the small, explicitly exploratory sensitivity family."""
+    """Holm step-down adjustment for the explicitly exploratory sensitivity family."""
     items = sorted(p_values.items(), key=lambda item: (item[1], item[0]))
     m = len(items)
     adjusted = {}
@@ -167,10 +183,14 @@ def audit(form144_path, form4_path, reps=1000, seed=257):
     results = {}
     for offset, mode in enumerate(STRATA):
         results[mode] = run_stratified_placebo(tranches, blocks, exact_unique, mode, reps=reps, seed=seed + offset)
-    raw_p = {name: result["empirical_tail_plus_one"] for name, result in results.items()}
+    raw_p = {
+        name: result["empirical_tail_plus_one"]
+        for name, result in results.items()
+        if result["empirical_tail_plus_one"] is not None
+    }
     adjusted = holm_adjust(raw_p)
-    for name, value in adjusted.items():
-        results[name]["holm_adjusted_tail"] = value
+    for name, result in results.items():
+        result["holm_adjusted_tail"] = adjusted.get(name)
     return {
         "phase": 257,
         "status": "TEMPORAL_STRATIFICATION_SENSITIVITY_DESCRIPTIVE_ONLY",
@@ -198,7 +218,7 @@ def audit(form144_path, form4_path, reps=1000, seed=257):
         "placebos": results,
         "multiple_testing": {
             "method": "Holm step-down",
-            "family": list(STRATA),
+            "family": list(raw_p),
             "raw_plus_one_tails": raw_p,
             "holm_adjusted_tails": adjusted,
             "scope": "exploratory sensitivity family only; not alpha inference",
