@@ -55,7 +55,8 @@ def build_result() -> dict:
                 {"settlement_date": "2026-07-31", "release_date": "2026-08-11"},
             ],
             "difference_minutes": 160,
-            "same_day_close_potential_if_actual_receipt_before_16_00_et": True,
+            "same_day_close_potential_if_actual_receipt_before_actual_xnys_session_close": True,
+            "execution_rule": "Use the actual XNYS close on the release date; on early-close sessions where the market closes before 14:00 ET, the file is post-close and entry must move to the next session.",
             "actual_first_receipt_timestamp_required": True,
         },
         "source_relationship": {
@@ -125,6 +126,8 @@ def validate_result(result: dict) -> None:
     assert result["timing_comparison"]["difference_minutes"] == 160
     assert len(result["timing_comparison"]["same_release_date_examples"]) == 2
     assert result["timing_comparison"]["actual_first_receipt_timestamp_required"] is True
+    assert "actual XNYS close" in result["timing_comparison"]["execution_rule"]
+    assert "early-close" in result["timing_comparison"]["execution_rule"]
     assert result["source_relationship"]["same_underlying_finra_rule_4560_reporting_pipeline"] is True
     assert result["source_relationship"]["independent_signal_source"] is False
     assert result["historical_pit_and_coverage"]["original_as_published_vintages_verified"] is False
