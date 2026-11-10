@@ -257,3 +257,5 @@
 - No 2011–2019 files were acquired; historical coverage, inactive/delisted identity, first-receipt vintages, corrections, license and strict PIT remain unproven. No returns/alpha/OOS/holdout test. F80 remains frozen; production/universe/capital unchanged.
 - Deterministic Phase 250 tests/workflow are being added; hosted validation status will be recorded after the workflow completes.
 - [Phase 250 report](PHASE250_CBOE_OPENCLOSE_HISTORICAL_CONVENTION_AWARE_FEATURE_ELIGIBILITY_2026-11-10.md) · [feature gate](phase250_cboe_openclose_convention_gate.py) · [tests](test_phase250_cboe_openclose_convention_gate.py)
+
+- Hosted Phase 250 validation passed 17/17 deterministic tests in run [42738486543](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42738486543), job 129573491343. Workflow enforced the date-regime and no-PIT/no-alpha boundaries. No artifact was produced; no historical sample was downloaded.
