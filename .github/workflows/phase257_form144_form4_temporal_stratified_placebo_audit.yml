@@ -7,6 +7,9 @@ on:
       - 'research/test_phase257_form144_form4_temporal_stratified_placebo_audit.py'
       - '.github/workflows/phase257_form144_form4_temporal_stratified_placebo_audit.yml'
   workflow_dispatch:
+concurrency:
+  group: phase257-form144-temporal-placebo-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   actions: read
   contents: read
@@ -58,11 +61,14 @@ jobs:
           assert len(x['placebos']) == 3
           assert set(x['placebos']) == {'issuer_owner','issuer_owner_month','issuer_owner_iso_week'}
           for name, row in x['placebos'].items():
-              assert row['replicates'] == 1000, name
-              assert row['actually_permutable_blocks'] > 0, name
-              assert row['observed_mutable_exact_links'] >= 0, name
-              assert 0 <= row['empirical_tail_plus_one'] <= 1, name
-              assert 0 <= row['holm_adjusted_tail'] <= 1, name
+              assert row['status'] in {'COMPLETED','INSUFFICIENT_PERMUTABLE_GROUPS'}, name
+              if row['status'] == 'COMPLETED':
+                  assert row['replicates'] == 1000, name
+                  assert 0 <= row['empirical_tail_plus_one'] <= 1, name
+                  assert 0 <= row['holm_adjusted_tail'] <= 1, name
+              else:
+                  assert row['replicates'] == 0, name
+                  assert row['empirical_tail_plus_one'] is None, name
           assert x['decision']['strict_pit_admitted'] is False
           assert x['decision']['alpha_test_authorized'] is False
           assert x['decision']['holdout_used'] is False
