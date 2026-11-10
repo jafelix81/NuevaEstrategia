@@ -39,9 +39,13 @@
     "normalized_context_tests_local": 23,
     "passed": 23,
     "failed": 0,
-    "hosted_ci": "NOT_RUN",
+    "hosted_ci": "PASS_23_23",
     "raw_ixbrl_integration": false,
-    "archive_hashes_verified": true
+    "archive_hashes_verified": true,
+    "hosted_run_id": 42755137270,
+    "hosted_artifact_id": 13734524132,
+    "hosted_artifact_sha256": "fef6e8a30cc19bc7fb424043c06401f42610033b2b8393f78749d63652c9d96f",
+    "ci_branch": "phase253-form144-xbrl-crosswalk-ci"
   },
   "admission": {
     "raw_ixbrl_parser_validated": false,
