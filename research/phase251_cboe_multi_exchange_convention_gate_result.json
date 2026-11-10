@@ -1,4 +1,4 @@
-<escape>{
+{
   "phase": 251,
   "status": "MULTI_EXCHANGE_MEASUREMENT_CONTRACT_PENDING_HOSTED_VALIDATION",
   "source": "Cboe Open-Close EOD",
@@ -50,4 +50,4 @@
   "vendor_contact": false,
   "data_purchase": false,
   "trial_or_card_authorized": false
-}</escape>
+}
