@@ -152,3 +152,11 @@ A future live capture must first verify the current Public-credential onboarding
 - No production, universe, capital, or parameter change.
 - No use of the consumed legacy holdout.
 - F80 remains frozen.
+
+
+## Hosted validation
+
+- Push validation: [run 42880053761](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42880053761), job 130053585336, 8/8 deterministic tests passed; metadata artifact [13794580187](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42880053761/artifacts/13794580187), ZIP SHA-256 8923aeb7fe05d1cd5b8df3c0fd4d8f984b79eb40d23e2d3ed0c827a33c589f50.
+- Pull-request validation: [run 42880064173](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42880064173), job 130053804085, 8/8 deterministic tests passed; metadata artifact [13794320354](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42880064173/artifacts/13794320354).
+- The push artifact result JSON SHA-256 is 16a925246e0a1c9d3d2159fa1f77971fecb59b5d74a1911e2f101ea018d1712a.
+- Both workflows are offline/deterministic: no live FINRA API request, credential use, or market-data download occurred.
