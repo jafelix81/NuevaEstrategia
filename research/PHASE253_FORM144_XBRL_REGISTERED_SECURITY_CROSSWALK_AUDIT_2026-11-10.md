@@ -98,3 +98,8 @@ No forward returns, event study, alpha, bootstrap/LOO, chronological OOS or hold
 - Source panel: Phase 69 run 41959603351 / artifact 13385365595.
 - Helper: https://github.com/jafelix81/NuevaEstrategia/blob/phase231-cboe-option-quotes-full-row-reparse/research/phase253_form144_xbrl_registered_security_crosswalk_audit.py
 - Tests: https://github.com/jafelix81/NuevaEstrategia/blob/phase231-cboe-option-quotes-full-row-reparse/research/test_phase253_form144_xbrl_registered_security_crosswalk_audit.py
+
+
+## Hosted validation update
+
+The Phase 253 normalized-context contract was validated on an isolated CI branch based on the PR #14 head. GitHub Actions run [42755137270](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42755137270) passed **23/23 tests**, compiled the helper/tests, passed the conditional identity-only boundary check, and uploaded metadata-only artifact [13734524132](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42755137270/artifacts/13734524132) (370 bytes; ZIP SHA-256 `fef6e8a30cc19bc7fb424043c06401f42610033b2b8393f78749d63652c9d96f`). The artifact explicitly leaves raw iXBRL parsing, 289-issuer coverage, PIT and alpha unadmitted. The CI-only branch is `phase253-form144-xbrl-crosswalk-ci`; no production or PR merge occurred.
