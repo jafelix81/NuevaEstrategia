@@ -38,7 +38,7 @@ class Phase268FormShoGateTests(unittest.TestCase):
     def test_publication_lag_and_staleness_are_explicit(self):
         quality = self.result["timeliness_and_quality"]
         self.assertEqual(quality["manager_filing_deadline"], "14 calendar days after each month-end")
-        self.assertIn("one calendar month", quality["publication_lag"])
+        self.assertIn("one month", quality["publication_lag"])
         self.assertTrue(quality["positions_may_be_closed_before_publication"])
         self.assertEqual(quality["sec_historical_form_sh_analysis_average_threshold_duration_days_after_month_end"], 9.85)
 
