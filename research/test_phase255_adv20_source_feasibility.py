@@ -53,7 +53,7 @@ class Phase255Tests(unittest.TestCase):
         result = compute_adv20(bars(), SESSIONS, EVENT_DATE)
         self.assertEqual(result["status"], "VALID_ADV20")
         self.assertEqual(result["session_count"], 20)
-        self.assertEqual(result["adv20_usd"], "19500.0")
+        self.assertEqual(result["adv20_usd"], "19500")
 
     def test_nineteen_bars_are_missing_not_zero_filled(self):
         result = compute_adv20(bars()[:-1], SESSIONS, EVENT_DATE)
