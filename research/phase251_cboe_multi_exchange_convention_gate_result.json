@@ -1,0 +1,53 @@
+<escape>{
+  "phase": 251,
+  "status": "MULTI_EXCHANGE_MEASUREMENT_CONTRACT_PENDING_HOSTED_VALIDATION",
+  "source": "Cboe Open-Close EOD",
+  "exchanges": ["C1", "BZX", "C2", "EDGX"],
+  "advertised_history_start": {
+    "C1": "2005-01-03",
+    "BZX": "2018-01-02",
+    "C2": "2018-01-02",
+    "EDGX": "2018-01-02"
+  },
+  "post_migration_capacity_feature_start": {
+    "C1": "2011-01-02",
+    "four_venue_panel": "2018-01-02"
+  },
+  "convention_breaks": {
+    "C1_total_exchange_volume_multiplier_through_2019_10_04": 2,
+    "C1_oi_shift_through_2019_10_04": true,
+    "C1_previous_close_exchange_only_through_2019_10_04": true,
+    "C2_total_industry_volume_reported_double_through_2018_05_11": true,
+    "C2_reported_to_current_industry_volume_multiplier_through_2018_05_11": 0.5,
+    "C2_oi_shift_through_2018_05_11": true,
+    "C2_previous_close_exchange_only_through_2018_05_11": true,
+    "BZX_EDGX_oi_consistent_start_of_day": true,
+    "C1_gth_start": "2023-12-11",
+    "flex_series_start": "2024-10-16",
+    "legacy_w_code_before_2019_10_01": true
+  },
+  "aggregation_contract": {
+    "same_option_series_across_different_venues_allowed": true,
+    "duplicate_same_series_within_venue_rejected": true,
+    "directional_imbalance": "sum(signed_net_contracts) / sum(gross_capacity_contracts)",
+    "cboe_volume_denominator": "sum(adjusted_total_exchange_volume_across_observed_venues)",
+    "total_industry_volume_summed": false,
+    "open_interest_summed": false,
+    "previous_close_used": false,
+    "missing_venue_assumed_zero": false,
+    "complete_venue_coverage_claimed": false,
+    "consolidated_opra_coverage": false
+  },
+  "strict_pit_admitted": false,
+  "alpha_admission": false,
+  "returns_tested": false,
+  "bootstrap_loo_oos_tested": false,
+  "holdout_used": false,
+  "f80_frozen": true,
+  "production_changed": false,
+  "universe_changed": false,
+  "capital_changed": false,
+  "vendor_contact": false,
+  "data_purchase": false,
+  "trial_or_card_authorized": false
+}</escape>
