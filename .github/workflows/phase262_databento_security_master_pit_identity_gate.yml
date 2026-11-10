@@ -1,0 +1,53 @@
+name: Phase 262 Databento Security Master PIT and identity gate
+
+on:
+  push:
+    branches:
+      - phase231-cboe-option-quotes-full-row-reparse
+    paths:
+      - 'research/phase262_databento_security_master_pit_identity_gate.py'
+      - 'research/test_phase262_databento_security_master_pit_identity_gate.py'
+      - '.github/workflows/phase262_databento_security_master_pit_identity_gate.yml'
+
+concurrency:
+  group: phase262-databento-security-master-pit-identity-gate
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run Phase 262 unit tests
+        run: python -m unittest discover -s research -p 'test_phase262_databento_security_master_pit_identity_gate.py' -v
+      - name: Build deterministic documentation audit result
+        run: |
+          python research/phase262_databento_security_master_pit_identity_gate.py > phase262_result.json
+          python - <<'PY'
+          import json
+          x=json.load(open('phase262_result.json', encoding='utf-8'))
+          assert x['phase'] == 262
+          assert x['source']['documented_history_start'] == '2005-01-01'
+          assert x['clock_adjudication']['documented_aapl_example']['ts_created'].startswith('2024-11-11')
+          assert x['documentation_conflicts']['cadence_adjudicated'] is False
+          assert x['decision']['identity_reference_candidate'] is True
+          assert x['decision']['strict_pit_admitted'] is False
+          assert x['decision']['feature_admitted'] is False
+          assert x['decision']['alpha_test_authorized'] is False
+          assert x['decision']['holdout_used'] is False
+          assert x['decision']['f80_frozen'] is True
+          print('Phase 262 PIT, identity, licensing and no-alpha controls passed.')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: phase262-databento-security-master-pit-identity-gate
+          path: phase262_result.json
+          if-no-files-found: error
+          retention-days: 90
