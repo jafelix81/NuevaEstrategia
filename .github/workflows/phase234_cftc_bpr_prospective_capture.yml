@@ -16,22 +16,30 @@ concurrency:
 
 jobs:
   capture:
+    # The capture code receives contents:write. Never run it from a manually
+    # selected feature/PR branch; scheduled execution is on the default branch.
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - name: Checkout research repository
         uses: actions/checkout@v4
         with:
-          persist-credentials: true
+          persist-credentials: false
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Validate TFF capture parser and PIT protocol
+      - name: Validate BPR and TFF capture parsers and PIT protocols
         run: |
-          python -m py_compile research/phase239_cftc_tff_prospective_capture.py research/test_phase239_cftc_tff_prospective_capture.py
+          python -m py_compile \
+            research/phase234_cftc_bpr_capture.py \
+            research/test_phase234_cftc_bpr_capture.py \
+            research/phase239_cftc_tff_prospective_capture.py \
+            research/test_phase239_cftc_tff_prospective_capture.py
+          python -m unittest -v research.test_phase234_cftc_bpr_capture
           python -m unittest -v research.test_phase239_cftc_tff_prospective_capture
 
       - name: Capture latest CFTC BPR futures report
@@ -62,6 +70,8 @@ jobs:
           GITHUB_SHA: ${{ github.sha }}
 
       - name: Commit append-only CFTC report versions
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           if [ -d data/cftc_bpr ]; then
             git add -A -- data/cftc_bpr
@@ -69,11 +79,16 @@ jobs:
           if [ -d data/cftc_tff ]; then
             git add -A -- data/cftc_tff
           fi
+          if git diff --cached --name-status | grep -Ev '^A[[:space:]]'; then
+            echo "Refusing to commit a modification, rename, or deletion in append-only CFTC history."
+            exit 1
+          fi
           if ! git diff --cached --quiet; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git commit -m "Capture CFTC BPR and TFF report versions [skip ci]"
-            git push
+            AUTH_HEADER="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+            git -c http.extraheader="AUTHORIZATION: basic $AUTH_HEADER" push origin "HEAD:${GITHUB_REF_NAME}"
           else
             echo "No new BPR or TFF report version; repository unchanged."
           fi
