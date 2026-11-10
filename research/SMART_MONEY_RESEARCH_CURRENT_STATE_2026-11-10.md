@@ -1,6 +1,6 @@
-# Smart Money Research — current state (Phase 269, 2026-11-10 UTC)
+# Smart Money Research — current state (Phase 272, 2026-11-10 UTC)
 
-**Updated:** 2026-11-10 UTC  
+**Updated:** 2026-11-10 UTC (Phase 272)  
 **Active branch:** phase231-cboe-option-quotes-full-row-reparse (PR #14, stacked on PR #13)  
 **Frozen baseline:** F80_TOP20_PARTIAL50_BASELINE_C20  
 **Legacy holdout:** CONSUMED_NOT_PRISTINE; never reused
@@ -269,3 +269,27 @@ No alpha/OOS result from Phase 253. No returns, bootstrap/LOO, chronological OOS
 - PR #13 remains open, base `main`, head `phase99-broad-pit-universe-charter` at `61f737f18b410bc6d85b8c56ed96bc1fd9c130f5`, 580 commits / 506 files, mergeable/clean. PR #14 remains open and stacked on PR #13, 274 commits / 164 files; code-bearing head `8ac1d37d9072345275f21e96fed49ae235001de5`. PR #14 title now covers Phases 231–270. No PR was merged or retargeted.
 - Branch inventory: 134. No active/queued workflow remains in the completed regression wave. Phase 234 CFTC write-capable capture workflow remains absent from `main`; no manual capture, live CFTC data commit, purchase, vendor contact, production, universe, capital or F80 change occurred.
 - F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen; the legacy holdout remains `CONSUMED_NOT_PRISTINE` and unused. No new alpha has been admitted.
+
+
+## Phase 271 — SEC Form 4 explicit-open-market purchase screen (2026-11-10 UTC)
+- Reprocessed the immutable Phase 39 artifact (outer SHA-256 203d7b1d2e29c999da318456af72e621cb30ef9a470d8f1610d088f9bebecb66).
+- High-precision/low-recall candidates: 2012Q1 102 transaction rows / 47 accessions / 16 issuers; 2026Q3 85 rows / 59 accessions / 31 issuers.
+- Phase 271 final hosted run [42907977356](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42907977356) passed 16/16 tests and recomputed the exact sample from the hash-pinned Phase 39 artifact; metadata-only artifact [13806305683](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42907977356/artifacts/13806305683).
+- Code P includes open-market or private purchases; footnote exclusions and AFF10B5ONE=false do not prove discretionary intent. Filing-date-only and incomplete acceptance-time coverage prevent PIT admission. No returns or alpha were tested.
+
+## Phase 272 — Form 4 candidate unit, owner-role and price-basis audit (2026-11-10 UTC)
+- Reused Phase 271's exact eligibility rules and the same immutable Phase 39 source artifact; no new SEC requests.
+- Row counts are not independent events: 2012Q1 102 rows collapse to 47 accessions / 16 issuers / 25 owners; 2026Q3 85 rows collapse to 59 accessions / 31 issuers / 45 owners. Multi-row accessions contain 72.5% and 48.2% of rows, respectively.
+- Role split: 2012Q1 52 director/officer, 48 ten-percent-owner-only, 2 other/mixed; 2026Q3 72 director/officer, 12 ten-percent-owner-only, 1 other/mixed. One 2026 ten-percent-owner-only issuer/owner has an entity-form name (suffix heuristic only).
+- 2012Q1 has 48 zero reported prices (47 Onteco), which are unknown/unquantifiable, not zero-value purchases. 31 Onteco rows across 8 accessions have share-basis-restatement language; exclude them from reported-value scaling. Onteco alone contributes 48 rows across 11 accessions from one ten-percent owner.
+- 2026Q3 includes 12 purchases across multiple dates in one IOR accession from one ten-percent owner; that is one filing-time disclosure, not 12 public signals. Another owner contributes 15 rows across 10 accessions and two issuers; not a multi-insider cluster.
+- Reported transaction-value proxies are diagnostics only, not ADV-scaled notional or market impact. No PIT, universe coverage, return, alpha, bootstrap/LOO, chronological OOS or holdout test.
+- Phase 272 read-only workflow recomputes from Phase 39 artifact; local deterministic tests passed 17/17 before push. Hosted PR check is triggered on this code commit; link and artifact will be recorded in PR #14 after completion.
+- [Phase 272 report](PHASE272_FORM4_CANDIDATE_UNIT_PRICE_BASIS_AUDIT_2026-11-10.md) · [auditor](phase272_form4_candidate_unit_price_basis_audit.py) · [tests](test_phase272_form4_candidate_unit_price_basis_audit.py) · [result](phase272_form4_candidate_unit_price_basis_audit_result.json) · [workflow](../.github/workflows/phase272_form4_candidate_unit_price_basis_audit.yml).
+
+## Repository snapshot before Phase 272 commit (2026-11-10 UTC)
+- PR #13 open, base main, head 61f737f18b410bc6d85b8c56ed96bc1fd9c130f5, 580 commits / 506 files, mergeable/clean.
+- PR #14 open, base phase99-broad-pit-universe-charter, head 5a99f1c1646975a8855e71327f5050af0c9230fb, 281 commits / 169 files, mergeable/clean.
+- The latest 14-workflow regression wave on head 5a99f1c completed successfully; no active or queued workflows remained. Branch inventory: 134.
+- No PR merge, CFTC capture activation, vendor purchase/contact, SEC request, production/universe/capital change, or F80 change occurred.
+- F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen; legacy holdout remains CONSUMED_NOT_PRISTINE and unused.
