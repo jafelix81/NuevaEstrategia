@@ -55,3 +55,10 @@ Phase 240 was also extended so its next applicable push regression includes the 
 5. Confirm the CFTC workflow is present on main and inspect its permissions before allowing the first scheduled baseline.
 
 No PR was merged, no workflow was manually dispatched, and F80/production/universe/capital/holdout remain unchanged.
+
+
+## Hosted validation
+
+- [Phase 240 CFTC regression run 42878203544](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42878203544): compile, Phase 266 security contract, BPR capture regression, and TFF capture regression steps all succeeded.
+- [Dedicated Phase 266 run 42880706312](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42880706312), job 130055905998: 7/7 static security tests passed.
+- No live CFTC workflow_dispatch or scheduled capture was executed.
