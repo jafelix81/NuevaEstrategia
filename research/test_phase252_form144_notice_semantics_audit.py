@@ -3,7 +3,8 @@ import unittest
 from datetime import date
 
 from phase252_form144_notice_semantics_audit import (
-    audit_rows, proposed_notional_to_adv20, resolve_issuer_ticker_candidates, sale_date_relation
+    audit_rows, proposed_notional_to_adv20, resolve_issuer_ticker_candidates,
+    resolve_zillow_class_ticker, sale_date_relation
 )
 
 def filing(accession, form="144", filing_date="2025-01-10", issuer="0001780312",
@@ -74,6 +75,18 @@ class Phase252Tests(unittest.TestCase):
         rows=[filing("O1"),filing("O2")]
         r=audit_rows(rows,[{"ticker":"ASTS","ciks":"0001780312"}])
         self.assertEqual(r["repeats"]["original_accessions_beyond_first_in_issuer_seller_day_groups"],1)
+
+    def test_zillow_class_c_maps_to_z_since_2015(self):
+        self.assertEqual(resolve_zillow_class_ticker("0001617640","Common Class C",date(2023,5,4)),"Z")
+
+    def test_zillow_class_a_maps_to_zg_since_2015(self):
+        self.assertEqual(resolve_zillow_class_ticker("0001617640","Common Class A",date(2023,5,4)),"ZG")
+
+    def test_zillow_unspecified_common_remains_ambiguous(self):
+        self.assertIsNone(resolve_zillow_class_ticker("0001617640","Common",date(2023,5,4)))
+
+    def test_zillow_crosswalk_is_not_applied_before_effective_date(self):
+        self.assertIsNone(resolve_zillow_class_ticker("0001617640","Common Class C",date(2015,8,16)))
 
     def test_current_ticker_map_is_not_effective_dated(self):
         r=audit_rows([filing("O1")],[{"ticker":"ASTS","ciks":"0001780312"}])
