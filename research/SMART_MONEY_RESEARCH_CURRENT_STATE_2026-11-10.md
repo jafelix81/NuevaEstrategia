@@ -5,7 +5,7 @@
 **Frozen baseline:** F80_TOP20_PARTIAL50_BASELINE_C20  
 **Legacy holdout:** CONSUMED_NOT_PRISTINE; never reused
 
-## Latest material result — Phase 253
+## Latest material result — Phase 264
 
 SEC registered-security Inline XBRL is a conditional positive identity source, not a complete crosswalk census: the April 2026 SEC XBRL Guide says no instance type requires the registered-security title facts. Company Facts is entity-wide and cannot replace dimensioned filing contexts.
 
@@ -175,3 +175,13 @@ No alpha/OOS result from Phase 253. No returns, bootstrap/LOO, chronological OOS
 - The workflow completed with FINRA_API_TOKEN absent using synchronous public-endpoint requests. This specific run does not establish access/licensing for every FINRA endpoint. SEC_CONTACT_EMAIL remains a separate SEC bulk-retrieval requirement, not a blocker for this FINRA sample.
 - **Disposition:** coverage/schema is promising, but row integrity and aggregate integrity fail/review; current revised values lack immutable first-publication vintages; strict PIT, feature and alpha admission remain closed. FINRA weekly ATS/OTC is context only, not proof of informed trading. No returns, alpha, bootstrap/LOO/OOS, holdout, production, universe, capital or F80 changes.
 - [Phase 264 report](PHASE264_FINRA_ATS_FINAL_ARTIFACT_ADJUDICATION_2026-11-10.md) · [result JSON](phase264_finra_ats_final_artifact_adjudication_result.json)
+
+
+### Operational deployment gate — CFTC prospective capture (2026-11-10 UTC)
+- Re-inspected the actual default-branch workflow inventory and the feature-branch workflow. The research branch contains `.github/workflows/phase234_cftc_bpr_prospective_capture.yml`, with a weekday `20:35 UTC` schedule and a `workflow_dispatch` option; the default branch `main` has 53 workflows and does not contain this CFTC capture workflow.
+- GitHub scheduled workflows run from the default branch only. A manual dispatch is not a safe substitute: both capture implementations explicitly classify `workflow_dispatch` as manual/non-PIT and do not advance the scheduled baseline. The first scheduled run after activation is baseline-only; only a later newly indexed report observed by a scheduled run can become an event candidate.
+- The workflow also requests `contents: write` and commits append-only raw BPR/TFF snapshots into `data/cftc_bpr` and `data/cftc_tff`. This is a repository-write/data-retention change and must be reviewed as part of activation.
+- No `data/` directory or CFTC raw snapshot exists on the research branch at this check. Phase 240/243 results independently state that no prospective capture has run and the workflow is not active on `main`.
+- Latest live GitHub checks: Phase 231 run [42813734395](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42813734395) completed successfully (job 129821575614; metadata artifact 13764207248); Phase 263 run [42813725617](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42813725617) completed successfully (job 129821373917; artifact 13763672338). Their job steps and logs were inspected. The 10-run same-head PR regression wave is complete; no active or queued run was observed in the latest run page.
+- PR #13 remains open on `main`; PR #14 remains open and is stacked on PR #13. No PR was merged. Activation therefore remains blocked until the stacked change is reviewed and reaches `main`, or an explicitly reviewed equivalent default-branch deployment is made.
+- This is an operational capture-readiness issue, not evidence of a CFTC signal. No raw capture, return/alpha test, bootstrap/LOO/OOS, holdout use, production, universe, capital or F80 change occurred.
