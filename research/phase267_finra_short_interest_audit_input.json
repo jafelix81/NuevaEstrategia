@@ -10,7 +10,11 @@
     "phase25b_download_audit_sha256": "ccf2fb32eda25e9fb179e3315874df2c28e462a202837baf30dcc057c4c99ad2",
     "phase25c_download_audit_sha256": "642ee80bbba0af1912777c8d3ed479c81c4bf775287204a6ae5678184559d518",
     "feature_rows": 5115,
-    "unique_tickers": 98
+    "unique_tickers": 98,
+    "phase25b_raw_file_sha256": "eba8312fbfa041e310191a3e884e829f7d1bf4ea452433c898e622948393817e",
+    "phase25b_raw_rows": 5115,
+    "phase25b_raw_unique_tickers": 98,
+    "phase25b_raw_settlement_dates": 55
   },
   "retrieval": {
     "endpoint": "otcMarket/consolidatedShortInterest",
