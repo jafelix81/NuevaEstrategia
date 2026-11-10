@@ -1,0 +1,85 @@
+name: Phase 260 Form 144/Form 4 XNYS-session-valid accession-preserving placebo
+
+on:
+  pull_request:
+    branches:
+      - phase99-broad-pit-universe-charter
+    paths:
+      - 'research/phase260_form144_form4_xnys_session_placebo.py'
+      - 'research/test_phase260_form144_form4_xnys_session_placebo.py'
+      - '.github/workflows/phase260_form144_form4_xnys_session_placebo.yml'
+
+concurrency:
+  group: phase260-form144-form4-xnys-session-placebo
+  cancel-in-progress: true
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install XNYS calendar dependency
+        run: pip install exchange_calendars==4.13.1
+      - name: Download immutable Phase 69 Form 144 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: phase69-form144-incremental-fund-registrant-scan
+          repository: ${{ github.repository }}
+          run-id: 41959603351
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: phase260_input/form144
+      - name: Download immutable Phase 39 Form 4 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: phase39-sec-form4-actual-file-audit
+          repository: ${{ github.repository }}
+          run-id: 40606706518
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: phase260_input/form4
+      - name: Run Phase 260 unit tests
+        run: python -m unittest discover -s research -p 'test_phase260_form144_form4_xnys_session_placebo.py' -v
+      - name: Reproduce XNYS-session-valid accession-cluster placebos
+        run: >-
+          python -m research.phase260_form144_form4_xnys_session_placebo
+          --form144-csv phase260_input/form144/expanded_issuer_event_raw.csv
+          --form4-zip phase260_input/form4/2026q3_form345.zip
+          --output phase260_output/phase260_form144_form4_xnys_session_placebo_result.json
+          --permutations 1000 --seed 260
+      - name: Enforce immutable sample and no-alpha controls
+        run: |
+          python - <<'PY'
+          import json
+          x=json.load(open('phase260_output/phase260_form144_form4_xnys_session_placebo_result.json'))
+          assert x['sample']['form4_sale_blocks'] == 10525
+          assert x['sample']['unique_form4_accessions'] == 8897
+          assert x['sample']['single_block_accessions'] == 7512
+          assert x['sample']['multi_block_accessions'] == 1385
+          assert x['sample']['exact_date_share_links'] == 521
+          assert x['sample']['fallback_links_separate'] == 49
+          assert x['sample']['session_eligible_single_block_accessions'] + x['sample']['single_block_non_session_accessions_frozen'] == 7512
+          assert len(x['placebos']) == 3
+          for row in x['placebos'].values():
+              assert row['status'] in ('COMPLETED','INSUFFICIENT_MUTABLE_XNYS_SINGLE_BLOCK_ACCESSIONS')
+              if row['status'] == 'COMPLETED':
+                  assert row['replicates'] == 1000
+                  assert row['null_replicates_at_or_above_observed'] >= 0
+          assert x['decision']['strict_pit_admitted'] is False
+          assert x['decision']['alpha_test_authorized'] is False
+          assert x['decision']['holdout_used'] is False
+          assert x['decision']['f80_frozen'] is True
+          print('Phase 260 XNYS-session and no-alpha controls passed.')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: phase260-form144-form4-xnys-session-placebo
+          path: phase260_output/*.json
+          if-no-files-found: error
+          retention-days: 90
