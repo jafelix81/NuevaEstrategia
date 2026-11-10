@@ -44,6 +44,17 @@ def resolve_issuer_ticker_candidates(xml_issuer_cik, c2t):
     status="UNIQUE_CURRENT_TICKER" if len(ts)==1 else ("AMBIGUOUS_CURRENT_TICKER_MAP" if ts else "NO_CURRENT_TICKER_MAP")
     return {"status":status,"tickers":ts}
 
+def resolve_zillow_class_ticker(xml_issuer_cik, security_class, filing_date):
+    # SEC Form 10-K states Class A=ZG and Class C=Z since 2015-08-17.
+    if str(xml_issuer_cik or "").strip().lstrip("0") != "1617640":
+        return None
+    if not filing_date or filing_date < date(2015, 8, 17):
+        return None
+    label = " ".join(str(security_class or "").lower().split())
+    if "class a" in label: return "ZG"
+    if "class c" in label: return "Z"
+    return None
+
 def sale_date_relation(filing_date, approximate_sale_date):
     if not filing_date or not approximate_sale_date: return "UNKNOWN"
     if filing_date==approximate_sale_date: return "SAME_DAY"
@@ -67,7 +78,7 @@ def audit_rows(rows, ticker_rows, universe_n=335):
     past_n=past_future=0
     acc_groups=Counter(); tranche_groups=Counter()
     candidate_multi=Counter(); candidate_mismatch=0
-    raw_classes=defaultdict(set)
+    raw_classes=defaultdict(set); zillow_classes=Counter(); zillow_tickers=Counter()
     for r in rows:
         form=r.get("form",""); fd=d(r.get("filing_date"))
         issuer=str(r.get("xml_issuer_cik","")).lstrip("0")
@@ -115,6 +126,10 @@ def audit_rows(rows, ticker_rows, universe_n=335):
             value_zero+=v==0 if v is not None else False
             cl=" ".join(str(tr.get("security_class","")).lower().split())
             if cl: raw_classes[issuer].add(cl)
+            if issuer=="1617640":
+                zillow_classes[cl or "UNKNOWN"]+=1
+                mapped=resolve_zillow_class_ticker(issuer,cl,fd)
+                zillow_tickers[mapped or "AMBIGUOUS"]+=1
         for ps in jlist(r.get("past_sales_json")):
             past_n+=1
             pd=d(ps.get("sale_date_iso")) or d(ps.get("sale_date"))
@@ -145,7 +160,10 @@ def audit_rows(rows, ticker_rows, universe_n=335):
         "effective_dated":False},"candidate_ticker_multi_rows":sum(candidate_multi.values()),
         "candidate_ticker_combinations":dict(candidate_multi),"candidate_ticker_cross_cik_mismatch_rows":candidate_mismatch,
         "raw_security_class_strings":len({x for s in raw_classes.values() for x in s}),
-        "issuers_with_multiple_raw_class_strings":sum(len(s)>1 for s in raw_classes.values())},
+        "issuers_with_multiple_raw_class_strings":sum(len(s)>1 for s in raw_classes.values()),
+        "zillow_effective_dated_class_crosswalk":{"issuer_cik":"0001617640","valid_from":"2015-08-17",
+          "source":"SEC 10-K: Class A=ZG; Class C=Z","tranches_by_raw_class":dict(zillow_classes),
+          "tranches_mapped_by_ticker":dict(zillow_tickers),"ambiguous_tranches":zillow_tickers["AMBIGUOUS"]}},
       "plan_dates":{"all_forms_present":plan_all,"original_144_present":plan_orig,
         "keyword_true_all":kw_all,"keyword_true_original_144":kw_orig,
         "plan_present_keyword_false_all":plan_kw_false,"plan_present_keyword_false_original":plan_kw_false_orig,
@@ -195,4 +213,6 @@ if __name__=="__main__":
       "originals":result["panel"]["original_144"],"amendments":result["panel"]["144a"],
       "plan_date_keyword_non_equivalence":result["plan_dates"]["plan_present_keyword_false_all"],
       "amendment_plan_date_changes":result["amendments"]["added_plan_date"]+result["amendments"]["removed_plan_date"]+result["amendments"]["changed_plan_date"],
+      "zillow_mapped_tranches":result["panel"]["zillow_effective_dated_class_crosswalk"]["tranches_mapped_by_ticker"],
+      "zillow_ambiguous_tranches":result["panel"]["zillow_effective_dated_class_crosswalk"]["ambiguous_tranches"],
       "strict_pit":False,"alpha":False},sort_keys=True))
