@@ -52,7 +52,8 @@ jobs:
           assert r["retrieval_audit"]["coverage_status"] == "UNVERIFIED_FIRST_PAGE_ONLY"
           assert r["settlement_calendar_audit"]["wrong_settlement_queries"] == 2
           assert r["publication_and_execution_audit"]["old_knowledge_date_early_cycles"] == 19
-          assert r["publication_and_execution_audit"]["training_price_anchor_lookahead_cycles"] == 55
+          assert r["publication_and_execution_audit"]["historical_snapshot_price_anchor_lookahead_cycles"] == 55
+          assert r["publication_and_execution_audit"]["total_valid_training_snapshot_uses_across_phases"] == 292
           assert r["revision_vintage_audit"]["revision_flag_rows"] == 102
           assert r["decision"]["historical_alpha_admitted"] is False
           assert r["decision"]["f80_frozen"] is True
