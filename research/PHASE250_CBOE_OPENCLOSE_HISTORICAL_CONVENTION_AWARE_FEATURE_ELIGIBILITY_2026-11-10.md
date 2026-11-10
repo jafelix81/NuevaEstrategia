@@ -1,6 +1,6 @@
 # Phase 250 — Cboe C1 EOD historical convention-aware feature eligibility
 
-**Status:** HOSTED_VALIDATION_PENDING  
+**Status:** HOSTED_CONVENTION_GATE_PASS_17_OF_17  
 **Date:** 2026-11-10  
 **Control:** `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.  
 **Scope:** source-specification and feature-contract audit only. No historical download, purchase, PIT admission, return test, holdout use, or production change.
@@ -51,3 +51,8 @@ No actual 2011–2019 daily files were acquired or inspected in this phase. Cont
 ## Hosted result
 
 Pending. The workflow validates deterministic date boundaries and feature-level denominator eligibility only. Passing tests do not admit historical data to PIT or alpha.
+
+
+## Hosted result — 2026-11-10 UTC
+
+**PASS — 17/17 deterministic tests.** GitHub Actions run [42738486543](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42738486543), job 129573491343, completed successfully. The workflow compiled the Phase 250 module, ran all 17 regression tests, and enforced the 2011–2019 directional-only, pre-2019 volume-normalization block, pre-2019 OI block, and no historical PIT/alpha admission. No artifact was produced because the workflow contains only deterministic contract tests. This does not establish historical file continuity, PIT, or predictive value.
