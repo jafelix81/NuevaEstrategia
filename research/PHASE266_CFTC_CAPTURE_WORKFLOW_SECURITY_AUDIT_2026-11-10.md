@@ -43,7 +43,7 @@ Phase 240 was also extended so its next applicable push regression includes the 
 - The first scheduled run after deployment must be treated as a baseline state, not a historical event; manual workflow_dispatch remains non-PIT.
 - Subsequent new report URLs may become event candidates only from their actual scheduled pipeline receipt time. Revisions remain separate state updates.
 - The capture code stores original source responses and hashes under data/cftc_bpr and data/cftc_tff; it does not infer participant identity from CFTC categories.
-- The workflow still uses official actions via version tags (@v4/@v5), not immutable commit SHAs. This is a residual supply-chain reproducibility improvement, not a reason to activate the workflow before the user approves the PR chain.
+- The mutable action-tag residual was closed in Phase 273: checkout, setup-python and upload-artifact are pinned to full 40-character commit SHAs. Each SHA was resolved from the official action repository tag and its commit signature was verified. The static contract now rejects unpinned action references. This improves supply-chain reproducibility but does not replace review of upstream action code or a controlled deployment.
 - No live BPR/TFF data was captured; no API/vendor purchase, external contact, or terms acceptance occurred.
 
 ## Deployment sequence
@@ -63,3 +63,18 @@ No PR was merged, no workflow was manually dispatched, and F80/production/univer
 - Initial dedicated Phase 266 run 42880706312 passed 7/7 static security tests.
 - Latest-head dedicated [Phase 266 run 42881264991](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42881264991), job 130057840322: 7/7 static security tests passed.
 - No live CFTC workflow_dispatch or scheduled capture was executed.
+
+
+## Phase 273 — immutable GitHub Action pinning (2026-11-10)
+
+The only write-capable CFTC workflow was using mutable major-version tags. Pinned its three actions to the commit currently resolved by the official repository tags:
+
+| Action | Ref | Verified commit |
+|---|---|---|
+| actions/checkout v4 | `11d5960a326750d5838078e36cf38b85af677262` | Signed/verified |
+| actions/setup-python v5 | `a26af69be951a213d495a4c3e4e4022e16d87065` | Signed/verified |
+| actions/upload-artifact v4 | `ea165f8d65b6e75b540449e92b4886f43607fa02` | Signed/verified |
+
+The Phase 266 static security test now requires exactly these three references and enforces 40-character hexadecimal commit pins for every `uses:` entry. No parser, data-capture, token, permissions, schedule or archive behavior changed.
+
+The update is on the research branch only. It has not been deployed to `main`; no manual or scheduled CFTC capture was executed. Hosted validation is pending the existing Phase 240/266 workflows.

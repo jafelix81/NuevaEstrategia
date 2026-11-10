@@ -6,6 +6,7 @@ checkout token out of parser steps, validates both parsers before capture, and
 refuses non-additive changes to the raw PIT archive.
 """
 from pathlib import Path
+import re
 import unittest
 
 WORKFLOW = (
@@ -55,6 +56,15 @@ class Phase266CftcWorkflowSecurityTests(unittest.TestCase):
 
     def test_timeout_allows_retained_bpr_polling(self):
         self.assertIn("timeout-minutes: 20", self.text)
+
+    def test_all_actions_are_pinned_to_verified_immutable_commits(self):
+        uses = re.findall(r"^\\s*uses:\\s*([^\\s]+)", self.text, re.MULTILINE)
+        self.assertEqual(len(uses), 3)
+        for action_ref in uses:
+            self.assertRegex(action_ref, r"^[^@]+@[0-9a-f]{40}$")
+        self.assertIn("actions/checkout@11d5960a326750d5838078e36cf38b85af677262", uses)
+        self.assertIn("actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065", uses)
+        self.assertIn("actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", uses)
 
 
 if __name__ == "__main__":

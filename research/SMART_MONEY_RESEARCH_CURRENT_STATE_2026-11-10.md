@@ -1,6 +1,6 @@
-# Smart Money Research — current state (Phase 272, 2026-11-10 UTC)
+# Smart Money Research — current state (Phase 273, 2026-11-10 UTC)
 
-**Updated:** 2026-11-10 UTC (Phase 272)  
+**Updated:** 2026-11-10 UTC (Phase 273)  
 **Active branch:** phase231-cboe-option-quotes-full-row-reparse (PR #14, stacked on PR #13)  
 **Frozen baseline:** F80_TOP20_PARTIAL50_BASELINE_C20  
 **Legacy holdout:** CONSUMED_NOT_PRISTINE; never reused
@@ -292,4 +292,13 @@ No alpha/OOS result from Phase 253. No returns, bootstrap/LOO, chronological OOS
 - PR #14 open, base phase99-broad-pit-universe-charter, head 5a99f1c1646975a8855e71327f5050af0c9230fb, 281 commits / 169 files, mergeable/clean.
 - The latest 14-workflow regression wave on head 5a99f1c completed successfully; no active or queued workflows remained. Branch inventory: 134.
 - No PR merge, CFTC capture activation, vendor purchase/contact, SEC request, production/universe/capital change, or F80 change occurred.
+- F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen; legacy holdout remains CONSUMED_NOT_PRISTINE and unused.
+
+
+## Phase 273 — CFTC capture workflow supply-chain hardening (2026-11-10 UTC)
+- Pinned the write-capable Phase 234/239 workflow's three GitHub Actions to immutable full commit SHAs: checkout `11d5960a326750d5838078e36cf38b85af677262`, setup-python `a26af69be951a213d495a4c3e4e4022e16d87065`, upload-artifact `ea165f8d65b6e75b540449e92b4886f43607fa02`.
+- Resolved each SHA from its official action repository tag; each commit reports a verified signature.
+- Extended the Phase 266 static contract to require exactly these three 40-character SHA references and reject mutable action tags.
+- No capture code, permissions, token scope, schedule, raw-data path or PIT rule changed. No live capture, PR merge, production change or data purchase.
+- Hosted Phase 240/266 regression is pending; no security claim is upgraded until those checks finish.
 - F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen; legacy holdout remains CONSUMED_NOT_PRISTINE and unused.
