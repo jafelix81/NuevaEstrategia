@@ -80,3 +80,5 @@ jobs:
           path: phase255_output/phase255_validation.json
           if-no-files-found: error
           retention-days: 90
+
+# Re-run after canonical Decimal output assertion correction.
