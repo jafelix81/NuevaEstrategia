@@ -175,5 +175,21 @@
     "record_total_header_required_for_page_completeness": true,
     "proposed_weekly_rule": "SR-FINRA-2026-012",
     "proposed_weekly_rule_withdrawn_date": "2026-08-05"
+  },
+  "revision_audit": {
+    "revision_flag_rows": 102,
+    "unique_tickers_with_revision_flag": 63,
+    "settlement_dates_with_revision_flag": 9,
+    "max_rows_in_one_settlement_cycle": 45,
+    "definition": "FINRA describes revisionFlag='R' as indicating that the prior cycle's short position was revised.",
+    "affected_feature_fields": [
+      "previousShortPositionQuantity",
+      "changePreviousNumber",
+      "changePercent",
+      "SI_CHG_SHARES",
+      "SI_CHG_PCT",
+      "SI_ACCEL"
+    ],
+    "historical_original_vintage_available": false
   }
 }
