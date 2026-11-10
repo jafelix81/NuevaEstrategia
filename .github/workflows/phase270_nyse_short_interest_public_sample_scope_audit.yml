@@ -1,0 +1,56 @@
+name: Phase 270 NYSE Short Interest public sample scope correction
+
+on:
+  pull_request:
+    branches: [phase99-broad-pit-universe-charter]
+    paths:
+      - "research/phase270_nyse_short_interest_public_sample_scope_audit.py"
+      - "research/test_phase270_nyse_short_interest_public_sample_scope_audit.py"
+      - "research/PHASE270_NYSE_SHORT_INTEREST_PUBLIC_SAMPLE_SCOPE_AUDIT_2026-11-10.md"
+      - ".github/workflows/phase270_nyse_short_interest_public_sample_scope_audit.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase270-nyse-short-interest-public-sample-scope-audit
+  cancel-in-progress: false
+
+jobs:
+  scope-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile Phase 270
+        run: python -m py_compile research/phase270_nyse_short_interest_public_sample_scope_audit.py research/test_phase270_nyse_short_interest_public_sample_scope_audit.py
+      - name: Run deterministic scope and license tests
+        run: python -m unittest -v research.test_phase270_nyse_short_interest_public_sample_scope_audit
+      - name: Build deterministic metadata-only artifact
+        run: python -m research.phase270_nyse_short_interest_public_sample_scope_audit --output phase270_output/phase270_nyse_short_interest_public_sample_scope_audit_result.json
+      - name: Enforce sample-only, no-extraction, no-alpha and frozen-baseline controls
+        run: |
+          python - <<'PY'
+          import json
+          p = "phase270_output/phase270_nyse_short_interest_public_sample_scope_audit_result.json"
+          r = json.load(open(p, encoding="utf-8"))
+          assert r["scope_correction"]["sample_is_security_level"] is True
+          assert r["scope_correction"]["full_sample_downloaded_or_parsed"] is False
+          assert r["license_and_use"]["automated_download_authorized"] is False
+          assert r["license_and_use"]["automated_parsing_or_feature_extraction_authorized"] is False
+          assert r["research_decision"]["historical_pit_admitted"] is False
+          assert r["research_decision"]["alpha_admitted"] is False
+          assert r["research_decision"]["f80_frozen"] is True
+          assert r["research_decision"]["holdout_used"] is False
+          print("PHASE270_STATUS=" + r["research_decision"]["classification"])
+          PY
+      - name: Upload metadata-only audit artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase270-nyse-short-interest-public-sample-scope-audit
+          path: phase270_output/phase270_nyse_short_interest_public_sample_scope_audit_result.json
+          if-no-files-found: error
+          retention-days: 90
