@@ -1,0 +1,42 @@
+name: Phase 263 CFTC TFF semiweekly-scope gate
+
+on:
+  push:
+    branches: [phase231-cboe-option-quotes-full-row-reparse]
+    paths:
+      - "research/phase263_cftc_tff_semiweekly_scope_gate.py"
+      - "research/test_phase263_cftc_tff_semiweekly_scope_gate.py"
+      - "research/phase263_cftc_tff_semiweekly_scope_gate_result.json"
+      - "research/PHASE263_CFTC_TFF_SEMIWEEKLY_SCOPE_ADJUDICATION_2026-11-10.md"
+      - ".github/workflows/phase263_cftc_tff_semiweekly_scope_gate.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase263-cftc-tff-semiweekly-scope-gate
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile and run deterministic scope tests
+        run: |
+          python -m py_compile research/phase263_cftc_tff_semiweekly_scope_gate.py research/test_phase263_cftc_tff_semiweekly_scope_gate.py
+          python -m unittest -v research.test_phase263_cftc_tff_semiweekly_scope_gate
+      - name: Rebuild deterministic result and compare with committed result
+        run: |
+          python -m research.phase263_cftc_tff_semiweekly_scope_gate --output /tmp/phase263_result.json
+          cmp /tmp/phase263_result.json research/phase263_cftc_tff_semiweekly_scope_gate_result.json
+      - name: Upload metadata-only result
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase263-cftc-tff-semiweekly-scope-gate
+          path: research/phase263_cftc_tff_semiweekly_scope_gate_result.json
+          retention-days: 90

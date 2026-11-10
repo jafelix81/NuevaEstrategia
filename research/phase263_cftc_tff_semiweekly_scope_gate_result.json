@@ -1,0 +1,55 @@
+{
+  "phase": 263,
+  "date": "2026-11-10",
+  "source": "CFTC Commitments of Traders / Traders in Financial Futures",
+  "status": "RETAIN_WEEKLY_ASSUMPTION_PENDING_TFF_SPECIFIC_CONFIRMATION",
+  "evidence": {
+    "cot_semiweekly_plan_announced": true,
+    "announcement_scope_is_agricultural_markets": true,
+    "announcement_explicitly_includes_tff": false,
+    "official_tff_wednesday_friday_schedule": false,
+    "distinct_tff_report_dates_in_same_week": 1,
+    "current_cot_page_says_weekly": true,
+    "current_faq_says_once_weekly": true,
+    "current_tff_report_date": "2026-11-03",
+    "current_tff_streams": {
+      "futures_only": "https://www.cftc.gov/dea/newcot/FinFutWk.txt",
+      "futures_options_combined": "https://www.cftc.gov/dea/newcot/FinComWk.txt"
+    }
+  },
+  "decision": {
+    "tff_semiweekly_confirmed": false,
+    "tff_cadence_disposition": "RETAIN_WEEKLY_ASSUMPTION_PENDING_TFF_SPECIFIC_CONFIRMATION",
+    "capture_protocol": {
+      "retain_existing_weekday_polling": true,
+      "create_duplicate_workflow": false,
+      "scheduled_capture_is_first_observed_known_by_not_exact_first_publication": true,
+      "report_date_is_not_knowledge_time": true
+    },
+    "research_disposition": {
+      "tff_is_stock_level_smart_money_feed": false,
+      "category_is_beneficial_owner_identity": false,
+      "historical_release_dates_fully_reconstructed": false,
+      "strict_historical_pit_admitted": false,
+      "alpha_admitted": false,
+      "f80_frozen": true,
+      "holdout_used": false
+    }
+  },
+  "data_scope": {
+    "full_raw_files_persisted": false,
+    "prospective_capture_executed": false,
+    "new_workflow_created": false
+  },
+  "controls": {
+    "strict_pit_admitted": false,
+    "alpha_admitted": false,
+    "returns_tested": false,
+    "bootstrap_loo_oos_tested": false,
+    "holdout_used": false,
+    "production_changed": false,
+    "universe_changed": false,
+    "capital_changed": false,
+    "f80_baseline": "F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen"
+  }
+}

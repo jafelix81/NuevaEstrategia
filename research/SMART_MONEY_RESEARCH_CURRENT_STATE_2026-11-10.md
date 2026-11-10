@@ -155,3 +155,13 @@ No alpha/OOS result from Phase 253. No returns, bootstrap/LOO, chronological OOS
 - Jobs, step logs and available artifacts were inspected after completion. No workflows remain active or queued in this validation wave.
 - PR #13 remains open/mergeable/unmerged (580 commits, 506 files). PR #14 remains open/mergeable/unmerged (218 commits, 129 files) with title updated through Phase 262. Branch inventory remains 134. No merge was performed.
 - F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen; no production, universe, capital, parameter, return-alpha, OOS or holdout change.
+
+
+## Phase 263 — CFTC TFF semiweekly-scope adjudication (2026-11-10 UTC)
+- Rechecked the CFTC 2026-10-27 semiweekly COT announcement against the current COT index, current release schedule, and both live TFF file links on 2026-11-10.
+- The announcement plans Monday-position/Wednesday-publication and Wednesday-position/Friday-publication by year-end, but frames the change around agricultural-market feedback and does not explicitly include TFF. The current COT index still describes weekly Tuesday/Friday reporting and its FAQ still says once weekly; the current TFF futures-only and combined files both show report date 2026-11-03. No official TFF Wednesday/Friday schedule or two-distinct-report-date TFF week was observed.
+- **Decision:** retain the weekly TFF interpretation pending TFF-specific confirmation. Keep Phase 239's existing weekday 20:35 UTC capture poll and concurrency group; no duplicate workflow or cadence change.
+- TFF remains broad futures-market context, not a stock-level feed. CFTC categories are self-reported business-purpose classifications, not beneficial-owner identities or verified informed traders; missing markets below the 20-reportable-trader threshold are not zero.
+- Added a fail-closed cadence-scope gate, 17 deterministic tests, metadata-only result and isolated workflow. No raw files persisted, no prospective capture executed, no historical PIT/alpha admission.
+- [Phase 263 report](PHASE263_CFTC_TFF_SEMIWEEKLY_SCOPE_ADJUDICATION_2026-11-10.md) · [code](phase263_cftc_tff_semiweekly_scope_gate.py) · [tests](test_phase263_cftc_tff_semiweekly_scope_gate.py) · [result](phase263_cftc_tff_semiweekly_scope_gate_result.json) · [workflow](../.github/workflows/phase263_cftc_tff_semiweekly_scope_gate.yml)
+- F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen; no returns, alpha, bootstrap/LOO, OOS, holdout, production, universe or capital changes.
