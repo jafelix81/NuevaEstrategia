@@ -259,3 +259,23 @@
 - [Phase 250 report](PHASE250_CBOE_OPENCLOSE_HISTORICAL_CONVENTION_AWARE_FEATURE_ELIGIBILITY_2026-11-10.md) · [feature gate](phase250_cboe_openclose_convention_gate.py) · [tests](test_phase250_cboe_openclose_convention_gate.py)
 
 - Hosted Phase 250 validation passed 17/17 deterministic tests in run [42738486543](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42738486543), job 129573491343. Workflow enforced the date-regime and no-PIT/no-alpha boundaries. No artifact was produced; no historical sample was downloaded.
+
+
+## Phase 251 — Cboe Open-Close four-venue convention and aggregation gate (2026-11-10 UTC)
+
+- Converted the Phase 206 four-venue source findings and Phase 250 C1-only feature eligibility into a deterministic exchange-aware contract.
+- Advertised EOD history: C1 from 2005-01-03; BZX, C2 and EDGX from 2018-01-02. The post-migration C1 capacity/execution-size family begins 2011-01-02; a four-venue Cboe panel cannot begin before 2018-01-02.
+- Encoded C1 total-exchange-volume scale ×2 through 2019-10-04; C1 OI/previous-OI one-day shift and exchange-only previous-close convention through that date; C2 total-industry-volume reported-double correction ×0.5 and OI/previous-OI shift through 2018-05-11; BZX/EDGX start-of-day OI and industry-wide previous-close conventions; C1 GTH from 2023-12-11; FLEX schema from 2024-10-16; legacy W code before October 2019.
+- Multi-venue aggregation sums signed net contracts, gross capacity contracts and adjusted venue-specific exchange volume, then computes a ratio of sums. Same standard series across different venues is allowed; duplicate series within a venue is rejected. Total Industry Volume and OI are never summed; missing venues/series are not assumed zero; this is Cboe-only, not consolidated OPRA.
+- Primary cohort is standard series type S. Non-standard N and FLEX F are excluded pending OCC deliverable/multiplier identity. The file-level series key is not represented as a permanent OCC adjusted-deliverable identity.
+- Hosted workflow [42743448141](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42743448141), job 129589843456, passed **42/42 deterministic tests**. No artifact was produced; no raw four-venue files were acquired.
+- Historical daily completeness, first-receipt timestamps, preliminary/final vintages, correction lineage, effective-dated security identity, inactive/delisted coverage and licensing remain unverified. Strict PIT and alpha remain closed.
+- No forward returns, momentum controls, costs, bootstrap/LOO, chronological OOS or holdout test. No data purchase, trial, card authorization, vendor contact, production/universe/capital change. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+- [Phase 251 report](PHASE251_CBOE_MULTI_EXCHANGE_CONVENTION_AND_AGGREGATION_GATE_2026-11-10.md) · [helper](phase251_cboe_multi_exchange_convention_gate.py) · [tests](test_phase251_cboe_multi_exchange_convention_gate.py) · [result](phase251_cboe_multi_exchange_convention_gate_result.json) · [workflow](../.github/workflows/phase251_cboe_multi_exchange_convention_gate.yml)
+
+### Phase 251 operational status at last check
+- Phase 251 passed 42/42.
+- Phase 246, 247, 248 and 250 same-head regression workflows also completed successfully.
+- Phase 249 same-head real-sample reprocessing completed successfully.
+- Phase 231 same-head full-row reparse was still running at the last check; do not start another run until it completes.
+- PR #14 remains open and unmerged, stacked on PR #13. No merge was performed.
