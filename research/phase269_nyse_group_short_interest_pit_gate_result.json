@@ -77,7 +77,8 @@
       }
     ],
     "difference_minutes": 160,
-    "same_day_close_potential_if_actual_receipt_before_16_00_et": true,
+    "same_day_close_potential_if_actual_receipt_before_actual_xnys_session_close": true,
+    "execution_rule": "Use the actual XNYS close on the release date; on early-close sessions where the market closes before 14:00 ET, the file is post-close and entry must move to the next session.",
     "actual_first_receipt_timestamp_required": true
   },
   "source_relationship": {
