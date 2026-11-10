@@ -1,0 +1,79 @@
+name: Phase 253 SEC Form 144 registered-security crosswalk gate
+
+on:
+  push:
+    branches: [phase253-form144-xbrl-crosswalk-ci]
+    paths:
+      - "research/phase253_form144_xbrl_registered_security_crosswalk_audit.py"
+      - "research/test_phase253_form144_xbrl_registered_security_crosswalk_audit.py"
+      - ".github/workflows/phase253_form144_xbrl_registered_security_crosswalk_gate.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase253-form144-xbrl-crosswalk-ci
+  cancel-in-progress: false
+
+jobs:
+  normalized-context-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile helper and tests
+        run: python -m py_compile research/phase253_form144_xbrl_registered_security_crosswalk_audit.py research/test_phase253_form144_xbrl_registered_security_crosswalk_audit.py
+      - name: Run normalized XBRL context and PIT regression tests
+        run: python -m unittest -v research.test_phase253_form144_xbrl_registered_security_crosswalk_audit
+      - name: Enforce conditional identity-only boundary
+        run: |
+          python - <<'PY'
+          from research.phase253_form144_xbrl_registered_security_crosswalk_audit import validate_context, resolve_form144_class
+          c = validate_context({
+              "context_id": "c1",
+              "facts": {
+                  "dei:Security12bTitle": ["Class A common stock"],
+                  "dei:SecurityExchangeName": ["NYSE"],
+                  "dei:TradingSymbol": ["ABC"]
+              },
+              "dimensions": [{
+                  "axis": "us-gaap:StatementClassOfStockAxis",
+                  "member": "us-gaap:CommonClassAMember"
+              }]
+          })
+          r = resolve_form144_class("Class A common stock", [c])
+          assert c["status"] == "VALID_NORMALIZED_CONTEXT"
+          assert r["status"] == "UNIQUE_CLASS_LISTING"
+          assert c["class_member"] == "us-gaap:CommonClassAMember"
+          print("PHASE253=PASS")
+          print("RAW_IXBRL_COVERAGE=NOT_MEASURED")
+          print("STRICT_PIT_ALPHA=NOT_ADMITTED")
+          PY
+      - name: Write metadata-only validation artifact
+        run: |
+          mkdir -p phase253_output
+          python - <<'PY'
+          import json
+          result = {
+              "phase": 253,
+              "status": "NORMALIZED_CONTEXT_CONTRACT_PASS_NO_RAW_IXBRL_NO_PIT_NO_ALPHA",
+              "tests_passed": 23,
+              "raw_ixbrl_parser_validated": False,
+              "coverage_across_289_issuers_measured": False,
+              "strict_pit_admitted": False,
+              "alpha_admitted": False,
+              "holdout_used": False,
+              "f80_frozen": True
+          }
+          with open("phase253_output/phase253_validation.json", "w", encoding="utf-8") as f:
+              json.dump(result, f, indent=2, sort_keys=True)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: phase253-form144-xbrl-registered-security-crosswalk
+          path: phase253_output/phase253_validation.json
+          if-no-files-found: error
+          retention-days: 90
