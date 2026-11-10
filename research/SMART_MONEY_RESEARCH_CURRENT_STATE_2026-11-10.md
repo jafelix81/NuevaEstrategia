@@ -1,4 +1,4 @@
-# Smart Money Research — current state (Phase 265, 2026-11-10 UTC)
+# Smart Money Research — current state (Phase 268, 2026-11-10 UTC)
 
 **Updated:** 2026-11-10 UTC  
 **Active branch:** phase231-cboe-option-quotes-full-row-reparse (PR #14, stacked on PR #13)  
@@ -213,6 +213,25 @@ No alpha/OOS result from Phase 253. No returns, bootstrap/LOO, chronological OOS
 - Phase 25B raw data contains 102 revisionFlag='R' rows across 63 tickers and 9 settlement dates; original as-published values/receipt vintages are not preserved.
 - Decision: Phase 25B/25C return summaries are invalid for PIT/OOS inference; no historical alpha or coverage admitted. FINRA short interest remains a prospective candidate only, with first-receipt capture, revisions, complete pagination, and next-session execution required.
 - Current FINRA Developer Center docs require OAuth 2.0 Bearer authorization and list Public/Firm/Organization credential types. The old Phase 25B/C client sends no Authorization header. No credential was created, no API terms were accepted, and no live query was attempted. If we choose to deploy FINRA capture, public-credential setup will require user authorization.
-- Initial hosted audit: push run 42880053761 and PR run 42880064173 passed 8/8 tests. A correction now separates 55 unique historical snapshot anchors from 292 repeated training-snapshot uses; the corrected result is pending its next hosted Phase 267 run.
+- Corrected hosted validation: PR run [42881264303](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42881264303), job 130058005392, passed 8/8 tests; metadata artifact [13794116684](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42881264303/artifacts/13794116684). Logs distinguish 55 unique historical snapshot anchors from 292 repeated training-snapshot uses. No alpha test or holdout use.
 - [Phase 266 report](PHASE266_CFTC_CAPTURE_WORKFLOW_SECURITY_AUDIT_2026-11-10.md) · [Phase 267 report](PHASE267_FINRA_SHORT_INTEREST_PIT_PAGINATION_AUDIT_2026-11-10.md) · [Phase 267 code](phase267_finra_short_interest_pit_pagination_audit.py) · [tests](test_phase267_finra_short_interest_pit_pagination_audit.py) · [result fixture](phase267_finra_short_interest_audit_input.json).
 - F80 remains frozen; no production, universe, capital, parameter, or holdout change.
+
+
+## Phase 268 — SEC Form SHO future public-data and PIT gate (2026-11-10 UTC)
+- SEC Order Release 34-104303 (2025-12-03) defers Rule 13f-2/Form SHO compliance through 2028-01-02. The first reporting period is January 2028; first filing deadline is 2028-02-14.
+- SEC Final Rule 34-98738 says aggregated publication begins three months after the compliance date and is expected within one calendar month after each reporting month-end. The exact first public release date is not yet verified; current implication is an initial window around April 2028, not a guaranteed date.
+- Public output is aggregated by equity security, not manager-attributed. Individual Form SHO submissions are confidential under Rule 83. Public data are threshold-censored: reporting-company manager positions meet monthly-average gross short thresholds of $10m OR 2.5% of shares outstanding; non-reporting-company positions meet $500k on any settlement date.
+- SEC analysis indicates most, but not all, positions leading to Form SHO reports may have closed by public release. EDGAR validates technical completeness, not economic accuracy; amendments/restatements are possible.
+- Rule 10c-1a is separate: reporting compliance deferred to 2028-09-28 and public dissemination to 2029-03-29.
+- Decision: future aggregate short-side/crowding candidate only; not an institutional-identity feed, no historical public backfill, no PIT/alpha admission, no capture workflow. No production, universe, capital, F80 or holdout change.
+- Report: [Phase 268](PHASE268_SEC_FORM_SHO_FUTURE_PUBLICATION_AND_PIT_GATE_2026-11-10.md) · code: [gate](phase268_sec_form_sho_future_publication_gate.py) · tests: [11 tests](test_phase268_sec_form_sho_future_publication_gate.py) · fixture: [result JSON](phase268_sec_form_sho_future_publication_gate_result.json).
+
+## Current repository and CI snapshot (2026-11-10 UTC)
+- PR #13: open, base `main`, head `phase99-broad-pit-universe-charter` at `61f737f18b410bc6d85b8c56ed96bc1fd9c130f5`, 580 commits / 506 files, mergeable/clean.
+- PR #14: open, base `phase99-broad-pit-universe-charter`, head `phase231-cboe-option-quotes-full-row-reparse` at `ee26d7b07c3e92589aedfe512a496b139dfee991`, 252 commits / 149 files, mergeable/clean. PR #14 is correctly stacked on PR #13; no merge or retarget occurred.
+- Branch inventory: 134. Default branch `main` at `36d8eabb348d6a959bd2e7f4f9ffa31fc94087c9`.
+- Latest code-check wave: 13 check runs on code SHA `2c5f34e5ad31de29332645ccc7aac899e641b6fb`, all successful. The two commits after that SHA (`2e9365f` and `ee26d7b`) are documentation/state-only and used CI skip; therefore the current PR head has zero attached check runs. No active/queued workflow run was observed.
+- Phase 266 latest dedicated PR validation: run [42881264991](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42881264991), job 130057840322, 7/7 static security tests passed. Phase 267 corrected PR validation: run [42881264303](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42881264303), job 130058005392, 8/8 tests passed.
+- PR #14 contains 21 workflow files. Phase 234 is the only write-capable workflow (`contents: write`); Phase 266 hardened it with a main-only job guard, non-persistent checkout credentials, token scoped to the commit step, pre-capture BPR/TFF tests, and additive-only archive commits. Other audited research workflows are read-only. Action references still use major-version tags rather than immutable commit SHAs.
+- No PR was merged. The CFTC workflow is not on `main` and no live capture was run. F80 remains frozen; the legacy holdout remains consumed and unused.
