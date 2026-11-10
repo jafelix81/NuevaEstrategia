@@ -126,3 +126,13 @@ No alpha/OOS result from Phase 253. No returns, bootstrap/LOO, chronological OOS
 - Head 0404eacdf45adef494ec3cc7bf0bb468baa558f5; 10/10 workflows succeeded: Phase 231, 246, 247, 248, 249, 250, 251, 258, 259 and 260. No active/queued workflows remain.
 - PR #13 and PR #14 remain open, mergeable and unmerged. Branch inventory: 134. No merge was performed.
 - F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen; legacy holdout remains CONSUMED_NOT_PRISTINE.
+
+
+## Phase 261 — Global Form 144/Form 4 placebo multiplicity audit (2026-11-10 UTC)
+- Downloaded and SHA-256 verified the immutable result JSONs from Phases 256, 257, 258 and 260; all four share the same Phase 69 Form 144 and Phase 39 Q3 2026 Form 4 input hashes and the same 1,451 notices / 1,460 tranches / 10,525 Form 4 blocks / 521 exact links / 49 fallbacks.
+- Combined all 13 completed, valid exact-link placebo sensitivities into one exploratory family and applied global Holm step-down correction. **12/13 remain below 0.05**: 11 zero-exceedance tests adjust to 0.012987; Phase 260 monthly adjusts to 0.043956; sparse ISO-week remains 0.533467.
+- The plus-one Monte Carlo tail is (exceedances+1)/1001; zero exceedances is p=0.000999, with one-sided 95% upper bound 0.002991. Phase 210 raw-date placebos are excluded because Phase 256 invalidated their lag-envelope preservation; Phase 238 and 259 are different endpoints.
+- This is a post-hoc multiplicity audit of nested sensitivities on the same selected one-quarter sample, not independent replication or proof of informed trading. Form 144 remains proposed, Form 4 code S may include private dispositions. No PIT, feature or alpha admission.
+- Hosted final run [42797886745](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42797886745) passed **13/13**; job 129767610240; metadata/result artifact [13755475932](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42797886745/artifacts/13755475932). All four upstream artifacts were downloaded and their ZIP SHA-256 digests matched the pinned manifest.
+- F80 remains frozen; no return test, bootstrap/LOO/OOS, holdout use, production, universe or capital change.
+- [Phase 261 report](PHASE261_FORM144_FORM4_GLOBAL_PLACEBO_MULTIPLICITY_AUDIT_2026-11-10.md) · [code](phase261_global_form144_form4_placebo_multiplicity_audit.py) · [tests](test_phase261_global_form144_form4_placebo_multiplicity_audit.py) · [result](phase261_global_form144_form4_placebo_multiplicity_audit_result.json)
