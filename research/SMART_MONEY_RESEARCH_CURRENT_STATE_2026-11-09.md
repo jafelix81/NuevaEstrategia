@@ -280,3 +280,15 @@
 - Phase 231 run [42743447707](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42743447707) passed 9/9 and emitted metadata-only artifact [13730600781](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42743447707/artifacts/13730600781), 2,422 bytes, SHA-256 `cfb0bbe1f1c165b542d6b5a4b5d63e3c4405be3d800e52aa88eb7b61c96bd5f1`. It parsed 115,617 rows; 112,313 were unambiguous and 3,304 remained quarantined for ambiguous expiration dates.
 - The subsequent state/report/result commits used `[skip ci]`; no workflows are active on the current PR head as of the last query.
 - PR #14 remains open and unmerged, stacked on PR #13. No merge was performed.
+
+
+## Phase 252 — SEC Form 144 event semantics and ADV-days feasibility (2026-11-10 UTC)
+
+- Re-downloaded/re-hashed Phase 69 artifact run 41959603351 / artifact 13385365595: 21,634 accessions (21,438 original 144; 196 144/A), 2023-04-13 to 2026-09-30, 289 issuer CIKs. ZIP and expanded CSV SHA-256s are pinned in the Phase 252 result.
+- The structured Form 144 plan-adoption date and the remarks keyword flag are not interchangeable: 12,029 original notices have a plan-date field; only 1,411 have mentions_10b5_1=True; 10,665 have a date with keyword false; 47 have keyword true without a date. Keep separate as-filed fields; do not infer direction.
+- 188/196 amendments link to an original accession; 5 add, 7 remove and 8 change a nonempty plan date. Treat 144/A as a later state vintage, never a new event or a backfill into the original.
+- Current ticker mapping by xml_issuer_cik gives 288 single-ticker mappings, one ambiguous Z/ZG class and no unmapped CIKs. One AMT;ASTS candidate row includes AMT as filer ticker; do not use candidate_tickers as issuer identity. Mapping is not effective-dated.
+- Filing/notice/approximate-sale dates differ: 156 original notice-date mismatches; among 21,653 original tranches, 432 approximate sale dates precede filing and 513 follow it. Keep Phase 222's conservative next-XNYS-session-after-filing rule. The artifact lacks complete acceptance-time/first-receipt history.
+- A denominator-free candidate is proposed aggregate market value / trailing 20-session ADV dollars, labelled proposed notional in ADV-days. It avoids units_outstanding but is not float pressure or proof of execution. Requires effective-dated class identity, PIT dollar volume, amendment vintages and threshold-censoring controls. No ADV or returns were computed.
+- Local standard-library audit and regression suite passed 10/10; no hosted Phase 252 CI is claimed. Report: [Phase 252](PHASE252_FORM144_NOTICE_SEMANTICS_AND_ADV_NORMALIZATION_AUDIT_2026-11-10.md); result: [machine-readable audit](phase252_form144_notice_semantics_audit_result.json).
+- Next gate: build effective-dated issuer CIK → exact listed class → ticker mapping and PIT ADV20 before any Form 144 return test. No alpha, OOS, bootstrap/LOO or holdout result. F80 remains frozen; production, universe and capital unchanged; no vendor contact or purchase.
