@@ -22,7 +22,9 @@ class Phase269NYSEGroupShortInterestGateTests(unittest.TestCase):
     def test_earlier_distribution_window_is_160_minutes(self):
         timing = self.result["timing_comparison"]
         self.assertEqual(timing["difference_minutes"], 160)
-        self.assertTrue(timing["same_day_close_potential_if_actual_receipt_before_16_00_et"])
+        self.assertTrue(timing["same_day_close_potential_if_actual_receipt_before_actual_xnys_session_close"])
+        self.assertIn("actual XNYS close", timing["execution_rule"])
+        self.assertIn("early-close", timing["execution_rule"])
         self.assertTrue(timing["actual_first_receipt_timestamp_required"])
 
     def test_release_dates_match_finra_calendar_examples(self):
