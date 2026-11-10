@@ -60,5 +60,6 @@ No PR was merged, no workflow was manually dispatched, and F80/production/univer
 ## Hosted validation
 
 - [Phase 240 CFTC regression run 42878203544](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42878203544): compile, Phase 266 security contract, BPR capture regression, and TFF capture regression steps all succeeded.
-- [Dedicated Phase 266 run 42880706312](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42880706312), job 130055905998: 7/7 static security tests passed.
+- Initial dedicated Phase 266 run 42880706312 passed 7/7 static security tests.
+- Latest-head dedicated [Phase 266 run 42881264991](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42881264991), job 130057840322: 7/7 static security tests passed.
 - No live CFTC workflow_dispatch or scheduled capture was executed.
