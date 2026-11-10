@@ -32,7 +32,7 @@ jobs:
         run: python -m py_compile research/phase272_form4_candidate_unit_price_basis_audit.py research/test_phase272_form4_candidate_unit_price_basis_audit.py
       - name: Download immutable Phase 39 source artifact
         env:
-          GH_TOKEN: \${{ github.token }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p phase272_input
           curl --fail --silent --show-error --location \
