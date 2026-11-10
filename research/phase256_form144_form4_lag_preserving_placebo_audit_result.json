@@ -1,0 +1,129 @@
+{
+  "phase": 256,
+  "status": "FORM144_FORM4_LAG_PRESERVING_PLACEBOS_REVALIDATED_DESCRIPTIVE_ONLY",
+  "inputs": {
+    "form144": {
+      "run_id": 41959603351,
+      "artifact_id": 13385365595,
+      "sha256": "7a54ee09e8d4520e1ec14cf22f2c0d1c62d077798b14d3db596826e3360a3659"
+    },
+    "form4": {
+      "run_id": 40606706518,
+      "artifact_id": 12781850078,
+      "inner_zip_sha256": "a4e6a681cfcfa43a3d9e4ca9cfec1fd26a59d0a01eac7e9f7b5a0122092c90f3",
+      "snapshot_end": "2026-09-30"
+    }
+  },
+  "sample": {
+    "form144_panel_rows": 21634,
+    "eligible_notices": 1451,
+    "eligible_tranches": 1460,
+    "form4_submissions": 38152,
+    "form4_nonderivative_rows": 59885,
+    "form4_unique_owner_sale_blocks": 10525,
+    "exact_date_share_links": 521,
+    "fallback_links": 49,
+    "class_family_agree": 481,
+    "class_family_conflict_or_unresolved": 40,
+    "phase210_exact_links_within_5pct_price": 521,
+    "phase210_exact_links_within_1pct_price": 503
+  },
+  "phase210_raw_date_shuffle_invalidity": {
+    "replicates": 1000,
+    "seed": 211,
+    "blocks_per_replicate": 10525,
+    "mean_invalid_blocks": 4247.36,
+    "median_invalid_blocks": 4248,
+    "p95_invalid_blocks": 4316,
+    "max_invalid_blocks": 4383,
+    "mean_negative_lag_blocks": 2127.589,
+    "mean_lag_over_4_blocks": 2119.771,
+    "mean_invalid_fraction": 0.40354964
+  },
+  "permutation_audit": {
+    "replicates": 1000,
+    "base_seed": 210,
+    "lag_null_design": "permute filing-to-transaction calendar-day lag within issuer x reporting-owner groups; keep filing dates fixed; reconstruct transaction dates as filing date minus permuted lag",
+    "group_structure": {
+      "issuer_groups": 1959,
+      "issuers_with_multiple_reporting_owners": 1195,
+      "issuer_owner_groups": 5276,
+      "issuer_owner_groups_with_multiple_form4_blocks": 1967,
+      "owner_identity_mutable_form4_blocks": 8956,
+      "lag_share_mutable_form4_blocks": 7216,
+      "exact_links_in_owner_mutable_groups": 475,
+      "exact_links_in_lag_share_mutable_groups": 340,
+      "original_lag_min": 0,
+      "original_lag_max": 4,
+      "all_original_lags_within_0_4": true
+    },
+    "placebos": {
+      "owner_identity_within_issuer": {
+        "observed_mutable_exact_links": 475,
+        "mutable_form4_blocks": 8956,
+        "replicates": 1000,
+        "null_mean": 156.8,
+        "null_median": 157,
+        "null_p95": 171,
+        "null_max": 184,
+        "null_replicates_at_or_above_observed": 0,
+        "empirical_tail_plus_one": 0.000999000999000999,
+        "zero_exceedance_one_sided_95pct_upper": 0.0029912495450953314
+      },
+      "filing_lag_within_issuer_owner": {
+        "observed_mutable_exact_links": 340,
+        "mutable_form4_blocks": 7216,
+        "replicates": 1000,
+        "null_mean": 210.735,
+        "null_median": 211,
+        "null_p95": 225,
+        "null_max": 238,
+        "null_replicates_at_or_above_observed": 0,
+        "empirical_tail_plus_one": 0.000999000999000999,
+        "zero_exceedance_one_sided_95pct_upper": 0.0029912495450953314
+      },
+      "shares_within_issuer_owner": {
+        "observed_mutable_exact_links": 340,
+        "mutable_form4_blocks": 7216,
+        "replicates": 1000,
+        "null_mean": 194.945,
+        "null_median": 195,
+        "null_p95": 208,
+        "null_max": 223,
+        "null_replicates_at_or_above_observed": 0,
+        "empirical_tail_plus_one": 0.000999000999000999,
+        "zero_exceedance_one_sided_95pct_upper": 0.0029912495450953314
+      },
+      "filing_lag_and_shares_within_issuer_owner": {
+        "observed_mutable_exact_links": 340,
+        "mutable_form4_blocks": 7216,
+        "replicates": 1000,
+        "null_mean": 138.51,
+        "null_median": 138,
+        "null_p95": 153,
+        "null_max": 166,
+        "null_replicates_at_or_above_observed": 0,
+        "empirical_tail_plus_one": 0.000999000999000999,
+        "zero_exceedance_one_sided_95pct_upper": 0.0029912495450953314
+      }
+    }
+  },
+  "decision": {
+    "document_linkage_descriptive_only": true,
+    "strict_pit_admitted": false,
+    "feature_admitted": false,
+    "alpha_test_authorized": false,
+    "return_test_run": false,
+    "bootstrap_loo_oos_run": false,
+    "holdout_used": false,
+    "legacy_holdout": "CONSUMED_NOT_PRISTINE",
+    "f80_frozen": true,
+    "production_changed": false,
+    "universe_changed": false,
+    "capital_changed": false
+  },
+  "reproducibility": {
+    "local_unit_tests": "8/8 PASS",
+    "hosted_workflow": "PENDING"
+  }
+}
