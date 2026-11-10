@@ -41,7 +41,7 @@ Phase 208's eligible Form 4 blocks require:
 
 Phase 210 then shuffled the raw transaction dates inside issuer × owner groups, but held each block's filing date fixed. The resulting block can have a negative filing lag or a lag greater than four days, even though the observed sample contained only eligible blocks.
 
-The Phase 256 invalidity reproduction uses the same grouping, iteration order, Python RNG seed (211) and 1,000 replicates as the original date-shuffle design. It found:
+The Phase 256 invalidity reproduction uses the same grouping, iteration order and Python RNG seed (211) as Phase 210; the invalidity audit expands the original 500-replicate date shuffle to 1,000 replicates. It found:
 
 | Invalidity diagnostic | Result |
 |---|---:|
@@ -75,7 +75,7 @@ This preserves each group's observed lag multiset and keeps every permuted block
 | Owner identity within issuer | 475 | 156.800 | 171 | 184 | 0/1,000 | 0.000999 |
 | Filing lag within issuer × owner | 340 | 210.735 | 225 | 238 | 0/1,000 | 0.000999 |
 | Shares within issuer × owner | 340 | 194.945 | 208 | 223 | 0/1,000 | 0.000999 |
-| Filing lag + shares within issuer × owner | 340 | 138.510 | 153 | 166 | 0/1,000 | 0.000999 |
+| Filing lag + shares within issuer × owner | 340 | 139.296 | 154 | 172 | 0/1,000 | 0.000999 |
 
 For zero exceedances in 1,000 Monte Carlo replicates, the one-sided 95% binomial upper bound on the underlying randomization-tail probability is approximately **0.002991**. This is Monte Carlo precision for these linkage nulls, not a p-value for stock returns, a test of investment alpha, or evidence of an institutional information advantage.
 
@@ -110,4 +110,7 @@ No return, alpha, bootstrap/LOO, chronological OOS or holdout test was run. No n
 - Tests: research/test_phase256_form144_form4_lag_preserving_placebo_audit.py
 - Result: research/phase256_form144_form4_lag_preserving_placebo_audit_result.json
 - Workflow: .github/workflows/phase256_form144_form4_lag_preserving_placebo_audit.yml
-- Local unit tests: **8/8 passed**. Hosted validation is run by the dedicated Phase 256 workflow.
+- Local and hosted unit tests: **8/8 passed**. Hosted Phase 256 run [42767357624](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42767357624) passed all steps; job 129666856922; metadata-only artifact [13739833787](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42767357624/artifacts/13739833787), 1,729-byte ZIP, SHA-256 `f7fe3191ce54c22d2c35014aba7b65cc78457569fb27b0433ea5bbb77b7b9765`.
+
+
+Same-head Phase 231 Cboe reparse run [42767363695](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42767363695) also completed successfully; artifact [13740756097](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42767363695/artifacts/13740756097), 2,422 bytes. It re-parsed 115,617 rows: 112,313 unambiguous rows passed, 3,304 ambiguous expirations remained quarantined; no sample, PIT or alpha admission.

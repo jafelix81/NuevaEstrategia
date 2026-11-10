@@ -104,3 +104,7 @@ This phase validates document linkage, not investment predictability.
 5. Only after strict PIT and security identity admission, preregister a next-session supply-pressure study with return-chasing controls, costs, capacity and a new prospective final holdout.
 
 F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No production change, data purchase, vendor contact, holdout use or alpha test occurred.
+
+
+## Superseding Phase 256 correction (2026-11-10)
+The Phase 210 raw transaction-date and joint date/share permutation nulls are superseded for conditional date inference. Phase 256 showed that raw-date shuffling while holding Form 4 filing dates fixed moves an average 40.35% of blocks outside the original 0–4 calendar-day filing-lag eligibility filter. Use the Phase 256 lag-preserving nulls instead: shuffle filing lag within issuer × reporting-owner groups, keep filing dates fixed and reconstruct transaction dates. The observed exact-link result remains above every corrected 1,000-replicate null, but this is document linkage only, not return alpha. Phase 210 owner-identity and shares-only nulls remain descriptive; see the Phase 256 report and result JSON for corrected metrics.
