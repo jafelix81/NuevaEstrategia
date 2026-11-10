@@ -1,7 +1,7 @@
 # Phase 251 — Cboe Open-Close four-venue convention and aggregation gate
 
 **Audit date:** 2026-11-10 UTC  
-**Status:** DETERMINISTIC_MEASUREMENT_CONTRACT_PENDING_HOSTED_VALIDATION — NO PIT / NO ALPHA  
+**Status:** HOSTED_MEASUREMENT_CONTRACT_PASS_42_OF_42 — NO PIT / NO ALPHA  
 **Branch:** `phase231-cboe-option-quotes-full-row-reparse`  
 **Control:** `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
 
@@ -110,3 +110,11 @@ No historical files were acquired in this phase. No return labels, momentum cont
 - Legacy holdout: `CONSUMED_NOT_PRISTINE`, not used.
 - No alpha admission, no production/universe/capital change.
 - No vendor purchase, trial, card authorization or contact.
+
+
+## Hosted validation — 2026-11-10 UTC
+
+- GitHub Actions run [42743448141](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42743448141), job `129589843456`, completed successfully.
+- **42/42 deterministic regression tests passed.** The workflow also passed its explicit exchange-date and closed-PIT/alpha boundary assertions.
+- No artifact was produced; the workflow validates deterministic code only.
+- This does not validate real four-venue raw files, archive continuity, first-receipt vintages, security coverage or return prediction.
