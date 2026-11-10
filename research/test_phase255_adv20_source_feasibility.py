@@ -45,6 +45,16 @@ class Phase255Tests(unittest.TestCase):
         result = daily_dollar_volume("12.5", "400", "raw", "split_adjusted")
         self.assertEqual(result["status"], "ADJUSTMENT_BASIS_MISMATCH")
 
+    def test_fractional_volume_is_not_truncated(self):
+        result = daily_dollar_volume("10", "0.25", "raw", "raw")
+        self.assertEqual(result["status"], "VALID")
+        self.assertEqual(result["dollar_volume_usd"], "2.50")
+
+    def test_split_adjustment_preserves_dollar_turnover(self):
+        raw = daily_dollar_volume("100", "1000", "raw", "raw")
+        adjusted = daily_dollar_volume("10", "10000", "split_adjusted", "split_adjusted")
+        self.assertEqual(raw["dollar_volume_usd"], adjusted["dollar_volume_usd"])
+
     def test_dividend_adjusted_basis_is_not_admitted(self):
         result = daily_dollar_volume("12.5", "400", "dividend_adjusted", "dividend_adjusted")
         self.assertEqual(result["status"], "UNSUPPORTED_ADJUSTMENT_BASIS")
