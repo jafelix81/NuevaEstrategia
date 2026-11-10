@@ -54,10 +54,16 @@ jobs:
           mkdir -p phase254_output
           python - <<'PY'
           import json
+          import unittest
+          suite = unittest.defaultTestLoader.loadTestsFromName(
+              "research.test_phase254_form144_xbrl_scoped_class_join"
+          )
+          test_count = suite.countTestCases()
           result = {
               "phase": 254,
               "status": "ISSUER_ACCESSION_SCOPED_JOIN_CONTRACT_PASS_NO_RAW_IXBRL_NO_PIT_NO_ALPHA",
-              "tests_passed": 21,
+              "tests_passed": test_count,
+              "tests_total": test_count,
               "raw_ixbrl_parser_validated": False,
               "issuer_panel_coverage_measured": False,
               "strict_pit_admitted": False,
