@@ -18,8 +18,23 @@
     }
   },
   "decision": {
+    "audit_date": "2026-11-10",
+    "semiweekly_cot_plan_announced": true,
     "tff_semiweekly_confirmed": false,
     "tff_cadence_disposition": "RETAIN_WEEKLY_ASSUMPTION_PENDING_TFF_SPECIFIC_CONFIRMATION",
+    "current_tff_report_date": "2026-11-03",
+    "current_tff_streams": {
+      "futures_only": "https://www.cftc.gov/dea/newcot/FinFutWk.txt",
+      "futures_options_combined": "https://www.cftc.gov/dea/newcot/FinComWk.txt"
+    },
+    "reasons": [
+      "COT_SEMIWEEKLY_PLAN_ANNOUNCED_BY_END_2026",
+      "ANNOUNCEMENT_CONTEXT_IS_AGRICULTURAL_AND_TFF_SCOPE_NOT_EXPLICIT",
+      "CURRENT_COT_INDEX_STILL_DESCRIBES_WEEKLY_REPORTS",
+      "CURRENT_COT_FAQ_STILL_SAYS_ONCE_WEEKLY",
+      "NO_OFFICIAL_TFF_WEDNESDAY_FRIDAY_SCHEDULE_OBSERVED",
+      "FEWER_THAN_TWO_DISTINCT_TFF_REPORT_DATES_OBSERVED_IN_WEEK"
+    ],
     "capture_protocol": {
       "retain_existing_weekday_polling": true,
       "create_duplicate_workflow": false,
@@ -36,7 +51,15 @@
       "holdout_used": false
     }
   },
+  "official_sources": {
+    "semiweekly_announcement": "https://www.cftc.gov/PressRoom/PressReleases/9316-26",
+    "cot_index": "https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm",
+    "release_schedule": "https://www.cftc.gov/MarketReports/CommitmentsofTraders/ReleaseSchedule/index.htm",
+    "tff_futures_only": "https://www.cftc.gov/dea/newcot/FinFutWk.txt",
+    "tff_futures_options_combined": "https://www.cftc.gov/dea/newcot/FinComWk.txt"
+  },
   "data_scope": {
+    "current_tff_report_date": "2026-11-03",
     "full_raw_files_persisted": false,
     "prospective_capture_executed": false,
     "new_workflow_created": false
