@@ -156,7 +156,8 @@ A future live capture must first verify the current Public-credential onboarding
 
 ## Hosted validation
 
-- Initial push validation: run 42880053761, 8/8 deterministic tests passed; metadata artifact 13794580187.
-- Initial pull-request validation: run 42880064173, 8/8 deterministic tests passed; metadata artifact 13794320354.
-- Those initial runs preceded the correction that separates 55 unique historical snapshot anchors from 292 repeated training-snapshot uses. The corrected accounting is included in the current branch and must be revalidated by the next hosted Phase 267 run.
-- No live FINRA API request, credential use, or market-data download occurred in either run.
+- Corrected push validation: [run 42881252812](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42881252812), job 130057796963; 8/8 deterministic tests passed. Metadata artifact [13793872685](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42881252812/artifacts/13793872685), ZIP SHA-256 16aa3d969b3e22c5b294919579b6a4fcfdf825d2ff42d6e5a081518cf56dcdf7.
+- Corrected pull-request validation: [run 42881264303](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42881264303), job 130058005392; 8/8 deterministic tests passed. Metadata artifact [13794116684](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42881264303/artifacts/13794116684), ZIP SHA-256 a921459af6ba610104fd189571f5fd2d9fba840abe22dfd3aabf8264f0111d24.
+- Both corrected runs produced identical result JSON SHA-256 41f72d9c92e98f6aa91071525fd1330d44aaaf35c432aaa7cb961e0d2ad55371. The corrected output distinguishes 55 unique snapshot anchors from 292 repeated valid training-snapshot uses (84 Phase 25B; 208 Phase 25C).
+- Initial runs 42880053761 and 42880064173 validated the first version of the audit and are superseded by the corrected accounting above.
+- Both corrected workflows are offline/deterministic: no live FINRA API request, credential use, or market-data download occurred.
