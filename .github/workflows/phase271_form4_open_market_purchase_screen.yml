@@ -1,0 +1,76 @@
+name: Phase 271 Form 4 explicit open-market purchase screen
+
+on:
+  pull_request:
+    branches: [phase99-broad-pit-universe-charter]
+    paths:
+      - "research/phase271_form4_open_market_purchase_screen.py"
+      - "research/test_phase271_form4_open_market_purchase_screen.py"
+      - "research/phase271_form4_open_market_purchase_screen_result.json"
+      - ".github/workflows/phase271_form4_open_market_purchase_screen.yml"
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: phase271-form4-open-market-purchase-screen
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile Phase 271 and tests
+        run: python -m py_compile research/phase271_form4_open_market_purchase_screen.py research/test_phase271_form4_open_market_purchase_screen.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase271_form4_open_market_purchase_screen
+      - name: Download immutable Phase 39 source artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p phase271_input
+          curl --fail --silent --show-error --location \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/12781850078/zip \
+            -o phase271_input/phase39-sec-form4-actual-file-audit.zip
+      - name: Recompute hash-pinned purchase screen from source artifact
+        run: |
+          python -m research.phase271_form4_open_market_purchase_screen \
+            --artifact phase271_input/phase39-sec-form4-actual-file-audit.zip \
+            --output phase271_output/phase271_form4_open_market_purchase_screen_result.json
+      - name: Enforce exact sample result and non-admission controls
+        run: |
+          python - <<'PY'
+          import json
+          p = "phase271_output/phase271_form4_open_market_purchase_screen_result.json"
+          r = json.load(open(p, encoding="utf-8"))
+          assert r["periods"]["2012Q1"]["candidate_rows"] == 102
+          assert r["periods"]["2012Q1"]["candidate_accessions"] == 47
+          assert r["periods"]["2012Q1"]["candidate_issuer_ciks"] == 16
+          assert r["periods"]["2026Q3"]["candidate_rows"] == 85
+          assert r["periods"]["2026Q3"]["candidate_accessions"] == 59
+          assert r["periods"]["2026Q3"]["candidate_issuer_ciks"] == 31
+          assert r["periods"]["2012Q1"]["candidate_plan_status"] == "unknown_pre_checkbox_era"
+          assert r["periods"]["2026Q3"]["candidate_plan_status"] == "known_false"
+          assert r["admission"]["strict_pit"] is False
+          assert r["admission"]["alpha"] is False
+          assert r["admission"]["holdout_used"] is False
+          assert r["admission"]["f80_frozen"] is True
+          print("PHASE271_STATUS=EXPLICIT_OPEN_MARKET_PURCHASE_CANDIDATES_ONLY_NO_PIT_NO_ALPHA")
+          PY
+      - name: Upload metadata-only result
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase271-form4-open-market-purchase-screen
+          path: phase271_output/phase271_form4_open_market_purchase_screen_result.json
+          if-no-files-found: error
+          retention-days: 90
