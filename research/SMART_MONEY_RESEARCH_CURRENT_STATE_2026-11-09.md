@@ -246,3 +246,14 @@
 - The run's one-date cross-section is a data-feasibility diagnostic only. Do not use the positive/negative group counts or median flow imbalance as return labels or alpha evidence.
 - On the same commit, Phase 231, 246, 247 and 248 regression workflows also completed successfully: 9/9, 7/7, 11/11 and 29/29 tests, respectively. Phase 231 still quarantines 3,304 ambiguous-expiration rows; its unambiguous subset is 112,313/115,617 rows.
 - No workflows remain active after this validation set. Branch inventory remains 131. PR #13 and #14 remain open and unmerged; PR #14 remains stacked on PR #13. No merge was performed.
+
+
+## Phase 250 — Cboe C1 EOD historical convention-aware feature eligibility (2026-11-10)
+- Official DataShop page lists C1 EOD history from 2005-01-03, but distinguishes the pre-2011 legacy schema from the post-migration format. The legacy spec states pre-migration through 2010-12-31 and post-migration from 2011-01-02; pre-2011 buckets are by original order size and the file has Customer/Firm-only categories.
+- Corrected the Phase 248 2019-10-07 cutoff at the feature level: same-day participant directional imbalance (call buy−sell; put sell−buy; signed net/gross same-capacity volume) can be studied separately from 2011-01-02 through 2019-10-04 because it does not require C1 total volume, OI, previous OI or previous close.
+- C1 total exchange volume used (B+S)/2 through 2019-10-04 and B+S thereafter; C1 OI/previous OI were shifted one day ahead through 2019-10-04. Therefore net-share-of-C1-volume and OI-based features remain blocked before 2019-10-07.
+- Cboe maps legacy capacity code W to Pro-Customer prior to October 2019; participant-code regime is explicitly tagged. C1 GTH coverage begins 2023-12-11 and is tagged separately.
+- Pre-2011 legacy data is not pooled: it uses order-size buckets and lacks post-migration Pro-Customer/Broker-Dealer granularity. It requires a separate parser and preregistered hypothesis.
+- No 2011–2019 files were acquired; historical coverage, inactive/delisted identity, first-receipt vintages, corrections, license and strict PIT remain unproven. No returns/alpha/OOS/holdout test. F80 remains frozen; production/universe/capital unchanged.
+- Deterministic Phase 250 tests/workflow are being added; hosted validation status will be recorded after the workflow completes.
+- [Phase 250 report](PHASE250_CBOE_OPENCLOSE_HISTORICAL_CONVENTION_AWARE_FEATURE_ELIGIBILITY_2026-11-10.md) · [feature gate](phase250_cboe_openclose_convention_gate.py) · [tests](test_phase250_cboe_openclose_convention_gate.py)
