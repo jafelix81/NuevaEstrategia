@@ -43,7 +43,11 @@ class Phase267FinraShortInterestAuditTests(unittest.TestCase):
 
     def test_every_training_price_anchor_precedes_safe_post_publication_entry(self):
         audit = self.result["publication_and_execution_audit"]
-        self.assertEqual(audit["training_price_anchor_lookahead_cycles"], 55)
+        self.assertEqual(audit["historical_snapshot_price_anchor_lookahead_cycles"], 55)
+        uses = audit["training_snapshot_uses_by_phase"]
+        self.assertEqual(uses["phase25b"]["total_valid_training_snapshot_uses"], 84)
+        self.assertEqual(uses["phase25c"]["total_valid_training_snapshot_uses"], 208)
+        self.assertEqual(audit["total_valid_training_snapshot_uses_across_phases"], 292)
         self.assertEqual(audit["old_entry_early_by_xnys_sessions_distribution"], {"1": 38, "2": 17})
         self.assertEqual(audit["publication_time_et"], "16:40")
         self.assertEqual(audit["regular_session_close_et"], "16:00")
