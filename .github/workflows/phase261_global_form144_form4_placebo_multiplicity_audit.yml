@@ -1,9 +1,9 @@
 name: Phase 261 Form 144/Form 4 global placebo multiplicity audit
 
 on:
-  pull_request:
+  push:
     branches:
-      - phase99-broad-pit-universe-charter
+      - phase231-cboe-option-quotes-full-row-reparse
     paths:
       - 'research/phase261_global_form144_form4_placebo_multiplicity_audit.py'
       - 'research/test_phase261_global_form144_form4_placebo_multiplicity_audit.py'
