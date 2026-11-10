@@ -74,7 +74,7 @@ The original price-label construction then uses the first daily close on or afte
 
 A conservative close-based implementation must use the **next XNYS session after the publication date**. Relative to that safe entry, the old anchors are one session early for 38 cycles and two sessions early for 17 cycles.
 
-This contaminates the feature/forward-return correlations used to select the Phase 25B/25C factors, even where the later OOS signal date itself was after publication.
+This contaminates the feature/forward-return correlations used to select the Phase 25B/25C factors, even where the later OOS signal date itself was after publication. The audit distinguishes 55 unique settlement-cycle anchors from 292 repeated valid training-snapshot uses across the two walk-forward procedures; the corrected counts are covered by the Phase 267 regression tests.
 
 ## 4. Phase 25C has one direct OOS availability error
 
