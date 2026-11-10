@@ -302,3 +302,18 @@ No alpha/OOS result from Phase 253. No returns, bootstrap/LOO, chronological OOS
 - No capture code, permissions, token scope, schedule, raw-data path or PIT rule changed. No live capture, PR merge, production change or data purchase.
 - Hosted Phase 240/266 regression is pending; no security claim is upgraded until those checks finish.
 - F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen; legacy holdout remains CONSUMED_NOT_PRISTINE and unused.
+
+
+## Phase 273 — CFTC capture workflow immutable-action pinning (2026-11-10 UTC)
+- Pinned the only write-capable CFTC workflow's checkout, setup-python and upload-artifact actions to verified full commit SHAs.
+- Dedicated Phase 266 run 42923002079 passed 8/8 static tests; Phase 240 run 42923002196 passed Phase 266 8/8, BPR 19/19 and TFF 34/34.
+- An initial test-only regex escaping defect failed; corrected on commit fcb10eab. Final hosted runs passed.
+- Workflow remains research-branch only. No live capture, merge, data write, production change or external purchase.
+
+## Phase 274 — Form 4 conservative date-only PIT boundary and same-trade-date multi-owner clusters (2026-11-10 UTC)
+- Reused the exact Phase 271 eligibility screen and immutable Phase 39 artifact (outer SHA-256 203d7b1d2e29c999da318456af72e621cb30ef9a470d8f1610d088f9bebecb66).
+- Defined a conservative daily-EOD availability boundary: close of the first XNYS session strictly after EDGAR FILING_DATE. This handles after-close filings, weekends, holidays and early closes without assuming an intraday acceptance time.
+- 2026Q3: 85 candidate rows / 59 accessions / 31 issuers / 45 owners; 11 same-issuer, same-filing-date, same-transaction-date clusters across 8 issuers. These contain 23 cluster memberships but only 19 unique accessions and 19 unique owner CIKs, because some filings/owners report multiple transaction dates. 24 rows are in the clusters (28.24% of screened rows); filing lag is 0–4 calendar days, median 2.
+- 2012Q1: one 3-accession/3-owner cluster, but AFF10B5ONE status is unknown; it is not part of the primary cohort.
+- The date-only next-session-close rule is a conservative execution bound, not full strict-PIT admission. Original accession bytes, first-receipt/vintage evidence, Form 4/A lineage, continuous quarterly coverage and delisted-security identity remain incomplete.
+- No forward returns, alpha, bootstrap/LOO, chronological OOS or holdout test. F80 remains frozen.

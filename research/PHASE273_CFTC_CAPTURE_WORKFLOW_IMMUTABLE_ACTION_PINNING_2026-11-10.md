@@ -31,7 +31,7 @@ No data-capture parser, URL, filename, timestamp, schedule, permission, token ex
 - The existing Phase 240 workflow exercises the CFTC BPR/TFF parser/state tests and the Phase 266 security contract.
 - The existing Phase 266 workflow exercises the static workflow-security contract.
 - Both are expected to trigger from the research-branch update; no duplicate workflow was created.
-- Hosted results are pending at report creation. This report must be amended with actual run IDs and conclusions before claiming hosted validation.
+- The first hosted attempt exposed a double-escaped regex in the new test; after correcting it, dedicated Phase 266 run [42923002079](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42923002079), job 130202279842, passed **8/8**. Phase 240 run [42923002196](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42923002196), job 130202280391, passed the Phase 266 contract **8/8**, BPR parser/state tests **19/19**, and TFF parser/state tests **34/34**. No artifacts were expected from these test-only workflows.
 
 ## Decision
 
@@ -40,3 +40,8 @@ No data-capture parser, URL, filename, timestamp, schedule, permission, token ex
 This does not prove that upstream action code is vulnerability-free, nor does it replace review of transitive dependencies. The workflow remains inactive on `main`. No manual dispatch, scheduled capture, merge, external contact, data purchase, production change, universe change or holdout use occurred.
 
 `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+
+## Final hosted validation and deployment boundary
+
+The final tested head was `fcb10eab53b1d059bad562ab237a31d70b3832ac`. All eight Phase 266 security-contract tests passed. The combined Phase 240 regression also passed 19 BPR and 34 TFF tests. The write-capable workflow remains on PR #14 only; it is not present on main and no CFTC capture has been run.
