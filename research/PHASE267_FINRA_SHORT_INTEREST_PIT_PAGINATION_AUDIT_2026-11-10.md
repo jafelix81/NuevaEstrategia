@@ -70,7 +70,7 @@ Pandas business days skip weekends but do not skip exchange holidays. Comparing 
 - 36/55 cycles: dates coincide.
 - 0/55 cycles: old date is late.
 
-The original price-label construction then uses the first daily close on or after KnowledgeDate (close.index.searchsorted(kd, side="left")). This is not a valid execution anchor: FINRA says the consolidated short-interest data is available by **4:40 p.m. ET on the publication date**, after the regular 4:00 p.m. close. Therefore every one of the 55 training snapshot return anchors precedes the data's documented availability.
+The original price-label construction then uses the first daily close on or after KnowledgeDate (close.index.searchsorted(kd, side="left")). This is not a valid execution anchor: FINRA says the consolidated short-interest data is available by **4:40 p.m. ET on the publication date**, after the regular 4:00 p.m. close. Across the 55 unique settlement-cycle snapshots, the old price anchor precedes safe next-session entry. Phase 25B used 14 valid training snapshots per signal (84 repeated training-snapshot uses across six folds); Phase 25C used 3, 6, 13, 25, 33, 36, 42, and 50 (208 uses across eight folds). All 292 training-snapshot uses inherit pre-release price anchors. These repeated uses are not independent observations.
 
 A conservative close-based implementation must use the **next XNYS session after the publication date**. Relative to that safe entry, the old anchors are one session early for 38 cycles and two sessions early for 17 cycles.
 
@@ -156,7 +156,7 @@ A future live capture must first verify the current Public-credential onboarding
 
 ## Hosted validation
 
-- Push validation: [run 42880053761](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42880053761), job 130053585336, 8/8 deterministic tests passed; metadata artifact [13794580187](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42880053761/artifacts/13794580187), ZIP SHA-256 8923aeb7fe05d1cd5b8df3c0fd4d8f984b79eb40d23e2d3ed0c827a33c589f50.
-- Pull-request validation: [run 42880064173](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42880064173), job 130053804085, 8/8 deterministic tests passed; metadata artifact [13794320354](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42880064173/artifacts/13794320354).
-- The push artifact result JSON SHA-256 is 16a925246e0a1c9d3d2159fa1f77971fecb59b5d74a1911e2f101ea018d1712a.
-- Both workflows are offline/deterministic: no live FINRA API request, credential use, or market-data download occurred.
+- Initial push validation: run 42880053761, 8/8 deterministic tests passed; metadata artifact 13794580187.
+- Initial pull-request validation: run 42880064173, 8/8 deterministic tests passed; metadata artifact 13794320354.
+- Those initial runs preceded the correction that separates 55 unique historical snapshot anchors from 292 repeated training-snapshot uses. The corrected accounting is included in the current branch and must be revalidated by the next hosted Phase 267 run.
+- No live FINRA API request, credential use, or market-data download occurred in either run.
