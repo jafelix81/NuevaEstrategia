@@ -1,6 +1,13 @@
 name: Phase 274 Form 4 conservative date-only PIT and multi-owner cluster audit
 
 on:
+  push:
+    branches: [phase231-cboe-option-quotes-full-row-reparse]
+    paths:
+      - "research/phase274_form4_conservative_date_only_pit_clusters.py"
+      - "research/test_phase274_form4_conservative_date_only_pit_clusters.py"
+      - "research/phase272_form4_candidate_unit_price_basis_audit.py"
+      - ".github/workflows/phase274_form4_conservative_date_only_pit_clusters.yml"
   pull_request:
     branches: [phase99-broad-pit-universe-charter]
     paths:
