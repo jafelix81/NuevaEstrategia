@@ -174,6 +174,20 @@ def build_result(data: dict[str, Any]) -> dict[str, Any]:
     first_page_breaks_old_loop = page_rows < request_limit
     no_second_page = first_page_breaks_old_loop
 
+    training_snapshot_uses_by_phase = {}
+    for phase_name in ("phase25b", "phase25c"):
+        by_signal = data[phase_name]["train_snapshots_by_signal"]
+        training_snapshot_uses_by_phase[phase_name] = {
+            "by_signal": by_signal,
+            "total_valid_training_snapshot_uses": sum(
+                int(row["valid_training_snapshots"]) for row in by_signal
+            ),
+        }
+    total_training_snapshot_uses = sum(
+        row["total_valid_training_snapshot_uses"]
+        for row in training_snapshot_uses_by_phase.values()
+    )
+
     return {
         "phase": 267,
         "status": "INVALIDATED_PIT_AND_UNVERIFIED_HISTORICAL_COVERAGE",
@@ -210,7 +224,9 @@ def build_result(data: dict[str, Any]) -> dict[str, Any]:
             "old_knowledge_date_equal_cycles": equal,
             "old_knowledge_date_late_cycles": len(cycle_rows) - early - equal,
             "old_entry_early_by_xnys_sessions_distribution": entry_gap_counts,
-            "training_price_anchor_lookahead_cycles": len(cycle_rows),
+            "historical_snapshot_price_anchor_lookahead_cycles": len(cycle_rows),
+            "training_snapshot_uses_by_phase": training_snapshot_uses_by_phase,
+            "total_valid_training_snapshot_uses_across_phases": total_training_snapshot_uses,
             "publication_time_et": data["official_facts"]["publication_available_by_et"],
             "regular_session_close_et": "16:00",
             "safe_eod_entry_rule": "first XNYS session close strictly after the FINRA publication date",
