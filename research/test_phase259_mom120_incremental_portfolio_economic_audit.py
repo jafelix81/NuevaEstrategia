@@ -1,4 +1,5 @@
 import unittest
+import json
 import numpy as np
 import pandas as pd
 from research.phase259_mom120_incremental_portfolio_economic_audit import (
@@ -85,6 +86,12 @@ class Phase259EconomicAuditTests(unittest.TestCase):
         x=pd.DataFrame({"Notional":[1000.],"Cost":[1.],"Side":["BUY"],
                         "Date":["2024-01-02"],"Ticker":["A"]})
         with self.assertRaises(ValueError):trade_cost_audit(x,20)
+
+    def test_corrected_metrics_are_json_serializable(self):
+        metrics=corrected_oos_metrics(self.valid_ledger())
+        payload=json.loads(json.dumps(metrics))
+        self.assertIsInstance(payload["returns"], list)
+        self.assertEqual(len(payload["returns"]), 2)
 
 if __name__=="__main__":
     unittest.main()

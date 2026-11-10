@@ -113,7 +113,7 @@ def corrected_oos_metrics(ledger, oos_start="2024-01-01"):
         "first_oos_daily_return": float(returns[0]),
         "published_multiple_end_over_first_oos_close": float(reported_multiple),
         "published_multiple_overstatement_pct": float((reported_multiple / multiple - 1.0) * 100.0),
-        "returns": returns,
+        "returns": returns.tolist(),
     }
 
 def circular_block_bootstrap_mean(d, reps=5000, block=20, seed=30):
