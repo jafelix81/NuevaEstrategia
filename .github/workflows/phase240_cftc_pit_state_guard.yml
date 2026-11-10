@@ -8,6 +8,8 @@ on:
       - "research/test_phase234_cftc_bpr_capture.py"
       - "research/phase239_cftc_tff_prospective_capture.py"
       - "research/test_phase239_cftc_tff_prospective_capture.py"
+      - "research/test_phase266_cftc_capture_workflow_security.py"
+      - ".github/workflows/phase234_cftc_bpr_prospective_capture.yml"
       - ".github/workflows/phase240_cftc_pit_state_guard.yml"
 
 permissions:
@@ -26,13 +28,16 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Compile CFTC capture code and tests
+      - name: Compile CFTC capture code, tests and workflow security contract
         run: |
           python -m py_compile \
             research/phase234_cftc_bpr_capture.py \
             research/test_phase234_cftc_bpr_capture.py \
             research/phase239_cftc_tff_prospective_capture.py \
-            research/test_phase239_cftc_tff_prospective_capture.py
+            research/test_phase239_cftc_tff_prospective_capture.py \
+            research/test_phase266_cftc_capture_workflow_security.py
+      - name: Run Phase 266 CFTC workflow security contract
+        run: python -m unittest -v research.test_phase266_cftc_capture_workflow_security
       - name: Run BPR capture regression tests
         run: python -m unittest -v research.test_phase234_cftc_bpr_capture
       - name: Run TFF capture regression tests
