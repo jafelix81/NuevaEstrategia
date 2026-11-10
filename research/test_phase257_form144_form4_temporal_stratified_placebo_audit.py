@@ -5,7 +5,7 @@ from decimal import Decimal
 
 from research.phase257_form144_form4_temporal_stratified_placebo_audit import (
     STRATA, build_temporal_groups, holm_adjust, mutable_indices,
-    permute_lags_in_groups, temporal_group_key,
+    permute_lags_in_groups, run_stratified_placebo, temporal_group_key,
 )
 
 
@@ -95,6 +95,16 @@ class Phase257TemporalStratificationTests(unittest.TestCase):
     def test_unknown_stratum_fails_closed(self):
         with self.assertRaises(ValueError):
             temporal_group_key(self.blocks[0], "issuer_owner_quarter")
+
+    def test_no_genuinely_permutable_groups_is_reported_not_forced(self):
+        same_lag = [
+            block("1", "ALICE", date(2025, 1, 10), 1, "S1"),
+            block("1", "ALICE", date(2025, 1, 15), 1, "S2"),
+        ]
+        result = run_stratified_placebo([], same_lag, [], "issuer_owner", reps=100, seed=1)
+        self.assertEqual(result["status"], "INSUFFICIENT_PERMUTABLE_GROUPS")
+        self.assertEqual(result["replicates"], 0)
+        self.assertIsNone(result["empirical_tail_plus_one"])
 
     def test_holm_adjustment_is_monotone_and_bounded(self):
         adjusted = holm_adjust({"a": 0.001, "b": 0.01, "c": 0.04})
