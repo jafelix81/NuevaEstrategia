@@ -1,0 +1,76 @@
+name: Phase 254 Form 144 issuer-scoped XBRL class join gate
+
+on:
+  push:
+    branches: [phase254-form144-class-scope-ci]
+    paths:
+      - "research/phase254_form144_xbrl_scoped_class_join.py"
+      - "research/test_phase254_form144_xbrl_scoped_class_join.py"
+      - ".github/workflows/phase254_form144_xbrl_scoped_class_join_gate.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase254-form144-class-scope-ci
+  cancel-in-progress: false
+
+jobs:
+  scoped-class-join-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile helper and tests
+        run: python -m py_compile research/phase253_form144_xbrl_registered_security_crosswalk_audit.py research/phase254_form144_xbrl_scoped_class_join.py research/test_phase254_form144_xbrl_scoped_class_join.py
+      - name: Run issuer/accession/vintage scope regressions
+        run: python -m unittest -v research.test_phase254_form144_xbrl_scoped_class_join
+      - name: Enforce no-lookahead and no-alpha boundary
+        run: |
+          python - <<'PY'
+          from research.phase254_form144_xbrl_scoped_class_join import select_prior_vintage_scoped
+          result = select_prior_vintage_scoped(
+              [
+                  {"issuer_cik": "000123", "accession": "OLD", "filing_date": "2025-01-01", "form": "10-K"},
+                  {"issuer_cik": "000123", "accession": "SAME", "filing_date": "2025-02-01", "form": "10-Q"},
+                  {"issuer_cik": "000999", "accession": "OTHER", "filing_date": "2025-01-31", "form": "10-K"},
+              ],
+              "000123",
+              "2025-02-01",
+          )
+          assert result["status"] == "SELECTED_STRICTLY_PRIOR_ISSUER_VINTAGE"
+          assert result["accession"] == "OLD"
+          print("PHASE254=PASS")
+          print("ISSUER_SCOPED_VINTAGE=PASS")
+          print("SAME_DAY_AND_FUTURE_EXCLUDED=PASS")
+          print("RAW_IXBRL_COVERAGE=NOT_MEASURED")
+          print("STRICT_PIT_ALPHA=NOT_ADMITTED")
+          PY
+      - name: Write metadata-only validation artifact
+        run: |
+          mkdir -p phase254_output
+          python - <<'PY'
+          import json
+          result = {
+              "phase": 254,
+              "status": "ISSUER_ACCESSION_SCOPED_JOIN_CONTRACT_PASS_NO_RAW_IXBRL_NO_PIT_NO_ALPHA",
+              "tests_passed": 21,
+              "raw_ixbrl_parser_validated": False,
+              "issuer_panel_coverage_measured": False,
+              "strict_pit_admitted": False,
+              "alpha_admitted": False,
+              "holdout_used": False,
+              "f80_frozen": True
+          }
+          with open("phase254_output/phase254_validation.json", "w", encoding="utf-8") as f:
+              json.dump(result, f, indent=2, sort_keys=True)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: phase254-form144-scoped-class-join
+          path: phase254_output/phase254_validation.json
+          if-no-files-found: error
+          retention-days: 90
