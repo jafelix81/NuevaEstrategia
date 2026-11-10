@@ -1,0 +1,179 @@
+{
+  "source": {
+    "phase25b_run_id": 39389135458,
+    "phase25b_artifact_id": 12248259525,
+    "phase25b_artifact_sha256": "29a989f2c6c100190016649c036ce6a0b141f6e636a6815b7928d16d0f321f1f",
+    "phase25c_run_id": 40088483325,
+    "phase25c_artifact_id": 12558485136,
+    "phase25c_artifact_sha256": "84ac00cfeb8046327a74f31f78a0ba28696976757f578aba5db91be1f4b33c6e",
+    "shared_feature_file_sha256": "9be52a5522edfa3230657351cffb76f7ea3b0af419b26b9efaab07ca76845602",
+    "phase25b_download_audit_sha256": "ccf2fb32eda25e9fb179e3315874df2c28e462a202837baf30dcc057c4c99ad2",
+    "phase25c_download_audit_sha256": "642ee80bbba0af1912777c8d3ed479c81c4bf775287204a6ae5678184559d518",
+    "feature_rows": 5115,
+    "unique_tickers": 98
+  },
+  "retrieval": {
+    "endpoint": "otcMarket/consolidatedShortInterest",
+    "requested_limit": 10000,
+    "synchronous_api_max_records": 5000,
+    "old_break_condition": "len(batch) < requested_limit",
+    "successful_queries": 55,
+    "failed_queries": 2,
+    "every_successful_response_rows": 5000,
+    "universe_rows_min": 88,
+    "universe_rows_max": 96,
+    "response_total_headers_persisted": false,
+    "page_offsets_requested": [
+      0
+    ],
+    "failed_settlement_queries": [
+      {
+        "queried_date": "2024-01-15",
+        "expected_xnys_settlement": "2024-01-12",
+        "reason": "15th was an XNYS holiday"
+      },
+      {
+        "queried_date": "2024-03-29",
+        "expected_xnys_settlement": "2024-03-28",
+        "reason": "Good Friday; month-end settlement was prior XNYS session"
+      }
+    ]
+  },
+  "successful_settlement_dates": [
+    "2022-06-15",
+    "2022-06-30",
+    "2022-07-15",
+    "2022-07-29",
+    "2022-08-15",
+    "2022-08-31",
+    "2022-09-15",
+    "2022-09-30",
+    "2022-10-14",
+    "2022-10-31",
+    "2022-11-15",
+    "2022-11-30",
+    "2022-12-15",
+    "2022-12-30",
+    "2023-01-13",
+    "2023-01-31",
+    "2023-02-15",
+    "2023-02-28",
+    "2023-03-15",
+    "2023-03-31",
+    "2023-04-14",
+    "2023-04-28",
+    "2023-05-15",
+    "2023-05-31",
+    "2023-06-15",
+    "2023-06-30",
+    "2023-07-14",
+    "2023-07-31",
+    "2023-08-15",
+    "2023-08-31",
+    "2023-09-15",
+    "2023-09-29",
+    "2023-10-13",
+    "2023-10-31",
+    "2023-11-15",
+    "2023-11-30",
+    "2023-12-15",
+    "2023-12-29",
+    "2024-01-31",
+    "2024-02-15",
+    "2024-02-29",
+    "2024-03-15",
+    "2024-04-15",
+    "2024-04-30",
+    "2024-05-15",
+    "2024-05-31",
+    "2024-06-14",
+    "2024-06-28",
+    "2024-07-15",
+    "2024-07-31",
+    "2024-08-15",
+    "2024-08-30",
+    "2024-09-13",
+    "2024-09-30",
+    "2024-10-15"
+  ],
+  "phase25b": {
+    "signal_dates": [
+      "2023-03-27",
+      "2023-07-21",
+      "2023-11-13",
+      "2024-03-11",
+      "2024-07-05",
+      "2024-10-28"
+    ],
+    "results": {
+      "5": {
+        "n": 6,
+        "mean": 0.0036720529445415187,
+        "median": 0.004909844814825648,
+        "positive": 4
+      },
+      "10": {
+        "n": 6,
+        "mean": 0.008886254104763706,
+        "median": 0.012564677993633287,
+        "positive": 4
+      },
+      "20": {
+        "n": 6,
+        "mean": -0.005012392882783163,
+        "median": 0.005682292972269887,
+        "positive": 4
+      }
+    }
+  },
+  "phase25c": {
+    "signal_dates": [
+      "2022-08-05",
+      "2022-11-25",
+      "2023-03-17",
+      "2023-07-07",
+      "2023-10-27",
+      "2024-02-16",
+      "2024-06-07",
+      "2024-09-27"
+    ],
+    "results": {
+      "5": {
+        "n": 8,
+        "mean": 0.0003090080210396747,
+        "median": 0.0026739893817630594,
+        "positive": 5
+      },
+      "10": {
+        "n": 8,
+        "mean": -0.01823208508377389,
+        "median": -0.017304361339743373,
+        "positive": 1
+      },
+      "20": {
+        "n": 8,
+        "mean": -0.014465775371378883,
+        "median": -0.01392902084334234,
+        "positive": 2
+      }
+    },
+    "nov_25_snapshot_impact": {
+      "signal_date": "2022-11-25",
+      "settlement_date": "2022-11-15",
+      "old_knowledge_date": "2022-11-24",
+      "official_publication_date": "2022-11-25",
+      "old_available_snapshot_dates": 11,
+      "corrected_available_snapshot_dates": 10,
+      "latest_ticker_rows_changed": 89
+    }
+  },
+  "official_facts": {
+    "max_synchronous_records": 5000,
+    "max_synchronous_payload_mb": 3,
+    "publication_available_by_et": "16:40",
+    "publication_lag_business_days": 7,
+    "record_total_header_required_for_page_completeness": true,
+    "proposed_weekly_rule": "SR-FINRA-2026-012",
+    "proposed_weekly_rule_withdrawn_date": "2026-08-05"
+  }
+}
