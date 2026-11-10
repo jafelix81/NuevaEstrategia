@@ -1,0 +1,75 @@
+name: Phase 249 Cboe Open-Close EOD real-sample feature reprocessing
+
+on:
+  push:
+    branches: [phase231-cboe-option-quotes-full-row-reparse]
+    paths:
+      - "research/phase249_cboe_openclose_real_sample_reprocessing.py"
+      - "research/test_phase249_cboe_openclose_real_sample_reprocessing.py"
+      - ".github/workflows/phase249_cboe_openclose_real_sample_reprocessing.yml"
+  pull_request:
+    branches: [phase99-broad-pit-universe-charter]
+    paths:
+      - "research/phase249_cboe_openclose_real_sample_reprocessing.py"
+      - "research/test_phase249_cboe_openclose_real_sample_reprocessing.py"
+      - "research/PHASE249_CBOE_OPENCLOSE_REAL_SAMPLE_FEATURE_REPROCESSING_2026-11-09.md"
+      - ".github/workflows/phase249_cboe_openclose_real_sample_reprocessing.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase249-cboe-openclose-real-sample-reprocessing
+  cancel-in-progress: false
+
+jobs:
+  real-sample-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile Phase 249 and dependencies
+        run: |
+          python -m py_compile \
+            research/phase168_cboe_openclose_eod_public_sample_audit.py \
+            research/phase248_cboe_openclose_feature_contract.py \
+            research/phase249_cboe_openclose_real_sample_reprocessing.py \
+            research/test_phase249_cboe_openclose_real_sample_reprocessing.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase249_cboe_openclose_real_sample_reprocessing
+      - name: Download public sample and apply Phase 248 contract
+        run: python -m research.phase249_cboe_openclose_real_sample_reprocessing --output phase249_output/phase249_cboe_openclose_real_sample.json
+      - name: Enforce real-sample measurement gate without PIT or alpha admission
+        run: |
+          python - <<'PY'
+          import json, sys
+          path = "phase249_output/phase249_cboe_openclose_real_sample.json"
+          result = json.load(open(path, encoding="utf-8"))
+          if result.get("status") != "REAL_SAMPLE_FEATURE_REPROCESS_PASS_NO_PIT_NO_ALPHA":
+              print(json.dumps(result, indent=2))
+              sys.exit(1)
+          if result["participant_volume_reconciliation"]["mismatch_rows"] != 0:
+              sys.exit(2)
+          if not result["feature_aggregation"]["complete"]:
+              sys.exit(3)
+          gates = result["limitations"]
+          if gates["strict_pit_admitted"] or gates["returns_tested"] or gates["alpha_admission"]:
+              sys.exit(4)
+          if not gates["f80_frozen"] or gates["consumed_holdout_used"]:
+              sys.exit(5)
+          print("PHASE249_STATUS=" + result["status"])
+          print("REAL_SAMPLE_ROWS=" + str(result["rows"]))
+          print("PRIMARY_UNDERLYING_GROUPS=" + str(result["primary_equity_etf"]["underlying_groups"]))
+          print("PIT_ALPHA_GATES=CLOSED")
+          PY
+      - name: Upload metadata-only sample result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase249-cboe-openclose-real-sample
+          path: phase249_output/phase249_cboe_openclose_real_sample.json
+          if-no-files-found: error
+          retention-days: 90

@@ -229,3 +229,12 @@
 - 29 synthetic regression tests passed locally and in hosted run 42719093860; metadata-only artifact 13719158402 (1,460 bytes). The helper normalizes MM/DD/YYYY and ISO dates, rejects dates before 2019-10-07, excludes FLEX/unknown series types from the primary cohort, and rejects capacity volume exceeding total_exchange_vol. No raw historical sample was reprocessed in Phase 248, no returns were tested, and alpha/PIT gates remain closed.
 - **Decision:** retain as a high-priority conditional options-flow measurement candidate; do not authorize returns until final-file receipt, historical archive coverage, effective-dated security identity and broad PIT universe coverage pass.
 - [Phase 248 report](PHASE248_CBOE_OPENCLOSE_EOD_DIRECTIONAL_FEATURE_PREREGISTRATION_2026-11-09.md) · [helper](phase248_cboe_openclose_feature_contract.py) · [tests](test_phase248_cboe_openclose_feature_contract.py) · [result](phase248_cboe_openclose_feature_contract_result.json)
+
+
+## Phase 249 — Cboe Open-Close EOD real-sample feature reprocessing
+- Applied the Phase 248 preregistered capacity/side/open-close contract to the actual Cboe public C1 EOD sample in memory, rather than synthetic fixtures only.
+- Independently reruns the Phase 168 archive/schema audit, requires the 86-field EOD contract, validates unique option-series keys and exact participant-volume reconciliation, separates Equity/ETF, excludes Index/Warrant, and removes FLEX rows without discarding standard/nonstandard rows for the same underlying.
+- Builds fixed Customer and Pro-Customer opening features overall/by size bucket, closing controls, and Firm/Broker-Dealer opening controls. Output contains aggregate cross-sectional diagnostics only; no raw rows or underlying symbols are persisted.
+- **Hosted real-sample run pending.** The sample remains one date and 20%; successful reprocessing will not prove historical daily coverage, first-receipt timestamps, inactive/delisted identity, PIT or predictive alpha.
+- No forward returns, bootstrap/LOO, chronological OOS or holdout test. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen; no production, universe or capital change; no vendor trial/purchase/contact.
+- [Phase 249 report](PHASE249_CBOE_OPENCLOSE_REAL_SAMPLE_FEATURE_REPROCESSING_2026-11-09.md) · [script](phase249_cboe_openclose_real_sample_reprocessing.py) · [tests](test_phase249_cboe_openclose_real_sample_reprocessing.py)
