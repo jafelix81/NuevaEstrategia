@@ -15,6 +15,17 @@ SEC EDGAR's historical daily `form.YYYYMMDD.idx` archives provide a conditional 
 - [Phase 281 report](PHASE281_SEC_DAILY_INDEX_FIRST_PUBLICATION_PIT_FEASIBILITY_2026-11-11.md)
 - Official sources: [SEC EDGAR access and daily indexes](https://www.sec.gov/search-filings/edgar-search-assistance/accessing-edgar-data), [SEC timestamp FAQ](https://www.sec.gov/about/webmaster-frequently-asked-questions).
 
+
+
+## Phase 282 — SEC PDS public-clock adjudication
+
+The SEC's current PDS system page says PDS is a paid subscriber service and that, following the 2025-05-19 system update, filings are available on sec.gov before they are made available to PDS subscribers. The inspected historical 2014 PDS specification documents EDGAR receipt/acceptance/build fields and PAC timestamps, but ordinary `.dissem` files and the daily EOD filename list do not provide a per-filing first-public timestamp. The 2014 specification is not assumed to represent every field in the current 2025 ZIP.
+
+**Decision:** PDS is not a superior public-availability clock and no paid subscription/contact is justified. Retain the Phase 281 historical daily `form` index as the primary conservative Form 4 knowledge-date candidate; PDS may be only an optional acceptance/PAC cross-check if lawful existing archive bytes become available. No PDS or SEC raw bytes were downloaded, no automated SEC request was sent, and no alpha test was run.
+
+- [Phase 282 report](PHASE282_SEC_PDS_VS_DAILY_INDEX_PUBLICATION_CLOCK_AUDIT_2026-11-11.md)
+- Official SEC source: [PDS system and 2025 ordering change](https://www.sec.gov/oit/announcement/public-dissemination-service-system-contact.html).
+
 ## Phase 279 — SEC Insider Transactions bulk history
 
 - SEC lists 83 quarterly archives from 2006Q1 through 2026Q3; listed ZIP sizes sum to about 887.43 MB.
@@ -23,14 +34,16 @@ SEC EDGAR's historical daily `form.YYYYMMDD.idx` archives provide a conditional 
 - Phase 279's documentation gate passed 17/17 deterministic tests, but no ZIP bytes were downloaded and no alpha test was run.
 - [Phase 279 report](PHASE279_SEC_INSIDER_TRANSACTIONS_BULK_HISTORY_AND_PIT_FEASIBILITY_2026-11-11.md).
 
-## Latest verified GitHub state
+## Latest verified GitHub state — 2026-11-11 08:05 UTC
 
-- No queued or in-progress Actions runs were found. The latest 30 workflow runs were all completed successfully.
-- PR #14 head: `58f462eab1dc1268e6477118e75816dbcde0960c`; 23/23 check-runs successful. Latest Phase 278 targeted follow-up run [42969581899](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42969581899) passed 20/20 tests; artifact [13833606513](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42969581899/artifacts/13833606513).
-- Phase 279 run [42969582002](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42969582002) passed 17/17 tests; artifact [13832876183](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42969582002/artifacts/13832876183).
-- Phase 276 workflow security audit run [42969581729](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42969581729) succeeded. Its log reports 31 workflows, 103 action references, zero mutable/unverified refs, zero missing explicit permissions, no pull_request_target workflows, and only the main-guarded CFTC capture workflow with write permission.
-- PR #13 head: `61f737f18b410bc6d85b8c56ed96bc1fd9c130f5`; open/mergeable but has zero check-runs registered on that SHA. Do not merge either PR without explicit authorization.
-- Branch inventory: 134 branches. No CFTC capture was activated and no workflow was manually dispatched.
+- Latest 100 Actions runs: **97 success, 3 cancelled, 0 failed, 0 queued/in-progress**. No workflow was duplicated.
+- PR #14 head: `816662c125d626542763a1d0d034e3aaf6cd8119`; **23/23 check-runs successful**. It remains open, mergeable and stacked on PR #13. [PR #14](https://github.com/jafelix81/NuevaEstrategia/pull/14).
+- PR #13 head: `61f737f18b410bc6d85b8c56ed96bc1fd9c130f5`; open/mergeable, with **zero check-runs registered on that SHA**. [PR #13](https://github.com/jafelix81/NuevaEstrategia/pull/13).
+- Latest Phase 272 hosted run [42982871024](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42982871024) passed. The job log preserves the Phase 272 status gate; metadata-only artifact [13838231849](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42982871024/artifacts/13838231849), SHA-256 `459cea1eb615d83efb618310ff15d63a5fd655cddfe3df7b29934c31d566877d`.
+- Latest Phase 278 targeted follow-up [42982870960](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42982870960) passed **20/20 tests** and re-fetched 147,725 rows over 30 pages. Two BQ/T2 candidate-key groups remain conflicting; no row was selected or summed. Artifact [13838767377](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42982870960/artifacts/13838767377), SHA-256 `22cfdeaed6616d487bf403d459a0778b5f5a86516c30656a1ea1bda5235179e8`.
+- Phase 279 bulk-history gate passed 17/17 on the current PR head; Phase 276 security gate passed. The 31-workflow / 103-action inventory still has no mutable/unverified action refs or missing explicit permissions.
+- Branch inventory: **134 branches** (100 on page 1, 34 on page 2). No CFTC capture was activated and no workflow was manually dispatched.
+- No PR was merged. Do not merge either PR without explicit authorization.
 
 ## Source dispositions
 
