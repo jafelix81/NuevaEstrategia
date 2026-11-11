@@ -217,3 +217,16 @@ The hardened Phase 292 classifier was replayed against 23 selected, line-referen
 - [Phase 293 report](PHASE293_NPORT_SECOND_FILER_PUBLIC_POSITIVE_CONTROLS_2026-11-11.md) on branch phase293-nport-second-filer-public-positive-controls.
 - Dedicated offline workflow runs the Phase 221/291/292/293 tests and emits a metadata-only artifact.
 - No SEC requests, raw downloads, hashes, return tests, bootstrap/LOO or holdout use. F80, production, universe, capital and parameters remain unchanged.
+
+
+## GitHub Actions validation — completed 2026-11-11 18:10 UTC
+
+Dedicated run [43075250170](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43075250170) completed successfully on workflow-trigger commit \`02d658aa82126a035aac32eadfe58bb5ee72f9a8\`. Job \`second-filer-audit\` passed compilation, all four regression modules and the final cross-filer/no-alpha gate.
+
+- **29/29 tests passed**.
+- Second-filer ACAP selected positive controls: 23/23.
+- Combined selected positive controls: 26 across two distinct registrants.
+- Existing negative controls: 5/5.
+- Artifact: [13879983178](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43075250170/artifacts/13879983178), SHA-256 \`fdedf37b1d62674e114ae848e835f830feb39d700f3ca950b091955161b838f1\`.
+
+The artifact confirms the sample is non-exhaustive; raw XML/submission bytes and hashes, first-public receipt, longitudinal series identity, PIT admission, prevalence, alpha, return tests, bootstrap/LOO, holdout and production changes remain false. F80 remains frozen.
