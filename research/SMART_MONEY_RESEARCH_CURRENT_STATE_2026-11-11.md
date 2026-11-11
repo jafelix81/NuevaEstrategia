@@ -1,12 +1,22 @@
 # Smart Money Research — current state (2026-11-11 UTC)
 
-**Active research branch:** `phase231-cboe-option-quotes-full-row-reparse`  
+**Active research branch:** `phase296-form4-owner-attribution-purchase-quality-audit`  
 **PR chain:** #14 stacked on #13; both open and unmerged.  
 **Frozen baseline:** `F80_TOP20_PARTIAL50_BASELINE_C20`  
 **Legacy holdout:** `CONSUMED_NOT_PRISTINE`; never reuse.  
 **Economic result:** no new Smart Money signal has demonstrated incremental, cost-adjusted OOS edge.
 
-## Latest material research result — Phase 281
+## Latest verified results — Phases 295–296 (2026-11-11 19:31 UTC)
+
+- **Phase 295 passed:** 11/11 offline tests; 18/18 SEC complete-submission headers reconciled; 18/18 accession identities matched their first observed daily-index rows; 18/18 first index dates equaled the bulk filing date. The sample is purposive, not random. Exact first-public timestamp remains unverified.
+- 57/88 requested daily index files downloaded and parsed; the other 31 were HTTP 403 on 27 weekends and four U.S. federal holidays. Zero parser errors occurred in the 57 retrieved files.
+- SEC acceptance time was after 16:00 ET for 15/18 accessions, after 18:00 ET for 5/18, and after 20:00 ET for 2/18. The daily index date is date-granular and cannot establish the exact public-availability time. Use no earlier than the next full XNYS session after acceptance for any future test.
+- **Phase 296 data-quality audit:** the six Phase 294 raw archives contain 317,267 Form 4/4-A accessions. 310,561 (97.89%) have one reporting owner; 6,706 have multiple owners. A conservative candidate filter leaves 15,590 direct, positive-price/positive-share, non-derivative P acquisitions in original Form 4 filings with one owner and a 0–2 calendar-day transaction-to-filing lag, across 11,088 accessions, 3,243 issuers and 6,728 owners. This is feasibility, not alpha.
+- SEC Form 4 transaction code P explicitly includes **open-market or private purchases**. Footnotes, 10b5-1 status, delayed/amended filings, multiple-owner attribution and effective-dated issuer/security identity must be handled before any signal test. No strict PIT, return test, alpha, bootstrap/LOO or OOS result has been produced.
+- `SEC_CONTACT_EMAIL` is operational in Actions. It is used only in the SEC User-Agent contact string; no email was sent by the workflow, and no inbox check is required for this data pull.
+
+
+## Earlier material research result — Phase 281
 
 SEC EDGAR's historical daily `form.YYYYMMDD.idx` archives provide a conditional route to reconstruct a conservative daily public-dissemination date for Form 4 accessions. SEC documentation says daily indexes extend from 1994Q3 to present, list form/CIK/date/path, are built nightly, and prior daily indexes are not rewritten by later-business-day post-acceptance corrections. Full and quarterly indexes are rebuilt weekly and do incorporate later PAC changes.
 
@@ -264,3 +274,37 @@ No raw SEC bytes, first-public receipt, broad-universe coverage, PIT panel, retu
 - SEC_CONTACT_EMAIL is now verified operational for GitHub Actions by successful SEC HTTP 200 retrievals; its value remains secret and is not stored in repository files.
 - Phase 294 branch is documentation/acquisition-only. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen; production, universe, capital, parameters and the consumed legacy holdout are unchanged.
 - No data purchase, vendor contact, model test, alpha promotion, chronological OOS, bootstrap/LOO or holdout use.
+
+## Phase 295 — SEC Form 4 daily-index and acceptance-time real-data pilot (2026-11-11)
+
+**Result: acquisition and header reconciliation passed; strict PIT did not pass and remains closed.**
+
+- Run [43087726733](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43087726733) completed successfully. The workflow compiled and passed **11/11 tests** after adding a Form 4-specific SGML parser. The earlier failure was a parser-format mismatch: Form 4 complete-submission text uses `<ACCEPTANCE-DATETIME>YYYYMMDDHHMMSS`, while the reused N-PORT parser expected a colon-delimited field. Raw SEC responses are now preserved before parsing so future parser errors cannot discard evidence.
+- Across 18 purposive accessions (first/middle/last sample from 2006Q1, 2012Q1, 2023Q1, 2023Q2, 2025Q3 and 2026Q3): **18/18** SEC-HEADER accession/form/filing-date/acceptance timestamps reconciled; **18/18** first observed daily-index sightings matched the bulk filing identity and had zero calendar-day lag.
+- Of 88 daily-index date requests, 57 downloaded and parsed with zero parse errors. The 31 HTTP 403 dates were 27 weekends and four U.S. federal holidays, not parser failures.
+- **15/18** acceptances were at or after 16:00 ET, **5/18** at or after 18:00 ET and **2/18** at or after 20:00 ET. All 18 acceptance local dates matched the SEC filing date and all 18 daily index first-sighting dates matched that date. This does not prove when the nightly index itself first became publicly reachable; no sample captured a later-index-date case.
+- Artifact [13887641760](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43087726733/artifacts/13887641760), SHA-256 `89c9904d9bdd8f4cbde2706c40111a3e5ddeabed79788b77ed76b6a1e92390ed`, contains the 18 complete-submission text files, 57 raw daily indexes and manifest (60,334,796 downloaded bytes). Raw files are not committed to the repository.
+- `SEC_CONTACT_EMAIL` was injected successfully and masked in logs. The value is used only in the SEC User-Agent; this workflow did not send email. No user action is required.
+- Controls: `first_public_timestamp_verified=false`, `strict_pit_admitted=false`, `alpha_test_authorized=false`, `return_test_run=false`, `bootstrap_loo_run=false`, `holdout_used=false`, `f80_frozen=true`, and no production/universe/capital/parameter changes.
+
+**Next clock gate:** deliberately sample after-22:00 ET filings, next-business-day index sightings, Forms 4/A and post-acceptance corrections. Preserve acceptance timestamp and first observed index date separately. For any later return test, enter no earlier than the next full XNYS session after acceptance; do not use same-day returns.
+
+## Phase 296 — SEC Form 4 owner-attribution and purchase-quality feasibility (2026-11-11)
+
+This offline audit re-read the six raw ZIPs from Phase 294 artifact [13884014630](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43083625013/artifacts/13884014630). The six nested archive SHA-256 hashes are recorded in the report [PHASE296_SEC_FORM4_OWNER_ATTRIBUTION_AND_PURCHASE_QUALITY_AUDIT_2026-11-11.md](PHASE296_SEC_FORM4_OWNER_ATTRIBUTION_AND_PURCHASE_QUALITY_AUDIT_2026-11-11.md).
+
+- The six quarters contain **317,267** Form 4/4-A accessions: **310,561 (97.89%)** have exactly one reporting owner; **6,706 (2.11%)** have multiple owners; none have zero owners.
+- Among **27,902** non-derivative P/acquired/direct transactions with positive shares and price, **25,997** are in single-owner accessions and **1,905** in multi-owner accessions. Multi-owner transactions remain quarantined; the bulk `NONDERIV_TRANS` table has no reporting-owner CIK on each transaction row.
+- A conservative data-quality subset requiring original Form 4 (not 4/A), exactly one reporting owner, positive shares/price, P + acquired + direct, and 0–2 calendar days from transaction to filing contains **15,590 rows**, **11,088 accessions**, **3,243 issuers** and **6,728 owners**. All rows in this subset have an issuer ticker as filed, but effective-dated security-class identity is not verified.
+- The transaction-to-filing lag has a long tail in the broader candidate set: median 2 days, p90 20 days, p95 94 days, p99 715 days, maximum 7,308 days, with seven negative-lag rows. The 0–2-day filter is a conservative screening choice, not proof of execution timing or public availability.
+- The SEC data dictionary defines transaction code P as **“Open market or private purchase”**; it cannot be labeled open-market buying by itself. In a lexical footnote screen of 28,663 P/acquired/direct rows, 11,762 had at least one referenced footnote; overlapping keyword hits included 671 explicit open-market mentions, 147 private-purchase/placement mentions, 233 public-offering mentions, 3,339 weighted-average-price mentions, 1,697 trust/indirect mentions and 1,249 10b5-1 mentions. These are triage counts, not a mutually exclusive classification.
+- In the 15,590-row conservative subset, `AFF10B5ONE` is explicitly negative on 6,995 rows, affirmative on 201 and unknown/blank/absent on 8,394. The field is absent in 2006Q1 and 2012Q1 in this sample; blanks must not be interpreted as false.
+
+**Decision:** Form 4 is now a credible public-data candidate for a broad, next-session-only insider-transaction hypothesis. It is not an admitted signal. Continue with (1) after-hours/late-index/PAC sample expansion, (2) XML/footnote and multiple-owner adjudication, and (3) effective-dated issuer/security-class mapping and broad-universe price coverage. Only then preregister a chronological, cost-adjusted test against frozen LTM/F80 with independent OOS and a new holdout. No return test or alpha estimate was run in Phase 296.
+
+## Current repository verification — 2026-11-11 19:31 UTC
+
+- Latest 100 Actions runs: **67 successful, 8 failed, 25 cancelled, zero active/queued**. All eight failures were intermediate Phase 294/295 iterations; final Phase 294 run 43083625013 and final Phase 295 run 43087726733 succeeded. No workflow was duplicated while an earlier run was active.
+- Branch inventory: **144** before this Phase 296 branch; the Phase 296 branch is a research-only branch. PR #14 remains open on head `6dedb088d7289ca5155a319b5f88155c2d431be3`; PR #13 remains open on head `61f737f18b410bc6d85b8c56ed96bc1fd9c130f5`. No PR was opened or merged for Phases 294–296.
+- Historical statements in Phases 281–293 that `SEC_CONTACT_EMAIL` was unconfigured were accurate at the time and are superseded by the successful Phase 294/295 secret-injection checks.
+- F80, production, universe, capital, parameters and the consumed legacy holdout remain unchanged. No paid data, vendor contact or data license was initiated.
