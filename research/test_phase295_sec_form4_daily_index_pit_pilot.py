@@ -30,6 +30,7 @@ class Phase295Tests(unittest.TestCase):
     def test_sample_has_three_accessions_per_six_quarters(self):
         self.assertEqual(len(SAMPLE_ACCESSIONS), 18)
         self.assertEqual(len({x["quarter"] for x in SAMPLE_ACCESSIONS}), 6)
+        self.assertTrue(all(x["issuer_cik"].isdigit() for x in SAMPLE_ACCESSIONS))
 
     def test_index_window_is_calendar_date_preserving(self):
         self.assertEqual(
@@ -49,8 +50,12 @@ class Phase295Tests(unittest.TestCase):
 
     def test_submission_url_uses_accession_filer_cik_and_unhyphenated_directory(self):
         self.assertEqual(
-            submission_url(ACCESSION),
+            submission_url(ACCESSION, "0000005513"),
             "https://www.sec.gov/Archives/edgar/data/5513/000000551306000002/0000005513-06-000002.txt",
+        )
+        self.assertEqual(
+            submission_url("0001180561-06-000004", "0000936528"),
+            "https://www.sec.gov/Archives/edgar/data/936528/000118056106000004/0001180561-06-000004.txt",
         )
 
     def test_real_parser_contract_extracts_accession_from_daily_index(self):
