@@ -34,7 +34,7 @@ jobs:
 
       - name: Download immutable Phase 294 artifact
         env:
-          GH_TOKEN: \${{ github.token }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p phase297_input
           curl --fail --silent --show-error --location \
