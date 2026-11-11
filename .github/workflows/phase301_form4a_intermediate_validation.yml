@@ -5,7 +5,6 @@ on:
     branches:
       - phase301-form4a-intermediate-era-lineage-audit
     paths:
-      - .github/workflows/phase301_form4a_intermediate_validation.yml
       - research/phase301_form4a_intermediate_validation.py
       - research/test_phase301_form4a_intermediate_validation.py
 
@@ -21,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     env:
-      SEC_CONTACT_EMAIL: \${{ secrets.SEC_CONTACT_EMAIL }}
+      SEC_CONTACT_EMAIL: ${{ secrets.SEC_CONTACT_EMAIL }}
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -46,7 +45,7 @@ jobs:
 
       - name: Download three SEC bulk archives and validate intermediate-era Form 4/A cases
         env:
-          SEC_CONTACT_EMAIL: \${{ secrets.SEC_CONTACT_EMAIL }}
+          SEC_CONTACT_EMAIL: ${{ secrets.SEC_CONTACT_EMAIL }}
         run: |
           set -euo pipefail
           test -n "$SEC_CONTACT_EMAIL"
