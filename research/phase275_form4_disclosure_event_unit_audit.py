@@ -61,7 +61,7 @@ def enriched_candidate_rows(inner_bytes: bytes, period: str) -> list[dict[str,An
         if not sub: continue
         own=owner_by.get(acc,[]); refs=set()
         for key,value in tx.items():
-            if key.endswith("_FN"): refs.update(re.findall(r"F\\d+",value or ""))
+            if key.endswith("_FN"): refs.update(re.findall(r"F\d+",value or ""))
         foot=" ".join(foot_by[acc].get(ref,"") for ref in sorted(refs))
         flags=classify_purchase_row(
             {**tx,"DOCUMENT_TYPE":sub.get("DOCUMENT_TYPE","")},
