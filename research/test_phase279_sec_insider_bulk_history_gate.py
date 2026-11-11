@@ -56,6 +56,7 @@ class Phase279Tests(unittest.TestCase):
         self.assertFalse(field["present_in_documented_readme"])
         self.assertFalse(field["missing_means_false"])
         self.assertTrue(field["submission_level_not_transaction_level"])
+        self.assertEqual(field["form4_form5_checkbox_compliance_date"], "2023-04-01")
         self.assertTrue(result["pit_and_identity"]["aff10b5one_must_not_be_broadcast_as_line_level_plan_label"])
 
     def test_archive_volume_is_documented_not_downloaded(self):
@@ -65,6 +66,12 @@ class Phase279Tests(unittest.TestCase):
         self.assertEqual(source["sec_listed_zip_size_mb_min"], 7.59)
         self.assertEqual(source["sec_listed_zip_size_mb_max"], 16.51)
         self.assertFalse(source["archive_bytes_downloaded"])
+
+    def test_sample_archives_straddle_checkbox_compliance_date(self):
+        result = build_result()
+        next_gate = result["recommended_next_gate"]
+        self.assertIn("2006Q1, 2012Q1, 2023Q1, 2023Q2, 2025Q3 and 2026Q3", next_gate[0])
+        self.assertTrue(result["pit_and_identity"]["joint_group_filing_may_include_separately_owned_transactions"])
 
     def test_p_code_does_not_prove_open_market(self):
         result = build_result()

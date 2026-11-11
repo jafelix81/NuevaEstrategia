@@ -93,7 +93,8 @@
       "sec_page_note": "2023-2025 archives updated in July 2025 to include AFF10B5ONE; future datasets processed similarly",
       "missing_means_false": false,
       "submission_level_not_transaction_level": true,
-      "checkbox_alone_proves_discretionary_trading": false
+      "checkbox_alone_proves_discretionary_trading": false,
+      "form4_form5_checkbox_compliance_date": "2023-04-01"
     }
   },
   "pit_and_identity": {
@@ -109,14 +110,15 @@
     "form4a_is_new_transaction_signal": false,
     "amendments_must_remain_separate_vintages": true,
     "transaction_code_p_alone_proves_open_market": false,
-    "explicit_footnote_review_required": true
+    "explicit_footnote_review_required": true,
+    "joint_group_filing_may_include_separately_owned_transactions": true
   },
   "recommended_next_gate": [
-    "Acquire 2006Q1, 2012Q1, 2023Q2, 2025Q3 and 2026Q3 archives with immutable ZIP hashes and metadata manifests.",
+    "Acquire 2006Q1, 2012Q1, 2023Q1, 2023Q2, 2025Q3 and 2026Q3 archives with immutable ZIP hashes and metadata manifests.",
     "Reconcile sampled ACCESSION_NUMBER and DOCUMENT_TYPE values to original EDGAR filing indices and accepted timestamps.",
     "Verify the post-July-2025 AFF10B5ONE column and distinguish absent, null, false and true across schema eras.",
     "Use FOOTNOTES to reproduce the Phase 271 explicit open-market screen; keep plan, compensation, private-purchase and mechanical exclusions separate.",
-    "For accessions with multiple reporting owners, parse original ownership XML or exclude transaction-to-owner attribution; do not create a many-to-many join.",
+    "For accessions with multiple reporting owners, review original ownership XML and joint/group exhibits for explicit transaction-owner linkage; if linkage is not unambiguous, exclude owner-specific attribution rather than creating a many-to-many join.",
     "Resolve issuer CIK, as-filed ticker and SECURITY_TITLE to effective-dated security/class identity including delisted names.",
     "Preserve every Form 4/A as a new knowledge-time vintage and reconcile DATE_OF_ORIG_SUB without treating it as a parent accession."
   ],

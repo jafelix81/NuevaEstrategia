@@ -59,7 +59,7 @@ A strict daily panel still needs an accession-level join to the original EDGAR f
 
 REPORTINGOWNER is keyed by accession plus owner CIK, but NONDERIV_TRANS is keyed by accession plus transaction surrogate key and has no RPTOWNERCIK column in the published schema.
 
-For a filing with multiple reporting owners, joining transactions to owners on accession alone would create a many-to-many expansion and false owner-level attribution. Use the original ownership XML to retain the nested owner-to-transaction relationship, or exclude multi-owner accessions from owner-specific features. Do not infer transaction ownership from row order or address.
+For a filing with multiple reporting owners, joining transactions to owners on accession alone would create a many-to-many expansion and false owner-level attribution. Current Form 4 instructions permit joint/group filings that can include transactions in securities owned separately by different filers; only the designated filer appears in Item 1, with the other owners identified in an attachment. Review the original ownership XML and joint/group exhibits for an explicit transaction-owner link; if no unambiguous link exists, exclude the accession from owner-specific features. Do not infer transaction ownership from row order or address.
 
 ### 3.3 Security identity is incomplete
 
@@ -69,17 +69,17 @@ The documented non-derivative transaction table has security title but no perman
 
 The SEC page says the 2023–2025 archives were updated in July 2025 to include AFF10B5ONE and that future data sets will be processed similarly. The published readme PDF does not list this field. Therefore the archive-specific metadata/schema must be inspected before parsing; do not assume a uniform column set across all 83 files.
 
-The checkbox is at the submission level, not a transaction-row identifier. A missing/pre-checkbox-era value is UNKNOWN, never false. A checked form flag must not be broadcast as a line-specific plan label without footnote/XML review. Even an unchecked flag does not establish discretionary intent.
+The checkbox is at the submission level, not a transaction-row identifier. The SEC compliance date for Forms 4 and 5 was filings on or after 2023-04-01. A missing/pre-checkbox-era value is UNKNOWN, never false. Sample both 2023Q1 and 2023Q2 to test the boundary and archive schema. A checked form flag must not be broadcast as a line-specific plan label without footnote/XML review. Even an unchecked flag does not establish discretionary intent.
 
 ### 3.5 Code P is not enough
 
-The SEC's transaction-code description defines P as a purchase on an exchange **or from another person**. That does not by itself distinguish open-market from private purchases. The Phase 271 explicit footnote screen remains necessary. Form 4/A amendments can add transaction lines or amend existing lines; they are separate disclosure vintages and must not be counted as fresh trades by default.
+The current SEC Form 4 instructions define P as **“Open market or private purchase of non-derivative or derivative security.”** Therefore P alone does not distinguish open-market from private execution. The Phase 271 explicit footnote screen remains necessary. Form 4/A amendments can add transaction lines or amend existing lines; they are separate disclosure vintages and must not be counted as fresh trades by default.
 
 ## 4. Proposed next gate
 
 Before any full ingestion or return test:
 
-1. Acquire five stratified archives: 2006Q1, 2012Q1, 2023Q2, 2025Q3 and 2026Q3. Preserve exact ZIP bytes, SHA-256 and metadata manifests.
+1. Acquire six stratified archives: 2006Q1, 2012Q1, 2023Q1, 2023Q2, 2025Q3 and 2026Q3. Preserve exact ZIP bytes, SHA-256 and metadata manifests.
 2. Cross-check 2012Q1 and 2026Q3 against the existing Phase 39 source artifact.
 3. Validate all eight table schemas, compound-key uniqueness, row counts, accession joins, null conventions and the AFF10B5ONE column by archive era.
 4. Reconcile a sample of accessions to original EDGAR filing indices and acceptance timestamps; preserve each Form 4/A as a new as-filed vintage.
@@ -113,4 +113,6 @@ No SEC request, archive download, vendor contact, purchase, forward-return test,
 - SEC Insider Transactions Data Sets readme: https://www.sec.gov/files/insider_transactions_readme.pdf
 - SEC Release 33-11138, Rule 10b5-1 and insider-trading disclosures: https://www.sec.gov/files/rules/final/2022/33-11138.pdf
 - SEC Form 4 instructions, including amendments and Rule 10b5-1 checkbox: https://www.sec.gov/about/forms/form4data.pdf
+- Current SEC Form 4 instructions (P code and joint/group filings): https://www.sec.gov/about/forms/form4data.pdf
+- SEC Release 33-11138, Form 4/5 checkbox compliance date: https://www.sec.gov/files/rules/final/2022/33-11138.pdf
 - SEC Form 4 transaction-code explanation: https://www.sec.gov/files/forms-3-4-5.pdf
