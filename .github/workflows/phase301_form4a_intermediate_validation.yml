@@ -10,7 +10,6 @@ on:
       - research/test_phase301_form4a_intermediate_validation.py
 
 permissions:
-  actions: read
   contents: read
 
 concurrency:
@@ -45,28 +44,13 @@ jobs:
           python -m unittest discover -s research -p 'test_phase300_*.py' -v
           python -m unittest discover -s research -p 'test_phase301_*.py' -v
 
-      - name: Download and verify immutable Phase 294 bulk archive artifact
-        env:
-          GH_TOKEN: \${{ github.token }}
-        run: |
-          set -euo pipefail
-          mkdir -p phase301_input/phase294 phase301_output
-          curl --fail --silent --show-error --location \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer $GH_TOKEN" \
-            https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13884014630/zip \
-            -o phase301_input/phase294-artifact.zip
-          echo "8b256375a68ffc581134e3fb05dd96ca3a02f6acd47925a003aa3f4b3d1680f4  phase301_input/phase294-artifact.zip" | sha256sum --check
-          unzip -q phase301_input/phase294-artifact.zip -d phase301_input/phase294
-
-      - name: Retrieve 2022Q4 archive and validate intermediate-era Form 4/A cases
+      - name: Download three SEC bulk archives and validate intermediate-era Form 4/A cases
         env:
           SEC_CONTACT_EMAIL: \${{ secrets.SEC_CONTACT_EMAIL }}
         run: |
           set -euo pipefail
           test -n "$SEC_CONTACT_EMAIL"
           python -u research/phase301_form4a_intermediate_validation.py \
-            --phase294-dir phase301_input/phase294 \
             --output-dir phase301_output \
             --contact-email "$SEC_CONTACT_EMAIL"
 
