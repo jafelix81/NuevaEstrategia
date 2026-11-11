@@ -1,0 +1,26 @@
+{
+  "phase": 291,
+  "status": "REAL_PUBLIC_FILING_POSITIVE_CONTROL_PASS_PARSER_CORRECTION_NO_RAW_BYTES_NO_ALPHA",
+  "real_public_short_rows_tested": 3,
+  "real_public_short_rows_accepted": 3,
+  "prior_title_predicate_false_negatives": 3,
+  "prior_phase221_synthetic_cases_rechecked": 13,
+  "synthetic_cases_passed": 13,
+  "negative_controls": {
+    "non_finite_balance": "UNKNOWN",
+    "non_common_equity_asset_category": "UNKNOWN"
+  },
+  "raw_filings_downloaded": false,
+  "raw_hashes_verified": false,
+  "sec_requests_sent": false,
+  "return_test_run": false,
+  "alpha_test_authorized": false,
+  "bootstrap_loo_run": false,
+  "holdout_used": false,
+  "f80_frozen": true,
+  "production_changed": false,
+  "universe_changed": false,
+  "capital_changed": false,
+  "parameters_changed": false,
+  "validation_method": "Local deterministic recheck of the Phase 221 classifier logic plus committed unit tests; no GitHub Actions workflow was triggered."
+}

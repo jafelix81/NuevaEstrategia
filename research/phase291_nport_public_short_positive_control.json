@@ -1,0 +1,84 @@
+{
+  "phase": 291,
+  "status": "REAL_PUBLIC_SEC_FILING_POSITIVE_CONTROL_PARSER_CORRECTION_NO_RAW_BYTES_NO_ALPHA",
+  "filing": {
+    "form": "NPORT-P",
+    "accession": "0001145549-24-071567",
+    "cik": "0001872253",
+    "series_id": "S000074017",
+    "fund_name": "Cromwell Long Short Fund",
+    "report_date": "2024-09-30",
+    "filing_date": "2024-11-22",
+    "acceptance_datetime_et": "2024-11-22 12:10:57",
+    "conservative_first_full_xnys_session_after_acceptance": "2024-11-25",
+    "report_to_acceptance_calendar_days": 53
+  },
+  "source_urls": {
+    "filing_detail": "https://www.sec.gov/Archives/edgar/data/1872253/000114554924071567/0001145549-24-071567-index.html",
+    "primary_document": "https://www.sec.gov/Archives/edgar/data/1872253/000114554924071567/xslFormNPORT-P_X01/primary_doc.xml",
+    "form_instructions": "https://www.sec.gov/files/formn-port.pdf",
+    "data_dictionary": "https://www.sec.gov/files/nport_readme.pdf"
+  },
+  "source_limitation": "Official SEC filing detail and EDGAR-rendered primary document were inspected through public web access. Raw XML/ZIP bytes were not downloaded or hashed in this phase.",
+  "positions": [
+    {
+      "ticker": "DAY",
+      "issuer_title": "Dayforce Inc",
+      "cusip": "15677J108",
+      "isin": "US15677J1088",
+      "balance_shares": -4447,
+      "currency_value_usd": -272378.75,
+      "percentage_nav": -0.2848831381,
+      "payoff_profile": "Short",
+      "unit_code": "NS",
+      "asset_cat_code": "EC",
+      "issuer_cat_code": "CORP",
+      "asset_cat_label": "Equity-common",
+      "issuer_cat_label": "Corporate"
+    },
+    {
+      "ticker": "CLX",
+      "issuer_title": "Clorox Co/The",
+      "cusip": "189054109",
+      "isin": "US1890541097",
+      "balance_shares": -1920,
+      "currency_value_usd": -312787.2,
+      "percentage_nav": -0.3271466629,
+      "payoff_profile": "Short",
+      "unit_code": "NS",
+      "asset_cat_code": "EC",
+      "issuer_cat_code": "CORP",
+      "asset_cat_label": "Equity-common",
+      "issuer_cat_label": "Corporate"
+    },
+    {
+      "ticker": "CDW",
+      "issuer_title": "CDW Corp/DE",
+      "cusip": "12514G108",
+      "isin": "US12514G1085",
+      "balance_shares": -1115,
+      "currency_value_usd": -252324.5,
+      "percentage_nav": -0.2639082358,
+      "payoff_profile": "Short",
+      "unit_code": "NS",
+      "asset_cat_code": "EC",
+      "issuer_cat_code": "CORP",
+      "asset_cat_label": "Equity-common",
+      "issuer_cat_label": "Corporate"
+    }
+  ],
+  "controls": {
+    "raw_filings_downloaded": false,
+    "raw_hashes_verified": false,
+    "sec_requests_sent": false,
+    "alpha_test_authorized": false,
+    "return_test_run": false,
+    "bootstrap_loo_run": false,
+    "holdout_used": false,
+    "production_changed": false,
+    "universe_changed": false,
+    "capital_changed": false,
+    "parameters_changed": false,
+    "f80_frozen": true
+  }
+}

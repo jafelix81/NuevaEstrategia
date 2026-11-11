@@ -3,6 +3,7 @@
 from __future__ import annotations
 import argparse
 import json
+import math
 from pathlib import Path
 
 EVIDENCE = Path(__file__).with_name("phase221_nport_absence_semantics_audit.json")
@@ -49,17 +50,17 @@ def classify_direct_short_state(*, prior_public_part_c: bool,
         unit = row.get("unit")
         asset_cat = row.get("asset_cat")
         issuer_cat = row.get("issuer_cat")
-        title = str(row.get("title", "")).strip().lower()
         balance = row.get("balance")
         try:
             balance = float(balance)
         except (TypeError, ValueError):
             return _unknown("non_numeric_balance")
+        if not math.isfinite(balance):
+            return _unknown("non_finite_balance")
 
-        common_equity = (
-            unit == "NS" and asset_cat == "EC" and issuer_cat == "CORP"
-            and "common stock" in title
-        )
+        # Structured SEC fields carry the instrument classification.
+        # ISSUER_TITLE is descriptive and need not literally contain "Common Stock".
+        common_equity = unit == "NS" and asset_cat == "EC" and issuer_cat == "CORP"
         if not common_equity:
             return _unknown("row_not_verified_as_direct_common_equity")
         if profile == "short":

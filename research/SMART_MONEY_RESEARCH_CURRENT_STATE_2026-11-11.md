@@ -174,3 +174,16 @@ No raw data, return test, bootstrap/LOO, OOS result or holdout use occurred. F80
 - [Phase 290 report](PHASE290_NPORT_FINRA_OUTPUT_RECONCILIATION_2026-11-11.md).
 
 **Current decision:** Form 4 remains the first real-data priority after a valid SEC contact is configured; N-PORT direct-short remains a separate, unadmitted hypothesis; 13F remains parked; Phase 20C is not promoted pending next-session PIT correction and a stronger test. No holdout was used. F80, production, universe, capital and parameters remain unchanged.
+
+
+## Phase 291 — N-PORT direct-short real public-filing positive control (2026-11-11)
+
+A public SEC NPORT-P filing (accession 0001145549-24-071567; CIK 0001872253; series S000074017, Cromwell Long Short Fund) was inspected. It reports at least three explicit short U.S. common-equity positions: DAY (-4,447 shares), CLX (-1,920) and CDW (-1,115), each with negative USD value and negative percent of NAV. The filing was accepted 2024-11-22 12:10:57 ET for report date 2024-09-30; the conservative first full XNYS session after acceptance is 2024-11-25.
+
+This exposed a real Phase 221 parser false-negative: the code required the descriptive ISSUER_TITLE to contain the literal words "Common Stock". The SEC filing uses issuer names such as "Dayforce Inc", while the structured fields identify the instrument as Equity-common / Corporate. The classifier now uses UNIT=NS + ASSET_CAT=EC + ISSUER_TYPE=CORP and leaves the title as descriptive metadata; non-finite balances fail closed. The old predicate rejected 3/3 actual rows; the corrected logic accepts 3/3. The 13 existing Phase 221 semantic cases were rechecked and pass; new tests cover the three real public rows and negative controls.
+
+Important limit: the public SEC filing detail and EDGAR-rendered primary document were inspected, but raw XML/ZIP bytes were not downloaded or hashed. This validates a real filing row-classification path, not bulk-history coverage, series/security longitudinal identity, a PIT panel, or alpha. No return test, bootstrap/LOO, or holdout was run. SEC_CONTACT_EMAIL remains unconfigured; no automated SEC request was made.
+
+- [Phase 291 report](PHASE291_NPORT_DIRECT_SHORT_PUBLIC_FILING_POSITIVE_CONTROL_2026-11-11.md) on branch `phase291-nport-public-short-positive-control`.
+- Latest Actions inventory before this branch: 100 most recent runs = 67 success, 33 cancelled, zero failed, zero active/queued. PR #14 head 6dedb088d7289ca5155a319b5f88155c2d431be3 has 23/23 successful check-runs; PR #13 head 61f737f18b410bc6d85b8c56ed96bc1fd9c130f5 has zero check-runs. Phase 286, 285 and 278 logs/artifacts were inspected; all metadata/source-gate jobs succeeded but did not admit data or alpha. This new branch is documentation/parser correction only; no workflow was started.
+- No PR opened or merge made. F80, production, universe, capital, parameters and holdout remain unchanged.
