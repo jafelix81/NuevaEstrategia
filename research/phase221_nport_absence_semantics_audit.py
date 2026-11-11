@@ -13,6 +13,40 @@ def _unknown(reason: str) -> dict:
     return {"status": "UNKNOWN", "short_shares": None, "reason": reason}
 
 
+def _normalise_identifier(value) -> str:
+    if value is None:
+        return ""
+    return "".join(ch for ch in str(value).strip().upper() if ch.isalnum())
+
+
+def _finite_number(value, field: str):
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return None, f"non_numeric_{field}"
+    if not math.isfinite(number):
+        return None, f"non_finite_{field}"
+    return number, None
+
+
+def _row_identity_matches(row: dict, expected_cusip: str, expected_isin: str):
+    row_cusip = _normalise_identifier(row.get("cusip") or row.get("issuer_cusip"))
+    row_isin = _normalise_identifier(row.get("isin"))
+    if not row_cusip and not row_isin:
+        return False, "row_security_identifier_missing"
+    if expected_cusip and row_cusip and row_cusip != expected_cusip:
+        return False, "row_security_identifier_mismatch"
+    if expected_isin and row_isin and row_isin != expected_isin:
+        return False, "row_security_identifier_mismatch"
+    matched = bool(
+        (expected_cusip and row_cusip == expected_cusip)
+        or (expected_isin and row_isin == expected_isin)
+    )
+    if not matched:
+        return False, "row_security_identifier_not_exact"
+    return True, None
+
+
 def classify_direct_short_state(*, prior_public_part_c: bool,
                                 current_period_public: bool,
                                 current_filing_complete: bool,
@@ -21,11 +55,15 @@ def classify_direct_short_state(*, prior_public_part_c: bool,
                                 corporate_action_clear: bool,
                                 current_vintage_as_of_signal: bool,
                                 part_d_ineligible_due_prior_public: bool,
-                                current_part_c_rows):
-    """Classify exact-instrument direct physical common-equity short state.
+                                current_part_c_rows,
+                                expected_cusip: str | None = None,
+                                expected_isin: str | None = None):
+    """Classify an exact-issue direct physical U.S. common-equity short state.
 
-    current_part_c_rows=None means the parse/search is incomplete.
-    current_part_c_rows=[] means a completed exact-security Part-C search found no row.
+    current_part_c_rows must already be the complete exact-security Part-C search.
+    Each returned row is independently checked against expected CUSIP/ISIN.
+    [] means a completed exact-security search found no row; None means the
+    parse/search is incomplete. Ticker alone is never an identity key.
     """
     if not current_period_public:
         return _unknown("current_fiscal_period_not_public")
@@ -41,35 +79,56 @@ def classify_direct_short_state(*, prior_public_part_c: bool,
         return _unknown("corporate_action_or_listing_identity_unresolved")
     if current_part_c_rows is None:
         return _unknown("part_c_parse_missing_not_empty")
+
+    cusip = _normalise_identifier(expected_cusip)
+    isin = _normalise_identifier(expected_isin)
+    if not cusip and not isin:
+        return _unknown("expected_exact_security_identifier_missing")
+    if cusip and len(cusip) != 9:
+        return _unknown("expected_cusip_invalid_length")
+    if isin and len(isin) != 12:
+        return _unknown("expected_isin_invalid_length")
+
     if part_d_ineligible_due_prior_public and not prior_public_part_c:
         return _unknown("part_d_exclusion_claim_lacks_prior_public_part_c_row")
 
     short_quantities = []
     for row in current_part_c_rows:
-        profile = str(row.get("payoff_profile", "")).strip().lower()
-        unit = row.get("unit")
-        asset_cat = row.get("asset_cat")
-        issuer_cat = row.get("issuer_cat")
-        balance = row.get("balance")
-        try:
-            balance = float(balance)
-        except (TypeError, ValueError):
-            return _unknown("non_numeric_balance")
-        if not math.isfinite(balance):
-            return _unknown("non_finite_balance")
+        identity_ok, identity_reason = _row_identity_matches(row, cusip, isin)
+        if not identity_ok:
+            return _unknown(identity_reason)
 
-        # Structured SEC fields carry the instrument classification.
-        # ISSUER_TITLE is descriptive and need not literally contain "Common Stock".
-        common_equity = unit == "NS" and asset_cat == "EC" and issuer_cat == "CORP"
-        if not common_equity:
-            return _unknown("row_not_verified_as_direct_common_equity")
+        profile = str(row.get("payoff_profile", "")).strip().lower()
+        unit = str(row.get("unit") or "").strip().upper()
+        asset_cat = str(row.get("asset_cat") or "").strip().upper()
+        issuer_cat = str(row.get("issuer_cat") or "").strip().upper()
+        country = str(row.get("investment_country") or "").strip().upper()
+
+        if not (
+            unit == "NS"
+            and asset_cat == "EC"
+            and issuer_cat == "CORP"
+            and country == "US"
+        ):
+            return _unknown("row_not_verified_as_us_common_equity")
+
+        balance, error = _finite_number(row.get("balance"), "balance")
+        if error:
+            return _unknown(error)
+        currency_value, error = _finite_number(row.get("currency_value"), "currency_value")
+        if error:
+            return _unknown(error)
+        percentage, error = _finite_number(row.get("percentage"), "percentage")
+        if error:
+            return _unknown(error)
+
         if profile == "short":
-            if balance >= 0:
-                return _unknown("short_profile_balance_not_negative")
+            if not (balance < 0 and currency_value < 0 and percentage < 0):
+                return _unknown("short_signs_not_concordant")
             short_quantities.append(abs(balance))
         elif profile == "long":
-            if balance <= 0:
-                return _unknown("long_profile_balance_not_positive")
+            if not (balance > 0 and currency_value > 0 and percentage > 0):
+                return _unknown("long_signs_not_concordant")
         else:
             return _unknown("payoff_profile_missing_or_not_long_short")
 
@@ -77,7 +136,7 @@ def classify_direct_short_state(*, prior_public_part_c: bool,
         return {
             "status": "OBSERVED_SHORT_POSITION",
             "short_shares": sum(short_quantities),
-            "reason": "valid_explicit_short_common_equity_rows_in_part_c"
+            "reason": "valid_explicit_short_us_common_equity_rows_in_part_c"
         }
     if current_part_c_rows:
         return {
@@ -137,6 +196,9 @@ def build_audit(e: dict) -> dict:
         "synthetic_cases_validated": len(cases),
         "conditional_zero_rule": "PRIOR_PUBLIC_PART_C_ONLY_ALL_GATES_REQUIRED",
         "default_absence": "UNKNOWN_NOT_ZERO",
+        "exact_cusip_or_isin_required": True,
+        "us_common_equity_required": True,
+        "balance_value_percentage_sign_concordance_required": True,
         "alpha_test_authorized": False,
         "raw_filings_downloaded": False,
         "holdout_used": False,
