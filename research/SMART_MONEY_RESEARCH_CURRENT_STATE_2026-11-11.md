@@ -141,3 +141,22 @@ Added research/PHASE288_SEC_13F_HOLDINGS_PIT_COVERAGE_AMENDMENT_AUDIT_2026-11-11
 - No raw data was acquired from FIS, UREF, NOTO, ISE, PHLX, NYSE Open-Close, Nasdaq ITCH/NOII or SEC 13F. No vendor was contacted and no paid data/trial was requested.
 - SEC_CONTACT_EMAIL remains the only previously identified human configuration blocker for automated SEC downloads. No SEC request was made.
 - No model test, alpha estimate, bootstrap, LOO or independent OOS result has been produced by Phases 284–288. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen; production, universe, capital, parameters and holdout are unchanged.
+
+
+## Phase 289 — SEC 13F re-entry decision and source-priority correction (2026-11-11)
+
+**Decision: keep 13F parked for broad-universe stock selection; defer raw ZIP acquisition until historical identity coverage improves.** Phase 22C already found only 301 current candidate mappings for the 335-name frozen universe. Its historical matches were 212/301 (70.43%) in 2016Q1, 246/301 (81.73%) in 2020Q1 and 280/301 (93.02%) in 2024Q1. Against the full 335-name universe these are 63.28%, 73.43% and 83.58%, respectively. The direct report-date CUSIP/common-equity route had a 54.8% minimum in 2016Q1. Phase 166's 83.18% is a 13(f)-eligibility match in a separate 13D/G sample, not 13F holdings coverage.
+
+Phase 205's ten accessions are purposive edge cases, not a prevalence sample: four original reports were accepted 44–48 days after quarter-end; six amendments were 60–1,137 days after quarter-end (median 361.5 days); five of ten filing dates differ from acceptance calendar dates. The findings reinforce accession-level event clocks and append-only restatement/add-only amendment state, but do not establish population rates or alpha.
+
+Source priority remains: (1) Form 4 bulk + daily-index real-data sample; (2) N-PORT direct short-equity sample as a distinct preregistered registered-fund hypothesis; (3) 13F only after effective-dated security identity and broad-universe coverage pass; (4) paid options/lending sources only after authorized sample/license and cost gates. No synthetic 13F workflow should be added until real bytes reveal a concrete issue.
+
+- [Phase 289 report](PHASE289_SEC_13F_REENTRY_DECISION_AND_SOURCE_PRIORITY_2026-11-11.md) on branch `phase289-sec13f-reentry-adjudication`.
+- Latest 30 Actions runs checked: 24 completed successfully, 6 cancelled, zero failed, zero queued/in-progress. Latest run 43031307177 (Phase 286) succeeded; its metadata-only artifact 13860368810 is present and unexpired. No workflow was duplicated.
+- PR #14 head remains `6dedb088d7289ca5155a319b5f88155c2d431be3`, open/mergeable, 23/23 check-runs successful. PR #13 head `61f737f18b410bc6d85b8c56ed96bc1fd9c130f5`, open/mergeable, zero check-runs on that SHA.
+- Phase 278 latest targeted run 43030407560 passed 20/20 tests but still found 147,725 rows, 30 pages and two conflicting duplicate-grain groups; no rows were selected or summed. Artifact 13861545967 is present and unexpired.
+- Phase 231 run 43030407294 passed the raw-row reparse gate: 115,617 populated rows; 112,313 unambiguous valid rows; 3,304 ambiguous expiration rows quarantined. No PIT or alpha admission. Artifact 13860267856 is present and unexpired.
+- Branch inventory before this Phase 289 branch was 137 (100 on page 1, 37 on page 2); Phase 289 adds one documentation-only branch. No PR or merge was created.
+- The repository state records `SEC_CONTACT_EMAIL` as not configured; no secret was inspected or changed and no SEC request was made.
+
+No raw data, return test, bootstrap/LOO, OOS result or holdout use occurred. F80, production, universe, capital and parameters remain unchanged. The legacy holdout remains consumed and unavailable for reuse.
