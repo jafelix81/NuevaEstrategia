@@ -247,7 +247,7 @@ def run_audit(email: str, output_dir: Path) -> dict[str, Any]:
             expected_filed_date = sample["filing_date"].replace("-", "")
             filed_as_of = header.get("FILED AS OF DATE", "")
             header_date_matches = filed_as_of == expected_filed_date
-            acceptance_date_matches = header.get("acceptance_date_matches_filed_date") == "true"
+            acceptance_date_matches = header.get("acceptance_date_matches_filed_date") is True
             header_ok = header_date_matches and acceptance_date_matches
             path = submission_root / f"{accession}.txt"
             path.write_bytes(payload)
@@ -278,13 +278,13 @@ def run_audit(email: str, output_dir: Path) -> dict[str, Any]:
     downloaded_submission_files = sum(x.get("submission_raw_file") is not None for x in accession_results)
     all_headers = header_pass == len(SAMPLE_ACCESSIONS)
     all_index = index_pass == len(SAMPLE_ACCESSIONS)
-    index_identity_pass = all(
+    index_identity_pass = index_pass == len(SAMPLE_ACCESSIONS) and all(
         x.get("daily_index_matches_bulk_identity") is True
         for x in accession_results if x.get("daily_index_ledger")
     )
     status = (
         "ALL_18_HEADERS_AND_DAILY_INDEX_SIGHTINGS_RECONCILED"
-        if all_headers and all_index and index_parse_errors == 0
+        if all_headers and all_index and index_identity_pass and index_parse_errors == 0
         else "PARTIAL_HEADER_OR_DAILY_INDEX_RECONCILIATION"
         if header_pass or index_pass
         else "NO_SAMPLE_RECONCILIATION"
