@@ -1,0 +1,74 @@
+name: Phase 294 SEC Form 4 bulk archive sample acquisition
+
+on:
+  push:
+    branches:
+      - phase294-sec-form4-bulk-sample-acquisition
+    paths:
+      - research/phase294_sec_form4_bulk_sample_acquisition.py
+      - research/test_phase294_sec_form4_bulk_sample_acquisition.py
+      - .github/workflows/phase294_sec_form4_bulk_sample_acquisition.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase294-sec-form4-bulk-sample-acquisition
+  cancel-in-progress: false
+
+jobs:
+  acquire-and-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Compile Phase 294
+        run: python -m py_compile research/phase294_sec_form4_bulk_sample_acquisition.py research/test_phase294_sec_form4_bulk_sample_acquisition.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase294_sec_form4_bulk_sample_acquisition
+      - name: Download six SEC archives and inspect raw schemas
+        env:
+          SEC_CONTACT_EMAIL: ${{ secrets.SEC_CONTACT_EMAIL }}
+        run: python -m research.phase294_sec_form4_bulk_sample_acquisition --output-dir phase294_output
+      - name: Enforce secret, raw-byte and frozen-baseline controls
+        run: |
+          python - <<'PY'
+          import json, sys
+          p = "phase294_output/phase294_form4_bulk_sample_audit.json"
+          r = json.load(open(p, encoding="utf-8"))
+          if r.get("email_secret_present") is not True:
+              sys.exit("SEC_CONTACT_EMAIL was not injected; no raw request should be treated as successful")
+          if r.get("archives_downloaded") != 6:
+              sys.exit("Expected all six stratified SEC archives; inspect the audit artifact")
+          if r.get("archive_bytes_sha256_verified") is not True:
+              sys.exit("Raw archive SHA-256 verification incomplete")
+          for key in ("strict_pit_admitted", "first_public_receipt_verified",
+                      "acceptance_time_reconciled", "multi_owner_transaction_attribution_verified",
+                      "effective_dated_security_class_identity_verified", "broad_universe_coverage_verified",
+                      "alpha_test_authorized", "return_test_run", "bootstrap_loo_run", "holdout_used",
+                      "production_changed", "universe_changed", "capital_changed", "parameters_changed"):
+              if r.get(key) is not False:
+                  sys.exit("Research control unexpectedly opened: " + key)
+          if r.get("f80_frozen") is not True:
+              sys.exit("F80 frozen control failed")
+          print("PHASE294_STATUS=" + str(r.get("status")))
+          for item in r.get("archive_results", []):
+              print("ARCHIVE=" + str(item.get("quarter")) +
+                    " STATUS=" + str(item.get("status")) +
+                    " BYTES=" + str(item.get("zip_bytes")) +
+                    " SHA256=" + str(item.get("zip_sha256")) +
+                    " FORM4_ROWS=" + str(item.get("form4_and_4a_rows")) +
+                    " AFF10B5ONE=" + str(item.get("submission_aff10b5one_present")))
+          PY
+      - name: Upload raw public archives and audit manifest
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase294-sec-form4-bulk-sample-acquisition
+          path: phase294_output/
+          retention-days: 90
+          if-no-files-found: error
