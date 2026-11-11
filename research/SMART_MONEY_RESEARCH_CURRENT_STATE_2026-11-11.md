@@ -160,3 +160,17 @@ Source priority remains: (1) Form 4 bulk + daily-index real-data sample; (2) N-P
 - The repository state records `SEC_CONTACT_EMAIL` as not configured; no secret was inspected or changed and no SEC request was made.
 
 No raw data, return test, bootstrap/LOO, OOS result or holdout use occurred. F80, production, universe, capital and parameters remain unchanged. The legacy holdout remains consumed and unavailable for reuse.
+
+
+## Phase 290 — N-PORT / FINRA output reconciliation (2026-11-11)
+
+- Inspected the actual Phase 27O run 39493106882 and artifact 12296499022 (SHA-256 `c8207cd99b5bc80be730db89da62ced1298a18af0330b11335e41864fca4478b`). All eight snapshots have blank `balance_units`, zero tickers with positive shares, and all seven transitions have `n_ranked=0` with no forward returns. This confirms the Phase 247 `UNITS` versus official flattened `UNIT` defect in the real historical output. Quarantine Phase 27N/27O; this is not evidence for or against long accumulation alpha.
+- The Phase 27O/27K scripts hard-code `research@example.com` in the SEC User-Agent. Phase 27O logs confirm that eight SEC archives were downloaded historically. Do not reuse that placeholder. No new SEC request was sent; automated SEC retrieval remains blocked until an actual authorized contact is configured in `SEC_CONTACT_EMAIL`.
+- Reconciled Phase 20C run 40098425254 / artifact 12562171831 (SHA-256 `c15f75340bdedfbb37c82f79bb563a450dd1da11989d09e18bb745d93b7d3a5c`). All 1,382 XNYS sessions required by the run's signal lookback windows had FINRA CNMS files; the 638 HTTP 403 dates were weekends, XNYS closures or pre-source-start dates, not a 31.6% trading-session gap.
+- Phase 20C's 12 pseudo-OOS dates compare four blocked and four replacement names per date. Mean replacement-minus-blocked: +0.141% (5D), -1.686% (10D), -0.858% (20D); positive dates 5/12, 3/12 and 5/12. Factor/direction selection is unstable. All exploratory date-level 95% intervals cross zero; no costs or cluster bootstrap/LOO were included.
+- Phase 20C uses same-day FINRA data and starts forward returns at the same day's close without a verified first-public timestamp. Treat as not strict PIT; no promotion. Any revisit must enter no earlier than the next full XNYS session unless source receipt timing is proven.
+- Phase 278 remains context-only: 147,725 rows, 30 pages and two unresolved conflicting duplicate-grain groups; do not sum or select those groups.
+- Current Actions verification: latest 100 runs = 67 success, 33 cancelled, zero failed and zero active/queued. PR #14 remains open/mergeable with 23/23 checks successful; PR #13 remains open/mergeable with zero checks on its current SHA. Branch count was 138 before this Phase 290 branch; this documentation branch makes 139. No PR was opened or merged.
+- [Phase 290 report](PHASE290_NPORT_FINRA_OUTPUT_RECONCILIATION_2026-11-11.md).
+
+**Current decision:** Form 4 remains the first real-data priority after a valid SEC contact is configured; N-PORT direct-short remains a separate, unadmitted hypothesis; 13F remains parked; Phase 20C is not promoted pending next-session PIT correction and a stronger test. No holdout was used. F80, production, universe, capital and parameters remain unchanged.
