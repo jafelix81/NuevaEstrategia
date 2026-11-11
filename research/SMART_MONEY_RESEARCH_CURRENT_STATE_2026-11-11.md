@@ -195,3 +195,16 @@ A review found the Phase 291 predicate did not fully preserve the preregistered 
 
 - [Phase 292 report](PHASE292_NPORT_DIRECT_SHORT_CLASSIFIER_HARDENING_2026-11-11.md) on branch phase292-nport-short-classification-hardening.
 - No SEC requests, raw bytes, hashes, return tests, bootstrap/LOO or holdout use. F80, production, universe, capital and parameters remain unchanged.
+
+
+## GitHub Actions validation — completed 2026-11-11 18:05 UTC
+
+Dedicated run [43074329311](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43074329311) completed successfully on commit \`d20874ca28734d1d6ec05099eb51f877965b2e39\`. Job \`offline-classifier-audit\` passed compilation, all three test modules and the final no-alpha/data-control gate.
+
+- **26/26 tests passed**: 14 Phase 221 semantic tests, 3 Phase 291 public-filing controls and 9 Phase 292 hardening tests.
+- Public rendered-document positive controls: 3/3.
+- Negative controls: 5/5.
+- Artifact: [13880167054](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43074329311/artifacts/13880167054), SHA-256 \`321ef631c94d4a5a3b5909a07b7ddc1e497be2c2527ffc7a52a3aef9d5e6f3a2\`.
+- The artifact records raw XML bytes/hash, automated SEC requests, strict PIT admission, alpha, return tests, bootstrap/LOO, holdout use and all production changes as false; F80 remains frozen.
+
+The validation is offline and fixture-based. It does not establish raw XML parsing, bulk-history coverage, first-public timing, longitudinal fund/security identity or economic predictability.
