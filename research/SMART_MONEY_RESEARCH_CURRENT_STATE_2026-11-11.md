@@ -1,6 +1,6 @@
 # Smart Money Research — current state (2026-11-11 UTC)
 
-**Active research branch:** `phase297-form4-transaction-form-type-reconciliation`  
+**Active research branch:** `phase298-form4a-crossquarter-lineage-live-audit`  
 **PR chain:** #14 stacked on #13; both open and unmerged.  
 
 
@@ -319,3 +319,24 @@ This offline audit re-read the six raw ZIPs from Phase 294 artifact [13884014630
 - Branch inventory: **145** (100 branches on page 1, 45 on page 2) after creating this Phase 296 research-only branch. PR #14 remains open on head `6dedb088d7289ca5155a319b5f88155c2d431be3`; PR #13 remains open on head `61f737f18b410bc6d85b8c56ed96bc1fd9c130f5`. No PR was opened or merged for Phases 294–296.
 - Historical statements in Phases 281–293 that `SEC_CONTACT_EMAIL` was unconfigured were accurate at the time and are superseded by the successful Phase 294/295 secret-injection checks.
 - F80, production, universe, capital, parameters and the consumed legacy holdout remain unchanged. No paid data, vendor contact or data license was initiated.
+
+
+## Phase 298 — SEC Form 4/A cross-quarter lineage live audit (2026-11-11 21:14 UTC)
+
+- Resolved the previous adjacent-quarter SEC download blocker. The configured `SEC_CONTACT_EMAIL` secret was injected into Actions and used only in the SEC User-Agent; no email was sent.
+- Downloaded and CRC-checked 2026Q2 (50,545 Form 4/4-A accessions; 11,498,860 bytes; SHA-256 `11f1b2bbbdcbe6347a34437c02d04202fda0eca1dbb023726e4b56504b802e27`) and 2011Q4 (39,760 accessions; 8,958,649 bytes; SHA-256 `47f35cc68de7c43c7ab7dd86f00a8c9e5f5aa1f4bca0ea859b903d17f198e0b8`). The immutable Phase 294 endpoint ZIP hashes were also verified.
+- Existing Phase 153 cross-quarter candidate/line-diff regression suite passed 17/17. Hosted run [43101285104](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43101285104) succeeded; raw adjacent-quarter bytes and result are in artifact [13891901486](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43101285104/artifacts/13891901486), SHA-256 `f7c630b8e0cbabba5fd41f25fc09777fbed8fbaa49c309fc8003b14cb880ae0e`.
+- 2012Q1: 1,862 Form 4/A; unique heuristic parent candidates increased from 1,146 same-quarter to **1,355** with 2011Q4 included (72.7712%); 209 are adjacent-quarter candidates, 44 ambiguous and 463 have no candidate in the two-quarter window.
+- 2026Q3: 627 Form 4/A; unique heuristic parent candidates increased from 341 same-quarter to **518** with 2026Q2 included (82.6156%); 177 are adjacent-quarter candidates, 8 ambiguous and 101 have no candidate in the two-quarter window.
+- Immediate prior-quarter windows are complete for these two target quarters, but the search is not full-history: no-candidate cases may have originals filed earlier. Unique candidates remain heuristics, not authoritative parent accession links. Owner overlap is accession-level, not transaction-line attribution.
+- Candidate-only line-diff totals are documented in [Phase 298](PHASE298_FORM4A_CROSSQUARTER_LINEAGE_LIVE_AUDIT_2026-11-11.md). Same-coarse unmatched rows remain ambiguous; different-coarse rows are only candidate additions; parent rows not repeated are not classified as deletions.
+- The first Phase 298 attempt stopped before SEC requests because a locally authored checksum line had an invalid length. The digest was corrected; the final run verified all immutable inputs and passed. No SEC request was made in the failed attempt.
+- **Decision:** cross-quarter candidate coverage is materially improved, but Form 4/A event flow remains blocked pending stratified validation of candidate links and line-level changes against original EDGAR submission/XML. No returns, alpha, strict PIT, bootstrap/LOO, OOS or holdout test was run. F80, production, universe, capital and parameters remain unchanged.
+
+## Current repository verification — 2026-11-11 21:15 UTC
+
+- Latest 100 Actions runs: **65 successful, 10 failed, 25 cancelled, zero active/queued**. The final Phase 297 run [43094005689](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43094005689) and final Phase 298 run [43101285104](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43101285104) succeeded. Intermediate failures include the corrected Phase 297 artifact-token expression and the first Phase 298 checksum attempt.
+- Branch inventory: **147**. Phase 298 remains a research-only branch; no PR was opened or merged.
+- PR #14 remains open on head `6dedb088d7289ca5155a319b5f88155c2d431be3`; PR #13 remains open on head `61f737f18b410bc6d85b8c56ed96bc1fd9c130f5`. Neither was merged.
+- The SEC contact secret is verified operational in Actions. No inbox monitoring or email sending is part of this data workflow.
+- F80, production, universe, capital, parameters and the consumed legacy holdout remain unchanged.
