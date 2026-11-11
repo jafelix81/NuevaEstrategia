@@ -44,7 +44,7 @@ WORKFLOW_PATHS = (
 )
 
 def extract_action_refs(text: str) -> list[str]:
-    return re.findall(r"^[ \t]*(?:-[ \t]+)?uses:[ \t]*([^ \t#]+)", text, flags=re.MULTILINE)
+    return re.findall(r"^[ \t]*(?:-[ \t]+)?uses:[ \t]*([^ \t\r\n#]+)", text, flags=re.MULTILINE)
 
 def inspect_workflow(path: str, text: str) -> dict:
     refs = extract_action_refs(text)
