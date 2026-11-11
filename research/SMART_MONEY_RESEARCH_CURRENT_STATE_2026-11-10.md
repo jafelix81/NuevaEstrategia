@@ -317,3 +317,17 @@ No alpha/OOS result from Phase 253. No returns, bootstrap/LOO, chronological OOS
 - 2012Q1: one 3-accession/3-owner cluster, but AFF10B5ONE status is unknown; it is not part of the primary cohort.
 - The date-only next-session-close rule is a conservative execution bound, not full strict-PIT admission. Original accession bytes, first-receipt/vintage evidence, Form 4/A lineage, continuous quarterly coverage and delisted-security identity remain incomplete.
 - No forward returns, alpha, bootstrap/LOO, chronological OOS or holdout test. F80 remains frozen.
+
+
+## Phase 275 — Form 4 disclosure-event unit, owner-proxy and security-class audit (2026-11-10 UTC)
+- Reused the exact Phase 271 high-specificity candidate screen and immutable Phase 39 artifact (outer SHA-256 203d7b1d2e29c999da318456af72e621cb30ef9a470d8f1610d088f9bebecb66).
+- Corrected the primary event unit: one issuer CIK × date-only EDGAR FILING_DATE disclosure batch. The 11 same-trade-date multi-owner clusters from Phase 274 are nested descriptors, not 11 independent public information arrivals.
+- 2026Q3: 85 candidate rows collapse to 9 multi-owner disclosure events across 8 issuers, 20 unique accessions, 20 unique reporting-owner CIKs and 27 rows. Five events contain multiple transaction dates; four have at least one owner transacting on multiple dates. GPUS contributes two separate filing-date events.
+- The 9 event groups have no normalized security-title mismatch. Eight of nine have one normalized mailing address; this is an administrative/mailing proxy only and does not prove owner affiliation or beneficial-owner independence. Owner independence remains unproven.
+- 2012Q1 sensitivity: two multi-owner filing-date events, but AFF10B5ONE is unknown/pre-checkbox era; not pooled into the primary cohort.
+- The initial hosted attempt failed because the footnote-reference regex was double-escaped; corrected on code commit 6657d945c141f676987f4fea6ca64e8b65aa40f0. Final Phase 275 push run [42932708727](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42932708727) passed all 11 deterministic tests and event-unit assertions; metadata-only artifact [13817650936](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42932708727/artifacts/13817650936), 3,024 bytes, ZIP SHA-256 a0a7ddce232869ffc8e84071ff7e5499fcb4efe266d8c3223791e62f8125868b.
+- The corresponding PR check [42932714400](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42932714400) also passed. The complete 20-check PR regression wave on code commit 6657d945 completed 20/20 SUCCESS; no active/queued workflows remained.
+- No forward returns, alpha, bootstrap/LOO, chronological OOS or holdout test. Strict PIT remains unadmitted pending original accession acceptance/vintages, amendment lineage and continuous survivorship-aware coverage. No production, universe, capital or F80 change.
+- [Phase 275 report](PHASE275_FORM4_DISCLOSURE_EVENT_UNIT_AND_OWNER_CLASS_AUDIT_2026-11-10.md) · [auditor](phase275_form4_disclosure_event_unit_audit.py) · [tests](test_phase275_form4_disclosure_event_unit_audit.py) · [result](phase275_form4_disclosure_event_unit_audit_result.json) · [workflow](../.github/workflows/phase275_form4_disclosure_event_unit_audit.yml).
+
+**Phase 275 decision:** retain the multi-owner Form 4 purchase hypothesis only as a low-sample candidate. Use issuer CIK × FILING_DATE as the information-event unit; keep trade-date clusters nested and do not infer owner independence from CIK/address. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
