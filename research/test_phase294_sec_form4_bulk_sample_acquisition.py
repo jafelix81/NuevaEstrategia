@@ -51,7 +51,7 @@ def build_zip(*, duplicate_transaction=False, orphan_footnote=False, omit_footno
             [[("0000000001-26-000001" if orphan_footnote else ACCESSION), "1", "Open market purchase"]],
         ),
         "OWNER_SIGNATURE": (
-            ["ACCESSION_NUMBER", "OWNERSIGNATURENAME"],
+            ["ACCESSION_NUMBER", "OWNERSIGNATURENAME", "OWNERSIGNATUREDATE"],
             [[ACCESSION, "Example Owner", "2026-01-15"]],
         ),
     }
