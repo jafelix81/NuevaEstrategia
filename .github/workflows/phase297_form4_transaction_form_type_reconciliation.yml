@@ -1,0 +1,112 @@
+name: Phase 297 Form 4 transaction-form-type reconciliation
+
+on:
+  push:
+    branches:
+      - phase297-form4-transaction-form-type-reconciliation
+    paths:
+      - research/phase297_form4_transaction_form_type_reconciliation.py
+      - research/test_phase297_form4_transaction_form_type_reconciliation.py
+      - .github/workflows/phase297_form4_transaction_form_type_reconciliation.yml
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: phase297-form4-transaction-form-type-reconciliation
+  cancel-in-progress: false
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+
+      - name: Download immutable Phase 294 artifact
+        env:
+          GH_TOKEN: \${{ github.token }}
+        run: |
+          mkdir -p phase297_input
+          curl --fail --silent --show-error --location \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13884014630/zip \
+            -o phase297_input/phase294-sec-form4-bulk-sample.zip
+          unzip -q phase297_input/phase294-sec-form4-bulk-sample.zip -d phase297_input
+
+      - name: Compile Phase 297 and tests
+        run: |
+          python -m py_compile \
+            research/phase297_form4_transaction_form_type_reconciliation.py \
+            research/test_phase297_form4_transaction_form_type_reconciliation.py
+
+      - name: Run deterministic regression tests
+        run: python -m unittest -v research.test_phase297_form4_transaction_form_type_reconciliation
+
+      - name: Recompute six-quarter Form 4 reconciliation
+        run: |
+          python -m research.phase297_form4_transaction_form_type_reconciliation \
+            --artifact phase297_input/phase294-sec-form4-bulk-sample.zip \
+            --output phase297_output/phase297_form4_transaction_form_type_reconciliation_result.json
+
+      - name: Enforce corrected cohort and no-promotion controls
+        run: |
+          python - <<'PY'
+          import json
+          p = "phase297_output/phase297_form4_transaction_form_type_reconciliation_result.json"
+          r = json.load(open(p, encoding="utf-8"))
+          a = r["aggregate"]
+          assert a["form4_and_4a_accessions"] == 317267
+          assert a["single_owner_accessions"] == 310561
+          assert a["multiple_owner_accessions"] == 6706
+          assert a["no_owner_accessions"] == 0
+          assert a["phase296_original_conservative_rows"] == 15590
+          assert a["corrected_table_i_type4_conservative_rows"] == 15475
+          assert a["excluded_transaction_form_type_5_rows"] == 115
+          assert a["phase296_original_unique_accessions"] == 11088
+          assert a["corrected_unique_accessions"] == 10997
+          assert a["phase296_original_unique_issuer_ciks"] == 3243
+          assert a["corrected_unique_issuer_ciks"] == 3226
+          assert a["phase296_original_unique_owner_ciks"] == 6728
+          assert a["corrected_unique_owner_ciks"] == 6677
+          assert a["phase296_original_aff10b5one_status_counts"] == {"false": 6995, "true": 201, "unknown": 8394}
+          assert a["corrected_aff10b5one_status_counts"] == {"false": 6963, "true": 201, "unknown": 8311}
+          assert a["high_precision_rows_before_positive_price_share_gate"] == 413
+          assert a["positive_price_share_rows_after_all_high_precision_gates"] == 365
+          assert r["periods"]["2012Q1"]["high_precision_footnote_screen"]["high_precision_rows_before_positive_price_share_gate"] == 102
+          assert r["periods"]["2026Q3"]["high_precision_footnote_screen"]["high_precision_rows_before_positive_price_share_gate"] == 85
+          assert r["periods"]["2023Q1"]["high_precision_footnote_screen"]["aff10b5one_gate_applied_by_actual_filing_date"] is False
+          assert r["periods"]["2023Q2"]["high_precision_footnote_screen"]["aff10b5one_gate_applied_by_actual_filing_date"] is True
+          for period in r["periods"].values():
+              assert period["source_rows"]["missing_referenced_footnote_ids"] == 0
+              assert period["source_rows"]["duplicate_reporting_owner_rows"] == 0
+          d = r["decision"]
+          assert d["strict_pit_admitted"] is False
+          assert d["return_test_run"] is False and d["alpha_test_run"] is False
+          assert d["bootstrap_loo_run"] is False and d["holdout_used"] is False
+          assert d["f80_frozen"] is True
+          assert d["production_changed"] is False and d["universe_changed"] is False
+          assert d["capital_changed"] is False and d["sec_requests_made"] is False
+          print("PHASE297=PASS")
+          print("PHASE296_ROWS=15590 CORRECTED_TABLE_I_ROWS=15475 EXCLUDED_TYPE5=115")
+          print("HIGH_PRECISION_ROWS=413 POSITIVE_PRICE_SHARE=365")
+          print("STRICT_PIT=false ALPHA=false HOLDOUT=false F80_FROZEN=true")
+          PY
+
+      - name: Upload metadata-only reconciliation result
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase297-form4-transaction-form-type-reconciliation
+          path: phase297_output/phase297_form4_transaction_form_type_reconciliation_result.json
+          if-no-files-found: error
+          retention-days: 90
