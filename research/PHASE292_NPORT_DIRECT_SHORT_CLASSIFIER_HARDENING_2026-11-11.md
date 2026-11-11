@@ -59,3 +59,16 @@ Keep N-PORT direct short unadmitted. The classifier is now stricter and the publ
 - No alpha or return test, bootstrap/LOO, or holdout use occurred.
 - F80 remains frozen; production, universe, capital and parameters remain unchanged.
 - The consumed legacy holdout remains unavailable for reuse.
+
+
+## GitHub Actions validation — completed 2026-11-11 18:05 UTC
+
+Dedicated run [43074329311](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43074329311) completed successfully on commit \`d20874ca28734d1d6ec05099eb51f877965b2e39\`. Job \`offline-classifier-audit\` passed compilation, all three test modules and the final no-alpha/data-control gate.
+
+- **26/26 tests passed**: 14 Phase 221 semantic tests, 3 Phase 291 public-filing controls and 9 Phase 292 hardening tests.
+- Public rendered-document positive controls: 3/3.
+- Negative controls: 5/5.
+- Artifact: [13880167054](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43074329311/artifacts/13880167054), SHA-256 \`321ef631c94d4a5a3b5909a07b7ddc1e497be2c2527ffc7a52a3aef9d5e6f3a2\`.
+- The artifact records raw XML bytes/hash, automated SEC requests, strict PIT admission, alpha, return tests, bootstrap/LOO, holdout use and all production changes as false; F80 remains frozen.
+
+The validation is offline and fixture-based. It does not establish raw XML parsing, bulk-history coverage, first-public timing, longitudinal fund/security identity or economic predictability.
