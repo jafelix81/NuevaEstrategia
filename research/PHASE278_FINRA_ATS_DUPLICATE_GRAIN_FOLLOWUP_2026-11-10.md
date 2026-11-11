@@ -43,3 +43,35 @@ Strict PIT remains **not admitted** because current snapshots do not reconstruct
 - Tests: `research/test_phase278_finra_ats_duplicate_grain_followup.py`
 - Workflow: `.github/workflows/phase278_finra_ats_duplicate_grain_followup.yml`
 - Target partition: 2025-07-07 / T2
+
+
+## Hosted targeted retrieval result — completed 2026-11-11 UTC
+
+The final hosted re-fetch completed successfully:
+
+- Run: [42957193574](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42957193574)
+- Job: `130317000980`, `targeted-audit`, conclusion `success`
+- Tests: **20/20** deterministic tests passed.
+- Artifact: [13828171716](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42957193574/artifacts/13828171716)
+- Artifact ZIP SHA-256: `f899a5f7c50bcb811ad4996f3fdadb1d5d5ce1ead6f70bf5346b5c9de16f68d4`
+- Retrieval: **147,725 rows across 30 pages**; all 30 page hashes recorded; all offsets contiguous; FINRA `Record-Total` reconciled exactly. Pages 0–28 contained 5,000 rows each and page 29 contained 2,725.
+- Response format: all 30 pages were returned as `text/plain` CSV and passed the exact requested-field header check. The raw response bodies and full partition rows were not persisted.
+
+### Exact conflicting rows
+
+Both candidate-key conflicts are for symbol `BQ`, week `2025-07-07`, tier `T2`, product `CTS`. Each pair has the same `initialPublishedDate=2025-08-11` and `lastUpdateDate=2025-08-11`, but different `lastReportedDate` and different quantities:
+
+| Summary type | lastReportedDate | Shares | Trades |
+|---|---|---:|---:|
+| ATS_W_SMBL | 2025-07-11 | 134,042 | 3,592 |
+| ATS_W_SMBL | 2025-07-10 | 8,958 | 138 |
+| OTC_W_SMBL | 2025-07-11 | 1,413,022 | 13,792 |
+| OTC_W_SMBL | 2025-07-10 | 48,214 | 827 |
+
+The candidate key therefore has two conflicting groups, zero exact-duplicate groups. Adding `lastReportedDate` separates the two rows in each group, but that is only a mechanical diagnostic: the official documentation does not declare it a primary/natural key, a venue identifier, or a version identifier. No row was selected, summed, or deduplicated.
+
+### Official semantic cross-check
+
+FINRA's [Weekly Summary documentation](https://developer.finra.org/docs#query_api-equity-weekly_summary) describes weekly aggregate OTC/ATS data and states that `weeklySummaryHistoric` is a rolling historical dataset, with data older than one year static. Its [2019 API specification](https://www.finra.org/sites/default/files/OTC-Transparency-Data-File-Download-API-v04.pdf) defines `lastReportedDate` as the date a firm last sent an update to underlying data contributing to an aggregate; `lastUpdateDate` is the later of that date and the initial publication date. Those descriptions explain the field's provenance role but do not establish a unique row grain for the two symbol-summary conflicts.
+
+This closes the targeted transport/data-integrity question, not the source-admission question. The conflicts remain quarantined. Strict PIT is still not admitted because the current historical snapshot does not reconstruct immutable as-first-published values or our own first-receipt timestamps. FINRA ATS/OTC remains context-only; no feature or alpha test is authorized.
