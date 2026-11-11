@@ -72,3 +72,21 @@ The SEC's current PDS system page says PDS is a paid subscriber service and that
 ## Controls
 
 No returns, alpha, economic optimization, bootstrap/LOO or fresh independent OOS evidence has been produced by Phases 279–281. No holdout was used. No vendor was contacted, no data purchased, no terms accepted, no PR merged, no production/universe/capital/parameter changes, and no F80 change occurred. No CAGR target or minimum/maximum holding period is imposed.
+
+
+## Phase 283 — SEC daily-index parser contract (2026-11-11)
+
+Implemented an offline parser/ledger for the conditional Phase 281 SEC daily-index route. It validates Form 4/Form 4-A accession paths, CIK consistency, filing-date/index-date consistency, duplicate/conflicting rows, multi-date accession sightings and the next full XNYS session close using timezone-aware calendar inputs. Synthetic tests are wired into the existing PR workflow. No SEC requests or raw index downloads were made; live format/PAC validation, six-quarter joins, owner attribution and effective-dated security identity remain open. See research/PHASE283_SEC_DAILY_INDEX_PARSER_CONTRACT_2026-11-11.md.
+
+## GitHub verification correction — 2026-11-11 10:35 UTC
+
+- Latest 100 Actions runs: 97 successful, 3 cancelled, 0 failed and 0 queued/in-progress. The three cancellations were Phase 258, Phase 259 and Phase 260; no active run was duplicated.
+- PR #14 remains open/mergeable and stacked on PR #13. Before Phase 283 files are added, its head is 1f33ecb237521e4dda9101f1742862c2f18f2bb5; the 22 registered check-runs on that SHA all completed successfully.
+- PR #13 remains open/mergeable with zero check-runs registered on head 61f737f18b410bc6d85b8c56ed96bc1fd9c130f5.
+- Latest Phase 231 raw-row reparse run 42987915103 passed. Metadata-only artifact 13839449799, SHA-256 8127533c1d1fc1835cf6ef7718a2558b0fb6787fc1f8d6900af3e982ee86aa65.
+- Phase 279 passed 17/17 tests in run 42987914989; artifact 13840302271, SHA-256 13be9e426f464d15a3d2135148c5df87de9b2685e2390b19da5565a655938b4d.
+- Phase 278 passed 20/20 tests and reconciled 147,725 rows / 30 pages in run 42982870960; its two unresolved duplicate-grain conflict groups remain quarantined. Artifact 13838767377, SHA-256 22cfdeaed6616d487bf403d459a0778b5f5a86516c30656a1ea1bda5235179e8.
+- Phase 272 passed in run 42982871024; artifact 13838231849, SHA-256 459cea1eb615d83efb618310ff15d63a5fd655cddfe3df7b29934c31d566877d.
+- Branch inventory is 134 branches (100 on page 1, 34 on page 2). No PR was merged; F80, production, universe, capital and holdout remain unchanged.
+
+Phase 283 is an offline parser contract only. Do not describe parser tests as passing until the final PR workflow run is inspected.
