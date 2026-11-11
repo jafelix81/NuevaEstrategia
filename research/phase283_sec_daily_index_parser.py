@@ -97,7 +97,8 @@ def parse_daily_form_index(raw: bytes, index_filename: str) -> dict[str, Any]:
     if header_line is None or row_start is None:
         raise ValueError("expected SEC daily form-index header not found")
 
-    seen: dict[str, dict[str, Any]] = {}
+    seen: dict[tuple[str, ...], dict[str, Any]] = {}
+    accession_identity: dict[str, tuple[str, str]] = {}
     conflicts: set[str] = set()
     quarantine: list[dict[str, Any]] = []
     counts = {
@@ -199,23 +200,40 @@ def parse_daily_form_index(raw: bytes, index_filename: str) -> dict[str, Any]:
             "index_date_lag_days": index_lag_days,
             "filename": filing_path,
         }
-        existing = seen.get(accession)
-        if existing is None:
-            record["same_file_exact_duplicate_rows"] = 0
-            seen[accession] = record
-            continue
-        comparable = {k: v for k, v in existing.items() if k != "same_file_exact_duplicate_rows"}
-        if comparable == record:
-            existing["same_file_exact_duplicate_rows"] += 1
-            counts["exact_duplicate_rows"] += 1
-        else:
+        accession_key = (form_type, filing_date.isoformat())
+        previous_identity = accession_identity.get(accession)
+        if previous_identity is not None and previous_identity != accession_key:
             conflicts.add(accession)
             counts["conflicting_duplicate_accessions"] += 1
             quarantine.append({"line_number": line_number, "accession": accession,
-                               "reason": "conflicting_duplicate_accession_within_index"})
+                               "reason": "conflicting_form_or_filing_date_for_accession"})
+            continue
+        accession_identity[accession] = accession_key
 
-    for accession in conflicts:
-        seen.pop(accession, None)
+        # A Form 4 accession can appear more than once in the same daily index:
+        # once under the issuer CIK and again under one or more reporting-owner
+        # CIKs. Keep each index entity; only collapse exact duplicate rows.
+        entity_key = (
+            accession, str(int(cik)), company_name, form_type,
+            filing_date.isoformat(), filing_path,
+        )
+        existing = seen.get(entity_key)
+        if existing is None:
+            record["same_file_exact_duplicate_rows"] = 0
+            seen[entity_key] = record
+        else:
+            existing["same_file_exact_duplicate_rows"] += 1
+            counts["exact_duplicate_rows"] += 1
+
+    for key in list(seen):
+        if key[0] in conflicts:
+            seen.pop(key, None)
+    entity_groups: dict[str, set[tuple[str, str, str]]] = defaultdict(set)
+    for record in seen.values():
+        entity_groups[record["accession"]].add(
+            (record["cik"], record["company_name"], record["filename"])
+        )
+    counts["multi_entity_accessions"] = sum(len(values) > 1 for values in entity_groups.values())
     return {
         "index_filename": Path(index_filename).name,
         "index_date": index_date.isoformat(),
@@ -227,14 +245,14 @@ def parse_daily_form_index(raw: bytes, index_filename: str) -> dict[str, Any]:
     }
 
 def build_accession_ledger(records: Iterable[dict[str, Any]]) -> dict[str, Any]:
-    """Collapse sightings to one accession while preserving all observed dates."""
+    """Collapse daily sightings while preserving issuer/owner index entities."""
     grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for record in records:
         grouped[str(record["accession"])].append(record)
 
     ledger: list[dict[str, Any]] = []
     quarantine: list[dict[str, Any]] = []
-    identity_fields = ("cik", "company_name", "form_type", "filing_date", "filename")
+    identity_fields = ("form_type", "filing_date")
     for accession in sorted(grouped):
         sightings = grouped[accession]
         identities = {
@@ -243,31 +261,38 @@ def build_accession_ledger(records: Iterable[dict[str, Any]]) -> dict[str, Any]:
         }
         if len(identities) != 1:
             quarantine.append({"accession": accession,
-                               "reason": "cross_index_identity_conflict",
+                               "reason": "cross_index_form_or_filing_date_conflict",
                                "sighting_count": len(sightings)})
             continue
         identity = sightings[0]
         dates = sorted({str(row["index_date"]) for row in sightings})
         filing_date = date.fromisoformat(str(identity["filing_date"]))
         lag_days = [(date.fromisoformat(value) - filing_date).days for value in dates]
+        entities = sorted({
+            (str(row.get("cik", "")), str(row.get("company_name", "")),
+             str(row.get("filename", "")))
+            for row in sightings
+        })
         ledger.append({
             "accession": accession,
-            "cik": identity["cik"],
-            "company_name": identity["company_name"],
             "form_type": identity["form_type"],
             "filing_date": identity["filing_date"],
-            "filename": identity["filename"],
             "first_daily_index_date": dates[0],
             "first_index_lag_days": lag_days[0],
             "max_index_lag_days": max(lag_days),
             "all_daily_index_dates": dates,
-            "index_sightings": len(sightings),
+            "index_sightings": len(dates),
+            "index_rows": len(sightings),
+            "index_entities": [
+                {"cik": cik, "company_name": company, "filename": filename}
+                for cik, company, filename in entities
+            ],
+            "index_entity_count": len(entities),
             "same_file_exact_duplicate_rows": sum(
                 int(row.get("same_file_exact_duplicate_rows", 0)) for row in sightings
             ),
         })
     return {"ledger": ledger, "quarantine": quarantine}
-
 
 def next_full_xnys_session_close(
     index_date: str, sessions: Sequence[dict[str, str]]
