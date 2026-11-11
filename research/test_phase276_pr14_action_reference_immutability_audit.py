@@ -63,10 +63,11 @@ class Phase276WorkflowAuditTests(unittest.TestCase):
         result = inspect_workflow(".github/workflows/test.yml", "permissions:\n  contents: read\n")
         self.assertIn("NO_ACTION_REFERENCES", result["errors"])
 
-    def test_phase277_and_phase278_are_in_audit_inventory(self):
+    def test_phase277_phase278_and_phase279_are_in_audit_inventory(self):
         self.assertIn(".github/workflows/phase277_finra_ats_stratified_coverage_audit.yml", WORKFLOW_PATHS)
         self.assertIn(".github/workflows/phase278_finra_ats_duplicate_grain_followup.yml", WORKFLOW_PATHS)
-        self.assertEqual(len(WORKFLOW_PATHS), 30)
+        self.assertIn(".github/workflows/phase279_sec_insider_bulk_history_gate.yml", WORKFLOW_PATHS)
+        self.assertEqual(len(WORKFLOW_PATHS), 31)
 
 if __name__ == "__main__":
     unittest.main()

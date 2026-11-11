@@ -4,7 +4,7 @@ from __future__ import annotations
 import argparse, json, re
 from pathlib import Path
 
-AUDIT_DATE = "2026-11-10"
+AUDIT_DATE = "2026-11-11"
 WRITE_WORKFLOW = ".github/workflows/phase234_cftc_bpr_prospective_capture.yml"
 EXPECTED_ACTIONS = {
     "actions/checkout": "11d5960a326750d5838078e36cf38b85af677262",
@@ -43,6 +43,7 @@ WORKFLOW_PATHS = (
     ".github/workflows/phase276_pr14_action_reference_immutability_audit.yml",
     ".github/workflows/phase277_finra_ats_stratified_coverage_audit.yml",
     ".github/workflows/phase278_finra_ats_duplicate_grain_followup.yml",
+    ".github/workflows/phase279_sec_insider_bulk_history_gate.yml",
 )
 
 def extract_action_refs(text: str) -> list[str]:

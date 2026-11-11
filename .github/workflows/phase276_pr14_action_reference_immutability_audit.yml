@@ -38,8 +38,8 @@ jobs:
           import json
           result = json.load(open("phase276_output/phase276_pr14_action_reference_audit.json", encoding="utf-8"))
           assert result["status"] == "PASS_ALL_PR14_WORKFLOW_ACTIONS_IMMUTABLY_PINNED_AND_WRITE_PATH_GUARDED"
-          assert result["workflow_count_audited"] == 30
-          assert result["action_refs_total"] == 100
+          assert result["workflow_count_audited"] == 31
+          assert result["action_refs_total"] == 103
           assert result["mutable_or_unverified_action_refs"] == 0
           assert result["workflows_missing_explicit_permissions"] == []
           assert result["pull_request_target_workflows"] == []
