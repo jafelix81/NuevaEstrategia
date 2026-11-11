@@ -1,0 +1,71 @@
+name: Phase 278 FINRA ATS duplicate-grain targeted follow-up
+
+on:
+  push:
+    branches: [phase231-cboe-option-quotes-full-row-reparse]
+    paths:
+      - "research/phase278_finra_ats_duplicate_grain_followup.py"
+      - "research/test_phase278_finra_ats_duplicate_grain_followup.py"
+      - ".github/workflows/phase278_finra_ats_duplicate_grain_followup.yml"
+  pull_request:
+    branches: [phase99-broad-pit-universe-charter]
+    paths:
+      - "research/phase278_finra_ats_duplicate_grain_followup.py"
+      - "research/test_phase278_finra_ats_duplicate_grain_followup.py"
+      - ".github/workflows/phase278_finra_ats_duplicate_grain_followup.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase278-finra-ats-duplicate-grain-followup
+  cancel-in-progress: false
+
+jobs:
+  targeted-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Install pinned requests dependency
+        run: python -m pip install requests==2.32.5
+      - name: Compile Phase 278 and Phase 100 dependency
+        run: python -m py_compile research/phase100_finra_ats_revalidation.py research/phase278_finra_ats_duplicate_grain_followup.py research/test_phase278_finra_ats_duplicate_grain_followup.py
+      - name: Run offline Phase 278 regression tests
+        run: python -m unittest -v research.test_phase278_finra_ats_duplicate_grain_followup
+      - name: Re-fetch and inspect only the 2025-07-07 T2 exception partition
+        run: python -u -m research.phase278_finra_ats_duplicate_grain_followup
+      - name: Upload conflict-only diagnostic and page hashes
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase278-finra-ats-duplicate-grain-followup
+          path: phase278_finra_ats_duplicate_grain_followup/
+          retention-days: 90
+          if-no-files-found: error
+      - name: Enforce retrieval and no-alpha controls
+        run: |
+          python - <<'PY'
+          import json, sys
+          p='phase278_finra_ats_duplicate_grain_followup/summary.json'
+          r=json.load(open(p, encoding='utf-8'))
+          d=r.get('duplicate_audit', {})
+          if r.get('retrieval', {}).get('api_record_total_reconciled') is not True:
+              sys.exit(1)
+          if r.get('retrieval', {}).get('page_hash_count') != r.get('retrieval', {}).get('page_count'):
+              sys.exit(2)
+          if r.get('pit', {}).get('strict_pit_admitted') is not False:
+              sys.exit(3)
+          if r.get('economic_interpretation', {}).get('alpha_test_authorized') is not False:
+              sys.exit(4)
+          if r.get('controls', {}).get('f80_frozen') is not True:
+              sys.exit(5)
+          if r.get('controls', {}).get('full_partition_rows_persisted') is not False:
+              sys.exit(6)
+          if d.get('conflicting_groups', 0) > d.get('candidate_key_group_count', 0):
+              sys.exit(7)
+          PY

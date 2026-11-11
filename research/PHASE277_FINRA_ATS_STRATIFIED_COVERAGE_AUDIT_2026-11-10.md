@@ -1,71 +1,77 @@
 # Phase 277 — FINRA ATS/off-exchange stratified multi-year coverage and row-integrity audit
 
 **Audit date:** 2026-11-10  
-**Status:** implementation and hosted retrieval pending  
-**Scope:** eight new quarterly-spaced historical weeks, both T1/T2 tiers; full synchronous pagination; response-page hashes; symbol-token, publication/revision and duplicate-grain diagnostics. No raw rows are persisted by the new artifact.
+**Status:** completed; hosted retrieval succeeded with two conflicting candidate-key groups.  
+**Hosted run:** [42947083397](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42947083397)  
+**Job:** 130282347652, conclusion `success`  
+**Artifact:** [13824782108](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42947083397/artifacts/13824782108)  
+**Artifact ZIP SHA-256:** `5e8cbf2d4d923ae655d648f01c9d71f223723484c5b177dc50ae70ea1ee3bb4f`
 
-## Research question
+## Research question and sample
 
-Do the Phase 264 FINRA Weekly Summary findings generalize beyond its five purposively selected weeks, or were the two missing-symbol rows and two conflicting LND aggregate-key groups isolated to those partitions?
-
-This is a source-feasibility and historical-coverage audit only. It does not infer beneficial-owner identity, aggressor direction, informed trading, or alpha.
-
-## Selection
-
-New weeks (all Monday week-starts, each distinct from Phase 264):
+The audit tested whether Phase 264's FINRA Weekly Summary findings generalize beyond five purposively selected weeks. Eight additional quarterly-spaced weeks were retrieved for both T1/T2 tiers:
 
 - 2022-04-04 and 2022-10-03
 - 2023-04-03 and 2023-10-02
 - 2024-04-01 and 2024-10-07
 - 2025-04-07 and 2025-07-07
 
-Both T1 and T2 are requested: 16 partitions. Together with Phase 264's five weeks, the stratified evidence spans 13 sampled weeks. It is not a continuous weekly panel, random sample, or broad-universe coverage census.
+All 16 requested partitions completed. The new sample contains **1,512,008 rows**, **172,073 symbol-level ATS/OTC aggregate rows**, and **310 response pages**. Every API Record-Total reconciled and every page hash was recorded and validated.
 
-## Retrieval contract
+This is a stratified sample, not a continuous weekly panel, random sample, or broad-universe coverage census.
 
-- Reuse Phase 100's synchronous pagination implementation, including response Record-Total, page-count/offset checks, bounded retry and per-page SHA-256.
-- No FINRA API token is supplied, matching the specific public synchronous path that succeeded in Phase 264. This does not establish entitlement for other FINRA products.
-- Every page must have a contiguous page number/offset, a stable partition Record-Total, a valid SHA-256 and exact requested week/tier.
-- All pages must reconcile to the partition total. No truncated first-page result is accepted.
-- Raw symbol rows are processed in memory only; the artifact stores counts, page hashes and aggregate metadata, not raw rows.
+## Results
 
-## Diagnostics
+| Diagnostic | New Phase 277 sample |
+|---|---:|
+| Partitions completed | 16/16 |
+| API Record-Total reconciliations | 16/16 |
+| Page hashes | 310/310 valid |
+| Symbol-bearing rows missing symbol | 0 |
+| Unknown summary types | 0 |
+| Invalid/negative quantity fields | 0 |
+| Initial publication date populated | 100% |
+| Rows with lastUpdateDate later than initialPublishedDate | 3,836 / 172,073 (2.2293%) |
+| Conflicting base candidate-key groups | 2 |
+| Exact duplicate groups | 0 |
 
-For each week/tier:
-- API record total versus retrieved rows and page count;
-- known/unknown summary types and missing symbols in symbol-bearing row types;
-- ATS/OTC unique symbol-token counts and their overlap;
-- missing/invalid/negative share and trade quantities;
-- initialPublishedDate, lastUpdateDate, lastReportedDate completeness and relative timing;
-- row-level current-snapshot revisions (lastUpdateDate > initialPublishedDate);
-- duplicate groups under the Phase 109 base candidate key and the mechanical lastReportedDate-extended sensitivity.
+Both conflicting groups occur in **2025-07-07 / T2**. Adding `lastReportedDate` to the Phase 277 candidate key mechanically separates both groups; the extended key has zero remaining duplicate groups in this partition. That is a sensitivity only: FINRA documentation has not established `lastReportedDate` as a natural or primary key. Phase 278 performs a targeted re-fetch and records the exact conflict rows without selecting, summing, or deduplicating them.
 
-The extended key is a diagnostic only. FINRA documentation does not declare lastReportedDate a natural or primary key. Conflicting rows are retained and quarantined; never sum, choose, or deduplicate them mechanically.
+The rows with a later `lastUpdateDate` are current-snapshot update indicators, not proof that each field value changed by that date. Revision rates vary materially by partition: for example, T1 was 10.6147% in 2022-04-04, 14.4756% in 2023-10-02, and 19.5531% in 2024-10-07. This reinforces that current historical snapshots cannot be treated as immutable first-published values.
 
-Phase 264's prior five-week sample is included only as a metadata-level comparator after verifying its artifact ZIP digest. Combined counts are descriptive and do not resolve the natural grain.
+Initial publication lag medians were 21 calendar days for T1 and 35 for T2. No sampled aggregate row was published earlier than the tier's minimum delay used by the audit.
 
-## PIT and economic limits
+## Combined Phase 264 + 277 evidence
 
-FINRA's historical endpoint is intended for older historical periods; the current historical snapshot exposes publication/update date fields but does not provide immutable values as first published or our own historical first-receipt log. A current revised value cannot be backdated to initialPublishedDate.
+Across 13 sampled weeks and both tiers:
 
-Even if this stratified sample passes row/pagination checks:
-- strict PIT remains **not admitted**;
-- ticker strings are not permanent security identifiers;
-- inactive/delisted/reused-symbol continuity remains unverified;
-- T1/T2 and ATS/OTC symbol counts are activity diagnostics, not coverage of the frozen 335-name list or a survivorship-free universe;
-- no return, alpha, bootstrap/LOO, chronological OOS or holdout test is authorized.
+- 2,480,147 total rows;
+- 280,517 symbol-level ATS/OTC aggregate rows;
+- 5,718 rows with `lastUpdateDate > initialPublishedDate` (2.0384%);
+- four conflicting base candidate-key groups: two LND groups in Phase 264's 2025-01-06/T2 partition and two additional groups in Phase 277's 2025-07-07/T2 partition;
+- the two missing-symbol exceptions from Phase 264's 2022-01-03/T2 partition remain unresolved; Phase 277 found none in its new sample.
 
-## Decision rule
+The combined sample does not establish a natural key or resolve the historical missing-symbol exceptions.
 
-Retain FINRA ATS/OTC as context-only unless all of the following can be resolved: symbol-bearing row integrity, natural aggregate grain, original publication/revision vintages, first-receipt evidence and effective-dated security identity. Do not create a generic Smart Money score from ATS/OTC activity.
+## PIT, identity and economic limits
 
-F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. The legacy holdout remains CONSUMED_NOT_PRISTINE and unused.
+Strict PIT remains **not admitted**. The current historical endpoint exposes `initialPublishedDate` and `lastUpdateDate`, but it does not reconstruct immutable as-first-published values or our own historical first-receipt archive. A current revised value must not be backdated to `initialPublishedDate`.
+
+Ticker strings are not permanent security identifiers. Inactive/delisted/reused-symbol continuity and broad-universe coverage remain unverified. T1/T2 and ATS/OTC symbol counts are activity diagnostics only, not coverage of the frozen 335-name list or a survivorship-free universe.
+
+No forward returns, alpha, bootstrap/LOO, chronological OOS or holdout test was run or authorized. FINRA ATS/OTC remains off-exchange activity/context only; no generic Smart Money score or stock-selection feature is admitted.
+
+## Decision
+
+Retain FINRA ATS/OTC as context-only. Keep all conflicting groups quarantined. Do not sum, select, or deduplicate rows using `lastReportedDate` without authoritative natural-grain semantics and original publication vintages. Resolve missing-symbol exceptions and point-in-time security identity before feature construction.
+
+`F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen. The legacy holdout remains `CONSUMED_NOT_PRISTINE` and unused. Production, universe, capital and vendor/licensing status are unchanged.
 
 ## Reproducibility
 
-- Code: research/phase277_finra_ats_stratified_coverage_audit.py
-- Tests: research/test_phase277_finra_ats_stratified_coverage_audit.py
-- Workflow: .github/workflows/phase277_finra_ats_stratified_coverage_audit.yml
-- Prior Phase 264 comparator: research/phase264_finra_ats_final_artifact_adjudication_result.json
+- Code: `research/phase277_finra_ats_stratified_coverage_audit.py`
+- Tests: `research/test_phase277_finra_ats_stratified_coverage_audit.py`
+- Workflow: `.github/workflows/phase277_finra_ats_stratified_coverage_audit.yml`
+- Prior Phase 264 comparator: `research/phase264_finra_ats_final_artifact_adjudication_result.json`
 - Official FINRA docs: https://developer.finra.org/docs
 - FINRA historical dataset introduction: https://developer.finra.org/news/q12021

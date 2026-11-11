@@ -6,8 +6,6 @@ on:
     paths:
       - "research/phase277_finra_ats_stratified_coverage_audit.py"
       - "research/test_phase277_finra_ats_stratified_coverage_audit.py"
-      - "research/PHASE277_FINRA_ATS_STRATIFIED_COVERAGE_AUDIT_2026-11-10.md"
-      - ".github/workflows/phase277_finra_ats_stratified_coverage_audit.yml"
   workflow_dispatch:
 
 permissions:

@@ -339,3 +339,18 @@ No alpha/OOS result from Phase 253. No returns, bootstrap/LOO, chronological OOS
 - Added a deterministic Phase 276 inventory and regression workflow covering 28 workflow files including itself. It rejects mutable/unreviewed action refs, missing explicit permissions, pull_request_target and any additional write-capable workflow.
 - Hosted validation completed: push run [42937883538](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42937883538) and PR check [42937891407](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42937891407) both passed 10/10 deterministic tests. The audit covered 28 workflows and 94 action refs; mutable/unverified refs=0, missing explicit permissions=0, pull_request_target=0, and the only write-capable workflow is the guarded Phase 234 CFTC capture workflow. Metadata-only artifact [13819496221](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42937883538/artifacts/13819496221), SHA-256 99fd2668941bc047d3f5ed0a3d75916fd0f28c6035d5f2694818545645e16a16.
 - No live CFTC capture, PR merge, data purchase, SEC request, vendor contact, return/alpha test, production/universe/capital change or holdout use. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## Phase 277 — FINRA ATS stratified multi-year coverage audit (2026-11-10)
+- Hosted run [42947083397](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42947083397) completed successfully; job 130282347652; artifact [13824782108](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42947083397/artifacts/13824782108), ZIP SHA-256 5e8cbf2d4d923ae655d648f01c9d71f223723484c5b177dc50ae70ea1ee3bb4f.
+- All 16 new T1/T2 partitions across eight quarterly-spaced weeks completed; 1,512,008 rows, 172,073 symbol-level aggregate rows and 310 pages. All Record-Total reconciliations and page hashes passed; zero missing symbol-bearing rows, unknown summary types or invalid/negative quantity fields in the new sample.
+- 3,836/172,073 symbol-level aggregate rows (2.2293%) have lastUpdateDate later than initialPublishedDate. Rates vary materially by partition, including 19.5531% for T1 2024-10-07. These are current-snapshot update indicators, not immutable first-published values.
+- Two conflicting base candidate-key groups were found in 2025-07-07/T2. Adding lastReportedDate mechanically splits both; it is not documented as a natural key. Phase 278 re-fetches this partition for exact conflict diagnostics.
+- Combined with Phase 264: 13 sampled weeks, 2,480,147 rows, 280,517 symbol aggregates, 5,718 later-update rows (2.0384%), four conflicting candidate-key groups, and the two unresolved missing-symbol exceptions from 2022-01-03/T2.
+- Stratified sample only, not continuous or random. Symbol tokens are not permanent security identifiers; delisted/reused-symbol continuity and broad-universe coverage remain unverified. Strict PIT and alpha are not admitted. FINRA ATS/OTC remains context-only.
+- [Phase 277 report](PHASE277_FINRA_ATS_STRATIFIED_COVERAGE_AUDIT_2026-11-10.md) · [code](phase277_finra_ats_stratified_coverage_audit.py) · [tests](test_phase277_finra_ats_stratified_coverage_audit.py).
+
+## Phase 278 — FINRA ATS duplicate-grain targeted follow-up (implementation)
+- Added a targeted re-fetch of the 2025-07-07/T2 partition to inspect the two Phase 277 conflicting candidate-key groups without persisting full partition rows or selecting/summing/deduplicating any row.
+- 13 deterministic tests passed locally. Hosted retrieval is pending.
+- No strict PIT admission, alpha/return test, bootstrap/LOO, OOS or holdout use. F80, production, universe and capital remain unchanged.
