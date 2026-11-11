@@ -208,3 +208,12 @@ Dedicated run [43074329311](https://github.com/jafelix81/NuevaEstrategia/actions
 - The artifact records raw XML bytes/hash, automated SEC requests, strict PIT admission, alpha, return tests, bootstrap/LOO, holdout use and all production changes as false; F80 remains frozen.
 
 The validation is offline and fixture-based. It does not establish raw XML parsing, bulk-history coverage, first-public timing, longitudinal fund/security identity or economic predictability.
+
+
+## Phase 293 — second-filer N-PORT public short controls (2026-11-11)
+
+The hardened Phase 292 classifier was replayed against 23 selected, line-referenced U.S. common-equity short rows from ACAP Strategic Fund (CIK 0001467631, accession 0001145549-25-033457, report date 2025-03-31), a second registrant independent of the three Cromwell rows in Phase 291. Expected combined positive controls: 26 rows across two registrants and two report periods; Phase 292 negative controls remain 5. This is still a manually selected fixture sample; the ACAP filing has no EDGAR series ID in the fixture, and neither filing has raw bytes/hashes or first-public receipt verification. No PIT or alpha admission.
+
+- [Phase 293 report](PHASE293_NPORT_SECOND_FILER_PUBLIC_POSITIVE_CONTROLS_2026-11-11.md) on branch phase293-nport-second-filer-public-positive-controls.
+- Dedicated offline workflow runs the Phase 221/291/292/293 tests and emits a metadata-only artifact.
+- No SEC requests, raw downloads, hashes, return tests, bootstrap/LOO or holdout use. F80, production, universe, capital and parameters remain unchanged.
