@@ -39,12 +39,14 @@ jobs:
               })
               try:
                   with urlopen(req, timeout=30) as response:
-                      body = response.read(2048)
+                      body = response.read(20000)
                       print("URL=" + url)
                       print("HTTP=" + str(response.status))
                       print("CONTENT_TYPE=" + str(response.headers.get("Content-Type", "")))
                       print("FINAL_HOST=" + str(response.geturl().split("/")[2]))
-                      print("BODY_PREFIX=" + repr(body[:500]))
+                      decoded = body.decode("latin-1", errors="replace")
+                      for i, line in enumerate(decoded.splitlines()[:24]):
+                          print("LINE_" + str(i) + "_LEN=" + str(len(line)) + "_TEXT=" + repr(line))
               except HTTPError as exc:
                   body = exc.read(500)
                   print("URL=" + url)
