@@ -242,3 +242,25 @@ The artifact confirms the sample is non-exhaustive; raw XML/submission bytes and
 - SEC automated retrieval remains gated on a real authorized \`SEC_CONTACT_EMAIL\`; no secret was inspected or changed in these phases.
 
 No raw SEC bytes, first-public receipt, broad-universe coverage, PIT panel, return test, bootstrap/LOO or alpha result was produced. F80, production, universe, capital, parameters and the consumed legacy holdout remain unchanged.
+
+
+## Phase 294 — SEC Insider Transactions bulk archive raw sample and schema audit (2026-11-11)
+
+- GitHub Actions successfully injected `SEC_CONTACT_EMAIL`; six sequential official SEC requests returned HTTP 200. The email value was not logged, stored or inspected.
+- Six stratified raw archives downloaded, CRC-checked and SHA-256 hashed: 2006Q1, 2012Q1, 2023Q1, 2023Q2, 2025Q3 and 2026Q3. Total 72,767,570 bytes. All eight tables were present and all six passed the required schema/core-key/accession checks.
+- Aggregate sample: 353,212 SUBMISSION rows; 308,940 Form 4 and 8,327 Form 4/A submissions (317,267 combined); 568,055 NONDERIV_TRANS rows; 377,553 REPORTINGOWNER rows; 766,389 FOOTNOTES rows.
+- SUBMISSION schema differs by era: AFF10B5ONE absent in 2006Q1/2012Q1, present in 2023Q1 onward in the sample. Missing pre-field values remain UNKNOWN.
+- SEC bulk FILING_DATE is `DD-MMM-YYYY`, not ISO; Phase 294 added explicit normalization. All 317,267 Form 4/4-A rows in the sample had valid accession and normalized date values.
+- OWNER_SIGNATURE's documented two-field key is not unique: 1,107 repeated key rows across the sample (1,055 exact repeated rows; 52 same accession/name with different signature dates). This is a non-core-table warning. Do not deduplicate it on accession+name alone.
+- 7,769 accessions in the sample have multiple REPORTINGOWNER rows. NONDERIV_TRANS lacks reporting-owner CIK; accession-only owner joins remain prohibited.
+- Run [43083625013](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43083625013): 11/11 offline tests passed; six archives retrieved and schema gate passed. Artifact [13884014630](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43083625013/artifacts/13884014630), 72,791,924 bytes, 90-day retention. Raw ZIPs remain in the Actions artifact, not the repository.
+- Report: [PHASE294_SEC_FORM4_BULK_ARCHIVE_RAW_SAMPLE_AND_SCHEMA_AUDIT_2026-11-11.md](PHASE294_SEC_FORM4_BULK_ARCHIVE_RAW_SAMPLE_AND_SCHEMA_AUDIT_2026-11-11.md) on branch `phase294-sec-form4-bulk-sample-acquisition`. No PR or merge was created.
+- This is a purposive six-quarter sample, not all 83 archives or universe coverage. Acceptance-time joins, first daily-index sighting, exact first-public receipt, multi-owner transaction attribution and effective-dated security identity remain open. No PIT panel, return test, alpha, bootstrap/LOO or holdout use occurred. F80 and production controls remain unchanged.
+
+**Next priority:** real-data Phase 283 daily-index reconciliation for a stratified Form 4 accession sample, plus SEC-HEADER acceptance-time validation. Preserve first observed index dates without backdating to FILING_DATE; do not treat the index date as exact first-public time.
+
+## Repository snapshot after Phase 294 (2026-11-11)
+
+- SEC_CONTACT_EMAIL is now verified operational for GitHub Actions by successful SEC HTTP 200 retrievals; its value remains secret and is not stored in repository files.
+- Phase 294 branch is documentation/acquisition-only. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen; production, universe, capital, parameters and the consumed legacy holdout are unchanged.
+- No data purchase, vendor contact, model test, alpha promotion, chronological OOS, bootstrap/LOO or holdout use.
