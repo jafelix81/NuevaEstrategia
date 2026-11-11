@@ -34,7 +34,8 @@
       "asset_cat_code": "EC",
       "issuer_cat_code": "CORP",
       "asset_cat_label": "Equity-common",
-      "issuer_cat_label": "Corporate"
+      "issuer_cat_label": "Corporate",
+      "investment_country": "US"
     },
     {
       "ticker": "CLX",
@@ -49,7 +50,8 @@
       "asset_cat_code": "EC",
       "issuer_cat_code": "CORP",
       "asset_cat_label": "Equity-common",
-      "issuer_cat_label": "Corporate"
+      "issuer_cat_label": "Corporate",
+      "investment_country": "US"
     },
     {
       "ticker": "CDW",
@@ -64,7 +66,8 @@
       "asset_cat_code": "EC",
       "issuer_cat_code": "CORP",
       "asset_cat_label": "Equity-common",
-      "issuer_cat_label": "Corporate"
+      "issuer_cat_label": "Corporate",
+      "investment_country": "US"
     }
   ],
   "controls": {
@@ -80,5 +83,8 @@
     "capital_changed": false,
     "parameters_changed": false,
     "f80_frozen": true
-  }
+  },
+  "source_evidence_mode": "MANUAL_TRANSCRIPTION_OF_SEC_EDGAR_RENDERED_PRIMARY_XML",
+  "raw_xml_bytes_downloaded": false,
+  "raw_xml_sha256_verified": false
 }
