@@ -305,6 +305,6 @@ This offline audit re-read the six raw ZIPs from Phase 294 artifact [13884014630
 ## Current repository verification — 2026-11-11 19:31 UTC
 
 - Latest 100 Actions runs: **67 successful, 8 failed, 25 cancelled, zero active/queued**. All eight failures were intermediate Phase 294/295 iterations; final Phase 294 run 43083625013 and final Phase 295 run 43087726733 succeeded. No workflow was duplicated while an earlier run was active.
-- Branch inventory: **144** before this Phase 296 branch; the Phase 296 branch is a research-only branch. PR #14 remains open on head `6dedb088d7289ca5155a319b5f88155c2d431be3`; PR #13 remains open on head `61f737f18b410bc6d85b8c56ed96bc1fd9c130f5`. No PR was opened or merged for Phases 294–296.
+- Branch inventory: **145** (100 branches on page 1, 45 on page 2) after creating this Phase 296 research-only branch. PR #14 remains open on head `6dedb088d7289ca5155a319b5f88155c2d431be3`; PR #13 remains open on head `61f737f18b410bc6d85b8c56ed96bc1fd9c130f5`. No PR was opened or merged for Phases 294–296.
 - Historical statements in Phases 281–293 that `SEC_CONTACT_EMAIL` was unconfigured were accurate at the time and are superseded by the successful Phase 294/295 secret-injection checks.
 - F80, production, universe, capital, parameters and the consumed legacy holdout remain unchanged. No paid data, vendor contact or data license was initiated.
