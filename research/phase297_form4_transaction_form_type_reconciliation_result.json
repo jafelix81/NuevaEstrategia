@@ -1,0 +1,120 @@
+{
+  "phase": 297,
+  "date": "2026-11-11",
+  "source": {
+    "phase294_workflow_run_id": 43083625013,
+    "phase294_artifact_id": 13884014630,
+    "outer_sha256": "8b256375a68ffc581134e3fb05dd96ca3a02f6acd47925a003aa3f4b3d1680f4",
+    "sample_quarters": [
+      "2006Q1",
+      "2012Q1",
+      "2023Q1",
+      "2023Q2",
+      "2025Q3",
+      "2026Q3"
+    ],
+    "sample_is_purposive_and_noncontinuous": true
+  },
+  "aggregate": {
+    "form4_and_4a_accessions": 317267,
+    "single_owner_accessions": 310561,
+    "multiple_owner_accessions": 6706,
+    "no_owner_accessions": 0,
+    "phase296_original_conservative_rows": 15590,
+    "corrected_table_i_type4_conservative_rows": 15475,
+    "excluded_transaction_form_type_5_rows": 115,
+    "phase296_original_unique_accessions": 11088,
+    "corrected_unique_accessions": 10997,
+    "excluded_type5_unique_accessions": 97,
+    "phase296_original_unique_issuer_ciks": 3243,
+    "corrected_unique_issuer_ciks": 3226,
+    "excluded_type5_unique_issuer_ciks": 42,
+    "phase296_original_unique_owner_ciks": 6728,
+    "corrected_unique_owner_ciks": 6677,
+    "excluded_type5_unique_owner_ciks": 70,
+    "phase296_original_aff10b5one_status_counts": {
+      "false": 6995,
+      "true": 201,
+      "unknown": 8394
+    },
+    "corrected_aff10b5one_status_counts": {
+      "false": 6963,
+      "true": 201,
+      "unknown": 8311
+    },
+    "broad_p_a_d_rows": 28663,
+    "broad_p_a_d_type4_rows": 28016,
+    "broad_p_a_d_type5_rows": 647,
+    "positive_price_share_rows_all_types": 27902,
+    "positive_price_share_rows_type4": 27286,
+    "positive_price_share_rows_type4_single_owner": 25381,
+    "explicit_open_market_high_precision_rows": 413,
+    "explicit_open_market_high_precision_positive_price_share_rows": 365,
+    "missing_footnote_references": 0,
+    "duplicate_reporting_owner_rows": 0
+  },
+  "periods": {
+    "2006Q1": {
+      "phase296_rows": 3893,
+      "corrected_type4_rows": 3843,
+      "excluded_type5_rows": 50,
+      "high_precision_rows": 10,
+      "high_precision_positive_price_share_rows": 10,
+      "aff_gate_applied": false
+    },
+    "2012Q1": {
+      "phase296_rows": 2655,
+      "corrected_type4_rows": 2636,
+      "excluded_type5_rows": 19,
+      "high_precision_rows": 102,
+      "high_precision_positive_price_share_rows": 54,
+      "aff_gate_applied": false
+    },
+    "2023Q1": {
+      "phase296_rows": 2171,
+      "corrected_type4_rows": 2157,
+      "excluded_type5_rows": 14,
+      "high_precision_rows": 59,
+      "high_precision_positive_price_share_rows": 59,
+      "aff_gate_applied": false
+    },
+    "2023Q2": {
+      "phase296_rows": 3171,
+      "corrected_type4_rows": 3154,
+      "excluded_type5_rows": 17,
+      "high_precision_rows": 92,
+      "high_precision_positive_price_share_rows": 92,
+      "aff_gate_applied": true
+    },
+    "2025Q3": {
+      "phase296_rows": 1869,
+      "corrected_type4_rows": 1862,
+      "excluded_type5_rows": 7,
+      "high_precision_rows": 65,
+      "high_precision_positive_price_share_rows": 65,
+      "aff_gate_applied": true
+    },
+    "2026Q3": {
+      "phase296_rows": 1831,
+      "corrected_type4_rows": 1823,
+      "excluded_type5_rows": 8,
+      "high_precision_rows": 85,
+      "high_precision_positive_price_share_rows": 85,
+      "aff_gate_applied": true
+    }
+  },
+  "controls": {
+    "strict_pit_admitted": false,
+    "return_test_run": false,
+    "alpha_test_run": false,
+    "bootstrap_loo_run": false,
+    "holdout_used": false,
+    "f80_frozen": true,
+    "production_changed": false,
+    "universe_changed": false,
+    "capital_changed": false,
+    "parameters_changed": false,
+    "data_purchase_or_vendor_contact": false,
+    "sec_requests_made": false
+  }
+}
