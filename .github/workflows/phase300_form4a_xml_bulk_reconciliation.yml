@@ -1,0 +1,130 @@
+name: Phase 300 SEC Form 4/A XML-to-bulk reconciliation
+
+on:
+  push:
+    branches:
+      - phase300-form4a-xml-bulk-reconciliation
+    paths:
+      - .github/workflows/phase300_form4a_xml_bulk_reconciliation.yml
+      - research/phase300_form4a_xml_bulk_reconciliation.py
+      - research/test_phase300_form4a_xml_bulk_reconciliation.py
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: phase300-form4a-xml-bulk-reconciliation
+  cancel-in-progress: false
+
+jobs:
+  offline-source-reconciliation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+
+      - name: Compile and run Phase 153, 299 and 300 regression tests
+        run: |
+          set -euo pipefail
+          python -m py_compile research/phase153_form4_crossquarter_parent_lineage.py
+          python -m py_compile research/phase299_form4a_edgar_validation.py
+          python -m py_compile research/phase300_form4a_xml_bulk_reconciliation.py
+          python -m unittest discover -s research -p 'test_phase153_*.py' -v
+          python -m unittest discover -s research -p 'test_phase299_*.py' -v
+          python -m unittest discover -s research -p 'test_phase300_*.py' -v
+
+      - name: Download immutable Phase 294, 298 and 299 artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p phase300_input/phase294 phase300_input/phase298 phase300_input/phase299 phase300_output
+          curl --fail --silent --show-error --location \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13884014630/zip \
+            -o phase300_input/phase294-artifact.zip
+          echo "8b256375a68ffc581134e3fb05dd96ca3a02f6acd47925a003aa3f4b3d1680f4  phase300_input/phase294-artifact.zip" | sha256sum --check
+          curl --fail --silent --show-error --location \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13891901486/zip \
+            -o phase300_input/phase298-artifact.zip
+          echo "f7c630b8e0cbabba5fd41f25fc09777fbed8fbaa49c309fc8003b14cb880ae0e  phase300_input/phase298-artifact.zip" | sha256sum --check
+          curl --fail --silent --show-error --location \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13898356586/zip \
+            -o phase300_input/phase299-artifact.zip
+          echo "3ab13a28882fa2fa4071608360751dbd0063ecc0bc7a92ed97a48efaab5f6e24  phase300_input/phase299-artifact.zip" | sha256sum --check
+          unzip -q phase300_input/phase294-artifact.zip -d phase300_input/phase294
+          unzip -q phase300_input/phase298-artifact.zip -d phase300_input/phase298
+          unzip -q phase300_input/phase299-artifact.zip -d phase300_input/phase299
+
+      - name: Reconcile preserved SEC XML against original bulk archive rows
+        run: |
+          set -euo pipefail
+          python research/phase300_form4a_xml_bulk_reconciliation.py \
+            --phase294-dir phase300_input/phase294 \
+            --phase298-dir phase300_input/phase298 \
+            --phase299-dir phase300_input/phase299 \
+            --output-dir phase300_output
+
+      - name: Enforce reconciliation counts and no-promotion controls
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path("phase300_output/phase300_validation_result.json")
+          if not p.exists():
+              raise SystemExit("Phase 300 result file missing")
+          r = json.loads(p.read_text(encoding="utf-8"))
+          s = r["summary"]
+          expected = {
+              "sample_pairs": 46,
+              "expected_documents": 90,
+              "raw_edgar_hashes_verified": 90,
+              "xml_parse_success": 90,
+              "header_xml_identity_pass": 90,
+              "both_table_row_counts_match": 90,
+              "full_2dp_transaction_multiset_match_documents": 80,
+              "core_2dp_transaction_multiset_match_documents": 88,
+              "footnote_or_timeliness_only_mismatch_documents": 8,
+              "core_transaction_mapping_exception_documents": 2,
+              "pairs_metadata_corroborated": 46,
+              "pairs_both_filings_full_2dp_match": 38,
+              "pairs_both_filings_core_2dp_match": 45,
+              "pairs_bulk_xml_core_line_diff_parity": 46
+          }
+          for key, value in expected.items():
+              assert s[key] == value, f"{key}: expected {value}, got {s[key]}"
+          assert r["controls"]["strict_pit_admitted"] is False
+          assert r["controls"]["alpha_test"] is False
+          assert r["controls"]["holdout_used"] is False
+          assert r["controls"]["f80_frozen"] is True
+          print("PHASE300_STATUS=" + r["status"])
+          print(json.dumps(s, indent=2))
+          print("STRICT_PIT=false ALPHA=false HOLDOUT=false F80_FROZEN=true")
+          PY
+
+      - name: Upload offline reconciliation result
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase300-form4a-xml-bulk-reconciliation
+          path: |
+            phase300_output/phase300_validation_result.json
+            phase300_output/phase300_sample_manifest.json
+          if-no-files-found: warn
+          retention-days: 90
+          compression-level: 6
