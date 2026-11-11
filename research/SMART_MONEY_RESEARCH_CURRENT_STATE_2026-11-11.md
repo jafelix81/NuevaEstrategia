@@ -230,3 +230,15 @@ Dedicated run [43075250170](https://github.com/jafelix81/NuevaEstrategia/actions
 - Artifact: [13879983178](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43075250170/artifacts/13879983178), SHA-256 \`fdedf37b1d62674e114ae848e835f830feb39d700f3ca950b091955161b838f1\`.
 
 The artifact confirms the sample is non-exhaustive; raw XML/submission bytes and hashes, first-public receipt, longitudinal series identity, PIT admission, prevalence, alpha, return tests, bootstrap/LOO, holdout and production changes remain false. F80 remains frozen.
+
+
+## Repository snapshot after Phase 293 (2026-11-11)
+
+- Latest 100 Actions runs: 69 success, 31 cancelled, zero failed, zero queued/in-progress. No active workflow was duplicated.
+- Phase 292 run 43074329311: success; 26 tests; artifact 13880167054, SHA-256 \`321ef631c94d4a5a3b5909a07b7ddc1e497be2c2527ffc7a52a3aef9d5e6f3a2\`.
+- Phase 293 run 43075250170: success; 29 tests; 26 selected public positive rows across two registrants; five negative controls; artifact 13879983178, SHA-256 \`fdedf37b1d62674e114ae848e835f830feb39d700f3ca950b091955161b838f1\`.
+- Branch inventory: 142. Phase 293 head \`e12d7b8ff1ff2847a1a8e71296e599c562bf80bd\`.
+- PR #14 remains open on head \`6dedb088d7289ca5155a319b5f88155c2d431be3\` with 23/23 successful checks. PR #13 remains open on head \`61f737f18b410bc6d85b8c56ed96bc1fd9c130f5\` with zero checks on that SHA. No PR was opened or merged for Phases 291–293.
+- SEC automated retrieval remains gated on a real authorized \`SEC_CONTACT_EMAIL\`; no secret was inspected or changed in these phases.
+
+No raw SEC bytes, first-public receipt, broad-universe coverage, PIT panel, return test, bootstrap/LOO or alpha result was produced. F80, production, universe, capital, parameters and the consumed legacy holdout remain unchanged.
