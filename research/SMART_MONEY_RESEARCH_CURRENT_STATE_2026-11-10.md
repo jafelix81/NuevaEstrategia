@@ -1,6 +1,6 @@
-# Smart Money Research — current state (Phase 276, 2026-11-10 UTC)
+# Smart Money Research — current state (Phase 278, 2026-11-10 UTC)
 
-**Updated:** 2026-11-10 UTC (Phase 276)  
+**Updated:** 2026-11-10 UTC (Phase 278)  
 **Active branch:** phase231-cboe-option-quotes-full-row-reparse (PR #14, stacked on PR #13)  
 **Frozen baseline:** F80_TOP20_PARTIAL50_BASELINE_C20  
 **Legacy holdout:** CONSUMED_NOT_PRISTINE; never reused
@@ -350,13 +350,14 @@ No alpha/OOS result from Phase 253. No returns, bootstrap/LOO, chronological OOS
 - Stratified sample only, not continuous or random. Symbol tokens are not permanent security identifiers; delisted/reused-symbol continuity and broad-universe coverage remain unverified. Strict PIT and alpha are not admitted. FINRA ATS/OTC remains context-only.
 - [Phase 277 report](PHASE277_FINRA_ATS_STRATIFIED_COVERAGE_AUDIT_2026-11-10.md) · [code](phase277_finra_ats_stratified_coverage_audit.py) · [tests](test_phase277_finra_ats_stratified_coverage_audit.py).
 
-## Phase 278 — FINRA ATS duplicate-grain targeted follow-up (implementation)
-- Added a targeted re-fetch of the 2025-07-07/T2 partition to inspect the two Phase 277 conflicting candidate-key groups without persisting full partition rows or selecting/summing/deduplicating any row.
-- 13 deterministic tests passed locally. Hosted retrieval is pending.
+## Phase 278 — FINRA ATS duplicate-grain targeted follow-up (transport hardening)
+- Target partition is 2025-07-07/T2, the only Phase 277 partition with two conflicting base candidate-key groups. The first two hosted attempts failed in Phase 100's JSON decoder with `JSONDecodeError: Extra data` at character 23; no rows or artifact were produced, and the raw body was not retained.
+- Replaced the direct single-document JSON parse with a fail-closed stream decoder that accepts multiple valid JSON values but rejects arbitrary trailing content. Failure diagnostics record only response length/hash, status and headers, parser position and first/trailing character; raw body and full partition rows are never persisted.
+- 18 deterministic tests pass locally. Hosted re-fetch is pending.
 - No strict PIT admission, alpha/return test, bootstrap/LOO, OOS or holdout use. F80, production, universe and capital remain unchanged.
 
 
-## Phase 276 inventory follow-up — Phases 277/278 (pending)
-- Identified that the original Phase 276 hard-coded allowlist covered 28 PR #14 workflows / 94 action refs and did not yet include the subsequently added Phase 277 and Phase 278 read-only workflows.
-- Expanded the auditor and tests to include both workflows; expected inventory is 30 workflows / 100 action refs. Removed the Phase 276 report from its own path filter so the eventual report update does not trigger a redundant full audit.
-- Hosted revalidation is pending. No new write-capable workflow, permission escalation, PR merge, production/universe/capital change or F80 modification is intended.
+## Phase 276 inventory follow-up — Phases 277/278 (completed)
+- The original Phase 276 allowlist covered 28 workflows / 94 action references and omitted the subsequently added Phase 277/278 read-only workflows. Expanded the auditor and tests to 30 workflows / 100 action references.
+- Refreshed push run [42956415197](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42956415197) and PR check [42956424535](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42956424535) both passed 11/11 tests. Logs confirm 30 workflows, 100 action references, zero mutable/unverified references, no missing permissions, no pull_request_target workflows, and only the guarded CFTC capture workflow has contents:write. Artifact [13827705098](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42956415197/artifacts/13827705098).
+- No new write-capable workflow or permission escalation. No PR merge or production/universe/capital/F80 modification.
