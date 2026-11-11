@@ -93,13 +93,16 @@ def _fetch(url: str, user_agent: str) -> tuple[bytes, dict[str, str]]:
                 payload = response.read(MAX_FILE_BYTES + 1)
                 if len(payload) > MAX_FILE_BYTES:
                     raise RetrievalError("file_size_limit_exceeded")
+                final_host = urlparse(response.geturl()).netloc.lower()
+                if final_host != "www.sec.gov":
+                    raise RetrievalError("non_sec_redirect_rejected")
                 headers = {
                     "http_status": str(response.status),
                     "content_type": response.headers.get("Content-Type", ""),
                     "date": response.headers.get("Date", ""),
                     "last_modified": response.headers.get("Last-Modified", ""),
                     "content_length": response.headers.get("Content-Length", ""),
-                    "final_url_host": urlparse(response.geturl()).netloc,
+                    "final_url_host": final_host,
                 }
                 return payload, headers
         except HTTPError as exc:
@@ -184,6 +187,8 @@ def run_audit(email: str, output_dir: Path) -> dict[str, Any]:
             total_requests += 1
             payload, headers = _fetch(url, user_agent)
             total_bytes += len(payload)
+            if total_bytes > MAX_TOTAL_BYTES:
+                raise RetrievalError("total_download_size_limit_exceeded")
             parsed = parse_daily_form_index(payload, f"form.{date.fromisoformat(index_date):%Y%m%d}.idx")
             path = index_root / f"form.{date.fromisoformat(index_date):%Y%m%d}.idx"
             path.write_bytes(payload)
@@ -221,22 +226,33 @@ def run_audit(email: str, output_dir: Path) -> dict[str, Any]:
         result["daily_index_quarantine"] = ledger_result["quarantine"]
         if ledger:
             result["index_status"] = "FIRST_DAILY_INDEX_SIGHTING_OBSERVED"
+            index_row = ledger[0]
+            result["daily_index_matches_bulk_identity"] = (
+                index_row["form_type"] == sample["form"]
+                and index_row["filing_date"] == sample["filing_date"]
+                and index_row["cik"] == str(int(accession.split("-")[0]))
+            )
         else:
             result["index_status"] = "NO_MATCH_IN_FIVE_CALENDAR_DAY_WINDOW"
+            result["daily_index_matches_bulk_identity"] = False
         result["index_window_dates"] = sample_windows[accession]
 
         try:
             total_requests += 1
             payload, headers = _fetch(submission_url(accession), user_agent)
             total_bytes += len(payload)
+            if total_bytes > MAX_TOTAL_BYTES:
+                raise RetrievalError("total_download_size_limit_exceeded")
             header = parse_submission_header(payload, accession, sample["form"])
             expected_filed_date = sample["filing_date"].replace("-", "")
             filed_as_of = header.get("FILED AS OF DATE", "")
             header_date_matches = filed_as_of == expected_filed_date
+            acceptance_date_matches = header.get("acceptance_date_matches_filed_date") == "true"
+            header_ok = header_date_matches and acceptance_date_matches
             path = submission_root / f"{accession}.txt"
             path.write_bytes(payload)
             result.update({
-                "submission_status": "HEADER_RECONCILED" if header_date_matches else "FILED_DATE_MISMATCH",
+                "submission_status": "HEADER_RECONCILED" if header_ok else "FILED_OR_ACCEPTANCE_DATE_MISMATCH",
                 "submission_url": submission_url(accession),
                 "submission_raw_file": str(path.relative_to(output_dir)),
                 "submission_bytes": len(payload),
@@ -244,6 +260,7 @@ def run_audit(email: str, output_dir: Path) -> dict[str, Any]:
                 "submission_response_headers": headers,
                 "submission_header": header,
                 "bulk_filing_date_matches_header": header_date_matches,
+                "acceptance_date_matches_filed_date": acceptance_date_matches,
             })
         except (RetrievalError, ValueError) as exc:
             result.update({"submission_status": "RETRIEVAL_OR_HEADER_ERROR", "submission_error": str(exc)[:240]})
@@ -261,6 +278,10 @@ def run_audit(email: str, output_dir: Path) -> dict[str, Any]:
     downloaded_submission_files = sum(x.get("submission_raw_file") is not None for x in accession_results)
     all_headers = header_pass == len(SAMPLE_ACCESSIONS)
     all_index = index_pass == len(SAMPLE_ACCESSIONS)
+    index_identity_pass = all(
+        x.get("daily_index_matches_bulk_identity") is True
+        for x in accession_results if x.get("daily_index_ledger")
+    )
     status = (
         "ALL_18_HEADERS_AND_DAILY_INDEX_SIGHTINGS_RECONCILED"
         if all_headers and all_index and index_parse_errors == 0
@@ -276,9 +297,11 @@ def run_audit(email: str, output_dir: Path) -> dict[str, Any]:
         "email_secret_present": True,
         "sample_accessions": len(SAMPLE_ACCESSIONS),
         "acceptance_time_reconciled": all_headers,
+        "daily_index_identity_reconciled": index_identity_pass,
         "submission_headers_reconciled": header_pass,
         "first_daily_index_sighting_observed": index_pass > 0,
         "daily_index_sightings_reconciled": index_pass,
+        "daily_index_identity_matches": sum(x.get("daily_index_matches_bulk_identity") is True for x in accession_results),
         "index_files_expected": len(all_index_dates),
         "index_files_downloaded": downloaded_index_files,
         "index_parse_errors": index_parse_errors,
