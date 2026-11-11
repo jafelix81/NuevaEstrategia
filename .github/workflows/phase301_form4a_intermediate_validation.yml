@@ -1,0 +1,103 @@
+name: Phase 301 SEC Form 4/A intermediate-era lineage audit
+
+on:
+  push:
+    branches:
+      - phase301-form4a-intermediate-era-lineage-audit
+    paths:
+      - .github/workflows/phase301_form4a_intermediate_validation.yml
+      - research/phase301_form4a_intermediate_validation.py
+      - research/test_phase301_form4a_intermediate_validation.py
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: phase301-form4a-intermediate-era-lineage-audit
+  cancel-in-progress: false
+
+jobs:
+  intermediate-era-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      SEC_CONTACT_EMAIL: \${{ secrets.SEC_CONTACT_EMAIL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+
+      - name: Compile and run prior lineage regressions
+        run: |
+          set -euo pipefail
+          python -m py_compile research/phase299_form4a_edgar_validation.py
+          python -m py_compile research/phase300_form4a_xml_bulk_reconciliation.py
+          python -m py_compile research/phase301_form4a_intermediate_validation.py
+          python -m unittest discover -s research -p 'test_phase153_*.py' -v
+          python -m unittest discover -s research -p 'test_phase299_*.py' -v
+          python -m unittest discover -s research -p 'test_phase300_*.py' -v
+          python -m unittest discover -s research -p 'test_phase301_*.py' -v
+
+      - name: Download and verify immutable Phase 294 bulk archive artifact
+        env:
+          GH_TOKEN: \${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p phase301_input/phase294 phase301_output
+          curl --fail --silent --show-error --location \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13884014630/zip \
+            -o phase301_input/phase294-artifact.zip
+          echo "8b256375a68ffc581134e3fb05dd96ca3a02f6acd47925a003aa3f4b3d1680f4  phase301_input/phase294-artifact.zip" | sha256sum --check
+          unzip -q phase301_input/phase294-artifact.zip -d phase301_input/phase294
+
+      - name: Retrieve 2022Q4 archive and validate intermediate-era Form 4/A cases
+        env:
+          SEC_CONTACT_EMAIL: \${{ secrets.SEC_CONTACT_EMAIL }}
+        run: |
+          set -euo pipefail
+          test -n "$SEC_CONTACT_EMAIL"
+          python -u research/phase301_form4a_intermediate_validation.py \
+            --phase294-dir phase301_input/phase294 \
+            --output-dir phase301_output \
+            --contact-email "$SEC_CONTACT_EMAIL"
+
+      - name: Enforce identity and no-promotion controls
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path("phase301_output/phase301_validation_result.json")
+          if not p.exists():
+              raise SystemExit("Phase 301 result missing")
+          r = json.loads(p.read_text(encoding="utf-8"))
+          s = r["summary"]
+          assert r["status"] == "COMPLETED_INTERMEDIATE_ERA_XML_AUDIT", r["status"]
+          assert s["sample_documents"] == s["downloaded_documents"] == s["xml_parse_success"] == s["identity_pass"]
+          assert r["controls"]["strict_pit_admitted"] is False
+          assert r["controls"]["alpha_test"] is False
+          assert r["controls"]["holdout_used"] is False
+          assert r["controls"]["f80_frozen"] is True
+          print("PHASE301_STATUS=" + r["status"])
+          print(json.dumps(s, indent=2))
+          print("STRICT_PIT=false ALPHA=false HOLDOUT=false F80_FROZEN=true")
+          PY
+
+      - name: Upload immutable source and audit artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase301-form4a-intermediate-era-audit
+          path: phase301_output/
+          if-no-files-found: warn
+          retention-days: 90
+          compression-level: 6
