@@ -287,26 +287,28 @@ def run_audit(email: str, output_dir: Path) -> dict[str, Any]:
     for quarter, url in SAMPLE_ARCHIVES.items():
         item: dict[str, Any] = {"quarter": quarter, "url": url, "status": "PENDING"}
         try:
-            payload, headers = _fetch(url, user_agent)
             total_requests += 1
+            payload, headers = _fetch(url, user_agent)
             total_bytes += len(payload)
-            if total_bytes > MAX_TOTAL_BYTES:
-                raise RetrievalError("total_archive_size_limit_exceeded")
-            parsed = inspect_archive(payload, quarter)
             path = raw_dir / f"{quarter.lower()}_form345.zip"
             path.write_bytes(payload)
             item.update({
-                "status": "DOWNLOADED_AND_INSPECTED",
+                "status": "RAW_BYTES_DOWNLOADED",
                 "response_headers": headers,
                 "archive": str(path.relative_to(output_dir)),
-                **parsed,
+                "zip_bytes": len(payload),
+                "zip_sha256": hashlib.sha256(payload).hexdigest(),
             })
+            if total_bytes > MAX_TOTAL_BYTES:
+                raise RetrievalError("total_archive_size_limit_exceeded")
+            parsed = inspect_archive(payload, quarter)
+            item.update({"status": "DOWNLOADED_AND_INSPECTED", **parsed})
         except (RetrievalError, ValueError, zipfile.BadZipFile, csv.Error) as exc:
             item.update({"status": "RETRIEVAL_OR_SCHEMA_ERROR", "error_code": str(exc)[:240]})
         archives.append(item)
         time.sleep(0.5)
-    downloaded = [x for x in archives if x["status"] == "DOWNLOADED_AND_INSPECTED"]
-    schema_pass = [x for x in downloaded if x["schema_gate_pass"]]
+    downloaded = [x for x in archives if x.get("archive")]
+    schema_pass = [x for x in downloaded if x.get("schema_gate_pass") is True]
     all_downloaded = len(downloaded) == len(SAMPLE_ARCHIVES)
     all_schema_pass = all_downloaded and len(schema_pass) == len(SAMPLE_ARCHIVES)
     status = (
@@ -333,7 +335,7 @@ def run_audit(email: str, output_dir: Path) -> dict[str, Any]:
         "total_download_bytes": total_bytes,
         "archive_results": archives,
         "archive_sample_is_exhaustive": False,
-        "archive_bytes_sha256_verified": all_downloaded,
+        "archive_bytes_sha256_verified": all_downloaded and all(bool(x.get("zip_sha256")) for x in downloaded),
         "strict_pit_admitted": False,
         "first_public_receipt_verified": False,
         "acceptance_time_reconciled": False,
