@@ -1,8 +1,21 @@
 # Smart Money Research — current state (2026-11-11 UTC)
 
-**Active research branch:** `phase297-form4-transaction-form-type-reconciliation`  
+**Active research branch:** `phase300-form4a-xml-bulk-reconciliation`  
 **PR chain:** #14 stacked on #13; both open and unmerged.  
 
+
+## Latest verified research — Phase 300 (2026-11-11 22:59 UTC)
+
+- Phase 299 SEC source capture [run 43115460066](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43115460066) downloaded 90 unique original/amended EDGAR complete submissions for a stratified sample of 46 Form 4/A candidate pairs. All 90 raw files and SHA-256 hashes are preserved in artifact [13898356586](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43115460066/artifacts/13898356586). All 90 XML documents parsed and their header/XML accession, form, filing date, issuer CIK and reporting-owner sets matched the bulk archive.
+- Phase 300 offline XML-to-bulk reconciliation [run 43116245184](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43116245184) passed 6 new tests plus 6 Phase 299 and 17 Phase 153 regressions. Artifact [13898537038](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43116245184/artifacts/13898537038).
+- **46/46** sampled candidate links were corroborated by issuer identity, reporting-owner overlap, amendment XML dateOfOriginalSubmission matching the candidate parent's filing date, and parent-before-amendment acceptance chronology. This remains metadata corroboration, not an authoritative accession foreign key.
+- After normalizing dates to ISO and numeric values to the SEC bulk archive's two-decimal precision, 80/90 documents match the full transaction signature; 88/90 match core transaction fields after excluding only NATURE_OF_OWNERSHIP footnote association and TRANS_TIMELINESS metadata. All 90 Table I/II row counts match. Eight documents differ only in those footnote/timeliness fields (six NATURE_OF_OWNERSHIP, two TRANS_TIMELINESS).
+- Two documents, both sides of candidate pair P299-022 (accessions 0001474427-12-000001 and 0001474427-12-000002), have derivative-table field-placement discrepancies between bulk and XML. Quarantine those derivative rows; the pair is also multi-owner/partial-overlap, so transaction-to-individual-owner attribution is unresolved.
+- Pair-level: 45/46 pairs have both original and amendment filings matching on core transaction rows; 38/46 match full rows; core bulk/XML amendment-difference summaries agree for 46/46. The sample is purposive/stratified, not a prevalence estimate.
+- Phase 299's first 3/90 full-row comparison is superseded: it did not normalize bulk DD-MMM-YYYY dates to XML ISO dates or account for the bulk archive's two-decimal numeric precision. Phase 300 corrected this using the preserved raw XML; no raw data was overwritten.
+- No return/alpha/OOS/bootstrapping/LOO or holdout test. Strict PIT not admitted; acceptance chronology is not exact first-public availability. F80, production, universe, capital and parameters remain unchanged; no PR merged.
+
+**Next Form 4 gates:** expand XML validation to an intermediate era and ambiguous/no-candidate amendments; preserve footnote/timeliness fields; quarantine derivative mapping exceptions or use XML-first parsing; resolve effective-dated issuer/security identity and owner attribution; complete the Phase 281 daily-index knowledge clock before any signal test.
 
 ## Latest verified correction — Phase 297 (2026-11-11 20:11 UTC)
 
