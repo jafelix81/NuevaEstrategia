@@ -14,17 +14,23 @@ from typing import Any, Iterable, Sequence
 HEADER = ["CIK", "Company Name", "Form Type", "Date Filed", "Filename"]
 INDEX_NAME_RE = re.compile(r"(?:^|/)form\.(\d{8})\.idx$", re.IGNORECASE)
 FILING_PATH_RE = re.compile(
-    r"(?:^|/)edgar/data/(?P<path_cik>\d+)/(?P<accession>\d{18})\.txt$",
+    r"(?:^|/)edgar/data/(?P<path_cik>\d+)/(?P<accession>\d{10}-\d{2}-\d{6}|\d{18})\.txt$",
     re.IGNORECASE,
 )
 FULL_SESSION_SECONDS = 6 * 60 * 60 + 30 * 60
 
 
 def _iso_date(value: str) -> date:
+    raw = value.strip()
     try:
-        return date.fromisoformat(value.strip())
-    except ValueError as exc:
-        raise ValueError(f"invalid ISO date: {value!r}") from exc
+        return date.fromisoformat(raw)
+    except ValueError:
+        if re.fullmatch(r"\d{8}", raw):
+            try:
+                return datetime.strptime(raw, "%Y%m%d").date()
+            except ValueError:
+                pass
+        raise ValueError(f"invalid SEC date: {value!r}")
 
 
 def _aware_datetime(value: str) -> datetime:
@@ -41,30 +47,55 @@ def _accession_from_path(path: str) -> tuple[str, str] | None:
     match = FILING_PATH_RE.search(path.strip())
     if not match:
         return None
-    digits = match.group("accession")
+    digits = re.sub(r"\D", "", match.group("accession"))
+    if len(digits) != 18:
+        return None
     accession = f"{digits[:10]}-{digits[10:12]}-{digits[12:]}"
     return accession, match.group("path_cik")
 
 
 def parse_daily_form_index(raw: bytes, index_filename: str) -> dict[str, Any]:
-    """Parse Form 4/4-A rows; quarantine invalid rows without retaining raw text."""
+    """Parse SEC daily Form indexes in legacy fixed-width or pipe-delimited form."""
     name_match = INDEX_NAME_RE.search(index_filename.replace("\\", "/"))
     if not name_match:
         raise ValueError("index filename must be form.YYYYMMDD.idx")
     index_date = datetime.strptime(name_match.group(1), "%Y%m%d").date()
     try:
         decoded = raw.decode("utf-8-sig")
-    except UnicodeDecodeError as exc:
-        raise ValueError("daily index is not valid UTF-8/ASCII") from exc
+    except UnicodeDecodeError:
+        # Historical SEC indexes can contain issuer names outside UTF-8.
+        decoded = raw.decode("latin-1")
 
     lines = decoded.splitlines()
     header_line = None
+    row_start = None
+    format_kind = None
     for i, line in enumerate(lines):
-        if [part.strip() for part in line.split("|")] == HEADER:
+        pipe_header = [part.strip() for part in line.split("|")] == HEADER
+        if pipe_header:
             header_line = i
+            row_start = i + 1
+            format_kind = "pipe_delimited"
             break
-    if header_line is None:
-        raise ValueError("expected SEC pipe-delimited daily index header not found")
+        if (
+            "Form Type" in line
+            and "Company Name" in line
+            and "CIK" in line
+            and i + 1 < len(lines)
+            and "Date Filed" in lines[i + 1]
+            and "File Name" in lines[i + 1]
+        ):
+            header_line = i
+            format_kind = "legacy_fixed_width"
+            separator = next(
+                (j for j in range(i + 2, min(i + 6, len(lines)))
+                 if re.fullmatch(r"-{10,}", lines[j].strip())),
+                None,
+            )
+            row_start = separator + 1 if separator is not None else i + 2
+            break
+    if header_line is None or row_start is None:
+        raise ValueError("expected SEC daily form-index header not found")
 
     seen: dict[str, dict[str, Any]] = {}
     conflicts: set[str] = set()
@@ -78,25 +109,48 @@ def parse_daily_form_index(raw: bytes, index_filename: str) -> dict[str, Any]:
         "conflicting_duplicate_accessions": 0,
         "index_date_before_filing_date": 0,
         "index_date_after_filing_date": 0,
+        "issuer_cik_path_mismatches": 0,
     }
 
-    for line_number, line in enumerate(lines[header_line + 1 :], start=header_line + 2):
+    for line_number, line in enumerate(lines[row_start:], start=row_start + 1):
         if not line.strip() or set(line.strip()) == {"-"}:
             continue
         counts["rows_seen_after_header"] += 1
-        try:
-            row = next(csv.reader([line], delimiter="|", quotechar='"'))
-        except csv.Error:
-            counts["malformed_rows"] += 1
-            quarantine.append({"line_number": line_number, "reason": "csv_parse_error"})
-            continue
-        row = [field.strip() for field in row]
+        if format_kind == "pipe_delimited":
+            try:
+                row = next(csv.reader([line], delimiter="|", quotechar='"'))
+            except csv.Error:
+                counts["malformed_rows"] += 1
+                quarantine.append({"line_number": line_number, "reason": "csv_parse_error"})
+                continue
+            row = [field.strip() for field in row]
+        else:
+            match = re.match(
+                r"^(?P<form>\S+)\s{2,}(?P<company>.*?)\s{2,}"
+                r"(?P<cik>\d+)\s{2,}(?P<filed>\d{8}|\d{4}-\d{2}-\d{2})"
+                r"\s{2,}(?P<filename>\S+)\s*$",
+                line.rstrip(),
+            )
+            if match is None:
+                counts["malformed_rows"] += 1
+                quarantine.append({"line_number": line_number, "reason": "fixed_width_row_parse_error"})
+                continue
+            row = [
+                match.group("cik").strip(),
+                match.group("company").strip(),
+                match.group("form").strip(),
+                match.group("filed").strip(),
+                match.group("filename").strip(),
+            ]
         if len(row) != 5:
             counts["malformed_rows"] += 1
             quarantine.append({"line_number": line_number, "reason": "wrong_column_count"})
             continue
 
-        cik, company_name, form_type, filing_date_text, filing_path = row
+        if format_kind == "pipe_delimited":
+            cik, company_name, form_type, filing_date_text, filing_path = row
+        else:
+            cik, company_name, form_type, filing_date_text, filing_path = row
         form_type = form_type.upper()
         if form_type not in {"4", "4/A"}:
             counts["non_form4_rows_ignored"] += 1
@@ -121,13 +175,11 @@ def parse_daily_form_index(raw: bytes, index_filename: str) -> dict[str, Any]:
             continue
         accession, path_cik = path_identity
         if int(cik) != int(path_cik):
+            counts["issuer_cik_path_mismatches"] += 1
             quarantine.append({"line_number": line_number, "accession": accession,
                                "reason": "row_cik_path_cik_mismatch"})
             continue
-        if accession[:10] != str(int(cik)).zfill(10):
-            quarantine.append({"line_number": line_number, "accession": accession,
-                               "reason": "accession_cik_prefix_mismatch"})
-            continue
+
         index_lag_days = (index_date - filing_date).days
         if index_lag_days < 0:
             counts["index_date_before_filing_date"] += 1
@@ -167,12 +219,12 @@ def parse_daily_form_index(raw: bytes, index_filename: str) -> dict[str, Any]:
     return {
         "index_filename": Path(index_filename).name,
         "index_date": index_date.isoformat(),
+        "format": format_kind,
         "index_sha256": hashlib.sha256(raw).hexdigest(),
         "records": list(seen.values()),
         "quarantine": quarantine,
         "counts": counts,
     }
-
 
 def build_accession_ledger(records: Iterable[dict[str, Any]]) -> dict[str, Any]:
     """Collapse sightings to one accession while preserving all observed dates."""
