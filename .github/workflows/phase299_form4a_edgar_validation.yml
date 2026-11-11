@@ -1,0 +1,112 @@
+name: Phase 299 SEC Form 4/A original EDGAR submission validation
+
+on:
+  push:
+    branches:
+      - phase299-form4a-edgar-source-validation
+    paths:
+      - .github/workflows/phase299_form4a_edgar_validation.yml
+      - research/phase299_form4a_edgar_validation.py
+      - research/test_phase299_form4a_edgar_validation.py
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: phase299-form4a-edgar-source-validation
+  cancel-in-progress: false
+
+jobs:
+  edgar-source-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      SEC_CONTACT_EMAIL: ${{ secrets.SEC_CONTACT_EMAIL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+
+      - name: Compile and run Phase 153 and Phase 299 regression tests
+        run: |
+          set -euo pipefail
+          python -m py_compile research/phase153_form4_crossquarter_parent_lineage.py
+          python -m py_compile research/phase299_form4a_edgar_validation.py
+          python -m unittest discover -s research -p 'test_phase153_*.py' -v
+          python -m unittest discover -s research -p 'test_phase299_*.py' -v
+
+      - name: Download immutable Phase 294 and Phase 298 source artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p phase299_input/phase294 phase299_input/phase298 phase299_output
+          curl --fail --silent --show-error --location \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13884014630/zip \
+            -o phase299_input/phase294-artifact.zip
+          echo "8b256375a68ffc581134e3fb05dd96ca3a02f6acd47925a003aa3f4b3d1680f4  phase299_input/phase294-artifact.zip" | sha256sum --check
+          curl --fail --silent --show-error --location \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13891901486/zip \
+            -o phase299_input/phase298-artifact.zip
+          echo "f7c630b8e0cbabba5fd41f25fc09777fbed8fbaa49c309fc8003b14cb880ae0e  phase299_input/phase298-artifact.zip" | sha256sum --check
+          unzip -q phase299_input/phase294-artifact.zip -d phase299_input/phase294
+          unzip -q phase299_input/phase298-artifact.zip -d phase299_input/phase298
+
+      - name: Retrieve stratified original and amended EDGAR submissions
+        env:
+          SEC_CONTACT_EMAIL: ${{ secrets.SEC_CONTACT_EMAIL }}
+        run: |
+          set -euo pipefail
+          test -n "$SEC_CONTACT_EMAIL" || { echo "SEC_CONTACT_EMAIL was not injected"; exit 1; }
+          python research/phase299_form4a_edgar_validation.py \
+            --phase294-dir phase299_input/phase294 \
+            --phase298-dir phase299_input/phase298 \
+            --output-dir phase299_output \
+            --contact-email "$SEC_CONTACT_EMAIL"
+
+      - name: Enforce sample completeness and preserve no-promotion controls
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path("phase299_output/phase299_validation_result.json")
+          if not p.exists():
+              raise SystemExit("Phase 299 result file missing")
+          r = json.loads(p.read_text(encoding="utf-8"))
+          s = r["summary"]
+          assert r["controls"]["strict_pit_admitted"] is False
+          assert r["controls"]["alpha_test"] is False
+          assert r["controls"]["holdout_used"] is False
+          assert r["controls"]["f80_frozen"] is True
+          assert s["sample_pairs"] == 46
+          assert s["expected_documents"] == 90
+          assert s["partial_or_multi_owner_pairs"] >= 13
+          print("PHASE299_STATUS=" + r["status"])
+          print(json.dumps(s, indent=2))
+          print("STRICT_PIT=false ALPHA=false HOLDOUT=false F80_FROZEN=true")
+          PY
+
+      - name: Upload original SEC submissions and validation audit
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase299-form4a-edgar-source-validation
+          path: |
+            phase299_output/phase299_sample_manifest.json
+            phase299_output/phase299_validation_result.json
+            phase299_output/raw_edgar/*.txt
+          if-no-files-found: warn
+          retention-days: 90
+          compression-level: 6
