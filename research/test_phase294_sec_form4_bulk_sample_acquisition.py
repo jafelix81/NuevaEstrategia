@@ -11,12 +11,14 @@ from research.phase294_sec_form4_bulk_sample_acquisition import (
     run_audit,
     _fetch,
     RetrievalError,
+    normalize_filing_date,
 )
 
 ACCESSION = "0001234567-26-000001"
 
 
-def build_zip(*, duplicate_transaction=False, orphan_footnote=False, omit_footnotes=False):
+def build_zip(*, duplicate_transaction=False, orphan_footnote=False, omit_footnotes=False,
+              duplicate_signature=False, signature_date_collision=False):
     tables = {
         "SUBMISSION": (
             ["ACCESSION_NUMBER", "DOCUMENT_TYPE", "FILING_DATE", "ISSUERCIK",
@@ -55,6 +57,10 @@ def build_zip(*, duplicate_transaction=False, orphan_footnote=False, omit_footno
     }
     if duplicate_transaction:
         tables["NONDERIV_TRANS"][1].append(tables["NONDERIV_TRANS"][1][0][:])
+    if duplicate_signature:
+        tables["OWNER_SIGNATURE"][1].append(tables["OWNER_SIGNATURE"][1][0][:])
+    if signature_date_collision:
+        tables["OWNER_SIGNATURE"][1].append([ACCESSION, "Example Owner", "2026-01-16"])
     if omit_footnotes:
         tables.pop("FOOTNOTES")
     buf = io.BytesIO()
@@ -66,6 +72,12 @@ def build_zip(*, duplicate_transaction=False, orphan_footnote=False, omit_footno
 
 
 class Phase294Tests(unittest.TestCase):
+    def test_sec_bulk_date_formats_normalize_without_locale_guessing(self):
+        self.assertEqual(normalize_filing_date("31-MAR-2006"), "2006-03-31")
+        self.assertEqual(normalize_filing_date("2026-01-15"), "2026-01-15")
+        self.assertIsNone(normalize_filing_date("31-XYZ-2006"))
+        self.assertIsNone(normalize_filing_date("2026-02-30"))
+
     def test_six_stratified_archives_are_configured(self):
         self.assertEqual(list(SAMPLE_ARCHIVES), [
             "2006Q1", "2012Q1", "2023Q1", "2023Q2", "2025Q3", "2026Q3"
@@ -87,6 +99,21 @@ class Phase294Tests(unittest.TestCase):
         self.assertEqual(
             result["table_summaries"]["NONDERIV_TRANS"]["duplicate_primary_keys"], 1
         )
+
+    def test_owner_signature_exact_duplicate_is_reported_but_not_a_core_schema_failure(self):
+        result = inspect_archive(build_zip(duplicate_signature=True), "2026Q1")
+        diagnostic = result["owner_signature_key_diagnostics"]
+        self.assertEqual(diagnostic["duplicate_key_rows"], 1)
+        self.assertEqual(diagnostic["exact_duplicate_rows"], 1)
+        self.assertEqual(diagnostic["same_key_different_row_rows"], 0)
+        self.assertFalse(diagnostic["unique_key"])
+        self.assertTrue(result["schema_gate_pass"])
+
+    def test_owner_signature_same_name_different_date_is_not_unique(self):
+        result = inspect_archive(build_zip(signature_date_collision=True), "2026Q1")
+        diagnostic = result["owner_signature_key_diagnostics"]
+        self.assertEqual(diagnostic["same_key_different_row_rows"], 1)
+        self.assertFalse(diagnostic["unique_key"])
 
     def test_orphan_accession_fails_schema_gate(self):
         result = inspect_archive(build_zip(orphan_footnote=True), "2026Q1")
