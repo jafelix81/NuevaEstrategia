@@ -47,11 +47,17 @@ class Phase283DailyIndexTests(unittest.TestCase):
         self.assertEqual(result["records"], [])
         self.assertEqual(result["quarantine"][0]["reason"], "accession_cik_prefix_mismatch")
 
-    def test_filing_date_index_date_mismatch_is_quarantined(self):
+    def test_index_date_before_filing_date_is_quarantined(self):
         row = "320193|APPLE INC|4|2026-01-05|edgar/data/320193/000032019326000001.txt"
         result = self.parse(row)
         self.assertEqual(result["records"], [])
-        self.assertEqual(result["quarantine"][0]["reason"], "filing_date_index_date_mismatch")
+        self.assertEqual(result["quarantine"][0]["reason"], "index_date_precedes_filing_date")
+
+    def test_later_index_date_is_retained_as_lagged_observation(self):
+        result = self.parse(FORM4, "form.20260105.idx")
+        self.assertEqual(len(result["records"]), 1)
+        self.assertEqual(result["records"][0]["index_date_lag_days"], 3)
+        self.assertEqual(result["counts"]["index_date_after_filing_date"], 1)
 
     def test_unrecognized_accession_path_is_quarantined(self):
         row = "320193|APPLE INC|4|2026-01-02|edgar/data/320193/not-an-accession.txt"
@@ -81,14 +87,22 @@ class Phase283DailyIndexTests(unittest.TestCase):
 
     def test_ledger_keeps_all_sightings_and_uses_earliest_index_date(self):
         first = self.parse(FORM4, "form.20260102.idx")["records"][0]
-        later = dict(first, index_date="2026-01-05")
+        later = self.parse(FORM4, "form.20260105.idx")["records"][0]
         ledger = build_accession_ledger([later, first])
         self.assertEqual(len(ledger["ledger"]), 1)
         self.assertEqual(ledger["ledger"][0]["first_daily_index_date"], "2026-01-02")
+        self.assertEqual(ledger["ledger"][0]["first_index_lag_days"], 0)
+        self.assertEqual(ledger["ledger"][0]["max_index_lag_days"], 3)
         self.assertEqual(
             ledger["ledger"][0]["all_daily_index_dates"], ["2026-01-02", "2026-01-05"]
         )
         self.assertEqual(ledger["ledger"][0]["index_sightings"], 2)
+
+    def test_later_only_sighting_is_not_backdated_to_filing_date(self):
+        later = self.parse(FORM4, "form.20260105.idx")["records"][0]
+        ledger = build_accession_ledger([later])
+        self.assertEqual(ledger["ledger"][0]["first_daily_index_date"], "2026-01-05")
+        self.assertEqual(ledger["ledger"][0]["first_index_lag_days"], 3)
 
     def test_cross_index_identity_conflict_is_quarantined(self):
         first = self.parse(FORM4)["records"][0]
