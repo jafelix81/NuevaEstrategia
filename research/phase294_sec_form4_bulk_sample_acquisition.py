@@ -51,6 +51,31 @@ MAX_ARCHIVE_BYTES = 30 * 1024 * 1024
 MAX_TOTAL_BYTES = 120 * 1024 * 1024
 RETRIES = 4
 ACCESSION_RE = re.compile(r"^\d{10}-\d{2}-\d{6}$")
+MONTHS = {
+    "JAN": 1, "FEB": 2, "MAR": 3, "APR": 4, "MAY": 5, "JUN": 6,
+    "JUL": 7, "AUG": 8, "SEP": 9, "OCT": 10, "NOV": 11, "DEC": 12,
+}
+
+
+def normalize_filing_date(value: str) -> str | None:
+    """Normalize SEC bulk date values such as 31-MAR-2006 to ISO."""
+    raw = (value or "").strip()
+    if re.fullmatch(r"\d{4}-\d{2}-\d{2}", raw):
+        try:
+            return datetime.strptime(raw, "%Y-%m-%d").date().isoformat()
+        except ValueError:
+            return None
+    match = re.fullmatch(r"(\d{1,2})-([A-Za-z]{3})-(\d{4})", raw)
+    if not match:
+        return None
+    day, month_text, year = match.groups()
+    month = MONTHS.get(month_text.upper())
+    if month is None:
+        return None
+    try:
+        return datetime(int(year), month, int(day)).date().isoformat()
+    except ValueError:
+        return None
 
 
 class RetrievalError(RuntimeError):
@@ -123,7 +148,7 @@ def _inspect_table(zf: zipfile.ZipFile, info: zipfile.ZipInfo, table: str,
         "orphan_accession_rows": 0,
         "accession_count": 0,
     }
-    seen: set[tuple[str, ...]] = set()
+    seen: dict[tuple[str, ...], tuple[str, ...]] = {}
     accessions: set[str] = set()
     with zf.open(info, "r") as raw:
         text_stream = io.TextIOWrapper(raw, encoding="utf-8-sig", newline="")
@@ -146,13 +171,18 @@ def _inspect_table(zf: zipfile.ZipFile, info: zipfile.ZipInfo, table: str,
             if len(row) != len(header):
                 summary["malformed_rows"] = summary.get("malformed_rows", 0) + 1
                 continue
+            row_values = tuple(x.strip() for x in row)
             key = tuple(row[positions[k]].strip() if k in positions else "" for k in key_fields)
             if any(not x for x in key):
                 summary["missing_key_rows"] += 1
             elif key in seen:
                 summary["duplicate_primary_keys"] += 1
+                if seen[key] == row_values:
+                    summary["exact_duplicate_rows"] = summary.get("exact_duplicate_rows", 0) + 1
+                else:
+                    summary["same_key_different_row_rows"] = summary.get("same_key_different_row_rows", 0) + 1
             else:
-                seen.add(key)
+                seen[key] = row_values
             if "ACCESSION_NUMBER" in positions:
                 accession = row[positions["ACCESSION_NUMBER"]].strip()
                 if accession:
@@ -191,10 +221,13 @@ def inspect_archive(payload: bytes, quarter: str) -> dict[str, Any]:
                 if accession:
                     submission_accessions.add(accession)
                 form = (row.get("DOCUMENT_TYPE") or "").strip().upper()
+                raw_filing_date = (row.get("FILING_DATE") or "").strip()
+                normalized_filing_date = normalize_filing_date(raw_filing_date)
                 if form in {"4", "4/A"} and ACCESSION_RE.fullmatch(accession):
                     form4_candidates.append({
                         "accession": accession,
-                        "filing_date": (row.get("FILING_DATE") or "").strip(),
+                        "filing_date": normalized_filing_date,
+                        "filing_date_raw": raw_filing_date,
                         "document_type": form,
                         "issuer_cik": (row.get("ISSUERCIK") or "").strip(),
                         "issuer_ticker_as_filed": (row.get("ISSUERTRADINGSYMBOL") or "").strip(),
@@ -207,7 +240,7 @@ def inspect_archive(payload: bytes, quarter: str) -> dict[str, Any]:
                 continue
             table_summaries[table] = _inspect_table(zf, info, table, submission_accessions)
 
-        valid_form4 = [x for x in form4_candidates if re.fullmatch(r"\d{4}-\d{2}-\d{2}", x["filing_date"])]
+        valid_form4 = [x for x in form4_candidates if x["filing_date"]]
         valid_form4.sort(key=lambda x: (x["filing_date"], x["accession"]))
         if valid_form4:
             sample_indices = sorted(set((0, len(valid_form4) // 2, len(valid_form4) - 1)))
@@ -248,6 +281,13 @@ def inspect_archive(payload: bytes, quarter: str) -> dict[str, Any]:
             "valid_form4_and_4a_rows": len(valid_form4),
             "form4_accession_sample": form4_sample,
             "orphan_accession_rows": orphan_total,
+            "owner_signature_key_diagnostics": {
+                "documented_key": list(TABLE_KEYS["OWNER_SIGNATURE"]),
+                "duplicate_key_rows": table_summaries.get("OWNER_SIGNATURE", {}).get("duplicate_primary_keys", 0),
+                "exact_duplicate_rows": table_summaries.get("OWNER_SIGNATURE", {}).get("exact_duplicate_rows", 0),
+                "same_key_different_row_rows": table_summaries.get("OWNER_SIGNATURE", {}).get("same_key_different_row_rows", 0),
+                "unique_key": table_summaries.get("OWNER_SIGNATURE", {}).get("duplicate_primary_keys", 0) == 0,
+            },
             "schema_gate_pass": not schema_issues,
             "schema_issues": schema_issues,
         }
