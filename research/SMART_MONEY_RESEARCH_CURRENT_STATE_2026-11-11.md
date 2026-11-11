@@ -99,3 +99,29 @@ A code review found that the original parser required `Date Filed == form.YYYYMM
 The parser now quarantines only index dates before `Date Filed`, retains later index sightings with explicit lag days, and never backdates a later-only sighting to FILING_DATE. Synthetic tests cover the delayed sighting, multi-date aggregation and no-backdating rule. Raw SEC bytes, actual late-sighting frequency and PAC behavior remain unverified.
 
 This is a data-contract correction, not a new source or alpha result. SEC_CONTACT_EMAIL remains unconfigured; no SEC request was made. F80 and all production/holdout controls remain unchanged.
+
+
+## Phase 284 — SEC delayed-sighting correction (2026-11-11)
+
+The daily-index ledger now retains later index sightings of a Form 4 accession with explicit lag days and never backdates a later-only sighting to FILING_DATE. Synthetic regression suite passed 17/17 in run 43019575009; artifact 13855150143. Real SEC bytes/PAC behavior remain unverified. No SEC request was made.
+
+## Phase 285 — FIS SLD and UREF source admission (2026-11-11)
+
+Documented FIS Astec Securities Lending and Nasdaq UREF as candidates/controls, not admitted signals. Run 43030407555: 13/13 metadata-audit tests passed; artifact 13859064142. No data was purchased or downloaded.
+
+## Phase 286 — Nasdaq NOTO/NOP feasibility (2026-11-11)
+
+Documented NOTO EOD/intraday and NOP as options-flow candidates. Run 43031307177: 12/12 metadata-audit tests passed; artifact 13860368810. NOTO is one exchange only; participant classes are not beneficial-owner identities; intraday snapshots are cumulative. No data was purchased or downloaded.
+
+## Phase 287 — Nasdaq ISE/PHLX options and TotalView-ITCH/NOII feasibility (2026-11-11)
+
+Added research/PHASE287_NASDAQ_OPTIONS_TRADE_OUTLINE_AND_ITCH_NOII_FEASIBILITY_2026-11-11.md on branch phase287-nasdaq-options-and-itch-source-feasibility (documentation-only commit c4ace566a871c0b6b042da46ea46e3b1e761e09d). ISE Trade Outline EOD has history from Jan 2006 but the full-history ad-hoc cost is approximately $150,000 at current list rates; a first-time one-month EOD trial is documented. PHLX PHOTO history begins Jan 2009, with a free Jan-Jun 2014 sample formally documented but current retrieval path unverified. Nasdaq TotalView-ITCH/NOII offers high-resolution order/auction microstructure, but full SFTP access requires credentials, files are large, the public archive is sparse samples, and MPID attribution is partial. No raw sample was obtained, no subscription/contact/purchase was made, and no model test was run.
+
+## Current verification — 2026-11-11 14:24 UTC
+
+- PR #14 remains open/mergeable at head 6dedb088d7289ca5155a319b5f88155c2d431be3. Its 23 associated GitHub Actions runs are all completed successfully; no queued/in-progress run was found. The latest Phase 285 run completed 13/13 tests and its artifact 13859064142 is present and unexpired.
+- Phase 286 run 43031307177 completed successfully with one metadata-audit job and artifact 13860368810 present and unexpired.
+- PR #13 remains open/mergeable at head 61f737f18b410bc6d85b8c56ed96bc1fd9c130f5 with zero associated workflow runs/check-runs on that SHA.
+- Phase 287 branch exists; no PR was opened and no merge was performed.
+- SEC_CONTACT_EMAIL remains unconfigured; no SEC request was made. No Nasdaq trial, data purchase, or vendor contact was initiated.
+- No raw new source data, return test, alpha, bootstrap/LOO or independent OOS result has been produced by Phases 284–287. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen; production, universe, capital, parameters and holdout are unchanged. No CAGR target or holding-period constraint is imposed.
