@@ -1,16 +1,16 @@
 # Phase 301 — 2023Q2 Form 4/A intermediate-era lineage and XML source audit
 
 **Date:** 2026-11-11 UTC  
-**Branch:** \`phase301-form4a-intermediate-era-lineage-audit\`  
+**Branch:** `phase301-form4a-intermediate-era-lineage-audit`  
 **Final workflow:** [43121592821](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43121592821) — success  
-**Artifact:** [13901611120](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43121592821/artifacts/13901611120), 33,283,603 bytes, SHA-256 \`5840790fac1d411f95dad60737e68d9a6bc26d08380a7be9b8d1d18d74b51333\`  
+**Artifact:** [13901611120](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43121592821/artifacts/13901611120), 33,283,603 bytes, SHA-256 `5840790fac1d411f95dad60737e68d9a6bc26d08380a7be9b8d1d18d74b51333`  
 **Scope:** extend Phase 300 XML validation to the intermediate 2023Q2 cohort, include the 2022Q4 parent-search quarter, and deliberately sample ambiguous, no-owner-overlap and no-parent cases. No return or alpha test.
 
 ## Executive result
 
 The final run downloaded three official SEC Form 345 bulk archives directly from EDGAR, validated their ZIP CRCs and required tables, and reconciled 102 original EDGAR submission documents against the bulk rows.
 
-**All 102 documents downloaded, parsed, passed header/XML identity checks, and matched bulk/XML transaction-row counts. All 102 also matched the Phase 300 core transaction signature.** The broader signature matched 98/102 documents; the four exceptions are confined to \`NATURE_OF_OWNERSHIP\` and/or \`TRANS_TIMELINESS\`, not transaction economics or direction.
+**All 102 documents downloaded, parsed, passed header/XML identity checks, and matched bulk/XML transaction-row counts. All 102 also matched the Phase 300 core transaction signature.** The broader signature matched 98/102 documents; the four exceptions are confined to `NATURE_OF_OWNERSHIP` and/or `TRANS_TIMELINESS`, not transaction economics or direction.
 
 The target 2023Q2 population contains 937 Form 4/A accessions with a usable original-submission date and at least one reporting owner:
 
@@ -28,9 +28,9 @@ Adding 2022Q4 to the 2023Q1–Q2 window increased unique candidates from 697 to 
 
 | Quarter | Form 4 / 4-A accessions | Bytes | SHA-256 |
 |---|---:|---:|---|
-| 2022Q4 | 35,550 | 8,400,983 | \`6c6a909bd2eaaa0a24ccf5f0071b404670c115845d2939bc592bf3ce420dcdb9\` |
-| 2023Q1 | 63,844 | 13,882,049 | \`0b476188f52a0862e71886eb31a81f6345fc6616403b52188484aef0438cfcfb\` |
-| 2023Q2 | 51,791 | 10,742,628 | \`7e636787231ae0f00accf5c3627298402dedd1aefffd7c50fb48292e5d3a8fbb\` |
+| 2022Q4 | 35,550 | 8,400,983 | `6c6a909bd2eaaa0a24ccf5f0071b404670c115845d2939bc592bf3ce420dcdb9` |
+| 2023Q1 | 63,844 | 13,882,049 | `0b476188f52a0862e71886eb31a81f6345fc6616403b52188484aef0438cfcfb` |
+| 2023Q2 | 51,791 | 10,742,628 | `7e636787231ae0f00accf5c3627298402dedd1aefffd7c50fb48292e5d3a8fbb` |
 
 All three downloads returned HTTP 200 on the first attempt. The archives passed ZIP CRC and required-table checks. The 2023Q1 and 2023Q2 SHA-256 hashes match the immutable Phase 294 samples.
 
@@ -64,8 +64,8 @@ Two of the eight no-owner-overlap sample cases had 15 same-issuer/date candidate
 
 The four full-signature exceptions were inspected against the raw EDGAR XML and bulk TSV rows:
 
-- \`0000805676-23-000087\`: one Table I document; differences in \`NATURE_OF_OWNERSHIP\` and \`TRANS_TIMELINESS\`.
-- \`0001474506-23-000225\`, \`0001474506-23-000232\`, \`0001474506-23-000277\`: three Table II documents; differences in \`NATURE_OF_OWNERSHIP\` (including “See footnote” text).
+- `0000805676-23-000087`: one Table I document; differences in `NATURE_OF_OWNERSHIP` and `TRANS_TIMELINESS`.
+- `0001474506-23-000225`, `0001474506-23-000232`, `0001474506-23-000277`: three Table II documents; differences in `NATURE_OF_OWNERSHIP` (including “See footnote” text).
 
 The underlying transaction rows, including transaction dates, codes, shares, prices/values, acquired/disposed direction and derivative underlying fields, match the core signature. These metadata fields remain visible in the full comparison and are not silently normalized away.
 
@@ -84,15 +84,15 @@ The underlying transaction rows, including transaction dates, codes, shares, pri
 
 - Regression tests: 17 Phase 153 + 6 Phase 299 + 6 Phase 300 + 6 Phase 301 = **35 passing tests**.
 - First Phase 301 attempt [43121407654](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43121407654) stopped at the GitHub artifact-download endpoint with HTTP 401 before any SEC request. The final workflow was made self-contained by downloading the three SEC archives directly; final run 43121592821 succeeded.
-- \`SEC_CONTACT_EMAIL\` was injected only into the SEC User-Agent. No email was sent.
+- `SEC_CONTACT_EMAIL` was injected only into the SEC User-Agent. No email was sent.
 - The raw quarterly ZIPs, 102 raw EDGAR submissions, sample manifest and machine-readable result are preserved in artifact 13901611120 (90-day retention).
 - No alpha, forward-return, bootstrap/LOO, chronological OOS or holdout test was run. Strict PIT remains false.
-- \`F80_TOP20_PARTIAL50_BASELINE_C20\` remains frozen. Production, universe, capital, parameters and the consumed legacy holdout are unchanged.
+- `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen. Production, universe, capital, parameters and the consumed legacy holdout are unchanged.
 - No PR was opened or merged for Phase 301. PR #13 and PR #14 remain open.
 
 ## Reproducibility
 
-- Auditor: \`research/phase301_form4a_intermediate_validation.py\`
-- Tests: \`research/test_phase301_form4a_intermediate_validation.py\`
-- Workflow: \`.github/workflows/phase301_form4a_intermediate_validation.yml\`
+- Auditor: `research/phase301_form4a_intermediate_validation.py`
+- Tests: `research/test_phase301_form4a_intermediate_validation.py`
+- Workflow: `.github/workflows/phase301_form4a_intermediate_validation.yml`
 - Result and raw inputs: [Phase 301 artifact](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43121592821/artifacts/13901611120)
