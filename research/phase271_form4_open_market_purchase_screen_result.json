@@ -1,0 +1,95 @@
+{
+  "admission": {
+    "alpha": false,
+    "f80_frozen": true,
+    "holdout_used": false,
+    "production_changed": false,
+    "purchase_or_vendor_contact": false,
+    "return_test": false,
+    "strict_pit": false,
+    "universe_changed": false,
+    "universe_coverage": false
+  },
+  "date": "2026-11-10",
+  "method": {
+    "high_precision_screen": [
+      "transaction-row footnote explicitly says open market",
+      "no explicit private wording",
+      "no explicit 10b5-1/plan/ESPP wording",
+      "no explicit tax/withholding/exercise/grant/vesting/gift/automatic/option/award/compensation/employee/matching wording",
+      "direct ownership",
+      "exactly one reporting owner on accession",
+      "security title explicitly contains common stock or common shares",
+      "for post-2023-04-01 filings, AFF10B5ONE explicitly false"
+    ],
+    "limitations": [
+      "Text screen is deliberately high-precision/low-recall and requires manual semantic adjudication before any event use.",
+      "Absence of private/plan/mechanical wording does not prove a discretionary open-market trade.",
+      "AFF10B5ONE=false does not prove absence of a non-Rule-10b5-1 plan.",
+      "Pre-2023-04-01 AFF10B5ONE is unknown, never false.",
+      "FILING_DATE is date-only; this audit does not reconcile acceptance timestamps for every accession.",
+      "Only two endpoint quarters are sampled; no continuous history or frozen-universe coverage is measured."
+    ],
+    "population": "original Form 4 submissions, Table I NONDERIV_TRANS rows, TRANS_FORM_TYPE=4, code P, acquired/disposed=A"
+  },
+  "periods": {
+    "2012Q1": {
+      "aff_gate_required": false,
+      "aff_status_counts_across_nonderivative_transaction_rows": {
+        "unknown": 106815
+      },
+      "base_original_form4_table_i_purchase_rows": 6702,
+      "candidate_accessions": 47,
+      "candidate_issuer_ciks": 16,
+      "candidate_plan_status": "unknown_pre_checkbox_era",
+      "candidate_rows": 102,
+      "missing_referenced_footnote_ids_in_base_sample": 0,
+      "period": "2012Q1",
+      "waterfall": [
+        {"stage":"base","rows":6702,"unique_accessions":3830,"unique_issuer_ciks":1301},
+        {"stage":"explicit_open_market","rows":188,"unique_accessions":87,"unique_issuer_ciks":30},
+        {"stage":"no_private_disclosure","rows":186,"unique_accessions":86,"unique_issuer_ciks":29},
+        {"stage":"no_plan_disclosure","rows":160,"unique_accessions":75,"unique_issuer_ciks":25},
+        {"stage":"no_mechanical_disclosure","rows":160,"unique_accessions":75,"unique_issuer_ciks":25},
+        {"stage":"direct_ownership","rows":138,"unique_accessions":68,"unique_issuer_ciks":19},
+        {"stage":"single_reporting_owner","rows":109,"unique_accessions":54,"unique_issuer_ciks":18},
+        {"stage":"common_stock_title","rows":102,"unique_accessions":47,"unique_issuer_ciks":16}
+      ]
+    },
+    "2026Q3": {
+      "aff_gate_required": true,
+      "aff_status_counts_across_nonderivative_transaction_rows": {
+        "false": 41422,
+        "true": 18463
+      },
+      "base_original_form4_table_i_purchase_rows": 5007,
+      "candidate_accessions": 59,
+      "candidate_issuer_ciks": 31,
+      "candidate_plan_status": "known_false",
+      "candidate_rows": 85,
+      "missing_referenced_footnote_ids_in_base_sample": 0,
+      "period": "2026Q3",
+      "waterfall": [
+        {"stage":"base","rows":5007,"unique_accessions":3098,"unique_issuer_ciks":1078},
+        {"stage":"explicit_open_market","rows":224,"unique_accessions":129,"unique_issuer_ciks":56},
+        {"stage":"no_private_disclosure","rows":224,"unique_accessions":129,"unique_issuer_ciks":56},
+        {"stage":"no_plan_disclosure","rows":158,"unique_accessions":95,"unique_issuer_ciks":49},
+        {"stage":"no_mechanical_disclosure","rows":144,"unique_accessions":89,"unique_issuer_ciks":45},
+        {"stage":"direct_ownership","rows":109,"unique_accessions":74,"unique_issuer_ciks":36},
+        {"stage":"single_reporting_owner","rows":97,"unique_accessions":67,"unique_issuer_ciks":36},
+        {"stage":"common_stock_title","rows":85,"unique_accessions":59,"unique_issuer_ciks":31},
+        {"stage":"aff_gate","rows":85,"unique_accessions":59,"unique_issuer_ciks":31}
+      ]
+    }
+  },
+  "phase": 271,
+  "source_artifact": {
+    "artifact_id": 12781850078,
+    "inner_sha256": {
+      "2012q1_form345.zip": "0cac6f943813dae94c20ecc8bca63fda692e2b8ac6d02ce2c322ab411f45c357",
+      "2026q3_form345.zip": "a4e6a681cfcfa43a3d9e4ca9cfec1fd26a59d0a01eac7e9f7b5a0122092c90f3"
+    },
+    "outer_sha256": "203d7b1d2e29c999da318456af72e621cb30ef9a470d8f1610d088f9bebecb66",
+    "workflow_run_id": 40606706518
+  }
+}

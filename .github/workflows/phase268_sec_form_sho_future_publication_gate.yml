@@ -1,0 +1,52 @@
+name: Phase 268 SEC Form SHO future public-data and PIT gate
+
+on:
+  pull_request:
+    branches: [phase99-broad-pit-universe-charter]
+    paths:
+      - "research/phase268_sec_form_sho_future_publication_gate.py"
+      - "research/test_phase268_sec_form_sho_future_publication_gate.py"
+      - "research/PHASE268_SEC_FORM_SHO_FUTURE_PUBLICATION_AND_PIT_GATE_2026-11-10.md"
+      - ".github/workflows/phase268_sec_form_sho_future_publication_gate.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase268-sec-form-sho-future-publication-gate
+  cancel-in-progress: false
+
+jobs:
+  source-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Compile Phase 268
+        run: python -m py_compile research/phase268_sec_form_sho_future_publication_gate.py research/test_phase268_sec_form_sho_future_publication_gate.py
+      - name: Run deterministic source-gate tests
+        run: python -m unittest -v research.test_phase268_sec_form_sho_future_publication_gate
+      - name: Build deterministic source-gate artifact
+        run: python -m research.phase268_sec_form_sho_future_publication_gate --output phase268_output/phase268_sec_form_sho_future_publication_gate_result.json
+      - name: Enforce no-alpha and frozen-baseline controls
+        run: |
+          python - <<'PY'
+          import json
+          p = "phase268_output/phase268_sec_form_sho_future_publication_gate_result.json"
+          r = json.load(open(p, encoding="utf-8"))
+          assert r["research_decision"]["historical_alpha_admitted"] is False
+          assert r["research_decision"]["f80_frozen"] is True
+          assert r["research_decision"]["holdout_used"] is False
+          assert r["historical_pit"]["public_data_available_as_of_audit"] is False
+          print("PHASE268_STATUS=" + r["research_decision"]["classification"])
+          PY
+      - name: Upload metadata-only source-gate artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase268-sec-form-sho-future-publication-gate
+          path: phase268_output/phase268_sec_form_sho_future_publication_gate_result.json
+          if-no-files-found: error
+          retention-days: 90

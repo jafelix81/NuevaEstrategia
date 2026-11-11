@@ -1,0 +1,60 @@
+name: Phase 231 Cboe Option Quotes full raw-row reparse
+on:
+  pull_request:
+    branches: [phase99-broad-pit-universe-charter]
+    paths:
+      - "research/phase231_cboe_option_quotes_full_row_reparse.py"
+      - "research/test_phase231_cboe_option_quotes_full_row_reparse.py"
+      - "research/phase283_sec_daily_index_parser.py"
+      - "research/test_phase283_sec_daily_index_parser.py"
+      - "research/PHASE283_SEC_DAILY_INDEX_PARSER_CONTRACT_2026-11-11.md"
+      - "research/SMART_MONEY_RESEARCH_CURRENT_STATE_2026-11-11.md"
+      - ".github/workflows/phase231_cboe_option_quotes_full_row_reparse.yml"
+permissions:
+  contents: read
+concurrency:
+  group: phase231-cboe-option-quotes-full-row-reparse
+  cancel-in-progress: false
+jobs:
+  full-row-reparse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Compile Phase 231 and Phase 283
+        run: python -m py_compile research/phase231_cboe_option_quotes_full_row_reparse.py research/test_phase231_cboe_option_quotes_full_row_reparse.py research/phase283_sec_daily_index_parser.py research/test_phase283_sec_daily_index_parser.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase231_cboe_option_quotes_full_row_reparse
+      - name: Run Phase 283 SEC daily-index parser contract tests
+        run: python -m unittest -v research.test_phase283_sec_daily_index_parser
+      - name: Download and fully reparse public Cboe sample
+        run: python -m research.phase231_cboe_option_quotes_full_row_reparse --output phase231_output/phase231_cboe_option_quotes_full_row_reparse.json
+      - name: Upload metadata-only full-row audit artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase231-cboe-option-quotes-full-row-reparse
+          path: phase231_output/phase231_cboe_option_quotes_full_row_reparse.json
+          if-no-files-found: error
+          retention-days: 90
+      - name: Enforce complete diagnostic and immutable input without alpha admission
+        run: |
+          python - <<'PY'
+          import json, sys
+          p='phase231_output/phase231_cboe_option_quotes_full_row_reparse.json'
+          r=json.load(open(p, encoding='utf-8'))
+          print('PHASE231_STATUS='+str(r.get('overall_status')))
+          if r.get('download_status') != 'PASS':
+              sys.exit(1)
+          if not r.get('archive_integrity_match'):
+              sys.exit(2)
+          if not r.get('full_row_reparse_completed'):
+              sys.exit(3)
+          if not r.get('all_member_date_counter_reconciliation_pass'):
+              sys.exit(4)
+          if r.get('sample_admission') or r.get('pit_admission') or r.get('alpha_admission'):
+              sys.exit(5)
+          PY

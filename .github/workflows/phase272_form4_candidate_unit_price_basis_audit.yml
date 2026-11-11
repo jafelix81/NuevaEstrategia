@@ -1,0 +1,82 @@
+name: Phase 272 Form 4 candidate unit and price-basis audit
+
+on:
+  pull_request:
+    branches: [phase99-broad-pit-universe-charter]
+    paths:
+      - "research/phase272_form4_candidate_unit_price_basis_audit.py"
+      - "research/test_phase272_form4_candidate_unit_price_basis_audit.py"
+      - "research/phase272_form4_candidate_unit_price_basis_audit_result.json"
+      - ".github/workflows/phase272_form4_candidate_unit_price_basis_audit.yml"
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: phase272-form4-candidate-unit-price-basis-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Compile Phase 272 and tests
+        run: python -m py_compile research/phase272_form4_candidate_unit_price_basis_audit.py research/test_phase272_form4_candidate_unit_price_basis_audit.py
+      - name: Download immutable Phase 39 source artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p phase272_input
+          curl --fail --silent --show-error --location \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/12781850078/zip \
+            -o phase272_input/phase39-sec-form4-actual-file-audit.zip
+      - name: Run deterministic regression tests on hash-pinned source
+        env:
+          PHASE272_SOURCE_ARTIFACT: phase272_input/phase39-sec-form4-actual-file-audit.zip
+        run: python -m unittest -v research.test_phase272_form4_candidate_unit_price_basis_audit
+      - name: Recompute candidate unit and price-basis diagnostics
+        run: |
+          python -m research.phase272_form4_candidate_unit_price_basis_audit \
+            --artifact phase272_input/phase39-sec-form4-actual-file-audit.zip \
+            --output phase272_output/phase272_form4_candidate_unit_price_basis_audit_result.json
+          python - <<'PY'
+          import json
+          checked = json.load(open("research/phase272_form4_candidate_unit_price_basis_audit_result.json", encoding="utf-8"))
+          fresh = json.load(open("phase272_output/phase272_form4_candidate_unit_price_basis_audit_result.json", encoding="utf-8"))
+          assert checked["periods"]["2012Q1"]["candidate_transaction_rows"] == fresh["periods"]["2012Q1"]["candidate_transaction_rows"] == 102
+          assert checked["periods"]["2026Q3"]["candidate_transaction_rows"] == fresh["periods"]["2026Q3"]["candidate_transaction_rows"] == 85
+          assert checked["admission"] == fresh["admission"]
+          PY
+      - name: Enforce source counts and non-admission controls
+        run: |
+          python - <<'PY'
+          import json
+          p = "phase272_output/phase272_form4_candidate_unit_price_basis_audit_result.json"
+          r = json.load(open(p, encoding="utf-8"))
+          a = r["admission"]
+          assert r["periods"]["2012Q1"]["candidate_transaction_rows"] == 102
+          assert r["periods"]["2012Q1"]["reported_price_field_status_counts"]["reported_zero_price_unquantifiable"] == 48
+          assert r["periods"]["2012Q1"]["share_basis_restatement_rows"] == 31
+          assert r["periods"]["2026Q3"]["candidate_transaction_rows"] == 85
+          assert r["periods"]["2026Q3"]["descriptive_examples"]["2026_income_opportunity_realty"]["accessions"] == 1
+          assert a["strict_pit"] is False and a["alpha"] is False
+          assert a["holdout_used"] is False and a["f80_frozen"] is True
+          print("PHASE272_STATUS=ROW_COUNTS_NOT_INDEPENDENT_EVENTS_PRICE_BASIS_AND_OWNER_ROLE_GATES_REQUIRED")
+          PY
+      - name: Upload metadata-only result
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase272-form4-candidate-unit-price-basis-audit
+          path: phase272_output/phase272_form4_candidate_unit_price_basis_audit_result.json
+          if-no-files-found: error
+          retention-days: 90

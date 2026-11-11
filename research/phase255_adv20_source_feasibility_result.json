@@ -1,0 +1,98 @@
+{
+  "phase": 255,
+  "audit_date": "2026-11-10",
+  "status": "ADV20_FEATURE_CONTRACT_PASS_SOURCE_ACCESS_LICENSE_AND_HISTORICAL_VINTAGES_NOT_ADMITTED",
+  "source_decisions": {
+    "CRSP": {
+      "status": "PREFERRED_RESEARCH_BENCHMARK_IF_AUTHORIZED_ACCESS_EXISTS",
+      "coverage": "32000_plus_active_inactive_daily_monthly_corporate_actions",
+      "history_start": "1926_or_1965_by_dataset",
+      "identity": "PERMNO_PERMCO",
+      "pit_vintage": "not_verified",
+      "access": "subscription_not_verified"
+    },
+    "Massive": {
+      "status": "STRONG_API_CANDIDATE_LICENSE_AND_VINTAGE_BLOCKED",
+      "listed_bars_start": "2003-09-10",
+      "starter_history_years": 5,
+      "form144_panel_start": "2023-04-13",
+      "form144_panel_end": "2026-09-30",
+      "identity": "share_class_figi_when_present_else_CIK_plus_ticker_with_manual_review",
+      "permanent_id": false,
+      "effective_dated_reference_is_original_vintage": false,
+      "turnover": "VWAP_times_matching_basis_volume",
+      "missing_bar_zero_fill": false,
+      "individual_terms_permit_strategy": false,
+      "requires_separate_written_license": true
+    },
+    "Sharadar": {
+      "status": "STRONG_EOD_COVERAGE_PERSONAL_LICENSE_BLOCKED",
+      "history_start": "1997-12",
+      "active_and_delisted": true,
+      "split_adjusted_close_volume": true,
+      "reporting_lag": "under_1_day",
+      "immutable_first_receipt_vintage": false,
+      "personal_use_only": true,
+      "commercial_license_required": true
+    },
+    "Norgate": {
+      "status": "TRIAL_HISTORY_INSUFFICIENT",
+      "trial_history_years": 2,
+      "trial_includes_delisted": true,
+      "full_panel_start": "2023-04-13"
+    },
+    "Tiingo": {
+      "status": "DELISTED_COVERAGE_UNPROVEN",
+      "raw_and_adjusted_eod": true,
+      "corrections_through_evening": true
+    },
+    "Nasdaq_Data_Link_Bars": {
+      "status": "DELISTED_COVERAGE_AND_PIT_VINTAGE_UNPROVEN",
+      "history_years": "10_plus"
+    }
+  },
+  "feature_contract": {
+    "daily_dollar_volume": "VWAP_times_volume_same_basis",
+    "allowed_bases": [
+      "raw",
+      "split_adjusted"
+    ],
+    "rejected_bases": [
+      "mixed_basis",
+      "dividend_adjusted"
+    ],
+    "sessions": 20,
+    "event_day_included": false,
+    "missing_bar_imputed_zero": false,
+    "decimal_volume_preserved": true,
+    "proposed_notional_adv20_days_is_executed_sale": false
+  },
+  "validation": {
+    "tests_passed": 26,
+    "tests_total": 26,
+    "hosted_run_id": 42764720861,
+    "job_id": 129658390045,
+    "artifact_id": 13739416974,
+    "artifact_size_bytes": 421,
+    "artifact_sha256": "be975ca3108944ba6a65acafa28cc446bf8f37a81eddadfaba218ed2212b4a90",
+    "first_run_id": 42764563857,
+    "first_run_failure": "test_only_decimal_string_expectation_mismatch",
+    "final_run_id": 42764720861
+  },
+  "admission": {
+    "raw_vendor_data_acquired": false,
+    "vendor_license_admitted": false,
+    "historical_vendor_vintages_verified": false,
+    "security_master_coverage_measured": false,
+    "form144_adv20_panel_computed": false,
+    "raw_ixbrl_pilot_blocked_by_missing_sec_contact_email": true,
+    "alpha": false,
+    "returns_tested": false,
+    "bootstrap_loo_oos": false,
+    "holdout_used": false,
+    "f80_frozen": true,
+    "production_changed": false,
+    "universe_changed": false,
+    "capital_changed": false
+  }
+}

@@ -1,0 +1,41 @@
+name: Phase 266 CFTC capture workflow security contract
+
+on:
+  push:
+    branches: [phase231-cboe-option-quotes-full-row-reparse]
+    paths:
+      - ".github/workflows/phase234_cftc_bpr_prospective_capture.yml"
+      - ".github/workflows/phase240_cftc_pit_state_guard.yml"
+      - ".github/workflows/phase266_cftc_capture_workflow_security.yml"
+      - "research/test_phase266_cftc_capture_workflow_security.py"
+      - "research/PHASE266_CFTC_CAPTURE_WORKFLOW_SECURITY_AUDIT_2026-11-10.md"
+  pull_request:
+    branches: [phase99-broad-pit-universe-charter]
+    paths:
+      - ".github/workflows/phase234_cftc_bpr_prospective_capture.yml"
+      - ".github/workflows/phase240_cftc_pit_state_guard.yml"
+      - ".github/workflows/phase266_cftc_capture_workflow_security.yml"
+      - "research/test_phase266_cftc_capture_workflow_security.py"
+      - "research/PHASE266_CFTC_CAPTURE_WORKFLOW_SECURITY_AUDIT_2026-11-10.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase266-cftc-capture-workflow-security
+  cancel-in-progress: false
+
+jobs:
+  security-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Compile Phase 266 security contract
+        run: python -m py_compile research/test_phase266_cftc_capture_workflow_security.py
+      - name: Run Phase 266 security contract
+        run: python -m unittest -v research.test_phase266_cftc_capture_workflow_security

@@ -1,0 +1,73 @@
+{
+  "phase": 268,
+  "as_of_date": "2026-11-10",
+  "source": "SEC Exchange Act Rule 13f-2 / Form SHO",
+  "current_status": "TEMPORARY_EXEMPTION_THROUGH_2028-01-02",
+  "compliance_date": "2028-01-02",
+  "first_reporting_period": "2028-01",
+  "first_filing_deadline": "2028-02-14",
+  "initial_publication": {
+    "rule": "SEC planned to begin aggregated publication three months after the compliance date.",
+    "approximate_start": "2028-04",
+    "exact_first_publication_date_verified": false,
+    "regular_cadence": "Aggregated data expected within one calendar month after each reporting month-end."
+  },
+  "public_data": {
+    "aggregation_unit": "equity security",
+    "manager_identity_disclosed": false,
+    "gross_end_of_month_short_position": true,
+    "daily_net_position_activity_by_settlement_date": true,
+    "individual_manager_positions_public": false,
+    "manager_count_public": false,
+    "single_manager_inference_risk": "SEC notes rare cases may permit inference where only one manager contributes."
+  },
+  "reporting_thresholds": {
+    "reporting_company": {
+      "monthly_average_gross_short_usd_min": 10000000,
+      "or_monthly_average_gross_short_pct_shares_min": 2.5
+    },
+    "non_reporting_company": {
+      "gross_short_usd_min_on_any_settlement_date": 500000
+    },
+    "coverage_status": "THRESHOLD_CENSORED_NOT_UNIVERSE_COMPLETE"
+  },
+  "timeliness_and_quality": {
+    "manager_filing_deadline": "14 calendar days after each month-end",
+    "publication_lag": "approximately one month after reporting month-end",
+    "positions_may_be_closed_before_publication": true,
+    "sec_historical_form_sh_analysis_average_threshold_duration_days_after_month_end": 9.85,
+    "duration_statistic_is_historical_form_sh_context_not_a_form_sho_observation": true,
+    "edgar_validation_checks_technical_completeness_not_economic_accuracy": true,
+    "amendments_and_restated_filings_possible": true,
+    "rolling_publication_includes_prior_12_months_updated_for_amendments": true
+  },
+  "historical_pit": {
+    "public_data_available_as_of_audit": false,
+    "pre_2028_public_backfill": false,
+    "strict_historical_pit_admitted": false,
+    "prospective_first_receipt_capture_required": true
+  },
+  "related_rule_10c_1a": {
+    "reporting_compliance_date": "2028-09-28",
+    "public_dissemination_compliance_date": "2029-03-29",
+    "status": "SEPARATE_FUTURE_SECURITIES_LENDING_SOURCE"
+  },
+  "research_decision": {
+    "classification": "FUTURE_AGGREGATE_SHORT_SIDE_CANDIDATE_NOT_YET_AVAILABLE",
+    "smart_money_identity_claim": false,
+    "historical_alpha_admitted": false,
+    "backtest_performed": false,
+    "production_change": false,
+    "f80_frozen": true,
+    "holdout_used": false
+  },
+  "future_hypotheses": [
+    "Aggregate gross short crowding may add information about downside risk or squeeze vulnerability.",
+    "Daily net short-position activity may add information about subsequent volatility or returns after public receipt.",
+    "Incremental value must be tested against FINRA short interest, FINRA short volume, options features, and frozen LTM/F80."
+  ],
+  "source_urls": [
+    "https://www.sec.gov/files/rules/exorders/2025/34-104303.pdf",
+    "https://www.sec.gov/files/rules/final/2023/34-98738.pdf"
+  ]
+}

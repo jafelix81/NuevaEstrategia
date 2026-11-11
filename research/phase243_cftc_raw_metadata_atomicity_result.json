@@ -1,0 +1,55 @@
+{
+  "phase": 243,
+  "date": "2026-11-09",
+  "branch": "phase231-cboe-option-quotes-full-row-reparse",
+  "status": "IMPLEMENTED_HOSTED_VALIDATION_PASSED",
+  "root_cause": "Source steps use continue-on-error and a later shared commit persists raw files. A failure between raw and metadata writes can leave an orphan raw file that a later scheduled run might misclassify as a new PIT event.",
+  "changes": {
+    "bpr": [
+      "verify full raw SHA-256",
+      "raw-only orphan state-only",
+      "repair missing raw when matching metadata exists",
+      "fail closed on hash mismatch"
+    ],
+    "tff": [
+      "scan metadata across protocol versions for prior report dates",
+      "verify gzip payload SHA-256",
+      "raw-only orphan state-only",
+      "repair missing raw when matching metadata exists",
+      "fail closed on corruption/hash mismatch"
+    ]
+  },
+  "tests": {
+    "bpr": 19,
+    "tff": 34,
+    "total": 53,
+    "added": {
+      "bpr": 3,
+      "tff": 3
+    }
+  },
+  "hosted_validation": {
+    "verified": true,
+    "workflow_run_id": 42676258774,
+    "job_id": 129358311974,
+    "commit_sha": "d2d86a0e187cd8979979c19450d53fc10fd4a250",
+    "bpr_passed": 19,
+    "tff_passed": 34,
+    "total_passed": 53,
+    "conclusion": "success"
+  },
+  "raw_capture_performed": false,
+  "historical_pit_admission": false,
+  "alpha_admission": false,
+  "returns_tested": false,
+  "bootstrap_or_loo": false,
+  "oos_tested": false,
+  "holdout_used": false,
+  "vendor_contact": false,
+  "data_purchase": false,
+  "production_changed": false,
+  "universe_changed": false,
+  "f80_baseline": "F80_TOP20_PARTIAL50_BASELINE_C20_FROZEN",
+  "holdout_status": "CONSUMED_NOT_PRISTINE",
+  "decision": "KEEP_CFTC_CAPTURE_AND_PREDICTIVE_USE_BLOCKED_PENDING_ACTUAL_PROSPECTIVE_RECEIPT_HISTORY"
+}

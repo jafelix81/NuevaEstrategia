@@ -1,0 +1,96 @@
+name: Phase 261 Form 144/Form 4 global placebo multiplicity audit
+
+on:
+  push:
+    branches:
+      - phase231-cboe-option-quotes-full-row-reparse
+    paths:
+      - 'research/phase261_global_form144_form4_placebo_multiplicity_audit.py'
+      - 'research/test_phase261_global_form144_form4_placebo_multiplicity_audit.py'
+      - '.github/workflows/phase261_global_form144_form4_placebo_multiplicity_audit.yml'
+
+concurrency:
+  group: phase261-form144-form4-global-placebo-multiplicity
+  cancel-in-progress: true
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.11'
+      - name: Download immutable Phase 256 result artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: phase256-form144-form4-lag-preserving-placebo-audit
+          repository: ${{ github.repository }}
+          run-id: 42767357624
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: phase261_input/phase256
+      - name: Download immutable Phase 257 result artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: phase257-form144-form4-temporal-stratified-placebo-audit
+          repository: ${{ github.repository }}
+          run-id: 42775383915
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: phase261_input/phase257
+      - name: Download immutable Phase 258 result artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: phase258-form144-form4-accession-cluster-placebo
+          repository: ${{ github.repository }}
+          run-id: 42787526319
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: phase261_input/phase258
+      - name: Download immutable Phase 260 result artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: phase260-form144-form4-xnys-session-placebo
+          repository: ${{ github.repository }}
+          run-id: 42790753569
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: phase261_input/phase260
+      - name: Run Phase 261 unit tests
+        run: python -m unittest discover -s research -p 'test_phase261_global_form144_form4_placebo_multiplicity_audit.py' -v
+      - name: Recompute global 13-test Holm family
+        run: >-
+          python -m research.phase261_global_form144_form4_placebo_multiplicity_audit
+          --phase256 phase261_input/phase256/phase256_form144_form4_lag_preserving_placebo_audit_result.json
+          --phase257 phase261_input/phase257/phase257_form144_form4_temporal_stratified_placebo_audit_result.json
+          --phase258 phase261_input/phase258/phase258_form144_form4_accession_cluster_preserving_placebo_result.json
+          --phase260 phase261_input/phase260/phase260_form144_form4_xnys_session_placebo_result.json
+          --output phase261_output/phase261_global_form144_form4_placebo_multiplicity_audit_result.json
+      - name: Enforce global multiplicity and no-alpha controls
+        run: |
+          python - <<'PY'
+          import json
+          x=json.load(open('phase261_output/phase261_global_form144_form4_placebo_multiplicity_audit_result.json'))
+          assert x['family']['size'] == 13
+          assert x['summary']['tests'] == 13
+          assert x['summary']['global_holm_significant_05'] == 12
+          assert x['summary']['phase260_iso_week_global_holm_p'] > 0.05
+          assert x['summary']['minimum_global_holm_p'] < 0.05
+          assert x['summary']['zero_exceedance_tests'] == 11
+          assert x['decision']['strict_pit_admitted'] is False
+          assert x['decision']['feature_admitted'] is False
+          assert x['decision']['alpha_test_authorized'] is False
+          assert x['decision']['return_test_run'] is False
+          assert x['decision']['bootstrap_loo_oos_run'] is False
+          assert x['decision']['holdout_used'] is False
+          assert x['decision']['f80_frozen'] is True
+          print('Phase 261 global multiplicity and no-alpha controls passed.')
+          PY
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase261-form144-form4-global-placebo-multiplicity-audit
+          path: phase261_output/*.json
+          if-no-files-found: error
+          retention-days: 90

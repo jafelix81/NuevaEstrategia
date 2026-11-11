@@ -1,0 +1,187 @@
+{
+  "phase": 233,
+  "source": "Cboe DataShop Option Sentiment",
+  "spec_version": "v1.4 (05/25)",
+  "specification_url": "https://datashop.cboe.com/Documents/Cboe_OptionSentiment_Specs.pdf",
+  "faq_url": "https://datashop.cboe.com/faqs",
+  "early_exercise_research_url": "https://www.cboe.com/insights/posts/how-early-exercise-order-flow-impacts-equity-option-put-call-ratios",
+  "documented_field_count": 80,
+  "all_schema_checks_pass": true,
+  "checks": {
+    "exactly_80_fields": true,
+    "unique_field_names": true,
+    "note2_blank_fields_exist": true,
+    "all_directional_description_fields_exist": true,
+    "participant_fields_exist": true,
+    "size_fields_exist": true,
+    "dtx_fields_exist": true,
+    "moneyness_fields_exist": true,
+    "oi_fields_exist": true
+  },
+  "footnote_cross_reference": {
+    "note2_blank_fields": [
+      "avg_call_size",
+      "avg_put_size",
+      "cust_volume",
+      "firm_volume",
+      "mkt_mkr_volume",
+      "size1",
+      "size2_10",
+      "size11_100",
+      "size101_500",
+      "size501_1000",
+      "size1001up"
+    ],
+    "note3_direction_rule": "Above midpoint = buy; below midpoint = sell; spread, late, and tied trades excluded.",
+    "note4_cancel_rule": "Cancelled trades are backed out from the totals; field-specific scope is not enumerated.",
+    "field_markers": {
+      "net_option_delta": 2,
+      "call_premium_bought": 3,
+      "call_premium_sold": 3,
+      "put_premium_bought": 3,
+      "put_premium_sold": 3,
+      "calls_bought": 3,
+      "puts_bought": 3,
+      "calls_sold": 2,
+      "puts_sold": 2,
+      "avg_call_size": 2,
+      "avg_put_size": 2,
+      "cust_volume": 2,
+      "firm_volume": 2,
+      "mkt_mkr_volume": 2
+    },
+    "mismatched_fields": [
+      "net_option_delta",
+      "calls_sold",
+      "puts_sold"
+    ],
+    "mismatch_count": 3,
+    "interpretation": "Documentation cross-reference inconsistency; not evidence that the raw values are wrong."
+  },
+  "field_dimensionality": {
+    "directional_aggregate_fields": [
+      "net_option_delta",
+      "call_premium_bought",
+      "call_premium_sold",
+      "put_premium_bought",
+      "put_premium_sold",
+      "calls_bought",
+      "puts_bought",
+      "calls_sold",
+      "puts_sold"
+    ],
+    "participant_category_fields": [
+      "cust_volume",
+      "firm_volume",
+      "mkt_mkr_volume"
+    ],
+    "size_bucket_fields": [
+      "size1",
+      "size2_10",
+      "size11_100",
+      "size101_500",
+      "size501_1000",
+      "size1001up"
+    ],
+    "dtx_bucket_fields": [
+      "dtx1",
+      "dtx2_5",
+      "dtx6_30",
+      "dtx31_90",
+      "dtx91_180",
+      "dtx181_360",
+      "dtx360up"
+    ],
+    "moneyness_fields": [
+      "itmcalls",
+      "atmcalls",
+      "otmcalls",
+      "itmputs",
+      "atmputs",
+      "otmputs"
+    ],
+    "open_interest_fields": [
+      "oi_calls",
+      "oi_puts",
+      "otm_call_oi",
+      "otm_put_oi"
+    ],
+    "direction_by_participant_available": false,
+    "direction_by_size_available": false,
+    "direction_by_dtx_available": false,
+    "direction_by_moneyness_available": false,
+    "customer_call_put_buy_sell_cross_tab_available": false,
+    "non_itm_put_call_volume_computable": true,
+    "non_itm_put_call_is_directional": false,
+    "participant_categories_identify_beneficial_owners": false
+  },
+  "primary_feature": {
+    "field": "net_option_delta",
+    "status": "SUSPENDED_PENDING_PROVIDER_CLARIFICATION",
+    "units_specified": false,
+    "sign_convention_specified": false,
+    "multiplier_and_deliverable_rule_specified": false,
+    "normalization_by_underlying_volume_authorized": false
+  },
+  "hypothesis_decisions": [
+    {
+      "hypothesis": "net option delta adds residual-return information",
+      "decision": "SUSPEND",
+      "reason": "Units, sign, multiplier/deliverable and field-specific methodology are unspecified."
+    },
+    {
+      "hypothesis": "large-size directional flow",
+      "decision": "KILL_UNIMPLEMENTABLE",
+      "reason": "Size buckets are total volume, not side-specific."
+    },
+    {
+      "hypothesis": "customer net directional flow",
+      "decision": "KILL_UNIMPLEMENTABLE",
+      "reason": "OCC participant volume is not cross-tabbed by call/put or buy/sell."
+    },
+    {
+      "hypothesis": "non-ITM put/call volume",
+      "decision": "NON_DIRECTIONAL_CONTROL_ONLY",
+      "reason": "Moneyness fields provide total call/put volume without buy/sell side."
+    },
+    {
+      "hypothesis": "participant mix",
+      "decision": "CONTEXT_ONLY",
+      "reason": "Clearing categories do not identify beneficial owners or informed investors."
+    },
+    {
+      "hypothesis": "IV, skew and implied borrow",
+      "decision": "SEPARATE_RISK_STATE_HYPOTHESES",
+      "reason": "Do not presume equity-direction alpha."
+    },
+    {
+      "hypothesis": "open interest",
+      "decision": "PRIOR_NIGHT_STATE_ONLY",
+      "reason": "Cboe FAQ specifies previous-night OCC EOD OI, static intraday."
+    }
+  ],
+  "availability": {
+    "subscription_preliminary_target": "8-9 p.m. ET after trade-date close",
+    "subscription_complete_target": "5-6 a.m. ET next morning",
+    "first_subscription_day": "Preliminary and complete may be generated around the same time with identical content.",
+    "historical_order_delivery": "Complete files delivered at end of order-processing day.",
+    "general_faq_daily_sftp": "Typically 00:05-03:00 ET next day; delays may extend past next market open.",
+    "historical_first_receipt_logs_verified": false,
+    "immutable_correction_vintages_verified": false,
+    "strict_pit_admission": false
+  },
+  "sample": {
+    "public_raw_sample_found_in_reviewed_documentation": false,
+    "raw_sample_downloaded": false,
+    "representative_date_symbol_coverage_verified": false
+  },
+  "data_purchased": false,
+  "vendor_contacted": false,
+  "alpha_test_run": false,
+  "bootstrap_or_loo_run": false,
+  "chronological_oos_run": false,
+  "final_holdout_used": false,
+  "production_changed": false,
+  "f80_changed": false,
+  "overall_status": "SCHEMA_DIMENSIONS_REDUCED_PRIMARY_FEATURE_SUSPENDED_PIT_BLOCKED"
+}

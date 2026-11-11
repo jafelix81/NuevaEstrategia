@@ -1,0 +1,91 @@
+name: Phase 274 Form 4 conservative date-only PIT and multi-owner cluster audit
+
+on:
+  push:
+    branches: [phase231-cboe-option-quotes-full-row-reparse]
+    paths:
+      - "research/phase274_form4_conservative_date_only_pit_clusters.py"
+      - "research/test_phase274_form4_conservative_date_only_pit_clusters.py"
+      - "research/phase272_form4_candidate_unit_price_basis_audit.py"
+      - ".github/workflows/phase274_form4_conservative_date_only_pit_clusters.yml"
+  pull_request:
+    branches: [phase99-broad-pit-universe-charter]
+    paths:
+      - "research/phase274_form4_conservative_date_only_pit_clusters.py"
+      - "research/test_phase274_form4_conservative_date_only_pit_clusters.py"
+      - "research/phase272_form4_candidate_unit_price_basis_audit.py"
+      - ".github/workflows/phase274_form4_conservative_date_only_pit_clusters.yml"
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: phase274-form4-date-only-pit-clusters
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Install pinned XNYS calendar dependency
+        run: pip install exchange_calendars==4.13.1
+      - name: Download immutable Phase 39 Form 345 artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p phase274_input
+          curl --fail --silent --show-error --location \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/12781850078/zip \
+            -o phase274_input/phase39-sec-form4-actual-file-audit.zip
+      - name: Compile Phase 274 and tests
+        run: python -m py_compile research/phase274_form4_conservative_date_only_pit_clusters.py research/test_phase274_form4_conservative_date_only_pit_clusters.py
+      - name: Run Phase 274 deterministic tests
+        run: python -m unittest -v research.test_phase274_form4_conservative_date_only_pit_clusters
+      - name: Recompute date-only PIT boundaries and owner clusters
+        run: |
+          python -m research.phase274_form4_conservative_date_only_pit_clusters \
+            --artifact phase274_input/phase39-sec-form4-actual-file-audit.zip \
+            --output phase274_output/phase274_form4_conservative_date_only_pit_clusters_result.json
+      - name: Enforce immutable sample counts and non-admission controls
+        run: |
+          python - <<'PY'
+          import json
+          r=json.load(open("phase274_output/phase274_form4_conservative_date_only_pit_clusters_result.json", encoding="utf-8"))
+          a=r["periods"]["2012Q1"]
+          b=r["periods"]["2026Q3"]
+          assert a["candidate_transaction_rows"] == 102
+          assert a["same_issuer_filing_date_transaction_date_multi_owner_clusters"] == 1
+          assert a["plan_status"] == "AFF10B5ONE_NOT_AVAILABLE_OR_NOT_REQUIRED_UNKNOWN"
+          assert b["candidate_transaction_rows"] == 85
+          assert b["unique_accessions"] == 59 and b["unique_issuers"] == 31
+          assert b["same_issuer_filing_date_transaction_date_multi_owner_clusters"] == 11
+          assert b["cluster_accession_memberships"] == 23
+          assert b["unique_accessions_in_clusters"] == 19
+          assert b["unique_reporting_owners_in_clusters"] == 19
+          assert b["unique_issuers_in_clusters"] == 8
+          assert b["transaction_rows_in_clusters"] == 24
+          assert b["negative_filing_lag_rows_quarantined"] == 0
+          assert r["availability_policy_is_conservative_date_only_bound"] is True
+          assert r["strict_pit_admitted"] is False
+          assert r["alpha_test_authorized"] is False
+          assert r["forward_returns_tested"] is False
+          assert r["holdout_used"] is False and r["f80_frozen"] is True
+          print("PHASE274_STATUS=11_MULTI_OWNER_SAME_TRADE_DATE_CLUSTERS; STRICT_PIT_AND_ALPHA_NOT_ADMITTED")
+          PY
+      - name: Upload metadata-only Phase 274 result
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase274-form4-date-only-pit-clusters
+          path: phase274_output/phase274_form4_conservative_date_only_pit_clusters_result.json
+          if-no-files-found: error
+          retention-days: 90

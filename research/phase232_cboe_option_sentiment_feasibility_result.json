@@ -1,0 +1,116 @@
+{
+  "phase": 232,
+  "source": "Cboe DataShop Option Sentiment",
+  "spec_version": "v1.4 (05/25)",
+  "documented_historical_start": "2012-01 (month precision)",
+  "frequency": "daily",
+  "documented_fields": 80,
+  "field_count_exactly_80": true,
+  "field_names_unique": true,
+  "required_research_fields_present": true,
+  "directional_field_count": 10,
+  "participant_category_fields": [
+    "cust_volume",
+    "firm_volume",
+    "mkt_mkr_volume"
+  ],
+  "open_interest_fields": [
+    "oi_calls",
+    "oi_puts",
+    "otm_call_oi",
+    "otm_put_oi"
+  ],
+  "volatility_skew_borrow_fields": [
+    "iv30",
+    "iv90",
+    "hv20",
+    "norm_25d_skew_30",
+    "vega_total",
+    "implied_borrow"
+  ],
+  "size_bucket_fields": [
+    "size1",
+    "size2_10",
+    "size11_100",
+    "size101_500",
+    "size501_1000",
+    "size1001up"
+  ],
+  "days_to_expiration_bucket_fields": [
+    "dtx1",
+    "dtx2_5",
+    "dtx6_30",
+    "dtx31_90",
+    "dtx91_180",
+    "dtx181_360",
+    "dtx360up"
+  ],
+  "documented_universe": {
+    "included": [
+      "U.S.-listed stock options",
+      "ETF options",
+      "index options",
+      "OPRA-disseminated options"
+    ],
+    "excluded": [
+      "options on futures",
+      "non-U.S. markets"
+    ],
+    "all_symbols_includes_proprietary_indices": true,
+    "delisted_symbol_continuity_verified": false,
+    "daily_symbol_coverage_verified": false
+  },
+  "availability": {
+    "subscription_preliminary": "after trade-date close; target 8-9 p.m. ET",
+    "subscription_complete": "next morning; target 5-6 a.m. ET",
+    "first_subscription_day": "first day of subscription: preliminary may arrive around same time as complete; both files same content",
+    "historical_order_delivery": "complete files delivered at end of order processing day",
+    "general_faq_daily_sftp": "typically 00:05-03:00 ET following trade date; may be delayed until after next market open",
+    "historical_first_receipt_timestamps_available": false,
+    "immutable_correction_vintages_documented": false,
+    "receipt_log_required_for_strict_pit": true
+  },
+  "pit_gates": {
+    "history_depth_documented": true,
+    "daily_cadence_documented": true,
+    "directional_schema_documented": true,
+    "broad_us_opra_universe_documented": true,
+    "historical_first_receipt": false,
+    "correction_vintage_semantics": false,
+    "historical_active_delisted_coverage": false,
+    "raw_sample_schema_audit": false,
+    "pricing_and_license_verified": false
+  },
+  "fields_not_admitted_until_semantics_verified": [
+    "avg_call_volume",
+    "avg_put_volume",
+    "avg_total_volume",
+    "avg_call_size",
+    "avg_put_size",
+    "split_adj_close",
+    "hv20",
+    "iv30",
+    "iv90",
+    "implied_borrow",
+    "norm_25d_skew_30"
+  ],
+  "primary_hypothesis": "net_option_delta scaled by underlying_volume adds incremental residual-return information beyond prior returns and frozen LTM/F80",
+  "secondary_hypotheses": [
+    "large-size versus small-size directional premium/volume imbalance",
+    "non-ITM and customer-volume measures are more robust than raw put/call ratios",
+    "skew, IV term structure and implied borrow forecast risk/squeeze states rather than assumed equity direction"
+  ],
+  "data_purchased": false,
+  "raw_sample_downloaded": false,
+  "pit_admission": false,
+  "alpha_admission": false,
+  "production_changed": false,
+  "f80_changed": false,
+  "final_holdout_used": false,
+  "overall_status": "CONDITIONAL_HIGH_PRIORITY_CANDIDATE_PIT_BLOCKED",
+  "sources": {
+    "specification": "https://cdn.cboe.com/resources/data_shop/Option_Sentiment_Data_Spec.pdf",
+    "faq": "https://datashop.cboe.com/faqs",
+    "early_exercise_research": "https://www.cboe.com/insights/posts/how-early-exercise-order-flow-impacts-equity-option-put-call-ratios"
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "decision": "Advance C1 Open-Close EOD only to a preregistered measurement candidate. No return test until actual final-file receipt, historical archive coverage, security identity and broad-universe coverage gates pass.",
+  "feature_contract": {
+    "beneficial_owner_identification": false,
+    "call_sign": "buy positive; sell negative",
+    "complex_order_linkage": false,
+    "delta_weighted": false,
+    "normalization": ["signed net contracts / total_exchange_vol", "signed net contracts / total_industry_vol when observed", "signed net contracts / gross capacity contracts when nonzero"],
+    "primary_action": "open",
+    "primary_capacity_groups": ["customer", "pro_customer"],
+    "primary_size_buckets": ["lt_100", "100_199", "gt_199"],
+    "put_sign": "sell positive; buy negative",
+    "secondary_action": "close",
+    "secondary_capacity_controls": ["firm", "broker_dealer"],
+    "volume_measure": "vol fields are contracts; qty fields are trade counts"
+  },
+  "historical_conventions": {
+    "excluded_security_types": ["3=Index", "4=WCO"],
+    "flex_series_start": "2024-10-16",
+    "gth_start": "2023-12-11",
+    "post_2011_customer_bucket_semantics": "execution size",
+    "pre_2011_customer_bucket_semantics": "order size",
+    "primary_flex_treatment": "exclude series_type F; analyze separately",
+    "primary_security_types": ["1=Equity", "2=ETF, separately"],
+    "primary_start": "2019-10-07",
+    "reason": "C1 open-interest and total-exchange-volume conventions change through 2019-10-04"
+  },
+  "phase": 248,
+  "pit_and_economic_gates": {
+    "actual_historical_first_receipt": "NOT_VERIFIED",
+    "alpha_admission": false,
+    "broad_pit_security_coverage": "NOT_ESTABLISHED",
+    "consumed_holdout_used": false,
+    "f80_frozen": true,
+    "final_file_delivery_target": "typically 00:30-01:00 US EST on the next morning",
+    "historical_daily_archive_completeness": "NOT_VERIFIED",
+    "immutable_historical_correction_vintages": "NOT_VERIFIED",
+    "production_changed": false,
+    "prospective_capture": "NOT_ACTIVE_ON_MAIN",
+    "return_test_authorized": false,
+    "strict_pit_admitted": false,
+    "universe_changed": false
+  },
+  "sample_evidence": {
+    "c1_total_exchange_volume": 4506840,
+    "fields": 86,
+    "participant_volume_reconciliation_exact_rows": 23179,
+    "participant_volume_reconciliation_rows": 23179,
+    "reported_c1_to_industry_volume_ratio": "0.368559",
+    "rows": 23179,
+    "source": "Phase 114 public 20% sample audit; not a full-market extract",
+    "total_industry_volume": 12228281,
+    "trade_date": "2025-03-28",
+    "underlyings": 1553
+  },
+  "source": "Cboe C1 Open-Close EOD",
+  "status": "FEATURE_CONTRACT_PASS_SYNTHETIC_ONLY_NO_PIT_NO_ALPHA"
+}

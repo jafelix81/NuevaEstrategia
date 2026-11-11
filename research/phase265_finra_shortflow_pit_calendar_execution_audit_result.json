@@ -1,0 +1,99 @@
+{
+  "phase": 265,
+  "audit_date": "2026-11-10",
+  "status": "PHASE20C_FINRA_SHORTFLOW_NON_PIT_DIAGNOSTIC_QUARANTINED",
+  "source": {
+    "run_id": 40098425254,
+    "job_id": 120885427795,
+    "artifact_id": 12562171831,
+    "artifact_zip_sha256": "c15f75340bdedfbb37c82f79bb563a450dd1da11989d09e18bb745d93b7d3a5c",
+    "script_git_blob_sha": "6974d4b70a63c5e4b8dc460d6f90dfd652f16fa7",
+    "script_path": "Nueva_Estrategia_Fase20C_FINRA_WalkForward_OOS.py"
+  },
+  "sample": {
+    "requested_calendar_dates": 2020,
+    "files_available": 1382,
+    "calendar_date_success_ratio": 0.684158,
+    "calendar_date_success_ratio_is_market_session_coverage": false,
+    "expected_xnys_sessions": null,
+    "xnys_session_coverage": null,
+    "coverage_disposition": "NOT_MEASURED_REQUIRES_EXPLICIT_XNYS_CALENDAR",
+    "valid_universe_names": 329,
+    "configured_universe_names": 335,
+    "name_availability_ratio": 0.98209,
+    "universe_is_representative_or_survivorship_free": false
+  },
+  "walk_forward": {
+    "all_training_signals": 24,
+    "finra_eligible_training_signals": 20,
+    "pseudo_oos_test_dates": 12,
+    "final_holdout_signals_left_untouched_by_phase20c": 6,
+    "selection_uses_prior_signal_dates_only": true,
+    "chronological_selection": true,
+    "label_maturity_revalidated_in_phase265": false,
+    "strict_pit": false
+  },
+  "timing_and_vintages": {
+    "feature_uses_signal_date_finra_row": true,
+    "entry_return_denominator_uses_same_signal_date_close": true,
+    "download_audit_fields": [
+      "Date",
+      "Status"
+    ],
+    "first_receipt_utc_recorded": false,
+    "raw_sha256_per_file_recorded": false,
+    "immutable_first_publication_and_revision_vintages": false,
+    "same_day_close_availability_proven": false,
+    "strict_pit_admitted": false,
+    "safe_rule": "Use the first XNYS session strictly after verified first receipt; if only FINRA trade date is known, use the next XNYS session after that trade date."
+  },
+  "economic_diagnostic": {
+    "source": "research/smart_money/FINRA_SHORTFLOW_AUDIT_2026-10-24.md",
+    "n_pseudo_oos_dates": 12,
+    "horizons": {
+      "5": {
+        "mean_delta_pct": 0.141,
+        "median_delta_pct": -0.049,
+        "positive_dates": 5,
+        "positive_rate": 0.416667
+      },
+      "10": {
+        "mean_delta_pct": -1.686,
+        "median_delta_pct": -1.837,
+        "positive_dates": 3,
+        "positive_rate": 0.25
+      },
+      "20": {
+        "mean_delta_pct": -0.858,
+        "median_delta_pct": -0.333,
+        "positive_dates": 5,
+        "positive_rate": 0.416667
+      }
+    },
+    "selected_factor_counts": {
+      "SHORT_RATIO_Z20": 6,
+      "SHORT_EXEMPT_RATIO": 5,
+      "SHORT_RATIO_PERSIST20": 1
+    },
+    "interpretation": "Small diagnostic sample; factor selection migrates; H10 and H20 mean deltas are negative; no incremental edge demonstrated."
+  },
+  "source_semantics": {
+    "daily_short_sale_volume_is_short_interest": false,
+    "consolidated_with_exchange_short_volume": false,
+    "only_publicly_disseminated_trades": true,
+    "offsetting_facilitation_purchase_may_be_absent": true
+  },
+  "decision": {
+    "phase20c_disposition": "QUARANTINE_AS_CHRONOLOGICAL_BUT_NOT_STRICT_PIT_DIAGNOSTIC",
+    "calendar_coverage_claim": "RETRACT_1382_OF_2020_AS_MARKET_DAY_COVERAGE",
+    "feature_admitted": false,
+    "alpha_admitted": false,
+    "retest_same_dates_authorized": false,
+    "holdout_used": false,
+    "legacy_holdout": "CONSUMED_NOT_PRISTINE",
+    "f80_frozen": true,
+    "production_changed": false,
+    "universe_changed": false,
+    "capital_changed": false
+  }
+}

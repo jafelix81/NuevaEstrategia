@@ -1,0 +1,83 @@
+{
+  "admission": {
+    "alpha_test_authorized": false,
+    "data_feasibility": "CONDITIONAL_HIGH_PRIORITY_C1_ONLY",
+    "f80_frozen": true,
+    "holdout_used": false,
+    "strict_historical_pit": false,
+    "strict_prospective_pit": false
+  },
+  "commercial": {
+    "external_redistribution": "Prohibited by current product page; internal-use license and derived-data rights require review.",
+    "free_trial": "Up to one month may be available to eligible users who have not previously received the product/trial; not requested.",
+    "historical_ad_hoc_fee_usd_per_month": 8000,
+    "purchase_or_vendor_contact_made": false,
+    "subscription_fee_usd_per_month": 12000
+  },
+  "date": "2026-11-09",
+  "documented_fields": {
+    "capacity_values": ["BrokerDealer", "Customer", "Firm", "MarketMaker", "ProCustomer"],
+    "linkage": ["EXEC_ID", "COMPLEX_EXEC_ID"],
+    "market_context": ["NBBO_BID", "NBBO_ASK", "BBO_BID", "BBO_ASK"],
+    "open_close_values": ["C", "O"],
+    "side_values": ["B", "S"],
+    "trade_and_contract": ["TRANSACT_TIME", "TRADING_DT", "FLOOR_ACTION_TS", "UNDERLYING", "OSI_ROOT", "EXPIRE_DATE", "CALL_PUT_FLAG", "STRIKE_PRICE", "SIZE", "PRICE"],
+    "trade_classification": ["SIDE", "OPEN_CLOSE", "CAPACITY", "TRADE_TYPE", "SESSION", "TRADING_SEGMENT"],
+    "trade_type_special_handling": ["QCC, compression, routed, auction, floor, complex and provisional types must be separately classified or quarantined under a preregistered rule."]
+  },
+  "measurement_advantage_vs_option_sentiment": [
+    "TBT exposes side, open/close, capacity, trade type and contract size at trade level.",
+    "These fields can be crossed directly after raw-row reconstruction; Option Sentiment's 80-field daily aggregate does not expose the same directional cross-tabs.",
+    "Execution IDs provide a potential route to pair/complex-leg reconciliation, subject to sample validation."
+  ],
+  "next_gates": [
+    "Obtain a lawful representative sample or eligible free trial; do not purchase without approval.",
+    "Measure row grain: one execution versus buy/sell-side rows; reconcile EXEC_ID and COMPLEX_EXEC_ID.",
+    "Validate side semantics, capacity mapping, open/close, trade-type coverage, NBBO/BBO and late floor timestamps.",
+    "Quantify C1 share of total OPRA volume and historical underlying/date coverage, including inactive names.",
+    "Obtain actual first-receipt logs and append-only corrections; archive backfill remains retrospective.",
+    "Confirm internal-use and derived-feature licensing, fee schedule and data retention terms.",
+    "Only then preregister one C1-specific signed/opening-flow hypothesis with prior-return, liquidity, IV and event controls."
+  ],
+  "non_inferences": [
+    "CAPACITY is an exchange clearing-origin category, not beneficial-owner identity or proof of informed trading.",
+    "SIDE B/S is documented as Buy/Sell; do not call it aggressor direction without an explicit rule/sample validation.",
+    "OPEN_CLOSE is not open interest and does not identify a unique beneficial owner's net position.",
+    "C1-only activity is not all-OPRA or whole-market options flow.",
+    "Execution IDs may link sides/legs; do not sum rows as independent trades until row cardinality is empirically established."
+  ],
+  "phase": 236,
+  "pit_protocol": {
+    "archive_start_is_not_live_start": true,
+    "execution_rule": "First actual regular-session open strictly after first receipt; EOD strategy execution no earlier than that session close.",
+    "live_floor_basis": "Cboe's 2026-02-20 Traders Weekly states the TBT dataset was launched; this is the first located public launch documentation, not a verified first subscriber receipt.",
+    "manual_or_backfilled_files": "Never strict PIT.",
+    "receipt_rule": "Preserve each file version, first receipt UTC, raw SHA-256, trade date, schema version and correction parent; use only after actual receipt.",
+    "t_plus_one": "File is for the prior trade date and typically delivered after midnight ET; use TRADING_DT, not calendar date of TRANSACT_TIME around GTH midnight."
+  },
+  "source": {
+    "actual_first_receipt_logs_available": false,
+    "archive_before_live_floor": "RETROSPECTIVE_BACKFILL_NOT_STRICT_PIT",
+    "archive_start_claim": "2019-10-07",
+    "correction_vintages_verified": false,
+    "delivery": "T+1 overnight after midnight ET; typical 00:30-01:30 ET",
+    "first_public_launch_documentation_floor": "2026-02-20",
+    "historical_inactive_underlying_coverage_verified": false,
+    "licensing_confirmed": false,
+    "planned_venues": ["C2", "BZX", "EDGX"],
+    "product": "Enhanced US Options Trade-by-Trade Execution Detail",
+    "representative_raw_sample_audited": false,
+    "venue_scope": ["C1"]
+  },
+  "source_urls": {
+    "cboe_c2_tbt_notice_2026_11_06": "https://www.sec.gov/rules-regulations/self-regulatory-organization-rulemaking/sr-c2-2026-029",
+    "cboe_fee_schedule_2026_04_21": "https://cdn.cboe.com/resources/membership/Cboe_FeeSchedule.pdf",
+    "cboe_launch_2026_02_20": "https://cdn.cboe.com/resources/trader_news/2026/Cboe-Traders-Weekly-for-Friday-February-20-2026.pdf",
+    "cboe_launch_2026_03_06": "https://cdn.cboe.com/resources/trader_news/2026/Cboe-Traders-Weekly-for-Friday-March-6-2026.pdf",
+    "cboe_open_close": "https://datashop.cboe.com/cboe-options-open-close-volume-summary",
+    "cboe_product": "https://datashop.cboe.com/enhanced-us-options-trade-by-trade-execution-detail",
+    "cboe_spec_v1_1": "https://datashop.cboe.com/documents/TBT_Spec_v1.1.pdf",
+    "sec_rule_filing_2025_088": "https://www.sec.gov/files/rules/sro/cboe/2025/34-104415.pdf"
+  },
+  "status": "CBOE_TBT_HIGH_VALUE_C1_EXECUTION_MEASUREMENT_CANDIDATE_NOT_PIT_ADMITTED"
+}

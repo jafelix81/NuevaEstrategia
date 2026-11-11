@@ -1,0 +1,50 @@
+name: Phase 248 Cboe Open-Close EOD feature contract
+on:
+  pull_request:
+    branches: [phase99-broad-pit-universe-charter]
+    paths:
+      - "research/phase248_cboe_openclose_feature_contract.py"
+      - "research/test_phase248_cboe_openclose_feature_contract.py"
+      - "research/PHASE248_CBOE_OPENCLOSE_EOD_DIRECTIONAL_FEATURE_PREREGISTRATION_2026-11-09.md"
+      - ".github/workflows/phase248_cboe_openclose_feature_contract.yml"
+permissions:
+  contents: read
+concurrency:
+  group: phase248-cboe-openclose-feature-contract
+  cancel-in-progress: false
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Compile helper and tests
+        run: python -m py_compile research/phase248_cboe_openclose_feature_contract.py research/test_phase248_cboe_openclose_feature_contract.py
+      - name: Run synthetic feature-contract tests
+        run: python -m unittest -v research.test_phase248_cboe_openclose_feature_contract
+      - name: Build deterministic metadata-only audit
+        run: python -m research.phase248_cboe_openclose_feature_contract --output phase248_output/phase248_cboe_openclose_feature_contract.json
+      - name: Enforce closed PIT and alpha gates
+        run: |
+          python - <<'PY'
+          import json, sys
+          path = 'phase248_output/phase248_cboe_openclose_feature_contract.json'
+          result = json.load(open(path, encoding='utf-8'))
+          gates = result['pit_and_economic_gates']
+          if gates['strict_pit_admitted'] or gates['return_test_authorized'] or gates['alpha_admission']:
+              sys.exit(1)
+          if not gates['f80_frozen'] or gates['consumed_holdout_used']:
+              sys.exit(2)
+          print('PHASE248_STATUS=' + result['status'])
+          print('PIT_ALPHA_GATES=CLOSED')
+          PY
+      - name: Upload metadata-only artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase248-cboe-openclose-feature-contract
+          path: phase248_output/phase248_cboe_openclose_feature_contract.json
+          if-no-files-found: error
+          retention-days: 90

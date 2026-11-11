@@ -1,0 +1,76 @@
+{
+  "phase": 239,
+  "date": "2026-11-09",
+  "source": "CFTC Traders in Financial Futures",
+  "status": "PROSPECTIVE_CAPTURE_PROTOCOL_IMPLEMENTED_NOT_ACTIVE_ON_DEFAULT_BRANCH",
+  "current_report_date": "2026-11-03",
+  "scheduled_release_date": "2026-11-06",
+  "historical_data_start": "2006-06-13",
+  "historical_release_date_archive": "Only the most recent 13 months are listed by CFTC FAQ; no complete historical release-date series",
+  "current_schedule_as_of": "2026-11-09: usual Friday 15:30 ET schedule still shown",
+  "semiweekly_announcement": {
+    "date": "2026-10-27",
+    "target": "By end of 2026",
+    "cadence": "Monday data Wednesday; Wednesday data Friday; 15:30 ET",
+    "explicit_TFF_scope_or_effective_date": false,
+    "note": "CFTC announcement frames the change around agricultural-market feedback; TFF scope is not explicit"
+  },
+  "schema_fields": 87,
+  "current_streams": {
+    "futures_only": "https://www.cftc.gov/dea/newcot/FinFutWk.txt",
+    "futures_options_combined": "https://www.cftc.gov/dea/newcot/FinComWk.txt"
+  },
+  "official_sample_rows_tested": 4,
+  "full_current_files_downloaded": false,
+  "parser_tests_local": {
+    "passed": 29,
+    "failed": 0
+  },
+  "capture_integration": {
+    "workflow": ".github/workflows/phase234_cftc_bpr_prospective_capture.yml",
+    "action": "Extended existing BPR workflow; no separate TFF workflow created",
+    "schedule_utc": "20:35 Monday-Friday",
+    "et_time": "15:35 EST / 16:35 EDT",
+    "concurrency_group_reused": true,
+    "active_on_default_branch": false
+  },
+  "pit_protocol": {
+    "first_scheduled_capture": "INITIAL_BASELINE_STATE_ONLY",
+    "new_report": "PIT only from first pipeline observation; earliest decision next regular XNYS session",
+    "same_date_new_hash": "Revision; state-only",
+    "manual_dispatch": "Non-PIT; does not advance scheduled baseline",
+    "http_date_header": "Stored but never used as availability timestamp",
+    "historical_first_publication_verified": false
+  },
+  "raw_capture_executed": false,
+  "raw_snapshot_persisted": false,
+  "historical_pit_admission": false,
+  "alpha_admission": false,
+  "returns_tested": false,
+  "holdout_used": false,
+  "production_changed": false,
+  "universe_changed": false,
+  "data_purchased": false,
+  "f80_baseline": "F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen",
+  "descriptive_sp500_2026_11_03": {
+    "futures_only": {
+      "open_interest": 2013852,
+      "dealer_net": -693326,
+      "dealer_net_pct_oi": -34.4279,
+      "asset_manager_net": 930713,
+      "asset_manager_net_pct_oi": 46.2156,
+      "leveraged_funds_net": -366870,
+      "leveraged_funds_net_pct_oi": -18.2173
+    },
+    "futures_options_combined": {
+      "open_interest": 2970924,
+      "dealer_net": -701177,
+      "dealer_net_pct_oi": -23.6013,
+      "asset_manager_net": 917568,
+      "asset_manager_net_pct_oi": 30.8849,
+      "leveraged_funds_net": -345246,
+      "leveraged_funds_net_pct_oi": -11.6208
+    },
+    "note": "Single-report descriptive snapshot only; streams use separate denominators and do not constitute a predictive finding"
+  }
+}

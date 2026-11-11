@@ -1,0 +1,64 @@
+{
+  "phase": 254,
+  "audit_date": "2026-11-10",
+  "status": "ISSUER_ACCESSION_SCOPED_JOIN_CONTRACT_PASS_NO_RAW_IXBRL_NO_PIT_NO_ALPHA",
+  "corrections": {
+    "issuer_scoped_prior_vintage": true,
+    "exact_accession_context_scope": true,
+    "exact_filing_date_context_scope": true,
+    "class_axis_required": true,
+    "listing_axis_not_class_identity": true,
+    "incomplete_listing_scope_unknown": true,
+    "amendments_separate_vintages": true,
+    "exact_title_only": true,
+    "fuzzy_or_current_ticker_fallback": false
+  },
+  "validation": {
+    "tests_passed": 24,
+    "tests_total": 24,
+    "hosted_run_id": 42764068968,
+    "job_id": 129656300533,
+    "artifact_id": 13738319528,
+    "artifact_size_bytes": 381,
+    "artifact_sha256": "ae7b3269d9fa884e6fe4f0f716b427aacc9d701e9c416175038309c025a81768",
+    "first_run_id": 42763927183,
+    "first_run_tests_passed": 22,
+    "first_run_artifact_count_was_stale": 21
+  },
+  "latest_regressions": {
+    "phase231": {
+      "run_id": 42763911397,
+      "tests_passed": 9,
+      "total_populated_rows": 115617,
+      "unambiguous_rows": 112313,
+      "ambiguous_rows_quarantined": 3304,
+      "artifact_id": 13738991707
+    },
+    "phase249": {
+      "run_id": 42763911410,
+      "tests_passed": 11,
+      "rows": 23179,
+      "artifact_id": 13738418042
+    },
+    "last_30_workflow_runs_all_success": true,
+    "active_workflows": 0
+  },
+  "admission": {
+    "raw_ixbrl_parser_validated": false,
+    "cover_page_fallback_validated": false,
+    "issuer_panel_coverage_measured": false,
+    "effective_dated_listing_identity": false,
+    "pit_adv20": false,
+    "strict_pit": false,
+    "alpha": false,
+    "returns_tested": false,
+    "bootstrap_loo_oos": false,
+    "holdout_used": false,
+    "f80_frozen": true,
+    "production_changed": false,
+    "universe_changed": false,
+    "capital_changed": false,
+    "vendor_contact_or_purchase": false,
+    "sec_contact_email_secret_available": false
+  }
+}

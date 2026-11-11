@@ -1,0 +1,116 @@
+{
+  "phase": 237,
+  "date": "2026-11-09",
+  "status": "RAW_INLINE_XBRL_REQUIRED_FOR_MULTI_CLASS_SHARES_COMPANYFACTS_ONLY_PATH_INSUFFICIENT",
+  "source_evidence": {
+    "sec_companyfacts_scope": {
+      "non_custom_taxonomies_only": true,
+      "facts_must_apply_to_entire_filing_entity": true,
+      "multi_class_dimensioned_common_shares_sufficient_from_companyfacts": false,
+      "api_updates_as_filings_are_disseminated": true,
+      "typical_submissions_processing_delay": "under one second",
+      "typical_xbrl_processing_delay": "under one minute",
+      "bulk_zip_republication": "nightly approximately 03:00 ET"
+    },
+    "xbrl_guide": {
+      "version": "July 2025",
+      "section": "3.2.3",
+      "concept": "dei:EntityCommonStockSharesOutstanding",
+      "period_type": "instant",
+      "single_class_case": "one entity-wide fact without dimensions",
+      "multi_class_case": "at least two facts with StatementClassOfStockAxis or ClassesOfShareCapitalAxis members",
+      "multi_class_requires_custom_taxonomy": true,
+      "subsequent_event_context": true
+    },
+    "primary_examples": [
+      {
+        "issuer": "Noodles & Company",
+        "filing": "2015 Form 10-Q/A",
+        "original_class_a_reported": 29994302,
+        "class_b_included_in_error": 1522098,
+        "corrected_class_a": 28472204,
+        "lesson": "later amendment is a new as-filed vintage and must not rewrite earlier knowledge"
+      },
+      {
+        "issuer": "Flowco Holdings",
+        "filing": "2026 Form 10-Q/A",
+        "class_a_shares": 41824162,
+        "class_b_shares": 48521254,
+        "as_of_date": "2026-05-01",
+        "lesson": "separate class counts are disclosed for a multi-class issuer"
+      },
+      {
+        "issuer": "Expedia Group",
+        "evidence": "Phase 223 primary-document cross-check",
+        "form144_reported_common_shares": 1775,
+        "latest_prior_10k_common_shares": 117011421,
+        "latest_prior_10k_class_b_shares": 5523452,
+        "lesson": "Form 144 filer-entered denominator is not reliable"
+      }
+    ]
+  },
+  "normalized_fact_contract": {
+    "concept": "dei:EntityCommonStockSharesOutstanding",
+    "unit": "shares",
+    "instant_context_only": true,
+    "filed_on_or_before_form144_filed_date": true,
+    "fact_end_on_or_before_issuer_filing_date": true,
+    "exact_class_member_required_for_multi_class": true,
+    "same_day_conflicting_vintages_without_acceptance_order": "UNKNOWN",
+    "later_amendment_rewrites_prior_state": false,
+    "newer_invalid_fact_blocks_stale_fallback": true,
+    "companyfacts_dimensioned_fact_use": false,
+    "supported_class_axes": [
+      "us-gaap:StatementClassOfStockAxis",
+      "us-gaap:ClassesOfShareCapitalAxis"
+    ],
+    "other_standard_taxonomy_axes": "NOT_YET_SUPPORTED; QUARANTINE",
+    "same_day_acceptance_tie_with_conflicting_values": "UNKNOWN",
+    "multi_class_facts_require_same_instant_date": true
+  },
+  "denominator_semantics": {
+    "shares_outstanding": "class-specific total shares outstanding",
+    "public_float": "market value of non-affiliate common equity; not a share count",
+    "adv": "traded share volume; not shares outstanding or float",
+    "permitted_descriptive_ratio": "proposed_units / class_shares_outstanding",
+    "forbidden_label": "float pressure or executable supply"
+  },
+  "gates": {
+    "official_api_scope_documented": true,
+    "official_xbrl_class_dimension_rules_documented": true,
+    "raw_inline_xbrl_parser_validated": false,
+    "companyfacts_vs_raw_omission_measured": false,
+    "form144_class_to_xbrl_member_mapping": false,
+    "coverage_across_289_form144_issuers_measured": false,
+    "inactive_delisted_security_identity_resolved": false,
+    "pit_public_float_and_adv_available": false,
+    "form144_denominator_admitted": false,
+    "alpha_test_authorized": false
+  },
+  "validation": {
+    "local_standard_library_tests": 23,
+    "passed": 23,
+    "failed": 0,
+    "hosted_ci_run": false,
+    "raw_sec_filing_bytes_downloaded": false,
+    "sec_data_api_requested": false
+  },
+  "decision": {
+    "form144": "CONDITIONAL_EVENT_SUPPLY_CANDIDATE; CLASS_SHARES_PATH_FEASIBLE_IN_PRINCIPLE; DENOMINATOR_NOT_ADMITTED",
+    "f80_baseline": "FROZEN",
+    "legacy_holdout": "CONSUMED_NOT_PRISTINE",
+    "forward_return_test": false,
+    "bootstrap_loo": false,
+    "chronological_oos": false,
+    "holdout_used": false,
+    "production_changed": false,
+    "universe_changed": false,
+    "data_purchased": false
+  },
+  "official_sources": {
+    "sec_edgar_api": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
+    "sec_xbrl_guide": "https://www.sec.gov/files/edgar/filer-information/specifications/xbrl-guide-2025-07-10.pdf",
+    "noodles_10qa": "https://www.sec.gov/Archives/edgar/data/1275158/000127515815000046/q1201510qa.htm",
+    "flowco_10qa": "https://www.sec.gov/Archives/edgar/data/2035149/000119312526294682/floc-20260331.htm"
+  }
+}

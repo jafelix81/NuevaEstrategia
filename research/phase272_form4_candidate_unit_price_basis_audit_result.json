@@ -1,0 +1,156 @@
+{
+  "admission": {
+    "alpha": false,
+    "bootstrap_loo": false,
+    "capital_changed": false,
+    "chronological_oos": false,
+    "f80_frozen": true,
+    "holdout_used": false,
+    "production_changed": false,
+    "return_test": false,
+    "sec_request_made": false,
+    "strict_pit": false,
+    "universe_changed": false,
+    "universe_coverage": false,
+    "vendor_contact_or_purchase": false
+  },
+  "date": "2026-11-10",
+  "method": {
+    "candidate_population": "exact Phase 271 original Form 4 Table I P/A high-precision screen; no change to eligibility rules",
+    "no_lookahead": "no transaction is assigned an event-availability time; filing date remains date-only and accession acceptance timestamps are not joined for these candidates",
+    "price_basis": "reported TRANS_PRICEPERSHARE and TRANS_SHARES fields; zero price is UNKNOWN/unquantifiable rather than zero economic value; explicit share-basis restatement footnotes are quarantined from reported-value proxy",
+    "role_split": "separate director/officer, ten-percent-owner-only, and other/mixed reporting-owner relationships; legal-entity-name match is a diagnostic only",
+    "unit_of_analysis": "transaction rows are nested within accessions, issuer-owner groups, and issuers; row counts are not independent event counts"
+  },
+  "periods": {
+    "2012Q1": {
+      "accession_row_clustering": {
+        "accessions_with_multiple_transaction_rows": 19,
+        "maximum_rows_in_one_accession": 11,
+        "rows_in_multirow_accessions": 74,
+        "share_of_rows_in_multirow_accessions": 0.72549
+      },
+      "candidate_transaction_rows": 102,
+      "descriptive_examples": {
+        "2012_onteco": {
+          "accessions": 11,
+          "filing_dates": ["03-JAN-2012", "05-JAN-2012", "06-FEB-2012", "07-FEB-2012", "09-MAR-2012", "12-JAN-2012", "13-FEB-2012", "13-JAN-2012", "14-MAR-2012", "17-FEB-2012", "21-MAR-2012"],
+          "issuers": 1,
+          "legal_entity_name_rows": 0,
+          "owner_role_classes": {"ten_percent_owner_only": 48},
+          "owners": 1,
+          "rows": 48,
+          "share_basis_restatement_rows": 31,
+          "transaction_date_max": "2012-03-20",
+          "transaction_date_min": "2011-12-30",
+          "zero_reported_price_rows": 47
+        }
+      },
+      "issuer_owner_groups_with_multiple_accessions": 7,
+      "issuers_with_multiple_reporting_owners": 6,
+      "owner_name_legal_entity_flag_rows": 0,
+      "owner_name_legal_entity_flag_unique_owners": 0,
+      "owner_role_row_counts": {"director_or_officer": 52, "other_or_mixed": 2, "ten_percent_owner_only": 48},
+      "period": "2012Q1",
+      "reported_price_field_status_counts": {"positive_price_but_share_basis_restatement": 1, "positive_price_proxy_only": 53, "reported_zero_price_unquantifiable": 48},
+      "reported_value_proxy": {
+        "eligible_rows": 53,
+        "max": "696075.000",
+        "median": "8775.000",
+        "p75": "85117.500",
+        "p90": "249358.560",
+        "threshold_counts": {"under_10000": 27, "under_100000": 41, "under_1000000": 53},
+        "warning": "TRANS_SHARES x TRANS_PRICEPERSHARE is only a reported-field diagnostic; it is not ADV-scaled, executable notional, or market impact. Zero/missing/negative prices and share-basis-restated rows are not assigned a zero value."
+      },
+      "row_unit_concentration": {
+        "accession": {"effective_groups": 24.654, "groups": 47, "hhi": 0.040561, "top1_share": 0.107843, "top2_share": 0.196078},
+        "issuer": {"effective_groups": 3.789, "groups": 16, "hhi": 0.263937, "top1_share": 0.470588, "top2_share": 0.637255},
+        "owner": {"effective_groups": 4.083, "groups": 25, "hhi": 0.244906, "top1_share": 0.470588, "top2_share": 0.578431}
+      },
+      "rows_in_issuer_owner_groups_with_multiple_accessions": 75,
+      "share_basis_restatement_accessions": 8,
+      "share_basis_restatement_issuers": 1,
+      "share_basis_restatement_rows": 31,
+      "unique_accessions": 47,
+      "unique_issuer_owner_groups": 25,
+      "unique_issuers": 16,
+      "unique_reporting_owners": 25
+    },
+    "2026Q3": {
+      "accession_row_clustering": {
+        "accessions_with_multiple_transaction_rows": 15,
+        "maximum_rows_in_one_accession": 12,
+        "rows_in_multirow_accessions": 41,
+        "share_of_rows_in_multirow_accessions": 0.482353
+      },
+      "candidate_transaction_rows": 85,
+      "descriptive_examples": {
+        "2026_ault_cross_issuer": {
+          "accessions": 10,
+          "filing_dates": ["02-SEP-2026", "08-SEP-2026", "09-JUL-2026", "09-SEP-2026", "15-SEP-2026", "19-AUG-2026", "22-SEP-2026", "24-SEP-2026", "26-AUG-2026", "31-AUG-2026"],
+          "issuers": 2,
+          "legal_entity_name_rows": 0,
+          "owner_role_classes": {"director_or_officer": 15},
+          "owners": 1,
+          "rows": 15,
+          "share_basis_restatement_rows": 0,
+          "transaction_date_max": "2026-09-23",
+          "transaction_date_min": "2026-07-07",
+          "zero_reported_price_rows": 0
+        },
+        "2026_income_opportunity_realty": {
+          "accessions": 1,
+          "filing_dates": ["06-JUL-2026"],
+          "issuers": 1,
+          "legal_entity_name_rows": 12,
+          "owner_role_classes": {"ten_percent_owner_only": 12},
+          "owners": 1,
+          "rows": 12,
+          "share_basis_restatement_rows": 0,
+          "transaction_date_max": "2026-06-23",
+          "transaction_date_min": "2026-06-04",
+          "zero_reported_price_rows": 0
+        }
+      },
+      "issuer_owner_groups_with_multiple_accessions": 6,
+      "issuers_with_multiple_reporting_owners": 9,
+      "owner_name_legal_entity_flag_rows": 12,
+      "owner_name_legal_entity_flag_unique_owners": 1,
+      "owner_role_row_counts": {"director_or_officer": 72, "other_or_mixed": 1, "ten_percent_owner_only": 12},
+      "period": "2026Q3",
+      "reported_price_field_status_counts": {"positive_price_proxy_only": 85},
+      "reported_value_proxy": {
+        "eligible_rows": 85,
+        "max": "1117700.000",
+        "median": "31636.800",
+        "p75": "65000.00",
+        "p90": "243682.650",
+        "threshold_counts": {"under_10000": 28, "under_100000": 66, "under_1000000": 84},
+        "warning": "TRANS_SHARES x TRANS_PRICEPERSHARE is only a reported-field diagnostic; it is not ADV-scaled, executable notional, or market impact. Zero/missing/negative prices and share-basis-restated rows are not assigned a zero value."
+      },
+      "row_unit_concentration": {
+        "accession": {"effective_groups": 29.016, "groups": 59, "hhi": 0.034464, "top1_share": 0.141176, "top2_share": 0.176471},
+        "issuer": {"effective_groups": 15.405, "groups": 31, "hhi": 0.064913, "top1_share": 0.141176, "top2_share": 0.258824},
+        "owner": {"effective_groups": 15.405, "groups": 45, "hhi": 0.064913, "top1_share": 0.176471, "top2_share": 0.317647}
+      },
+      "rows_in_issuer_owner_groups_with_multiple_accessions": 27,
+      "share_basis_restatement_accessions": 0,
+      "share_basis_restatement_issuers": 0,
+      "share_basis_restatement_rows": 0,
+      "unique_accessions": 59,
+      "unique_issuer_owner_groups": 46,
+      "unique_issuers": 31,
+      "unique_reporting_owners": 45
+    }
+  },
+  "phase": 272,
+  "source_artifact": {
+    "artifact_id": 12781850078,
+    "inner_sha256": {
+      "2012q1_form345.zip": "0cac6f943813dae94c20ecc8bca63fda692e2b8ac6d02ce2c322ab411f45c357",
+      "2026q3_form345.zip": "a4e6a681cfcfa43a3d9e4ca9cfec1fd26a59d0a01eac7e9f7b5a0122092c90f3"
+    },
+    "outer_sha256": "203d7b1d2e29c999da318456af72e621cb30ef9a470d8f1610d088f9bebecb66",
+    "workflow_run_id": 40606706518
+  }
+}

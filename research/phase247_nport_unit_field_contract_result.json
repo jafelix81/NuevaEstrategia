@@ -1,0 +1,40 @@
+{
+  "phase": 247,
+  "audit_date": "2026-11-09",
+  "status": "LEGACY_NPORT_FLOW_PILOT_SCHEMA_DEFECT_CONFIRMED_NO_ALPHA",
+  "official_flattened_field": "UNIT",
+  "raw_xml_tag": "units",
+  "legacy_lookup_field": "UNITS",
+  "legacy_script": "Nueva_Estrategia_Fase27N_SEC_NPORT_PIT_FlowPilot.py",
+  "legacy_branch": "phase27o-nport-pit-flow-correction",
+  "official_dataset": {
+    "coverage_start": "2019-10",
+    "coverage_end": "2026-09",
+    "quarterly_archives_listed": 28,
+    "refresh": "quarterly",
+    "min_listed_zip_mb": 228.89,
+    "max_listed_zip_mb": 690.83,
+    "includes_as_filed_amendments": true,
+    "public_filings_only": true
+  },
+  "research_gates": {
+    "strict_pit_admitted": false,
+    "full_archive_audit": false,
+    "effective_dated_335_name_coverage": false,
+    "alpha_test_authorized": false,
+    "independent_oos_authorized": false,
+    "holdout_used": false,
+    "f80_frozen": true,
+    "production_changed": false,
+    "universe_changed": false
+  },
+  "tests": "11 hosted offline schema-contract regression tests passed in GitHub Actions run 42711044193",
+  "hosted_validation": {
+    "run_id": 42711044193,
+    "job": "audit",
+    "conclusion": "success",
+    "tests_passed": 11,
+    "artifact_id": 13715358092,
+    "artifact_sha256": "9b732aeae52c5a711979459feb0f094f320f8ce03ef598193be12ab7cc6ef575"
+  }
+}

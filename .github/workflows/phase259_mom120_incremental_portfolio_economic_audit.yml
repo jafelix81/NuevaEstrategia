@@ -1,0 +1,91 @@
+name: Phase 259 MOM120 portfolio incremental economic audit
+
+on:
+  pull_request:
+    branches:
+      - phase99-broad-pit-universe-charter
+    paths:
+      - 'research/phase259_mom120_incremental_portfolio_economic_audit.py'
+      - 'research/test_phase259_mom120_incremental_portfolio_economic_audit.py'
+      - '.github/workflows/phase259_mom120_incremental_portfolio_economic_audit.yml'
+
+concurrency:
+  group: phase259-mom120-economic-audit
+  cancel-in-progress: true
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.11'
+      - name: Install audit dependencies
+        run: pip install numpy pandas
+      - name: Download immutable Phase 29 cross-sectional artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: phase29-independent-alpha-lab
+          repository: ${{ github.repository }}
+          run-id: 40105752275
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: phase259_input/phase29
+      - name: Download immutable Phase 30 state-machine portfolio artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: phase30-mom120-economic-validation
+          repository: ${{ github.repository }}
+          run-id: 40149358003
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: phase259_input/phase30
+      - name: Run Phase 259 unit tests
+        run: python -m unittest discover -s research -p 'test_phase259_mom120_incremental_portfolio_economic_audit.py' -v
+      - name: Recompute accounting, OOS excess, block bootstrap and HAC
+        run: >-
+          python -m research.phase259_mom120_incremental_portfolio_economic_audit
+          --phase29-dir phase259_input/phase29
+          --phase30-dir phase259_input/phase30
+          --output phase259_output/phase259_mom120_incremental_portfolio_economic_audit_result.json
+          --bootstrap-reps 5000
+      - name: Enforce immutable data and no-promotion decision
+        run: |
+          python - <<'PY'
+          import json
+          x=json.load(open('phase259_output/phase259_mom120_incremental_portfolio_economic_audit_result.json'))
+          assert x['phase29_cross_sectional_context']['20']['oos_dates'] == 33
+          assert x['phase29_cross_sectional_context']['20']['oos_mean_q10_q1'] > 0
+          assert x['phase29_cross_sectional_context']['20']['oos_q10_q1_bootstrap_ci95'][0] > 0
+          assert x['phase30_protocol']['top_n'] == 20
+          assert x['phase30_protocol']['gross_cap'] == 1.0
+          assert x['corrected_oos_metrics']['LTM_C20']['oos_return_observations'] == 706
+          assert x['ledger_integrity']['LTM_C20']['max_positions'] == 20
+          assert x['ledger_integrity']['MOM120_C20']['max_positions'] == 20
+          assert x['ledger_integrity']['LTM_C20']['max_gross'] <= 1.000001
+          assert x['ledger_integrity']['MOM120_C20']['max_gross'] <= 1.000001
+          c=x['cost_sensitivity']['20']
+          assert abs(c['mean_excess_daily_bps']-0.7100601089978738) < 1e-8
+          assert c['bootstrap_block20']['ci_includes_zero'] is True
+          assert x['c20_block_length_sensitivity']['5']['ci_includes_zero'] is True
+          assert x['c20_block_length_sensitivity']['10']['ci_includes_zero'] is True
+          assert x['c20_block_length_sensitivity']['20']['ci_includes_zero'] is True
+          assert x['c20_block_length_sensitivity']['40']['ci_includes_zero'] is True
+          assert x['c20_block_length_sensitivity']['80']['ci_includes_zero'] is True
+          assert x['c20_hac_sensitivity']['20']['ci_includes_zero'] is True
+          assert x['published_boundary_issue']['affects_published_absolute_final_multiple_and_cagr'] is True
+          assert x['decision']['mom120_incremental_upgrade_to_f80_demonstrated'] is False
+          assert x['decision']['promote_mom120'] is False
+          assert x['decision']['f80_frozen'] is True
+          print('Phase 259 accounting and no-promotion controls passed.')
+          PY
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase259-mom120-incremental-economic-audit
+          path: phase259_output/*.json
+          if-no-files-found: error
+          retention-days: 90

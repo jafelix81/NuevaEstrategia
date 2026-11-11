@@ -1,0 +1,70 @@
+{
+  "phase": 262,
+  "status": "DATABENTO_SECURITY_MASTER_CONDITIONAL_IDENTITY_SOURCE_PIT_NOT_ADMITTED",
+  "source": {
+    "provider": "Databento",
+    "product": "Security Master",
+    "documented_history_start": "2005-01-01",
+    "documented_universe": "860,000+ listed and delisted securities",
+    "documented_exchange_coverage": "220+ global exchanges",
+    "listing_level_records": true,
+    "per_date_us_common_equity_coverage_measured": false,
+    "frozen_universe_coverage_measured": false,
+    "delisted_security_sample_verified": false
+  },
+  "clock_adjudication": {
+    "ts_effective": "validity start; not customer availability",
+    "ts_record": "last changed; not proven first publication",
+    "ts_created": "added to vendor database; not proven first customer API availability",
+    "strict_pit_rule": "require vendor clocks not after decision AND our own first-observed timestamp not after decision AND immutable raw-byte SHA-256 AND authorized license scope",
+    "documented_aapl_example": {
+      "ts_effective": "2004-11-19T00:00:00Z",
+      "ts_record": "2004-12-06T15:09:30Z",
+      "ts_created": "2024-11-11T22:41:24.780487Z",
+      "consequence": "historical effective/record dates do not establish availability in 2005"
+    }
+  },
+  "documentation_conflicts": {
+    "dataset_spec_update_frequency": "once per week",
+    "product_page_update_frequency": "four times daily",
+    "cadence_adjudicated": false,
+    "action": "do not assume a deterministic historical or prospective update schedule until clarified"
+  },
+  "identity_rules": {
+    "listing_id": "listing-level identity",
+    "security_id": "security identity across listings",
+    "issuer_id": "issuer identity across securities",
+    "ticker_only_join": false,
+    "preferred_external_crosswalks": [
+      "ISIN",
+      "US CUSIP",
+      "FIGI"
+    ],
+    "known_nasdaq_symbol_suffix_issue": "USNYSE class-share suffix normalization can lose delimiters; do not fuzzy-normalize",
+    "continuity_caveat": "do not infer continuity across spin-offs or never-relisted delistings",
+    "common_equity_filter": "listing_country=US and security_type=EQS; ETFs remain separate"
+  },
+  "licensing": {
+    "account_or_api_key_obtained": false,
+    "api_request_made": false,
+    "trial_opened": false,
+    "purchase_or_contact": false,
+    "authorized_internal_research_scope_verified": false,
+    "public_redistribution_permitted": false
+  },
+  "decision": {
+    "identity_reference_candidate": true,
+    "strict_pit_admitted": false,
+    "universe_admitted": false,
+    "adv20_source": false,
+    "feature_admitted": false,
+    "alpha_test_authorized": false,
+    "return_test_run": false,
+    "bootstrap_loo_oos_run": false,
+    "holdout_used": false,
+    "f80_frozen": true,
+    "production_changed": false,
+    "universe_changed": false,
+    "capital_changed": false
+  }
+}

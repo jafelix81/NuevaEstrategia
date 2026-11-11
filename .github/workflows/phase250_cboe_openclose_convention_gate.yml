@@ -1,0 +1,54 @@
+name: Phase 250 Cboe Open-Close historical convention gate
+
+on:
+  push:
+    branches: [phase231-cboe-option-quotes-full-row-reparse]
+    paths:
+      - "research/phase250_cboe_openclose_convention_gate.py"
+      - "research/test_phase250_cboe_openclose_convention_gate.py"
+      - ".github/workflows/phase250_cboe_openclose_convention_gate.yml"
+  pull_request:
+    branches: [phase99-broad-pit-universe-charter]
+    paths:
+      - "research/phase250_cboe_openclose_convention_gate.py"
+      - "research/test_phase250_cboe_openclose_convention_gate.py"
+      - ".github/workflows/phase250_cboe_openclose_convention_gate.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase250-cboe-openclose-convention-gate
+  cancel-in-progress: false
+
+jobs:
+  convention-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Compile Phase 250
+        run: |
+          python -m py_compile research/phase250_cboe_openclose_convention_gate.py research/test_phase250_cboe_openclose_convention_gate.py
+      - name: Run deterministic regression tests
+        run: python -m unittest -v research.test_phase250_cboe_openclose_convention_gate
+      - name: Enforce feature and PIT boundaries
+        run: |
+          python - <<'PY'
+          from research.phase250_cboe_openclose_convention_gate import classify_date
+          pre = classify_date("2018-06-15")
+          post = classify_date("2019-10-07")
+          gth = classify_date("2023-12-11")
+          assert pre["eligible_for_post_migration_contract"]
+          assert not pre["open_interest_eligible"]
+          assert post["open_interest_eligible"]
+          assert gth["gth_included"]
+          print("PHASE250=PASS")
+          print("2011_2019_DIRECTIONAL_ONLY=TRUE")
+          print("PRE_2019_VOLUME_NORMALIZATION=BLOCKED")
+          print("PRE_2019_OPEN_INTEREST=BLOCKED")
+          print("HISTORICAL_PIT_ALPHA=NOT_ADMITTED")
+          PY

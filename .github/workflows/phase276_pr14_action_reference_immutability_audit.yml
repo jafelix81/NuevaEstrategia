@@ -1,0 +1,57 @@
+name: Phase 276 PR14 workflow action immutability audit
+on:
+  push:
+    branches: [phase231-cboe-option-quotes-full-row-reparse]
+    paths:
+      - ".github/workflows/**"
+      - "research/phase276_pr14_action_reference_immutability_audit.py"
+      - "research/test_phase276_pr14_action_reference_immutability_audit.py"
+  pull_request:
+    branches: [phase99-broad-pit-universe-charter]
+    paths:
+      - ".github/workflows/**"
+      - "research/phase276_pr14_action_reference_immutability_audit.py"
+      - "research/test_phase276_pr14_action_reference_immutability_audit.py"
+      - "research/PHASE276_PR14_ACTION_REFERENCE_IMMUTABILITY_AUDIT_2026-11-10.md"
+permissions:
+  contents: read
+concurrency:
+  group: phase276-pr14-action-immutability-audit
+  cancel-in-progress: false
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Compile Phase 276
+        run: python -m py_compile research/phase276_pr14_action_reference_immutability_audit.py research/test_phase276_pr14_action_reference_immutability_audit.py
+      - name: Run Phase 276 deterministic tests
+        run: python -m unittest -v research.test_phase276_pr14_action_reference_immutability_audit
+      - name: Audit all PR14 workflow references and permissions
+        run: |
+          python -m research.phase276_pr14_action_reference_immutability_audit --output phase276_output/phase276_pr14_action_reference_audit.json
+          python - <<'PY'
+          import json
+          result = json.load(open("phase276_output/phase276_pr14_action_reference_audit.json", encoding="utf-8"))
+          assert result["status"] == "PASS_ALL_PR14_WORKFLOW_ACTIONS_IMMUTABLY_PINNED_AND_WRITE_PATH_GUARDED"
+          assert result["workflow_count_audited"] == 31
+          assert result["action_refs_total"] == 103
+          assert result["mutable_or_unverified_action_refs"] == 0
+          assert result["workflows_missing_explicit_permissions"] == []
+          assert result["pull_request_target_workflows"] == []
+          assert result["write_capable_workflows"] == [".github/workflows/phase234_cftc_bpr_prospective_capture.yml"]
+          assert result["cftc_write_workflow_main_guarded"] is True
+          assert result["controls"]["f80_frozen"] is True
+          assert result["controls"]["holdout_used"] is False
+          PY
+      - name: Upload metadata-only audit result
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase276-pr14-action-reference-immutability-audit
+          path: phase276_output/phase276_pr14_action_reference_audit.json
+          if-no-files-found: error
+          retention-days: 90

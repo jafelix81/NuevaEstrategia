@@ -1,0 +1,55 @@
+{
+  "phase": 240,
+  "date": "2026-11-09",
+  "source": "CFTC BPR and Traders in Financial Futures prospective capture",
+  "status": "PIT_STATE_MACHINE_HARDENING_HOSTED_VALIDATED",
+  "hosted_validation": {
+    "status": "success",
+    "run_id": 42643306313,
+    "url": "https://github.com/jafelix81/NuevaEstrategia/actions/runs/42643306313",
+    "bpr_tests_passed": 13,
+    "bpr_tests_total": 13,
+    "tff_tests_passed": 30,
+    "tff_tests_total": 30,
+    "total_tests_passed": 43,
+    "total_tests": 43
+  },
+  "defects": {
+    "bpr_revision_event_misclassification": {
+      "found": true,
+      "correction": "Scheduled revisions are state-only; no event_signal_eligible or pit_eligible_from_pipeline_receipt."
+    },
+    "tff_rollback_replacing_prior_state": {
+      "found": true,
+      "correction": "Only scheduled records with state_usable_after_receipt=true can define the prior comparison state."
+    },
+    "bpr_metadata_json_newline_serialization": {
+      "found": true,
+      "correction": "Metadata writers append an actual newline rather than a literal backslash-n; stored JSON remains parseable on subsequent captures."
+    }
+  },
+  "regression_coverage": {
+    "bpr_test_cases": 13,
+    "tff_test_cases": 30,
+    "added_scenarios": [
+      "BPR scheduled same-report-date changed-hash revision remains state-only",
+      "TFF baseline -> new report -> rollback -> restoration does not create a duplicate PIT event",
+      "BPR metadata JSON is successfully read by subsequent capture operations"
+    ],
+    "hosted_workflow": ".github/workflows/phase240_cftc_pit_state_guard.yml",
+    "initial_failures_resolved": true
+  },
+  "raw_capture_performed": false,
+  "historical_pit_admission": false,
+  "prospective_capture_active_on_main": false,
+  "alpha_admission": false,
+  "returns_tested": false,
+  "bootstrap_loo_tested": false,
+  "chronological_oos_tested": false,
+  "holdout_used": false,
+  "production_changed": false,
+  "universe_changed": false,
+  "data_purchased": false,
+  "vendor_contacted": false,
+  "frozen_baseline": "F80_TOP20_PARTIAL50_BASELINE_C20"
+}

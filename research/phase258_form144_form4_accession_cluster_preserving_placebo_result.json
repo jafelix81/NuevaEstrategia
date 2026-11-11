@@ -1,0 +1,140 @@
+{
+  "base_seed": 258,
+  "phase": 258,
+  "status": "ACCESSION_CLUSTER_PRESERVING_DOCUMENT_LINKAGE_SENSITIVITY_ONLY",
+  "decision": {
+    "alpha_test_authorized": false,
+    "bootstrap_loo_oos_run": false,
+    "capital_changed": false,
+    "document_linkage_descriptive_only": true,
+    "f80_frozen": true,
+    "feature_admitted": false,
+    "holdout_used": false,
+    "legacy_holdout": "CONSUMED_NOT_PRISTINE",
+    "production_changed": false,
+    "return_test_run": false,
+    "strict_pit_admitted": false,
+    "universe_changed": false
+  },
+  "inputs": {
+    "form144_artifact_id": 13385365595,
+    "form144_artifact_run_id": 41959603351,
+    "form144_sha256": "7a54ee09e8d4520e1ec14cf22f2c0d1c62d077798b14d3db596826e3360a3659",
+    "form4_artifact_id": 12781850078,
+    "form4_artifact_run_id": 40606706518,
+    "form4_inner_zip_sha256": "a4e6a681cfcfa43a3d9e4ca9cfec1fd26a59d0a01eac7e9f7b5a0122092c90f3",
+    "form4_snapshot_end": "2026-09-30"
+  },
+  "owner_identity_audit": {
+    "distinct_issuer_owner_cik_groups": 5276,
+    "distinct_reporting_owner_ciks": 5198,
+    "issuer_normalized_names_mapped_to_multiple_ciks": 0,
+    "matching_still_uses_exact_normalized_owner_name": true,
+    "owner_ciks_with_multiple_normalized_names": 0,
+    "permutation_grouping_uses_reporting_owner_cik": true
+  },
+  "permutations_per_stratification": 1000,
+  "sample": {
+    "blocks_in_multi_block_accessions_frozen": 3013,
+    "eligible_notices": 1451,
+    "eligible_tranches": 1460,
+    "exact_date_share_links": 521,
+    "exact_links_in_multi_block_accessions_frozen": 107,
+    "exact_links_in_single_block_accessions": 414,
+    "fallback_links": 49,
+    "form144_panel_rows": 21634,
+    "form4_nonderivative_rows": 59885,
+    "form4_submissions": 38152,
+    "form4_unique_owner_sale_blocks": 10525,
+    "multi_block_accessions": 1385,
+    "single_block_accessions": 7512,
+    "unique_form4_accessions_with_selected_sale_blocks": 8897
+  },
+  "multiple_testing": {
+    "family": [
+      "issuer_owner_cik",
+      "issuer_owner_cik_month",
+      "issuer_owner_cik_iso_week"
+    ],
+    "holm_adjusted_tails": {
+      "issuer_owner_cik": 0.002997002997002997,
+      "issuer_owner_cik_iso_week": 0.002997002997002997,
+      "issuer_owner_cik_month": 0.002997002997002997
+    },
+    "method": "Holm step-down",
+    "raw_plus_one_tails": {
+      "issuer_owner_cik": 0.000999000999000999,
+      "issuer_owner_cik_iso_week": 0.000999000999000999,
+      "issuer_owner_cik_month": 0.000999000999000999
+    },
+    "scope": "exploratory linkage-placebo sensitivity only; not alpha inference"
+  },
+  "placebos": {
+    "issuer_owner_cik": {
+      "empirical_tail_plus_one": 0.000999000999000999,
+      "groups": 4886,
+      "holm_adjusted_tail": 0.002997002997002997,
+      "interpretation": "conditional document-linkage placebo; filing dates fixed; one lag per single-block accession permuted within issuer x reporting-owner CIK and local time stratum; multi-block accessions frozen; not a return-alpha p-value",
+      "multi_accession_blocks_frozen": 3013,
+      "mutable_form4_blocks": 2943,
+      "mutable_single_accession_blocks": 2943,
+      "null_max": 80,
+      "null_mean": 58.848,
+      "null_median": 59,
+      "null_p95": 69,
+      "null_replicates_at_or_above_observed": 0,
+      "observed_mutable_exact_links": 127,
+      "permutable_groups": 940,
+      "replicates": 1000,
+      "seed": 258,
+      "single_accession_blocks": 7512,
+      "status": "COMPLETED",
+      "stratification": "issuer_owner_cik",
+      "zero_exceedance_one_sided_95pct_upper": 0.0029912495450953314
+    },
+    "issuer_owner_cik_month": {
+      "empirical_tail_plus_one": 0.000999000999000999,
+      "groups": 6192,
+      "holm_adjusted_tail": 0.002997002997002997,
+      "interpretation": "conditional document-linkage placebo; filing dates fixed; one lag per single-block accession permuted within issuer x reporting-owner CIK and local time stratum; multi-block accessions frozen; not a return-alpha p-value",
+      "multi_accession_blocks_frozen": 3013,
+      "mutable_form4_blocks": 1451,
+      "mutable_single_accession_blocks": 1451,
+      "null_max": 43,
+      "null_mean": 26.249,
+      "null_median": 26,
+      "null_p95": 34,
+      "null_replicates_at_or_above_observed": 0,
+      "observed_mutable_exact_links": 56,
+      "permutable_groups": 545,
+      "replicates": 1000,
+      "seed": 259,
+      "single_accession_blocks": 7512,
+      "status": "COMPLETED",
+      "stratification": "issuer_owner_cik_month",
+      "zero_exceedance_one_sided_95pct_upper": 0.0029912495450953314
+    },
+    "issuer_owner_cik_iso_week": {
+      "empirical_tail_plus_one": 0.000999000999000999,
+      "groups": 7070,
+      "holm_adjusted_tail": 0.002997002997002997,
+      "interpretation": "conditional document-linkage placebo; filing dates fixed; one lag per single-block accession permuted within issuer x reporting-owner CIK and local time stratum; multi-block accessions frozen; not a return-alpha p-value",
+      "multi_accession_blocks_frozen": 3013,
+      "mutable_form4_blocks": 565,
+      "mutable_single_accession_blocks": 565,
+      "null_max": 24,
+      "null_mean": 14.208,
+      "null_median": 14,
+      "null_p95": 20,
+      "null_replicates_at_or_above_observed": 0,
+      "observed_mutable_exact_links": 28,
+      "permutable_groups": 240,
+      "replicates": 1000,
+      "seed": 260,
+      "single_accession_blocks": 7512,
+      "status": "COMPLETED",
+      "stratification": "issuer_owner_cik_iso_week",
+      "zero_exceedance_one_sided_95pct_upper": 0.0029912495450953314
+    }
+  }
+}
