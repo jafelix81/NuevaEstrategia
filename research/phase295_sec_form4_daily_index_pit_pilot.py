@@ -244,31 +244,46 @@ def run_audit(email: str, output_dir: Path) -> dict[str, Any]:
 
         try:
             total_requests += 1
-            payload, headers = _fetch(submission_url(accession, sample["issuer_cik"]), user_agent)
+            url = submission_url(accession, sample["issuer_cik"])
+            payload, headers = _fetch(url, user_agent)
             total_bytes += len(payload)
             if total_bytes > MAX_TOTAL_BYTES:
                 raise RetrievalError("total_download_size_limit_exceeded")
-            header = parse_submission_header(payload, accession, sample["form"])
-            expected_filed_date = sample["filing_date"].replace("-", "")
-            filed_as_of = header.get("FILED AS OF DATE", "")
-            header_date_matches = filed_as_of == expected_filed_date
-            acceptance_date_matches = header.get("acceptance_date_matches_filed_date") is True
-            header_ok = header_date_matches and acceptance_date_matches
+
+            # Preserve every successfully retrieved SEC response before parsing.
+            # A parser failure must not discard the raw evidence needed to diagnose
+            # format/era differences in the complete-submission header.
             path = submission_root / f"{accession}.txt"
             path.write_bytes(payload)
             result.update({
-                "submission_status": "HEADER_RECONCILED" if header_ok else "FILED_OR_ACCEPTANCE_DATE_MISMATCH",
-                "submission_url": submission_url(accession, sample["issuer_cik"]),
+                "submission_url": url,
                 "submission_raw_file": str(path.relative_to(output_dir)),
                 "submission_bytes": len(payload),
                 "submission_sha256": hashlib.sha256(payload).hexdigest(),
                 "submission_response_headers": headers,
-                "submission_header": header,
-                "bulk_filing_date_matches_header": header_date_matches,
-                "acceptance_date_matches_filed_date": acceptance_date_matches,
             })
-        except (RetrievalError, ValueError) as exc:
-            result.update({"submission_status": "RETRIEVAL_OR_HEADER_ERROR", "submission_error": str(exc)[:240]})
+
+            try:
+                header = parse_submission_header(payload, accession, sample["form"])
+            except ValueError as exc:
+                result.update({
+                    "submission_status": "RETRIEVED_HEADER_PARSE_ERROR",
+                    "submission_error": str(exc)[:240],
+                })
+            else:
+                expected_filed_date = sample["filing_date"].replace("-", "")
+                filed_as_of = header.get("FILED AS OF DATE", "")
+                header_date_matches = filed_as_of == expected_filed_date
+                acceptance_date_matches = header.get("acceptance_date_matches_filed_date") is True
+                header_ok = header_date_matches and acceptance_date_matches
+                result.update({
+                    "submission_status": "HEADER_RECONCILED" if header_ok else "FILED_OR_ACCEPTANCE_DATE_MISMATCH",
+                    "submission_header": header,
+                    "bulk_filing_date_matches_header": header_date_matches,
+                    "acceptance_date_matches_filed_date": acceptance_date_matches,
+                })
+        except RetrievalError as exc:
+            result.update({"submission_status": "RETRIEVAL_ERROR", "submission_error": str(exc)[:240]})
         accession_results.append(result)
         time.sleep(0.25)
 
