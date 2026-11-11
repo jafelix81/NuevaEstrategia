@@ -52,7 +52,9 @@
         "corporate_action_clear": true,
         "current_vintage_as_of_signal": true,
         "part_d_ineligible_due_prior_public": true,
-        "current_part_c_rows": []
+        "current_part_c_rows": [],
+        "expected_cusip": "000000000",
+        "expected_isin": "US0000000000"
       }
     },
     {
@@ -67,7 +69,9 @@
         "corporate_action_clear": true,
         "current_vintage_as_of_signal": true,
         "part_d_ineligible_due_prior_public": false,
-        "current_part_c_rows": []
+        "current_part_c_rows": [],
+        "expected_cusip": "000000000",
+        "expected_isin": "US0000000000"
       }
     },
     {
@@ -82,7 +86,9 @@
         "corporate_action_clear": true,
         "current_vintage_as_of_signal": true,
         "part_d_ineligible_due_prior_public": false,
-        "current_part_c_rows": []
+        "current_part_c_rows": [],
+        "expected_cusip": "000000000",
+        "expected_isin": "US0000000000"
       }
     },
     {
@@ -97,7 +103,9 @@
         "corporate_action_clear": true,
         "current_vintage_as_of_signal": true,
         "part_d_ineligible_due_prior_public": true,
-        "current_part_c_rows": []
+        "current_part_c_rows": [],
+        "expected_cusip": "000000000",
+        "expected_isin": "US0000000000"
       }
     },
     {
@@ -112,7 +120,9 @@
         "corporate_action_clear": true,
         "current_vintage_as_of_signal": true,
         "part_d_ineligible_due_prior_public": true,
-        "current_part_c_rows": []
+        "current_part_c_rows": [],
+        "expected_cusip": "000000000",
+        "expected_isin": "US0000000000"
       }
     },
     {
@@ -127,7 +137,9 @@
         "corporate_action_clear": true,
         "current_vintage_as_of_signal": true,
         "part_d_ineligible_due_prior_public": true,
-        "current_part_c_rows": []
+        "current_part_c_rows": [],
+        "expected_cusip": "000000000",
+        "expected_isin": "US0000000000"
       }
     },
     {
@@ -142,7 +154,9 @@
         "corporate_action_clear": true,
         "current_vintage_as_of_signal": true,
         "part_d_ineligible_due_prior_public": true,
-        "current_part_c_rows": []
+        "current_part_c_rows": [],
+        "expected_cusip": "000000000",
+        "expected_isin": "US0000000000"
       }
     },
     {
@@ -157,7 +171,9 @@
         "corporate_action_clear": false,
         "current_vintage_as_of_signal": true,
         "part_d_ineligible_due_prior_public": true,
-        "current_part_c_rows": []
+        "current_part_c_rows": [],
+        "expected_cusip": "000000000",
+        "expected_isin": "US0000000000"
       }
     },
     {
@@ -172,7 +188,9 @@
         "corporate_action_clear": true,
         "current_vintage_as_of_signal": false,
         "part_d_ineligible_due_prior_public": true,
-        "current_part_c_rows": []
+        "current_part_c_rows": [],
+        "expected_cusip": "000000000",
+        "expected_isin": "US0000000000"
       }
     },
     {
@@ -195,7 +213,12 @@
             "asset_cat": "EC",
             "issuer_cat": "CORP",
             "title": "Common Stock",
-            "balance": -40
+            "balance": -40,
+            "cusip": "000000000",
+            "isin": "US0000000000",
+            "investment_country": "US",
+            "currency_value": -100,
+            "percentage": -0.1
           },
           {
             "payoff_profile": "Short",
@@ -203,9 +226,16 @@
             "asset_cat": "EC",
             "issuer_cat": "CORP",
             "title": "Common Stock",
-            "balance": -60
+            "balance": -60,
+            "cusip": "000000000",
+            "isin": "US0000000000",
+            "investment_country": "US",
+            "currency_value": -100,
+            "percentage": -0.1
           }
-        ]
+        ],
+        "expected_cusip": "000000000",
+        "expected_isin": "US0000000000"
       }
     },
     {
@@ -228,9 +258,16 @@
             "asset_cat": "EC",
             "issuer_cat": "CORP",
             "title": "Common Stock",
-            "balance": 75
+            "balance": 75,
+            "cusip": "000000000",
+            "isin": "US0000000000",
+            "investment_country": "US",
+            "currency_value": 100,
+            "percentage": 0.1
           }
-        ]
+        ],
+        "expected_cusip": "000000000",
+        "expected_isin": "US0000000000"
       }
     },
     {
@@ -252,9 +289,16 @@
             "asset_cat": "EC",
             "issuer_cat": "CORP",
             "title": "Common Stock",
-            "balance": -40
+            "balance": -40,
+            "cusip": "000000000",
+            "isin": "US0000000000",
+            "investment_country": "US",
+            "currency_value": -100,
+            "percentage": -0.1
           }
-        ]
+        ],
+        "expected_cusip": "000000000",
+        "expected_isin": "US0000000000"
       }
     },
     {
@@ -269,7 +313,9 @@
         "corporate_action_clear": true,
         "current_vintage_as_of_signal": true,
         "part_d_ineligible_due_prior_public": true,
-        "current_part_c_rows": null
+        "current_part_c_rows": null,
+        "expected_cusip": "000000000",
+        "expected_isin": "US0000000000"
       }
     }
   ],
