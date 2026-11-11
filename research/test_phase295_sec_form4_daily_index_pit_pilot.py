@@ -11,12 +11,12 @@ from research.phase295_sec_form4_daily_index_pit_pilot import (
     run_audit,
     submission_url,
     _fetch,
+    parse_form4_submission_header,
 )
 from research.phase283_sec_daily_index_parser import (
     build_accession_ledger,
     parse_daily_form_index,
 )
-from research.phase193_nport_raw_filing_retrieval import parse_submission_header
 
 ACCESSION = "0000005513-06-000002"
 INDEX = b"""Description: Form 4 filings
@@ -48,7 +48,7 @@ class Phase295Tests(unittest.TestCase):
             "https://www.sec.gov/Archives/edgar/daily-index/2023/QTR2/form.20230403.idx",
         )
 
-    def test_submission_url_uses_accession_filer_cik_and_unhyphenated_directory(self):
+    def test_submission_url_uses_issuer_cik_and_daily_index_filename_shape(self):
         self.assertEqual(
             submission_url(ACCESSION, "0000005513"),
             "https://www.sec.gov/Archives/edgar/data/5513/0000005513-06-000002.txt",
@@ -73,17 +73,41 @@ class Phase295Tests(unittest.TestCase):
         self.assertEqual(result["records"], [])
         self.assertEqual(result["counts"]["index_date_before_filing_date"], 1)
 
-    def test_sec_header_acceptance_time_reconciles_accession_form_and_date(self):
+    def test_sec_header_acceptance_time_reconciles_actual_sgml_format(self):
+        header = b"""<SEC-DOCUMENT>0000005513-06-000002.txt : 20060103
+<SEC-HEADER>0000005513-06-000002.hdr.sgml : 20060102
+<ACCEPTANCE-DATETIME>20060103145613
+ACCESSION NUMBER:\t\t0000005513-06-000002
+CONFORMED SUBMISSION TYPE:\t4
+FILED AS OF DATE:\t\t20060103
+</SEC-HEADER>
+"""
+        result = parse_form4_submission_header(header, ACCESSION, "4")
+        self.assertEqual(result["acceptance_datetime_utc"], "2006-01-03T19:56:13+00:00")
+        self.assertTrue(result["acceptance_date_matches_filed_date"])
+        self.assertEqual(result["header_accession_reconciled"], "true")
+
+    def test_acceptance_date_can_differ_from_filed_date_without_losing_timestamp(self):
+        header = b"""<SEC-HEADER>
+<ACCEPTANCE-DATETIME>20060104145613
+ACCESSION NUMBER: 0000005513-06-000002
+CONFORMED SUBMISSION TYPE: 4
+FILED AS OF DATE: 20060103
+</SEC-HEADER>
+"""
+        result = parse_form4_submission_header(header, ACCESSION, "4")
+        self.assertFalse(result["acceptance_date_matches_filed_date"])
+        self.assertEqual(result["acceptance_datetime_utc"], "2006-01-04T19:56:13+00:00")
+
+    def test_missing_acceptance_datetime_is_quarantined(self):
         header = b"""<SEC-HEADER>
 ACCESSION NUMBER: 0000005513-06-000002
 CONFORMED SUBMISSION TYPE: 4
 FILED AS OF DATE: 20060103
-ACCEPTANCE-DATETIME: 20060103123456
 </SEC-HEADER>
 """
-        result = parse_submission_header(header, ACCESSION, "4")
-        self.assertEqual(result["acceptance_datetime_utc"], "2006-01-03T17:34:56+00:00")
-        self.assertTrue(result["acceptance_date_matches_filed_date"])
+        with self.assertRaisesRegex(ValueError, "acceptance_datetime_missing_or_invalid"):
+            parse_form4_submission_header(header, ACCESSION, "4")
 
     def test_missing_contact_blocks_without_network(self):
         with tempfile.TemporaryDirectory() as temp:
