@@ -63,7 +63,8 @@ class Phase299Tests(unittest.TestCase):
     def test_xml_table_mapping(self):
         parsed = parse_submission(SAMPLE)
         from xml.etree import ElementTree as ET
-        root = ET.fromstring(SAMPLE.split(b"<XML>", 1)[1].split(b"</XML>", 1)[0])
+        block = SAMPLE.split(b"<XML>", 1)[1].split(b"</XML>", 1)[0].strip()
+        root = ET.fromstring(block)
         rows = xml_transaction_rows(root, "nd")
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0]["TRANS_CODE"], "P")
