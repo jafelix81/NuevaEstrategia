@@ -28,7 +28,7 @@ Historical run: [39493106882](https://github.com/jafelix81/NuevaEstrategia/actio
 
 The artifact was downloaded from GitHub and its JSON inspected directly:
 
-| Snapshot | Selected series | Eligible equity/long rows | Resolved universe tickers | Tick ers with positive shares |
+| Snapshot | Selected series | Eligible equity/long rows | Resolved universe tickers | Tickers with positive shares |
 |---|---:|---:|---:|---:|
 | 2019Q4 | 5,609 | 818,989 | 267 | 0 |
 | 2020Q4 | 6,021 | 831,219 | 283 | 0 |
