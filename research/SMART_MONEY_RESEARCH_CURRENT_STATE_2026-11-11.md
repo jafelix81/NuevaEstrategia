@@ -90,3 +90,12 @@ Implemented an offline parser/ledger for the conditional Phase 281 SEC daily-ind
 - Branch inventory is 134 branches (100 on page 1, 34 on page 2). No PR was merged; F80, production, universe, capital and holdout remain unchanged.
 
 Phase 283 is an offline parser contract only. Do not describe parser tests as passing until the final PR workflow run is inspected.
+
+
+## Phase 283 refinement — delayed Form 4 index-date handling (2026-11-11)
+
+A code review found that the original parser required `Date Filed == form.YYYYMMDD.idx`, making its advertised multi-date accession ledger unreachable for a later daily-index sighting. This was too strict for the SEC's documented next-business-day dissemination of some Forms 3/4/5 filed after 10 p.m. ET.
+
+The parser now quarantines only index dates before `Date Filed`, retains later index sightings with explicit lag days, and never backdates a later-only sighting to FILING_DATE. Synthetic tests cover the delayed sighting, multi-date aggregation and no-backdating rule. Raw SEC bytes, actual late-sighting frequency and PAC behavior remain unverified.
+
+This is a data-contract correction, not a new source or alpha result. SEC_CONTACT_EMAIL remains unconfigured; no SEC request was made. F80 and all production/holdout controls remain unchanged.
