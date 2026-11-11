@@ -1,0 +1,142 @@
+name: Phase 298 SEC Form 4/A cross-quarter lineage live audit
+
+on:
+  push:
+    branches:
+      - phase298-form4a-crossquarter-lineage-live-audit
+    paths:
+      - .github/workflows/phase298_form4a_crossquarter_lineage_live.yml
+      - research/phase153_form4_crossquarter_parent_lineage.py
+      - research/test_phase153_form4_crossquarter_parent_lineage.py
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: phase298-form4a-crossquarter-lineage-live-audit
+  cancel-in-progress: false
+
+jobs:
+  cross-quarter-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      SEC_CONTACT_EMAIL: ${{ secrets.SEC_CONTACT_EMAIL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+
+      - name: Compile and run existing Phase 153 regression suite
+        run: |
+          python -m py_compile research/phase153_form4_crossquarter_parent_lineage.py
+          python -m unittest discover -s research -p 'test_phase153_*.py' -v
+
+      - name: Download immutable Phase 294 raw archive artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p phase298_input phase298_output adjacent_source
+          curl --fail --silent --show-error --location \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13884014630/zip \
+            -o phase298_input/phase294-sec-form4-bulk-sample.zip
+          echo "8b256375a68ffc581134e3fb05dd96ca3a02f6acd47925a003aa3f4b3d1680f4  phase298_input/phase294-sec-form4-bulk-sample.zip" | sha256sum --check
+          unzip -q phase298_input/phase294-sec-form4-bulk-sample.zip -d phase298_input/raw
+
+      - name: Verify immutable endpoint-quarter source bytes
+        run: |
+          set -euo pipefail
+          INPUT_DIR="$(dirname "$(find phase298_input/raw -name '2012q1_form345.zip' -print -quit)")"
+          test -f "$INPUT_DIR/2026q3_form345.zip"
+          echo "0cac6f943813dae94c20ecc8bca63fda692e2b8ac6d02ce2c322ab411f45c357  $INPUT_DIR/2012q1_form345.zip" | sha256sum --check
+          echo "a4e6a681cfcfa43d3a9d4e9ca9cfec1fd26a59d0a01eac7e9f7b5a0122092c90f3  $INPUT_DIR/2026q3_form345.zip" | sha256sum --check
+          printf '%s\n' "$INPUT_DIR" > phase298_input/input_dir.txt
+
+      - name: Download immediately preceding 2026Q2 SEC archive
+        id: q2
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$SEC_CONTACT_EMAIL" || { echo "SEC_CONTACT_EMAIL was not injected"; exit 1; }
+          UA="NuevaEstrategia research ${SEC_CONTACT_EMAIL}"
+          URL='https://www.sec.gov/files/datastandardsinnovation/data/insider-transactions-data-sets/2026q2_form345.zip'
+          curl --fail --silent --show-error --location --retry 3 --retry-delay 2 \
+            --connect-timeout 30 --max-time 240 -A "$UA" \
+            -H 'Accept: application/zip, application/octet-stream, */*' \
+            -H 'Accept-Encoding: identity' \
+            "$URL" -o adjacent_source/2026q2_form345.zip
+          test -s adjacent_source/2026q2_form345.zip
+          unzip -t adjacent_source/2026q2_form345.zip >/dev/null
+          sha256sum adjacent_source/2026q2_form345.zip
+
+      - name: Attempt optional 2011Q4 boundary archive
+        id: q4
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          UA="NuevaEstrategia research ${SEC_CONTACT_EMAIL}"
+          URL='https://www.sec.gov/files/structureddata/data/insider-transactions-data-sets/2011q4_form345.zip'
+          if curl --fail --silent --show-error --location --retry 2 --retry-delay 2 \
+            --connect-timeout 30 --max-time 180 -A "$UA" \
+            -H 'Accept: application/zip, application/octet-stream, */*' \
+            -H 'Accept-Encoding: identity' \
+            "$URL" -o adjacent_source/2011q4_form345.zip; then
+            test -s adjacent_source/2011q4_form345.zip
+            unzip -t adjacent_source/2011q4_form345.zip >/dev/null
+            sha256sum adjacent_source/2011q4_form345.zip
+          else
+            rm -f adjacent_source/2011q4_form345.zip
+            echo "2011Q4 unavailable; 2012Q1 search window remains incomplete."
+          fi
+
+      - name: Build cross-quarter candidate-parent and line-diff audit
+        run: |
+          INPUT_DIR="$(cat phase298_input/input_dir.txt)"
+          python research/phase153_form4_crossquarter_parent_lineage.py \
+            --input-dir "$INPUT_DIR" \
+            --adjacent-dir adjacent_source \
+            --output phase298_output/phase298_form4a_crossquarter_lineage_result.json
+
+      - name: Enforce complete 2026Q3 window and no-promotion controls
+        run: |
+          python - <<'PY'
+          import json
+          p = "phase298_output/phase298_form4a_crossquarter_lineage_result.json"
+          r = json.load(open(p, encoding="utf-8"))
+          assert r["phase"] == 153
+          assert r["periods"]["2026Q3"]["search_window_complete"] is True
+          assert r["periods"]["2026Q3"]["search_window_periods"] == ["2026Q2", "2026Q3"]
+          assert r["periods"]["2026Q3"]["amendments"] == 627
+          assert r["verified_eton_regression"]["candidate_parent_accessions"] == ["0001437749-26-029196"]
+          assert r["alpha_test"] is False
+          assert r["final_holdout_used"] is False
+          assert r["f80_modified"] is False
+          assert r["periods"]["2026Q3"]["unique_candidate_parent"] <= r["periods"]["2026Q3"]["amendments"]
+          print("PHASE298_STATUS=CROSS_QUARTER_CANDIDATE_AUDIT_COMPLETE")
+          for q, x in r["periods"].items():
+              print(f"{q}: amendments={x['amendments']} unique={x['unique_candidate_parent']} adjacent={x['unique_adjacent_quarter_candidate']} ambiguous={x['ambiguous_candidates']} no_candidate={x['no_candidate_in_available_window']} coverage_pct={x['candidate_coverage_pct']} window_complete={x['search_window_complete']}")
+          print("ALPHA=false HOLDOUT=false F80_MODIFIED=false")
+          PY
+
+      - name: Upload raw SEC adjacent-quarter bytes and audit result
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase298-form4a-crossquarter-lineage-live-audit
+          path: |
+            phase298_output/*
+            adjacent_source/*
+            phase298_input/input_dir.txt
+          if-no-files-found: warn
+          retention-days: 90
