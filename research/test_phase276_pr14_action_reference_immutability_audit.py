@@ -1,5 +1,5 @@
 import unittest
-from research.phase276_pr14_action_reference_immutability_audit import WRITE_WORKFLOW, inspect_workflow
+from research.phase276_pr14_action_reference_immutability_audit import WRITE_WORKFLOW, WORKFLOW_PATHS, inspect_workflow
 
 CHECKOUT = "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
 SETUP = "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065"
@@ -62,6 +62,11 @@ class Phase276WorkflowAuditTests(unittest.TestCase):
     def test_workflow_without_action_refs_is_rejected(self):
         result = inspect_workflow(".github/workflows/test.yml", "permissions:\n  contents: read\n")
         self.assertIn("NO_ACTION_REFERENCES", result["errors"])
+
+    def test_phase277_and_phase278_are_in_audit_inventory(self):
+        self.assertIn(".github/workflows/phase277_finra_ats_stratified_coverage_audit.yml", WORKFLOW_PATHS)
+        self.assertIn(".github/workflows/phase278_finra_ats_duplicate_grain_followup.yml", WORKFLOW_PATHS)
+        self.assertEqual(len(WORKFLOW_PATHS), 30)
 
 if __name__ == "__main__":
     unittest.main()

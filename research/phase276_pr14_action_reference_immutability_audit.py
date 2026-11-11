@@ -41,6 +41,8 @@ WORKFLOW_PATHS = (
     ".github/workflows/phase274_form4_conservative_date_only_pit_clusters.yml",
     ".github/workflows/phase275_form4_disclosure_event_unit_audit.yml",
     ".github/workflows/phase276_pr14_action_reference_immutability_audit.yml",
+    ".github/workflows/phase277_finra_ats_stratified_coverage_audit.yml",
+    ".github/workflows/phase278_finra_ats_duplicate_grain_followup.yml",
 )
 
 def extract_action_refs(text: str) -> list[str]:

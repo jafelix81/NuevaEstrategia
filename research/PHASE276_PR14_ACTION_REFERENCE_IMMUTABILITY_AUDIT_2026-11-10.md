@@ -43,3 +43,10 @@ The Phase 276 push run [42937883538](https://github.com/jafelix81/NuevaEstrategi
 ## Research controls
 
 No live CFTC capture, manual dispatch, SEC request, data purchase, vendor contact, PR merge, production/universe/capital change, return test, alpha admission or holdout use occurred. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen; the legacy holdout remains consumed and unused.
+
+
+## Follow-up inventory expansion — Phases 277–278
+
+The original Phase 276 allowlist and hosted result covered 28 PR #14 workflow files and 94 action references. Phases 277 and 278 subsequently added two read-only workflows, so the original hard-coded inventory was no longer exhaustive.
+
+The auditor and deterministic tests have now been extended to include both new workflows. The expected inventory is **30 workflows / 100 action references**. Hosted revalidation is pending; until it passes, the original 28-workflow result must not be described as covering the newer Phase 277/278 workflows.

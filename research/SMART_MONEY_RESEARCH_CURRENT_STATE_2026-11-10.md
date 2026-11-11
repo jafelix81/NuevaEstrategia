@@ -354,3 +354,9 @@ No alpha/OOS result from Phase 253. No returns, bootstrap/LOO, chronological OOS
 - Added a targeted re-fetch of the 2025-07-07/T2 partition to inspect the two Phase 277 conflicting candidate-key groups without persisting full partition rows or selecting/summing/deduplicating any row.
 - 13 deterministic tests passed locally. Hosted retrieval is pending.
 - No strict PIT admission, alpha/return test, bootstrap/LOO, OOS or holdout use. F80, production, universe and capital remain unchanged.
+
+
+## Phase 276 inventory follow-up — Phases 277/278 (pending)
+- Identified that the original Phase 276 hard-coded allowlist covered 28 PR #14 workflows / 94 action refs and did not yet include the subsequently added Phase 277 and Phase 278 read-only workflows.
+- Expanded the auditor and tests to include both workflows; expected inventory is 30 workflows / 100 action refs. Removed the Phase 276 report from its own path filter so the eventual report update does not trigger a redundant full audit.
+- Hosted revalidation is pending. No new write-capable workflow, permission escalation, PR merge, production/universe/capital change or F80 modification is intended.
