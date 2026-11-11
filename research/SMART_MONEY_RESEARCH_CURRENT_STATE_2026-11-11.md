@@ -332,3 +332,46 @@ This offline audit re-read the six raw ZIPs from Phase 294 artifact [13884014630
 - Branch inventory: **145** (100 branches on page 1, 45 on page 2) after creating this Phase 296 research-only branch. PR #14 remains open on head `6dedb088d7289ca5155a319b5f88155c2d431be3`; PR #13 remains open on head `61f737f18b410bc6d85b8c56ed96bc1fd9c130f5`. No PR was opened or merged for Phases 294–296.
 - Historical statements in Phases 281–293 that `SEC_CONTACT_EMAIL` was unconfigured were accurate at the time and are superseded by the successful Phase 294/295 secret-injection checks.
 - F80, production, universe, capital, parameters and the consumed legacy holdout remain unchanged. No paid data, vendor contact or data license was initiated.
+
+
+## Phase 297 — Form 4 transaction-form-type reconciliation (2026-11-11)
+
+- Corrected the Phase 296 Table I cohort by requiring transaction-level \`TRANS_FORM_TYPE=4\`. The candidate set fell from 15,590 to **15,475 rows**, 10,997 accessions, 3,226 issuers and 6,677 reporting owners; 115 type-5 rows were excluded.
+- Recomputed the versioned high-precision open-market-footnote screen: 413 rows, 365 also with positive shares and price. Code P remains open-market **or private** purchase; it is not an open-market-only label.
+- Workflow 43094005689 passed 6/6 deterministic tests. No return/alpha test or PIT admission.
+
+## Phase 298 — Form 4/A cross-quarter parent-lineage live audit (2026-11-11)
+
+- Downloaded and CRC-checked 2011Q4 and 2026Q2 SEC bulk archives. Including the immediately prior quarter increased unique candidate links to 1,355/1,862 (72.77%) for 2012Q1 and 518/627 (82.62%) for 2026Q3.
+- Remaining candidates were ambiguous (44 and 8) or had no parent in the two-quarter search windows (463 and 101). Candidate links still lack an authoritative parent-accession foreign key.
+- Workflow 43101285104 succeeded; no alpha/return test.
+
+## Phase 299 — Form 4/A original EDGAR submission sample (2026-11-11)
+
+- Deterministically selected 46 candidate original/amendment pairs across 2012Q1 and 2026Q3, including adjacent-quarter, line-difference and partial-owner strata; 90 raw SEC complete-submission documents were retrieved.
+- The sample is a source-validation design, not a prevalence estimate. It does not establish parent accession identity, transaction-owner attribution, first-public availability or alpha.
+- Final workflow 43115460066 succeeded after an intermediate failed attempt 43115373933.
+
+## Phase 300 — Form 4/A XML-to-bulk reconciliation (2026-11-11)
+
+- Corroborated all **46/46** candidate links using original EDGAR headers/XML: issuer, date-of-original-submission, owner overlap, form type and acceptance chronology.
+- Of 90 documents, 88 matched the central transaction signature and 80 matched the broader signature. Remaining differences were limited to \`NATURE_OF_OWNERSHIP\` and/or \`TRANS_TIMELINESS\`; no transaction economics were promoted from an ambiguous line diff.
+- Workflow 43116245184 succeeded. No return or alpha test.
+
+## Phase 301 — 2023Q2 intermediate-era Form 4/A lineage and XML audit (2026-11-11)
+
+- Retrieved and validated SEC bulk archives 2022Q4, 2023Q1 and 2023Q2 (151,185 Form 4/4-A accessions across the three quarters). Target 2023Q2 has 937 Form 4/A accessions with an original-submission date and owner: **719 unique owner-overlap candidates (76.73%)**, 24 ambiguous, 15 same-issuer/date with no owner overlap, and 179 with no parent candidate in the loaded three-quarter window.
+- Adding 2022Q4 to the 2023Q1–Q2 window added 22 unique candidates and reduced the no-parent-in-window count from 202 to 179. No-parent means no candidate in the loaded window, not no parent anywhere in EDGAR.
+- The deterministic sample contains 52 cases and 102 original EDGAR documents: 24 unique pairs, 8 ambiguous, 8 no-owner-overlap and 12 no-parent. All 24 unique pairs were corroborated by XML metadata; all 8 ambiguous cases remained ambiguous. Two no-owner-overlap cases were capped at 12 of 15 candidate parent documents.
+- All 102 documents passed download, XML parse, header/XML identity and row-count checks; all 102 matched the core transaction signature. 98/102 matched the broader signature. The four full-signature differences were limited to \`NATURE_OF_OWNERSHIP\` and/or \`TRANS_TIMELINESS\` (one Table I document and three Table II documents).
+- Final workflow 43121592821 succeeded with 35 regression tests across Phases 153/299/300/301. The first Phase 301 attempt 43121407654 stopped at the GitHub artifact endpoint with HTTP 401 before SEC requests; the final workflow retrieved all three archives directly from the SEC. Raw archives, 102 submissions, manifest and result are preserved in artifact 13901611120 (SHA-256 \`5840790fac1d411f95dad60737e68d9a6bc26d08380a7be9b8d1d18d74b51333\`).
+- Decision: lineage is better supported but still not admitted for strict PIT/event-flow modeling. Date-only original-submission metadata is not a parent-accession foreign key; owner sets are accession-level, not transaction-line-level. Next gate: SEC daily-index first-appearance and PAC/correction audit for the 2023 sample, plus targeted longer lookback for no-parent cases and effective-dated security identity.
+- No return/alpha, bootstrap/LOO, chronological OOS or holdout test. F80, production, universe, capital and parameters remain unchanged. No email was sent; the SEC contact secret was used only in the User-Agent.
+
+## Current repository verification — 2026-11-11 23:42 UTC
+
+- Latest 100 Actions runs: **63 successful, 12 failed, 25 cancelled, zero active/queued**. The final Phase 301 run 43121592821 succeeded; the earlier 43121407654 failed before any SEC request because the GitHub artifact-download endpoint returned HTTP 401. The final workflow avoided that dependency by retrieving the public SEC archives directly.
+- Branch inventory: **150** (100 on page 1, 50 on page 2). The Phase 301 work remains on research-only branch \`phase301-form4a-intermediate-era-lineage-audit\`; no PR was opened or merged.
+- PR #13 and PR #14 remain open and unchanged. Eleven PRs are currently open in the repository.
+- The workflow's SEC contact expression was corrected for future runs; the final run's contact value was masked in logs and used only in the SEC User-Agent. No email was sent.
+- F80, production, universe, capital, parameters and the consumed legacy holdout remain unchanged. No paid data, vendor contact or data license was initiated.
