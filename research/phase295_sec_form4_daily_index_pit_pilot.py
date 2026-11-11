@@ -77,7 +77,7 @@ def submission_url(accession: str, issuer_cik: str) -> str:
         raise ValueError("invalid_issuer_cik")
     cik = str(int(issuer_cik))
     digits = accession.replace("-", "")
-    return f"https://www.sec.gov/Archives/edgar/data/{cik}/{digits}/{accession}.txt"
+    return f"https://www.sec.gov/Archives/edgar/data/{cik}/{accession}.txt"
 
 
 def _fetch(url: str, user_agent: str) -> tuple[bytes, dict[str, str]]:
@@ -232,7 +232,10 @@ def run_audit(email: str, output_dir: Path) -> dict[str, Any]:
             result["daily_index_matches_bulk_identity"] = (
                 index_row["form_type"] == sample["form"]
                 and index_row["filing_date"] == sample["filing_date"]
-                and index_row["cik"] == str(int(sample["issuer_cik"]))
+                and any(
+                    entity["cik"] == str(int(sample["issuer_cik"]))
+                    for entity in index_row["index_entities"]
+                )
             )
         else:
             result["index_status"] = "NO_MATCH_IN_FIVE_CALENDAR_DAY_WINDOW"
