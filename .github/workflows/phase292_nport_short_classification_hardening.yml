@@ -1,0 +1,74 @@
+name: Phase 292 N-PORT direct-short classification hardening
+
+on:
+  push:
+    branches: [phase292-nport-short-classification-hardening]
+    paths:
+      - "research/phase221_nport_absence_semantics_audit.py"
+      - "research/phase221_nport_absence_semantics_audit.json"
+      - "research/phase291_nport_public_short_positive_control.json"
+      - "research/test_phase221_nport_absence_semantics_audit.py"
+      - "research/test_phase291_nport_public_short_positive_control.py"
+      - "research/phase292_nport_short_classification_hardening.py"
+      - "research/test_phase292_nport_short_classification_hardening.py"
+      - ".github/workflows/phase292_nport_short_classification_hardening.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase292-nport-short-classification-hardening
+  cancel-in-progress: false
+
+jobs:
+  offline-classifier-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Compile Phase 221, 291 and 292 modules
+        run: |
+          python -m py_compile \
+            research/phase221_nport_absence_semantics_audit.py \
+            research/phase292_nport_short_classification_hardening.py \
+            research/test_phase221_nport_absence_semantics_audit.py \
+            research/test_phase291_nport_public_short_positive_control.py \
+            research/test_phase292_nport_short_classification_hardening.py
+      - name: Run N-PORT semantic and public-filing regression tests
+        run: |
+          python -m unittest -v \
+            research.test_phase221_nport_absence_semantics_audit \
+            research.test_phase291_nport_public_short_positive_control \
+            research.test_phase292_nport_short_classification_hardening
+      - name: Build deterministic no-alpha audit result
+        run: python -m research.phase292_nport_short_classification_hardening --output phase292_output/summary.json
+      - name: Upload metadata-only audit result
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase292-nport-short-classification-hardening
+          path: phase292_output/summary.json
+          retention-days: 90
+          if-no-files-found: error
+      - name: Enforce data and economic controls remain closed
+        run: |
+          python - <<'PY'
+          import json, sys
+          r = json.load(open("phase292_output/summary.json", encoding="utf-8"))
+          if r.get("public_positive_controls_passed") != 3:
+              sys.exit(1)
+          if r.get("negative_controls_passed") != 5:
+              sys.exit(2)
+          for key in ("raw_xml_bytes_downloaded", "raw_xml_sha256_verified",
+                      "sec_automated_requests_sent", "strict_pit_admitted",
+                      "alpha_test_authorized", "return_test_run",
+                      "bootstrap_loo_run", "holdout_used",
+                      "production_changed", "universe_changed",
+                      "capital_changed", "parameters_changed"):
+              if r.get(key) is not False:
+                  sys.exit(3)
+          if r.get("f80_frozen") is not True:
+              sys.exit(4)
+          PY
