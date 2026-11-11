@@ -1,0 +1,53 @@
+name: Phase 286 Nasdaq options trade outline feasibility
+on:
+  push:
+    branches: [phase286-nasdaq-options-trade-outline-feasibility]
+    paths:
+      - "research/phase286_nasdaq_options_trade_outline_feasibility.py"
+      - "research/test_phase286_nasdaq_options_trade_outline_feasibility.py"
+      - "research/PHASE286_NASDAQ_OPTIONS_TRADE_OUTLINE_FEASIBILITY_2026-11-11.md"
+      - ".github/workflows/phase286_nasdaq_options_trade_outline_feasibility.yml"
+permissions:
+  contents: read
+concurrency:
+  group: phase286-nasdaq-options-trade-outline-feasibility
+  cancel-in-progress: false
+jobs:
+  metadata-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Compile Phase 286 audit and tests
+        run: python -m py_compile research/phase286_nasdaq_options_trade_outline_feasibility.py research/test_phase286_nasdaq_options_trade_outline_feasibility.py
+      - name: Run Phase 286 deterministic metadata tests
+        run: python -m unittest -v research.test_phase286_nasdaq_options_trade_outline_feasibility
+      - name: Build deterministic metadata-only result
+        run: python -m research.phase286_nasdaq_options_trade_outline_feasibility --output phase286_output/phase286_nasdaq_options_trade_outline_feasibility.json
+      - name: Upload metadata-only audit artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase286-nasdaq-options-trade-outline-feasibility
+          path: phase286_output/phase286_nasdaq_options_trade_outline_feasibility.json
+          if-no-files-found: error
+          retention-days: 90
+      - name: Enforce no data, PIT or alpha admission
+        run: |
+          python - <<'PY'
+          import json, sys
+          p='phase286_output/phase286_nasdaq_options_trade_outline_feasibility.json'
+          r=json.load(open(p, encoding='utf-8'))
+          print('PHASE286_STATUS='+str(r.get('overall_status')))
+          c=r['controls']
+          forbidden=('raw_data_downloaded','api_key_used','vendor_contacted','trial_started',
+                     'license_or_terms_accepted','pit_admission','alpha_admission','holdout_used',
+                     'production_changed','universe_changed','capital_changed','parameters_changed')
+          if any(c.get(k) for k in forbidden):
+              sys.exit(1)
+          if not c.get('f80_frozen'):
+              sys.exit(2)
+          PY
