@@ -1,0 +1,82 @@
+name: Phase 295 SEC Form 4 daily-index and acceptance-time pilot
+
+on:
+  push:
+    branches:
+      - phase295-sec-form4-daily-index-pit-pilot
+    paths:
+      - research/phase295_sec_form4_daily_index_pit_pilot.py
+      - research/test_phase295_sec_form4_daily_index_pit_pilot.py
+      - .github/workflows/phase295_sec_form4_daily_index_pit_pilot.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase295-sec-form4-daily-index-pit-pilot
+  cancel-in-progress: false
+
+jobs:
+  reconcile-receipt-clocks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Compile Phase 295
+        run: python -m py_compile research/phase295_sec_form4_daily_index_pit_pilot.py research/test_phase295_sec_form4_daily_index_pit_pilot.py
+      - name: Run offline parser and PIT-clock regression tests
+        run: python -m unittest -v research.test_phase295_sec_form4_daily_index_pit_pilot
+      - name: Fetch SEC daily indexes and complete submission headers
+        env:
+          SEC_CONTACT_EMAIL: ${{ secrets.SEC_CONTACT_EMAIL }}
+        run: python -m research.phase295_sec_form4_daily_index_pit_pilot --output-dir phase295_output
+      - name: Enforce contact, sample and no-promotion controls
+        run: |
+          python - <<'PY'
+          import json, sys
+          p = "phase295_output/phase295_form4_daily_index_pit_pilot.json"
+          r = json.load(open(p, encoding="utf-8"))
+          if r.get("email_secret_present") is not True:
+              sys.exit("SEC_CONTACT_EMAIL was not injected")
+          if r.get("sample_accessions") != 18:
+              sys.exit("Unexpected Phase 295 sample size")
+          if r.get("submission_headers_reconciled", 0) < 12:
+              sys.exit("Fewer than 12 SEC-HEADER submissions reconciled; inspect artifact")
+          if r.get("index_files_downloaded", 0) < 1:
+              sys.exit("No SEC daily index file was downloaded and parsed")
+          if r.get("first_public_timestamp_verified") is not False:
+              sys.exit("Exact first-public timestamp must remain unverified")
+          if r.get("strict_pit_admitted") is not False or r.get("alpha_test_authorized") is not False:
+              sys.exit("PIT/alpha gate unexpectedly opened")
+          if r.get("holdout_used") is not False or r.get("f80_frozen") is not True:
+              sys.exit("Frozen-baseline/holdout control failed")
+          if r.get("production_changed") is not False or r.get("universe_changed") is not False:
+              sys.exit("Production/universe control failed")
+          print("PHASE295_STATUS=" + str(r.get("status")))
+          print("HEADERS_RECONCILED=" + str(r.get("submission_headers_reconciled")))
+          print("INDEX_SIGHTINGS=" + str(r.get("daily_index_sightings_reconciled")))
+          print("INDEX_FILES=" + str(r.get("index_files_downloaded")) + "/" + str(r.get("index_files_expected")))
+          print("INDEX_LAG_DAYS=" + str(r.get("first_index_lag_days")))
+          for x in r.get("accession_results", []):
+              ledger = x.get("daily_index_ledger") or {}
+              header = x.get("submission_header") or {}
+              print("ACCESSION=" + x.get("accession", "") +
+                    " INDEX=" + str(x.get("index_status")) +
+                    " FIRST_INDEX=" + str(ledger.get("first_daily_index_date")) +
+                    " LAG=" + str(ledger.get("first_index_lag_days")) +
+                    " HEADER=" + str(x.get("submission_status")) +
+                    " ACCEPTED_UTC=" + str(header.get("acceptance_datetime_utc")))
+          PY
+      - name: Upload raw daily indexes, submission headers and audit manifest
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase295-sec-form4-daily-index-pit-pilot
+          path: phase295_output/
+          retention-days: 90
+          if-no-files-found: warn
