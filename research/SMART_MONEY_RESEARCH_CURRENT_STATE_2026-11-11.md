@@ -233,12 +233,12 @@ A review found the Phase 291 predicate did not fully preserve the preregistered 
 
 ## GitHub Actions validation — completed 2026-11-11 18:05 UTC
 
-Dedicated run [43074329311](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43074329311) completed successfully on commit \`d20874ca28734d1d6ec05099eb51f877965b2e39\`. Job \`offline-classifier-audit\` passed compilation, all three test modules and the final no-alpha/data-control gate.
+Dedicated run [43074329311](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43074329311) completed successfully on commit `d20874ca28734d1d6ec05099eb51f877965b2e39`. Job `offline-classifier-audit` passed compilation, all three test modules and the final no-alpha/data-control gate.
 
 - **26/26 tests passed**: 14 Phase 221 semantic tests, 3 Phase 291 public-filing controls and 9 Phase 292 hardening tests.
 - Public rendered-document positive controls: 3/3.
 - Negative controls: 5/5.
-- Artifact: [13880167054](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43074329311/artifacts/13880167054), SHA-256 \`321ef631c94d4a5a3b5909a07b7ddc1e497be2c2527ffc7a52a3aef9d5e6f3a2\`.
+- Artifact: [13880167054](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43074329311/artifacts/13880167054), SHA-256 `321ef631c94d4a5a3b5909a07b7ddc1e497be2c2527ffc7a52a3aef9d5e6f3a2`.
 - The artifact records raw XML bytes/hash, automated SEC requests, strict PIT admission, alpha, return tests, bootstrap/LOO, holdout use and all production changes as false; F80 remains frozen.
 
 The validation is offline and fixture-based. It does not establish raw XML parsing, bulk-history coverage, first-public timing, longitudinal fund/security identity or economic predictability.
@@ -255,13 +255,13 @@ The hardened Phase 292 classifier was replayed against 23 selected, line-referen
 
 ## GitHub Actions validation — completed 2026-11-11 18:10 UTC
 
-Dedicated run [43075250170](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43075250170) completed successfully on workflow-trigger commit \`02d658aa82126a035aac32eadfe58bb5ee72f9a8\`. Job \`second-filer-audit\` passed compilation, all four regression modules and the final cross-filer/no-alpha gate.
+Dedicated run [43075250170](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43075250170) completed successfully on workflow-trigger commit `02d658aa82126a035aac32eadfe58bb5ee72f9a8`. Job `second-filer-audit` passed compilation, all four regression modules and the final cross-filer/no-alpha gate.
 
 - **29/29 tests passed**.
 - Second-filer ACAP selected positive controls: 23/23.
 - Combined selected positive controls: 26 across two distinct registrants.
 - Existing negative controls: 5/5.
-- Artifact: [13879983178](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43075250170/artifacts/13879983178), SHA-256 \`fdedf37b1d62674e114ae848e835f830feb39d700f3ca950b091955161b838f1\`.
+- Artifact: [13879983178](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43075250170/artifacts/13879983178), SHA-256 `fdedf37b1d62674e114ae848e835f830feb39d700f3ca950b091955161b838f1`.
 
 The artifact confirms the sample is non-exhaustive; raw XML/submission bytes and hashes, first-public receipt, longitudinal series identity, PIT admission, prevalence, alpha, return tests, bootstrap/LOO, holdout and production changes remain false. F80 remains frozen.
 
@@ -269,11 +269,11 @@ The artifact confirms the sample is non-exhaustive; raw XML/submission bytes and
 ## Repository snapshot after Phase 293 (2026-11-11)
 
 - Latest 100 Actions runs: 69 success, 31 cancelled, zero failed, zero queued/in-progress. No active workflow was duplicated.
-- Phase 292 run 43074329311: success; 26 tests; artifact 13880167054, SHA-256 \`321ef631c94d4a5a3b5909a07b7ddc1e497be2c2527ffc7a52a3aef9d5e6f3a2\`.
-- Phase 293 run 43075250170: success; 29 tests; 26 selected public positive rows across two registrants; five negative controls; artifact 13879983178, SHA-256 \`fdedf37b1d62674e114ae848e835f830feb39d700f3ca950b091955161b838f1\`.
-- Branch inventory: 142. Phase 293 head \`e12d7b8ff1ff2847a1a8e71296e599c562bf80bd\`.
-- PR #14 remains open on head \`6dedb088d7289ca5155a319b5f88155c2d431be3\` with 23/23 successful checks. PR #13 remains open on head \`61f737f18b410bc6d85b8c56ed96bc1fd9c130f5\` with zero checks on that SHA. No PR was opened or merged for Phases 291–293.
-- SEC automated retrieval remains gated on a real authorized \`SEC_CONTACT_EMAIL\`; no secret was inspected or changed in these phases.
+- Phase 292 run 43074329311: success; 26 tests; artifact 13880167054, SHA-256 `321ef631c94d4a5a3b5909a07b7ddc1e497be2c2527ffc7a52a3aef9d5e6f3a2`.
+- Phase 293 run 43075250170: success; 29 tests; 26 selected public positive rows across two registrants; five negative controls; artifact 13879983178, SHA-256 `fdedf37b1d62674e114ae848e835f830feb39d700f3ca950b091955161b838f1`.
+- Branch inventory: 142. Phase 293 head `e12d7b8ff1ff2847a1a8e71296e599c562bf80bd`.
+- PR #14 remains open on head `6dedb088d7289ca5155a319b5f88155c2d431be3` with 23/23 successful checks. PR #13 remains open on head `61f737f18b410bc6d85b8c56ed96bc1fd9c130f5` with zero checks on that SHA. No PR was opened or merged for Phases 291–293.
+- SEC automated retrieval remains gated on a real authorized `SEC_CONTACT_EMAIL`; no secret was inspected or changed in these phases.
 
 No raw SEC bytes, first-public receipt, broad-universe coverage, PIT panel, return test, bootstrap/LOO or alpha result was produced. F80, production, universe, capital, parameters and the consumed legacy holdout remain unchanged.
 
@@ -336,7 +336,7 @@ This offline audit re-read the six raw ZIPs from Phase 294 artifact [13884014630
 
 ## Phase 297 — Form 4 transaction-form-type reconciliation (2026-11-11)
 
-- Corrected the Phase 296 Table I cohort by requiring transaction-level \`TRANS_FORM_TYPE=4\`. The candidate set fell from 15,590 to **15,475 rows**, 10,997 accessions, 3,226 issuers and 6,677 reporting owners; 115 type-5 rows were excluded.
+- Corrected the Phase 296 Table I cohort by requiring transaction-level `TRANS_FORM_TYPE=4`. The candidate set fell from 15,590 to **15,475 rows**, 10,997 accessions, 3,226 issuers and 6,677 reporting owners; 115 type-5 rows were excluded.
 - Recomputed the versioned high-precision open-market-footnote screen: 413 rows, 365 also with positive shares and price. Code P remains open-market **or private** purchase; it is not an open-market-only label.
 - Workflow 43094005689 passed 6/6 deterministic tests. No return/alpha test or PIT admission.
 
@@ -355,7 +355,7 @@ This offline audit re-read the six raw ZIPs from Phase 294 artifact [13884014630
 ## Phase 300 — Form 4/A XML-to-bulk reconciliation (2026-11-11)
 
 - Corroborated all **46/46** candidate links using original EDGAR headers/XML: issuer, date-of-original-submission, owner overlap, form type and acceptance chronology.
-- Of 90 documents, 88 matched the central transaction signature and 80 matched the broader signature. Remaining differences were limited to \`NATURE_OF_OWNERSHIP\` and/or \`TRANS_TIMELINESS\`; no transaction economics were promoted from an ambiguous line diff.
+- Of 90 documents, 88 matched the central transaction signature and 80 matched the broader signature. Remaining differences were limited to `NATURE_OF_OWNERSHIP` and/or `TRANS_TIMELINESS`; no transaction economics were promoted from an ambiguous line diff.
 - Workflow 43116245184 succeeded. No return or alpha test.
 
 ## Phase 301 — 2023Q2 intermediate-era Form 4/A lineage and XML audit (2026-11-11)
@@ -363,15 +363,15 @@ This offline audit re-read the six raw ZIPs from Phase 294 artifact [13884014630
 - Retrieved and validated SEC bulk archives 2022Q4, 2023Q1 and 2023Q2 (151,185 Form 4/4-A accessions across the three quarters). Target 2023Q2 has 937 Form 4/A accessions with an original-submission date and owner: **719 unique owner-overlap candidates (76.73%)**, 24 ambiguous, 15 same-issuer/date with no owner overlap, and 179 with no parent candidate in the loaded three-quarter window.
 - Adding 2022Q4 to the 2023Q1–Q2 window added 22 unique candidates and reduced the no-parent-in-window count from 202 to 179. No-parent means no candidate in the loaded window, not no parent anywhere in EDGAR.
 - The deterministic sample contains 52 cases and 102 original EDGAR documents: 24 unique pairs, 8 ambiguous, 8 no-owner-overlap and 12 no-parent. All 24 unique pairs were corroborated by XML metadata; all 8 ambiguous cases remained ambiguous. Two no-owner-overlap cases were capped at 12 of 15 candidate parent documents.
-- All 102 documents passed download, XML parse, header/XML identity and row-count checks; all 102 matched the core transaction signature. 98/102 matched the broader signature. The four full-signature differences were limited to \`NATURE_OF_OWNERSHIP\` and/or \`TRANS_TIMELINESS\` (one Table I document and three Table II documents).
-- Final workflow 43121592821 succeeded with 35 regression tests across Phases 153/299/300/301. The first Phase 301 attempt 43121407654 stopped at the GitHub artifact endpoint with HTTP 401 before SEC requests; the final workflow retrieved all three archives directly from the SEC. Raw archives, 102 submissions, manifest and result are preserved in artifact 13901611120 (SHA-256 \`5840790fac1d411f95dad60737e68d9a6bc26d08380a7be9b8d1d18d74b51333\`).
+- All 102 documents passed download, XML parse, header/XML identity and row-count checks; all 102 matched the core transaction signature. 98/102 matched the broader signature. The four full-signature differences were limited to `NATURE_OF_OWNERSHIP` and/or `TRANS_TIMELINESS` (one Table I document and three Table II documents).
+- Final workflow 43121592821 succeeded with 35 regression tests across Phases 153/299/300/301. The first Phase 301 attempt 43121407654 stopped at the GitHub artifact endpoint with HTTP 401 before SEC requests; the final workflow retrieved all three archives directly from the SEC. Raw archives, 102 submissions, manifest and result are preserved in artifact 13901611120 (SHA-256 `5840790fac1d411f95dad60737e68d9a6bc26d08380a7be9b8d1d18d74b51333`).
 - Decision: lineage is better supported but still not admitted for strict PIT/event-flow modeling. Date-only original-submission metadata is not a parent-accession foreign key; owner sets are accession-level, not transaction-line-level. Next gate: SEC daily-index first-appearance and PAC/correction audit for the 2023 sample, plus targeted longer lookback for no-parent cases and effective-dated security identity.
 - No return/alpha, bootstrap/LOO, chronological OOS or holdout test. F80, production, universe, capital and parameters remain unchanged. No email was sent; the SEC contact secret was used only in the User-Agent.
 
 ## Current repository verification — 2026-11-11 23:42 UTC
 
 - Latest 100 Actions runs: **63 successful, 12 failed, 25 cancelled, zero active/queued**. The final Phase 301 run 43121592821 succeeded; the earlier 43121407654 failed before any SEC request because the GitHub artifact-download endpoint returned HTTP 401. The final workflow avoided that dependency by retrieving the public SEC archives directly.
-- Branch inventory: **150** (100 on page 1, 50 on page 2). The Phase 301 work remains on research-only branch \`phase301-form4a-intermediate-era-lineage-audit\`; no PR was opened or merged.
+- Branch inventory: **150** (100 on page 1, 50 on page 2). The Phase 301 work remains on research-only branch `phase301-form4a-intermediate-era-lineage-audit`; no PR was opened or merged.
 - PR #13 and PR #14 remain open and unchanged. Eleven PRs are currently open in the repository.
 - The workflow's SEC contact expression was corrected for future runs; the final run's contact value was masked in logs and used only in the SEC User-Agent. No email was sent.
 - F80, production, universe, capital, parameters and the consumed legacy holdout remain unchanged. No paid data, vendor contact or data license was initiated.
