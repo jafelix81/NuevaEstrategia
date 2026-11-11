@@ -1,7 +1,18 @@
 # Smart Money Research — current state (2026-11-11 UTC)
 
-**Active research branch:** `phase296-form4-owner-attribution-purchase-quality-audit`  
+**Active research branch:** `phase297-form4-transaction-form-type-reconciliation`  
 **PR chain:** #14 stacked on #13; both open and unmerged.  
+
+
+## Latest verified correction — Phase 297 (2026-11-11 20:11 UTC)
+
+- Hosted workflow [43094005689](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43094005689) passed; 6 deterministic tests passed and metadata artifact [13889458408](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43094005689/artifacts/13889458408) is present.
+- Phase 296's conservative Form 4 cohort omitted the transaction-level `TRANS_FORM_TYPE=4` condition already required by the Phase 271 Table I contract. The 15,590-row cohort included 115 type-5 rows. Corrected cohort: **15,475 rows**, 10,997 accessions, 3,226 issuer CIKs and 6,677 reporting-owner CIKs.
+- The 115 excluded rows occur across 97 accessions, 42 issuers and 70 owners; these gross counts overlap with valid type-4 rows, so net identity reductions are smaller.
+- AFF10B5ONE status in the corrected cohort: 6,963 false, 201 true, 8,311 unknown. Unknown remains unknown. The gate uses actual filing date from 2023-04-01, not quarter label.
+- Versioned Phase 271 explicit-open-market footnote screen reproduced 413 rows across the six purposive quarters; 365 also have positive price and shares. This remains text evidence only, not proof of discretionary intent or alpha.
+- No returns, strict PIT, bootstrap/LOO, OOS or holdout test. F80, production, universe, capital and parameters remain unchanged.
+
 **Frozen baseline:** `F80_TOP20_PARTIAL50_BASELINE_C20`  
 **Legacy holdout:** `CONSUMED_NOT_PRISTINE`; never reuse.  
 **Economic result:** no new Smart Money signal has demonstrated incremental, cost-adjusted OOS edge.
