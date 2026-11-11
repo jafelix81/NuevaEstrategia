@@ -24,24 +24,24 @@ from research.phase283_sec_daily_index_parser import (
 # Phase 294 bulk archives. These are purposive parser/PIT controls, not a
 # prevalence sample or a security-universe sample.
 SAMPLE_ACCESSIONS = [
-    {"quarter": "2006Q1", "accession": "0000005513-06-000002", "filing_date": "2006-01-03", "form": "4"},
-    {"quarter": "2006Q1", "accession": "0001180561-06-000004", "filing_date": "2006-02-14", "form": "4"},
-    {"quarter": "2006Q1", "accession": "0001358010-06-000004", "filing_date": "2006-03-31", "form": "4"},
-    {"quarter": "2012Q1", "accession": "0000003545-12-000001", "filing_date": "2012-01-03", "form": "4"},
-    {"quarter": "2012Q1", "accession": "0001250074-12-000001", "filing_date": "2012-02-16", "form": "4"},
-    {"quarter": "2012Q1", "accession": "0001530981-12-000031", "filing_date": "2012-03-30", "form": "4"},
-    {"quarter": "2023Q1", "accession": "0000009984-23-000002", "filing_date": "2023-01-03", "form": "4"},
-    {"quarter": "2023Q1", "accession": "0001209191-23-011336", "filing_date": "2023-02-21", "form": "4"},
-    {"quarter": "2023Q1", "accession": "0001930405-23-000004", "filing_date": "2023-03-31", "form": "4"},
-    {"quarter": "2023Q2", "accession": "0000010254-23-000073", "filing_date": "2023-04-03", "form": "4"},
-    {"quarter": "2023Q2", "accession": "0001225208-23-006035", "filing_date": "2023-05-18", "form": "4"},
-    {"quarter": "2023Q2", "accession": "0001983686-23-000004", "filing_date": "2023-06-30", "form": "4"},
-    {"quarter": "2025Q3", "accession": "0000014272-25-000117", "filing_date": "2025-07-01", "form": "4"},
-    {"quarter": "2025Q3", "accession": "0001628280-25-040441", "filing_date": "2025-08-14", "form": "4"},
-    {"quarter": "2025Q3", "accession": "0002078476-25-000003", "filing_date": "2025-09-30", "form": "4"},
-    {"quarter": "2026Q3", "accession": "0000008947-26-000125", "filing_date": "2026-07-01", "form": "4"},
-    {"quarter": "2026Q3", "accession": "0001213900-26-090366", "filing_date": "2026-08-14", "form": "4"},
-    {"quarter": "2026Q3", "accession": "0002148361-26-000004", "filing_date": "2026-09-30", "form": "4"},
+    {"quarter": "2006Q1", "accession": "0000005513-06-000002", "filing_date": "2006-01-03", "issuer_cik": "0000005513", "form": "4"},
+    {"quarter": "2006Q1", "accession": "0001180561-06-000004", "filing_date": "2006-02-14", "issuer_cik": "0000936528", "form": "4"},
+    {"quarter": "2006Q1", "accession": "0001358010-06-000004", "filing_date": "2006-03-31", "issuer_cik": "0000811240", "form": "4"},
+    {"quarter": "2012Q1", "accession": "0000003545-12-000001", "filing_date": "2012-01-03", "issuer_cik": "0000003545", "form": "4"},
+    {"quarter": "2012Q1", "accession": "0001250074-12-000001", "filing_date": "2012-02-16", "issuer_cik": "0000844789", "form": "4"},
+    {"quarter": "2012Q1", "accession": "0001530981-12-000031", "filing_date": "2012-03-30", "issuer_cik": "0001514888", "form": "4"},
+    {"quarter": "2023Q1", "accession": "0000009984-23-000002", "filing_date": "2023-01-03", "issuer_cik": "0000009984", "form": "4"},
+    {"quarter": "2023Q1", "accession": "0001209191-23-011336", "filing_date": "2023-02-21", "issuer_cik": "0001702750", "form": "4"},
+    {"quarter": "2023Q1", "accession": "0001930405-23-000004", "filing_date": "2023-03-31", "issuer_cik": "0001040896", "form": "4"},
+    {"quarter": "2023Q2", "accession": "0000010254-23-000073", "filing_date": "2023-04-03", "issuer_cik": "0000010254", "form": "4"},
+    {"quarter": "2023Q2", "accession": "0001225208-23-006035", "filing_date": "2023-05-18", "issuer_cik": "0001048286", "form": "4"},
+    {"quarter": "2023Q2", "accession": "0001983686-23-000004", "filing_date": "2023-06-30", "issuer_cik": "0001352010", "form": "4"},
+    {"quarter": "2025Q3", "accession": "0000014272-25-000117", "filing_date": "2025-07-01", "issuer_cik": "0000014272", "form": "4"},
+    {"quarter": "2025Q3", "accession": "0001628280-25-040441", "filing_date": "2025-08-14", "issuer_cik": "0001501697", "form": "4"},
+    {"quarter": "2025Q3", "accession": "0002078476-25-000003", "filing_date": "2025-09-30", "issuer_cik": "0000320193", "form": "4"},
+    {"quarter": "2026Q3", "accession": "0000008947-26-000125", "filing_date": "2026-07-01", "issuer_cik": "0000008947", "form": "4"},
+    {"quarter": "2026Q3", "accession": "0001213900-26-090366", "filing_date": "2026-08-14", "issuer_cik": "0001998768", "form": "4"},
+    {"quarter": "2026Q3", "accession": "0002148361-26-000004", "filing_date": "2026-09-30", "issuer_cik": "0001808997", "form": "4"},
 ]
 INDEX_LOOKAHEAD_CALENDAR_DAYS = 5
 MAX_FILE_BYTES = 40 * 1024 * 1024
@@ -70,10 +70,12 @@ def index_url(index_date: str) -> str:
     )
 
 
-def submission_url(accession: str) -> str:
+def submission_url(accession: str, issuer_cik: str) -> str:
     if not ACCESSION_RE.fullmatch(accession):
         raise ValueError("invalid_accession")
-    cik = str(int(accession.split("-")[0]))
+    if not str(issuer_cik).strip().isdigit():
+        raise ValueError("invalid_issuer_cik")
+    cik = str(int(issuer_cik))
     digits = accession.replace("-", "")
     return f"https://www.sec.gov/Archives/edgar/data/{cik}/{digits}/{accession}.txt"
 
@@ -230,7 +232,7 @@ def run_audit(email: str, output_dir: Path) -> dict[str, Any]:
             result["daily_index_matches_bulk_identity"] = (
                 index_row["form_type"] == sample["form"]
                 and index_row["filing_date"] == sample["filing_date"]
-                and index_row["cik"] == str(int(accession.split("-")[0]))
+                and index_row["cik"] == str(int(sample["issuer_cik"]))
             )
         else:
             result["index_status"] = "NO_MATCH_IN_FIVE_CALENDAR_DAY_WINDOW"
@@ -239,7 +241,7 @@ def run_audit(email: str, output_dir: Path) -> dict[str, Any]:
 
         try:
             total_requests += 1
-            payload, headers = _fetch(submission_url(accession), user_agent)
+            payload, headers = _fetch(submission_url(accession, sample["issuer_cik"]), user_agent)
             total_bytes += len(payload)
             if total_bytes > MAX_TOTAL_BYTES:
                 raise RetrievalError("total_download_size_limit_exceeded")
@@ -253,7 +255,7 @@ def run_audit(email: str, output_dir: Path) -> dict[str, Any]:
             path.write_bytes(payload)
             result.update({
                 "submission_status": "HEADER_RECONCILED" if header_ok else "FILED_OR_ACCEPTANCE_DATE_MISMATCH",
-                "submission_url": submission_url(accession),
+                "submission_url": submission_url(accession, sample["issuer_cik"]),
                 "submission_raw_file": str(path.relative_to(output_dir)),
                 "submission_bytes": len(payload),
                 "submission_sha256": hashlib.sha256(payload).hexdigest(),
