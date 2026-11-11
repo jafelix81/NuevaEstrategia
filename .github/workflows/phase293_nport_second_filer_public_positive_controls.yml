@@ -1,0 +1,82 @@
+name: Phase 293 N-PORT second-filer public positive controls
+
+on:
+  push:
+    branches: [phase293-nport-second-filer-public-positive-controls]
+    paths:
+      - "research/phase217_nport_full_submission_text_short_row_pilot.json"
+      - "research/phase291_nport_public_short_positive_control.json"
+      - "research/phase221_nport_absence_semantics_audit.py"
+      - "research/phase292_nport_short_classification_hardening.py"
+      - "research/phase293_nport_second_filer_public_positive_controls.py"
+      - "research/test_phase221_nport_absence_semantics_audit.py"
+      - "research/test_phase291_nport_public_short_positive_control.py"
+      - "research/test_phase292_nport_short_classification_hardening.py"
+      - "research/test_phase293_nport_second_filer_public_positive_controls.py"
+      - ".github/workflows/phase293_nport_second_filer_public_positive_controls.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase293-nport-second-filer-public-positive-controls
+  cancel-in-progress: false
+
+jobs:
+  second-filer-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Compile N-PORT classifier and cross-filer fixtures
+        run: |
+          python -m py_compile \
+            research/phase221_nport_absence_semantics_audit.py \
+            research/phase292_nport_short_classification_hardening.py \
+            research/phase293_nport_second_filer_public_positive_controls.py \
+            research/test_phase221_nport_absence_semantics_audit.py \
+            research/test_phase291_nport_public_short_positive_control.py \
+            research/test_phase292_nport_short_classification_hardening.py \
+            research/test_phase293_nport_second_filer_public_positive_controls.py
+      - name: Run all N-PORT semantic and cross-filer regression tests
+        run: |
+          python -m unittest -v \
+            research.test_phase221_nport_absence_semantics_audit \
+            research.test_phase291_nport_public_short_positive_control \
+            research.test_phase292_nport_short_classification_hardening \
+            research.test_phase293_nport_second_filer_public_positive_controls
+      - name: Build cross-filer no-alpha result
+        run: python -m research.phase293_nport_second_filer_public_positive_controls --output phase293_output/summary.json
+      - name: Upload metadata-only cross-filer result
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase293-nport-second-filer-public-positive-controls
+          path: phase293_output/summary.json
+          retention-days: 90
+          if-no-files-found: error
+      - name: Enforce cross-filer count and closed economic controls
+        run: |
+          python - <<'PY'
+          import json, sys
+          r = json.load(open("phase293_output/summary.json", encoding="utf-8"))
+          if r.get("public_positive_controls_passed") != 26:
+              sys.exit(1)
+          if r.get("phase293_second_filer_positive_controls_passed") != 23:
+              sys.exit(2)
+          if r.get("phase292_negative_controls_passed") != 5:
+              sys.exit(3)
+          for key in ("second_filer_selected_rows_exhaustive", "prevalence_estimated",
+                      "raw_xml_bytes_downloaded", "raw_xml_sha256_verified",
+                      "complete_submission_raw_sha256_verified", "first_public_receipt_verified",
+                      "series_longitudinal_identity_established", "strict_pit_admitted",
+                      "alpha_test_authorized", "return_test_run", "bootstrap_loo_run",
+                      "holdout_used", "production_changed", "universe_changed",
+                      "capital_changed", "parameters_changed"):
+              if r.get(key) is not False:
+                  sys.exit(4)
+          if r.get("f80_frozen") is not True:
+              sys.exit(5)
+          PY
