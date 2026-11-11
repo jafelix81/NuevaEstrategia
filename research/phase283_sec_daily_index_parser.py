@@ -76,6 +76,8 @@ def parse_daily_form_index(raw: bytes, index_filename: str) -> dict[str, Any]:
         "malformed_rows": 0,
         "exact_duplicate_rows": 0,
         "conflicting_duplicate_accessions": 0,
+        "index_date_before_filing_date": 0,
+        "index_date_after_filing_date": 0,
     }
 
     for line_number, line in enumerate(lines[header_line + 1 :], start=header_line + 2):
@@ -126,10 +128,14 @@ def parse_daily_form_index(raw: bytes, index_filename: str) -> dict[str, Any]:
             quarantine.append({"line_number": line_number, "accession": accession,
                                "reason": "accession_cik_prefix_mismatch"})
             continue
-        if filing_date != index_date:
+        index_lag_days = (index_date - filing_date).days
+        if index_lag_days < 0:
+            counts["index_date_before_filing_date"] += 1
             quarantine.append({"line_number": line_number, "accession": accession,
-                               "reason": "filing_date_index_date_mismatch"})
+                               "reason": "index_date_precedes_filing_date"})
             continue
+        if index_lag_days > 0:
+            counts["index_date_after_filing_date"] += 1
 
         record = {
             "accession": accession,
@@ -138,6 +144,7 @@ def parse_daily_form_index(raw: bytes, index_filename: str) -> dict[str, Any]:
             "form_type": form_type,
             "filing_date": filing_date.isoformat(),
             "index_date": index_date.isoformat(),
+            "index_date_lag_days": index_lag_days,
             "filename": filing_path,
         }
         existing = seen.get(accession)
@@ -189,6 +196,8 @@ def build_accession_ledger(records: Iterable[dict[str, Any]]) -> dict[str, Any]:
             continue
         identity = sightings[0]
         dates = sorted({str(row["index_date"]) for row in sightings})
+        filing_date = date.fromisoformat(str(identity["filing_date"]))
+        lag_days = [(date.fromisoformat(value) - filing_date).days for value in dates]
         ledger.append({
             "accession": accession,
             "cik": identity["cik"],
@@ -197,6 +206,8 @@ def build_accession_ledger(records: Iterable[dict[str, Any]]) -> dict[str, Any]:
             "filing_date": identity["filing_date"],
             "filename": identity["filename"],
             "first_daily_index_date": dates[0],
+            "first_index_lag_days": lag_days[0],
+            "max_index_lag_days": max(lag_days),
             "all_daily_index_dates": dates,
             "index_sightings": len(sightings),
             "same_file_exact_duplicate_rows": sum(
