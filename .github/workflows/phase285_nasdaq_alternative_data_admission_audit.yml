@@ -1,0 +1,53 @@
+name: Phase 285 Nasdaq alternative-data admission audit
+on:
+  pull_request:
+    branches: [phase99-broad-pit-universe-charter]
+    paths:
+      - "research/phase285_nasdaq_alternative_data_admission_audit.py"
+      - "research/test_phase285_nasdaq_alternative_data_admission_audit.py"
+      - "research/PHASE285_NASDAQ_FIS_SLD_AND_UREF_SOURCE_ADMISSION_AUDIT_2026-11-11.md"
+      - ".github/workflows/phase285_nasdaq_alternative_data_admission_audit.yml"
+permissions:
+  contents: read
+concurrency:
+  group: phase285-nasdaq-alternative-data-admission-audit
+  cancel-in-progress: false
+jobs:
+  metadata-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Compile Phase 285 audit and tests
+        run: python -m py_compile research/phase285_nasdaq_alternative_data_admission_audit.py research/test_phase285_nasdaq_alternative_data_admission_audit.py
+      - name: Run Phase 285 deterministic metadata tests
+        run: python -m unittest -v research.test_phase285_nasdaq_alternative_data_admission_audit
+      - name: Build deterministic metadata-only result
+        run: python -m research.phase285_nasdaq_alternative_data_admission_audit --output phase285_output/phase285_nasdaq_alternative_data_admission_audit.json
+      - name: Upload metadata-only audit artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase285-nasdaq-alternative-data-admission-audit
+          path: phase285_output/phase285_nasdaq_alternative_data_admission_audit.json
+          if-no-files-found: error
+          retention-days: 90
+      - name: Enforce no data, PIT or alpha admission
+        run: |
+          python - <<'PY'
+          import json, sys
+          p='phase285_output/phase285_nasdaq_alternative_data_admission_audit.json'
+          r=json.load(open(p, encoding='utf-8'))
+          print('PHASE285_STATUS='+str(r.get('overall_status')))
+          c=r['controls']
+          forbidden=('raw_data_downloaded','api_key_used','vendor_contacted','trial_started',
+                     'license_or_terms_accepted','pit_admission','alpha_admission','holdout_used',
+                     'production_changed','universe_changed','capital_changed','parameters_changed')
+          if any(c.get(k) for k in forbidden):
+              sys.exit(1)
+          if not c.get('f80_frozen'):
+              sys.exit(2)
+          PY
