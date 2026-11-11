@@ -18,6 +18,17 @@ INDEX_HEADER = (
 )
 FORM4 = "320193|APPLE INC|4|2026-01-02|edgar/data/320193/000032019326000001.txt"
 FORM4A = "320193|APPLE INC|4/A|2026-01-02|edgar/data/320193/000032019326000002.txt"
+FIXED_INDEX_HEADER = (
+    "Description: Daily Index of EDGAR Dissemination Feed by Form Type\\n"
+    "Last Data Received:    Jan  2, 2026\\n"
+    "Form Type   Company Name                                                  CIK\\n"
+    "      Date Filed  File Name\\n"
+    "---------------------------------------------------------------------------------------------------------------------------------------------\\n"
+)
+FIXED_FORM4 = (
+    "4          Example Company                                     320193     20260102    "
+    "edgar/data/320193/0000789000-26-000001.txt"
+)
 
 
 class Phase283DailyIndexTests(unittest.TestCase):
@@ -41,11 +52,33 @@ class Phase283DailyIndexTests(unittest.TestCase):
         self.assertEqual(result["records"], [])
         self.assertEqual(result["quarantine"][0]["reason"], "row_cik_path_cik_mismatch")
 
-    def test_accession_cik_prefix_mismatch_is_quarantined(self):
+    def test_accession_prefix_may_differ_from_issuer_cik(self):
         row = "320193|APPLE INC|4|2026-01-02|edgar/data/320193/000078900026000001.txt"
         result = self.parse(row)
+        self.assertEqual(len(result["records"]), 1)
+        self.assertEqual(result["records"][0]["accession"], "0000789000-26-000001")
+        self.assertEqual(result["records"][0]["cik"], "320193")
+
+    def test_parses_actual_sec_legacy_fixed_width_index_with_dashed_accession(self):
+        raw = (FIXED_INDEX_HEADER + FIXED_FORM4 + "\\n").encode("latin-1")
+        result = parse_daily_form_index(raw, "form.20260102.idx")
+        self.assertEqual(result["format"], "legacy_fixed_width")
+        self.assertEqual(len(result["records"]), 1)
+        self.assertEqual(result["records"][0]["accession"], "0000789000-26-000001")
+        self.assertEqual(result["records"][0]["cik"], "320193")
+        self.assertEqual(result["records"][0]["filing_date"], "2026-01-02")
+
+    def test_fixed_width_index_accepts_latin1_company_names(self):
+        row = FIXED_FORM4.replace("Example Company", "Café Holdings")
+        raw = (FIXED_INDEX_HEADER + row + "\\n").encode("latin-1")
+        result = parse_daily_form_index(raw, "form.20260102.idx")
+        self.assertEqual(result["records"][0]["company_name"], "Café Holdings")
+
+    def test_fixed_width_date_before_index_is_quarantined(self):
+        raw = (FIXED_INDEX_HEADER + FIXED_FORM4 + "\\n").encode("latin-1")
+        result = parse_daily_form_index(raw, "form.20260101.idx")
         self.assertEqual(result["records"], [])
-        self.assertEqual(result["quarantine"][0]["reason"], "accession_cik_prefix_mismatch")
+        self.assertEqual(result["counts"]["index_date_before_filing_date"], 1)
 
     def test_index_date_before_filing_date_is_quarantined(self):
         row = "320193|APPLE INC|4|2026-01-05|edgar/data/320193/000032019326000001.txt"
