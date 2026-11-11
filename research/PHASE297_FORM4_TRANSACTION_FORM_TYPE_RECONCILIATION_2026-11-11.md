@@ -1,7 +1,7 @@
 # Phase 297 — Form 4 transaction-form-type reconciliation
 
 **Date:** 2026-11-11 UTC  
-**Status:** Completed offline data-quality correction; no return or alpha test.  
+**Status:** Completed offline data-quality correction; no return or alpha test. Hosted verification: [run 43094005689](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43094005689) passed with 6/6 deterministic tests; metadata artifact [13889458408](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43094005689/artifacts/13889458408).  
 **Source:** immutable Phase 294 SEC Form 345 sample artifact, run 43083625013 / artifact 13884014630; outer SHA-256 8b256375a68ffc581134e3fb05dd96ca3a02f6acd47925a003aa3f4b3d1680f4.
 
 ## Executive finding
