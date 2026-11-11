@@ -1,0 +1,94 @@
+name: Phase 275 Form 4 disclosure-event unit and owner/class audit
+on:
+  push:
+    branches: [phase231-cboe-option-quotes-full-row-reparse]
+    paths:
+      - "research/phase271_form4_open_market_purchase_screen.py"
+      - "research/phase275_form4_disclosure_event_unit_audit.py"
+      - "research/test_phase275_form4_disclosure_event_unit_audit.py"
+      - ".github/workflows/phase275_form4_disclosure_event_unit_audit.yml"
+  pull_request:
+    branches: [phase99-broad-pit-universe-charter]
+    paths:
+      - "research/phase271_form4_open_market_purchase_screen.py"
+      - "research/phase275_form4_disclosure_event_unit_audit.py"
+      - "research/test_phase275_form4_disclosure_event_unit_audit.py"
+      - ".github/workflows/phase275_form4_disclosure_event_unit_audit.yml"
+permissions:
+  actions: read
+  contents: read
+concurrency:
+  group: phase275-form4-disclosure-event-unit-audit
+  cancel-in-progress: false
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Install pinned XNYS calendar dependency
+        run: pip install exchange_calendars==4.13.1
+      - name: Download immutable Phase 39 Form 345 artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p phase275_input
+          curl --fail --silent --show-error --location \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/12781850078/zip \
+            -o phase275_input/phase39-sec-form4-actual-file-audit.zip
+      - name: Compile Phase 275 and tests
+        run: python -m py_compile research/phase275_form4_disclosure_event_unit_audit.py research/test_phase275_form4_disclosure_event_unit_audit.py
+      - name: Run Phase 275 deterministic tests
+        run: python -m unittest -v research.test_phase275_form4_disclosure_event_unit_audit
+      - name: Recompute issuer-filing disclosure events
+        run: |
+          python -m research.phase275_form4_disclosure_event_unit_audit \
+            --artifact phase275_input/phase39-sec-form4-actual-file-audit.zip \
+            --output phase275_output/phase275_form4_disclosure_event_unit_audit_result.json
+      - name: Enforce event-unit and non-admission controls
+        run: |
+          python - <<'PY'
+          import json
+          r=json.load(open("phase275_output/phase275_form4_disclosure_event_unit_audit_result.json", encoding="utf-8"))
+          a=r["periods"]["2012Q1"]
+          b=r["periods"]["2026Q3"]
+          assert a["candidate_rows"] == 102
+          assert a["multi_owner_disclosure_events"] == 2
+          assert a["same_trade_date_cluster_count"] == 1
+          assert a["events"][0]["plan_status"] == "UNKNOWN_PRE_CHECKBOX_ERA"
+          assert b["candidate_rows"] == 85
+          assert b["multi_owner_disclosure_events"] == 9
+          assert b["unique_issuers_in_events"] == 8
+          assert b["unique_accessions_in_events"] == 20
+          assert b["unique_reporting_owners_in_events"] == 20
+          assert b["rows_in_events"] == 27
+          assert b["events_with_multiple_transaction_dates"] == 5
+          assert b["events_with_any_owner_multiple_transaction_dates"] == 4
+          assert b["same_trade_date_cluster_count"] == 11
+          assert b["events_with_one_normalized_mailing_address"] == 8
+          assert b["events_with_security_title_mismatch"] == 0
+          assert b["primary_same_security_event_count"] == 9
+          assert b["issuers_with_multiple_disclosure_events"] == 1
+          assert all(e["owner_independence_proven"] is False for e in b["events"])
+          assert r["strict_pit_admitted"] is False
+          assert r["alpha_test_authorized"] is False
+          assert r["forward_returns_tested"] is False
+          assert r["bootstrap_loo_tested"] is False
+          assert r["chronological_oos_tested"] is False
+          assert r["holdout_used"] is False and r["f80_frozen"] is True
+          print("PHASE275_STATUS=9_DISCLOSURE_EVENTS_8_ISSUERS_11_NESTED_CLUSTERS; NO_ALPHA")
+          PY
+      - name: Upload metadata-only Phase 275 result
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase275-form4-disclosure-event-unit-audit
+          path: phase275_output/phase275_form4_disclosure_event_unit_audit_result.json
+          if-no-files-found: error
+          retention-days: 90
