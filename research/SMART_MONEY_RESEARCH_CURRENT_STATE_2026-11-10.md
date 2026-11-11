@@ -1,6 +1,6 @@
-# Smart Money Research — current state (Phase 273, 2026-11-10 UTC)
+# Smart Money Research — current state (Phase 276, 2026-11-10 UTC)
 
-**Updated:** 2026-11-10 UTC (Phase 273)  
+**Updated:** 2026-11-10 UTC (Phase 276)  
 **Active branch:** phase231-cboe-option-quotes-full-row-reparse (PR #14, stacked on PR #13)  
 **Frozen baseline:** F80_TOP20_PARTIAL50_BASELINE_C20  
 **Legacy holdout:** CONSUMED_NOT_PRISTINE; never reused
@@ -331,3 +331,11 @@ No alpha/OOS result from Phase 253. No returns, bootstrap/LOO, chronological OOS
 - [Phase 275 report](PHASE275_FORM4_DISCLOSURE_EVENT_UNIT_AND_OWNER_CLASS_AUDIT_2026-11-10.md) · [auditor](phase275_form4_disclosure_event_unit_audit.py) · [tests](test_phase275_form4_disclosure_event_unit_audit.py) · [result](phase275_form4_disclosure_event_unit_audit_result.json) · [workflow](../.github/workflows/phase275_form4_disclosure_event_unit_audit.yml).
 
 **Phase 275 decision:** retain the multi-owner Form 4 purchase hypothesis only as a low-sample candidate. Use issuer CIK × FILING_DATE as the information-event unit; keep trade-date clusters nested and do not infer owner independence from CIK/address. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## Phase 276 — PR #14 workflow supply-chain hardening (2026-11-10 UTC)
+- Audited all 27 workflow files then present in PR #14. The only write-capable workflow was the guarded Phase 234 CFTC capture workflow; all workflows had explicit permissions, no pull_request_target was found, and the CFTC workflow retained main-only execution, non-persistent checkout credentials, scoped github.token, and additive-only archive commits.
+- Found 24 workflows still using mutable major-version action tags. Pinned every action reference in those 24 files to verified full commit SHAs for checkout v4, setup-python v5, download-artifact v4 and upload-artifact v4. The three already-pinned workflows were left unchanged.
+- Added a deterministic Phase 276 inventory and regression workflow covering 28 workflow files including itself. It rejects mutable/unreviewed action refs, missing explicit permissions, pull_request_target and any additional write-capable workflow.
+- Hosted validation is pending; no success is claimed until the Phase 276 workflow completes.
+- No live CFTC capture, PR merge, data purchase, SEC request, vendor contact, return/alpha test, production/universe/capital change or holdout use. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.

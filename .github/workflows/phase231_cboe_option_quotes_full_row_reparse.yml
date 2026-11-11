@@ -16,8 +16,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: "3.11"
       - name: Compile Phase 231
@@ -28,7 +28,7 @@ jobs:
         run: python -m research.phase231_cboe_option_quotes_full_row_reparse --output phase231_output/phase231_cboe_option_quotes_full_row_reparse.json
       - name: Upload metadata-only full-row audit artifact
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: phase231-cboe-option-quotes-full-row-reparse
           path: phase231_output/phase231_cboe_option_quotes_full_row_reparse.json
