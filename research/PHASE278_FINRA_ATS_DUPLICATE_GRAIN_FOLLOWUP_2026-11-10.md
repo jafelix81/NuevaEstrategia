@@ -1,7 +1,7 @@
 # Phase 278 — FINRA ATS duplicate-grain targeted follow-up
 
 **Date:** 2026-11-10  
-**Status:** transport parser hardened; 18 deterministic tests pass; hosted re-fetch pending.
+**Status:** CSV/JSON transport parser hardened; 20 deterministic tests pass; hosted re-fetch pending.
 
 ## Purpose
 
@@ -9,26 +9,29 @@ Phase 277 found two conflicting groups under the candidate key in the 2025-07-07
 
 This phase re-fetches only the Phase 277 exception partition (2025-07-07/T2). It records the conflicting candidate-key rows, differing fields, row hashes and page hashes. It does not save the full partition, choose a row, sum values, or promote `lastReportedDate` to a natural key.
 
-## Initial hosted attempts and correction
+## Initial hosted attempts and transport diagnosis
 
-The first run [42956112212](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42956112212), its failed-job retry, and the PR-triggered run [42956424647](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42956424647) all passed compilation and the original 13 deterministic tests, but the live fetch stopped in Phase 100's `response.json()` with `JSONDecodeError: Extra data` at character 23. No partition rows or artifact were produced. The raw response body was not retained, so its exact contents are unknown; this is not yet classified as an API outage or a FINRA data defect.
+The first attempts [42956112212](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42956112212) and [42956424647](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42956424647) passed compilation and the original offline tests but failed when Phase 100 called `response.json()`.
 
-The Phase 278 fetcher now uses Phase 100's retry, request and header-metadata functions but has a stricter stream decoder:
-- accepts one JSON response or multiple adjacent valid JSON values (arrays, recognized response envelopes, or row objects);
-- rejects arbitrary trailing content rather than silently truncating;
-- records only status/content-type/header diagnostics, response byte count and SHA-256, parser position and first/trailing character;
+The metadata-only diagnostic artifact [13827521824](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42956809614/artifacts/13827521824) resolves the issue: FINRA returned HTTP 200 with `Content-Type: text/plain`, 519,822 bytes, `Record-Total: 147725`, `Record-Offset: 0`, and body SHA-256 `4829a7d1a3f50ba6e50e19050755a82375b13e04eb9f4c8f89fbe509a30c4e1e`. The first 23-character JSON string token followed by a comma is consistent with the quoted CSV header `"issueSymbolIdentifier",...`, not a malformed JSON data payload. The raw body was not stored.
+
+The Phase 278 fetcher now:
+- parses CSV only when the header exactly matches Phase 100's requested field list;
+- accepts a single JSON value or a stream of adjacent recognized JSON values;
+- rejects unknown formats, header mismatches, missing/extra CSV fields and arbitrary trailing content;
+- records page response format, byte hashes, offsets and Record-Total;
 - never persists the raw response body or full partition rows.
 
-**18/18 deterministic tests pass locally**, including single and concatenated JSON responses, redacted parse diagnostics, duplicate-key semantics, page offsets, page hashes, Record-Total and partition gates.
+**20/20 deterministic tests pass locally**, including exact CSV schema, wrong-header rejection, JSON arrays/envelopes, redacted transport diagnostics, duplicate-key semantics, page offsets, page hashes, Record-Total and partition gates.
 
 ## Targeted retrieval contract
 
 - Week: 2025-07-07; tier: T2.
-- Synchronous pagination through the Phase 100 request helper; no FINRA API token.
-- Require stable Record-Total, contiguous offsets, valid SHA-256 for every page and exact row-count reconciliation.
-- Group only the ATS_W_SMBL and OTC_W_SMBL symbol-aggregate rows, using the same candidate key as Phase 277.
-- Preserve every conflicting group and its field values; do not select, sum, or deduplicate.
-- Keep `lastReportedDate` as a diagnostic sensitivity only. It is not an admitted natural key.
+- Synchronous pagination through Phase 100's retry/request/header functions; no FINRA API token.
+- Require stable Record-Total, contiguous offsets, exact CSV field list or recognized JSON format, valid SHA-256 for every page and exact row-count reconciliation.
+- Group only ATS_W_SMBL and OTC_W_SMBL symbol aggregates using the same candidate key as Phase 277.
+- Preserve every conflicting group; do not select, sum or deduplicate.
+- Treat `lastReportedDate` as a diagnostic sensitivity only, not an admitted natural key.
 
 ## Admission boundary
 

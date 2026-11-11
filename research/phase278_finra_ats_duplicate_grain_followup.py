@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Targeted FINRA ATS duplicate-grain diagnostics; no row adjudication."""
 from __future__ import annotations
-import csv, hashlib, json
+import csv, hashlib, io, json
 from collections import defaultdict
 from pathlib import Path
 from typing import Any
@@ -31,9 +31,36 @@ def payload(row: dict[str, Any]) -> dict[str, str]:
 def digest(row: dict[str, str]) -> str:
     return hashlib.sha256(json.dumps(row, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
-def parse_page_body(content: bytes) -> tuple[list[dict[str, Any]], int]:
-    """Accept one JSON value or a stream of adjacent JSON values; reject all other tails."""
+def parse_page_body(content: bytes, content_type: str = "") -> tuple[list[dict[str, Any]], str]:
+    """Accept schema-exact CSV or one/more JSON values; reject unknown formats."""
     body = content.decode("utf-8-sig")
+    header = []
+    if body:
+        try:
+            header = next(csv.reader([body.splitlines()[0]]))
+        except (csv.Error, StopIteration):
+            header = []
+    csv_candidate = header == FIELDS or ("issueSymbolIdentifier" in header and len(set(header) & set(FIELDS)) >= 3)
+    if csv_candidate or "text/csv" in content_type.lower():
+        reader = csv.DictReader(io.StringIO(body))
+        if reader.fieldnames != FIELDS:
+            header_text = ",".join(reader.fieldnames or [])
+            raise PageBodyParseError({
+                "body_bytes": len(content), "body_sha256": hashlib.sha256(content).hexdigest(),
+                "response_format": "csv_candidate", "csv_header_matches_requested_fields": False,
+                "csv_header_count": len(reader.fieldnames or []),
+                "csv_header_sha256": hashlib.sha256(header_text.encode()).hexdigest(),
+                "raw_body_persisted": False,
+            })
+        rows = list(reader)
+        if any(None in row or any(v is None for v in row.values()) for row in rows):
+            raise PageBodyParseError({
+                "body_bytes": len(content), "body_sha256": hashlib.sha256(content).hexdigest(),
+                "response_format": "csv", "csv_header_matches_requested_fields": True,
+                "malformed_csv_rows": sum(None in row or any(v is None for v in row.values()) for row in rows),
+                "raw_body_persisted": False,
+            })
+        return rows, "csv"
     decoder, pos, values = json.JSONDecoder(), 0, []
     try:
         while pos < len(body):
@@ -52,12 +79,12 @@ def parse_page_body(content: bytes) -> tuple[list[dict[str, Any]], int]:
             elif isinstance(value, dict) and "issueSymbolIdentifier" in value and "summaryTypeCode" in value:
                 rows.append(value)
             else: raise ValueError("UNEXPECTED_JSON_SHAPE")
-        return rows, len(values)
+        return rows, "json_stream" if len(values) > 1 else "json"
     except (json.JSONDecodeError, ValueError) as exc:
         raise PageBodyParseError({
             "body_bytes": len(content), "body_sha256": hashlib.sha256(content).hexdigest(),
-            "top_level_json_values_parsed": len(values), "parse_error_type": type(exc).__name__,
-            "parse_error_position": getattr(exc, "pos", None),
+            "top_level_json_values_parsed": len(values), "response_format": "json_candidate",
+            "parse_error_type": type(exc).__name__, "parse_error_position": getattr(exc, "pos", None),
             "parse_error_line": getattr(exc, "lineno", None), "parse_error_column": getattr(exc, "colno", None),
             "first_non_whitespace_character": next((c for c in body if not c.isspace()), "")[:1],
             "trailing_first_non_whitespace_character": next((c for c in body[pos:] if not c.isspace()), "")[:1],
@@ -103,7 +130,7 @@ def fetch_partition(session: requests.Session) -> tuple[list[dict[str, Any]], li
     for page_no in range(MAX_SYNC_PAGES):
         response, attempts = post_sync_page(session, WEEK, TIER, offset)
         try:
-            page_rows, value_count = parse_page_body(response.content)
+            page_rows, response_format = parse_page_body(response.content, response.headers.get("Content-Type", ""))
         except PageBodyParseError as exc:
             exc.diagnostic.update({
                 "http_status": response.status_code, "content_type": response.headers.get("Content-Type"),
@@ -123,7 +150,7 @@ def fetch_partition(session: requests.Session) -> tuple[list[dict[str, Any]], li
             "week": WEEK, "tier": TIER, "page": page_no, "offset": offset, "rows": len(page_rows),
             "record_total": record_total, "page_count_source": count_source, "request_attempts": attempts,
             "request_id": response.headers.get("FINRA-api-request-id"),
-            "sha256": hashlib.sha256(response.content).hexdigest(), "top_level_json_value_count": value_count,
+            "sha256": hashlib.sha256(response.content).hexdigest(), "response_format": response_format,
         })
         rows.extend(page_rows); offset += page_count
         if offset >= record_total: break
@@ -144,7 +171,7 @@ def build_result(rows: list[dict[str, Any]], pages: list[dict[str, Any]]) -> dic
         n, h = int(p.get("rows", -1)), clean(p.get("sha256")).lower()
         if n < 0: raise ValueError("NEGATIVE_PAGE_ROW_COUNT")
         if len(h) != 64 or not set(h).issubset(HEX): raise ValueError("INVALID_PAGE_SHA256")
-        hashes.append({k: p.get(k) for k in ("page", "offset", "rows", "record_total", "request_id", "sha256", "top_level_json_value_count")})
+        hashes.append({k: p.get(k) for k in ("page", "offset", "rows", "record_total", "request_id", "sha256", "response_format")})
         offset += n
     if offset != len(rows) or len(rows) != total: raise ValueError("RECORD_TOTAL_NOT_RECONCILED")
     problems = validate_partition_rows(rows, WEEK, TIER)
@@ -182,7 +209,7 @@ def main() -> None:
         raise
     (OUT / "summary.json").write_text(json.dumps(result, indent=2, sort_keys=True), encoding="utf-8")
     with (OUT / "page_hashes.csv").open("w", newline="", encoding="utf-8") as f:
-        w = csv.DictWriter(f, fieldnames=["page", "offset", "rows", "record_total", "request_id", "sha256", "top_level_json_value_count"])
+        w = csv.DictWriter(f, fieldnames=["page", "offset", "rows", "record_total", "request_id", "sha256", "response_format"])
         w.writeheader(); w.writerows(result["retrieval"]["page_hashes"])
     print(f"PHASE278_STATUS={result['status']} rows={len(rows)} pages={len(pages)} "
           f"duplicate_groups={result['duplicate_audit']['candidate_key_group_count']} "

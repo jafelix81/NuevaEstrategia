@@ -75,3 +75,10 @@ Retain FINRA ATS/OTC as context-only. Keep all conflicting groups quarantined. D
 - Prior Phase 264 comparator: `research/phase264_finra_ats_final_artifact_adjudication_result.json`
 - Official FINRA docs: https://developer.finra.org/docs
 - FINRA historical dataset introduction: https://developer.finra.org/news/q12021
+
+
+## Transport-format sensitivity observed in Phase 278
+
+A later request for the 2025-07-07/T2 partition returned HTTP 200 with `Content-Type: text/plain`, a 519,822-byte body, `Record-Total: 147725`, offset 0, and a body SHA-256 recorded in the Phase 278 transport artifact. The JSON decoder parsed the first 23-character quoted token and then encountered a comma at character 23. That token length matches the quoted first requested field name, `"issueSymbolIdentifier"`, indicating a CSV header rather than malformed JSON. The raw body was not retained.
+
+The Phase 278 fetcher now accepts CSV only when its parsed header exactly matches the requested Phase 100 field list; it also accepts recognized JSON response shapes. It rejects header mismatches and malformed rows. This shows the FINRA endpoint's representation may vary across requests; the Phase 277 artifact itself used the JSON path, and its original response-format metadata was not recorded. Future full-panel revalidation should record and validate the response format for every page.

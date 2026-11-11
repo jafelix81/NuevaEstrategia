@@ -353,7 +353,8 @@ No alpha/OOS result from Phase 253. No returns, bootstrap/LOO, chronological OOS
 ## Phase 278 — FINRA ATS duplicate-grain targeted follow-up (transport hardening)
 - Target partition is 2025-07-07/T2, the only Phase 277 partition with two conflicting base candidate-key groups. The first two hosted attempts failed in Phase 100's JSON decoder with `JSONDecodeError: Extra data` at character 23; no rows or artifact were produced, and the raw body was not retained.
 - Replaced the direct single-document JSON parse with a fail-closed stream decoder that accepts multiple valid JSON values but rejects arbitrary trailing content. Failure diagnostics record only response length/hash, status and headers, parser position and first/trailing character; raw body and full partition rows are never persisted.
-- 18 deterministic tests pass locally. Hosted re-fetch is pending.
+- The diagnostic artifact [13827521824](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42956809614/artifacts/13827521824) shows the FINRA response was HTTP 200 `text/plain` CSV, not JSON: 519,822 bytes, Record-Total 147,725, offset 0, body SHA-256 4829a7d1a3f50ba6e50e19050755a82375b13e04eb9f4c8f89fbe509a30c4e1e. The first quoted field header `issueSymbolIdentifier` was parsed as a 23-character JSON string before the comma caused the decoder error. The raw body was not persisted.
+- Updated the fetcher to accept CSV only with an exact requested-field header, as well as recognized JSON formats; malformed rows and unknown formats fail closed. 20 deterministic tests pass locally. Hosted re-fetch is pending.
 - No strict PIT admission, alpha/return test, bootstrap/LOO, OOS or holdout use. F80, production, universe and capital remain unchanged.
 
 

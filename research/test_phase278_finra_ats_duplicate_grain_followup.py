@@ -1,6 +1,9 @@
 from __future__ import annotations
+import csv
+import io
 import json
 import unittest
+from research.phase100_finra_ats_revalidation import FIELDS
 from research.phase278_finra_ats_duplicate_grain_followup import (
     WEEK, TIER, PageBodyParseError, build_result, inspect_duplicates, parse_page_body,
 )
@@ -18,35 +21,52 @@ def pages(n):
     return [{"page":0,"offset":0,"rows":n,"record_total":n,"week":WEEK,"tier":TIER,
              "sha256":"a"*64,"request_id":"req-1"}]
 
+def csv_body(rows, fields=FIELDS):
+    buf=io.StringIO()
+    writer=csv.DictWriter(buf,fieldnames=fields,extrasaction="ignore")
+    writer.writeheader(); writer.writerows(rows)
+    return buf.getvalue().encode()
+
 class Phase278Tests(unittest.TestCase):
     def test_parse_single_json_array(self):
-        parsed, count = parse_page_body(json.dumps([row()]).encode())
-        self.assertEqual(len(parsed), 1); self.assertEqual(count, 1)
+        parsed, fmt = parse_page_body(json.dumps([row()]).encode(),"application/json")
+        self.assertEqual(len(parsed),1); self.assertEqual(fmt,"json")
 
     def test_parse_concatenated_json_arrays(self):
-        body = (json.dumps([row()]) + json.dumps([row(symbol="XYZ")])).encode()
-        parsed, count = parse_page_body(body)
-        self.assertEqual(count, 2)
-        self.assertEqual([x["issueSymbolIdentifier"] for x in parsed], ["LND", "XYZ"])
+        body=(json.dumps([row()])+json.dumps([row(symbol="XYZ")])).encode()
+        parsed, fmt=parse_page_body(body,"application/json")
+        self.assertEqual(fmt,"json_stream")
+        self.assertEqual([x["issueSymbolIdentifier"] for x in parsed],["LND","XYZ"])
 
     def test_parse_concatenated_response_envelopes(self):
-        body = (json.dumps({"data":[row()]}) + json.dumps({"data":[row(symbol="XYZ")]})).encode()
-        parsed, count = parse_page_body(body)
-        self.assertEqual(count, 2); self.assertEqual(len(parsed), 2)
+        body=(json.dumps({"data":[row()]})+json.dumps({"data":[row(symbol="XYZ")]})).encode()
+        parsed, fmt=parse_page_body(body,"application/json")
+        self.assertEqual(fmt,"json_stream"); self.assertEqual(len(parsed),2)
 
     def test_parse_single_row_object(self):
-        parsed, count = parse_page_body(json.dumps(row()).encode())
-        self.assertEqual(count, 1); self.assertEqual(parsed[0]["issueSymbolIdentifier"], "LND")
+        parsed, fmt=parse_page_body(json.dumps(row()).encode(),"application/json")
+        self.assertEqual(fmt,"json"); self.assertEqual(parsed[0]["issueSymbolIdentifier"],"LND")
+
+    def test_parse_schema_exact_csv_response(self):
+        parsed, fmt=parse_page_body(csv_body([row(),row(symbol="XYZ")]),"text/plain")
+        self.assertEqual(fmt,"csv"); self.assertEqual(len(parsed),2)
+        self.assertEqual(parsed[1]["issueSymbolIdentifier"],"XYZ")
+
+    def test_csv_wrong_header_fails_closed(self):
+        body=csv_body([row()],fields=FIELDS[:-1])
+        with self.assertRaises(PageBodyParseError) as ctx: parse_page_body(body,"text/plain")
+        self.assertFalse(ctx.exception.diagnostic["csv_header_matches_requested_fields"])
+        self.assertFalse(ctx.exception.diagnostic["raw_body_persisted"])
 
     def test_invalid_trailing_payload_is_diagnosed_without_raw_body(self):
-        body = (json.dumps([row()]) + "<html>").encode()
-        with self.assertRaises(PageBodyParseError) as ctx: parse_page_body(body)
-        self.assertEqual(ctx.exception.diagnostic["top_level_json_values_parsed"], 1)
+        body=(json.dumps([row()])+"<html>").encode()
+        with self.assertRaises(PageBodyParseError) as ctx: parse_page_body(body,"application/json")
+        self.assertEqual(ctx.exception.diagnostic["top_level_json_values_parsed"],1)
         self.assertFalse(ctx.exception.diagnostic["raw_body_persisted"])
-        self.assertIn("body_sha256", ctx.exception.diagnostic)
+        self.assertIn("body_sha256",ctx.exception.diagnostic)
 
     def test_conflict_split_by_last_reported_is_diagnostic_only(self):
-        result = inspect_duplicates([row(shares="100",reported="2025-07-08"),row(shares="200",reported="2025-07-10")])
+        result=inspect_duplicates([row(shares="100",reported="2025-07-08"),row(shares="200",reported="2025-07-10")])
         self.assertEqual(result["candidate_key_group_count"],1)
         self.assertEqual(result["conflicting_groups"],1)
         self.assertEqual(result["groups_split_by_last_reported_date"],1)
