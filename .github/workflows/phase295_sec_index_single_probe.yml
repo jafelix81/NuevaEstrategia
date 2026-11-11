@@ -1,0 +1,57 @@
+name: Phase 295 SEC daily-index single-request diagnostic
+
+on:
+  push:
+    branches:
+      - phase295-sec-form4-daily-index-pit-pilot
+    paths:
+      - .github/workflows/phase295_sec_index_single_probe.yml
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Probe two SEC daily-index files
+        env:
+          SEC_CONTACT_EMAIL: ${{ secrets.SEC_CONTACT_EMAIL }}
+        run: |
+          python - <<'PY'
+          import os, time
+          from urllib.request import Request, urlopen
+          from urllib.error import HTTPError, URLError
+          email = os.environ.get("SEC_CONTACT_EMAIL", "").strip()
+          if "@" not in email or any(ch.isspace() for ch in email):
+              raise SystemExit("SEC_CONTACT_EMAIL missing or invalid")
+          ua = f"NuevaEstrategia Smart Money Research (contact: {email})"
+          urls = [
+              "https://www.sec.gov/Archives/edgar/daily-index/2026/QTR3/form.20260930.idx",
+              "https://www.sec.gov/Archives/edgar/daily-index/2006/QTR1/form.20060103.idx",
+          ]
+          for url in urls:
+              req = Request(url, headers={
+                  "User-Agent": ua,
+                  "Accept": "text/plain, */*",
+                  "Accept-Encoding": "identity",
+              })
+              try:
+                  with urlopen(req, timeout=30) as response:
+                      body = response.read(2048)
+                      print("URL=" + url)
+                      print("HTTP=" + str(response.status))
+                      print("CONTENT_TYPE=" + str(response.headers.get("Content-Type", "")))
+                      print("FINAL_HOST=" + str(response.geturl().split("/")[2]))
+                      print("BODY_PREFIX=" + repr(body[:500]))
+              except HTTPError as exc:
+                  body = exc.read(500)
+                  print("URL=" + url)
+                  print("HTTP_ERROR=" + str(exc.code))
+                  print("BODY_PREFIX=" + repr(body))
+              except URLError as exc:
+                  print("URL=" + url)
+                  print("URL_ERROR=" + str(exc.reason))
+              time.sleep(1)
+          PY
