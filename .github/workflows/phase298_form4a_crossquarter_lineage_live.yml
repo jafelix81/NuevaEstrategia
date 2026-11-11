@@ -59,7 +59,7 @@ jobs:
           INPUT_DIR="$(dirname "$(find phase298_input/raw -name '2012q1_form345.zip' -print -quit)")"
           test -f "$INPUT_DIR/2026q3_form345.zip"
           echo "0cac6f943813dae94c20ecc8bca63fda692e2b8ac6d02ce2c322ab411f45c357  $INPUT_DIR/2012q1_form345.zip" | sha256sum --check
-          echo "a4e6a681cfcfa43d3a9d4e9ca9cfec1fd26a59d0a01eac7e9f7b5a0122092c90f3  $INPUT_DIR/2026q3_form345.zip" | sha256sum --check
+          echo "a4e6a681cfcfa43a3d9e4ca9cfec1fd26a59d0a01eac7e9f7b5a0122092c90f3  $INPUT_DIR/2026q3_form345.zip" | sha256sum --check
           printf '%s\n' "$INPUT_DIR" > phase298_input/input_dir.txt
 
       - name: Download immediately preceding 2026Q2 SEC archive
