@@ -1,6 +1,10 @@
 # Phase 296 — SEC Form 4 owner-attribution and purchase-quality feasibility audit
 
 **Date:** 2026-11-11  
+
+
+> **Correction notice (Phase 297, 2026-11-11):** the Phase 296 conservative Table I cohort omitted the transaction-level TRANS_FORM_TYPE=4 condition. Its 15,590-row count included 115 type-5 rows. Use the corrected **15,475-row** Table I cohort from [Phase 297](PHASE297_FORM4_TRANSACTION_FORM_TYPE_RECONCILIATION_2026-11-11.md) for subsequent research. Phase 296 remains the historical record of the original audit; its uncorrected count must not be used for modeling.
+
 **Input:** six raw SEC Form 345 archive ZIPs in Phase 294 artifact [13884014630](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43083625013/artifacts/13884014630)  
 **Method:** offline table joins and transaction/footnote diagnostics; no network requests, price returns or alpha test.
 
