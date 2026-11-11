@@ -187,3 +187,11 @@ Important limit: the public SEC filing detail and EDGAR-rendered primary documen
 - [Phase 291 report](PHASE291_NPORT_DIRECT_SHORT_PUBLIC_FILING_POSITIVE_CONTROL_2026-11-11.md) on branch `phase291-nport-public-short-positive-control`.
 - Latest Actions inventory before this branch: 100 most recent runs = 67 success, 33 cancelled, zero failed, zero active/queued. PR #14 head 6dedb088d7289ca5155a319b5f88155c2d431be3 has 23/23 successful check-runs; PR #13 head 61f737f18b410bc6d85b8c56ed96bc1fd9c130f5 has zero check-runs. Phase 286, 285 and 278 logs/artifacts were inspected; all metadata/source-gate jobs succeeded but did not admit data or alpha. This new branch is documentation/parser correction only; no workflow was started.
 - No PR opened or merge made. F80, production, universe, capital, parameters and holdout remain unchanged.
+
+
+## Phase 292 — N-PORT direct-short classifier hardening (2026-11-11)
+
+A review found the Phase 291 predicate did not fully preserve the preregistered Phase 219 row filter: it omitted U.S. investment-country validation, negative CURRENCY_VALUE/PERCENTAGE sign concordance, and row-level exact CUSIP/ISIN matching. The Phase 291 test commit used [skip ci] and had zero check-runs. Phase 292 adds these fail-closed gates, updates the 13 Phase 221 semantic fixtures, replays the three manually transcribed public SEC filing rows with all required fields, and adds five negative controls. A dedicated offline Actions workflow compiles/runs the tests and emits a metadata-only artifact. This remains a public rendered-document fixture, not raw XML parsing or a bulk-data/PIT admission.
+
+- [Phase 292 report](PHASE292_NPORT_DIRECT_SHORT_CLASSIFIER_HARDENING_2026-11-11.md) on branch phase292-nport-short-classification-hardening.
+- No SEC requests, raw bytes, hashes, return tests, bootstrap/LOO or holdout use. F80, production, universe, capital and parameters remain unchanged.
