@@ -81,6 +81,25 @@ def tx_key_bulk(row):
             decimal_key(row.get("transaction_price_per_share")))
 
 
+def phase342_candidate_tx_key(row):
+    """Rebuild the key from Phase342's screened cohort contract.
+
+    Phase342 appends candidate_events only after requiring transaction code P,
+    acquired/disposed A, and direct ownership D, but its compact candidate row
+    intentionally omits those already-screened columns. Reintroduce the
+    contract explicitly and fail closed if a future input supplies conflicts.
+    """
+    enriched = dict(row)
+    for field, expected in (("transaction_code", "P"),
+                            ("direct_or_indirect", "D"),
+                            ("acquired_disposed", "A")):
+        observed = str(enriched.get(field) or "").strip().upper()
+        if observed and observed != expected:
+            raise ValueError(f"phase342_candidate_contract_mismatch:{field}:{observed}")
+        enriched[field] = expected
+    return tx_key_bulk(enriched)
+
+
 def tx_key_xml(row):
     return (norm(row.get("security_title", "")), canonical_sec_date(row.get("transaction_date", "")),
             str(row.get("transaction_code", "")).strip().upper(),
@@ -113,7 +132,7 @@ def extract_raw_footnotes(raw):
 
 
 def verify_candidate_row(candidate, xml_rows, raw_rows, footnotes, owner_count, aff_value):
-    key = tx_key_bulk(candidate)
+    key = phase342_candidate_tx_key(candidate)
     matches = [x for x in xml_rows
                if x.get("transaction_kind") == "NON_DERIVATIVE" and tx_key_xml(x) == key]
     if len(matches) != 1:
@@ -468,7 +487,17 @@ def run(archive_path, outdir, email):
                 "acceptance_datetime_et": doc.get("acceptance_datetime_et", ""),
                 "form4_symbol_reconciled": doc.get("symbol_reconciled", False),
                 "xml_transaction_match_status": verified.get("xml_match_status", ""),
+                "xml_transaction_match_count": verified.get("xml_match_count", 0),
+                "xml_transaction_index": verified.get("xml_transaction_index", ""),
                 "xml_purchase_screen_pass": verified.get("raw_purchase_screen_pass", False),
+                "xml_purchase_screen_flags": verified.get("raw_purchase_screen_flags", {}),
+                "raw_security_title": verified.get("raw_security_title", ""),
+                "raw_transaction_date": verified.get("raw_transaction_date", ""),
+                "raw_transaction_code": verified.get("raw_transaction_code", ""),
+                "raw_direct_or_indirect": verified.get("raw_direct_or_indirect", ""),
+                "raw_nature_of_ownership": verified.get("raw_nature_of_ownership", ""),
+                "raw_footnote_ids": verified.get("raw_footnote_ids", []),
+                "raw_footnote_texts": verified.get("raw_footnote_texts", []),
                 "raw_missing_footnote_ids": verified.get("raw_missing_footnote_ids", []),
                 "anchor_status": anchor.get("anchor_status", "NOT_SELECTED"),
                 "anchor_accession": anchor.get("anchor_accession", ""),

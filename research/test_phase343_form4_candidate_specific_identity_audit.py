@@ -3,7 +3,7 @@ import unittest
 from research.phase328_sec_collision_prior_filing_xbrl_pilot import select_prior_periodic_filing
 from research.phase343_form4_candidate_specific_identity_audit import (
     canonical_sec_date, classify_header_cik, crosswalk, decimal_key, facts_to_contexts, group_event_units,
-    strict_date_relation, tx_key_bulk, tx_key_xml,
+    strict_date_relation, tx_key_bulk, tx_key_xml, phase342_candidate_tx_key,
 )
 
 class Phase343Tests(unittest.TestCase):
@@ -114,6 +114,23 @@ class Phase343Tests(unittest.TestCase):
                "transaction_code":"P","direct_or_indirect":"D","acquired_disposed":"A",
                "shares":"100","price_per_share":"12.5"}
         self.assertEqual(tx_key_bulk(bulk),tx_key_xml(xml))
+
+    def test_phase342_candidate_schema_rebuilds_screened_p_d_a_contract(self):
+        # Phase342 candidate_events omits code/ownership/acquired fields only
+        # because all three are mandatory in its upstream screen.
+        bulk = {"security_title":"Common Stock","transaction_date":"18-SEP-2026",
+                "transaction_shares":"10000.0","transaction_price_per_share":"13.4"}
+        xml = {"security_title":"Common Stock","transaction_date":"2026-09-18",
+               "transaction_code":"P","direct_or_indirect":"D","acquired_disposed":"A",
+               "shares":"10000.00","price_per_share":"13.40"}
+        self.assertEqual(phase342_candidate_tx_key(bulk), tx_key_xml(xml))
+
+    def test_phase342_candidate_contract_rejects_conflicting_explicit_fields(self):
+        bulk = {"security_title":"Common Stock","transaction_date":"18-SEP-2026",
+                "transaction_shares":"10000.0","transaction_price_per_share":"13.4",
+                "transaction_code":"S"}
+        with self.assertRaisesRegex(ValueError, "phase342_candidate_contract_mismatch"):
+            phase342_candidate_tx_key(bulk)
 
     def test_event_unit_requires_every_candidate_row_to_pass(self):
         rows = [
