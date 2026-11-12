@@ -418,3 +418,12 @@ This offline audit re-read the six raw ZIPs from Phase 294 artifact [13884014630
 - Final live probe [run 43131625929](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43131625929) passed 7/7 tests and the two SEC complete-submission header cross-checks. Artifact [13904274568](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43131625929/artifacts/13904274568), SHA-256 `f55f880c3bb14a2744571e8988d907c27c1db6d3833dcc93e7c565eed4771e62`.
 - Report: [PHASE303_SEC_FEED_ARCHIVES_AND_LIVE_FILINGS_RSS_FEASIBILITY_2026-11-12.md](PHASE303_SEC_FEED_ARCHIVES_AND_LIVE_FILINGS_RSS_FEASIBILITY_2026-11-12.md).
 - No return/alpha, strict PIT admission, bootstrap/LOO, chronological OOS or holdout test. F80, production, universe, capital and parameters remain unchanged. No data purchase, vendor contact, PR or merge.
+
+
+## Current GitHub verification — 2026-11-12 01:02 UTC
+
+- Latest 100 Actions runs: **60 success, 15 failure, 25 cancelled, zero queued/in-progress**. Final Phase 303 run 43131625929 succeeded; run 43131396845 failed at offline tests before any SEC request (stale test file on an intermediate commit), and run 43131399974 was cancelled by concurrency before starting a job. No active workflow was duplicated.
+- Branch inventory: **152** (100 on page 1, 52 on page 2). Active research branch is `phase303-sec-feed-live-rss-feasibility`; no PR was opened for Phase 303.
+- PR #13 and PR #14 remain open and unmerged; 11 PRs are open in total. No PR was merged or retargeted.
+- `SEC_CONTACT_EMAIL` was used only in the SEC User-Agent. No email was sent. No Feed/Oldloads archive or PDS subscription was downloaded/purchased.
+- `F80_TOP20_PARTIAL50_BASELINE_C20`, production, universe, capital, parameters and the consumed legacy holdout remain unchanged.
