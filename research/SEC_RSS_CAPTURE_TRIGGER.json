@@ -1,5 +1,5 @@
 {
-  "requested_at_utc": "2026-11-12T02:54:00Z",
-  "reason": "Validate legacy left-censored ledger migration and page-level first-observation capture",
+  "requested_at_utc": "2026-11-12T03:00:00Z",
+  "reason": "Validate durable daily repository snapshot forced by legacy timestamp migration",
   "requested_by": "Smart Money Research automation"
 }
