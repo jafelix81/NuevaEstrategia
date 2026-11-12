@@ -63,10 +63,13 @@ jobs:
               sys.exit("Expected 72 deterministic sample accessions")
           if r.get("original_header_crosscheck", {}).get("headers_identity_mismatch", 0) != 0:
               sys.exit("Original SEC header/entity identity mismatch; inspect quarantined rows")
-          if r.get("original_header_crosscheck", {}).get("dual_path_equivalence_mismatch", 0) != 0:
-              sys.exit("Issuer and SEC-HEADER entity paths returned different payload hashes")
-          if r.get("original_header_crosscheck", {}).get("dual_path_equivalence_verified", 0) != 72:
-              sys.exit("Expected 72 original-header entity-path equivalence checks")
+          x = r.get("original_header_crosscheck", {})
+          if x.get("dual_path_equivalence_mismatch", 0) != 0:
+              sys.exit("Independent issuer and SEC-HEADER entity paths returned different payload hashes")
+          if x.get("dual_path_equivalence_verified", 0) != x.get("dual_path_equivalence_checked", -1):
+              sys.exit("Not all independent entity-path crosschecks were verified")
+          if x.get("path_identity_checks_total", 0) != x.get("headers_downloaded", -1):
+              sys.exit("Not every downloaded header received either an independent path crosscheck or same-path identity check")
           if r.get("daily_index_join", {}).get("bulk_accessions_found_on_filed_date", 0) != 72:
               sys.exit("Not all bulk accessions were found on their official filed-date index")
           if r.get("daily_index_join", {}).get("index_identity_conflicts", 0) != 0:
