@@ -73,8 +73,7 @@ jobs:
           if s["ticker_candidates_with_same_day_multiple_issuer_ciks"] != 28:
               sys.exit("Same-day ticker-candidate collision count mismatch")
           c = r["controls"]
-          for key in ("strict_pit_security_master_admitted", "alpha_test_authorized",
-                      "return_test_run", "alpha_test_run", "bootstrap_loo_run",
+          for key in ("return_test_run", "alpha_test_run", "bootstrap_loo_run",
                       "chronological_oos_run", "holdout_used", "production_changed",
                       "universe_changed", "capital_changed", "parameters_changed",
                       "vendor_contacted", "data_purchased", "raw_sec_bytes_uploaded",
@@ -83,7 +82,11 @@ jobs:
                   sys.exit("Research control unexpectedly opened: " + key)
           if c.get("f80_frozen") is not True:
               sys.exit("F80 frozen control failed")
-          if r["interpretation"]["issuer_trading_symbol_is_security_key"] is not False:
+          i = r["interpretation"]
+          for key in ("strict_pit_security_master_admitted", "alpha_test_authorized"):
+              if i.get(key) is not False:
+                  sys.exit("Interpretation gate unexpectedly opened: " + key)
+          if i["issuer_trading_symbol_is_security_key"] is not False:
               sys.exit("As-filed ticker was incorrectly promoted to a security key")
           print("PHASE325_STATUS=" + r["status"])
           print("SUMMARY=" + str({k:v for k,v in s.items() if k not in ("periods","same_day_symbol_collisions")}))
