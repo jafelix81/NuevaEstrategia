@@ -793,3 +793,11 @@ This offline audit re-read the six raw ZIPs from Phase 294 artifact [13884014630
 - Report: [PHASE338_SEC_BROAD_FORM4_ISSUER_IDENTITY_COVERAGE_AUDIT_2026-11-12.md](PHASE338_SEC_BROAD_FORM4_ISSUER_IDENTITY_COVERAGE_AUDIT_2026-11-12.md). Draft PR #27: [Phase 338](https://github.com/jafelix81/NuevaEstrategia/pull/27).
 
 **Next Form 4 gate:** Phase 339 should extract SecurityExchangeName from the 42 XBRL instance documents, classify class-axis members without collapsing debt/preferred/warrant/common instruments, and preserve source hashes. Do not begin a transaction-level event study until effective-dated security identity, first-public availability and historical-universe coverage pass.
+
+
+## Phase 339 — SEC SecurityExchangeName same-context audit (2026-11-12 UTC)
+
+- Protocol committed on phase339-sec-security-exchange-context-audit; it consumes only the immutable Phase 338 artifact (run 43236684291, artifact 13953101909) and re-fetches the 42 XBRL instance documents whose original SHA-256 values were recorded in Phase 338.
+- The audit separates (a) EntityListingsExchangeAxis on the TradingSymbol fact's own context, (b) same-context SecurityExchangeName text, and (c) document-level exchange co-occurrence. Only (a) is direct XBRL listing-axis evidence; (b) is contextual evidence, and (c) is not a symbol mapping.
+- Source pins: Phase 338 artifact ZIP 30b6a5b6753b24e8bd5d810d4193396249ed3f64de259e2fb8ef9513e29ecf92; audit JSON 0bcd8f355bd697d804296caeffd67fd69ff6aa593b8a5643535ad2f0224027a8; sample manifest 9cca7f3eb027776dff89a4b44a0b234386ead708d758051a2b5e604f6d43736a.
+- No findings are claimed until the Phase 339 workflow verifies all 42 original instance hashes. No listing/security mapping, effective-dated history, strict PIT, universe coverage, alpha/return/OOS, bootstrap/LOO or holdout admission. F80 remains frozen; production, universe, capital and parameters unchanged.
