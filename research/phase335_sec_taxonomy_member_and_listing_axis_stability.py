@@ -270,7 +270,7 @@ def run_audit(input_path: Path, output_dir: Path) -> dict:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--input-json", type=Path,
-                        default=Path("phase334_source/phase334_symbol_class_binding_audit.json"))
+                        default=Path("phase334_source/phase334-sec-stratified-symbol-class-coverage/phase334_symbol_class_binding_audit.json"))
     parser.add_argument("--output-dir", type=Path, default=Path("phase335_output"))
     args = parser.parse_args()
     run_audit(args.input_json, args.output_dir)
