@@ -98,7 +98,8 @@ def parse_daily_form_index(raw: bytes, index_filename: str) -> dict[str, Any]:
         raise ValueError("expected SEC daily form-index header not found")
 
     seen: dict[tuple[str, ...], dict[str, Any]] = {}
-    accession_identity: dict[str, tuple[str, str, str, str]] = {}
+    accession_identity: dict[str, tuple[str, str]] = {}
+    accession_entity_identity: dict[tuple[str, str], str] = {}
     conflicts: set[str] = set()
     quarantine: list[dict[str, Any]] = []
     counts = {
@@ -200,10 +201,10 @@ def parse_daily_form_index(raw: bytes, index_filename: str) -> dict[str, Any]:
             "index_date_lag_days": index_lag_days,
             "filename": filing_path,
         }
-        # The index row CIK is the filing entity/issuer CIK and has already
-        # been required to match the CIK in the accession path. Do not infer
-        # separate reporting-owner entities from a synthetic row.
-        accession_key = (form_type, filing_date.isoformat(), str(int(cik)), company_name)
+        # One ownership filing can be indexed under the issuer and one or
+        # more reporting-owner CIKs. Keep those distinct index entities, but
+        # reject a changed form/date or a changed name for the same entity CIK.
+        accession_key = (form_type, filing_date.isoformat())
         previous_identity = accession_identity.get(accession)
         if previous_identity is not None and previous_identity != accession_key:
             conflicts.add(accession)
@@ -212,6 +213,15 @@ def parse_daily_form_index(raw: bytes, index_filename: str) -> dict[str, Any]:
                                "reason": "conflicting_form_or_filing_date_for_accession"})
             continue
         accession_identity[accession] = accession_key
+        entity_identity_key = (accession, str(int(cik)))
+        previous_company_name = accession_entity_identity.get(entity_identity_key)
+        if previous_company_name is not None and previous_company_name != company_name:
+            conflicts.add(accession)
+            counts["conflicting_duplicate_accessions"] += 1
+            quarantine.append({"line_number": line_number, "accession": accession,
+                               "reason": "conflicting_company_name_for_entity_cik"})
+            continue
+        accession_entity_identity[entity_identity_key] = company_name
 
         # A Form 4 accession can appear more than once in the same daily index:
         # once under the issuer CIK and again under one or more reporting-owner
@@ -255,7 +265,7 @@ def build_accession_ledger(records: Iterable[dict[str, Any]]) -> dict[str, Any]:
 
     ledger: list[dict[str, Any]] = []
     quarantine: list[dict[str, Any]] = []
-    identity_fields = ("form_type", "filing_date", "cik", "company_name")
+    identity_fields = ("form_type", "filing_date")
     for accession in sorted(grouped):
         sightings = grouped[accession]
         identities = {
@@ -265,6 +275,14 @@ def build_accession_ledger(records: Iterable[dict[str, Any]]) -> dict[str, Any]:
         if len(identities) != 1:
             quarantine.append({"accession": accession,
                                "reason": "cross_index_form_or_filing_date_conflict",
+                               "sighting_count": len(sightings)})
+            continue
+        names_by_cik: dict[str, set[str]] = defaultdict(set)
+        for row in sightings:
+            names_by_cik[str(row.get("cik", ""))].add(str(row.get("company_name", "")))
+        if any(len(names) > 1 for names in names_by_cik.values()):
+            quarantine.append({"accession": accession,
+                               "reason": "cross_index_company_name_conflict_for_entity_cik",
                                "sighting_count": len(sightings)})
             continue
         identity = sightings[0]
