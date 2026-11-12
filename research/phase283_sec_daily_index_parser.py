@@ -128,8 +128,8 @@ def parse_daily_form_index(raw: bytes, index_filename: str) -> dict[str, Any]:
             row = [field.strip() for field in row]
         else:
             match = re.match(
-                r"^(?P<form>\S+)\s{2,}(?P<company>.*?)\s{2,}"
-                r"(?P<cik>\d+)\s{2,}(?P<filed>\d{8}|\d{4}-\d{2}-\d{2})"
+                r"^\s*(?P<prefix>.+?)\s{2,}(?P<cik>\d+)\s{2,}"
+                r"(?P<filed>\d{8}|\d{4}-\d{2}-\d{2})"
                 r"\s{2,}(?P<filename>\S+)\s*$",
                 line.rstrip(),
             )
@@ -137,10 +137,19 @@ def parse_daily_form_index(raw: bytes, index_filename: str) -> dict[str, Any]:
                 counts["malformed_rows"] += 1
                 quarantine.append({"line_number": line_number, "reason": "fixed_width_row_parse_error"})
                 continue
+            # Legacy SEC form indexes contain multi-word form types such as
+            # "DEF 14A", "APP ORDR", "CT ORDER" and "1-A POS". Parse the
+            # right-hand CIK/date/path columns first, then split the left
+            # prefix once at the form/company separator.
+            left_columns = re.split(r"\s{2,}", match.group("prefix").strip(), maxsplit=1)
+            if len(left_columns) != 2:
+                counts["malformed_rows"] += 1
+                quarantine.append({"line_number": line_number, "reason": "fixed_width_form_company_split_error"})
+                continue
             row = [
                 match.group("cik").strip(),
-                match.group("company").strip(),
-                match.group("form").strip(),
+                left_columns[1].strip(),
+                left_columns[0].strip(),
                 match.group("filed").strip(),
                 match.group("filename").strip(),
             ]
