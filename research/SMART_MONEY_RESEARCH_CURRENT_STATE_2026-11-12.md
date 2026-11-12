@@ -1,8 +1,8 @@
 # Smart Money Research — current state (2026-11-12 UTC)
 
-**Latest completed research:** Phase 343 — candidate-specific SEC Form 4 event-time identity audit (2026Q3 cohort).  
-**Active research branch:** `phase343-form4-candidate-specific-event-time-identity`.  
-**Latest review:** [PR #32](https://github.com/jafelix81/NuevaEstrategia/pull/32), draft/open, based on Phase 342. [PR #33](https://github.com/jafelix81/NuevaEstrategia/pull/33) separately tracks Phase 344 N-PORT identity reconciliation on the Phase 327 branch. Both remain draft/open; no production change.
+**Latest completed research:** Phase 345 — six-cohort SEC Form 4 identity replication (2006Q1, 2012Q1, 2023Q1, 2023Q2, 2025Q3 and 2026Q3).  
+**Active research branch:** `phase345-form4-multiquarter-identity-replication`.  
+**Latest review:** Phase 345 is proposed in [PR #34](https://github.com/jafelix81/NuevaEstrategia/pull/34), draft/open, based on the Phase 343 candidate-specific identity branch. Phase 344 N-PORT identity reconciliation remains separately tracked in [PR #33](https://github.com/jafelix81/NuevaEstrategia/pull/33). No production change.
 
 ## Historical baseline — Phases 332–337
 
@@ -37,6 +37,17 @@
 - Four filings have an EDGAR Series ID. The 2025 ACAP Strategic Fund filing has no Series ID in the primary XML or index, but Form N-PORT labels the field "if any"; registrant CIK, registration file number, series name and class IDs reconcile. This is an optional-ID case, not a parser failure. CIKs are normalized to ten digits.
 - The five-filing sample is purposive and cannot estimate prevalence. Phase 316's broader 280-filing sample found direct-short rows in only 2 filings (194 rows, 173 unique CUSIPs, no tickers). CUSIP/ISIN-to-effective-dated-security mapping and first-public-receipt proof remain unresolved; no N-PORT alpha or strict PIT admission.
 - Report: [Phase 344 N-PORT optional Series ID identity reconciliation](PHASE344_NPORT_OPTIONAL_SERIES_IDENTITY_RECONCILIATION_2026-11-12.md). [Draft PR #33](https://github.com/jafelix81/NuevaEstrategia/pull/33).
+
+## Latest verified research — Phase 345 (2026-11-12 UTC)
+
+- Phase 345 [run 43290739469](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43290739469) completed successfully; 7/7 offline regressions passed. [Artifact 13978077938](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43290739469/artifacts/13978077938), 205,917,652 bytes, SHA-256 \`7f8fe1191661be514cb2bc4c9551d07644516cfe9a4b9d52fa44dd59b950dcfd\`.
+- Six non-contiguous SEC bulk cohorts: 413 candidate rows, 262/262 Form 4 accessions retrieved, all 262 issuer symbols reconciled; 393/413 candidate rows matched one exact XML transaction and passed raw purchase-screen revalidation.
+- 2023Q1–2026Q3: 273/301 rows (90.70%) and 159/173 issuer-CIK × filing-date units (91.91%) have event-time identity. Requiring the anchor to predate the transaction reduces this to 263/301 rows (87.38%) and 152/173 units (87.86%). Both are below the 95% admission gate.
+- 2006Q1/2012Q1: 0/112 rows and 0/51 units resolve through the current same-context target-fact method. In 2012, 95 candidate rows had selected prior periodic documents but the parser returned \`PRIMARY_HTML_NO_TARGET_FACTS\`; this is not proof that the issuer lacked a listed security.
+- 10 event-time identities are not transaction-date identities because the selected periodic anchor is same-day or later than the transaction (2 in 2023Q1, 7 in 2023Q2, 1 in 2025Q3). They remain excluded from transaction-date mapping.
+- Phase 345's original JSON aggregate field \`xbrl_era_descriptive_aggregate_excluding_2006\` also includes 2012Q1; its label is inaccurate. Use the per-period corrected 2023+ denominators in the Phase 345 report, not that precomputed aggregate.
+- Decision: no insider event study yet. First test a strict legacy HTML same-row \`Title of each class\` / \`Name of each exchange\` bridge for 2006/2012, keeping Form 4 issuer symbol separate and quarantining multi-class ambiguity. Then require effective-dated corporate-action continuity, survivorship-aware universe membership and delisted price coverage.
+- Report: [Phase 345 multi-cohort identity replication](PHASE345_SEC_FORM4_MULTIQ_COHORT_IDENTITY_REPLICATION_2026-11-12.md).
 
 ## Next research gates
 
