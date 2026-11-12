@@ -200,6 +200,10 @@ def build_validation(summary: dict[str, Any], evidence: dict[str, Any]) -> dict[
         if all_raw and all_headers and all_series and identity_set_ok
         else "PARTIAL_RAW_RETRIEVAL_OR_RECONCILIATION"
     )
+    series_present_count = sum(1 for x in accession_audits if x.get("series_gate") == "PASS")
+    series_missing_accessions = [
+        str(x["accession"]) for x in accession_audits if x.get("series_gate") != "PASS"
+    ]
     return {
         "phase": 310,
         "status": raw_status,
@@ -212,7 +216,13 @@ def build_validation(summary: dict[str, Any], evidence: dict[str, Any]) -> dict[
         "unexpected_accession_results": unexpected_results,
         "raw_bytes_hash_and_artifact_gate": "PASS" if all_raw and identity_set_ok else "FAIL",
         "header_identity_acceptance_gate": "PASS" if all_headers and identity_set_ok else "FAIL",
-        "series_identity_presence_gate": "PASS" if all_series and identity_set_ok else "FAIL",
+        "series_identity_presence_gate": (
+            "PASS" if all_series and identity_set_ok
+            else "PARTIAL" if series_present_count > 0 and identity_set_ok
+            else "FAIL"
+        ),
+        "series_identity_present_accessions": series_present_count,
+        "series_identity_missing_accessions": series_missing_accessions,
         "expected_public_positive_control_sign_gate": (
             "PASS" if all_expected_sign and sign_gate_known and identity_set_ok
             else "FAIL" if sign_gate_known
