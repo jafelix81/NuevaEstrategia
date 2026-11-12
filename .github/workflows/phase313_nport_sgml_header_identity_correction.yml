@@ -16,7 +16,7 @@ permissions:
   actions: read
 
 concurrency:
-  group: phase313-nport-sgml-header-identity-\${{ github.ref }}
+  group: phase313-nport-sgml-header-identity
   cancel-in-progress: false
 
 jobs:
@@ -36,9 +36,9 @@ jobs:
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
           name: phase312-nport-raw-stratified-sample
-          repository: \${{ github.repository }}
+          repository: jafelix81/NuevaEstrategia
           run-id: 43157888685
-          github-token: \${{ github.token }}
+          github-token: ${{ github.token }}
           path: phase312_input
 
       - name: Compile and run Phase 313 regressions
@@ -48,10 +48,7 @@ jobs:
 
       - name: Reconcile all 56 immutable raw submissions offline
         run: |
-          python research/phase313_nport_sgml_header_reconciliation.py \
-            --input-dir phase312_input \
-            --output-dir phase313_output \
-            --ticker-snapshot research/phase313_f80_legacy_ticker_snapshot_2026-10-20.csv
+          python research/phase313_nport_sgml_header_reconciliation.py --input-dir phase312_input --output-dir phase313_output --ticker-snapshot research/phase313_f80_legacy_ticker_snapshot_2026-10-20.csv
 
       - name: Upload corrected identity reconciliation
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
