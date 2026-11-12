@@ -1,0 +1,105 @@
+from __future__ import annotations
+import unittest
+from research.phase343_form4_candidate_specific_identity_audit import (
+    crosswalk, decimal_key, facts_to_contexts, group_event_units,
+    strict_date_relation, tx_key_bulk, tx_key_xml,
+)
+
+class Phase343Tests(unittest.TestCase):
+    def test_same_context_triple_required(self):
+        facts = [
+            {"name":"TradingSymbol","value":"ABC","context_ref":"c1","dimensions":[]},
+            {"name":"Security12bTitle","value":"Common Stock","context_ref":"c2","dimensions":[]},
+            {"name":"SecurityExchangeName","value":"NYSE","context_ref":"c2","dimensions":[]},
+        ]
+        self.assertEqual(facts_to_contexts(facts), [])
+
+    def test_exact_same_context_triple_is_retained(self):
+        facts = [
+            {"name":"TradingSymbol","value":"ABC","context_ref":"c1","dimensions":[]},
+            {"name":"Security12bTitle","value":"Common Stock","context_ref":"c1","dimensions":[]},
+            {"name":"SecurityExchangeName","value":"NYSE","context_ref":"c1","dimensions":[]},
+        ]
+        contexts = facts_to_contexts(facts)
+        self.assertEqual(len(contexts), 1)
+        self.assertEqual(contexts[0]["symbol"], "ABC")
+
+    def test_duplicate_fact_values_are_deduplicated_but_conflicts_fail_closed(self):
+        facts = [
+            {"name":"TradingSymbol","value":"ABC","context_ref":"c1","dimensions":[]},
+            {"name":"TradingSymbol","value":"ABC","context_ref":"c1","dimensions":[]},
+            {"name":"Security12bTitle","value":"Common Stock","context_ref":"c1","dimensions":[]},
+            {"name":"SecurityExchangeName","value":"NYSE","context_ref":"c1","dimensions":[]},
+        ]
+        self.assertEqual(len(facts_to_contexts(facts)), 1)
+        facts.append({"name":"TradingSymbol","value":"XYZ","context_ref":"c1","dimensions":[]})
+        self.assertEqual(facts_to_contexts(facts), [])
+
+    def test_class_axis_is_preserved(self):
+        dims = [{"dimension":"dei:StatementClassOfStockAxis","member":"dei:ClassAMember"}]
+        facts = [
+            {"name":"TradingSymbol","value":"ABC","context_ref":"a","dimensions":dims},
+            {"name":"Security12bTitle","value":"Class A Common Stock","context_ref":"a","dimensions":dims},
+            {"name":"SecurityExchangeName","value":"NASDAQ","context_ref":"a","dimensions":dims},
+        ]
+        contexts = facts_to_contexts(facts)
+        self.assertEqual(contexts[0]["class_axis_members"], ["dei:StatementClassOfStockAxis=dei:ClassAMember"])
+
+    def test_exact_symbol_and_compatible_title_crosswalk(self):
+        contexts = [{
+            "context_ref":"c1","symbol":"ABC","security_title":"Class A Common Stock",
+            "exchange":"NASDAQ","dimensions":[],
+            "class_axis_members":["dei:StatementClassOfStockAxis=dei:ClassAMember"],
+            "listing_axis_members":[],"instrument_class":"COMMON_STOCK",
+            "class_tokens":["A"],"series_tokens":[],
+        }]
+        result = crosswalk("ABC","Class A Common Stock",contexts)
+        self.assertEqual(result["crosswalk_status"],"UNIQUE_COMPATIBLE_SECURITY_CLASS")
+        self.assertEqual(result["exchange_values"],["NASDAQ"])
+
+    def test_same_ticker_with_two_class_axes_remains_ambiguous(self):
+        contexts = []
+        for ref, member in [("a","ClassAMember"),("b","ClassBMember")]:
+            contexts.append({
+                "context_ref":ref,"symbol":"ABC","security_title":"Common Stock",
+                "exchange":"NYSE","dimensions":[],
+                "class_axis_members":[f"dei:StatementClassOfStockAxis=dei:{member}"],
+                "listing_axis_members":[],"instrument_class":"COMMON_STOCK",
+                "class_tokens":[],"series_tokens":[],
+            })
+        result = crosswalk("ABC","Common Stock",contexts)
+        self.assertEqual(result["crosswalk_status"],"AMBIGUOUS_COMPATIBLE_SECURITY_CLASSES")
+
+    def test_strict_date_gates_exclude_same_day_and_lookahead(self):
+        self.assertEqual(strict_date_relation("2026-06-30","2026-07-01"),(True,1))
+        self.assertEqual(strict_date_relation("2026-07-01","2026-07-01"),(False,0))
+        self.assertEqual(strict_date_relation("2026-07-02","2026-07-01"),(False,-1))
+        self.assertEqual(strict_date_relation("","2026-07-01"),(False,None))
+
+    def test_decimal_and_transaction_keys_are_stable(self):
+        self.assertEqual(decimal_key("1,000.0000"),"1000")
+        self.assertEqual(decimal_key("10.5000"),"10.5")
+        bulk = {"security_title":"Common Stock","transaction_date":"2026-08-01",
+                "transaction_code":"P","transaction_shares":"100.000",
+                "transaction_price_per_share":"12.5000"}
+        xml = {"security_title":"Common Stock","transaction_date":"2026-08-01",
+               "transaction_code":"P","direct_or_indirect":"D","acquired_disposed":"A",
+               "shares":"100","price_per_share":"12.5"}
+        self.assertEqual(tx_key_bulk(bulk),tx_key_xml(xml))
+
+    def test_event_unit_requires_every_candidate_row_to_pass(self):
+        rows = [
+            {"issuer_cik":"1","filing_date":"2026-09-01","accession":"a",
+             "event_time_identity":True,"transaction_date_identity":False,
+             "form4_symbol_token":"ABC","exchange_values":["NYSE"]},
+            {"issuer_cik":"1","filing_date":"2026-09-01","accession":"b",
+             "event_time_identity":False,"transaction_date_identity":False,
+             "form4_symbol_token":"ABC","exchange_values":[]},
+        ]
+        events = group_event_units(rows)
+        self.assertEqual(len(events),1)
+        self.assertFalse(events[0]["event_time_complete"])
+        self.assertEqual(events[0]["candidate_accessions"],2)
+
+if __name__ == "__main__":
+    unittest.main()
