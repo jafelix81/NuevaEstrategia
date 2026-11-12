@@ -24,13 +24,22 @@ from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any
 
-from research.phase313_nport_sgml_header_reconciliation import (
-    extract_primary_xml,
-    identity_state,
-    local_name,
-    parse_header_identity,
-    xml_values,
-)
+try:
+    from research.phase313_nport_sgml_header_reconciliation import (
+        extract_primary_xml,
+        identity_state,
+        local_name,
+        parse_header_identity,
+        xml_values,
+    )
+except ModuleNotFoundError:
+    from phase313_nport_sgml_header_reconciliation import (
+        extract_primary_xml,
+        identity_state,
+        local_name,
+        parse_header_identity,
+        xml_values,
+    )
 
 TARGET_CIK = "0000811030"
 TARGET_REPORT_DATE = "2022-07-31"
