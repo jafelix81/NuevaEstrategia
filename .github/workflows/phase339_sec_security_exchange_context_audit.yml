@@ -35,7 +35,7 @@ jobs:
           python -m unittest -v research.test_phase339_sec_security_exchange_context_audit
       - name: Download and verify immutable Phase 338 artifact
         run: |
-          curl -fsSL -H "Accept: application/vnd.github+json" -H "Authorization: Bearer $GH_TOKEN" "https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13953101909/zip" -o phase338_source.zip
+          curl --retry 8 --retry-all-errors --retry-delay 3 --retry-max-time 180 -fsSL -H "Accept: application/vnd.github+json" -H "Authorization: Bearer $GH_TOKEN" "https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13953101909/zip" -o phase338_source.zip
           echo "30b6a5b6753b24e8bd5d810d4193396249ed3f64de259e2fb8ef9513e29ecf92  phase338_source.zip" | sha256sum --check
           mkdir -p phase338_source
           unzip -q phase338_source.zip -d phase338_source
@@ -76,3 +76,5 @@ jobs:
           if-no-files-found: warn
 
 # Workflow file revision to ensure the branch push is observed.
+
+# Retry transient GitHub artifact redirect/server errors before failing the pinned-source gate.
