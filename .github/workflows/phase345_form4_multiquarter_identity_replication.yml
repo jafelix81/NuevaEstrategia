@@ -19,6 +19,9 @@ concurrency:
 
 jobs:
   multiquarter-identity-audit:
+    # One-shot guard: the first hosted run (9ef4d61...) owns the SEC retrieval.
+    # A follow-up push is a no-op so it can replace the accidentally queued duplicate.
+    if: github.sha == '9ef4d61a91f9bd06270018e005971372dc801a1'
     runs-on: ubuntu-latest
     timeout-minutes: 120
     env:
