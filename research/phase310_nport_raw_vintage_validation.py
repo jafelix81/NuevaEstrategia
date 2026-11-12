@@ -69,7 +69,7 @@ def build_validation(summary: dict[str, Any], evidence: dict[str, Any]) -> dict[
     for item in expected_items:
         accession = str(item["accession"])
         row = actual.get(accession)
-        if row is None or row.get("status") != "RAW_RETRIEVED":
+        if row is None or not row.get("raw_files_staged_for_artifact"):
             all_raw = False
             all_headers = False
             all_series = False
@@ -156,6 +156,8 @@ def build_validation(summary: dict[str, Any], evidence: dict[str, Any]) -> dict[
                 "primary_xml": row.get("primary_xml_bytes"),
             },
             "header_identity_and_acceptance_gate": "PASS" if header_ok else "FAIL",
+            "submission_header_error": row.get("submission_header_error"),
+            "submission_header_diagnostic": row.get("submission_header_diagnostic", {}),
             "acceptance_datetime_utc": accepted or None,
             "acceptance_date_matches_filed_date": header.get("acceptance_date_matches_filed_date"),
             "index_primary_last_modified": index_modified or None,
