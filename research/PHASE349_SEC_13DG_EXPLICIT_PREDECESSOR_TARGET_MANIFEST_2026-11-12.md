@@ -53,3 +53,6 @@ A validated explicit reference is not necessarily the immediate predecessor and 
 - Strict PIT source admission: false.
 - Forward returns, alpha, OOS, bootstrap, LOO and holdout: not run.
 - `F80_TOP20_PARTIAL50_BASELINE_C20` and production remain frozen.
+
+
+The hosted workflow replays this manifest from the immutable Phase 84 and Phase 93 artifacts, validates the committed summary, and uploads the row-level CSV. This phase intentionally performs no SEC network retrieval; the 44 parent documents remain for Phase 350.
