@@ -6,6 +6,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import time
 from collections import Counter, defaultdict
 from datetime import datetime, timezone
@@ -19,16 +20,38 @@ from research.phase305_sec_rss_start_offset_audit import exact_form_type, row_ke
 
 COUNT = 100
 STEP = 80
-MAX_PAGES = 25
+MAX_PAGES = 50
 FORMS = {"form4": "4", "form4a": "4/A"}
 OVERLAP = COUNT - STEP
 
 
+def normalize_entity_identity(entry: dict) -> dict:
+    title = entry.get("title", "")
+    match = re.search(r"\((\d{10})\)\s*\(([^()]+)\)\s*$", title)
+    if match:
+        entry["entity_cik_from_title"] = match.group(1)
+        entry["entity_role_from_title"] = match.group(2).strip().title()
+    path_match = re.search(r"/data/(\d+)/", entry.get("link", ""))
+    if path_match:
+        entry["path_cik_from_link"] = path_match.group(1)
+        cik = entry.get("entity_cik_from_title", "")
+        entry["path_cik_matches_title_entity"] = bool(
+            cik and str(int(path_match.group(1))) == str(int(cik))
+        )
+    return entry
+
+
 def raw_row_key(entry: dict) -> tuple:
-    key = row_key(entry)
+    normalized = normalize_entity_identity(dict(entry))
+    key = row_key(normalized)
     if key[0] or key[3]:
         return key
-    return ("ORPHAN", entry.get("entry_id", ""), entry.get("title", ""))
+    return ("ORPHAN", normalized.get("entry_id", ""), normalized.get("title", ""))
+
+
+def raw_row_signature(entry: dict) -> tuple:
+    normalized = normalize_entity_identity(dict(entry))
+    return raw_row_key(normalized), row_fingerprint(normalized)
 
 
 def row_fingerprint(entry: dict) -> tuple:
@@ -69,7 +92,7 @@ def analyze_contiguous_scan(
         target_entries = []
         page_form_counts = Counter()
         for original in page.get("entries", []):
-            entry = dict(original)
+            entry = normalize_entity_identity(dict(original))
             form = exact_form_type(entry.get("title", ""))
             entry["form_type_from_title"] = form
             entries.append(entry)
@@ -103,16 +126,18 @@ def analyze_contiguous_scan(
 
     overlap_checks = []
     for left, right in zip(ordered_pages, ordered_pages[1:]):
-        left_keys = {raw_row_key(x) for x in left.get("entries", [])}
-        right_keys = {raw_row_key(x) for x in right.get("entries", [])}
         expected = min(max(0, count - step), len(right.get("entries", []))) if len(left.get("entries", [])) == count else 0
-        shared = len(left_keys & right_keys)
+        left_tail = [raw_row_signature(x) for x in left.get("entries", [])[-expected:]] if expected else []
+        right_head = [raw_row_signature(x) for x in right.get("entries", [])[:expected]] if expected else []
+        matching_positions = sum(a == b for a, b in zip(left_tail, right_head))
+        sequence_matches = left_tail == right_head
         overlap_checks.append({
             "left_start": left["start"],
             "right_start": right["start"],
-            "shared_entity_rows": shared,
+            "shared_entity_rows": matching_positions,
             "expected_entity_row_overlap": expected,
-            "matches_expected_overlap": shared == expected,
+            "matches_expected_overlap": sequence_matches,
+            "ordered_overlap_sequence_matches": sequence_matches,
         })
 
     target_analysis = analyze_feed_snapshot(list(target_unique.values()), expected_form)
@@ -129,6 +154,10 @@ def analyze_contiguous_scan(
     row_conflicts = sum(1 for fingerprints in raw_fingerprints.values() if len(fingerprints) > 1)
     repeated_rows = sum(1 for starts in raw_page_membership.values() if len(starts) > 1)
     duplicate_appearances = raw_rows_total - len(raw_unique)
+    within_page_duplicate_rows = sum(
+        len(page.get("entries", [])) - len({raw_row_key(x) for x in page.get("entries", [])})
+        for page in ordered_pages
+    )
 
     accessions_spanning_pages = {
         accession: by_page for accession, by_page in target_accession_page_rows.items()
@@ -184,7 +213,8 @@ def analyze_contiguous_scan(
         "all_adjacent_overlaps_match": overlap_stable,
         "raw_entity_row_appearances": raw_rows_total,
         "unique_raw_entity_rows": len(raw_unique),
-        "duplicate_entity_row_appearances_from_overlap": duplicate_appearances,
+        "duplicate_raw_entity_row_appearances": duplicate_appearances,
+        "within_page_duplicate_entity_rows": within_page_duplicate_rows,
         "unique_raw_orphan_entity_rows": len(raw_orphan_unique),
         "unique_target_entity_rows": len(target_unique),
         "unique_target_accessions": target_analysis["unique_accessions"],
