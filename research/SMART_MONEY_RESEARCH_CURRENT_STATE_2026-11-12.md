@@ -437,3 +437,14 @@ This offline audit re-read the six raw ZIPs from Phase 294 artifact [13884014630
 - Workflow [43132595262](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43132595262) passed 18/18 tests (11 Phase 304 + 7 Phase 303). Artifact [13905652996](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43132595262/artifacts/13905652996), ZIP SHA-256 `ae8a81b0d3067348fdcb36063b659cc38a8b9ef6a0987c250866bf5c3e4d2dda`.
 - Next gate: test SEC RSS `start` offsets with `count=100`, including accession rows split across page boundaries. Do not infer exact public time or strict PIT from Atom `updated`.
 - No return/alpha, bootstrap/LOO, chronological OOS or holdout test. F80, production, universe, capital and parameters remain unchanged. No email was sent.
+
+
+## Phase 305 — SEC RSS start-offset pagination and exact-form audit (2026-11-12 01:17 UTC)
+
+- Final workflow [43133481229](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43133481229) passed 26/26 regressions (8 Phase 305, 11 Phase 304, 7 Phase 303); all 14 live Atom requests succeeded. Artifact [13905777719](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43133481229/artifacts/13905777719), SHA-256 `b0306105144e91e6486f9b919ee1e1f7baf78a07c036c09755ff0fc6eb8b2bfd`.
+- `start` pagination is effective and counts raw entity rows: observed overlaps were 1 row for starts 0/99 and 99 rows for starts 99/100 and 100/101. Form 4 pages 0, 100 and 200 contained 100 rows each and 50, 49 and 47 unique accessions; no accession split was observed across the 0/100 or 100/200 boundaries, but multiple-owner filings generated 4- and 8-row accession groups.
+- Critical query semantics: SEC `type=4` is a prefix filter, not an exact Form 4 filter. At starts 500 and 1,000, 87/200 rows were other 4-prefixed forms (40-APP/A, 424B2/B3/B5, 425, 485BPOS and 497). Exact form parsing now isolates only `4` for the Form 4 panel. Across the sampled offsets, 202 unique exact Form 4 accessions / 413 unique entity rows were observed; this is a sampled offset union, not a complete historical count.
+- Form 4/A returned 36 rows / 18 accessions at start=0 and no rows at later offsets. Target-form structural errors were zero.
+- The next gate is a contiguous page scan with entity-row overlap and accession-level reassembly, then a separate prospective first-receipt capture protocol. `updated` remains an acceptance-time proxy, not exact first-public time.
+- Latest 100 Actions runs after Phase 305: 56 success, 20 failure, 24 cancelled; zero queued/in-progress. 154 branches inventoried. PRs #13/#14 and the broader open research PR queue remain unmerged; no PR was merged in this phase. The Phase 305 branch is research-only.
+- No return/alpha, bootstrap/LOO, chronological OOS or holdout test. F80, production, universe, capital and parameters remain unchanged. No email was sent.
