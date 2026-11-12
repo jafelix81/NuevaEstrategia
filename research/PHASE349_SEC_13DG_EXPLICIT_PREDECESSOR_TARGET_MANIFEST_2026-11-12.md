@@ -67,3 +67,12 @@ The second hosted replay, [run 43326083200](https://github.com/jafelix81/NuevaEs
 
 
 The first successful manifest replay, [run 43326350589](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43326350589), confirmed all 22 regression tests and the 44-row summary, but inspection of its ZIP showed the workflow upload path omitted `phase349_output/`. The workflow now explicitly includes the Phase 349 CSV and summary, and checks the 44 unique parent accessions, 43 valid nonzero CUSIPs, one zero sentinel, and the archive-path-only role before upload. The next hosted run is the final artifact-integrity gate.
+
+
+## Final hosted replay — 2026-11-12
+
+- [Workflow run 43326498877](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43326498877): SUCCESS.
+- 22 regression tests passed: 8 Phase 347, 5 Phase 348 and 9 Phase 349.
+- [Artifact 13992528474](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43326498877/artifacts/13992528474), SHA-256 `5073e9f67f0bf3c83f5eb25f513fb231848d3bee2c806eaf8e84da57c02110ef`.
+- The ZIP contains the 44-row Phase 349 CSV plus deterministic Phase 347/348 outputs. Its SHA-256 and row counts were checked after download.
+- Phase 349 made no SEC network requests; parent retrieval remains Phase 350.
