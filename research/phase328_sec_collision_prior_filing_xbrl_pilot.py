@@ -15,7 +15,6 @@ import io
 import json
 import re
 import time
-import zipfile
 from collections import Counter
 from datetime import date
 from html.parser import HTMLParser
@@ -27,6 +26,7 @@ import xml.etree.ElementTree as ET
 PHASE = 328
 PHASE325_ARTIFACT_ID = 13931894766
 PHASE325_ARTIFACT_SHA256 = "6d7930230a60036931857520df07b28087720d54ae9d3bee8f4b1cfe2fbcefa3"
+PHASE328_MANIFEST_SHA256 = "c9fb97c2572da04760188a47fac6d9d983f406f16f2797b656525bfeb10ecd2d"
 EXPECTED_PAIRS = 28
 ALLOWED_FORMS = {
     "10-K", "10-K/A", "10-Q", "10-Q/A", "20-F", "20-F/A", "40-F", "40-F/A",
@@ -70,37 +70,35 @@ def latest_shared_date(value: str) -> str:
 def load_collision_pairs(path: Path) -> list[dict]:
     raw = path.read_bytes()
     digest = sha256(raw)
-    if digest != PHASE326_ARTIFACT_SHA256:
-        raise ValueError(f"phase326_artifact_sha256_mismatch:{digest}")
-    with zipfile.ZipFile(io.BytesIO(raw)) as zf:
-        names = [n for n in zf.namelist() if n.endswith("phase325_same_day_symbol_collisions.csv")]
-        if len(names) != 1:
-            raise ValueError("expected_one_phase325_same_day_symbol_collisions_csv")
-        rows = list(csv.DictReader(io.StringIO(zf.read(names[0]).decode("utf-8-sig"))))
+    if digest != PHASE328_MANIFEST_SHA256:
+        raise ValueError(f"phase328_manifest_sha256_mismatch:{digest}")
+    rows = list(csv.DictReader(io.StringIO(raw.decode("utf-8-sig"))))
     if len(rows) != EXPECTED_PAIRS:
-        raise ValueError(f"phase325_pair_count_mismatch:{len(rows)}")
+        raise ValueError(f"phase328_pair_count_mismatch:{len(rows)}")
     required = {
-        "ticker_candidate", "issuer_cik_a", "issuer_name_a",
-        "issuer_cik_b", "issuer_name_b", "shared_filing_dates",
+        "pair_id", "ticker_candidate", "issuer_cik_a", "issuer_name_a",
+        "issuer_cik_b", "issuer_name_b", "shared_filing_dates", "event_date",
     }
     if not required.issubset(rows[0]):
-        raise ValueError("phase325_collision_schema_mismatch")
+        raise ValueError("phase328_manifest_schema_mismatch")
     seen = set()
     shared_date_count = 0
-    for index, row in enumerate(rows, 1):
+    for row in rows:
+        if not row["pair_id"] or row["pair_id"] in seen:
+            raise ValueError("duplicate_or_missing_pair_id")
+        seen.add(row["pair_id"])
         row["issuer_cik_a"] = norm_cik(row["issuer_cik_a"])
         row["issuer_cik_b"] = norm_cik(row["issuer_cik_b"])
         row["ticker_candidate"] = norm_symbol(row["ticker_candidate"])
-        row["pair_id"] = f"P{index:02d}_{row['ticker_candidate']}_{row['issuer_cik_a']}_{row['issuer_cik_b']}"
-        if row["pair_id"] in seen:
-            raise ValueError("duplicate_collision_pair_id")
-        seen.add(row["pair_id"])
-        row["event_date"] = latest_shared_date(row["shared_filing_dates"])
+        event_date = latest_shared_date(row["shared_filing_dates"])
+        if row["event_date"] != event_date:
+            raise ValueError("manifest_event_date_not_latest_shared_date")
+        if row["pair_id"] != f"{len(seen):02d}" and not row["pair_id"].startswith("P"):
+            raise ValueError("invalid_pair_id")
         shared_date_count += len([x for x in row["shared_filing_dates"].split(";") if x.strip()])
     if shared_date_count != 42:
-        raise ValueError(f"phase325_shared_date_count_mismatch:{shared_date_count}")
+        raise ValueError(f"phase328_shared_date_count_mismatch:{shared_date_count}")
     return rows
-
 
 class SECClient:
     def __init__(self, email: str, min_interval: float = 0.15):
@@ -505,8 +503,8 @@ def write_csv(path: Path, rows: list[dict]):
             })
 
 
-def run(input_zip: Path, outdir: Path, email: str) -> dict:
-    pairs = load_collision_pairs(input_zip)
+def run(input_csv: Path, outdir: Path, email: str) -> dict:
+    pairs = load_collision_pairs(input_csv)
     client = SECClient(email)
     observations = []
     for n, pair in enumerate(pairs, 1):
@@ -587,11 +585,11 @@ def run(input_zip: Path, outdir: Path, email: str) -> dict:
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--input-zip", type=Path, required=True)
+    p.add_argument("--input-csv", type=Path, required=True)
     p.add_argument("--output-dir", type=Path, required=True)
     p.add_argument("--email", default="")
     a = p.parse_args()
-    run(a.input_zip, a.output_dir, a.email)
+    run(a.input_csv, a.output_dir, a.email)
 
 
 if __name__ == "__main__":
