@@ -27,6 +27,8 @@ jobs:
         with:
           python-version: '3.11'
       - name: Compile and run offline regression tests
+        env:
+          PYTHONPATH: research
         run: |
           python -m py_compile research/phase303_sec_latest_filings_rss_probe.py research/phase304_sec_rss_count_cap_audit.py research/test_phase304_sec_rss_count_cap_audit.py
           python -m unittest -v research.test_phase304_sec_rss_count_cap_audit
