@@ -1,7 +1,9 @@
 import unittest
+from pathlib import Path
 
 from research.phase328_sec_collision_prior_filing_xbrl_pilot import (
     ALLOWED_FORMS,
+    load_collision_pairs,
     InlineXBRLHTMLParser,
     choose_instance_file,
     latest_shared_date,
@@ -15,6 +17,12 @@ from research.phase328_sec_collision_prior_filing_xbrl_pilot import (
 
 
 class Phase328IdentityPilotTests(unittest.TestCase):
+    def test_committed_collision_manifest_is_complete_and_pinned(self):
+        rows = load_collision_pairs(Path("research/phase328_collision_pair_manifest.csv"))
+        self.assertEqual(len(rows), 28)
+        self.assertEqual(sum(len(r["shared_filing_dates"].split(";")) for r in rows), 42)
+        self.assertEqual(rows[-1]["ticker_candidate"], "UNIT")
+
     def test_latest_shared_date_uses_latest_valid_date(self):
         self.assertEqual(
             latest_shared_date("2023-04-03;2025-07-01;2026-09-25"),
