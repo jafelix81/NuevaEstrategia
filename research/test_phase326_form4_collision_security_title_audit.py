@@ -6,6 +6,9 @@ from research.phase326_form4_collision_security_title_audit import (
 )
 
 class Phase326Tests(unittest.TestCase):
+    def test_accession_prefix_is_a_retrieval_path_not_issuer_identity(self):
+        from research.phase326_form4_collision_security_title_audit import path_ciks_for
+        self.assertEqual(path_ciks_for("0000939057-26-000239", "1041368", ["1972440"]), ["939057", "1041368", "1972440"])
     def test_exchange_prefix_is_not_identity(self):
         self.assertEqual(classify_symbol("NYSE: DLR"), "DLR")
     def test_multisymbol_is_not_split(self):
