@@ -1,5 +1,7 @@
 import unittest
+import xml.etree.ElementTree as ET
 
+from research.phase314_nport_amendment_parent_audit import parse_short_positions
 from research.phase316_nport_multifiler_stratified_expansion import (
     DEFAULT_PER_STRATUM,
     identifier_metrics,
@@ -90,6 +92,29 @@ class Phase316ReconciliationTests(unittest.TestCase):
             "balance": "-10", "value_usd": "-1000.00", "percentage_nav": "-0.1",
         }
         self.assertEqual(p312_signature(old), p314_signature(new))
+
+
+    def test_short_parser_normalizes_case_whitespace_and_missing_identifiers(self):
+        xml = """<root><invstOrSec>
+          <name>Example</name><title>Common Stock</title><cusip>N/A</cusip>
+          <balance>-10</balance><units> ns </units><valUSD>-100</valUSD><pctVal>-0.1</pctVal>
+          <payoffProfile> short </payoffProfile><assetCat> ec </assetCat>
+          <issuerCat> corp </issuerCat><invCountry> us </invCountry>
+          <identifiers><isin value="N/A"/><ticker value=" - "/></identifiers>
+        </invstOrSec></root>"""
+        rows = parse_short_positions(ET.fromstring(xml))
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["cusip"], "")
+        self.assertEqual(rows[0]["isin"], "")
+        self.assertEqual(rows[0]["ticker"], "")
+
+    def test_nonfinite_position_values_are_excluded(self):
+        xml = """<root><invstOrSec>
+          <balance>NaN</balance><units>NS</units><valUSD>-100</valUSD><pctVal>-0.1</pctVal>
+          <payoffProfile>Short</payoffProfile><assetCat>EC</assetCat>
+          <issuerCat>CORP</issuerCat><invCountry>US</invCountry>
+        </invstOrSec></root>"""
+        self.assertEqual(parse_short_positions(ET.fromstring(xml)), [])
 
     def test_identifier_metrics_distinguish_presence_from_validity(self):
         rows = [
