@@ -53,7 +53,7 @@ class Phase311NportCensusTests(unittest.TestCase):
         self.assertEqual(result[0]["accession"], "0001145549-22-056239")
 
     def test_company_name_pipe_does_not_shift_form_and_filename_columns(self):
-        text = "\\n".join([
+        text = "\n".join([
             HEADER,
             "-----",
             row("1145549", "Fund | Series A", "NPORT-P", "2022-09-15", "000114554922056239"),
