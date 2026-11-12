@@ -205,6 +205,23 @@ def run_pilot(output_dir: Path, email: str) -> dict:
             selected_by_accession.setdefault(key, row)
 
     ledger = build_accession_ledger(all_records)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    preflight = {
+        "index_files": [{
+            "date": x["index_date"],
+            "format": x["format"],
+            "bytes": x["bytes"],
+            "counts": x["counts"],
+            "quarantine_reason_counts": x["quarantine_reason_counts"],
+        } for x in index_manifests],
+        "parsed_form4_form4a_entity_rows": len(all_records),
+        "selected_accessions_by_form": dict(Counter(x["form_type"] for x in selected_by_accession.values())),
+        "ledger_quarantine_count": len(ledger["quarantine"]),
+    }
+    (output_dir / "phase319_preflight_debug.json").write_text(
+        json.dumps(preflight, indent=2, sort_keys=True) + "\\n", encoding="utf-8"
+    )
+    print("PHASE319_PREFLIGHT", json.dumps(preflight, sort_keys=True))
     header_checks = []
     for key in sorted(selected_by_accession):
         row = selected_by_accession[key]
