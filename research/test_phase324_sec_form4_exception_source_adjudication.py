@@ -42,6 +42,12 @@ class Phase324ExceptionSourceTests(unittest.TestCase):
             "ORIGINAL_HEADER_CONFIRMED_DAILY_INDEX_ABSENT_IN_RECHECK_WINDOW_QUARANTINED",
         )
 
+
+    def test_incomplete_index_search_is_not_misclassified_as_absence(self):
+        header = {"filed_date": "2026-09-16", "acceptance_date": "2026-09-16"}
+        result = classify_index_evidence([], header, "2026-09-16", search_incomplete=True)
+        self.assertEqual(result["classification"], "INDEX_SEARCH_INCOMPLETE_QUARANTINED")
+
     def test_same_day_acceptance_index_is_date_level_only(self):
         header = {"filed_date": "2026-09-16", "acceptance_date": "2026-09-16"}
         rows = [
