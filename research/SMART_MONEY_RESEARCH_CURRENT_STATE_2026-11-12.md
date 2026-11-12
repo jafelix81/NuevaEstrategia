@@ -1,5 +1,33 @@
 # Smart Money Research — current state (2026-11-12 UTC)
 
+**Active research branch:** `phase328-sec-collision-prior-filing-xbrl-pilot`  
+**Review:** [PR #19](https://github.com/jafelix81/NuevaEstrategia/pull/19), reopened as a draft and correctly retargeted to `phase327-form4-single-accession-recovery`; branch is 24 commits ahead, 0 behind, with only the Phase 328–331 audit files plus the Phase 193 CI validator correction in the review diff.  
+**Latest completed research:** Phase 331 — historical security-master source feasibility comparison. No source is admitted; no alpha test was run.
+
+## Latest verified research — Phases 328–331 (2026-11-12 UTC)
+
+- **Phase 328 — SEC prior-filing XBRL identity pilot:** 56 issuer-date observations from the 28 purposive same-day ticker-collision pairs; SEC Submissions responded 56/56, 44/56 had an eligible prior periodic filing, 42/56 original documents were retrieved and hashed. Usable `TradingSymbol` facts appeared in 14/56 (25.0%), class-axis evidence in 7/56 (12.5%) and listing-axis evidence in 2/56 (3.6%). Periodic XBRL is not a complete historical security master. [Report](PHASE328_SEC_COLLISION_PRIOR_FILING_XBRL_IDENTITY_PILOT_2026-11-12.md).
+- **Phase 329 — corporate-action reconciliation:** two of three apparent mismatches were explained by pre-event ticker/merger transitions (LFCR and SAFE). Riverview/TSBK remains quarantined because its original Form 4 XML is unavailable; the prior 8-K/A makes the bulk TSBK label suspect but does not replace the missing primary event record. Three co-filer pairs share the same accession and byte-identical primary document; these are not independent identity confirmations. [Report](PHASE329_SEC_COLLISION_EVENT_ACTION_RECONCILIATION_2026-11-12.md).
+- **Phase 330 — legacy cover-page fallback:** all 25/25 source documents matched their pinned SHA-256, but 0/25 contained a visible cover-page column explicitly labelled Trading Symbol. Kill this fallback for the selected sample; do not infer symbols from issuer names, exchange names or security titles. [Report](PHASE330_SEC_LEGACY_COVERPAGE_TABLE_FEASIBILITY_2026-11-12.md).
+- **Phase 331 — historical security-master source ranking:** Massive All Tickers is the most practical low-cost next snapshot candidate (published historical date coverage back to 2003-09-10 on paid tiers, including delisted rows), but it is an effective-date snapshot using the provider's current maintained records, not historical record-time vintages. CRSP is the strongest survivor-bias-free continuity/return benchmark if access exists; Databento is the strongest documented record/effective-time design but cost/license remain unresolved. Norgate, Alpha Vantage and OpenFIGI are supplementary only under their documented identity/timing limits. No account, key, vendor contact, purchase or terms acceptance occurred. [Report](PHASE331_HISTORICAL_SECURITY_MASTER_SOURCE_FEASIBILITY_2026-11-12.md).
+
+## Technical integration and current checks
+
+- The original Phase 328–331 branch was 23 commits ahead of Phase 327 and 0 behind; PR #19 had been incorrectly opened against `main`, which made the review include unrelated ancestry. PR #19 is now reopened against the immediate Phase 327 predecessor; the corrected diff is 24 commits ahead, 0 behind.
+- The latest PR checks include a Phase 193 failure because the workflow's status allowlist omitted the legitimate `RAW_BYTES_RETRIEVED_HEADER_OR_RECONCILIATION_BLOCKED` output. The raw five-accession sample and its hashes were complete; the research limitation was partial series identity, not lost bytes. The workflow validator now accepts that explicit blocked status only when all five accessions were downloaded and both raw XML and submission hashes are verified, allowing the diagnostic artifact to be preserved without admitting the N-PORT source. Reopened-PR checks are running; results must be rechecked before calling the integration complete.
+- Phase 311 N-PORT accession census latest run [43219726054](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43219726054) passed; artifact [13944966503](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43219726054/artifacts/13944966503), SHA-256 `78fbd45dfd53595fd2ed0418ef395188d52dd8cfb3e2043a7d3ba57a9405628b`. This was a census/CI run, not a security-master or alpha test.
+
+## Research decision and controls
+
+- No historical security master, strict PIT identity or broad-universe coverage is admitted. Retain the 95%+ coverage gate and require ambiguous classes, co-filers, parent/subsidiary, plan/fund, ADR, preferred, merger, delisting and relisting cases to be explicit.
+- Next public-data work: continue event-driven SEC corporate-action chronology where the filing evidence can be observed strictly before the Form 4 event; keep same-day sources out unless acceptance/publication ordering is independently established. The missing TSBK Form 4 remains quarantined.
+- A bounded Massive historical snapshot test requires a paid Starter entitlement (published USD 29/month); no spend or account creation will occur without authorization. CRSP/Databento access is likewise not assumed.
+- No return/alpha test, bootstrap/LOO, chronological OOS, independent model test or holdout use. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. Production, universe, capital and parameters remain unchanged. No minimum or maximum holding period is imposed.
+
+---
+
+# Smart Money Research — current state (2026-11-12 UTC)
+
 **Active research branch:** `phase327-form4-single-accession-recovery`  
 **Latest completed research:** Phase 327 — targeted recovery of the sole unavailable original SEC submission from Phase 326; one accession remains explicitly quarantined.  
 
