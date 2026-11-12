@@ -126,7 +126,7 @@ def analyze_contiguous_scan(
 
     overlap_checks = []
     for left, right in zip(ordered_pages, ordered_pages[1:]):
-        expected = min(max(0, count - step), len(right.get("entries", []))) if len(left.get("entries", [])) == count else 0
+        expected = max(0, count - step) if len(left.get("entries", [])) == count else 0
         left_tail = [raw_row_signature(x) for x in left.get("entries", [])[-expected:]] if expected else []
         right_head = [raw_row_signature(x) for x in right.get("entries", [])[:expected]] if expected else []
         matching_positions = sum(a == b for a, b in zip(left_tail, right_head))
