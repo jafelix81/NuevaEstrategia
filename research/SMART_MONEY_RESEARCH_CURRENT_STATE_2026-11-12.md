@@ -807,3 +807,12 @@ This offline audit re-read the six raw ZIPs from Phase 294 artifact [13884014630
 - Critical remaining PIT gate: Phase338's periodic anchor predates the Form 4 filing date, not necessarily the underlying transaction date. Before any event study, parse the 72 Form 4 documents and verify each identity anchor predates every transaction date; quarantine failures. Filing-date granularity is not first-public timestamp proof.
 - No permanent/effective-dated security master, full historical universe coverage, strict PIT event panel, alpha/return/OOS, bootstrap/LOO or holdout admission. F80 remains frozen; production, universe, capital and parameters unchanged; no data purchase or vendor contact.
 - Report: [PHASE339_SEC_SECURITY_EXCHANGE_CONTEXT_AUDIT_2026-11-12.md](PHASE339_SEC_SECURITY_EXCHANGE_CONTEXT_AUDIT_2026-11-12.md). Draft PR #28 targets Phase338 and remains unmerged.
+
+
+## Phase 340 — Form 4 transaction-date identity-anchor PIT audit (2026-11-12 UTC)
+
+- New research branch phase340-form4-transaction-date-anchor-pit-audit is based on Phase339. It reuses the exact 72 Phase338 sample accessions and the byte-verified 61 symbol-to-12(b)-title/exchange contexts from Phase339.
+- The central question: the Phase338 periodic filing anchor is strictly before the Form4 filing date, but may still be on or after an underlying transaction date. Phase340 retrieves original Form4/Form4-A submission texts, parses each non-derivative and derivative transaction date/title, and checks the anchor against every transaction date.
+- Conservative title matching only: normalized exact Form4 securityTitle to Phase339 Security12bTitle within issuer CIK; derivative underlyingSecurityTitle assessed separately. No fuzzy match or security mapping admission.
+- Pinned sources: Phase338 artifact 13953101909 / ZIP SHA 30b6a5b6753b24e8bd5d810d4193396249ed3f64de259e2fb8ef9513e29ecf92; Phase339 artifact 13959007527 / ZIP SHA 186bd582c8cd0ffff73cda16c7331e5a2bd34e413b6aba3715b5fac430a0a66f.
+- No Phase340 findings are claimed until all 72 accessions have been accounted for and each retrieved raw submission has accession/form/filed-date/XML issuer identity verified and hashed. F80 remains frozen; no event study, alpha/return/OOS, bootstrap/LOO or holdout.
