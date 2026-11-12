@@ -58,7 +58,12 @@ jobs:
               raise SystemExit("Phase 303 RSS result missing")
           r = json.loads(p.read_text(encoding="utf-8"))
           assert r["status"] == "PASS_ATOM_ENDPOINT", r["status"]
-          assert r["summary"]["valid_atom_responses"] >= 1
+          assert r["summary"]["valid_atom_responses"] == 2
+          assert r["summary"]["form4_accessions"] > 0
+          assert r["summary"]["form4a_accessions"] > 0
+          assert r["summary"]["unique_accessions"] == r["summary"]["form4_accessions"] + r["summary"]["form4a_accessions"]
+          assert r["summary"]["accessions_with_both_issuer_and_reporting_rows"] == r["summary"]["unique_accessions"]
+          assert r["summary"]["path_title_cik_mismatches"] == 0
           assert r["controls"]["exact_first_public_timestamp_verified"] is False
           assert r["controls"]["historical_backfill_available"] is False
           assert r["controls"]["strict_pit_admitted"] is False
