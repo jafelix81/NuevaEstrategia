@@ -98,7 +98,7 @@ def transaction_code_buckets(codes: list[str]) -> list[str]:
     return sorted({labels.get(code, "UNCLASSIFIED_" + code) for code in codes})
 
 
-def classify_index_evidence(rows: list[dict], header: dict, bulk_date: str) -> dict:
+def classify_index_evidence(rows: list[dict], header: dict, bulk_date: str, search_incomplete: bool = False) -> dict:
     index_dates = sorted({str(r.get("index_date", "")) for r in rows if r.get("index_date")})
     row_dates = sorted({str(r.get("filing_date", "")) for r in rows if r.get("filing_date")})
     forms = sorted({str(r.get("form_type", "")).upper() for r in rows if r.get("form_type")})
@@ -107,7 +107,9 @@ def classify_index_evidence(rows: list[dict], header: dict, bulk_date: str) -> d
     filed_date = header.get("filed_date", "") or bulk_date
     lag = business_day_lag(filed_date, acceptance_date) if filed_date and acceptance_date else None
 
-    if not rows:
+    if search_incomplete:
+        classification = "INDEX_SEARCH_INCOMPLETE_QUARANTINED"
+    elif not rows:
         classification = "ORIGINAL_HEADER_CONFIRMED_DAILY_INDEX_ABSENT_IN_RECHECK_WINDOW_QUARANTINED"
     elif len(index_dates) > 1 or len(row_dates) > 1:
         classification = "MULTI_INDEX_DATE_OR_FILED_DATE_CONFLICT_QUARANTINED"
@@ -312,7 +314,11 @@ def run_audit(source_dir: Path, output_dir: Path, email: str) -> dict:
                     exact_rows.append(item)
                     index_rows_out.append(item)
 
-        evidence = classify_index_evidence(exact_rows, header, prior.get("bulk_filing_date", ""))
+        search_incomplete = any(parsed_rows_by_date.get(day) is None for day in dates)
+        evidence = classify_index_evidence(
+            exact_rows, header, prior.get("bulk_filing_date", ""),
+            search_incomplete=search_incomplete,
+        )
         entity_coverage = expected_entities.issubset(set(evidence["index_entity_ciks"]))
         filing_ok = all(header_checks.values())
         if not filing_ok:
@@ -339,6 +345,8 @@ def run_audit(source_dir: Path, output_dir: Path, email: str) -> dict:
             "expected_entity_ciks": sorted(expected_entities),
             "xml_entities_match_expected": xml_entities == expected_entities,
             "transaction_code_buckets": transaction_code_buckets(xml["transaction_codes"]),
+            "candidate_index_dates_checked": dates,
+            "index_search_complete": not search_incomplete,
             "index_row_count": len(exact_rows),
             "index_rows": exact_rows,
             "index_entity_coverage_complete": entity_coverage,
@@ -432,6 +440,10 @@ def validate_result(result: dict) -> None:
             raise ValueError("research_control_opened:" + key)
     if result.get("retrieval", {}).get("raw_sec_bytes_uploaded") is not False:
         raise ValueError("raw_sec_bytes_must_not_be_uploaded")
+    if result.get("retrieval", {}).get("http_request_errors") != 0:
+        raise ValueError("SEC_retrieval_errors_present")
+    if result.get("retrieval", {}).get("parser_errors") != 0:
+        raise ValueError("daily_index_parser_errors_present")
 
 
 def main(argv=None):
