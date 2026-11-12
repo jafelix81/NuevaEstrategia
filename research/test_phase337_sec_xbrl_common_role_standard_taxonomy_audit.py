@@ -3,6 +3,7 @@ import unittest
 from research.phase337_sec_xbrl_common_role_standard_taxonomy_audit import (
     classify_alias,
     compare_common_role_labels,
+    compare_cross_role_text,
     compare_documentation,
     parse_linkbase,
 )
@@ -63,6 +64,16 @@ class Phase337Tests(unittest.TestCase):
             "CANDIDATE_COMMON_ROLE_LABEL_AND_DOCUMENTATION_MATCH_NOT_MERGED",
         )
 
+
+    def test_cross_role_text_overlap_is_separate_from_common_role_match(self):
+        members = [
+            {"labels": [{"role": "role/label", "language": "en", "text": "Class A common stock"}]},
+            {"labels": [{"role": "role/terseLabel", "language": "en", "text": "Class A common stock"}]},
+        ]
+        common = compare_common_role_labels(members)
+        self.assertFalse(common["common_role_labels_match"])
+        self.assertEqual(compare_cross_role_text(members), ["Class A common stock"])
+
     def test_documentation_conflict_blocks_candidate(self):
         self.assertEqual(
             compare_documentation([
@@ -97,9 +108,10 @@ class Phase337Tests(unittest.TestCase):
           </link:labelLink>
         </link:linkbase>'''
         got = parse_linkbase(raw, {"CommonClassAMember", "CommonStockMember"})
-        self.assertEqual(got["CommonClassAMember"][0]["text"], "Class A common stock member")
-        self.assertEqual(got["CommonClassAMember"][1]["role"],
-                         "http://www.xbrl.org/2003/role/documentation")
+        by_role = {x["role"]: x["text"] for x in got["CommonClassAMember"]}
+        self.assertEqual(by_role["http://www.xbrl.org/2003/role/label"], "Class A common stock member")
+        self.assertEqual(by_role["http://www.xbrl.org/2003/role/documentation"],
+                         "A class of common stock designated as Class A.")
 
 
 if __name__ == "__main__":
