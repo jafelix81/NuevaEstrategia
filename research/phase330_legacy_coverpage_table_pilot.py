@@ -95,8 +95,7 @@ class TableParser(HTMLParser):
             self.row_stack.pop()
         elif tag == "table" and self.table_stack:
             table = self.table_stack.pop()
-            if not self.table_stack:
-                self.tables.append(table)
+            self.tables.append(table)
 
 
 def parse_tables(raw: bytes) -> list[list[list[str]]]:
