@@ -4,7 +4,7 @@ from __future__ import annotations
 import argparse, csv, hashlib, json, re, shutil, xml.etree.ElementTree as ET
 from collections import defaultdict
 from datetime import date, datetime, timezone
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -36,6 +36,22 @@ def decimal_key(value):
         return ""
     try:
         return format(Decimal(raw).normalize(), "f")
+    except (InvalidOperation, ValueError):
+        return raw
+
+
+def sec_bulk_price_key(value):
+    """Match the SEC bulk dataset price field, serialized to cents.
+
+    Original Form 4 XML can retain four or more decimals while
+    TRANS_PRICEPERSHARE in the quarterly bulk TSV is rounded to two decimals.
+    This is source-precision normalization, not a fuzzy price tolerance.
+    """
+    raw = str(value or "").strip().replace(",", "")
+    if not raw:
+        return ""
+    try:
+        return format(Decimal(raw).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP), "f")
     except (InvalidOperation, ValueError):
         return raw
 
@@ -78,7 +94,7 @@ def tx_key_bulk(row):
     return (norm(row.get("security_title", "")), canonical_sec_date(row.get("transaction_date", "")),
             str(row.get("transaction_code", "")).strip().upper(), "D", "A",
             decimal_key(row.get("transaction_shares")),
-            decimal_key(row.get("transaction_price_per_share")))
+            sec_bulk_price_key(row.get("transaction_price_per_share")))
 
 
 def phase342_candidate_tx_key(row):
@@ -105,7 +121,7 @@ def tx_key_xml(row):
             str(row.get("transaction_code", "")).strip().upper(),
             str(row.get("direct_or_indirect", "")).strip().upper(),
             str(row.get("acquired_disposed", "")).strip().upper(),
-            decimal_key(row.get("shares")), decimal_key(row.get("price_per_share")))
+            decimal_key(row.get("shares")), sec_bulk_price_key(row.get("price_per_share")))
 
 
 def extract_raw_footnotes(raw):
@@ -161,6 +177,8 @@ def verify_candidate_row(candidate, xml_rows, raw_rows, footnotes, owner_count, 
         "raw_purchase_screen_flags": flags, "raw_security_title": tx.get("security_title", ""),
         "raw_transaction_date": tx.get("transaction_date", ""),
         "raw_transaction_code": tx.get("transaction_code", ""),
+        "raw_transaction_shares": tx.get("shares", ""),
+        "raw_transaction_price_per_share": tx.get("price_per_share", ""),
         "raw_direct_or_indirect": tx.get("direct_or_indirect", ""),
         "raw_nature_of_ownership": raw_row.get("nature", ""),
         "raw_footnote_ids": fn.get("footnote_ids", []),
@@ -494,6 +512,8 @@ def run(archive_path, outdir, email):
                 "raw_security_title": verified.get("raw_security_title", ""),
                 "raw_transaction_date": verified.get("raw_transaction_date", ""),
                 "raw_transaction_code": verified.get("raw_transaction_code", ""),
+                "raw_transaction_shares": verified.get("raw_transaction_shares", ""),
+                "raw_transaction_price_per_share": verified.get("raw_transaction_price_per_share", ""),
                 "raw_direct_or_indirect": verified.get("raw_direct_or_indirect", ""),
                 "raw_nature_of_ownership": verified.get("raw_nature_of_ownership", ""),
                 "raw_footnote_ids": verified.get("raw_footnote_ids", []),

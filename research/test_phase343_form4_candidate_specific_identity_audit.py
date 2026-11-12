@@ -115,6 +115,24 @@ class Phase343Tests(unittest.TestCase):
                "shares":"100","price_per_share":"12.5"}
         self.assertEqual(tx_key_bulk(bulk),tx_key_xml(xml))
 
+    def test_bulk_price_precision_matches_original_xml_four_decimal_price(self):
+        bulk = {"security_title":"Common Stock","transaction_date":"24-SEP-2026",
+                "transaction_code":"P","transaction_shares":"300",
+                "transaction_price_per_share":"4.98"}
+        xml = {"security_title":"Common Stock","transaction_date":"2026-09-24",
+               "transaction_code":"P","direct_or_indirect":"D","acquired_disposed":"A",
+               "shares":"300.00","price_per_share":"4.9805"}
+        self.assertEqual(tx_key_bulk(bulk), tx_key_xml(xml))
+
+    def test_bulk_price_rounding_does_not_allow_adjacent_cent(self):
+        bulk = {"security_title":"Common Stock","transaction_date":"24-SEP-2026",
+                "transaction_code":"P","transaction_shares":"300",
+                "transaction_price_per_share":"4.98"}
+        xml = {"security_title":"Common Stock","transaction_date":"2026-09-24",
+               "transaction_code":"P","direct_or_indirect":"D","acquired_disposed":"A",
+               "shares":"300.00","price_per_share":"4.9851"}
+        self.assertNotEqual(tx_key_bulk(bulk), tx_key_xml(xml))
+
     def test_phase342_candidate_schema_rebuilds_screened_p_d_a_contract(self):
         # Phase342 candidate_events omits code/ownership/acquired fields only
         # because all three are mandatory in its upstream screen.
