@@ -80,6 +80,8 @@ def extract_primary_xml(submission_text: str, expected_form: str) -> str:
             payload = text_match.group(1).strip()
             if payload.startswith("<XML>"):
                 payload = re.sub(r"^<XML>\s*|\s*</XML>$", "", payload, flags=re.I | re.S)
+            if "<edgarSubmission" not in payload:
+                raise ValueError("primary_nport_xml_root_missing")
             return payload
     raise ValueError("primary_nport_xml_document_not_found")
 
