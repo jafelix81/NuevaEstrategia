@@ -487,3 +487,32 @@ This offline audit re-read the six raw ZIPs from Phase 294 artifact [13884014630
 - Current branch inventory: 157 branches (100 on page 1, 57 on page 2). Eleven PRs remain open; PR #13 and #14 remain open/unmerged. No PR was opened or merged by this follow-up.
 - `SEC_CONTACT_EMAIL` remains only in the masked SEC User-Agent; no email was sent. No paid data, vendor contact or purchase.
 - `F80_TOP20_PARTIAL50_BASELINE_C20`, production, universe, capital, parameters and legacy holdout remain unchanged. No strict PIT admission, alpha/return test, bootstrap/LOO or chronological OOS.
+
+
+## Phase 308 prospective SEC RSS capture #7 — 2026-11-12 04:05 UTC
+
+- Final capture run [43152333818](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43152333818) succeeded; all 30/30 SEC Atom requests completed.
+- Form 4: 1,022 accessions / 2,111 entity rows. Form 4/A: 18 accessions / 36 entity rows.
+- No new, missing or changed accessions; zero structural errors and zero fingerprint conflicts. Inter-capture gap: 24.9851 minutes.
+- Artifact [13914172674](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43152333818/artifacts/13914172674) was inspected. Ledger now records 7 complete captures and 1,040 unique accession keys; all 1,040 initial records remain left-censored/quarantined. No live non-left-censored event interval has yet been observed.
+- The absence of new accessions is a coverage observation only, not evidence about Form 4 predictive value.
+
+## Phase 310 — SEC N-PORT raw filing, acceptance-clock and direct-short reconciliation — 2026-11-12 04:22 UTC
+
+- Final workflow [43154326395](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43154326395) passed. It ran 14 Phase 193 regressions and 9 Phase 310 regressions (23 total).
+- Artifact [13915126393](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43154326395/artifacts/13915126393), SHA-256 `f4827e6065b76bb2f8d4c6287e2026cf1b6eb06f136a407d6295ab530e47ef98`, contains 20 raw SEC files (directory JSON, filing-index HTML, complete submission text and primary XML for five accessions), 1,722,110 bytes total. Raw filing bytes remain in the 90-day artifact, not in the repository.
+- The original Phase 193 parser expected `ACCEPTANCE-DATETIME:` but SEC N-PORT submission text uses the SGML tag `<ACCEPTANCE-DATETIME>...`. The parser was corrected; raw bytes are now staged and hashed before semantic parsing so a parser defect cannot discard evidence.
+- All five accessions now reconcile accession/form/acceptance header. The SEC filing-index `Accepted` value and directory primary-document `last-modified` match the header acceptance time in 5/5 cases. These are acceptance metadata, not proof of first public receipt.
+- All 11 expected positive-control CUSIPs are present on sign-concordant rows. The five purposive filings contain 327 sign-concordant U.S. corporate common-equity short rows under the narrow definition (`Short`, `EC`, `CORP`, `US`, `NS`, negative balance/value/%NAV).
+- Series identity is partial: 4/5 accessions have a series ID in XML or filing-index HTML. Accession `0001145549-25-033457` (ACAP Strategic Fund, CIK 1467631) has no series or class ID in either source. It remains CIK/fund-level only; no series ID is invented.
+- Conservative first-full-XNYS-session candidates after acceptance date: 2020-08-24, 2022-09-16, 2023-10-02, 2024-11-27 and 2025-05-29. These are conservative execution candidates, not first-public-receipt timestamps.
+- Disposition remains partial: raw bytes, header/acceptance and direct-short sign controls pass; series identity is 4/5. The sample is purposive, not representative; no prevalence estimate, amendment lineage, effective-dated security master or broad universe coverage is established.
+- Report: [Phase 310 audit](https://github.com/jafelix81/NuevaEstrategia/blob/phase310-nport-raw-filing-vintage-retrieval/research/PHASE310_NPORT_RAW_FILING_VINTAGE_RETRIEVAL_AUDIT_2026-11-12.md). Hash ledger: [Phase 310 result JSON](https://github.com/jafelix81/NuevaEstrategia/blob/phase310-nport-raw-filing-vintage-retrieval/research/phase310_nport_raw_vintage_validation_result_2026-11-12.json).
+- The first index-HTML parser regression run failed because its synthetic fixture omitted the newly required index HTML entry; the fixture was corrected and the final run passed. No SEC data were lost or changed.
+
+## Current repository verification — 2026-11-12 04:23 UTC
+
+- Latest 100 Actions runs: 61 success, 23 failure, 16 cancelled; zero queued/in-progress. The final Phase 310 run is successful.
+- Branch inventory: 158 (100 on page 1, 58 on page 2). Eleven PRs remain open; PR #13 and #14 remain open/unmerged. Phase 310 is a research-only branch; no PR was opened or merged.
+- `SEC_CONTACT_EMAIL` was used only in the masked SEC User-Agent. No email was sent. No data purchase or vendor contact.
+- No returns/alpha, bootstrap/LOO or chronological OOS test. No holdout use. `F80_TOP20_PARTIAL50_BASELINE_C20`, production, universe, capital and parameters remain unchanged.
