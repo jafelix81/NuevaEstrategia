@@ -1,0 +1,114 @@
+{
+  "phase": 313,
+  "audit_date": "2026-11-12",
+  "status": "PASS_SGML_HEADER_XML_IDENTITY_RECONCILIATION",
+  "source_phase": 312,
+  "source_run_id": 43157888685,
+  "source_artifact_id": 13915839847,
+  "source_artifact_sha256": "78586bd1dbbbd12473ce6d0f75cdee360991541e99a9e2eb45641005f81a4287",
+  "source_artifact_size_bytes": 12025039,
+  "phase312_series_class_identity_labels_superseded": true,
+  "raw_files_expected": 56,
+  "raw_files_reparsed": 56,
+  "raw_sha256_verified": 56,
+  "raw_bytes_modified": false,
+  "series_identity_states": {
+    "MATCH": 53,
+    "MISSING_BOTH": 3
+  },
+  "class_identity_states": {
+    "MATCH": 53,
+    "MISSING_BOTH": 3
+  },
+  "series_header_xml_mismatches": 0,
+  "class_header_xml_mismatches": 0,
+  "series_ids_present": 53,
+  "class_ids_present": 53,
+  "series_names_present": 56,
+  "no_series_class_id_accessions": [
+    {
+      "accession": "0000869392-25-001170",
+      "fund_name": "Putnam Managed Municipal Income Trust"
+    },
+    {
+      "accession": "0001049169-25-001153",
+      "fund_name": "Saba Capital Income & Opportunities Fund II"
+    },
+    {
+      "accession": "0001049169-26-000832",
+      "fund_name": "Alpha Alternative Assets Fund"
+    }
+  ],
+  "holdings": {
+    "total_sign_concordant_short_rows": 176,
+    "positive_filing_count": 2,
+    "positive_filings": [
+      {
+        "accession": "0001145549-22-060851",
+        "form_type": "NPORT-P/A",
+        "fund": "Otter Creek Long/Short Opportunity Fund",
+        "report_date": "2022-07-31",
+        "filing_date": "2022-10-03",
+        "report_to_filing_lag_days": 64,
+        "series_id": "S000043717",
+        "series_identity_state": "MATCH",
+        "short_rows": 20,
+        "ticker_rows": 20
+      },
+      {
+        "accession": "0001049169-25-001153",
+        "form_type": "NPORT-P",
+        "fund": "Saba Capital Income & Opportunities Fund II",
+        "report_date": "2025-10-31",
+        "filing_date": "2025-12-30",
+        "report_to_filing_lag_days": 60,
+        "series_id": null,
+        "series_identity_state": "MISSING_BOTH",
+        "short_rows": 156,
+        "ticker_rows": 0
+      }
+    ],
+    "unique_cusips": 173,
+    "unique_isins": 173,
+    "unique_tickers": 20,
+    "cross_filing_cusip_overlap_count": 3,
+    "cross_filing_cusip_overlap": [
+      "67066G104",
+      "88160R101",
+      "942622200"
+    ],
+    "ticker_reported_rows": 20,
+    "ticker_string_overlap_with_legacy_335": 6,
+    "ticker_string_nonmatch_with_legacy_335": 14,
+    "ticker_unreported_rows": 156,
+    "legacy_ticker_snapshot_count": 335,
+    "legacy_ticker_snapshot_sha256": "6da092b65946b7681e5eea1e215dd71cea3493bf33f2df50f4c51bc26edac087",
+    "ticker_string_overlap_is_not_pit_security_coverage": true
+  },
+  "sample_design": {
+    "filings": 56,
+    "selection": "one deterministic SHA-256 minimum per filing quarter and exact data-bearing form",
+    "representative_prevalence_sample": false,
+    "prevalence_estimate_authorized": false
+  },
+  "offline_regression_tests_passed": 8,
+  "controls": {
+    "first_public_timestamp_admitted": false,
+    "amendment_parent_linking_attempted": false,
+    "effective_dated_security_master_complete": false,
+    "return_test": false,
+    "alpha_test": false,
+    "bootstrap": false,
+    "loo": false,
+    "chronological_oos": false,
+    "holdout_used": false,
+    "f80_frozen": true,
+    "production_changed": false,
+    "universe_changed": false,
+    "capital_changed": false,
+    "parameters_changed": false,
+    "data_purchase": false,
+    "vendor_contact": false,
+    "email_sent": false
+  }
+}
