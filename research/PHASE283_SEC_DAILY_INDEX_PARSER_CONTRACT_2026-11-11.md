@@ -87,3 +87,14 @@ The parser now:
 The regression suite now exercises a real parser-produced later sighting, multi-date ledger aggregation and the no-backdating rule. This remains synthetic validation only; raw SEC index bytes and actual late Form 4/PAC frequencies have not been inspected. The next permitted knowledge date remains based on the earliest verified daily-index date, followed by the next full XNYS session close.
 
 Source semantics: https://www.sec.gov/search-filings/edgar-search-assistance/accessing-edgar-data
+
+
+## Phase 319 live SEC validation addendum (2026-11-12)
+
+The parser was exercised against seven actual SEC daily `form.*.idx` files dated 2006-01-03, 2012-01-03, 2023-01-03, 2023-04-03, 2025-07-01, 2026-07-01 and 2026-11-10. All seven were legacy fixed-width files. The live run retained 19,195 Form 4/Form 4-A entity rows after collapsing three exact duplicates; it ignored 22,783 other-form rows; and it produced zero malformed rows, zero row-CIK/path-CIK mismatches, zero filed-date/index-date ordering violations and zero conflicting accession identities.
+
+The live sample confirms that an ownership accession may appear under multiple entity CIKs in the daily index. Fourteen original filings (seven Form 4 and seven Form 4/A) were crosschecked. Each had two index entity CIKs; the original submission header's `CENTRAL INDEX KEY` identified the issuer row. In six of fourteen cases, the first selected path was under a non-issuer CIK; retrieving through the issuer row produced the identical payload SHA-256. Do not assume the first row is the issuer and do not discard non-issuer entity rows.
+
+The live data also exposed multi-word legacy form types (`DEF 14A`, `APP ORDR`, `CT ORDER`, `1-A POS`). The fixed-width parser now parses the right-hand CIK/date/path fields first and splits the left prefix once into form type and company name. This prevents non-ownership rows from being miscounted as malformed. Fixed-width fixture newline escaping was corrected as part of the same validation.
+
+Run 43170779986 passed 39 regression tests. Artifact 13922595355 contains only parsed metadata and hashes; raw SEC index and filing bytes were not uploaded. This remains a format/path smoke sample, not a probability sample, bulk-archive join, exact first-public timestamp study or alpha test.
