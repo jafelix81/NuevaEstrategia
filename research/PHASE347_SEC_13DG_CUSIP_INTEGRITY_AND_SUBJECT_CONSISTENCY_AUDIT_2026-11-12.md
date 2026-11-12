@@ -65,3 +65,11 @@ No ticker, exchange, share-class continuity, delisting status or historical F80 
 Seven offline regression tests passed locally. This phase has no dedicated hosted Actions run; the exact input artifact digest and deterministic script are pinned above and in the result JSON.
 
 No forward returns, alpha, bootstrap, LOO, chronological OOS or holdout test was run. No source is strict-PIT admitted. `F80_TOP20_PARTIAL50_BASELINE_C20`, production, universe, capital and parameters remain unchanged. No vendor was contacted and no paid data was purchased.
+
+
+## Hosted reproducibility corrections — 2026-11-12
+
+- Run [43316355554](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43316355554) passed the seven Phase 347 unit tests and verified both immutable input artifact hashes, but the replay stopped when the generated JSON summary contained a literal backslash-n suffix. The writer now emits a real newline, and a regression test verifies that its output is parseable JSON.
+- Run [43325269888](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43325269888) passed all eight Phase 347 tests and generated valid JSON. The reproducibility comparison then exposed a stale committed summary: it omitted the detailed `subject_ciks_with_multiple_cusips` mapping emitted by the script. The committed summary has been synchronized to the deterministic replay; this was an audit-artifact mismatch, not a source-data discrepancy.
+- The same correction pass tightened two identity safeguards: filings with zero or multiple CUSIPs no longer receive an arbitrary first-CUSIP assignment, and Phase 348's `all_subject_ciks_match` now compares the parent subject CIK directly with the child subject CIK (rather than merely checking that the parent CIK is nonempty). A negative regression fixture covers the latter.
+- A final hosted replay is pending. Until it passes, Phases 347–348 are reproducible locally but not yet hosted-CI complete.
