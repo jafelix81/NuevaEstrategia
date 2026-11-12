@@ -14,6 +14,7 @@ on:
       - "research/phase319_sec_daily_index_live_pilot.py"
       - "research/phase283_sec_daily_index_parser.py"
       - "research/phase318_nport_next_business_day_clock.py"
+      - "research/data/phase324_source_cases.json"
   workflow_dispatch:
 
 permissions:
@@ -45,19 +46,9 @@ jobs:
           python -m compileall -q research/phase324_sec_form4_exception_source_adjudication.py research/test_phase324_sec_form4_exception_source_adjudication.py research/phase323_sec_bulk_acceptance_index_clock_reconciliation.py research/phase322_sec_bulk_index_exception_adjudication.py research/phase320_sec_bulk_daily_index_join.py research/phase319_sec_daily_index_live_pilot.py research/phase283_sec_daily_index_parser.py research/phase318_nport_next_business_day_clock.py
           python -m unittest -v research.test_phase324_sec_form4_exception_source_adjudication
 
-      - name: Download immutable Phase 322 source artifact
-        run: |
-          mkdir -p phase324_input/phase322
-          gh run download 43187165781 --repo jafelix81/NuevaEstrategia --name phase322-sec-bulk-index-exception-adjudication --dir phase324_input/phase322
-
-      - name: Download immutable Phase 323 source artifact
-        run: |
-          mkdir -p phase324_input/phase323
-          gh run download 43188524842 --repo jafelix81/NuevaEstrategia --name phase323-sec-bulk-acceptance-index-clock-reconciliation --dir phase324_input/phase323
-
       - name: Re-fetch three original Form 4 filings and targeted SEC daily indexes
         run: |
-          python -m research.phase324_sec_form4_exception_source_adjudication --source-dir phase324_input --output-dir phase324_output
+          python -m research.phase324_sec_form4_exception_source_adjudication --source-dir research/data --output-dir phase324_output
 
       - name: Enforce source identity, quarantine and frozen-baseline controls
         run: |
