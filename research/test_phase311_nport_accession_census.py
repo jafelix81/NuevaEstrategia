@@ -52,7 +52,7 @@ class Phase311NportCensusTests(unittest.TestCase):
         )
         self.assertEqual(accession, "0001752724-19-181391")
 
-    def test_exact_forms_are_kept_and_nt_prefix_is_excluded(self):
+    def test_exact_forms_include_late_notice_but_exclude_other_prefixes(self):
         lines = [
             "Description: Form 13F-HR",
             HEADER,
@@ -63,7 +63,7 @@ class Phase311NportCensusTests(unittest.TestCase):
             row("1145549", "Fund A", "NPORT-P2", "2022-09-16", "000114554922056242"),
         ]
         result = parse_master_index("\n".join(lines), "2022Q3")
-        self.assertEqual([x["form_type"] for x in result], ["NPORT-P", "NPORT-P/A"])
+        self.assertEqual([x["form_type"] for x in result], ["NPORT-P", "NPORT-P/A", "NT NPORT-P"])
         self.assertEqual(result[0]["accession"], "0001145549-22-056239")
 
     def test_company_name_pipe_does_not_shift_form_and_filename_columns(self):
@@ -120,12 +120,14 @@ class Phase311NportCensusTests(unittest.TestCase):
             {"quarter": "2022Q3", "form_type": "NPORT-P", "accession": "0000000001-22-000001"},
             {"quarter": "2022Q3", "form_type": "NPORT-P", "accession": "0000000001-22-000002"},
             {"quarter": "2022Q3", "form_type": "NPORT-P/A", "accession": "0000000001-22-000003"},
+            {"quarter": "2022Q3", "form_type": "NT NPORT-P", "accession": "0000000001-22-000004"},
         ]
         first = select_stratified_sample(rows)
         second = select_stratified_sample(list(reversed(rows)))
         self.assertEqual(first, second)
         self.assertEqual(len(first), 2)
         self.assertEqual({x["form_type"] for x in first}, {"NPORT-P", "NPORT-P/A"})
+        self.assertNotIn("NT NPORT-P", {x["form_type"] for x in first})
 
 
 if __name__ == "__main__":
