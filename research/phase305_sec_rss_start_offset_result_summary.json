@@ -1,0 +1,51 @@
+{
+  "phase": 305,
+  "date": "2026-11-12",
+  "workflow_run_id": 43133481229,
+  "artifact_id": 13905777719,
+  "artifact_sha256": "b0306105144e91e6486f9b919ee1e1f7baf78a07c036c09755ff0fc6eb8b2bfd",
+  "tests": {
+    "phase305": 8,
+    "phase304": 11,
+    "phase303": 7,
+    "total": 26
+  },
+  "requests": 14,
+  "requests_succeeded": 14,
+  "form4": {
+    "sampled_offsets": [
+      0,
+      99,
+      100,
+      101,
+      200,
+      500,
+      1000
+    ],
+    "unique_accessions_union": 202,
+    "unique_entity_rows_union": 413,
+    "non_target_form_rows": 87,
+    "non_target_forms": [
+      "40-APP/A",
+      "424B2",
+      "424B3",
+      "424B5",
+      "425",
+      "485BPOS",
+      "497"
+    ],
+    "boundary_accession_splits_0_100": 0,
+    "boundary_accession_splits_100_200": 0,
+    "row_offset_semantics_supported": true
+  },
+  "form4a": {
+    "start0_accessions": 18,
+    "start0_entity_rows": 36,
+    "later_pages_empty": true
+  },
+  "structural_errors": 0,
+  "strict_pit_admitted": false,
+  "alpha_test": false,
+  "holdout_used": false,
+  "f80_frozen": true
+}
