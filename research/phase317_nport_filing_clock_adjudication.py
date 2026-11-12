@@ -155,8 +155,13 @@ def compare_repeat(first: Path, second: Path) -> dict[str, Any]:
     for key in ("coverage", "reconciliation", "holdings"):
         if a_result[key] != b_result[key]:
             raise ValueError(f"phase316_repeat_summary_mismatch:{key}")
+    if {r["accession"] for r in a_candidates} != {r["accession"] for r in b_candidates}:
+        raise ValueError("phase316_repeat_candidate_set_mismatch")
     if len(a_short) != len(b_short):
         raise ValueError("phase316_repeat_short_row_count_mismatch")
+    short_key = lambda r: (r.get("accession", ""), r.get("row_number", ""))
+    if sorted(a_short, key=short_key) != sorted(b_short, key=short_key):
+        raise ValueError("phase316_repeat_short_row_content_mismatch")
     return {
         "run_a": 43166221052,
         "artifact_a": 13919534524,
@@ -165,10 +170,12 @@ def compare_repeat(first: Path, second: Path) -> dict[str, Any]:
         "accessions_compared": len(common),
         "raw_sha256_identical": matches,
         "raw_sha256_mismatches": len(common) - matches,
+        "candidate_accession_sets_identical": True,
         "coverage_summary_identical": True,
         "reconciliation_summary_identical": True,
         "holdings_summary_identical": True,
         "short_row_count_identical": True,
+        "short_row_content_identical": True,
     }
 
 
