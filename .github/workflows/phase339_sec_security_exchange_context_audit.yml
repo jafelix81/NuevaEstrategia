@@ -4,11 +4,8 @@ on:
     branches:
       - phase339-sec-security-exchange-context-audit
     paths:
-      - ".github/workflows/phase339_sec_security_exchange_context_audit.yml"
       - "research/phase339_sec_security_exchange_context_audit.py"
       - "research/test_phase339_sec_security_exchange_context_audit.py"
-      - "research/PHASE339_SEC_SECURITY_EXCHANGE_CONTEXT_AUDIT_2026-11-12.md"
-      - "research/SMART_MONEY_RESEARCH_CURRENT_STATE_2026-11-12.md"
 permissions:
   actions: read
   contents: read
@@ -80,3 +77,5 @@ jobs:
 # Retry transient GitHub artifact redirect/server errors before failing the pinned-source gate.
 
 # Phase 339 uses SEC Submissions to recover the exact primaryDocument before re-fetching the pinned instance.
+
+# Documentation/state edits do not re-fetch SEC filings; only code or regression changes trigger this workflow.
