@@ -1,10 +1,10 @@
 # Smart Money Research — current state (2026-11-12 UTC)
 
-**Latest completed research:** Phase 337 — common-role XBRL label comparison and official US-GAAP standard label/documentation retrieval.  
-**Active research branch:** `phase337-sec-xbrl-common-role-standard-taxonomy-audit`.  
-**Review:** [PR #26](https://github.com/jafelix81/NuevaEstrategia/pull/26), draft/open, based on Phase 336. PRs #24 and #25 also remain draft/open; no phase PR was merged.
+**Latest completed research:** Phase 342 — six-quarter SEC Insider Transactions bulk archive and high-precision Form 4 candidate-screen audit.  
+**Active research branch:** `phase342-form4-high-precision-event-time-identity`.  
+**Review:** [PR #31](https://github.com/jafelix81/NuevaEstrategia/pull/31), draft/open, based on Phase 341; no phase PR was merged.
 
-## Latest results — Phases 332–337
+## Historical baseline — Phases 332–337
 
 - **Phase 332 — event-driven corporate-action identity:** 56 issuer-side observations across 28 purposive ticker-collision pairs; 56/56 SEC submissions responses; 182 candidate event filings; 178 retrieved. After the 365-day freshness rule, 38 observations are fresh, 6 anchors are stale and 12 have no supported periodic anchor. [Report](PHASE332_SEC_EVENT_DRIVEN_CORPORATE_ACTION_IDENTITY_FEASIBILITY_2026-11-12.md) · [Run](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43222287571).
 - **Phase 333 — direct symbol/class binding pilot:** 9 unique, hash-pinned pre-event documents; 9/9 hashes and symbol sets matched; 25 TradingSymbol facts, 20 with class-axis dimensions. [Report](PHASE333_SEC_TRADING_SYMBOL_SHARE_CLASS_BINDING_AUDIT_2026-11-12.md) · [Run](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43224074720).
@@ -23,12 +23,12 @@
 
 ## Next research gates
 
-1. Build a stratified, survivorship-aware sample from the actual historical Form 4 issuer universe across multiple years, rather than expanding only the purposive 28 ticker-collision pairs.
-2. For each issuer, measure the denominator and direct evidence separately: issuer identity, listing exchange, security, share class, symbol and filing coverage. Preserve no-anchor, stale-anchor, incomplete and co-filer states.
-3. Use only pre-event periodic filings with the 365-day freshness rule and complete source retrieval. Filing date is not first-public availability; no same-day source is used as an ex-ante anchor without independent ordering evidence.
-4. Resolve TSBK/RVSB only if the original Form 4 XML or an independent primary event record becomes available; otherwise keep it quarantined.
-5. Build an effective-dated issuer → listing → security → share-class crosswalk only after broad coverage, corporate-action chronology and PIT availability pass.
-6. Only then construct transaction-level Form 4 features and test incremental information versus frozen LTM/F80 under identical exposure/costs, chronological OOS, bootstrap and LOO.
+1. **Phase 343 — candidate-specific event-time identity:** crosswalk the 2026Q3 high-precision Form 4 cohort (59 accessions, 31 issuers, 48 issuer-CIK × filing-date events) against each original Form 4 and the latest supported periodic XBRL filing strictly before its filing date.
+2. Require exact same-CIK `TradingSymbol`, `Security12bTitle` and `SecurityExchangeName` context; compatible common-stock title; a prior anchor no more than 365 days old; and byte-hash/filing-header reconciliation. No fuzzy ticker joins.
+3. Keep event-time identity separate from transaction-date identity. The prior periodic anchor may be after the transaction but before Form 4 disclosure; that is not transaction-date proof.
+4. If the candidate-specific 2026Q3 crosswalk passes, expand to the other five sampled quarters. Do not treat the six non-contiguous quarters as a continuous or probability sample.
+5. Only after security/listing identity passes, measure survivorship-aware historical price coverage and conservative next-full-XNYS-session availability.
+6. Only then consider a candidate event study versus frozen LTM/F80, with identical exposure/costs, chronological OOS, bootstrap/LOO and no use of the consumed legacy holdout.
 
 ## Source dispositions
 
@@ -37,7 +37,7 @@
 | FINRA short flow Phase 20C | Weak, incomplete and not strict PIT; no promotion; do not retune the consumed sample |
 | FINRA short interest Phase 267 | Pagination/date-availability defects; no strict PIT panel |
 | FINRA ATS/OTC Phases 264/277/278 | Context-only; later revisions and unresolved duplicate-grain conflicts; do not sum or choose arbitrarily |
-| SEC Form 4 | Highest-priority historical candidate, but owner attribution, transaction semantics and effective-dated security identity remain open |
+| SEC Form 4 | Six-quarter high-precision screen: 413 rows / 262 accessions / 109 issuers / 224 issuer-filing events. Candidate-only; no direct proof of discretionary execution, candidate-specific event-time identity pending, no strict PIT or alpha admission |
 | SEC 13D/G | Extensive event, amendment and identity audits; no broad issuer/security panel admitted |
 | SEC 13F / N-PORT | Delayed context only; acceptance, amendment, CUSIP/security mapping and PIT issues remain |
 | Form 144/Form 4 | Document-linkage and conditional placebo results only; no market-execution or return edge established |
@@ -835,3 +835,17 @@ This offline audit re-read the six raw ZIPs from Phase 294 artifact [13884014630
 - Decision: candidate-only crosswalk; no security master, strict PIT identity, event study, alpha, return/OOS, bootstrap/LOO or holdout admission. Form4 issuerTradingSymbol is available at disclosure but is not ex-ante relative to the underlying transaction. Next: test Phase271 high-precision Form4 cohort at event time, with effective-dated listing/corporate-action continuity and survivorship-aware price coverage.
 - F80 remains frozen. No production, universe, capital or parameter changes; no data purchase/vendor contact.
 - Report: [Phase 341 audit](PHASE341_FORM4_ISSUER_SYMBOL_CLASS_CROSSWALK_AUDIT_2026-11-12.md).
+
+
+
+## Phase 342 — SEC Insider Transactions six-archive sample and high-precision purchase screen (2026-11-12 UTC)
+
+- Final hosted run [43265704634](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43265704634) SUCCESS; 6/6 offline regressions passed. Artifact [13965917386](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43265704634/artifacts/13965917386), ZIP SHA-256 `16614b404f007b78f47951ef84604660ea6612f0c86f1b2ba5a6fa7b7d52d80c`.
+- Six official SEC archives downloaded and hash-pinned: 2006Q1, 2012Q1, 2023Q1, 2023Q2, 2025Q3 and 2026Q3; 72,767,570 raw ZIP bytes; 6/6 ZIP integrity; all eight documented tables and required fields present; zero child-table orphan rows; zero missing referenced footnotes in screened rows.
+- Phase39 inner archive hashes matched exactly for 2012Q1 and 2026Q3; Phase271 screen reproduced exactly: 2012Q1 = 102 rows / 47 accessions / 16 issuers; 2026Q3 = 85 / 59 / 31.
+- Corrected AFF10B5ONE gate uses actual FILING_DATE >= 2023-04-01. The field is absent in 2006Q1/2012Q1 and present in the updated 2023Q1/Q2, 2025Q3 and 2026Q3 archives. 2023Q1 is pre-effective and the checkbox is not used as a gate.
+- Across six non-contiguous quarters: 413 candidate rows, 262 accessions, 109 unique issuer CIKs and 224 issuer-CIK × filing-date events. Candidate yield is 0.962% of 42,944 base code-P acquired rows; this is not a prevalence estimate or a continuous panel.
+- OWNER_SIGNATURE has 417 duplicate compound-key groups, 31 conflicting groups; other documented table keys are unique. Quarantine OWNER_SIGNATURE for owner/signature attribution; it is not used by the screen.
+- The 2026Q3 candidate cohort has zero accession and zero issuer-CIK overlap with Phase341's 12-accession 2026Q3 broad sample. Phase341's broad-sample crosswalk rate must not be extrapolated to the candidate cohort.
+- Report: [Phase 342 audit](PHASE342_SEC_INSIDER_BULK_SIX_ARCHIVE_SAMPLE_AND_PURCHASE_SCREEN_AUDIT_2026-11-12.md). PR [#31](https://github.com/jafelix81/NuevaEstrategia/pull/31), draft/open, based on Phase341.
+- No return/alpha, strict PIT, price panel, bootstrap/LOO, chronological OOS or holdout test. No security master, production, universe, capital or parameter change. F80 remains frozen.
