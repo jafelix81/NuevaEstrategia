@@ -46,9 +46,10 @@ jobs:
           python -m research.phase319_sec_daily_index_live_pilot --output-dir phase319_output
 
       - name: Upload hashes and parsed metadata only (no raw SEC bytes)
+        if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: phase319-sec-daily-index-live-format-pilot
           path: phase319_output/
           retention-days: 90
-          if-no-files-found: error
+          if-no-files-found: warn
