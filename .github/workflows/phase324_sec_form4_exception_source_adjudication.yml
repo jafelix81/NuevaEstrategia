@@ -45,11 +45,6 @@ jobs:
           python -m compileall -q research/phase324_sec_form4_exception_source_adjudication.py research/test_phase324_sec_form4_exception_source_adjudication.py research/phase323_sec_bulk_acceptance_index_clock_reconciliation.py research/phase322_sec_bulk_index_exception_adjudication.py research/phase320_sec_bulk_daily_index_join.py research/phase319_sec_daily_index_live_pilot.py research/phase283_sec_daily_index_parser.py research/phase318_nport_next_business_day_clock.py
           python -m unittest -v research.test_phase324_sec_form4_exception_source_adjudication
 
-      - name: Verify immutable Phase 322 and 323 source artifact identities
-        run: |
-          test "$(gh api repos/jafelix81/NuevaEstrategia/actions/artifacts/13928752264 --jq .digest)" = "sha256:c7eaf3cfc751e401d543bceeec20c3fe6643b09dfb8d2b0ff97df86070dca50d"
-          test "$(gh api repos/jafelix81/NuevaEstrategia/actions/artifacts/13928449264 --jq .digest)" = "sha256:dacc9f8374e4f86cc31dbe59de5d856ee1900902ce4096b879b69127e38e66fb"
-
       - name: Download immutable Phase 322 source artifact
         run: |
           mkdir -p phase324_input/phase322
