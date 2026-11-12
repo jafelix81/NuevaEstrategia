@@ -1,6 +1,6 @@
 import unittest
 
-from research.phase308_sec_rss_prospective_capture import build_accession_events, merge_capture_into_ledger
+from research.phase308_sec_rss_prospective_capture import build_accession_events, compact_ledger, merge_capture_into_ledger
 
 
 def capture(start, end, complete=True, run_id="1"):
@@ -266,6 +266,36 @@ class Phase308ProspectiveLedgerTests(unittest.TestCase):
             record["first_observation_lower_bound_quality"],
             "invalid_event_timestamp_before_previous_complete_capture",
         )
+
+    def test_legacy_capture_start_placeholder_is_quarantined(self):
+        ledger = {
+            "accessions": {
+                "4:legacy": {
+                    "form_type": "4",
+                    "accession": "legacy",
+                    "first_seen_run_id": "43142830440",
+                    "first_observed_at_utc": "2026-11-12T02:38:45.928105+00:00",
+                    "first_observation_interval_end_utc": "2026-11-12T02:38:45.928105+00:00",
+                    "first_observation_interval_start_utc": None,
+                    "first_observation_interval_width_minutes": None,
+                    "first_observation_lower_bound_quality": "left_censored_no_prior_complete_capture",
+                }
+            }
+        }
+        compacted = compact_ledger(ledger)
+        record = compacted["accessions"]["4:legacy"]
+        self.assertIsNone(record["first_observed_at_utc"])
+        self.assertIsNone(record["first_observation_interval_end_utc"])
+        self.assertEqual(
+            record["legacy_capture_started_at_utc"],
+            "2026-11-12T02:38:45.928105+00:00",
+        )
+        self.assertFalse(record["first_observation_interval_valid"])
+        self.assertEqual(
+            record["first_observation_timestamp_quality"],
+            "legacy_capture_start_pre_response_not_observation",
+        )
+
 
     def test_atom_updated_is_not_promoted_to_first_public_time(self):
         ledger, _ = merge_capture_into_ledger(
