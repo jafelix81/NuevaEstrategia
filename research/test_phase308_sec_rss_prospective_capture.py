@@ -128,7 +128,65 @@ class Phase308ProspectiveLedgerTests(unittest.TestCase):
             [event("4", "dupe", rows)],
         )
         record = ledger["accessions"]["4:dupe"]
-        self.assertEqual(len(record["entity_rows_seen"]), 1)
+        self.assertEqual(record["entity_row_count"], 1)
+        self.assertEqual(len(record["entity_row_set_sha256"]), 64)
+        self.assertNotIn("entity_rows_seen", record)
+        self.assertNotIn("last_entity_rows", record)
+
+    def test_compact_ledger_removes_verbose_rows_and_stores_hashes(self):
+        prior = {
+            "last_complete_capture_end_utc": "2026-11-12T01:00:00+00:00",
+            "last_complete_snapshot_accessions": [],
+            "accessions": {
+                "4:old": {
+                    "form_type": "4",
+                    "accession": "old",
+                    "entity_rows_seen": {
+                        "row": {
+                            "entity_role": "Reporting",
+                            "entity_cik": "0000000002",
+                            "title": "4 - Example (0000000002) (Reporting)",
+                            "link": "https://example/old",
+                        }
+                    },
+                    "last_entity_rows": [],
+                    "feed_updated_values_seen": ["2026-11-12T00:00:00-05:00"],
+                    "seen_count": 1,
+                }
+            },
+            "captures": [],
+        }
+        ledger, _ = merge_capture_into_ledger(
+            prior,
+            capture("2026-11-12T02:00:00+00:00", "2026-11-12T02:01:00+00:00", True),
+            [event("4", "new")],
+        )
+        old = ledger["accessions"]["4:old"]
+        self.assertEqual(old["entity_row_count"], 1)
+        self.assertEqual(len(old["entity_row_set_sha256"]), 64)
+        self.assertNotIn("entity_rows_seen", old)
+        self.assertNotIn("last_entity_rows", old)
+        self.assertNotIn("feed_updated_values_seen", old)
+
+    def test_repo_snapshot_due_once_per_utc_day(self):
+        ledger, first = merge_capture_into_ledger(
+            {},
+            capture("2026-11-12T02:00:00+00:00", "2026-11-12T02:01:00+00:00", True, "1"),
+            [event("4", "one")],
+        )
+        self.assertTrue(first["repo_snapshot_due"])
+        ledger, second = merge_capture_into_ledger(
+            ledger,
+            capture("2026-11-12T03:00:00+00:00", "2026-11-12T03:01:00+00:00", True, "2"),
+            [event("4", "one")],
+        )
+        self.assertFalse(second["repo_snapshot_due"])
+        ledger, third = merge_capture_into_ledger(
+            ledger,
+            capture("2026-11-13T02:00:00+00:00", "2026-11-13T02:01:00+00:00", True, "3"),
+            [event("4", "one")],
+        )
+        self.assertTrue(third["repo_snapshot_due"])
 
     def test_atom_updated_is_not_promoted_to_first_public_time(self):
         ledger, _ = merge_capture_into_ledger(
