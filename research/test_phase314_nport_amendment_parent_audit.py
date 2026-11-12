@@ -44,7 +44,7 @@ XML = """<?xml version="1.0" encoding="UTF-8"?>
         <name>Example Corp</name><title>Common Stock</title><cusip>123456789</cusip>
         <balance>-100</balance><units>NS</units><valUSD>-1000</valUSD><pctVal>-0.1</pctVal>
         <payoffProfile>Short</payoffProfile><assetCat>EC</assetCat><issuerCat>CORP</issuerCat><invCountry>US</invCountry>
-        <identifiers><isin>US1234567890</isin><ticker>EXM</ticker></identifiers>
+        <identifiers><isin value="US1234567890"/><ticker value="EXM"/></identifiers>
       </invstOrSec>
       <invstOrSec>
         <name>Long Corp</name><title>Common Stock</title><cusip>987654321</cusip>
@@ -79,6 +79,7 @@ class Phase314ParentAuditTests(unittest.TestCase):
         self.assertEqual(parsed["series_identity_state"], "MATCH")
         self.assertEqual(parsed["class_identity_state"], "MATCH")
         self.assertEqual(len(parsed["short_positions"]), 1)
+        self.assertEqual(parsed["short_positions"][0]["isin"], "US1234567890")
         self.assertEqual(parsed["short_positions"][0]["ticker"], "EXM")
 
     def test_short_filter_excludes_long_or_positive_positions(self):

@@ -83,6 +83,16 @@ def direct_child_text(parent: ET.Element, name: str) -> str:
     return ""
 
 
+def direct_child_value(parent: ET.Element | None, name: str) -> str:
+    """Read SEC N-PORT identifier elements encoded as value attributes or text."""
+    if parent is None:
+        return ""
+    for child in list(parent):
+        if local_name(child.tag) == name:
+            return (child.attrib.get("value") or child.text or "").strip()
+    return ""
+
+
 def parse_header_fields(text: str) -> dict[str, str]:
     header = text.split("<DOCUMENT>", 1)[0]
 
@@ -126,8 +136,8 @@ def parse_short_positions(root: ET.Element) -> list[dict[str, str]]:
         ):
             continue
         identifiers = next((child for child in list(node) if local_name(child.tag) == "identifiers"), None)
-        isin = direct_child_text(identifiers, "isin") if identifiers is not None else ""
-        ticker = direct_child_text(identifiers, "ticker") if identifiers is not None else ""
+        isin = direct_child_value(identifiers, "isin")
+        ticker = direct_child_value(identifiers, "ticker")
         out.append({
             "issuer_name": direct_child_text(node, "name"),
             "issue_title": direct_child_text(node, "title"),

@@ -1,0 +1,62 @@
+name: Phase 315 N-PORT position identifier attribute reconciliation
+
+on:
+  push:
+    branches:
+      - phase315-nport-position-identifier-attribute-audit
+    paths:
+      - ".github/workflows/phase315_nport_position_identifier_attribute_audit.yml"
+      - "research/phase314_nport_amendment_parent_audit.py"
+      - "research/test_phase314_nport_amendment_parent_audit.py"
+      - "research/phase315_nport_position_identifier_attribute_audit.py"
+      - "research/test_phase315_nport_position_identifier_attribute_audit.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: phase315-nport-position-identifier-attribute-audit
+  cancel-in-progress: false
+
+jobs:
+  identifier-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+
+      - name: Download immutable Phase 314 raw audit artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: phase314-otter-creek-parent-audit
+          repository: jafelix81/NuevaEstrategia
+          run-id: 43160951691
+          github-token: \${{ github.token }}
+          path: phase314_input
+
+      - name: Compile and run Phase 314 and 315 regressions
+        run: |
+          python -m compileall -q research/phase314_nport_amendment_parent_audit.py research/test_phase314_nport_amendment_parent_audit.py research/phase315_nport_position_identifier_attribute_audit.py research/test_phase315_nport_position_identifier_attribute_audit.py
+          python -m unittest -v research.test_phase314_nport_amendment_parent_audit research.test_phase315_nport_position_identifier_attribute_audit
+
+      - name: Reconcile SEC identifier attributes against Phase 312 parser
+        run: |
+          python research/phase315_nport_position_identifier_attribute_audit.py \
+            --input-dir phase314_input \
+            --output-dir phase315_output
+
+      - name: Upload corrected identifier and vintage audit
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase315-nport-position-identifier-attribute-audit
+          path: phase315_output/
+          retention-days: 90
+          if-no-files-found: error
