@@ -2,8 +2,7 @@ name: Phase 193 SEC N-PORT raw filing and acceptance-time audit
 
 on:
   pull_request:
-    types: [opened, reopened]
-    branches: [main]
+    types: [opened, reopened, synchronize]
     paths:
       - "research/phase193_nport_raw_filing_retrieval.py"
       - "research/phase193_nport_raw_filing_retrieval.json"
@@ -54,7 +53,14 @@ jobs:
               "RETRIEVAL_FAILED",
               "PARTIAL_RETRIEVAL_OR_RECONCILIATION",
               "RAW_SAMPLE_RETRIEVED_ACCEPTANCE_RECONCILED",
+              "RAW_BYTES_RETRIEVED_HEADER_OR_RECONCILIATION_BLOCKED",
           }
+          if s["status"] == "RAW_BYTES_RETRIEVED_HEADER_OR_RECONCILIATION_BLOCKED":
+              assert s["raw_xml_sha256_verified"] is True
+              assert s["submission_sha256_verified"] is True
+              assert s["complete_accessions"] == s["accessions_total"]
+              assert s["downloaded_accessions"] == s["accessions_total"]
+              print("PHASE193_RESEARCH_GATE=BLOCKED; raw bytes and hashes complete; preserving diagnostic artifact")
           print("PHASE193_STATUS=" + s["status"])
           PY
       - name: Upload raw public filing sample and metadata artifact
