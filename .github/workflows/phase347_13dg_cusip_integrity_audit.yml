@@ -1,4 +1,4 @@
-name: Phase 347 - SEC 13D/G CUSIP integrity audit
+name: Phases 347–349 - SEC 13D/G identity and predecessor manifest audit
 # Reproducible offline audit pinned to the immutable Phase 93 artifact.
 
 on:
@@ -135,13 +135,22 @@ jobs:
           assert fresh["new_sec_requests_made"] is False
           assert fresh["strict_pit_admitted"] is False
           assert fresh["alpha_test_authorized"] is False
+          import csv
+          rows = list(csv.DictReader(open("phase349_output/phase349_predecessor_target_manifest.csv", encoding="utf-8")))
+          assert len(rows) == 44
+          assert len({row["explicit_parent_accession"] for row in rows}) == 44
+          assert sum(row["child_cusip_status"] == "VALID_NONZERO" for row in rows) == 43
+          assert sum(row["child_cusip_status"] == "ZERO_SENTINEL" for row in rows) == 1
+          assert all(row["parent_path_cik_role"] == "ARCHIVE_PATH_ONLY_NOT_ISSUER_IDENTITY" for row in rows)
+          assert all(row["parent_document_retrieval_status"] == "NOT_RETRIEVED" for row in rows)
           PY
       - name: Upload deterministic result
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: phase347-348-13dg-identity-audit
+          name: phase347-349-13dg-identity-and-predecessor-audit
           path: |
             phase347_output/
             phase348_output/
+            phase349_output/
           if-no-files-found: error
           retention-days: 90
