@@ -516,3 +516,13 @@ This offline audit re-read the six raw ZIPs from Phase 294 artifact [13884014630
 - Branch inventory: 158 (100 on page 1, 58 on page 2). Eleven PRs remain open; PR #13 and #14 remain open/unmerged. Phase 310 is a research-only branch; no PR was opened or merged.
 - `SEC_CONTACT_EMAIL` was used only in the masked SEC User-Agent. No email was sent. No data purchase or vendor contact.
 - No returns/alpha, bootstrap/LOO or chronological OOS test. No holdout use. `F80_TOP20_PARTIAL50_BASELINE_C20`, production, universe, capital and parameters remain unchanged.
+
+
+## FINRA Short Interest prior-result re-adjudication — 2026-11-12
+
+- Re-inspected the Phase 25B and Phase 25C workflow artifacts and the still-open Phase 25C corrected-incremental script. The prior return summaries remain **inadmissible**, consistent with Phase 267; this was not a new return test.
+- Both artifacts use the same feature-file SHA-256, so they are not independent data replications. The old panel covers 98 tickers from the former arbitrary 335-name universe, 55 settlement dates and 5,115 rows.
+- The legacy fetcher requested 10,000 rows, but FINRA's synchronous API ceiling is 5,000. All 55 successful responses returned exactly 5,000 rows, only offset 0 was preserved, and response-total headers were not retained. Historical completeness is unverified.
+- The still-open Phase 25C corrected-incremental script continues to use `settlementDate + pandas BDay(7)` and the first close on/after that date. FINRA's documented 4:40 p.m. ET availability is after the regular close. Phase 267 reconstructed 55 unique cycle anchors and found all 292 repeated training-snapshot uses across Phases 25B/25C inherit pre-release price anchors; 19/55 legacy knowledge dates are also one XNYS session early.
+- Decision: do not use the archived Phase 25B/25C return summaries for feature selection or promotion. The short-interest hypothesis is **not yet falsified**, but it remains quarantined until complete pagination, immutable revision vintages, official/XNYS settlement dates, next-session entry prices, and broad effective-dated security coverage are rebuilt.
+- References: [Phase 267 PIT/pagination audit](https://github.com/jafelix81/NuevaEstrategia/blob/phase308-sec-rss-prospective-capture/research/PHASE267_FINRA_SHORT_INTEREST_PIT_PAGINATION_AUDIT_2026-11-10.md); [Phase 25C corrected-incremental code](https://github.com/jafelix81/NuevaEstrategia/blob/phase25c-finra-short-interest-incremental/Nueva_Estrategia_Fase25C_FINRA_ShortInterest_CorrectedIncremental.py).
