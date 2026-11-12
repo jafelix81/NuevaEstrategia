@@ -93,19 +93,19 @@ def parse_filing_header(raw: bytes) -> dict[str, str]:
 
 def select_sample_records(records: list[dict], index_date: str) -> list[dict]:
     selected = []
-    by_form: dict[str, dict[str, dict]] = {form: {} for form in FORM_TYPES}
+    by_form: dict[str, dict[str, list[dict]]] = {form: {} for form in FORM_TYPES}
     for row in records:
         form = row.get("form_type")
         accession = row.get("accession")
         if form in by_form and accession:
-            by_form[form].setdefault(accession, row)
+            by_form[form].setdefault(accession, []).append(row)
     for form in FORM_TYPES:
-        candidates = list(by_form[form].values())
+        candidates = list(by_form[form])
         if candidates:
-            candidates.sort(key=lambda row: hashlib.sha256(
-                f"phase319|{index_date}|{form}|{row['accession']}".encode()
+            accession = min(candidates, key=lambda value: hashlib.sha256(
+                f"phase319|{index_date}|{form}|{value}".encode()
             ).hexdigest())
-            selected.append(candidates[0])
+            selected.extend(by_form[form][accession])
     return selected
 
 
@@ -200,9 +200,24 @@ def run_pilot(output_dir: Path, email: str) -> dict:
         }
         index_manifests.append(manifest)
         all_records.extend(parsed["records"])
+        if parsed["counts"].get("malformed_rows", 0):
+            raw_lines = raw.decode("latin-1", errors="replace").splitlines()
+            malformed_numbers = [
+                item["line_number"] for item in parsed["quarantine"]
+                if item.get("reason") == "fixed_width_row_parse_error"
+            ][:2]
+            previews = [
+                {"line_number": number, "text": raw_lines[number - 1][:180]}
+                for number in malformed_numbers if 0 < number <= len(raw_lines)
+            ]
+            print("PHASE319_MALFORMED_ROW_PREVIEW", json.dumps({
+                "index_date": day_text, "previews": previews
+            }, sort_keys=True))
         for row in select_sample_records(parsed["records"], day_text):
             key = f"{row['form_type']}:{row['accession']}"
-            selected_by_accession.setdefault(key, row)
+            selected_by_accession.setdefault(key, {})
+            row_key = (row["index_date"], row["cik"], row["company_name"], row["filename"])
+            selected_by_accession[key][row_key] = row
 
     ledger = build_accession_ledger(all_records)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -215,7 +230,7 @@ def run_pilot(output_dir: Path, email: str) -> dict:
             "quarantine_reason_counts": x["quarantine_reason_counts"],
         } for x in index_manifests],
         "parsed_form4_form4a_entity_rows": len(all_records),
-        "selected_accessions_by_form": dict(Counter(x["form_type"] for x in selected_by_accession.values())),
+        "selected_accessions_by_form": dict(Counter(key.split(":", 1)[0] for key in selected_by_accession)),
         "ledger_quarantine_count": len(ledger["quarantine"]),
     }
     (output_dir / "phase319_preflight_debug.json").write_text(
@@ -224,35 +239,78 @@ def run_pilot(output_dir: Path, email: str) -> dict:
     print("PHASE319_PREFLIGHT", json.dumps(preflight, sort_keys=True))
     header_checks = []
     for key in sorted(selected_by_accession):
-        row = selected_by_accession[key]
-        path = row["filename"].lstrip("/")
-        if path.startswith("Archives/"):
-            relative = path[len("Archives/"):]
+        entity_rows = sorted(
+            selected_by_accession[key].values(),
+            key=lambda row: (row["index_date"], row["cik"], row["filename"]),
+        )
+        initial_payload = None
+        initial_headers = None
+        initial_row = None
+        initial_url = None
+        parsed_header = None
+        for candidate in entity_rows:
+            path = candidate["filename"].lstrip("/")
+            relative = path[len("Archives/"):] if path.startswith("Archives/") else path
+            candidate_url = urljoin(SEC_ARCHIVES, relative)
+            try:
+                payload, response_headers = fetch_bytes(candidate_url, user_agent)
+            except HTTPError as exc:
+                if exc.code == 404:
+                    continue
+                raise
+            candidate_header = parse_filing_header(payload)
+            if candidate_header["accession"] == candidate["accession"]:
+                initial_payload, initial_headers = payload, response_headers
+                initial_row, initial_url, parsed_header = candidate, candidate_url, candidate_header
+                break
+        if initial_payload is None:
+            raise ValueError(f"no_index_entity_path_resolved_for_accession:{key}")
+        issuer_rows = [row for row in entity_rows if row["cik"] == parsed_header["cik"]]
+        if not issuer_rows:
+            raise ValueError(f"issuer_cik_not_present_in_daily_index_entities:{key}:{parsed_header['cik']}")
+        issuer_row = sorted(issuer_rows, key=lambda row: (row["index_date"], row["filename"]))[0]
+        matches = verify_header_against_index(issuer_row, parsed_header)
+        if not all(matches.values()):
+            raise ValueError(f"original_header_crosscheck_failed:{key}:{matches}")
+        issuer_path = issuer_row["filename"].lstrip("/")
+        issuer_relative = issuer_path[len("Archives/"):] if issuer_path.startswith("Archives/") else issuer_path
+        issuer_url = urljoin(SEC_ARCHIVES, issuer_relative)
+        if issuer_url != initial_url:
+            issuer_payload, issuer_headers = fetch_bytes(issuer_url, user_agent)
+            issuer_header = parse_filing_header(issuer_payload)
+            issuer_matches = verify_header_against_index(issuer_row, issuer_header)
+            if not all(issuer_matches.values()):
+                raise ValueError(f"issuer_path_header_crosscheck_failed:{key}:{issuer_matches}")
+            if hashlib.sha256(issuer_payload).hexdigest() != hashlib.sha256(initial_payload).hexdigest():
+                raise ValueError(f"issuer_and_nonissuer_paths_return_different_payloads:{key}")
+            payload_for_manifest, headers_for_manifest = issuer_payload, issuer_headers
+            parsed_header = issuer_header
         else:
-            relative = path
-        filing_url = urljoin(SEC_ARCHIVES, relative)
-        raw, headers = fetch_bytes(filing_url, user_agent)
-        parsed_header = parse_filing_header(raw)
-        matches = verify_header_against_index(row, parsed_header)
+            payload_for_manifest, headers_for_manifest = initial_payload, initial_headers
+        earliest_index_date = min(row["index_date"] for row in entity_rows)
         item = {
-            "accession": row["accession"],
-            "form_type": row["form_type"],
-            "index_date": row["index_date"],
-            "index_filename": row.get("index_filename", ""),
-            "index_cik": row["cik"],
-            "index_filing_date": row["filing_date"],
-            "index_path": row["filename"],
-            "index_date_lag_days": row["index_date_lag_days"],
-            "filing_url": filing_url,
-            "filing_http_status": headers["http_status"],
-            "filing_content_type": headers["content_type"],
-            "filing_bytes": len(raw),
-            "filing_sha256": hashlib.sha256(raw).hexdigest(),
+            "accession": issuer_row["accession"],
+            "form_type": issuer_row["form_type"],
+            "index_date": earliest_index_date,
+            "index_sighting_dates": sorted({row["index_date"] for row in entity_rows}),
+            "index_entity_count": len({row["cik"] for row in entity_rows}),
+            "index_entity_ciks": sorted({row["cik"] for row in entity_rows}),
+            "index_entity_names": sorted({row["company_name"] for row in entity_rows}),
+            "issuer_index_cik": issuer_row["cik"],
+            "index_filing_date": issuer_row["filing_date"],
+            "index_path": issuer_row["filename"],
+            "index_date_lag_days": min(row["index_date_lag_days"] for row in entity_rows),
+            "filing_url": issuer_url,
+            "filing_http_status": headers_for_manifest["http_status"],
+            "filing_content_type": headers_for_manifest["content_type"],
+            "filing_bytes": len(payload_for_manifest),
+            "filing_sha256": hashlib.sha256(payload_for_manifest).hexdigest(),
+            "initial_download_entity_cik": initial_row["cik"],
+            "initial_download_url": initial_url,
+            "initial_download_sha256": hashlib.sha256(initial_payload).hexdigest(),
             **parsed_header,
             **{f"match_{k}": v for k, v in matches.items()},
         }
-        if not all(matches.values()):
-            raise ValueError(f"original_header_crosscheck_failed:{key}:{matches}")
         if not parsed_header["acceptance_datetime_et"]:
             raise ValueError(f"acceptance_datetime_missing:{key}")
         accepted = datetime.strptime(parsed_header["acceptance_datetime_et"], "%Y%m%d%H%M%S")
