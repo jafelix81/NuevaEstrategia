@@ -15,7 +15,8 @@ def census_fixture():
         for form in ("NPORT-P", "NPORT-P/A"):
             for i in range(8):
                 cik = str(100000 + i)
-                accession = f"{int(cik):010d}-20-{i + (1 if quarter == '2020Q1' else 20):06d}"
+                seq = i + (1 if quarter == "2020Q1" else 20) + (100 if form == "NPORT-P/A" else 0)
+                accession = f"{int(cik):010d}-20-{seq:06d}"
                 rows.append({
                     "quarter": quarter,
                     "accession": accession,
@@ -25,7 +26,6 @@ def census_fixture():
                     "filing_date": "2020-03-01",
                     "filename": f"edgar/data/{cik}/{accession.replace('-', '')}.txt",
                 })
-    # A notice is inventoried in the census but must never enter the holdings sample.
     rows.append({
         "quarter": "2020Q1", "accession": "0000999999-20-000001",
         "cik": "999999", "company_name": "Notice", "form_type": "NT NPORT-P",
