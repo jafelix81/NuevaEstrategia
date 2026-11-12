@@ -1,5 +1,5 @@
 {
-  "requested_at_utc": "2026-11-12T02:36:00Z",
-  "reason": "Initial Phase 308 prospective SEC RSS capture after owner-only filter validation",
+  "requested_at_utc": "2026-11-12T02:45:30Z",
+  "reason": "Second prospective capture to validate first-observation interval and cumulative ledger continuity after initial complete snapshot",
   "requested_by": "Smart Money Research automation"
 }
