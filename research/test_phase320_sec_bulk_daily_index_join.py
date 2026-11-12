@@ -67,12 +67,13 @@ class Phase320BulkDailyIndexJoinTests(unittest.TestCase):
         self.assertTrue(result["issuer_entity_row_present"])
         self.assertEqual(result["index_entity_count"], 2)
 
-    def test_header_identity_flags_require_all_core_fields(self):
+    def test_header_identity_flags_distinguish_filer_cik_from_issuer_cik(self):
         sample = {
             "accession": "0000000001-26-000001",
             "form_type": "4/A",
-            "issuer_cik": "0000000001",
+            "issuer_cik": "0000000002",
             "filing_date": "2026-09-01",
+            "reporting_owner_ciks": ["0000000001"],
         }
         header = {
             "accession": sample["accession"],
@@ -81,10 +82,13 @@ class Phase320BulkDailyIndexJoinTests(unittest.TestCase):
             "filed_date": "2026-09-01",
             "acceptance_datetime_et": "20260901173000",
         }
-        flags = header_identity_flags(header, sample)
-        self.assertTrue(all(flags.values()))
-        header["cik"] = "2"
-        self.assertFalse(header_identity_flags(header, sample)["issuer_cik_match"])
+        flags = header_identity_flags(header, sample, ["1", "2"])
+        self.assertTrue(flags["header_cik_in_index_entities"])
+        self.assertTrue(flags["issuer_cik_in_index_entities"])
+        self.assertTrue(flags["header_cik_matches_reporting_owner"])
+        self.assertFalse(flags["header_cik_matches_issuer"])
+        self.assertTrue(flags["accession_match"])
+        self.assertTrue(flags["filed_date_match"])
 
     def test_sec_urls_are_scoped_to_official_host(self):
         self.assertEqual(
