@@ -89,6 +89,7 @@ def build_accession_events(pages_by_form: dict) -> tuple[list[dict], dict]:
     form_counts = {}
     for label, form in FORMS.items():
         unique_rows = {}
+        first_observations = {}
         for page in pages_by_form[label]:
             for original in page.get("entries", []):
                 entry = normalize_entity_identity(dict(original))
@@ -96,7 +97,23 @@ def build_accession_events(pages_by_form: dict) -> tuple[list[dict], dict]:
                 entry["form_type_from_title"] = exact
                 if exact != form:
                     continue
-                unique_rows.setdefault(raw_row_key(entry), entry)
+                key = raw_row_key(entry)
+                unique_rows.setdefault(key, entry)
+                accession = entry.get("accession_from_link", "")
+                if not accession:
+                    continue
+                candidate = {
+                    "first_observed_at_utc": page.get("poll_completed_at_utc"),
+                    "first_observation_poll_started_at_utc": page.get("poll_started_at_utc"),
+                    "first_observation_page_start": page.get("start"),
+                    "first_observation_page_label": page.get("label"),
+                }
+                prior = first_observations.get(accession)
+                candidate_dt = parse_utc(candidate["first_observed_at_utc"])
+                prior_dt = parse_utc(prior.get("first_observed_at_utc")) if prior else None
+                if prior is None or (candidate_dt and (prior_dt is None or candidate_dt < prior_dt)):
+                    first_observations[accession] = candidate
+
         grouped = defaultdict(list)
         for entry in unique_rows.values():
             accession = entry.get("accession_from_link", "")
@@ -126,9 +143,9 @@ def build_accession_events(pages_by_form: dict) -> tuple[list[dict], dict]:
                 "reporting_owner_ciks": owner_ciks,
                 "entity_rows": rows,
                 "feed_updated_values": updated_values,
+                **first_observations.get(accession, {}),
             })
     return events, form_counts
-
 
 def compact_ledger(ledger: dict) -> dict:
     ledger.setdefault("accessions", {})
@@ -195,18 +212,38 @@ def merge_capture_into_ledger(
         }
         if existing is None:
             new_accessions += 1
+            observed_at = event.get("first_observed_at_utc") or capture["capture_completed_at_utc"]
+            observed_dt = parse_utc(observed_at)
+            interval_valid = (
+                previous_complete_end is None
+                or (previous_dt is not None and observed_dt is not None and observed_dt >= previous_dt)
+            )
+            event_interval_minutes = (
+                (observed_dt - previous_dt).total_seconds() / 60
+                if previous_dt and observed_dt and interval_valid else None
+            )
+            event_gap_detected = bool(
+                event_interval_minutes is not None and event_interval_minutes > 90
+            )
             existing = {
                 "form_type": event["form_type"],
                 "accession": event["accession"],
-                "first_observed_at_utc": capture["capture_started_at_utc"],
+                "first_observed_at_utc": observed_at,
                 "first_observation_interval_start_utc": previous_complete_end,
-                "first_observation_interval_end_utc": capture["capture_started_at_utc"],
-                "first_observation_interval_width_minutes": gap_minutes,
+                "first_observation_interval_end_utc": observed_at,
+                "first_observation_interval_width_minutes": event_interval_minutes,
+                "first_observation_interval_valid": interval_valid,
                 "first_observation_lower_bound_quality": (
-                    "bounded_by_previous_complete_capture"
-                    if previous_complete_end else "left_censored_no_prior_complete_capture"
+                    "left_censored_no_prior_complete_capture"
+                    if previous_complete_end is None
+                    else "bounded_by_previous_complete_capture"
+                    if interval_valid
+                    else "invalid_event_timestamp_before_previous_complete_capture"
                 ),
-                "gap_before_first_observation_detected": gap_detected,
+                "first_observation_poll_started_at_utc": event.get("first_observation_poll_started_at_utc"),
+                "first_observation_page_start": event.get("first_observation_page_start"),
+                "first_observation_page_label": event.get("first_observation_page_label"),
+                "gap_before_first_observation_detected": event_gap_detected,
                 "first_seen_run_id": capture.get("run_id"),
                 "seen_count": 0,
                 "entity_row_count": 0,
