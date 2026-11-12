@@ -64,3 +64,6 @@ The first hosted replay, [run 43325883938](https://github.com/jafelix81/NuevaEst
 
 
 The second hosted replay, [run 43326083200](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43326083200), passed Phases 347–348 but found a source-code escaping defect in the Phase 349 whitespace-normalization expression before the manifest tests could run. The implementation now uses character-wise digit/whitespace normalization rather than regex escaping, and the test suite explicitly covers dashed accessions. No SEC retrieval occurred.
+
+
+The first successful manifest replay, [run 43326350589](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43326350589), confirmed all 22 regression tests and the 44-row summary, but inspection of its ZIP showed the workflow upload path omitted `phase349_output/`. The workflow now explicitly includes the Phase 349 CSV and summary, and checks the 44 unique parent accessions, 43 valid nonzero CUSIPs, one zero sentinel, and the archive-path-only role before upload. The next hosted run is the final artifact-integrity gate.
