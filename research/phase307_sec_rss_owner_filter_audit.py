@@ -24,8 +24,8 @@ from research.phase306_sec_rss_contiguous_scan import (
 
 COUNT = 100
 STEP = 80
-ONLY_OFFSETS = (0, 80, 160, 240, 320, 400)
-CONTROL_OFFSETS = (0, 80)
+ONLY_OFFSETS = tuple(range(0, 2001, 80))
+INCLUDE_FORM4_OFFSETS = (0, 80, 320, 400)
 MODES = ("include", "only", "exclude")
 FORMS = {"form4": "4", "form4a": "4/A"}
 
@@ -267,7 +267,12 @@ def run_audit(email: str, output_dir: Path) -> dict:
     for mode in MODES:
         results[mode] = {}
         for label, form in FORMS.items():
-            offsets = ONLY_OFFSETS if mode == "only" else CONTROL_OFFSETS
+            if mode == "only":
+                offsets = ONLY_OFFSETS
+            elif mode == "include" and label == "form4":
+                offsets = INCLUDE_FORM4_OFFSETS
+            else:
+                offsets = (0,)
             pages = []
             for start in offsets:
                 page = fetch_page(email, mode, label, form, start, output_dir)
@@ -276,6 +281,8 @@ def run_audit(email: str, output_dir: Path) -> dict:
                     "raw_entity_rows": len(page.get("entries", []))
                 })
                 time.sleep(1.05)
+                if mode == "only" and len(page.get("entries", [])) < COUNT:
+                    break
             recheck = None
             if mode == "only":
                 recheck = fetch_page(email, mode, f"{label}_head_recheck", form, 0, output_dir)
@@ -303,7 +310,8 @@ def run_audit(email: str, output_dir: Path) -> dict:
             "step": STEP,
             "owner_modes": list(MODES),
             "only_offsets": list(ONLY_OFFSETS),
-            "control_offsets": list(CONTROL_OFFSETS),
+            "include_form4_control_offsets": list(INCLUDE_FORM4_OFFSETS),
+            "exclude_control_offsets": [0],
             "exact_form_token_filter": True,
             "owner_only_page0_rechecked": True,
             "live_requests": len(requests),
