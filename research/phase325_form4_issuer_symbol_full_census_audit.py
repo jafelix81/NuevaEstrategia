@@ -29,7 +29,7 @@ EXPECTED_QUARTERS = {
 }
 PLACEHOLDERS = {"", "NONE", "(NONE)", "[NONE]", "NO SYMBOL", "N/A", "NA", "NULL", "NAN", "NONE]"}
 SINGLE = re.compile(r"^[A-Z0-9][A-Z0-9.-]{0,9}$")
-EXCHANGE = re.compile(r"^([A-Z0-9.-]{1,8}):\\s*([A-Z0-9.-]{1,10})$")
+EXCHANGE = re.compile(r"^([A-Z0-9.-]{1,8}):\s*([A-Z0-9.-]{1,10})$")
 
 
 def sha256(raw: bytes) -> str:
@@ -45,7 +45,7 @@ def classify_symbol(raw: str | None) -> tuple[str, str | None]:
         return "EXCHANGE_PREFIXED_SINGLE", match.group(2)
     if SINGLE.fullmatch(value):
         return "SINGLE_TOKEN", value
-    if any(char in value for char in (",", ";", "/", " ", "\\t")):
+    if any(char in value for char in (",", ";", "/", " ", "\t")):
         return "MULTI_OR_FREEFORM", None
     return "OTHER_NONCANONICAL", None
 
@@ -222,11 +222,11 @@ def audit(input_zip: Path) -> dict:
         for row in reader:
             if row["form_type"].strip().upper() not in {"4", "4/A"}:
                 raise ValueError("unexpected form in Phase 321 census")
-            if not re.fullmatch(r"\\d{1,10}", row["issuer_cik"].strip()):
+            if not re.fullmatch(r"\d{1,10}", row["issuer_cik"].strip()):
                 raise ValueError("invalid issuer CIK")
-            if not re.fullmatch(r"\\d{10}-\\d{2}-\\d{6}", row["accession"].strip()):
+            if not re.fullmatch(r"\d{10}-\d{2}-\d{6}", row["accession"].strip()):
                 raise ValueError("invalid accession")
-            if not re.fullmatch(r"\\d{4}-\\d{2}-\\d{2}", row["filing_date"].strip()):
+            if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", row["filing_date"].strip()):
                 raise ValueError("invalid filing date")
             key = row["accession"].strip()
             if key in seen:
@@ -299,7 +299,7 @@ def main():
     args = parser.parse_args()
     result = audit(args.input_zip)
     args.output_json.parent.mkdir(parents=True, exist_ok=True)
-    args.output_json.write_text(json.dumps(result, indent=2, sort_keys=True) + "\\n", encoding="utf-8")
+    args.output_json.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     with args.output_csv.open("w", newline="", encoding="utf-8") as handle:
         fields = list(result["summary"]["periods"][0].keys())
         writer = csv.DictWriter(handle, fieldnames=fields)
