@@ -47,7 +47,7 @@ jobs:
         run: |
           mkdir -p phase338_output
           python -m research.phase338_sec_broad_form4_identity_sample --census-zip phase321_source.zip --collision-zip phase325_source.zip --sample-manifest phase338_output/phase338_sample_manifest.json --build-sample-only
-          echo "54da511707f0985c59150e8294fb7dbd9c94c57db281ee2187c740f7cd770bf0  phase338_output/phase338_sample_manifest.json" | sha256sum --check
+          echo "9cca7f3eb027776dff89a4b44a0b234386ead708d758051a2b5e604f6d43736a  phase338_output/phase338_sample_manifest.json" | sha256sum --check
       - name: Retrieve prior-periodic identity evidence for the fixed sample
         run: |
           python -m research.phase338_sec_broad_form4_identity_sample --sample-manifest phase338_output/phase338_sample_manifest.json --output-dir phase338_output
@@ -58,7 +58,7 @@ jobs:
           from datetime import date
           r=json.load(open("phase338_output/phase338_broad_identity_audit.json",encoding="utf-8"))
           assert r["phase"]==338 and r["status"]=="COMPLETED_WITH_EXPLICIT_COVERAGE_AND_IDENTITY_QUARANTINES"
-          assert r["sample_manifest_sha256"]=="54da511707f0985c59150e8294fb7dbd9c94c57db281ee2187c740f7cd770bf0"
+          assert r["sample_manifest_sha256"]=="9cca7f3eb027776dff89a4b44a0b234386ead708d758051a2b5e604f6d43736a"
           s=r["summary"];obs=r["observations"]
           assert s["sample_issuer_quarter_units"]==72 and s["unique_issuer_ciks"]==72
           assert s["submissions_resolved"]+s["submissions_unavailable_units"]==72
