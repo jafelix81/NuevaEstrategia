@@ -92,6 +92,19 @@ class Phase310NportRawVintageTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "missing_or_duplicate_accession_result"):
             build_validation({"accession_results": [row, row]}, _evidence())
 
+    def test_raw_bytes_survive_header_clock_parse_failure(self):
+        row = _row()
+        row["status"] = "RAW_RETRIEVED_HEADER_ERROR"
+        row["submission_header"] = {}
+        row["submission_header_error"] = "acceptance_datetime_missing_or_invalid"
+        row["submission_header_diagnostic"] = {"ACCEPTANCE-DATETIME": None}
+        result = build_validation(_summary(row), _evidence())
+        self.assertEqual(result["raw_bytes_hash_and_artifact_gate"], "PASS")
+        self.assertEqual(result["header_identity_acceptance_gate"], "FAIL")
+        self.assertEqual(result["series_identity_presence_gate"], "PASS")
+        self.assertEqual(result["expected_public_positive_control_sign_gate"], "PASS")
+        self.assertEqual(result["status"], "PARTIAL_RAW_RETRIEVAL_OR_RECONCILIATION")
+
     def test_first_public_receipt_never_inferred_from_acceptance_or_index(self):
         result = build_validation(_summary(_row()), _evidence())
         self.assertFalse(result["controls"]["first_public_receipt_verified"])
