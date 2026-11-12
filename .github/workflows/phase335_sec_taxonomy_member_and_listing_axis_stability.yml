@@ -44,7 +44,7 @@ jobs:
       - name: Audit raw QName stability, same-context title evidence and listing axes
         run: |
           python -m research.phase335_sec_taxonomy_member_and_listing_axis_stability \
-            --input-json phase334_source/phase334_symbol_class_binding_audit.json \
+            --input-json phase334_source/phase334-sec-stratified-symbol-class-coverage/phase334_symbol_class_binding_audit.json \
             --output-dir phase335_output
       - name: Validate pinned source, alias quarantine and listing coverage
         run: |
