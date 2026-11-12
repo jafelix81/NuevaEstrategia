@@ -1,8 +1,8 @@
 # Smart Money Research — current state (2026-11-12 UTC)
 
-**Latest completed research:** Phase 345 — six-cohort SEC Form 4 identity replication (2006Q1, 2012Q1, 2023Q1, 2023Q2, 2025Q3 and 2026Q3).  
-**Active research branch:** `phase345-form4-multiquarter-identity-replication`.  
-**Latest review:** Phase 345 is proposed in [PR #34](https://github.com/jafelix81/NuevaEstrategia/pull/34), draft/open, based on the Phase 343 candidate-specific identity branch. Phase 344 N-PORT identity reconciliation remains separately tracked in [PR #33](https://github.com/jafelix81/NuevaEstrategia/pull/33). No production change.
+**Latest completed research:** Phase 346 — legacy SEC Form 4 HTML identity bridge audit (2006Q1 and 2012Q1), following the six-cohort Phase 345 replication.  
+**Active research branch:** `phase346-form4-legacy-html-identity-bridge`.  
+**Latest review:** Phase 346 is proposed in [PR #35](https://github.com/jafelix81/NuevaEstrategia/pull/35), draft/open, based on Phase 345. [PR #34](https://github.com/jafelix81/NuevaEstrategia/pull/34) and [PR #33](https://github.com/jafelix81/NuevaEstrategia/pull/33) remain separately open. No production change.
 
 ## Historical baseline — Phases 332–337
 
@@ -61,7 +61,7 @@
 
 | Source / line | Current disposition |
 |---|---|
-| SEC Form 4 | 2026Q3 identity feasibility passed for 72/85 rows and 41/48 complete event units; expand historical periods, then security master and price coverage |
+| SEC Form 4 | Phase 345 replicated six selected cohorts; Phase 346 found only partial legacy HTML salvage (53/96 pretransaction-fresh rows with exact issuer ticker prose; one usable same-row class/exchange anchor group). One pre-event AVN/AVN.R conflict was quarantined. No universal security master or event study admitted |
 | SEC FTD | 2004+ public history; prior coverage 75.5% in 2018 and 94.3% in 2026; CUSIP/security and historical-universe identity unresolved |
 | SEC Form 144 | Large 14-quarter event sample; proposed sale notices are not executed sales; retain as a separate supply/overhang hypothesis |
 | SEC N-PORT | Phase 344 resolved five purposive raw filings with 327 direct short-equity rows; broad sample prevalence is sparse and CUSIP/ISIN-to-security mapping remains unresolved |
@@ -897,3 +897,16 @@ This offline audit re-read the six raw ZIPs from Phase 294 artifact [13884014630
 - A corrected hosted rerun is required; no candidate identity or coverage result exists yet.
 - **No identity coverage result is admitted.** No event study, return/alpha, bootstrap/LOO, chronological OOS or holdout test has been run.
 - F80_TOP20_PARTIAL50_BASELINE_C20, production, universe, capital and parameters remain frozen. No data purchase or vendor contact.
+
+
+## Phase 346 — SEC Form 4 legacy HTML identity bridge audit (2026-11-12 UTC)
+
+- Hosted run [43307873506](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43307873506) completed SUCCESS; **11/11 offline regressions** passed. [Artifact 13985120745](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43307873506/artifacts/13985120745), SHA-256 `b526112713cc4942db3c4a9050000e2da4190a17c1fe1f9cc6ded962693b6e9c`.
+- Reused immutable Phase 345 artifact 13978077938 (SHA-256 `7f8fe1191661be514cb2bc4c9551d07644516cfe9a4b9d52fa44dd59b950dcfd`); no new SEC requests. All 18 selected periodic anchor documents across 2006Q1/2012Q1 passed raw SHA-256 verification.
+- Cohort: 112 candidate rows, 18 anchor groups; 96/112 rows have a strictly pretransaction anchor no older than 365 days. Five rows have post-transaction anchors, one has a stale anchor, and ten have no anchor.
+- 53/96 PIT-eligible rows have an issuer-specific ticker mention matching the Form 4 symbol. Only one anchor group (CLSN, two candidate rows) has a usable same-row class/exchange table and is strictly pretransaction. The other same-row table case (AGN) is post-transaction and excluded.
+- Candidate evidence: BMHC ticker + Section 12(g) common-stock class + NASDAQ prose; CLSN same-row Common Stock/NASDAQ Capital Market + explicit ticker; ONTC common-stock/OTC ticker prose (48 rows, not a national-exchange listing); NLN common-stock/Toronto Stock Exchange ticker prose (foreign-listed, no established U.S. market). These venue classes must not be pooled.
+- Critical conflict: AVANIR's 2006-02-09 10-Q says its common stock began trading under new ticker AVN.R on 2006-01-18, while a 2006-02-14 Form 4 candidate carries AVN. Quarantined; no suffix stripping or alias merge. ZRAN has exchange-only prose, FEIC no direct bridge; TKOI/TKOI.OB remain separate.
+- Decision: legacy HTML is not a universal crosswalk. Stop expanding this parser as a universal security master. Keep only candidate-level evidence grades; no insider event study or return test from this selected sample.
+- Report: [Phase 346](PHASE346_FORM4_LEGACY_HTML_IDENTITY_BRIDGE_AUDIT_2026-11-12.md). Draft [PR #35](https://github.com/jafelix81/NuevaEstrategia/pull/35).
+- No returns/alpha, bootstrap/LOO, chronological OOS or holdout test. No source PIT-admitted. F80, production, universe, capital and parameters remain frozen. No data purchase, vendor contact, credential creation or terms acceptance.
