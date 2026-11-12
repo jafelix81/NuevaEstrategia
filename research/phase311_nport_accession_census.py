@@ -64,7 +64,7 @@ def quarter_list(start: str = "2019Q4", end: str = "2026Q3") -> list[str]:
 def accession_from_filename(filename: str, row_cik: str) -> str:
     match = re.search(r"(?:^|/)edgar/data/(\d+)/(\d{18})/", filename.strip(), flags=re.I)
     if not match:
-        raise ValueError("target_form_filename_missing_accession_path")
+        raise ValueError(f"target_form_filename_missing_accession_path:{filename!r}")
     path_cik = match.group(1).zfill(10)
     accession_digits = match.group(2)
     if path_cik != str(row_cik).strip().zfill(10):
@@ -89,7 +89,7 @@ def parse_master_index(text: str, quarter: str) -> list[dict[str, str]]:
         raw = line.strip("\r\n")
         if not raw or raw.startswith("-"):
             continue
-        parts = raw.split("|", 4)
+        parts = raw.rsplit("|", 4)
         if len(parts) != 5:
             if "NPORT-P" in raw:
                 malformed_target_rows += 1
