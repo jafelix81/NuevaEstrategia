@@ -48,11 +48,25 @@ def canonical_sec_date(value):
 
 def classify_header_cik(header_cik, issuer_cik, owner_ciks):
     """SEC filing-header CIK identifies the filer (usually a reporting owner), not necessarily the issuer."""
-    header = norm_cik(str(header_cik or ""))
-    issuer = norm_cik(str(issuer_cik or ""))
-    owners = {norm_cik(str(x)) for x in (owner_ciks or []) if norm_cik(str(x))}
-    if not header:
+    header_raw = re.sub(r"\D", "", str(header_cik or ""))
+    if not header_raw:
         return "MISSING"
+    issuer_raw = re.sub(r"\D", "", str(issuer_cik or ""))
+    if not issuer_raw:
+        return "MISSING_ISSUER"
+    try:
+        header = norm_cik(header_raw)
+        issuer = norm_cik(issuer_raw)
+    except ValueError:
+        return "INVALID_CIK"
+    owners = set()
+    for value in owner_ciks or []:
+        owner_raw = re.sub(r"\D", "", str(value or ""))
+        if owner_raw:
+            try:
+                owners.add(norm_cik(owner_raw))
+            except ValueError:
+                continue
     if header == issuer:
         return "ISSUER"
     if header in owners:
