@@ -6,19 +6,13 @@ on:
       - "research/phase338_sec_broad_form4_identity_sample.py"
       - "research/test_phase338_sec_broad_form4_identity_sample.py"
       - ".github/workflows/phase338_sec_broad_form4_identity_sample.yml"
-  pull_request:
-    types: [opened, reopened, synchronize]
-    paths:
-      - "research/phase338_sec_broad_form4_identity_sample.py"
-      - "research/test_phase338_sec_broad_form4_identity_sample.py"
-      - ".github/workflows/phase338_sec_broad_form4_identity_sample.yml"
   workflow_dispatch:
 permissions:
   actions: read
   contents: read
 concurrency:
   group: phase338-sec-broad-form4-identity-sample
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   broad-identity-sample:
     runs-on: ubuntu-latest
