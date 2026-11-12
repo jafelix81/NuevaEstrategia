@@ -84,8 +84,8 @@ def extract_xml_identity(raw: bytes) -> dict:
 
 def transaction_code_buckets(codes: list[str]) -> list[str]:
     labels = {
-        "P": "OPEN_MARKET_PURCHASE",
-        "S": "OPEN_MARKET_SALE",
+        "P": "OPEN_MARKET_OR_PRIVATE_PURCHASE",
+        "S": "OPEN_MARKET_OR_PRIVATE_SALE",
         "M": "EXERCISE_OR_CONVERSION_NOT_OPEN_MARKET",
         "A": "GRANT_AWARD_OR_OTHER_ACQUISITION",
         "D": "DISPOSITION_TO_ISSUER_OR_OTHER",
