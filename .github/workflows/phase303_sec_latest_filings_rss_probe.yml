@@ -1,0 +1,80 @@
+name: Phase 303 SEC Latest Filings RSS probe
+
+on:
+  push:
+    branches:
+      - phase303-sec-feed-live-rss-feasibility
+    paths:
+      - research/phase303_sec_latest_filings_rss_probe.py
+      - research/test_phase303_sec_latest_filings_rss_probe.py
+      - .github/workflows/phase303_sec_latest_filings_rss_probe.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase303-sec-latest-filings-rss-probe
+  cancel-in-progress: false
+
+jobs:
+  latest-filings-rss:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SEC_CONTACT_EMAIL: ${{ secrets.SEC_CONTACT_EMAIL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+
+      - name: Compile and run offline parser tests
+        run: |
+          set -euo pipefail
+          python -m py_compile research/phase303_sec_latest_filings_rss_probe.py
+          python -m unittest discover -s research -p 'test_phase303_sec_latest_filings_rss_probe.py' -v
+
+      - name: Probe SEC Latest Filings Atom feeds
+        run: |
+          set -euo pipefail
+          test -n "$SEC_CONTACT_EMAIL"
+          python -u research/phase303_sec_latest_filings_rss_probe.py \
+            --output-dir phase303_output \
+            --contact-email "$SEC_CONTACT_EMAIL"
+
+      - name: Enforce prospective-only controls
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path("phase303_output/phase303_rss_probe_result.json")
+          if not p.exists():
+              raise SystemExit("Phase 303 RSS result missing")
+          r = json.loads(p.read_text(encoding="utf-8"))
+          assert r["status"] == "PASS_ATOM_ENDPOINT", r["status"]
+          assert r["summary"]["valid_atom_responses"] >= 1
+          assert r["controls"]["exact_first_public_timestamp_verified"] is False
+          assert r["controls"]["historical_backfill_available"] is False
+          assert r["controls"]["strict_pit_admitted"] is False
+          assert r["controls"]["alpha_test"] is False
+          assert r["controls"]["holdout_used"] is False
+          assert r["controls"]["f80_frozen"] is True
+          print(json.dumps(r["summary"], indent=2, sort_keys=True))
+          print("PROSPECTIVE_ONLY=true EXACT_FIRST_PUBLIC=false STRICT_PIT=false ALPHA=false HOLDOUT=false F80_FROZEN=true")
+          PY
+
+      - name: Upload raw feed and audit artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase303-sec-latest-filings-rss-probe
+          path: phase303_output/
+          if-no-files-found: warn
+          retention-days: 90
+          compression-level: 6
