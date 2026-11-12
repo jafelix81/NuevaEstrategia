@@ -1,4 +1,5 @@
 name: Phase 347 - SEC 13D/G CUSIP integrity audit
+# Reproducible offline audit pinned to the immutable Phase 93 artifact.
 
 on:
   pull_request:
