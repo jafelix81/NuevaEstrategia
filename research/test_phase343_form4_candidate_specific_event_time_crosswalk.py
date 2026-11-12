@@ -56,6 +56,33 @@ class Phase343Tests(unittest.TestCase):
         self.assertEqual(parsed["transactions"][0]["transaction_code"], "P")
         self.assertEqual(parsed["transactions"][0]["footnote_text"], ["Open market purchase"])
 
+    def test_complete_submission_selects_form4_xml_not_xsl_or_attachment(self):
+        ownership = """<?xml version="1.0"?>
+        <ownershipDocument>
+          <issuer><issuerCik>0000000123</issuerCik><issuerTradingSymbol>ABC</issuerTradingSymbol></issuer>
+          <aff10b5One>0</aff10b5One>
+          <reportingOwner><reportingOwnerId><rptOwnerCik>0000000456</rptOwnerCik></reportingOwnerId></reportingOwner>
+          <nonDerivativeTable><nonDerivativeTransaction>
+            <securityTitle><value>Common Stock</value></securityTitle>
+            <transactionDate><value>2026-07-31</value></transactionDate>
+            <transactionCoding><transactionCode>P</transactionCode></transactionCoding>
+            <transactionAmounts><transactionShares><value>100</value></transactionShares>
+              <transactionPricePerShare><value>10</value></transactionPricePerShare>
+              <transactionAcquiredDisposedCode><value>A</value></transactionAcquiredDisposedCode></transactionAmounts>
+            <ownershipNature><directOrIndirectOwnership><value>D</value></directOrIndirectOwnership></ownershipNature>
+          </nonDerivativeTransaction></nonDerivativeTable>
+        </ownershipDocument>"""
+        raw = (
+            b"<SEC-DOCUMENT>0000000123-26-000001.txt</SEC-DOCUMENT>\n"
+            b"<DOCUMENT><TYPE>GRAPHIC</TYPE><TEXT><XML><notOwnership/></XML></TEXT></DOCUMENT>\n"
+            b"<DOCUMENT><TYPE>4</TYPE><TEXT><XML>" + ownership.encode("utf-8") +
+            b"</XML></TEXT></DOCUMENT>\n"
+        )
+        parsed = parse_ownership_document(raw)
+        self.assertEqual(parsed["issuer_cik"], "123")
+        self.assertEqual(parsed["issuer_symbol_raw"], "ABC")
+        self.assertEqual(len(parsed["transactions"]), 1)
+
     def test_transaction_signature_normalizes_dates_and_numeric_strings(self):
         a = {"security_title":"Common Stock","transaction_date":"31-JUL-2026",
              "transaction_code":"P","acquired_disposed":"A","direct_indirect":"D",
