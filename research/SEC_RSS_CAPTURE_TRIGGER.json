@@ -1,5 +1,5 @@
 {
-  "requested_at_utc": "2026-11-12T03:00:00Z",
-  "reason": "Validate durable daily repository snapshot forced by legacy timestamp migration",
+  "requested_at_utc": "2026-11-12T03:37:09Z",
+  "reason": "Hourly prospective SEC Form 4/Form 4-A capture; test for first live non-left-censored accession interval",
   "requested_by": "Smart Money Research automation"
 }
