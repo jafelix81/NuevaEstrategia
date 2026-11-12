@@ -1,0 +1,100 @@
+name: Phase 334 SEC stratified symbol-class coverage audit
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    paths:
+      - "research/phase334_sec_stratified_symbol_class_coverage.py"
+      - "research/test_phase334_sec_stratified_symbol_class_coverage.py"
+      - ".github/workflows/phase334_sec_stratified_symbol_class_coverage.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase334-sec-stratified-symbol-class-coverage
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      SEC_CONTACT_EMAIL: \${{ secrets.SEC_CONTACT_EMAIL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile Phase 332-334
+        run: |
+          python -m py_compile \
+            research/phase328_sec_collision_prior_filing_xbrl_pilot.py \
+            research/phase332_sec_event_driven_identity_audit.py \
+            research/phase333_symbol_class_binding_audit.py \
+            research/phase334_sec_stratified_symbol_class_coverage.py \
+            research/test_phase334_sec_stratified_symbol_class_coverage.py
+      - name: Run offline regressions
+        run: python -m unittest -v research.test_phase334_sec_stratified_symbol_class_coverage
+      - name: Re-run collision-panel chronology and recheck every fresh symbol-bearing accession
+        run: python -m research.phase334_sec_stratified_symbol_class_coverage --output-dir phase334_output
+      - name: Validate freshness accounting, hashes, class-binding discipline and frozen controls
+        run: |
+          python - <<'PY'
+          import json
+          p = "phase334_output/phase334_symbol_class_binding_audit.json"
+          s = json.load(open(p, encoding="utf-8"))
+          assert s["phase"] == 334
+          assert s["status"] in {
+              "COMPLETED_STRATIFIED_CLASS_BINDING_AUDIT",
+              "COMPLETED_WITH_EXPLICIT_QUARANTINES",
+          }, s["status"]
+          c = s["controls"]
+          assert c["f80_frozen"] is True
+          assert c["strict_pit_admitted"] is False
+          assert c["security_master_admitted"] is False
+          assert c["universe_coverage_admitted"] is False
+          assert c["alpha_test_run"] is False
+          assert c["return_test_run"] is False
+          assert c["bootstrap_loo_run"] is False
+          assert c["chronological_oos_run"] is False
+          assert c["holdout_used"] is False
+          assert c["production_changed"] is False
+          assert c["universe_changed"] is False
+          assert c["capital_changed"] is False
+          assert c["parameters_changed"] is False
+          assert c["data_purchased"] is False
+          q = s["summary"]
+          assert q["observations"] == 56
+          accounted = (
+              q["fresh_complete_anchor_observations"]
+              + q["stale_anchor_observations"]
+              + q["no_valid_prior_anchor_observations"]
+              + q["invalid_anchor_chronology_observations"]
+              + q["incomplete_observations"]
+          )
+          assert accounted == 56, (accounted, q["anchor_status_counts"])
+          assert q["documents_rechecked"] == q["fresh_symbol_bearing_unique_accessions"]
+          assert q["document_hash_matches"] + q["document_hash_mismatches"] == q["documents_rechecked"]
+          assert len(s["documents"]) == q["documents_rechecked"]
+          for d in s["documents"]:
+              assert d["filing_date"] < d["event_date"]
+              if not d["hash_match"]:
+                  assert d["binding_status"] == "HASH_MISMATCH_NOT_ADMITTED"
+              if d["symbol_set_status"] != "MATCH_PHASE332_SYMBOL_SET" and d["hash_match"]:
+                  assert d["binding_status"] == "SYMBOL_SET_DRIFT_NOT_ADMITTED"
+              for ctx in d["source_contexts"]:
+                  assert 0 < ctx["anchor_age_days"] <= 365
+                  assert d["filing_date"] < ctx["event_date"]
+          print("PHASE334_STATUS=" + s["status"])
+          print("PHASE334_SUMMARY=" + json.dumps(q, sort_keys=True))
+          PY
+      - name: Upload Phase 334 source and binding audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase334-sec-stratified-symbol-class-coverage
+          path: phase334_output/
+          if-no-files-found: error
+          retention-days: 90
