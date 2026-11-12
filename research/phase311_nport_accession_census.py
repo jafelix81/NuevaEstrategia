@@ -24,7 +24,9 @@ from typing import Any
 
 import requests
 
-TARGET_FORMS = {"NPORT-P", "NPORT-P/A"}
+DATA_FORMS = {"NPORT-P", "NPORT-P/A"}
+NOTICE_FORMS = {"NT NPORT-P"}
+CENSUS_FORMS = DATA_FORMS | NOTICE_FORMS
 HEADER = "CIK|Company Name|Form Type|Date Filed|Filename"
 BASE_URL = "https://www.sec.gov/Archives/edgar/full-index"
 DATASET_URL = "https://www.sec.gov/data-research/sec-markets-data/form-n-port-data-sets"
@@ -112,7 +114,7 @@ def parse_master_index(text: str, quarter: str) -> list[dict[str, str]]:
         cik, company_name, form_type, filed, filename = [
             x.strip() for x in (cik, company_name, form_type, filed, filename)
         ]
-        if form_type not in TARGET_FORMS:
+        if form_type not in CENSUS_FORMS:
             continue
         if not cik.isdigit() or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", filed):
             raise ValueError("target_row_invalid_cik_or_filing_date")
@@ -158,6 +160,8 @@ def select_stratified_sample(rows: list[dict[str, str]]) -> list[dict[str, str]]
     """
     groups: dict[tuple[str, str], list[dict[str, str]]] = defaultdict(list)
     for row in rows:
+        if row["form_type"] not in DATA_FORMS:
+            continue
         groups[(row["quarter"], row["form_type"])].append(row)
     selected = []
     for (quarter, form_type), items in sorted(groups.items()):
@@ -205,6 +209,7 @@ def _download_quarter(session: requests.Session, quarter: str, output_dir: Path)
         "target_accessions": len(rows),
         "nport_p": sum(1 for x in rows if x["form_type"] == "NPORT-P"),
         "nport_p_a": sum(1 for x in rows if x["form_type"] == "NPORT-P/A"),
+        "nt_nport_p_notice": sum(1 for x in rows if x["form_type"] == "NT NPORT-P"),
         "distinct_registrant_ciks": len({x["cik"] for x in rows}),
         "filing_date_min": min((x["filing_date"] for x in rows), default=None),
         "filing_date_max": max((x["filing_date"] for x in rows), default=None),
@@ -260,6 +265,7 @@ def run_census(start: str, end: str, output_dir: Path, contact_email: str) -> di
             "quarter": q,
             "nport_p": sum(1 for x in items if x["form_type"] == "NPORT-P"),
             "nport_p_a": sum(1 for x in items if x["form_type"] == "NPORT-P/A"),
+            "nt_nport_p_notice": sum(1 for x in items if x["form_type"] == "NT NPORT-P"),
             "total_accessions": len(items),
             "distinct_registrant_ciks": len({x["cik"] for x in items}),
             "filing_date_min": min((x["filing_date"] for x in items), default=None),
@@ -280,14 +286,16 @@ def run_census(start: str, end: str, output_dir: Path, contact_email: str) -> di
             "unique_accessions": len(all_rows),
             "nport_p": form_counts.get("NPORT-P", 0),
             "nport_p_a": form_counts.get("NPORT-P/A", 0),
+            "nt_nport_p_notice": form_counts.get("NT NPORT-P", 0),
+            "data_bearing_accessions": form_counts.get("NPORT-P", 0) + form_counts.get("NPORT-P/A", 0),
             "distinct_registrant_ciks": len({x["cik"] for x in all_rows}),
             "filing_date_min": min(x["filing_date"] for x in all_rows),
             "filing_date_max": max(x["filing_date"] for x in all_rows),
             "duplicate_accessions": 0,
-            "exact_form_filter": sorted(TARGET_FORMS),
+            "exact_form_filter": sorted(CENSUS_FORMS),
         },
         "sample": {
-            "design": "deterministic SHA-256 minimum per quarter and exact form; QA only, not representative",
+            "design": "deterministic SHA-256 minimum per quarter and data-bearing exact form; NT NPORT-P notices are inventoried separately and never sampled as holdings",
             "candidate_count": len(sample),
             "candidates": sample,
         },
@@ -324,9 +332,10 @@ def run_census(start: str, end: str, output_dir: Path, contact_email: str) -> di
             "email_sent": False,
         },
         "decision": (
-            "Accession inventory only. Use filing date and acceptance metadata as filing clocks, "
-            "not exact first-public timestamps. Preserve every NPORT-P and NPORT-P/A accession as "
-            "a separate as-filed vintage. Do not infer that a fund position is a trade or informed "
+            "Accession inventory only. Preserve NPORT-P and NPORT-P/A as separate as-filed holdings "
+            "vintages; inventory NT NPORT-P notices separately as late-filing/missingness context, "
+            "never as holdings. Use filing date and acceptance metadata as filing clocks, not exact "
+            "first-public timestamps. Do not infer that a fund position is a trade or informed "
             "signal. Next gates are raw filing sample reconciliation, amendment lineage, series "
             "identity, effective-dated security crosswalk and F80 universe coverage."
         ),
@@ -336,7 +345,7 @@ def run_census(start: str, end: str, output_dir: Path, contact_email: str) -> di
     sample_fields = census_fields + ["sample_rule", "sample_group_size"]
     write_csv(output_dir / "nport_accession_census.csv", all_rows, census_fields)
     write_csv(output_dir / "nport_quarter_summary.csv", quarter_summary, [
-        "quarter", "nport_p", "nport_p_a", "total_accessions",
+        "quarter", "nport_p", "nport_p_a", "nt_nport_p_notice", "total_accessions",
         "distinct_registrant_ciks", "filing_date_min", "filing_date_max",
     ])
     write_csv(output_dir / "nport_stratified_sample_candidates.csv", sample, sample_fields)
