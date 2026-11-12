@@ -21,14 +21,16 @@ def _evidence(cusips=None):
     }
 
 
-def _row(sign=True, truncated=False, series=True):
+def _row(sign=True, truncated=False, series=True, index_series=True):
     return {
         "accession": "0001145549-25-033457",
         "status": "RAW_RETRIEVED",
         "index_sha256": "a" * 64,
         "submission_sha256": "b" * 64,
         "primary_xml_sha256": "c" * 64,
+        "filing_index_sha256": "d" * 64,
         "index_bytes": 100,
+        "filing_index_bytes": 150,
         "submission_bytes": 200,
         "primary_xml_bytes": 300,
         "raw_files_staged_for_artifact": True,
@@ -39,6 +41,11 @@ def _row(sign=True, truncated=False, series=True):
             "acceptance_date_matches_filed_date": True,
         },
         "index_listing": {"primary_document_last_modified": "2025-05-28 16:04:35"},
+        "filing_index_metadata": {
+            "series_ids": ["S000000001"] if index_series else [],
+            "class_ids": ["C000000001"] if index_series else [],
+            "accepted_datetime_et": "2025-05-28T16:04:35",
+        },
         "xml_audit": {
             "series_ids": ["S000000001"] if series else [],
             "distinct_series_id_count": 1 if series else 0,
@@ -77,9 +84,15 @@ class Phase310NportRawVintageTests(unittest.TestCase):
         self.assertEqual(result["expected_public_positive_control_sign_gate"], "UNKNOWN")
 
     def test_missing_series_fails_raw_reconciliation_gate(self):
-        result = build_validation(_summary(_row(series=False)), _evidence())
+        result = build_validation(_summary(_row(series=False, index_series=False)), _evidence())
         self.assertEqual(result["status"], "PARTIAL_RAW_RETRIEVAL_OR_RECONCILIATION")
         self.assertEqual(result["series_identity_presence_gate"], "FAIL")
+
+    def test_index_html_series_identity_can_fill_xml_series_omission(self):
+        result = build_validation(_summary(_row(series=False, index_series=True)), _evidence())
+        self.assertEqual(result["series_identity_presence_gate"], "PASS")
+        self.assertEqual(result["accessions"][0]["xml_series_ids"], [])
+        self.assertEqual(result["accessions"][0]["index_series_ids"], ["S000000001"])
 
     def test_missing_accession_is_not_treated_as_zero_or_complete(self):
         result = build_validation({"accession_results": []}, _evidence())
