@@ -1,0 +1,100 @@
+name: Phase 327 SEC Form 4 single-accession archive recovery
+
+on:
+  push:
+    branches:
+      - phase327-form4-single-accession-recovery
+    paths:
+      - ".github/workflows/phase327_form4_single_accession_recovery.yml"
+      - "research/phase327_form4_single_accession_recovery.py"
+      - "research/test_phase327_form4_single_accession_recovery.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: phase327-form4-single-accession-recovery
+  cancel-in-progress: false
+
+jobs:
+  single-accession-recovery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SEC_CONTACT_EMAIL: \${{ secrets.SEC_CONTACT_EMAIL }}
+      GH_TOKEN: \${{ github.token }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+
+      - name: Compile and run offline regressions
+        run: |
+          python -m compileall -q research/phase327_form4_single_accession_recovery.py research/test_phase327_form4_single_accession_recovery.py
+          python -m unittest -v research.test_phase327_form4_single_accession_recovery
+
+      - name: Download immutable Phase 321, 325 and 326 artifacts
+        run: |
+          curl -fsSL -H "Accept: application/vnd.github+json" -H "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13925636412/zip" -o phase321_source.zip
+          echo "e45cab68d1ebe15248cc76bad70b015c8f0bd2052689c0690478bbca4526965c  phase321_source.zip" | sha256sum --check
+          curl -fsSL -H "Accept: application/vnd.github+json" -H "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13931894766/zip" -o phase325_source.zip
+          echo "6d7930230a60036931857520df07b28087720d54ae9d3bee8f4b1cfe2fbcefa3  phase325_source.zip" | sha256sum --check
+          curl -fsSL -H "Accept: application/vnd.github+json" -H "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13939999128/zip" -o phase326_prior.zip
+          echo "eea7eaf97b91acfdbdac866f8d98660ec98be03adc8c4038b800f74cf86d81d5  phase326_prior.zip" | sha256sum --check
+
+      - name: Retry only the single quarantined accession through zero-padded SEC paths
+        run: |
+          python -m research.phase327_form4_single_accession_recovery \
+            --phase321-zip phase321_source.zip \
+            --phase325-zip phase325_source.zip \
+            --phase326-zip phase326_prior.zip \
+            --output-dir phase327_output \
+            --email "$SEC_CONTACT_EMAIL"
+
+      - name: Enforce one-record recovery scope and frozen-baseline controls
+        run: |
+          python - <<'PY'
+          import json, sys
+          r=json.load(open("phase327_output/phase327_recovery_result.json", encoding="utf-8"))
+          s=r["summary"]; c=r["controls"]
+          if s["prior_retrieved"] != 282 or s["retried_accessions"] != 1:
+              sys.exit("Phase 327 did not preserve the one-record recovery scope")
+          if s["retrieved"] not in (282, 283) or s["retrieval_failures"] not in (0, 1):
+              sys.exit("Unexpected Phase 327 retrieval population")
+          if s["unresolved_accessions"] not in ([], ["0000939057-26-000239"]):
+              sys.exit("Unexpected unresolved accession set")
+          if s["header_identity_matches"] != s["retrieved"]:
+              sys.exit("Retrieved header identity is incomplete")
+          if s["xml_parsed"] < 282 or s["xml_issuer_cik_matches"] < 282:
+              sys.exit("XML identity coverage fell below the prior validated 282")
+          for key in ("strict_pit_admitted","alpha_test_authorized","return_test_run",
+                      "bootstrap_loo_run","chronological_oos_run","holdout_used",
+                      "production_changed","universe_changed","capital_changed",
+                      "parameters_changed","raw_sec_bytes_uploaded","vendor_contacted",
+                      "data_purchased","email_sent"):
+              if c.get(key) is not False:
+                  sys.exit("Research control unexpectedly opened: "+key)
+          if c.get("f80_frozen") is not True:
+              sys.exit("F80 frozen control failed")
+          print("PHASE327_STATUS="+r["status"])
+          print("PHASE327_SUMMARY="+str(s))
+          print("PHASE327_CONTROLS="+str(c))
+          PY
+
+      - name: Upload parsed metadata and recovery diagnostics only
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase327-form4-single-accession-recovery
+          path: phase327_output/
+          retention-days: 90
+          if-no-files-found: warn
