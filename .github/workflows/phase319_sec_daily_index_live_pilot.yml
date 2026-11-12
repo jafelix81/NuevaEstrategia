@@ -6,6 +6,10 @@ on:
       - phase319-sec-daily-index-live-format-pilot
     paths:
       - ".github/workflows/phase319_sec_daily_index_live_pilot.yml"
+      - "research/phase283_sec_daily_index_parser.py"
+      - "research/test_phase283_sec_daily_index_parser.py"
+      - "research/phase318_nport_next_business_day_clock.py"
+      - "research/test_phase318_nport_next_business_day_clock.py"
       - "research/phase319_sec_daily_index_live_pilot.py"
       - "research/test_phase319_sec_daily_index_live_pilot.py"
   workflow_dispatch:
