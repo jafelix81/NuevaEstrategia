@@ -102,7 +102,7 @@ class Phase324ExceptionSourceTests(unittest.TestCase):
                 "data_purchased": False,
                 "email_sent": False,
             },
-            "retrieval": {"raw_sec_bytes_uploaded": False},
+            "retrieval": {"raw_sec_bytes_uploaded": False, "http_request_errors": 0, "parser_errors": 0},
         }
         validate_result(result)
         result["controls"]["holdout_used"] = True
