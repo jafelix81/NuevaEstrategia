@@ -1,0 +1,98 @@
+name: Phase 338 SEC broad Form 4 issuer identity sample
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    paths:
+      - "research/phase338_sec_broad_form4_identity_sample.py"
+      - "research/test_phase338_sec_broad_form4_identity_sample.py"
+      - ".github/workflows/phase338_sec_broad_form4_identity_sample.yml"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: phase338-sec-broad-form4-identity-sample
+  cancel-in-progress: false
+
+jobs:
+  broad-identity-sample:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SEC_CONTACT_EMAIL: ${{ secrets.SEC_CONTACT_EMAIL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+
+      - name: Compile and run offline regressions
+        run: |
+          python -m py_compile research/phase338_sec_broad_form4_identity_sample.py research/test_phase338_sec_broad_form4_identity_sample.py
+          python -m unittest -v research.test_phase338_sec_broad_form4_identity_sample
+
+      - name: Download immutable Phase 321 and Phase 325 source artifacts
+        run: |
+          curl -fsSL -H "Accept: application/vnd.github+json" -H "Authorization: Bearer $GH_TOKEN" "https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13925636412/zip" -o phase321_source.zip
+          curl -fsSL -H "Accept: application/vnd.github+json" -H "Authorization: Bearer $GH_TOKEN" "https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13931894766/zip" -o phase325_source.zip
+          echo "e45cab68d1ebe15248cc76bad70b015c8f0bd2052689c0690478bbca4526965c  phase321_source.zip" | sha256sum --check
+          echo "6d7930230a60036931857520df07b28087720d54ae9d3bee8f4b1cfe2fbcefa3  phase325_source.zip" | sha256sum --check
+
+      - name: Rebuild and verify the predeclared stratified sample
+        run: |
+          mkdir -p phase338_output
+          python -m research.phase338_sec_broad_form4_identity_sample --census-zip phase321_source.zip --collision-zip phase325_source.zip --sample-manifest phase338_output/phase338_sample_manifest.json --build-sample-only
+          echo "6d805f8f924ce4fdcb89d8104484b512110f12fb53aef9d87d1c88987d12f1aa  phase338_output/phase338_sample_manifest.json" | sha256sum --check
+
+      - name: Retrieve fresh prior-periodic identity evidence for the fixed sample
+        run: |
+          python -m research.phase338_sec_broad_form4_identity_sample --sample-manifest phase338_output/phase338_sample_manifest.json --output-dir phase338_output
+
+      - name: Enforce sample, chronology, coverage accounting and frozen controls
+        run: |
+          python - <<'PY'
+          import json
+          from datetime import date
+          r=json.load(open("phase338_output/phase338_broad_identity_audit.json",encoding="utf-8"))
+          assert r["phase"]==338
+          assert r["status"]=="COMPLETED_WITH_EXPLICIT_COVERAGE_AND_IDENTITY_QUARANTINES",r["status"]
+          assert r["sample_manifest_sha256"]=="6d805f8f924ce4fdcb89d8104484b512110f12fb53aef9d87d1c88987d12f1aa"
+          s=r["summary"];obs=r["observations"]
+          assert s["sample_issuer_quarter_units"]==72 and s["unique_issuer_ciks"]==72
+          assert s["submissions_resolved"]+s["submissions_unavailable_units"]==72
+          assert sum(s["anchor_status_counts"].values())==72 and sum(s["document_status_counts"].values())==72
+          assert len(obs)==72 and len({x["accession"] for x in obs})==72 and len({x["issuer_cik"] for x in obs})==72
+          for x in obs:
+              if x["anchor_status"]=="FRESH_PRIOR_PERIODIC_FILING":
+                  age=(date.fromisoformat(x["filing_date"])-date.fromisoformat(x["selected_filing_date"])).days
+                  assert 0<age<=365 and x["anchor_age_calendar_days"]==age
+              if x["symbol_match_status"]=="MISMATCH":
+                  assert x["index_status"]=="MATCHED_ON_FILED_DATE" and x["candidate_symbol"] and x["trading_symbols"]
+              if x["index_status"]!="MATCHED_ON_FILED_DATE":
+                  assert x["symbol_match_status"]=="INDEX_DATE_EXCEPTION_NOT_COMPARABLE" or x["anchor_status"]!="FRESH_PRIOR_PERIODIC_FILING"
+              if x["direct_class_binding"] or x["direct_listing_binding"]: assert x["symbol_fact_count"]>0
+          c=r["controls"]
+          for k in ("strict_pit_admitted","security_master_admitted","universe_coverage_admitted","alpha_test_run","return_test_run","bootstrap_loo_run","chronological_oos_run","holdout_used","production_changed","universe_changed","capital_changed","parameters_changed","data_purchased","vendor_contacted"):
+              assert c.get(k) is False,(k,c.get(k))
+          assert c["f80_frozen"] is True
+          assert r["interpretation"]["security_identity_admitted"] is False and r["interpretation"]["first_public_timestamp_observed"] is False
+          print("PHASE338_STATUS="+r["status"])
+          print("PHASE338_SUMMARY="+json.dumps(s,sort_keys=True))
+          print("PHASE338_COVERAGE="+json.dumps(r["coverage"],sort_keys=True))
+          PY
+
+      - name: Upload Phase 338 metadata-only audit
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase338-sec-broad-form4-identity-sample
+          path: phase338_output/
+          retention-days: 90
+          if-no-files-found: warn
