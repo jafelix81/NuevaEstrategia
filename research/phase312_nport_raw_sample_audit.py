@@ -69,6 +69,44 @@ def is_valid_isin(value: str) -> bool:
     return bool(re.fullmatch(r"[A-Z]{2}[A-Z0-9]{10}", normalize_identifier(value).upper()))
 
 
+def cusip_check_digit_valid(value: str) -> bool:
+    cusip = normalize_identifier(value).upper()
+    if not is_valid_cusip(cusip):
+        return False
+    total = 0
+    for index, char in enumerate(cusip[:8]):
+        if char.isdigit():
+            number = int(char)
+        elif "A" <= char <= "Z":
+            number = ord(char) - ord("A") + 10
+        elif char == "*":
+            number = 36
+        elif char == "@":
+            number = 37
+        elif char == "#":
+            number = 38
+        else:
+            return False
+        product = number * (2 if index % 2 else 1)
+        total += product // 10 + product % 10
+    expected = (10 - total % 10) % 10
+    return cusip[-1].isdigit() and int(cusip[-1]) == expected
+
+
+def isin_check_digit_valid(value: str) -> bool:
+    isin = normalize_identifier(value).upper()
+    if not is_valid_isin(isin):
+        return False
+    expanded = "".join(str(ord(char) - 55) if char.isalpha() else char for char in isin)
+    total = 0
+    double = False
+    for char in reversed(expanded):
+        number = int(char) * (2 if double else 1)
+        total += number // 10 + number % 10
+        double = not double
+    return total % 10 == 0
+
+
 
 def unique_ordered(values: list[str]) -> list[str]:
     out = []
@@ -137,6 +175,8 @@ def parse_holding_rows(root: ET.Element) -> tuple[list[dict[str, Any]], int]:
             "ticker": normalize_identifier(identifiers.get("ticker")),
             "cusip_valid_format": is_valid_cusip(fields.get("cusip", "")),
             "isin_valid_format": is_valid_isin(identifiers.get("isin", "")),
+            "cusip_check_digit_valid": cusip_check_digit_valid(fields.get("cusip", "")),
+            "isin_check_digit_valid": isin_check_digit_valid(identifiers.get("isin", "")),
             "ticker_reported": bool(normalize_identifier(identifiers.get("ticker"))),
             "balance": fields.get("balance", ""),
             "units": fields.get("units", ""),
@@ -280,6 +320,8 @@ def parse_submission(raw_bytes: bytes, expected: dict[str, str]) -> tuple[dict[s
         "short_rows_with_cusip": sum(1 for row in short_rows if row["cusip_valid_format"]),
         "short_rows_with_isin": sum(1 for row in short_rows if row["isin_valid_format"]),
         "short_rows_with_ticker": sum(1 for row in short_rows if row["ticker_reported"]),
+        "short_rows_with_cusip_check_digit": sum(1 for row in short_rows if row["cusip_check_digit_valid"]),
+        "short_rows_with_isin_check_digit": sum(1 for row in short_rows if row["isin_check_digit_valid"]),
         "core_reconciliation_pass": all([
             header_accession == expected_accession,
             header_form == expected_form,
@@ -422,8 +464,8 @@ def run_audit(input_dir: Path, output_dir: Path, contact_email: str) -> dict[str
     series_states = Counter(x.get("series_identity_state", "UNKNOWN") for x in parsed)
     form_counts = Counter(x.get("form_type") for x in filings)
     sign_rows = [x for x in short_rows_all if x.get("sign_concordant")]
-    unique_cusips = sorted({x["cusip"] for x in sign_rows if x.get("cusip_valid_format")})
-    unique_isins = sorted({x["isin"] for x in sign_rows if x.get("isin_valid_format")})
+    unique_cusips = sorted({x["cusip"] for x in sign_rows if x.get("cusip_check_digit_valid")})
+    unique_isins = sorted({x["isin"] for x in sign_rows if x.get("isin_check_digit_valid")})
     unique_tickers = sorted({x["ticker"] for x in sign_rows if x.get("ticker_reported")})
 
     status = (
@@ -470,8 +512,10 @@ def run_audit(input_dir: Path, output_dir: Path, contact_email: str) -> dict[str
             "narrow_short_category_rows": sum(int(x.get("short_category_rows", 0)) for x in parsed),
             "sign_concordant_short_rows": len(sign_rows),
             "nonconcordant_short_category_rows": sum(int(x.get("short_sign_nonconcordant_rows", 0)) for x in parsed),
-            "sign_concordant_rows_with_cusip": sum(1 for x in sign_rows if x.get("cusip_valid_format")),
-            "sign_concordant_rows_with_isin": sum(1 for x in sign_rows if x.get("isin_valid_format")),
+            "sign_concordant_rows_with_cusip_format": sum(1 for x in sign_rows if x.get("cusip_valid_format")),
+            "sign_concordant_rows_with_isin_format": sum(1 for x in sign_rows if x.get("isin_valid_format")),
+            "sign_concordant_rows_with_cusip_check_digit": sum(1 for x in sign_rows if x.get("cusip_check_digit_valid")),
+            "sign_concordant_rows_with_isin_check_digit": sum(1 for x in sign_rows if x.get("isin_check_digit_valid")),
             "sign_concordant_rows_with_ticker": sum(1 for x in sign_rows if x.get("ticker_reported")),
             "unique_cusips": len(unique_cusips),
             "unique_isins": len(unique_isins),
@@ -539,7 +583,7 @@ def run_audit(input_dir: Path, output_dir: Path, contact_email: str) -> dict[str
     short_fields = [
         "accession", "registrant_cik", "form_type", "filing_date", "acceptance_datetime_et",
         "report_date", "series_ids", "series_identity_state", "row_number_within_short_candidates",
-        "issuer_name", "issue_title", "cusip", "isin", "ticker", "cusip_valid_format", "isin_valid_format", "ticker_reported", "balance", "units",
+        "issuer_name", "issue_title", "cusip", "isin", "ticker", "cusip_valid_format", "isin_valid_format", "cusip_check_digit_valid", "isin_check_digit_valid", "ticker_reported", "balance", "units",
         "currency_value_usd", "percentage_nav", "payoff_profile", "asset_category", "issuer_type",
         "investment_country", "category_match", "sign_concordant",
     ]
