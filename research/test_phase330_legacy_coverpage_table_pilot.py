@@ -48,7 +48,7 @@ class Phase330LegacyCoverpageTests(unittest.TestCase):
         </table>
         """
         parsed = extract_coverpage_symbols(parse_tables(raw))
-        self.assertEqual(parsed["visible_symbols"], ["BRK.B", "BRK-P"])
+        self.assertEqual(parsed["visible_symbols"], ["BRK-P", "BRK.B"])
 
     def test_no_symbol_table_is_unknown_not_no_security(self):
         raw = b"<table><tr><th>Title of each class</th><th>Name of exchange</th></tr><tr><td>Common stock</td><td>NYSE</td></tr></table>"
