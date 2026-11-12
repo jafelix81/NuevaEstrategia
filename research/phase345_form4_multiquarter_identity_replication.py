@@ -202,6 +202,12 @@ def load_2026q3(input_dir: Path, output_dir: Path, phase342_result: dict):
     if sha256_bytes(archive_path.read_bytes()) != phase342_result["archives"]["2026Q3"]["zip_sha256"]:
         raise ValueError("2026Q3_archive_sha256_mismatch")
     augmented = augment_result(result, "2026Q3", candidates)
+    (target / "phase345_2026Q3_candidate_identity_audit.json").write_text(
+        json.dumps(augmented, indent=2, sort_keys=True) + "\\n", encoding="utf-8"
+    )
+    write_csv(target / "phase345_2026Q3_candidate_rows.csv", augmented["candidate_rows"])
+    write_csv(target / "phase345_2026Q3_accessions.csv", augmented["accessions"])
+    write_csv(target / "phase345_2026Q3_event_units.csv", augmented["event_units"])
     return augmented
 
 
