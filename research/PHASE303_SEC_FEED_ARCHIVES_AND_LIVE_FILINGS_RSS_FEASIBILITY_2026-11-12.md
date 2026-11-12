@@ -2,8 +2,8 @@
 
 **Date:** 2026-11-12 UTC  
 **Branch:** `phase303-sec-feed-live-rss-feasibility`  
-**Status:** `FEED_ARCHIVES_REJECTED_AS_PRIMARY_HISTORICAL_PAC_SOURCE; LATEST_FILINGS_RSS_CONDITIONAL_PROSPECTIVE_CLOCK`  
-**Scope:** public SEC source feasibility only. No Feed/Oldloads archive, PDS subscription, vendor service, or filing data was downloaded in this phase.
+**Status:** `FEED_ARCHIVES_REJECTED_AS_PRIMARY_HISTORICAL_PAC_SOURCE; LATEST_FILINGS_RSS_PROBE_PASSED_PROSPECTIVE_ONLY`  
+**Scope:** public SEC source feasibility. No Feed/Oldloads archive, PDS subscription, vendor service, or paid data was used. One live Atom snapshot and two complete-submission header cross-checks were performed.
 
 ## Executive decision
 
@@ -50,7 +50,14 @@ A prospective capture could record:
 
 A 5–10 minute poll cadence would be far below the SEC's published maximum request rate, but actual endpoint behavior, Form 4/A inclusion, feed retention, pagination and gap recovery still require a small live pilot with the declared SEC User-Agent. A poll timestamp is an observation time, not proof of exact first-public time. A missing poll creates an interval wider than the nominal cadence.
 
-**Disposition:** retain Latest Filings RSS as a conditional *prospective* clock-validation source. It cannot backfill the historical sample and cannot, by itself, admit strict PIT.
+**One-time live probe (2026-11-12 01:02 UTC):** both SEC Atom queries returned HTTP 200 and parsed successfully. The `type=4` query returned 100 entity rows representing **50 unique Form 4 accessions**; the `type=4/A` query returned 36 entity rows representing **18 unique Form 4/A accessions**. Across both queries there were 136 raw rows and 68 unique accessions. In this snapshot every accession had exactly two rows—one `Issuer` and one `Reporting`—and the path CIK matched the CIK in the title on all 136 rows. The parser now preserves entity rows and groups at accession grain; it does not mistake a reporting-owner CIK for the issuer CIK.
+
+Two complete submissions (one Form 4 and one Form 4/A) were downloaded and hashed. Their SEC-HEADER `ACCEPTANCE-DATETIME` values matched the Atom `updated` value exactly in **2/2** cases. Therefore, in this sample, Atom `updated` is an acceptance-time field, not an independent first-public timestamp. The HTTP `Last-Modified` headers were 21 and 25 seconds after acceptance, respectively, but SEC does not document this header as first-public time; it is not admitted as such. The SEC FAQ explicitly says no timestamp identifies the exact moment content first became public.
+
+- Final run: [43131625929](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43131625929), **7/7 offline tests passed**, both live queries and both header cross-checks passed.
+- Artifact: [13904274568](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43131625929/artifacts/13904274568), 21,041 bytes, SHA-256 `f55f880c3bb14a2744571e8988d907c27c1db6d3833dcc93e7c565eed4771e62`. It contains both raw Atom bodies, the parsed entity/accession ledger and two complete submissions. Raw Atom SHA-256 values: Form 4 `00271e42681445fa46ccfcb631440a8938ea5e294d5a2700bad685198885af7b`; Form 4/A `9c738b2aeb0a15b41096ebf759c1892e438c637edd4e03ad11e4cef3340bb588`.
+
+**Disposition:** retain Latest Filings RSS as a conditional *prospective* clock-validation source. It can capture first-observed intervals when polled continuously, but its `updated` field mirrored acceptance in the two tested filings. It cannot backfill the historical sample and cannot, by itself, admit strict PIT.
 
 ## 3. Source admission matrix
 
@@ -65,8 +72,8 @@ A 5–10 minute poll cadence would be far below the SEC's published maximum requ
 
 ## 4. Next gate
 
-1. Build a one-time, low-rate live endpoint probe for Latest Filings RSS filtered to ownership Forms 3/4/5; verify that both Form 4 and Form 4/A appear and determine the actual result cap/retention behavior.
-2. If the probe passes, run a prospective 30-day capture pilot on a research-only branch or approved durable store. Preserve raw responses, poll intervals, hashes and all missed-poll gaps.
+1. The one-time endpoint probe is complete: both Form 4 and Form 4/A filters returned valid Atom feeds. The requested `count=100` produced 100 Form 4 entity rows (50 accessions); retention, pagination beyond the requested count and feed-gap recovery are still untested.
+2. Run a prospective 30-day capture pilot on a research-only branch or approved durable store. Preserve raw responses, poll intervals, hashes and all missed-poll gaps.
 3. Reconcile a deterministic sample of first-seen accessions to SEC-HEADER acceptance times and subsequent daily-index entries. Do not infer exact first-public time from the RSS `updated` field without independent validation.
 4. Keep same-day Form 4/A pairs intraday-unordered when the feed interval cannot establish their order. Keep actual PAC separate from Form 4/A.
 5. Do not start return/alpha testing until effective-dated security identity, transaction-owner attribution, universe/price coverage and a conservative availability contract pass.
@@ -82,7 +89,7 @@ A 5–10 minute poll cadence would be far below the SEC's published maximum requ
 
 - No Feed/Oldloads archive was downloaded.
 - No PDS subscription, vendor contact, purchase or terms acceptance.
-- No live RSS poll was made in this documentation-only phase.
+- One live RSS snapshot was captured; no continuous polling schedule or historical backfill was started.
 - No return/alpha, bootstrap/LOO, chronological OOS or holdout test.
 - `F80_TOP20_PARTIAL50_BASELINE_C20`, production, universe, capital and parameters remain unchanged.
 - No PR was opened or merged.
