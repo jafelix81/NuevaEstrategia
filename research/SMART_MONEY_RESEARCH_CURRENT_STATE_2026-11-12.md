@@ -1,7 +1,16 @@
 # Smart Money Research — current state (2026-11-12 UTC)
 
-**Active research branch:** `phase324-sec-form4-stratified-clock-validation`  
-**Latest completed research:** Phase 324 — source-level adjudication of the three remaining SEC Form 4 clock exceptions.  
+**Active research branch:** `phase325-sec-form4-issuer-symbol-full-census`  
+**Latest completed research:** Phase 325 — six-quarter SEC Form 4/4-A issuer-symbol full-census quality audit.  
+
+## Latest verified research — Phase 325 (2026-11-12 UTC)
+
+- Final GitHub Actions [run 43196055022](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43196055022) passed **7/7 offline regressions**, re-downloaded the immutable Phase 321 artifact and verified its ZIP SHA-256 before running the full-census audit. [Artifact 13931894766](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43196055022/artifacts/13931894766), ZIP SHA-256 `6d7930230a60036931857520df07b28087720d54ae9d3bee8f4b1cfe2fbcefa3`.
+- Six selected quarters contain 317,267 Form 4/4-A accessions and 11,637 issuer CIKs. A conservative canonical as-filed symbol candidate exists on 311,245 rows (98.1019%); 474 CIKs have no canonical candidate across the sampled quarters.
+- 1,293 CIKs show multiple canonical candidates across the sparse sampled quarters; 637 ticker candidates are reused across more than one issuer CIK. The exact-date diagnostic finds 28 issuer-CIK pairs sharing the same candidate ticker on at least one filing date (42 shared dates). This confirms that ticker alone is not a safe issuer/security key.
+- Keep issuer CIK as primary filing identity and retain the SEC symbol as a descriptive, accession-vintage issuer label only. The 28 collision pairs and 1,293 multi-candidate CIKs require effective-dated class/listing adjudication; no security master or broad-universe mapping is admitted.
+- Report: [Phase 325 full-census audit](PHASE325_SEC_FORM4_ISSUER_SYMBOL_FULL_CENSUS_AUDIT_2026-11-12.md). The artifact contains period summaries and the 28-row collision file; raw SEC bytes were not uploaded.
+- No strict PIT/security-master admission, return/alpha, bootstrap/LOO, chronological OOS or holdout test. F80, production, universe, capital and parameters remain unchanged.
 
 ## Latest verified research — Phase 324 (2026-11-12 UTC)
 
