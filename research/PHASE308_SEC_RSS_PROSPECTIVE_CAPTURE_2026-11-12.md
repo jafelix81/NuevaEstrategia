@@ -25,6 +25,7 @@ Phase 307 showed that `owner=only` isolates ownership filings from unrelated 4-p
 | [43143888820](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43143888820) | PASS | 1,022 / 2,111 | 18 / 36 | 0 | 8.839 min |
 | [43144426570](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43144426570) | PASS | 1,022 / 2,111 | 18 / 36 | 0 | 4.294 min |
 | [43144785036](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43144785036) | PASS | 1,022 / 2,111 | 18 / 36 | 0 | 2.589 min |
+| [43145246814](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43145246814) | PASS | 1,022 / 2,111 | 18 / 36 | 0 | 3.666 min |
 
 All four snapshots completed all 30 SEC requests, passed the head recheck and contiguous-overlap checks, and reported zero target structural errors and zero row-fingerprint conflicts. The cumulative ledger contains four captures and 1,040 unique accession keys. The three subsequent snapshots showed zero new accessions, zero changed entity-row sets and zero missing accessions relative to the preceding complete snapshot.
 
@@ -33,6 +34,7 @@ Artifacts:
 - Second: [13910598338](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43143888820/artifacts/13910598338), SHA-256 `dacb208aec85762975dab0452ad5b4be5d025be8f09a1d88004866d77946deda`.
 - Third: [13909999401](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43144426570/artifacts/13909999401), SHA-256 `7df92cf7056e5f7b59c7bd9f8625f34845b043d8de957c55b6ccd029d1985ebe`.
 - Fourth: [13910594586](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43144785036/artifacts/13910594586), SHA-256 `4ad1da53d979e996d0d2e20738f72712346b2a6563c8a1b921f7e91a013bd7be`.
+- Fifth: [13911053496](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43145246814/artifacts/13911053496), SHA-256 `acbbf03bae44d7d07fff1666896ae8d8e2bed6da5d7310ac8a71f4c9c0f9e597`.
 
 ## Phase 309 timestamp correction
 
@@ -49,6 +51,12 @@ Phase 309 now:
 Hosted run [43144785036](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43144785036) passed **53/53 regressions** (13 Phase 308, 14 Phase 306, 8 Phase 305, 11 Phase 304, 7 Phase 303) and completed another 30/30-request capture. The artifact ledger confirms all 1,040 legacy placeholders were quarantined.
 
 No new accession arrived in the four snapshots. Thus the page-level timestamp path is regression-validated but has not yet been observed on a newly arriving live accession. The next new accession is the first empirical live test of a non-left-censored interval.
+
+## Durable legacy-ledger migration snapshot
+
+The follow-up run [43145246814](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43145246814) passed **54/54 regressions** (14 Phase 308 + 14 Phase 306 + 8 Phase 305 + 11 Phase 304 + 7 Phase 303) and completed another 30/30-request capture. The migration-specific snapshot override correctly forced a repository commit even though the normal once-per-UTC-day snapshot had already been made.
+
+The migrated five-capture ledger was committed as [1431ab323f37382fc9c6480e266db676b8afeee3](https://github.com/jafelix81/NuevaEstrategia/commit/1431ab323f37382fc9c6480e266db676b8afeee3). Artifact [13911053496](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43145246814/artifacts/13911053496) confirms all 1,040 legacy placeholders remain quarantined and the durable snapshot records five complete captures. This prevents a cache eviction from reverting the repository ledger to the pre-migration timestamp state.
 
 ## Interpretation limits and frozen controls
 
