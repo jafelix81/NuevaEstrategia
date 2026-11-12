@@ -50,7 +50,7 @@ Artifact ZIP SHA-256: `4ad1da53d979e996d0d2e20738f72712346b2a6563c8a1b921f7e91a0
 - **Total: 53/53** regressions passed.
 - Live capture: **30/30** SEC requests successful; complete contiguous snapshot; 1,022 Form 4 accessions / 2,111 entity rows and 18 Form 4/A accessions / 36 entity rows.
 - Zero new accessions, zero changed entity-row sets, zero missing accessions, zero target structural errors and zero row-fingerprint conflicts.
-- Four complete snapshots are now recorded; the latest interval from previous complete capture end to new capture start was 2.589 minutes.
+- Five complete snapshots are now recorded; the latest interval from previous complete capture end to new capture start was 2.589 minutes.
 
 No new accession arrived in these snapshots. Therefore the page-level event timestamp is validated by deterministic regression tests, but a live non-left-censored accession interval has not yet been observed. Continue prospective capture until at least one new accession appears and its interval can be inspected.
 
