@@ -1,0 +1,84 @@
+name: Phase 342 SEC Insider bulk six-archive sample audit
+
+on:
+  push:
+    branches:
+      - phase342-form4-high-precision-event-time-identity
+    paths:
+      - "research/phase342_sec_insider_bulk_sample_audit.py"
+      - "research/test_phase342_sec_insider_bulk_sample_audit.py"
+      - ".github/workflows/phase342_sec_insider_bulk_sample_audit.yml"
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: phase342-sec-insider-bulk-sample-audit
+  cancel-in-progress: false
+
+jobs:
+  six-archive-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SEC_CONTACT_EMAIL: ${{ secrets.SEC_CONTACT_EMAIL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Compile and run offline regressions
+        run: |
+          python -m py_compile research/phase342_sec_insider_bulk_sample_audit.py research/test_phase342_sec_insider_bulk_sample_audit.py
+          python -m unittest -v research.test_phase342_sec_insider_bulk_sample_audit
+      - name: Download six official SEC quarterly archives and Phase 39 reference
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${SEC_CONTACT_EMAIL}" ]; then
+            echo "SEC_CONTACT_EMAIL secret is required; do not invent or substitute a contact identity."
+            exit 1
+          fi
+          mkdir -p phase342_input phase342_output
+          UA="jafelix81 SmartMoneyResearch ${SEC_CONTACT_EMAIL}"
+          download_sec() {
+            local period="$1"
+            local url="$2"
+            local output="phase342_input/${period,,}_form345.zip"
+            local headers="phase342_input/${period}.headers"
+            curl --retry 8 --retry-all-errors --retry-delay 3 --retry-max-time 240 \
+              -fSL -A "$UA" -H "Accept-Encoding: identity" \
+              -D "$headers" "$url" -o "$output"
+            test -s "$output"
+            sleep 1
+          }
+          download_sec 2006Q1 "https://www.sec.gov/files/structureddata/data/insider-transactions-data-sets/2006q1_form345.zip"
+          download_sec 2012Q1 "https://www.sec.gov/files/structureddata/data/insider-transactions-data-sets/2012q1_form345.zip"
+          download_sec 2023Q1 "https://www.sec.gov/files/structureddata/data/insider-transactions-data-sets/2023q1_form345.zip"
+          download_sec 2023Q2 "https://www.sec.gov/files/structureddata/data/insider-transactions-data-sets/2023q2_form345.zip"
+          download_sec 2025Q3 "https://www.sec.gov/files/structureddata/data/insider-transactions-data-sets/2025q3_form345.zip"
+          download_sec 2026Q3 "https://www.sec.gov/files/datastandardsinnovation/data/insider-transactions-data-sets/2026q3_form345.zip"
+          curl --retry 8 --retry-all-errors --retry-delay 3 --retry-max-time 180 -fsSL \
+            -H "Accept: application/vnd.github+json" -H "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/12781850078/zip" \
+            -o phase342_input/phase39_reference_artifact.zip
+      - name: Audit archive bytes, table keys, accession joins, checkbox era and purchase screen
+        run: |
+          python -m research.phase342_sec_insider_bulk_sample_audit \
+            --input-dir phase342_input \
+            --phase39-artifact phase342_input/phase39_reference_artifact.zip \
+            --output-dir phase342_output
+      - name: Upload immutable source and audit outputs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase342-sec-insider-bulk-six-archive-audit
+          path: |
+            phase342_input/
+            phase342_output/
+          retention-days: 90
+          if-no-files-found: warn
