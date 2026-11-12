@@ -52,6 +52,13 @@ def _list(value):
     return sorted({normalize_cik(v) for v in items if normalize_cik(v)})
 
 
+def path_ciks_for(accession, issuer_cik, owners):
+    # SEC archive path CIK is the accession prefix; it is a retrieval route,
+    # not a substitute for issuer/reporting-owner identity in the filing XML.
+    prefix = normalize_cik(str(accession).split("-")[0])
+    return list(dict.fromkeys([prefix, normalize_cik(issuer_cik)] + [normalize_cik(x) for x in owners if normalize_cik(x)]))
+
+
 def load_plan(p321: Path, p325: Path):
     b321, b325 = p321.read_bytes(), p325.read_bytes()
     if sha256_bytes(b321) != P321_SHA or sha256_bytes(b325) != P325_SHA:
@@ -116,7 +123,7 @@ def load_plan(p321: Path, p325: Path):
     for acc, r in selected.items():
         if r.get("index_status") != "MATCHED_ON_FILED_DATE":
             raise ValueError(f"selected_accession_not_index_matched:{acc}:{r.get('index_status')}")
-        r["path_ciks"] = list(dict.fromkeys([r["issuer_cik"]] + r["reporting_owner_ciks"]))
+        r["path_ciks"] = path_ciks_for(acc, r["issuer_cik"], r["reporting_owner_ciks"])
     return {
         "phase321_sha256": P321_SHA, "phase325_sha256": P325_SHA,
         "census_rows": len(census), "pair_count": len(pairs), "shared_dates": shared_dates,
