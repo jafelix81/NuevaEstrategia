@@ -1,0 +1,109 @@
+{
+  "phase": 324,
+  "purpose": "Immutable parsed source manifest for source-level re-adjudication of the three unresolved Phase 323 SEC Form 4 clock exceptions. No raw SEC bytes.",
+  "source": {
+    "phase321_run_id": 43177940904,
+    "phase321_artifact_id": 13925636412,
+    "phase321_artifact_sha256": "e45cab68d1ebe15248cc76bad70b015c8f0bd2052689c0690478bbca4526965c",
+    "phase322_run_id": 43187165781,
+    "phase322_artifact_id": 13928752264,
+    "phase322_artifact_sha256": "c7eaf3cfc751e401d543bceeec20c3fe6643b09dfb8d2b0ff97df86070dca50d",
+    "phase322_result_sha256": "f568d50b314dbff5828d1d78e6e3730b80a9cceb22acd4f1500a9f9b5586ebdb",
+    "phase323_run_id": 43188524842,
+    "phase323_artifact_id": 13928449264,
+    "phase323_artifact_sha256": "dacc9f8374e4f86cc31dbe59de5d856ee1900902ce4096b879b69127e38e66fb",
+    "phase323_result_sha256": "96a999064d4aa0443b787a3fcbfe64234ec55c0e85c3c669ded6abb6f70bd588",
+    "phase321_population_accessions": 317267,
+    "phase321_found_on_filed_date_index": 317243,
+    "phase321_exceptions": 24,
+    "phase322_all_24_original_headers_and_master_index_hits": true,
+    "phase323_two_clock_corroborated": 21,
+    "phase323_quarantined": 3
+  },
+  "cases": [
+    {
+      "accession": "0000775662-08-000044",
+      "quarter": "2006Q1",
+      "form_type": "4",
+      "issuer_name": "VIST FINANCIAL CORP",
+      "ticker_as_filed": "VIST",
+      "bulk_filing_date": "2006-02-15",
+      "header_filed_date": "2006-02-15",
+      "header_cik": "775662",
+      "issuer_cik": "775662",
+      "expected_entity_ciks": [
+        "1102914",
+        "775662"
+      ],
+      "acceptance_datetime_et": "20081002131457",
+      "acceptance_date": "2008-10-02",
+      "daily_index_file_dates": [
+        "2008-10-02",
+        "2008-10-06"
+      ],
+      "daily_index_row_filed_dates": [
+        "2006-02-15",
+        "2008-10-02"
+      ],
+      "phase323_classification": "MULTIPLE_DAILY_INDEX_DATES_QUARANTINED",
+      "acceptance_lag_business_days": 662
+    },
+    {
+      "accession": "0001193125-26-393103",
+      "quarter": "2026Q3",
+      "form_type": "4",
+      "issuer_name": "BeOne Medicines Ltd.",
+      "ticker_as_filed": "ONC",
+      "bulk_filing_date": "2026-09-16",
+      "header_filed_date": "2026-09-16",
+      "header_cik": "1087939",
+      "issuer_cik": "1651308",
+      "expected_entity_ciks": [
+        "1087939",
+        "1087940",
+        "1263508",
+        "1363364",
+        "1551139",
+        "1580575",
+        "1651308"
+      ],
+      "acceptance_datetime_et": "20260916161845",
+      "acceptance_date": "2026-09-16",
+      "daily_index_file_dates": [],
+      "daily_index_row_filed_dates": [],
+      "phase323_classification": "HEADER_MASTER_CONFIRMED_DAILY_INDEX_ABSENT_QUARANTINED",
+      "acceptance_lag_business_days": 0
+    },
+    {
+      "accession": "0001298341-06-000168",
+      "quarter": "2006Q1",
+      "form_type": "4",
+      "issuer_name": "Nalco Holding CO",
+      "ticker_as_filed": "NLC",
+      "bulk_filing_date": "2006-02-14",
+      "header_filed_date": "2006-02-14",
+      "header_cik": "1298341",
+      "issuer_cik": "1298341",
+      "expected_entity_ciks": [
+        "1120330",
+        "1298341"
+      ],
+      "acceptance_datetime_et": "20061013154751",
+      "acceptance_date": "2006-10-13",
+      "daily_index_file_dates": [
+        "2006-10-13"
+      ],
+      "daily_index_row_filed_dates": [
+        "2006-10-13"
+      ],
+      "phase323_classification": "LONG_ACCEPTANCE_LAG_INDEX_FOUND_QUARANTINED",
+      "acceptance_lag_business_days": 168
+    }
+  ],
+  "controls": {
+    "f80_frozen": true,
+    "strict_pit_admitted": false,
+    "alpha_test_authorized": false,
+    "raw_sec_bytes_included": false
+  }
+}
