@@ -1,0 +1,62 @@
+name: Phase 350 - SEC 13D/G explicit parent retrieval
+on:
+  pull_request:
+    branches:
+      - phase347-13dg-cusip-integrity-audit
+    paths:
+      - research/phase350_sec_13dg_parent_retrieval.py
+      - research/test_phase350_sec_13dg_parent_retrieval.py
+      - research/PHASE350_SEC_13DG_PARENT_RETRIEVAL_2026-11-12.md
+      - .github/workflows/phase350_sec_13dg_parent_retrieval.yml
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: phase350-sec-13dg-explicit-parent-retrieval
+  cancel-in-progress: false
+
+jobs:
+  retrieve-parents:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Download immutable Phase 349 manifest artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p phase350_input
+          curl --fail --silent --show-error --location \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13992528474/zip \
+            -o phase350_input/phase349_manifest.zip
+          echo "5073e9f67f0bf3c83f5eb25f513fb231848d3bee2c806eaf8e84da57c02110ef  phase350_input/phase349_manifest.zip" | sha256sum --check
+          unzip -q phase350_input/phase349_manifest.zip -d phase350_input
+          test -s phase350_input/phase349_output/phase349_predecessor_target_manifest.csv
+      - name: Run Phase 350 offline parser and validation tests
+        run: python -m unittest -v research.test_phase350_sec_13dg_parent_retrieval
+      - name: Retrieve exact parent submissions from SEC Archives
+        env:
+          SEC_USER_AGENT: "NuevaEstrategia research (https://github.com/jafelix81/NuevaEstrategia)"
+        run: |
+          python -m research.phase350_sec_13dg_parent_retrieval \
+            --manifest phase350_input/phase349_output/phase349_predecessor_target_manifest.csv \
+            --outdir phase350_output \
+            --user-agent "$SEC_USER_AGENT" \
+            --requests-per-second 2
+      - name: Upload raw submissions and validation results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase350-sec-13dg-parent-retrieval
+          path: phase350_output/
+          if-no-files-found: warn
+          retention-days: 90
