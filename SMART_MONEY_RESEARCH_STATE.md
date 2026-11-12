@@ -1,5 +1,16 @@
 # Smart Money Research State
 
+## 2026-11-12 — Phase 345 SEC Form 4 identity replication
+
+- Latest completed phase: [Phase 345 report](research/PHASE345_SEC_FORM4_MULTIQ_COHORT_IDENTITY_REPLICATION_2026-11-12.md), [run 43290739469](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43290739469), [artifact 13978077938](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43290739469/artifacts/13978077938), [draft PR #34](https://github.com/jafelix81/NuevaEstrategia/pull/34).
+- Six non-contiguous cohorts: 413 candidate rows, 262/262 original Form 4 accessions retrieved and issuer symbols reconciled; 393/413 rows matched one exact XML transaction and passed raw purchase-screen revalidation.
+- 2023+ event-time identity: 273/301 rows and 159/173 event units. Requiring the identity anchor to predate the transaction reduces this to 263/301 rows and 152/173 units. Both remain below the 95% admission gate.
+- 2006/2012: 0/112 rows resolve through the current same-context XBRL target-fact method. In 2012, 95 candidate rows had selected prior periodic documents but the current parser found no target facts in those document/instance paths. This is a source-method limitation, not proof of no listing.
+- The original Phase 345 JSON aggregate label includes 2012Q1 in its “XBRL era excluding 2006” denominator; use the corrected period-based denominators in the Phase 345 report.
+- Next: test same-row legacy HTML “Title of each class” + “Name of each exchange” evidence for 2006/2012, keeping Form 4 issuer symbol separate and quarantining multi-class ambiguity. Do not infer a ticker from prose or exchange names.
+- This is identity feasibility only. It does not reopen Phase 21C's killed standalone insider feature. No return/alpha/OOS, bootstrap/LOO or holdout test; F80 remains frozen; no production, universe, capital or parameter changes; no data purchase or vendor contact.
+
+
 Updated: 2026-11-08
 
 ## Frozen control
