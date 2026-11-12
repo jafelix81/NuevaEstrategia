@@ -23,10 +23,8 @@ class EdgarBusinessCalendarTests(unittest.TestCase):
         self.assertEqual(next_edgar_business_day(date(2021, 12, 30)), date(2022, 1, 3))
 
     def test_good_friday_is_not_a_federal_holiday(self):
-        self.assertIn(date(2021, 4, 2), us_federal_holidays(2021))
-        # The assertion above is intentionally inverted below: Good Friday
-        # must remain an EDGAR business day, not be inserted in the holiday set.
-        self.assertFalse(is_edgar_business_day(date(2021, 4, 2)))
+        self.assertNotIn(date(2021, 4, 2), us_federal_holidays(2021))
+        self.assertTrue(is_edgar_business_day(date(2021, 4, 2)))
 
 
 class FilingClockTests(unittest.TestCase):
