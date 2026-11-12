@@ -242,7 +242,9 @@ def extract_candidate_rows(archive_bytes: bytes, phase342_expected: dict) -> lis
         text = " ".join(foot[x] for x in sorted(refs) if x in foot)
         require_aff_false = aff_gate_required(sub.get("FILING_DATE"))
         aff = sub.get("AFF10B5ONE", "")
-        flags = classify_purchase_row(row, text, len(owner_ciks.get(acc, set())), aff, require_aff_false)
+        classification_row = dict(row)
+        classification_row["DOCUMENT_TYPE"] = (sub.get("DOCUMENT_TYPE") or "").strip()
+        flags = classify_purchase_row(classification_row, text, len(owner_ciks.get(acc, set())), aff, require_aff_false)
         if missing:
             flags["explicit_open_market"] = False
         if all(flags[k] for k in (
@@ -621,17 +623,6 @@ def run(phase342_artifact: Path, phase341_artifact: Path, email: str, output_dir
         matching_xml = [x for x in xml_rows if transaction_signature(x) == sig]
         xml_row = matching_xml[0] if len(matching_xml) == 1 else None
         refs_match = bool(xml_row) and set(candidate["footnote_ids_bulk"]) == set(xml_row["footnote_ids"])
-        foot_text_match = bool(xml_row) and all(
-            norm_text(parsed["footnotes"].get(fid, "")) == norm_text(candidate["footnote_text_bulk"].split("  ")[0])
-            for fid in candidate["footnote_ids_bulk"]
-        ) if parsed and xml_row else False
-        # Exact text equality is checked per referenced footnote ID below.
-        foot_text_match = bool(xml_row) and all(
-            norm_text(parsed["footnotes"].get(fid, "")) == norm_text(
-                next((r["FOOTNOTE_TXT"] for r in []), "")
-            )
-            for fid in []
-        ) if False else foot_text_match
         # Reconcile the original XML row and bulk owner/issuer/plan metadata.
         row_reconciled = bool(
             form4_reconciled and xml_row and refs_match
@@ -642,7 +633,11 @@ def run(phase342_artifact: Path, phase341_artifact: Path, email: str, output_dir
         anchor_date = str(anchor.get("anchor_filing_date") or "")
         age = anchor.get("anchor_age_calendar_days")
         anchor_pre_filing = bool(anchor_date and anchor_date < candidate["filing_date"])
-        anchor_pre_transaction = bool(anchor_date and anchor_date < norm_date(candidate["transaction_date_bulk"]))
+        try:
+            transaction_date_iso = norm_date(candidate["transaction_date_bulk"])
+            anchor_pre_transaction = bool(anchor_date and transaction_date_iso and date.fromisoformat(anchor_date) < date.fromisoformat(transaction_date_iso))
+        except ValueError:
+            anchor_pre_transaction = False
         anchor_fresh = bool(isinstance(age, int) and 0 < age <= FRESHNESS_DAYS)
         cross = {"unique_symbol_context": False, "title_compatible": False, "title_match_method": "ANCHOR_NOT_ADMITTED"}
         if anchor.get("anchor_status") == "XBRL_INSTANCE_PARSED" and form4:
