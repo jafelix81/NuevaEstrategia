@@ -1,0 +1,95 @@
+name: Phase 337 SEC XBRL common-role and US-GAAP standard taxonomy audit
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    paths:
+      - "research/phase337_sec_xbrl_common_role_standard_taxonomy_audit.py"
+      - "research/test_phase337_sec_xbrl_common_role_standard_taxonomy_audit.py"
+      - ".github/workflows/phase337_sec_xbrl_common_role_audit.yml"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: phase337-sec-xbrl-common-role-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Download pinned Phase 336 source artifact
+        uses: actions/download-artifact@v4
+        with:
+          github-token: \${{ github.token }}
+          repository: \${{ github.repository }}
+          run-id: 43228785778
+          artifact-ids: 13949661332
+          path: phase336_source
+      - name: Verify immutable Phase 336 audit JSON
+        run: |
+          python - <<'PY'
+          import hashlib
+          from pathlib import Path
+          p = Path("phase336_source/phase336_taxonomy_linkbase_audit.json")
+          digest = hashlib.sha256(p.read_bytes()).hexdigest()
+          expected = "17f088d14cdc1f271afc54ab0fd968237b615902ac06a763b2f45a4a37e9aa5e"
+          assert digest == expected, (digest, expected)
+          print("PHASE336_AUDIT_JSON_SHA256=" + digest)
+          PY
+      - name: Compile Phase 337 and run offline regressions
+        run: |
+          python -m py_compile research/phase337_sec_xbrl_common_role_standard_taxonomy_audit.py research/test_phase337_sec_xbrl_common_role_standard_taxonomy_audit.py
+          python -m unittest -v research.test_phase337_sec_xbrl_common_role_standard_taxonomy_audit
+      - name: Retrieve official US-GAAP 2021 and 2022 label and documentation linkbases
+        run: |
+          python -m research.phase337_sec_xbrl_common_role_standard_taxonomy_audit \
+            --input-json phase336_source/phase336_taxonomy_linkbase_audit.json \
+            --output-dir phase337_output
+      - name: Validate source, common-role comparisons and no-merge controls
+        run: |
+          python - <<'PY'
+          import json
+          p = "phase337_output/phase337_common_role_taxonomy_audit.json"
+          s = json.load(open(p, encoding="utf-8"))
+          assert s["phase"] == 337
+          assert s["source"]["run_id"] == 43228785778
+          assert s["source"]["artifact_id"] == 13949661332
+          assert s["source"]["artifact_sha256"] == "da010b603e408260d3191b9af9d70de3f03537db97e1dfd0a98ed8c3b8739dac"
+          assert s["summary"]["alias_groups"] == 6
+          assert s["summary"]["unique_member_qnames"] == 12
+          assert s["summary"]["raw_qnames_merged"] == 0
+          assert s["summary"]["groups_with_common_role_label_match"] >= 5
+          assert all(x["raw_qnames_merged"] is False for x in s["alias_profiles"])
+          assert {x["symbol"] for x in s["alias_profiles"]} == {
+              "PCG-PB", "PCG-PE", "PCG-PG", "PCG-PH", "PCG-PI", "STR"
+          }
+          c = s["controls"]
+          assert c["f80_frozen"] is True
+          assert c["security_master_admitted"] is False
+          assert c["strict_pit_admitted"] is False
+          assert c["alpha_test_run"] is False
+          assert c["return_test_run"] is False
+          assert c["bootstrap_loo_run"] is False
+          assert c["chronological_oos_run"] is False
+          assert c["holdout_used"] is False
+          assert c["production_changed"] is False
+          print("PHASE337_STATUS=" + s["status"])
+          print("PHASE337_SUMMARY=" + json.dumps(s["summary"], sort_keys=True))
+          PY
+      - name: Upload Phase 337 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase337-sec-xbrl-common-role-standard-taxonomy-audit
+          path: phase337_output/
+          if-no-files-found: error
+          retention-days: 90
