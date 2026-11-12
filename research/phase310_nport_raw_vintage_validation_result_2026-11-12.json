@@ -1,0 +1,154 @@
+{
+  "phase": 310,
+  "audit_date": "2026-11-12",
+  "status": "PARTIAL_RAW_RETRIEVAL_OR_RECONCILIATION",
+  "run_id": 43154326395,
+  "artifact_id": 13915126393,
+  "artifact_sha256": "f4827e6065b76bb2f8d4c6287e2026cf1b6eb06f136a407d6295ab530e47ef98",
+  "raw_files": {
+    "count": 20,
+    "total_bytes": 1722110,
+    "per_accession": 4,
+    "repository_persisted": false,
+    "artifact_retention_days": 90
+  },
+  "validation": {
+    "offline_tests_passed": 23,
+    "raw_bytes_hash_and_artifact_gate": "PASS",
+    "header_identity_acceptance_gate": "PASS",
+    "index_last_modified_matches_acceptance": "5/5",
+    "index_page_acceptance_matches_header": "5/5",
+    "expected_short_cusip_sign_gate": "PASS",
+    "expected_positive_control_cusips": 11,
+    "sign_concordant_direct_short_rows": 327,
+    "series_identity_presence_gate": "PARTIAL",
+    "series_identity_present_accessions": 4,
+    "series_identity_missing_accessions": [
+      "0001145549-25-033457"
+    ],
+    "first_public_receipt_verified": false,
+    "strict_pit_admitted": false,
+    "alpha_test_authorized": false,
+    "holdout_used": false,
+    "f80_frozen": true,
+    "production_changed": false,
+    "universe_changed": false,
+    "capital_changed": false,
+    "parameters_changed": false,
+    "data_purchase": false,
+    "vendor_contact": false,
+    "email_sent": false
+  },
+  "accessions": [
+    {
+      "accession": "0001752724-20-163166",
+      "cik": "1408970",
+      "period_of_report": "2020-06-30",
+      "acceptance_et": "2020-08-21T12:55:43-04:00",
+      "acceptance_utc": "2020-08-21T16:55:43+00:00",
+      "next_full_xnys_session": "2020-08-24",
+      "series_id": "S000062084",
+      "sign_concordant_direct_short_rows": 100,
+      "expected_cusips": [
+        "364760108",
+        "222070203",
+        "880779103",
+        "674599105"
+      ],
+      "index_last_modified_matches_acceptance": true,
+      "index_page_acceptance_matches_header": true,
+      "sha256": {
+        "index_json": "a35ed87a8a2ba290d3cbe784e23b1fbcef332c2d8789edbd48f41cf98c52e90c",
+        "filing_index_html": "ace9bdbbf0ed372ec63ebf45035173a1f19ffd5415d431bbd4318d6d9d9e8990",
+        "submission_text": "10ab5904701571285574383bcefe089e0b990a1ec0ca24160a6739cee509bf7b",
+        "primary_xml": "9df392fe8d7ab23860335af77425199012bdf4293bddde8339873078fca4f83e"
+      }
+    },
+    {
+      "accession": "0001145549-22-056239",
+      "cik": "1511699",
+      "period_of_report": "2022-07-31",
+      "acceptance_et": "2022-09-15T14:23:22-04:00",
+      "acceptance_utc": "2022-09-15T18:23:22+00:00",
+      "next_full_xnys_session": "2022-09-16",
+      "series_id": "S000052217",
+      "sign_concordant_direct_short_rows": 46,
+      "expected_cusips": [
+        "14448C104",
+        "149123101",
+        "166764100",
+        "172908105"
+      ],
+      "index_last_modified_matches_acceptance": true,
+      "index_page_acceptance_matches_header": true,
+      "sha256": {
+        "index_json": "9b22c799638e01fc9fade21429ab5cf18eae30765c8c5d50172d38727a391667",
+        "filing_index_html": "26715ee0243934cf87ba8d5a38d0d2ae468a3e9c9f0d2e5097314271b35dcaca",
+        "submission_text": "bf86712bcb3e1910779d20852c88913090d4d3eb91b7722fb5ba7e440592a34e",
+        "primary_xml": "50e4d3720a82b454f53015a2a5182e35d034e46ac60d44bbba08ae82233dd810"
+      }
+    },
+    {
+      "accession": "0001145549-23-060491",
+      "cik": "811030",
+      "period_of_report": "2023-07-31",
+      "acceptance_et": "2023-09-29T14:46:20-04:00",
+      "acceptance_utc": "2023-09-29T18:46:20+00:00",
+      "next_full_xnys_session": "2023-10-02",
+      "series_id": "S000043717",
+      "sign_concordant_direct_short_rows": 27,
+      "expected_cusips": [],
+      "index_last_modified_matches_acceptance": true,
+      "index_page_acceptance_matches_header": true,
+      "sha256": {
+        "index_json": "4472e68572f309e36063da67f1c84c0ec7d3ee4d729110d546fa163e43d7a489",
+        "filing_index_html": "b880a9078a4ae9a763f84c1564bf214f8b58ebb46f24eececc7810c9a9286d41",
+        "submission_text": "469f7d7da08f5500e5aee8220b1f40c38cff82ed7b762a01be17da2ff3534d6c",
+        "primary_xml": "6b916920a48deece385ea1e7737752f03bf1d649caf03a798d8e022008e5fd7"
+      }
+    },
+    {
+      "accession": "0001145549-24-075135",
+      "cik": "1000351",
+      "period_of_report": "2024-09-30",
+      "acceptance_et": "2024-11-26T13:55:59-05:00",
+      "acceptance_utc": "2024-11-26T18:55:59+00:00",
+      "next_full_xnys_session": "2024-11-27",
+      "series_id": "S000000849",
+      "sign_concordant_direct_short_rows": 86,
+      "expected_cusips": [
+        "143130102",
+        "26884L109"
+      ],
+      "index_last_modified_matches_acceptance": true,
+      "index_page_acceptance_matches_header": true,
+      "sha256": {
+        "index_json": "64c0b27dc5a0bc2fd3373119e7b092b9e8f045cea10d774015377c222e947b56",
+        "filing_index_html": "b36f11816e66bfc5a58ed6ce06060ae4a7aec636e274c2bad0656b00c34794a1",
+        "submission_text": "64d7bfc8882f0df1803bab1f884c13b67957f88aa47fe5c37ec9d787508f7043",
+        "primary_xml": "64d487b09d6736cfc80193289891d2452cb50599b0a38dcf05f1f6e45fc4c140"
+      }
+    },
+    {
+      "accession": "0001145549-25-033457",
+      "cik": "1467631",
+      "period_of_report": "2025-03-31",
+      "acceptance_et": "2025-05-28T16:04:35-04:00",
+      "acceptance_utc": "2025-05-28T20:04:35+00:00",
+      "next_full_xnys_session": "2025-05-29",
+      "series_id": null,
+      "sign_concordant_direct_short_rows": 68,
+      "expected_cusips": [
+        "31428X106"
+      ],
+      "index_last_modified_matches_acceptance": true,
+      "index_page_acceptance_matches_header": true,
+      "sha256": {
+        "index_json": "22128452463a3c5eb69887cfd77cacb84ec98fcdcc00027d0f8f32fbe12211d3",
+        "filing_index_html": "968b84297581eae3501406f72e33b10f4470248b547e040b8d1f94ba6d4361b1",
+        "submission_text": "d634277fa07b00f9c5bdf4231d4c508b00d165b779fd5eed2e2c9bb4ce7b4dd3",
+        "primary_xml": "30d41231692fb1b334d9926949bccbe6c77ca5e72153ea97f169aba88153151e"
+      }
+    }
+  ]
+}
