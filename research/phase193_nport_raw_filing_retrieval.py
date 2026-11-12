@@ -219,11 +219,11 @@ def parse_filing_index_html(payload: bytes) -> dict[str, object]:
 
     source = html.unescape(payload.decode("utf-8", errors="replace"))
     plain = re.sub(r"<[^>]+>", " ", source)
-    plain = re.sub(r"\\s+", " ", plain)
-    series_ids = sorted(set(re.findall(r"\\bS\\d{9}\\b", plain, re.I)))
-    class_ids = sorted(set(re.findall(r"\\bC\\d{9}\\b", plain, re.I)))
+    plain = re.sub(r"\s+", " ", plain)
+    series_ids = sorted(set(re.findall(r"\bS\d{9}\b", plain, re.I)))
+    class_ids = sorted(set(re.findall(r"\bC\d{9}\b", plain, re.I)))
     accepted = re.search(
-        r"\\bAccepted\\s+(\\d{4}-\\d{2}-\\d{2})\\s+(\\d{2}:\\d{2}:\\d{2})\\b",
+        r"\bAccepted\s+(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2}:\d{2})\b",
         plain,
         re.I,
     )
