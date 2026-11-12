@@ -2,6 +2,15 @@ name: Phase 347 - SEC 13D/G CUSIP integrity audit
 # Reproducible offline audit pinned to the immutable Phase 93 artifact.
 
 on:
+  push:
+    branches:
+      - phase347-13dg-cusip-integrity-audit
+    paths:
+      - research/phase347_13dg_cusip_integrity_audit.py
+      - research/test_phase347_13dg_cusip_integrity_audit.py
+      - research/phase347_13dg_cusip_integrity_audit_result.json
+      - research/PHASE347_SEC_13DG_CUSIP_INTEGRITY_AND_SUBJECT_CONSISTENCY_AUDIT_2026-11-12.md
+      - .github/workflows/phase347_13dg_cusip_integrity_audit.yml
   pull_request:
     branches:
       - phase93-13dg-amendment-lineage-and-event-mechanism-audit
