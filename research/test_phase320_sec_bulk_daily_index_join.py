@@ -8,6 +8,7 @@ from research.phase318_nport_next_business_day_clock import next_edgar_business_
 from research.phase319_sec_daily_index_live_pilot import parse_filing_header
 from research.phase320_sec_bulk_daily_index_join import (
     header_identity_flags,
+    header_path_check_type,
     index_row_summary,
     index_url,
     normalize_accession,
@@ -90,6 +91,11 @@ class Phase320BulkDailyIndexJoinTests(unittest.TestCase):
         self.assertTrue(flags["accession_match"])
         self.assertTrue(flags["filed_date_match"])
         self.assertTrue(flags["acceptance_datetime_present"])
+
+    def test_header_path_check_type_distinguishes_independent_and_same_path(self):
+        self.assertEqual(header_path_check_type("0000000001", "1"), "SAME_ISSUER_PATH")
+        self.assertEqual(header_path_check_type("2", "1"), "INDEPENDENT_ENTITY_PATH")
+        self.assertEqual(header_path_check_type("", "1"), "UNRESOLVED")
 
     def test_sec_urls_are_scoped_to_official_host(self):
         self.assertEqual(
