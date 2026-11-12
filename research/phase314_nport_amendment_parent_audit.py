@@ -71,9 +71,17 @@ def accession_raw_filename(accession: str) -> str:
 
 def dec(value: str | None) -> Decimal | None:
     try:
-        return Decimal(str(value).strip())
+        parsed = Decimal(str(value).strip())
     except (InvalidOperation, ValueError, AttributeError):
         return None
+    return parsed if parsed.is_finite() else None
+
+
+def normalize_identifier(value: str | None) -> str:
+    text = str(value or "").strip()
+    if text.upper() in {"", "N/A", "NA", "NONE", "NULL", "-", "NOT AVAILABLE"}:
+        return ""
+    return text
 
 
 def direct_child_text(parent: ET.Element, name: str) -> str:
@@ -89,7 +97,7 @@ def direct_child_value(parent: ET.Element | None, name: str) -> str:
         return ""
     for child in list(parent):
         if local_name(child.tag) == name:
-            return (child.attrib.get("value") or child.text or "").strip()
+            return normalize_identifier(child.attrib.get("value") or child.text)
     return ""
 
 
@@ -125,11 +133,11 @@ def parse_short_positions(root: ET.Element) -> list[dict[str, str]]:
         pct = direct_child_text(node, "pctVal")
         b, v, p = dec(balance), dec(value), dec(pct)
         if not (
-            payoff == "Short"
-            and asset_cat == "EC"
-            and issuer_cat == "CORP"
-            and country == "US"
-            and units == "NS"
+            payoff.strip().lower() == "short"
+            and asset_cat.strip().upper() == "EC"
+            and issuer_cat.strip().upper() == "CORP"
+            and country.strip().upper() == "US"
+            and units.strip().upper() == "NS"
             and b is not None and b < 0
             and v is not None and v < 0
             and p is not None and p < 0
@@ -141,7 +149,7 @@ def parse_short_positions(root: ET.Element) -> list[dict[str, str]]:
         out.append({
             "issuer_name": direct_child_text(node, "name"),
             "issue_title": direct_child_text(node, "title"),
-            "cusip": direct_child_text(node, "cusip"),
+            "cusip": normalize_identifier(direct_child_text(node, "cusip")),
             "isin": isin,
             "ticker": ticker,
             "balance": balance,
