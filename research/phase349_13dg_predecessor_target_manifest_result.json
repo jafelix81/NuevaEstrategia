@@ -1,0 +1,46 @@
+{
+  "phase": "349-13dg-explicit-predecessor-target-manifest",
+  "status": "COMPLETE_TARGET_MANIFEST_ONLY",
+  "source_phase93_filings": 200,
+  "phase84_header_sample_rows": 600,
+  "target_references": 44,
+  "unique_parent_accessions": 44,
+  "unique_subject_issuer_ciks": 41,
+  "unique_child_filer_ciks": 34,
+  "unique_parent_archive_path_ciks": 31,
+  "parent_prefix_matches_child_accession_prefix": 35,
+  "parent_prefix_differs_from_child_accession_prefix": 9,
+  "parent_prefix_matches_child_filer_cik": 21,
+  "family_counts": {
+    "13D": 25,
+    "13G": 19
+  },
+  "child_cusip_status_counts": {
+    "VALID_NONZERO": 43,
+    "ZERO_SENTINEL": 1
+  },
+  "explicit_person_cik_coverage_rows": 25,
+  "person_name_coverage_rows": 44,
+  "reporting_person_rows_total": 128,
+  "event_mechanism_tag_counts_nonexclusive": {
+    "activist_or_control_action": 1,
+    "aggregated_client_or_adviser_holdings": 11,
+    "business_combination_consideration": 3,
+    "conversion_or_exercise": 2,
+    "derivative_or_swap_exposure": 1,
+    "governance_reference_only": 4,
+    "no_recent_transactions_declared": 4,
+    "pledge_or_collateral": 1,
+    "private_placement_or_offering": 2,
+    "unclassified_narrative": 21
+  },
+  "activist_control_tag_rows": 1,
+  "aggregated_client_adviser_tag_rows": 11,
+  "unclassified_narrative_rows": 21,
+  "parent_documents_retrieved": 0,
+  "new_sec_requests_made": false,
+  "immediate_predecessor_inference_performed": false,
+  "strict_pit_admitted": false,
+  "alpha_test_authorized": false,
+  "f80_frozen": true
+}\n

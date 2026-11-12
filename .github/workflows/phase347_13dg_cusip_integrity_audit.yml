@@ -15,6 +15,10 @@ on:
       - research/phase348_13dg_legacy_html_parent_validation_result.json
       - research/phase348_legacy_html_parent_validation_result.csv
       - research/PHASE348_SEC_13DG_LEGACY_HTML_EXPLICIT_PREDECESSOR_VALIDATION_2026-11-12.md
+      - research/phase349_13dg_predecessor_target_manifest.py
+      - research/test_phase349_13dg_predecessor_target_manifest.py
+      - research/phase349_13dg_predecessor_target_manifest_result.json
+      - research/PHASE349_SEC_13DG_EXPLICIT_PREDECESSOR_TARGET_MANIFEST_2026-11-12.md
       - .github/workflows/phase347_13dg_cusip_integrity_audit.yml
 
 permissions:
@@ -106,6 +110,31 @@ jobs:
           assert fresh["verified_legacy_html_parents"] == 2
           assert fresh["failed_parent_validations"] == 0
           assert fresh["explicit_predecessor_refs_outside_600_header_sample_remaining"] == 44
+          PY
+      - name: Run Phase 349 target-manifest regression tests
+        run: python -m unittest -v research.test_phase349_13dg_predecessor_target_manifest
+      - name: Build explicit predecessor target manifest
+        run: |
+          python -m research.phase349_13dg_predecessor_target_manifest \
+            --phase84-artifact-dir phase348_input/phase84 \
+            --phase93-artifact-dir phase347_input \
+            --outdir phase349_output
+          python -m json.tool phase349_output/phase349_summary.json >/dev/null
+          python -m json.tool research/phase349_13dg_predecessor_target_manifest_result.json >/dev/null
+          python - <<'PY'
+          import json
+          committed = json.load(open("research/phase349_13dg_predecessor_target_manifest_result.json", encoding="utf-8"))
+          fresh = json.load(open("phase349_output/phase349_summary.json", encoding="utf-8"))
+          assert committed == fresh
+          assert fresh["target_references"] == 44
+          assert fresh["unique_parent_accessions"] == 44
+          assert fresh["unique_subject_issuer_ciks"] == 41
+          assert fresh["family_counts"] == {"13D": 25, "13G": 19}
+          assert fresh["child_cusip_status_counts"] == {"VALID_NONZERO": 43, "ZERO_SENTINEL": 1}
+          assert fresh["parent_documents_retrieved"] == 0
+          assert fresh["new_sec_requests_made"] is False
+          assert fresh["strict_pit_admitted"] is False
+          assert fresh["alpha_test_authorized"] is False
           PY
       - name: Upload deterministic result
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
