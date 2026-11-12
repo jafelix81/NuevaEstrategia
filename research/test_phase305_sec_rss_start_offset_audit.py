@@ -72,13 +72,13 @@ class Phase305OffsetTests(unittest.TestCase):
         self.assertEqual(result["unique_entity_rows_union"], 3)
         self.assertEqual(result["accessions_seen_on_multiple_pages"], 1)
 
-    def test_empty_later_page_is_valid_and_not_offset_effective(self):
+    def test_empty_later_page_is_valid_and_offset_changes_response(self):
         a = "0000000123-26-000001"
         result = analyze_offset_pages([
             page(0, [row(a, "Issuer", "0000000123", "123")], "a"),
             page(100, [], "empty"),
         ])
-        self.assertFalse(result["offset_parameter_effective"])
+        self.assertTrue(result["offset_parameter_effective"])
         self.assertEqual(result["unique_accessions_union"], 1)
 
     def test_structural_mismatch_is_counted(self):
