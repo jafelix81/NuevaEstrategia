@@ -13,7 +13,6 @@ on:
 
 permissions:
   contents: read
-  actions: read
 
 concurrency:
   group: phase327-form4-single-accession-recovery
@@ -25,7 +24,6 @@ jobs:
     timeout-minutes: 15
     env:
       SEC_CONTACT_EMAIL: \${{ secrets.SEC_CONTACT_EMAIL }}
-      GH_TOKEN: \${{ github.token }}
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -40,20 +38,9 @@ jobs:
           python -m compileall -q research/phase327_form4_single_accession_recovery.py research/test_phase327_form4_single_accession_recovery.py
           python -m unittest -v research.test_phase327_form4_single_accession_recovery
 
-      - name: Download immutable Phase 321 and Phase 325 source artifacts
-        run: |
-          curl -fsSL -H "Accept: application/vnd.github+json" -H "Authorization: Bearer $GH_TOKEN" \
-            "https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13925636412/zip" -o phase321_source.zip
-          echo "e45cab68d1ebe15248cc76bad70b015c8f0bd2052689c0690478bbca4526965c  phase321_source.zip" | sha256sum --check
-          curl -fsSL -H "Accept: application/vnd.github+json" -H "Authorization: Bearer $GH_TOKEN" \
-            "https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13931894766/zip" -o phase325_source.zip
-          echo "6d7930230a60036931857520df07b28087720d54ae9d3bee8f4b1cfe2fbcefa3  phase325_source.zip" | sha256sum --check
-
       - name: Retry only the single quarantined accession through zero-padded SEC paths
         run: |
           python -m research.phase327_form4_single_accession_recovery \
-            --phase321-zip phase321_source.zip \
-            --phase325-zip phase325_source.zip \
             --prior-manifest research/phase326_prior_recovery_manifest_2026-11-12.json \
             --output-dir phase327_output \
             --email "$SEC_CONTACT_EMAIL"

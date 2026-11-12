@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Phase 327: recover only the sole unresolved Phase 326 Form 4 accession."""
+"""Phase 327: single-accession SEC archive recovery for the sole Phase 326 quarantine."""
 from __future__ import annotations
 
 import argparse
@@ -21,7 +21,6 @@ from research.phase320_sec_bulk_daily_index_join import (
 )
 from research.phase326_form4_collision_security_title_audit import (
     classify_symbol,
-    load_plan,
     parse_filing_header,
     parse_ownership_xml,
     path_ciks_for,
@@ -32,9 +31,10 @@ FAILED_ACCESSION = "0000939057-26-000239"
 PRIOR_PHASE326_RUN_ID = 43209373482
 PRIOR_PHASE326_ARTIFACT_ID = 13939999128
 PRIOR_PHASE326_ARTIFACT_SHA256 = "eea7eaf97b91acfdbdac866f8d98660ec98be03adc8c4038b800f74cf86d81d5"
-PRIOR_MANIFEST_SHA256 = "27da1916a60c5d725b9d16e01eeb6d8f307ab0d9cf8ca99eccd2dd22f48e2b6e"
+PRIOR_MANIFEST_SHA256 = "6f470ce22cd448c2217321a5d2e2eb5bbbcfe857987e3ae11d56df8438886a2b"
 PHASE321_SHA256 = "e45cab68d1ebe15248cc76bad70b015c8f0bd2052689c0690478bbca4526965c"
 PHASE325_SHA256 = "6d7930230a60036931857520df07b28087720d54ae9d3bee8f4b1cfe2fbcefa3"
+PHASE321_INDEX_FILE_SHA256 = "f7962a73b80234608c45f53cc5aac19b2374d5085e3fa73aa262448dce6d10a5"
 
 
 def padded_submission_urls_for(accession: str, path_cik: str):
@@ -74,14 +74,23 @@ def load_prior_manifest(path: Path):
         raise ValueError("prior_manifest_phase326_artifact_hash_mismatch")
     if manifest.get("selected_accessions") != 283 or manifest.get("retrieved") != 282:
         raise ValueError("prior_manifest_population_mismatch")
-    if manifest.get("retrieval_failures") != 1:
-        raise ValueError("prior_manifest_failure_count_mismatch")
-    if manifest.get("unresolved_accessions") != [FAILED_ACCESSION]:
-        raise ValueError("prior_manifest_unresolved_set_mismatch")
+    if manifest.get("retrieval_failures") != 1 or manifest.get("unresolved_accessions") != [FAILED_ACCESSION]:
+        raise ValueError("prior_manifest_quarantine_mismatch")
     for key in ("header_identity_matches", "xml_parsed", "xml_issuer_cik_matches",
                 "xml_symbol_matches", "xml_owner_ciks_matches"):
         if manifest.get(key) != 282:
             raise ValueError(f"prior_manifest_validated_count_mismatch:{key}")
+    row = manifest.get("unresolved_accession_row", {})
+    if (
+        normalize_accession(row.get("accession")) != FAILED_ACCESSION
+        or normalize_cik(row.get("issuer_cik")) != "1041368"
+        or list(row.get("reporting_owner_ciks") or []) != ["1972440"]
+        or row.get("form_type") != "4"
+        or row.get("filing_date") != "2026-09-25"
+        or row.get("ticker_as_filed") != "TSBK"
+        or row.get("index_file_sha256") != PHASE321_INDEX_FILE_SHA256
+    ):
+        raise ValueError("prior_manifest_unresolved_row_mismatch")
     return manifest, digest
 
 
@@ -106,10 +115,10 @@ def retrieve_zero_padded_only(row, email):
             try:
                 raw, headers = _fetch_bytes(url, ua, total_bytes)
             except Exception as exc:
-                error = f"{type(exc).__name__}:{str(exc)[:160]}"
                 attempts.append({
                     "path_cik": path_cik, "route": route, "url": url,
-                    "http_status": "", "result": "ERROR", "error": error,
+                    "http_status": "", "result": "ERROR",
+                    "error": f"{type(exc).__name__}:{str(exc)[:160]}",
                 })
                 time.sleep(MIN_REQUEST_DELAY_SECONDS)
                 continue
@@ -165,14 +174,12 @@ def retrieve_zero_padded_only(row, email):
                 "xml_issuer_symbol_match": bool(expected_symbol) and x.get("xml_issuer_symbol") == expected_symbol,
                 "xml_owner_ciks_match": owner_ok,
                 "retrieval_status": "RETRIEVED",
-                "recovery_route_attempts": attempts,
             }
             attempts.append({
                 "path_cik": path_cik, "route": route, "url": url,
                 "http_status": headers.get("http_status", ""),
                 "result": "RETRIEVED_AND_XML_IDENTITY_VALIDATED", "error": "",
             })
-            record["recovery_route_attempts"] = attempts
             return record, attempts, total_bytes[0]
 
     return None, attempts, total_bytes[0]
@@ -195,39 +202,31 @@ def write_csv(path: Path, rows):
             })
 
 
-def run(plan, manifest, manifest_digest, outdir: Path, email: str):
-    row = plan["selected"].get(FAILED_ACCESSION)
-    if not row:
-        raise ValueError("quarantined_accession_not_in_immutable_plan")
-    if normalize_cik(row.get("issuer_cik")) != "1041368":
-        raise ValueError("quarantined_issuer_cik_changed")
-    if list(row.get("reporting_owner_ciks") or []) != ["1972440"]:
-        raise ValueError("quarantined_owner_cik_changed")
-    if row.get("ticker_as_filed") != "TSBK" or row.get("filing_date") != "2026-09-25":
-        raise ValueError("quarantined_bulk_identity_changed")
-
+def run(manifest, manifest_digest, outdir: Path, email: str):
+    row = dict(manifest["unresolved_accession_row"])
     recovered, attempts, bytes_downloaded = retrieve_zero_padded_only(row, email)
     unresolved = [] if recovered else [FAILED_ACCESSION]
-    prior_relations = Counter(manifest["pair_title_relations"])
-    relation_after = dict(prior_relations)
-    relation = None
+    relation_after = Counter(manifest["pair_title_relations"])
+    recovered_relation = None
     if recovered:
         titles_a = set(recovered.get("non_derivative_titles", [])) | set(recovered.get("derivative_titles", []))
         titles_b = set(manifest["tsbk_pair"]["side_b_titles"])
-        relation = (
+        recovered_relation = (
             "OVERLAPPING_LABELS_NOT_SECURITY_IDENTITY"
             if titles_a.intersection(titles_b)
             else "DISJOINT_LABELS_NOT_SHARE_CLASS_PROOF"
         )
         relation_after["INCOMPLETE_RETRIEVAL"] = max(0, relation_after.get("INCOMPLETE_RETRIEVAL", 0) - 1)
-        relation_after[relation] = relation_after.get(relation, 0) + 1
+        relation_after[recovered_relation] += 1
+
+    final_retrieved = manifest["retrieved"] + (1 if recovered else 0)
     summary = {
         "prior_selected_accessions": manifest["selected_accessions"],
         "prior_retrieved": manifest["retrieved"],
         "retried_accessions": 1,
         "padded_route_attempts": len(attempts),
         "recovery_sec_bytes_downloaded": bytes_downloaded,
-        "final_retrieved": manifest["retrieved"] + (1 if recovered else 0),
+        "final_retrieved": final_retrieved,
         "final_unresolved_accessions": unresolved,
         "final_header_identity_matches": manifest["header_identity_matches"] + (1 if recovered else 0),
         "final_xml_parsed": manifest["xml_parsed"] + (1 if recovered else 0),
@@ -237,12 +236,16 @@ def run(plan, manifest, manifest_digest, outdir: Path, email: str):
             1 if recovered and recovered.get("xml_issuer_symbol_match") else 0
         ),
         "final_pair_title_relations": dict(sorted(relation_after.items())),
-        "recovered_pair_title_relation": relation,
+        "recovered_pair_title_relation": recovered_relation,
         "recovered_accession": FAILED_ACCESSION if recovered else None,
         "prior_phase326_transaction_code_presence_by_filing": manifest["transaction_code_presence_by_filing"],
         "prior_phase326_non_derivative_transaction_rows": manifest["non_derivative_transactions"],
         "prior_phase326_derivative_transaction_rows": manifest["derivative_transactions"],
         "prior_phase326_distinct_title_labels": manifest["distinct_title_labels"],
+        "zero_padded_http_404_count": sum("http_404" in x.get("error", "") for x in attempts),
+        "zero_padded_non_404_error_count": sum(
+            bool(x.get("error")) and "http_404" not in x.get("error", "") for x in attempts
+        ),
     }
     controls = {
         "f80_frozen": True,
@@ -269,6 +272,7 @@ def run(plan, manifest, manifest_digest, outdir: Path, email: str):
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "source": {
             "phase321_artifact_sha256": PHASE321_SHA256,
+            "phase321_index_file_sha256": PHASE321_INDEX_FILE_SHA256,
             "phase325_artifact_sha256": PHASE325_SHA256,
             "phase326_run_id": PRIOR_PHASE326_RUN_ID,
             "phase326_artifact_id": PRIOR_PHASE326_ARTIFACT_ID,
@@ -299,15 +303,12 @@ def run(plan, manifest, manifest_digest, outdir: Path, email: str):
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--phase321-zip", type=Path, required=True)
-    p.add_argument("--phase325-zip", type=Path, required=True)
     p.add_argument("--prior-manifest", type=Path, required=True)
     p.add_argument("--output-dir", type=Path, required=True)
     p.add_argument("--email", default="")
     a = p.parse_args()
-    plan = load_plan(a.phase321_zip, a.phase325_zip)
     manifest, digest = load_prior_manifest(a.prior_manifest)
-    run(plan, manifest, digest, a.output_dir, a.email)
+    run(manifest, digest, a.output_dir, a.email)
 
 
 if __name__ == "__main__":

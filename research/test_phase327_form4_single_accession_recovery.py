@@ -1,6 +1,8 @@
+from pathlib import Path
 import unittest
+
 from research.phase327_form4_single_accession_recovery import (
-    FAILED_ACCESSION, padded_submission_urls_for
+    FAILED_ACCESSION, load_prior_manifest, padded_submission_urls_for
 )
 
 class Phase327RecoveryTests(unittest.TestCase):
@@ -22,6 +24,13 @@ class Phase327RecoveryTests(unittest.TestCase):
     def test_invalid_accession_is_rejected(self):
         with self.assertRaises(ValueError):
             padded_submission_urls_for("bad-accession", "1972440")
+
+    def test_immutable_prior_manifest_and_source_lineage(self):
+        path = Path(__file__).with_name("phase326_prior_recovery_manifest_2026-11-12.json")
+        manifest, digest = load_prior_manifest(path)
+        self.assertEqual(manifest["retrieved"], 282)
+        self.assertEqual(manifest["unresolved_accessions"], [FAILED_ACCESSION])
+        self.assertEqual(len(digest), 64)
 
 if __name__ == "__main__":
     unittest.main()

@@ -58,6 +58,20 @@
     "ticker_candidate": "TSBK",
     "unresolved_accession_a": "0000939057-26-000239"
   },
+  "unresolved_accession_row": {
+    "accession": "0000939057-26-000239",
+    "filing_date": "2026-09-25",
+    "form_type": "4",
+    "index_entity_count": 2,
+    "index_file_sha256": "f7962a73b80234608c45f53cc5aac19b2374d5085e3fa73aa262448dce6d10a5",
+    "index_lag_calendar_days": 0,
+    "index_status": "MATCHED_ON_FILED_DATE",
+    "issuer_cik": "1041368",
+    "issuer_name": "RIVERVIEW BANCORP INC",
+    "quarter": "2026Q3",
+    "reporting_owner_ciks": ["1972440"],
+    "ticker_as_filed": "TSBK"
+  },
   "unresolved_accessions": [
     "0000939057-26-000239"
   ],
