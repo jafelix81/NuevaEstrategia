@@ -228,7 +228,6 @@ def merge_capture_into_ledger(
             existing["last_feed_updated_raw"] = event["feed_updated_values"][-1]
         existing["issuer_ciks"] = event.get("issuer_ciks", [])
         existing["reporting_owner_ciks"] = event.get("reporting_owner_ciks", [])
-        existing["last_entity_rows"] = current_rows
         existing["last_observed_at_utc"] = capture["capture_completed_at_utc"]
         existing["last_seen_run_id"] = capture.get("run_id")
         existing["last_seen_snapshot_complete"] = snapshot_complete
