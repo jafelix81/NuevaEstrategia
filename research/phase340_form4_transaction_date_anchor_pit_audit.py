@@ -94,10 +94,15 @@ def extract_transaction_rows(raw,expected_issuer):
 def fetch_submission(client,row):
     from research.phase320_sec_bulk_daily_index_join import normalize_accession,normalize_cik
     from research.phase326_form4_collision_security_title_audit import path_ciks_for,submission_urls_for,parse_filing_header,parse_ownership_xml
+    from research.phase327_form4_single_accession_recovery import padded_submission_urls_for
     accession=normalize_accession(row["accession"]);issuer=normalize_cik(row["issuer_cik"])
     errors=[]
     for path_cik in path_ciks_for(accession,issuer,[]):
-        for route,url in submission_urls_for(accession,path_cik):
+        routes=submission_urls_for(accession,path_cik)+padded_submission_urls_for(accession,path_cik)
+        seen=set()
+        for route,url in routes:
+            if url in seen:continue
+            seen.add(url)
             raw,status,err,headers=client.get(url,max_bytes=30_000_000)
             if raw is None:
                 errors.append({"path_cik":path_cik,"route":route,"status":status,"error":err or ""});continue
