@@ -187,6 +187,17 @@ def compare_common_role_labels(member_profiles: list[dict]) -> dict:
     }
 
 
+def compare_cross_role_text(member_profiles: list[dict]) -> list[str]:
+    text_sets = [
+        {clean_text(x.get("text") or "") for x in (member.get("labels") or [])
+         if clean_text(x.get("text") or "")}
+        for member in member_profiles
+    ]
+    if not text_sets:
+        return []
+    return sorted(set.intersection(*text_sets))
+
+
 def compare_documentation(member_profiles: list[dict]) -> str:
     sets = [tuple(sorted(set(x.get("documentation") or []))) for x in member_profiles]
     if not sets or not all(sets):
@@ -324,6 +335,7 @@ def run_audit(input_path: Path, output_dir: Path, skip_network: bool = False) ->
                 "instance_hashes_match": all(x.get("instance_hash_match") is True for x in rows),
             })
         common = compare_common_role_labels(member_profiles)
+        cross_role_text_overlap = compare_cross_role_text(member_profiles)
         docs_status = compare_documentation(member_profiles)
         title_sets = [tuple(x["same_context_security_titles"]) for x in member_profiles]
         title_status = (
@@ -335,6 +347,7 @@ def run_audit(input_path: Path, output_dir: Path, skip_network: bool = False) ->
             "member_count": len(member_profiles),
             "members": member_profiles,
             **common,
+            "cross_role_text_overlap": cross_role_text_overlap,
             "documentation_comparison": docs_status,
             "same_context_title_comparison": title_status,
             "classification": classify_alias(common, docs_status),
@@ -351,6 +364,9 @@ def run_audit(input_path: Path, output_dir: Path, skip_network: bool = False) ->
         ),
         "groups_with_common_role_label_conflict": sum(
             bool(x["conflicting_common_role_keys"]) for x in alias_profiles
+        ),
+        "groups_with_cross_role_text_overlap": sum(
+            bool(x["cross_role_text_overlap"]) for x in alias_profiles
         ),
         "groups_without_common_role_label": sum(
             not x["common_role_keys"] for x in alias_profiles
