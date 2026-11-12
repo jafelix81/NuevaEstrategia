@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Phase 328: conservative SEC prior-filing XBRL identity pilot for Form 4 ticker collisions.
+"""Phase 328: conservative SEC prior-filing XBRL identity pilot for Form 4 ticker collisions, sourced from the successful Phase 325 artifact.
 
 This is an identity/coverage audit only. It uses the latest eligible periodic filing
 strictly before each sampled Form 4 collision date, preserves XBRL contexts, and never
@@ -25,8 +25,8 @@ from urllib.request import Request, urlopen
 import xml.etree.ElementTree as ET
 
 PHASE = 328
-PHASE326_ARTIFACT_ID = 13939999128
-PHASE326_ARTIFACT_SHA256 = "eea7eaf97b91acfdbdac866f8d98660ec98be03adc8c4038b800f74cf86d81d5"
+PHASE325_ARTIFACT_ID = 13931894766
+PHASE325_ARTIFACT_SHA256 = "6d7930230a60036931857520df07b28087720d54ae9d3bee8f4b1cfe2fbcefa3"
 EXPECTED_PAIRS = 28
 ALLOWED_FORMS = {
     "10-K", "10-K/A", "10-Q", "10-Q/A", "20-F", "20-F/A", "40-F", "40-F/A",
@@ -73,27 +73,32 @@ def load_collision_pairs(path: Path) -> list[dict]:
     if digest != PHASE326_ARTIFACT_SHA256:
         raise ValueError(f"phase326_artifact_sha256_mismatch:{digest}")
     with zipfile.ZipFile(io.BytesIO(raw)) as zf:
-        names = [n for n in zf.namelist() if n.endswith("phase326_pair_summary.csv")]
+        names = [n for n in zf.namelist() if n.endswith("phase325_same_day_symbol_collisions.csv")]
         if len(names) != 1:
-            raise ValueError("expected_one_phase326_pair_summary_csv")
+            raise ValueError("expected_one_phase325_same_day_symbol_collisions_csv")
         rows = list(csv.DictReader(io.StringIO(zf.read(names[0]).decode("utf-8-sig"))))
     if len(rows) != EXPECTED_PAIRS:
-        raise ValueError(f"phase326_pair_count_mismatch:{len(rows)}")
+        raise ValueError(f"phase325_pair_count_mismatch:{len(rows)}")
     required = {
-        "pair_id", "ticker_candidate", "issuer_cik_a", "issuer_name_a",
+        "ticker_candidate", "issuer_cik_a", "issuer_name_a",
         "issuer_cik_b", "issuer_name_b", "shared_filing_dates",
     }
     if not required.issubset(rows[0]):
-        raise ValueError("phase326_pair_schema_mismatch")
+        raise ValueError("phase325_collision_schema_mismatch")
     seen = set()
-    for row in rows:
-        if not row["pair_id"] or row["pair_id"] in seen:
-            raise ValueError("duplicate_or_missing_pair_id")
-        seen.add(row["pair_id"])
+    shared_date_count = 0
+    for index, row in enumerate(rows, 1):
         row["issuer_cik_a"] = norm_cik(row["issuer_cik_a"])
         row["issuer_cik_b"] = norm_cik(row["issuer_cik_b"])
-        row["event_date"] = latest_shared_date(row["shared_filing_dates"])
         row["ticker_candidate"] = norm_symbol(row["ticker_candidate"])
+        row["pair_id"] = f"P{index:02d}_{row['ticker_candidate']}_{row['issuer_cik_a']}_{row['issuer_cik_b']}"
+        if row["pair_id"] in seen:
+            raise ValueError("duplicate_collision_pair_id")
+        seen.add(row["pair_id"])
+        row["event_date"] = latest_shared_date(row["shared_filing_dates"])
+        shared_date_count += len([x for x in row["shared_filing_dates"].split(";") if x.strip()])
+    if shared_date_count != 42:
+        raise ValueError(f"phase325_shared_date_count_mismatch:{shared_date_count}")
     return rows
 
 
@@ -550,9 +555,9 @@ def run(input_zip: Path, outdir: Path, email: str) -> dict:
         "generated_at_utc": __import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat(),
         "source": {
             "provider": "U.S. Securities and Exchange Commission",
-            "phase326_run_id": 43209373482,
-            "phase326_artifact_id": PHASE326_ARTIFACT_ID,
-            "phase326_artifact_sha256": PHASE326_ARTIFACT_SHA256,
+            "phase325_run_id": 43196055022,
+            "phase325_artifact_id": PHASE325_ARTIFACT_ID,
+            "phase325_artifact_sha256": PHASE325_ARTIFACT_SHA256,
             "selection": "latest shared collision date per pair; latest supported periodic filing strictly before that date",
             "forms": sorted(ALLOWED_FORMS),
         },
