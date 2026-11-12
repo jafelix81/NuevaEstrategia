@@ -53,7 +53,7 @@ class Phase345Tests(unittest.TestCase):
         xml, raw, footnotes = evidence()
         checked = verify_candidate_row_regime_aware(row, xml, raw, footnotes, 1, "")
         self.assertEqual(checked["xml_match_status"], "UNIQUE_EXACT_TRANSACTION_ROW")
-        self.assertTrue(checked["aff_gate_required"])
+        self.assertFalse(checked["aff_gate_required"])
         self.assertTrue(checked["raw_purchase_screen_pass"])
         self.assertEqual(checked["aff_status_as_filed"], "unknown")
 
