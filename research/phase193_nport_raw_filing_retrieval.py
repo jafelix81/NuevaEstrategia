@@ -292,6 +292,11 @@ def parse_index_listing(payload: bytes, accession: str, primary_document: str) -
     }
 
 
+def normalize_cik(value: object) -> str:
+    digits = re.sub(r"\D", "", str(value or ""))
+    return digits.zfill(10) if 0 < len(digits) <= 10 else ""
+
+
 def resolve_fund_identity(parsed: dict[str, object], index_meta: dict[str, object], expected_cik: str) -> dict[str, object]:
     """Resolve the N-PORT fund even when the optional EDGAR Series ID is absent.
 
@@ -300,10 +305,9 @@ def resolve_fund_identity(parsed: dict[str, object], index_meta: dict[str, objec
     and the reported series name. A missing Series ID is not itself a parser
     failure when those fields reconcile.
     """
-    digits = lambda value: re.sub(r"\D", "", str(value or ""))
-    expected = digits(expected_cik)
-    xml_cik = digits(parsed.get("registrant_cik"))
-    index_cik = digits(index_meta.get("cik"))
+    expected = normalize_cik(expected_cik)
+    xml_cik = normalize_cik(parsed.get("registrant_cik"))
+    index_cik = normalize_cik(index_meta.get("cik"))
     xml_file = re.sub(r"\s+", "", str(parsed.get("registrant_file_number") or "")).upper()
     index_file = re.sub(r"\s+", "", str(index_meta.get("file_number") or "")).upper()
     series_name = re.sub(r"\s+", " ", str(parsed.get("series_name") or "")).strip()

@@ -11,6 +11,7 @@ from research.phase193_nport_raw_filing_retrieval import (
     parse_nport_xml,
     parse_submission_header,
     submission_header_diagnostic,
+    normalize_cik,
     resolve_fund_identity,
     run_audit,
 )
@@ -145,10 +146,14 @@ class Phase193Tests(unittest.TestCase):
             "class_ids": ["C000843102", "C000843201"],
         }
         index_meta = {"cik": "0001467631", "file_number": "811-22312", "series_ids": [], "class_ids": []}
-        result = resolve_fund_identity(parsed, index_meta, "0001467631")
+        result = resolve_fund_identity(parsed, index_meta, "1467631")
         self.assertTrue(result["gate_pass"])
         self.assertFalse(result["series_id_present"])
         self.assertEqual(result["state"], "OPTIONAL_SERIES_ID_ABSENT_CIK_FILE_NUMBER_SERIES_NAME_RESOLVED")
+
+    def test_cik_normalization_zero_pads_registry_cik(self):
+        self.assertEqual(normalize_cik("1467631"), "0001467631")
+        self.assertEqual(normalize_cik("0001467631"), "0001467631")
 
     def test_fund_identity_rejects_registrant_cik_mismatch(self):
         parsed = {"registrant_cik":"0001467631","registrant_file_number":"811-22312",
