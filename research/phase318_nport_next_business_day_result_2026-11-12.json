@@ -1,0 +1,29 @@
+{
+  "acceptance_at_or_after_1730_et": 15,
+  "acceptance_calendar_date_matches_filed_date": 266,
+  "after_1730_acceptance_same_filed_date_unresolved": 1,
+  "after_1730_acceptance_with_next_edgar_business_day_filed_date": 14,
+  "all_14_date_shifts_match_next_edgar_business_day": true,
+  "classification_counts": {
+    "NEXT_EDGAR_BUSINESS_DAY_CONSISTENT_NOT_PROOF_OF_TRANSMISSION_START": 14,
+    "SAME_CALENDAR_DATE_ACCEPTANCE_BEFORE_1730": 265,
+    "SAME_FILED_DATE_ACCEPTANCE_AFTER_1730_TRANSMISSION_START_UNOBSERVED": 1
+  },
+  "conservative_backtest_availability_rule": "Use official FILED AS OF DATE / master-index filing date as a date-level anchor only; permit strategy use from the first full XNYS session strictly after that date. Do not use report date or acceptance timestamp as first-public time.",
+  "date_shift_distribution_calendar_days": {"1": 12, "3": 2},
+  "first_public_receipt_time_verified": false,
+  "master_index_date_matches": 280,
+  "nport_in_sec_10pm_exception_list": false,
+  "phase": 318,
+  "rule_interpretation": "17 CFR 232.13 uses the time direct transmission commences, not ACCEPTANCE-DATETIME. The 14 after-cutoff acceptance/date-shift rows are consistent with next-business-day filing, but do not prove when transmission commenced. The one same-filed-date acceptance after 17:30 remains unresolved and is not treated as a rule violation.",
+  "sec_business_calendar": "Monday-Friday excluding observed US federal holidays, per SEC EDGAR status guidance",
+  "source_accessions_unique": 280,
+  "source_phase": 317,
+  "source_sample_accessions": 280,
+  "source_urls": {
+    "17_cfr_232_13": "https://www.ecfr.gov/current/title-17/chapter-II/part-232/section-232.13",
+    "sec_status_guidance": "https://www.sec.gov/submit-filings/filer-support-resources/how-do-i-guides/determine-status-my-filing"
+  },
+  "status": "PASS_NPORT_NEXT_EDGAR_BUSINESS_DAY_ADJUDICATION",
+  "transmission_start_time_observed": false
+}
