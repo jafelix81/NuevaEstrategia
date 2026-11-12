@@ -150,6 +150,21 @@ def build_accession_events(pages_by_form: dict) -> tuple[list[dict], dict]:
 def compact_ledger(ledger: dict) -> dict:
     ledger.setdefault("accessions", {})
     for record in ledger["accessions"].values():
+        # The initial Phase 308 run used capture_started_at_utc as a placeholder
+        # before page-level response-completion timestamps were implemented.
+        # Those first-snapshot records are left-censored, so do not retain that
+        # pre-response value as if it were an actual collector observation.
+        if (
+            record.get("first_seen_run_id") == "43142830440"
+            and record.get("first_observation_lower_bound_quality") == "left_censored_no_prior_complete_capture"
+            and record.get("first_observation_timestamp_quality") != "legacy_capture_start_pre_response_not_observation"
+        ):
+            record["legacy_capture_started_at_utc"] = record.get("first_observed_at_utc")
+            record["first_observed_at_utc"] = None
+            record["first_observation_interval_end_utc"] = None
+            record["first_observation_interval_width_minutes"] = None
+            record["first_observation_interval_valid"] = False
+            record["first_observation_timestamp_quality"] = "legacy_capture_start_pre_response_not_observation"
         seen = record.pop("entity_rows_seen", {})
         last_rows = record.pop("last_entity_rows", [])
         rows = list(seen.values()) if isinstance(seen, dict) else []
