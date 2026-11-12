@@ -18,11 +18,11 @@ def parse_json_list(value):
         return []
 
 def normalize_cik(value):
-    digits = re.sub(r"\\D", "", str(value or ""))
+    digits = re.sub(r"\D", "", str(value or ""))
     return digits.zfill(10) if digits and len(digits) <= 10 else digits
 
 def normalize_cusip(value):
-    return re.sub(r"\\s+", "", str(value or "")).upper()
+    return re.sub(r"\s+", "", str(value or "")).upper()
 
 def cusip_checksum_valid(value):
     cusip = normalize_cusip(value)
