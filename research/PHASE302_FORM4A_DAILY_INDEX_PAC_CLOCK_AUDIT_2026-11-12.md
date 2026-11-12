@@ -6,7 +6,7 @@
 
 ## Objective
 
-Extend the Phase 281/283/295 daily-index knowledge-date pilot to the Phase 301 intermediate-era Form 4/A sample. Measure whether original and amendment accessions appear on the same or different daily-index dates, preserve SEC-HEADER acceptance chronology separately, and avoid treating date-granular indexes as exact first-public timestamps.
+Extend the Phase 281/283/295 daily-index knowledge-date pilot to the Phase 301 intermediate-era Form 4/A sample. Measure whether original and amendment accessions appear on the same or different daily-index dates, preserve SEC-HEADER acceptance chronology separately, and avoid treating date-granular indexes as exact first-public timestamps. **Scope limitation:** this phase compares Form 4/A amendment accessions; it did not retrieve PDS `.pc` files, EDGAR Feed/Oldloads PAC records, or SEC staff correction/deletion notices. Form 4/A amendments are not equivalent to post-acceptance corrections (PAC).
 
 ## Sample and source integrity
 
@@ -63,6 +63,7 @@ The 24 unique candidate pairs all passed the SEC acceptance chronology check. In
 6. Unique parent links remain metadata-corroborated rather than authoritative accession foreign-key relationships.
 7. Reporting-owner sets are accession-level; they do not establish transaction-line-to-individual-owner attribution.
 8. Effective-dated issuer/security-class identity, inactive/delisted coverage and broad-universe price coverage remain open.
+9. No actual PAC event stream was captured or reconciled. The report title's PAC/correction wording refers to the unresolved clock question; the observed events are Form 4/A amendments only.
 
 **Conservative research rule:** use the earliest index date only when the entire requested window was retrieved and parsed and the index identity matches issuer, form and filing date. For any later test, do not enter before the close of the next full XNYS session after that index date. If the index window is incomplete or identity fails, the event is unavailable; do not fall back to filing date or acceptance time.
 
@@ -93,7 +94,7 @@ Two preliminary attempts failed before any SEC request: the first regression omi
 Next gate:
 - Build a targeted, stratified sample across multiple historical periods with Form 4/4-A acceptances in the 17:30–22:00 ET window, especially 21:30–22:00, plus submissions that miss the 22:00 cutoff and receive a next-business-day filing date.
 - Capture filing date, acceptance time, daily-index first observed date and same-day/next-business-day index appearances.
-- Inspect same-day correction/PAC sequences separately; daily-index date alone cannot order them intraday.
+- Inspect actual PAC/deletion events separately if a feasible public event record can be identified; do not treat Form 4/A amendments as PAC. Daily-index date alone cannot order same-day amendments intraday.
 - Continue effective-dated issuer/security-class identity and owner/transaction attribution.
 - Only after these source gates pass, preregister a fresh chronological test against frozen LTM/F80 with identical exposure/costs, date/issuer/owner-clustered bootstrap, LOO, multiplicity control and a new prospective holdout.
 
