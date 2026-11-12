@@ -25,7 +25,7 @@ XML = """<?xml version="1.0" encoding="UTF-8"?>
     <invstOrSecs>
       <invstOrSec>
         <name>American Express Co</name><title>Issuer description without stock wording</title>
-        <cusip>025816109</cusip><identifiers><isin>US0258161092</isin><ticker>AXP</ticker></identifiers>
+        <cusip>025816109</cusip><identifiers><isin value="US0258161092"/><ticker value="AXP"/></identifiers>
         <balance>-5560.000000000000</balance><units>NS</units><valUSD>-856351.200000000000</valUSD>
         <pctVal>-0.6521848428</pctVal><payoffProfile>Short</payoffProfile><assetCat>EC</assetCat>
         <issuerCat>CORP</issuerCat><invCountry>US</invCountry>
@@ -101,7 +101,11 @@ class Phase312NportRawSampleTests(unittest.TestCase):
         self.assertEqual(rows[0]["issue_title"], "Issuer description without stock wording")
         self.assertTrue(rows[0]["sign_concordant"])
         self.assertEqual(rows[0]["cusip"], "025816109")
+        self.assertEqual(rows[0]["isin"], "US0258161092")
         self.assertEqual(rows[0]["ticker"], "AXP")
+        self.assertTrue(rows[0]["cusip_valid_format"])
+        self.assertTrue(rows[0]["isin_valid_format"])
+        self.assertTrue(rows[0]["ticker_reported"])
 
     def test_nonnegative_signs_are_not_sign_concordant(self):
         from research.phase312_nport_raw_sample_audit import parse_holding_rows
@@ -118,6 +122,14 @@ class Phase312NportRawSampleTests(unittest.TestCase):
         candidates, total = parse_holding_rows(root)
         self.assertEqual(len(candidates), 2)
         self.assertNotIn("Wrong country", [x["issuer_name"] for x in candidates])
+
+    def test_n_a_placeholders_are_not_counted_as_security_identifiers(self):
+        from research.phase312_nport_raw_sample_audit import normalize_identifier, is_valid_cusip, is_valid_isin
+        self.assertEqual(normalize_identifier("N/A"), "")
+        self.assertFalse(is_valid_cusip("N/A"))
+        self.assertFalse(is_valid_isin("N/A"))
+        self.assertTrue(is_valid_cusip("025816109"))
+        self.assertTrue(is_valid_isin("US0258161092"))
 
     def test_decimal_value_rejects_nonfinite_and_invalid(self):
         self.assertIsNone(decimal_value("NaN"))
