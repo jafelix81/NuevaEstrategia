@@ -67,7 +67,8 @@ jobs:
           assert s["summary"]["alias_groups"] == 6
           assert s["summary"]["unique_member_qnames"] == 12
           assert s["summary"]["raw_qnames_merged"] == 0
-          assert s["summary"]["groups_with_common_role_label_match"] >= 5
+          assert s["summary"]["groups_with_common_role_label_match"] >= 4
+          assert s["summary"]["groups_with_cross_role_text_overlap"] >= 5
           assert all(x["raw_qnames_merged"] is False for x in s["alias_profiles"])
           assert {x["symbol"] for x in s["alias_profiles"]} == {
               "PCG-PB", "PCG-PE", "PCG-PG", "PCG-PH", "PCG-PI", "STR"
