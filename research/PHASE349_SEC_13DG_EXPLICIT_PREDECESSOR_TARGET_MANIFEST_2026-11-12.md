@@ -61,3 +61,6 @@ The hosted workflow replays this manifest from the immutable Phase 84 and Phase 
 ## Hosted regression correction — 2026-11-12
 
 The first hosted replay, [run 43325883938](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43325883938), passed Phases 347–348 but stopped in two Phase 349 test fixtures before any manifest replay or SEC request. One fixture attempted to mutate a tuple; the other exposed that the normalization test covered undashed accessions but not the dashed SEC representation. Both fixtures and the dashed-accession path are corrected, and a JSON-writer regression test was added. The next hosted replay is the acceptance gate; the target manifest remains offline-only.
+
+
+The second hosted replay, [run 43326083200](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43326083200), passed Phases 347–348 but found a source-code escaping defect in the Phase 349 whitespace-normalization expression before the manifest tests could run. The implementation now uses character-wise digit/whitespace normalization rather than regex escaping, and the test suite explicitly covers dashed accessions. No SEC retrieval occurred.
