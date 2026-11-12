@@ -270,7 +270,7 @@ def merge_capture_into_ledger(
     if repo_snapshot_due:
         ledger["last_repo_snapshot_date"] = today_utc
     ledger["repo_snapshot_due"] = repo_snapshot_due
-    ledger["total_capture_count" = len(ledger["captures"])
+    ledger["total_capture_count"] = len(ledger["captures"])
     ledger["total_unique_accessions"] = len(ledger["accessions"])
 
     merge_summary = {
