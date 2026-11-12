@@ -1,0 +1,6 @@
+event_year,observations,retrieved_documents,source_hash_verified,coverpage_symbol_header_found,visible_symbols_extracted,candidate_matches
+2006,7,7,7,0,0,0
+2012,15,15,15,0,0,0
+2023,2,2,2,0,0,0
+2026,1,1,1,0,0,0
+TOTAL,25,25,25,0,0,0
