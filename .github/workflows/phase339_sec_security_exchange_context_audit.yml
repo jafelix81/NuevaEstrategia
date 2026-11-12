@@ -78,3 +78,5 @@ jobs:
 # Workflow file revision to ensure the branch push is observed.
 
 # Retry transient GitHub artifact redirect/server errors before failing the pinned-source gate.
+
+# Phase 339 uses SEC Submissions to recover the exact primaryDocument before re-fetching the pinned instance.
