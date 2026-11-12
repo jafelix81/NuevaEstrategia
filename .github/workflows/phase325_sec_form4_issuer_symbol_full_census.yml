@@ -1,0 +1,101 @@
+name: Phase 325 SEC Form 4 issuer-symbol full census audit
+
+on:
+  push:
+    branches:
+      - phase325-sec-form4-issuer-symbol-full-census
+    paths:
+      - ".github/workflows/phase325_sec_form4_issuer_symbol_full_census.yml"
+      - "research/phase325_form4_issuer_symbol_full_census_audit.py"
+      - "research/test_phase325_form4_issuer_symbol_full_census_audit.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: phase325-sec-form4-issuer-symbol-full-census
+  cancel-in-progress: false
+
+jobs:
+  issuer-symbol-census:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+
+      - name: Compile and run offline regressions
+        run: |
+          python -m compileall -q research/phase325_form4_issuer_symbol_full_census_audit.py research/test_phase325_form4_issuer_symbol_full_census_audit.py
+          python -m unittest -v research.test_phase325_form4_issuer_symbol_full_census_audit
+
+      - name: Download immutable Phase 321 source artifact
+        run: |
+          curl -fsSL -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13925636412/zip" \
+            -o phase321_source.zip
+          echo "e45cab68d1ebe15248cc76bad70b015c8f0bd2052689c0690478bbca4526965c  phase321_source.zip" | sha256sum --check
+
+      - name: Audit six-quarter issuer-symbol quality and exact-date collisions
+        run: |
+          mkdir -p phase325_output
+          python -m research.phase325_form4_issuer_symbol_full_census_audit \
+            --input-zip phase321_source.zip \
+            --output-json phase325_output/phase325_issuer_symbol_audit.json \
+            --output-csv phase325_output/phase325_period_summary.csv \
+            --output-collision-csv phase325_output/phase325_same_day_symbol_collisions.csv
+
+      - name: Enforce census, identity and frozen-baseline controls
+        run: |
+          python - <<'PY'
+          import json, sys
+          p = "phase325_output/phase325_issuer_symbol_audit.json"
+          r = json.load(open(p, encoding="utf-8"))
+          s = r["summary"]
+          if s["total_accessions"] != 317267 or s["unique_issuer_ciks"] != 11637:
+              sys.exit("Phase 321 source census identity mismatch")
+          if s["canonical_symbol_rows"] != 311245:
+              sys.exit("Canonical as-filed symbol row count mismatch")
+          if s["ticker_candidates_reused_across_ciks_across_sampled_quarters"] != 637:
+              sys.exit("Cross-quarter ticker reuse diagnostic mismatch")
+          if s["same_day_symbol_collision_pairs_across_sampled_quarters"] != 28:
+              sys.exit("Exact same-day symbol collision diagnostic mismatch")
+          if s["ticker_candidates_with_same_day_multiple_issuer_ciks"] != 28:
+              sys.exit("Same-day ticker-candidate collision count mismatch")
+          c = r["controls"]
+          for key in ("strict_pit_security_master_admitted", "alpha_test_authorized",
+                      "return_test_run", "alpha_test_run", "bootstrap_loo_run",
+                      "chronological_oos_run", "holdout_used", "production_changed",
+                      "universe_changed", "capital_changed", "parameters_changed",
+                      "vendor_contacted", "data_purchased", "raw_sec_bytes_uploaded",
+                      "email_sent"):
+              if c.get(key) is not False:
+                  sys.exit("Research control unexpectedly opened: " + key)
+          if c.get("f80_frozen") is not True:
+              sys.exit("F80 frozen control failed")
+          if r["interpretation"]["issuer_trading_symbol_is_security_key"] is not False:
+              sys.exit("As-filed ticker was incorrectly promoted to a security key")
+          print("PHASE325_STATUS=" + r["status"])
+          print("SUMMARY=" + str({k:v for k,v in s.items() if k not in ("periods","same_day_symbol_collisions")}))
+          print("PERIODS=" + str(s["periods"]))
+          print("CONTROLS=" + str(c))
+          PY
+
+      - name: Upload parsed metadata and collision diagnostics only
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase325-sec-form4-issuer-symbol-full-census
+          path: phase325_output/
+          retention-days: 90
+          if-no-files-found: warn
