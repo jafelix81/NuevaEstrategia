@@ -222,7 +222,13 @@ def load_source(path: Path) -> dict:
     if digest != SOURCE_AUDIT_JSON_SHA256:
         raise ValueError(f"phase336_audit_json_sha256_mismatch:{digest}")
     source = json.loads(path.read_text(encoding="utf-8"))
-    if source.get("phase") != 336 or source.get("source", {}).get("artifact_id") != SOURCE_ARTIFACT_ID:
+    provenance = source.get("source", {})
+    if (
+        source.get("phase") != 336
+        or provenance.get("phase") != 334
+        or provenance.get("artifact_id") != 13947767592
+        or provenance.get("run_id") != 43226260351
+    ):
         raise ValueError("phase336_source_not_admitted")
     if source.get("summary", {}).get("documents_with_instance_hash_match") != 8:
         raise ValueError("phase336_instance_hash_gate_failed")
