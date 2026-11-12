@@ -1,0 +1,94 @@
+name: Phase 302 SEC Form 4/A daily-index and PAC clock audit
+
+on:
+  push:
+    branches:
+      - phase302-form4a-daily-index-pac-clock-audit
+    paths:
+      - research/phase302_form4a_daily_index_pac_clock_audit.py
+      - research/test_phase302_form4a_daily_index_pac_clock_audit.py
+      - .github/workflows/phase302_form4a_daily_index_pac_clock_audit.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase302-form4a-daily-index-pac-clock-audit
+  cancel-in-progress: false
+
+jobs:
+  daily-index-pac-clock:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      SEC_CONTACT_EMAIL: \${{ secrets.SEC_CONTACT_EMAIL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+
+      - name: Compile and run lineage, parser, and clock regressions
+        run: |
+          set -euo pipefail
+          python -m py_compile research/phase283_sec_daily_index_parser.py
+          python -m py_compile research/phase295_sec_form4_daily_index_pit_pilot.py
+          python -m py_compile research/phase299_form4a_edgar_validation.py
+          python -m py_compile research/phase300_form4a_xml_bulk_reconciliation.py
+          python -m py_compile research/phase301_form4a_intermediate_validation.py
+          python -m py_compile research/phase302_form4a_daily_index_pac_clock_audit.py
+          python -m unittest discover -s research -p 'test_phase153_*.py' -v
+          python -m unittest discover -s research -p 'test_phase299_*.py' -v
+          python -m unittest discover -s research -p 'test_phase300_*.py' -v
+          python -m unittest discover -s research -p 'test_phase301_*.py' -v
+          python -m unittest discover -s research -p 'test_phase302_*.py' -v
+
+      - name: Retrieve SEC archives, submissions, and historical daily indexes
+        env:
+          SEC_CONTACT_EMAIL: \${{ secrets.SEC_CONTACT_EMAIL }}
+        run: |
+          set -euo pipefail
+          test -n "$SEC_CONTACT_EMAIL"
+          python -u research/phase302_form4a_daily_index_pac_clock_audit.py \
+            --output-dir phase302_output \
+            --contact-email "$SEC_CONTACT_EMAIL"
+
+      - name: Enforce source completeness and no-promotion controls
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path("phase302_output/phase302_validation_result.json")
+          if not p.exists():
+              raise SystemExit("Phase 302 result missing")
+          r = json.loads(p.read_text(encoding="utf-8"))
+          s = r["summary"]
+          assert r["status"] == "COMPLETED_2023_FORM4A_DAILY_INDEX_PAC_CLOCK_AUDIT", r["status"]
+          assert s["submission_downloaded"] == s["sample_documents"]
+          assert s["submission_header_reconciled"] == s["sample_documents"]
+          assert s["index_file_parse_or_write_errors"] == 0
+          assert r["controls"]["strict_pit_admitted"] is False
+          assert r["controls"]["first_public_timestamp_verified"] is False
+          assert r["controls"]["alpha_test"] is False
+          assert r["controls"]["holdout_used"] is False
+          assert r["controls"]["f80_frozen"] is True
+          print("PHASE302_STATUS=" + r["status"])
+          print(json.dumps(s, indent=2))
+          print("STRICT_PIT=false FIRST_PUBLIC_TIMESTAMP=false ALPHA=false HOLDOUT=false F80_FROZEN=true")
+          PY
+
+      - name: Upload raw source and audit artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase302-form4a-daily-index-pac-clock-audit
+          path: phase302_output/
+          if-no-files-found: warn
+          retention-days: 90
+          compression-level: 6
