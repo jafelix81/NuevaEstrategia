@@ -4,7 +4,9 @@
 **Source Phase 312 run:** [43157888685](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43157888685)  
 **Source artifact:** [13915839847](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43157888685/artifacts/13915839847)  
 **Source artifact SHA-256:** 78586bd1dbbbd12473ce6d0f75cdee360991541e99a9e2eb45641005f81a4287  
-**Disposition:** parser correction verified against all 56 immutable raw submissions; Phase 312 series/class identity labels are superseded. No return or alpha test.
+**Disposition:** parser correction verified against all 56 immutable raw submissions; Phase 312 series/class identity labels are superseded. No return or alpha test.  
+**Phase 313 workflow:** [run 43160004366 — SUCCESS](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43160004366) · [artifact 13916694212](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43160004366/artifacts/13916694212)  
+**Phase 313 artifact SHA-256:** 957cfecdcf5fc740597b4b1f161b3f6c58731c93c307ec57f8f4aea48839a1ed
 
 ## Executive finding
 
@@ -106,10 +108,10 @@ Next: resolve the original Otter Creek filing by scanning the 2022 Q3 NPORT-P ca
 
 ## Validation and controls
 
-- 8/8 new offline regression tests passed locally.
+- 8/8 new offline regression tests passed locally and in GitHub Actions run 43160004366.
 - 56/56 raw-file hashes matched the Phase 312 reconciliation ledger.
 - 53/56 series IDs and 53/56 class IDs matched header to XML; zero mismatches.
-- No new SEC request was made; no raw bytes were modified.
+- No new SEC request was made; no raw bytes were modified. The first workflow attempt (43159947904) failed only at cross-run artifact download because the token expression was escaped incorrectly; the expression was corrected, and the second run passed.
 - No return/alpha test, bootstrap, LOO, chronological OOS or holdout use.
 - No vendor contact or purchase; no email sent.
 - F80_TOP20_PARTIAL50_BASELINE_C20, production, universe, capital and parameters remain unchanged.
