@@ -37,7 +37,7 @@ The sum of absolute reported short value is $49,202,870.08 (25.6799 reported NAV
 - All 67 position rows in the 2022 original, 2022 amendment and 2023 control were emitted with CUSIP, ISIN and ticker.
 - No new SEC request was made; only the immutable Phase 314 artifact was reprocessed.
 
-Five preliminary Phase 315 workflow attempts failed in workflow setup (cross-run token interpolation, missing dependency and direct-script import path). Those attempts produced no accepted research artifact and made no SEC requests. The final run above passed; only its artifact is authoritative.
+Five preliminary Phase 315 attempts failed before producing a research artifact: four from an incorrectly escaped cross-run token expression and one because direct script execution lacked the repository root on the import path. The final run corrected both. The requests dependency was installed to reuse the Phase 312 parser; no SEC request was made in any Phase 315 attempt.
 
 ## Research disposition
 
