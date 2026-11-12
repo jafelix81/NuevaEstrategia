@@ -1,26 +1,26 @@
 # Smart Money Research — current state (2026-11-12 UTC)
 
-**Latest completed research:** Phase 334 — stratified SEC XBRL symbol-to-class coverage with a hard 365-calendar-day fresh-anchor and completeness gate.  
-**Active research branch:** phase334-sec-stratified-symbol-class-coverage.  
-**Review:** [PR #23](https://github.com/jafelix81/NuevaEstrategia/pull/23), draft/open, based on Phase 333. No PR was merged.
+**Latest completed research:** Phase 335 — SEC taxonomy-member drift and listing-exchange-axis stability, based on the immutable Phase 334 artifact.  
+**Active research branch:** phase335-sec-taxonomy-member-and-listing-axis-stability.  
+**Review:** [PR #24](https://github.com/jafelix81/NuevaEstrategia/pull/24), draft/open, based on Phase 334. No PR was merged.
 
-## Latest results — Phases 332–334
+## Latest results — Phases 332–335
 
-- **Phase 332 — event-driven corporate-action identity:** 56 issuer-side observations across 28 purposive ticker-collision pairs; 56/56 SEC submissions responses; 182 candidate event filings; 178 retrieved. The result contains 38 fresh-anchor observations after a 365-day rule, 6 stale anchors and 12 with no supported periodic anchor. [Report](PHASE332_SEC_EVENT_DRIVEN_CORPORATE_ACTION_IDENTITY_FEASIBILITY_2026-11-12.md) · [Run](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43222287571).
-- **Phase 333 — direct symbol/class binding pilot:** 9 unique, hash-pinned pre-event documents; 9/9 hashes and symbol sets matched; 25 TradingSymbol facts, 20 with class-axis dimensions. Four documents directly bound every symbol fact; five had issuer-level symbol facts without a class axis. [Report](PHASE333_SEC_TRADING_SYMBOL_SHARE_CLASS_BINDING_AUDIT_2026-11-12.md) · [Run](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43224074720).
-- **Phase 334 — expanded fresh-anchor sample:** 38/56 complete fresh anchors across 25 pairs; 6 stale and 12 without an anchor; zero incomplete windows. It rechecked 26 unique symbol-bearing accessions from nine pairs, collapsed 9 co-filer duplicate rows after hash/schema agreement, and found zero conflicts. All 26 SHA-256 hashes and all 26 TradingSymbol sets matched. [Report](PHASE334_SEC_STRATIFIED_SYMBOL_CLASS_COVERAGE_2026-11-12.md) · [Run](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43226260351) · [Artifact](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43226260351/artifacts/13947767592).
-- **Class binding:** 98 symbol facts; 86 have a class axis on the TradingSymbol fact's own context (87.8%). Fourteen documents bind every symbol fact directly; twelve have no direct class binding. Twenty unique symbols have at least one class-axis fact; six do not.
-- **Listing exchange:** 18 TradingSymbol facts in two PCG filings carry a direct EntityListingsExchangeAxis: PCG/PCGU map to NYSE and eight preferred symbols map to NYSE American. This is one issuer group, not broad exchange coverage.
-- **Taxonomy drift:** six symbols (PCG-PB, PCG-PE, PCG-PG, PCG-PH, PCG-PI, STR) have multiple exact class-axis QNames across filings, but their same-context security-title text is identical across the observed variants. Preserve raw QNames; do not merge them until taxonomy/linkbase labels and effective dates are independently reconciled.
+- **Phase 332 — event-driven corporate-action identity:** 56 issuer-side observations across 28 purposive ticker-collision pairs; 56/56 SEC submissions responses; 182 candidate event filings; 178 retrieved. After the encoded 365-day freshness rule, 38 observations are fresh, 6 anchors are stale and 12 have no supported periodic anchor. [Report](PHASE332_SEC_EVENT_DRIVEN_CORPORATE_ACTION_IDENTITY_FEASIBILITY_2026-11-12.md) · [Run](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43222287571).
+- **Phase 333 — direct symbol/class binding pilot:** 9 unique, hash-pinned pre-event documents; 9/9 hashes and symbol sets matched; 25 TradingSymbol facts, 20 with class-axis dimensions. [Report](PHASE333_SEC_TRADING_SYMBOL_SHARE_CLASS_BINDING_AUDIT_2026-11-12.md) · [Run](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43224074720).
+- **Phase 334 — expanded fresh-anchor sample:** 38/56 complete fresh anchors across 25 pairs; 6 stale and 12 without an anchor; zero incomplete windows. It rechecked 26 unique symbol-bearing accessions from nine pairs, collapsed 9 co-filer duplicate rows after hash/schema agreement, and found zero conflicts. All 26 hashes and symbol sets matched. [Report](PHASE334_SEC_STRATIFIED_SYMBOL_CLASS_COVERAGE_2026-11-12.md) · [Run](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43226260351) · [Artifact](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43226260351/artifacts/13947767592).
+- **Phase 335 — taxonomy and listing-axis stability:** consumed the pinned Phase 334 artifact without new SEC requests. Across 98 TradingSymbol contexts and 26 symbols, 20 symbols have direct class-axis evidence and 6 do not. Fourteen have one raw class QName in the sample; six have multiple QNames, but all six share identical same-context Security12bTitle text across variants. These remain candidate aliases only; zero QNames were merged. [Report](PHASE335_SEC_TAXONOMY_MEMBER_AND_LISTING_AXIS_STABILITY_2026-11-12.md) · [Run](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43227805268) · [Artifact](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43227805268/artifacts/13949055980).
+- **Listing-axis finding:** 18 facts across ten PCG symbols in two filings contain both class and listing-exchange axes. PCG/PCGU map to NYSE; eight preferred symbols map to NYSE American. This is one issuer group, not broad exchange coverage or an effective-dated listing history.
 - **TSBK/RVSB:** four pre-event filings in the TSBK collision pair report RVSB, not TSBK, but no direct class-axis fact. The missing original Form 4 accession remains quarantined.
 
 ## Next research gates
 
-1. Phase 335: audit taxonomy/linkbase labels and filing-vintage stability for the six multi-QName symbols; quantify whether same-context titles support a candidate alias, without merging raw QNames.
-2. Check the listing-axis relationships and their stability against class-axis facts.
-3. Expand beyond the purposive 28-pair collision panel to a survivorship-aware sample from the actual historical Form 4 universe; report issuer, listing, security and share-class coverage separately.
-4. Build an effective-dated issuer → listing → security → share-class crosswalk only after broad coverage and primary-source/PIT gates pass.
-5. Only then construct transaction-level Form 4 features and test incremental information versus frozen LTM/F80 under identical exposure/costs, chronological OOS, bootstrap and LOO.
+1. Phase 336: retrieve the actual SEC custom taxonomy schemas and label linkbases for the six multi-QName symbols; compare member labels, definitions, taxonomy versions and filing dates. Keep raw QNames unchanged and do not merge without authoritative evidence.
+2. Inspect standard taxonomy label differences for STR's CommonClassA/CommonStock members and preserve the same-context Security12bTitle evidence.
+3. Check listing-axis stability and its relationship to class-axis facts across more issuer groups.
+4. Expand beyond the purposive 28-pair collision panel to a survivorship-aware sample from the actual historical Form 4 universe; report issuer, listing, security and share-class coverage separately.
+5. Build an effective-dated issuer → listing → security → share-class crosswalk only after broad coverage and primary-source/PIT gates pass.
+6. Only then construct transaction-level Form 4 features and test incremental information versus frozen LTM/F80 under identical exposure/costs, chronological OOS, bootstrap and LOO.
 
 ## Source dispositions
 
@@ -37,7 +37,7 @@
 | Cboe options quotes / sentiment / TradeFlow / OI | Conditional candidates; no full licensed historical sample with first-receipt and effective-dated identity admitted |
 | CFTC BPR/TFF | Market-regime context candidate; prior walk-forward quarantined for label-maturity defects; prospective capture remains research-branch only |
 
-**Controls:** F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No security master, strict-PIT source admission, broad universe coverage, alpha/return test, bootstrap/LOO, chronological OOS or holdout use in Phase 334. No production, universe, capital or parameter changes. No vendor contact or data purchase.
+**Controls:** F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No security master, strict-PIT source admission, broad universe coverage, alpha/return test, bootstrap/LOO, chronological OOS or holdout use in Phases 334–335. No production, universe, capital or parameter changes. No vendor contact or data purchase.
 
 ---
 
