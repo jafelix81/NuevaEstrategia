@@ -112,7 +112,7 @@ def select_sample_records(records: list[dict], index_date: str) -> list[dict]:
 def fetch_bytes(url: str, user_agent: str, minimum_delay: float = 0.5) -> tuple[bytes, dict]:
     request = Request(url, headers={
         "User-Agent": user_agent,
-        "Accept-Encoding": "gzip, deflate",
+        "Accept-Encoding": "identity",
         "Accept": "*/*",
     })
     last_error = None
@@ -123,6 +123,7 @@ def fetch_bytes(url: str, user_agent: str, minimum_delay: float = 0.5) -> tuple[
                 headers = {
                     "http_status": response.status,
                     "content_type": response.headers.get("Content-Type", ""),
+                    "content_encoding": response.headers.get("Content-Encoding", ""),
                     "last_modified": response.headers.get("Last-Modified", ""),
                     "etag": response.headers.get("ETag", ""),
                     "date": response.headers.get("Date", ""),
@@ -167,7 +168,19 @@ def run_pilot(output_dir: Path, email: str) -> dict:
         year, quarter, relative = quarter_path(day_text)
         url = urljoin(SEC_ARCHIVES, relative)
         raw, headers = fetch_bytes(url, user_agent)
-        parsed = parse_daily_form_index(raw, relative)
+        try:
+            parsed = parse_daily_form_index(raw, relative)
+        except Exception:
+            preview = raw.decode("latin-1", errors="replace").splitlines()[:8]
+            print("INDEX_HEADER_DIAGNOSTIC", json.dumps({
+                "date": day_text,
+                "url": url,
+                "http": headers,
+                "bytes": len(raw),
+                "prefix_hex": raw[:8].hex(),
+                "first_lines": [line[:180] for line in preview],
+            }, sort_keys=True))
+            raise
         if parsed["index_date"] != day_text:
             raise ValueError(f"index_date_filename_mismatch:{day_text}")
         manifest = {
@@ -306,7 +319,7 @@ def run_pilot(output_dir: Path, email: str) -> dict:
     output_dir.mkdir(parents=True, exist_ok=True)
     with (output_dir / "phase319_daily_index_manifest.csv").open("w", newline="", encoding="utf-8") as handle:
         fields = ["index_date", "filename", "url", "retrieved_at_utc", "bytes", "sha256", "format",
-                  "http_status", "content_type", "last_modified", "etag", "date", "counts",
+                  "http_status", "content_type", "content_encoding", "last_modified", "etag", "date", "counts",
                   "quarantine_reason_counts"]
         writer = csv.DictWriter(handle, fieldnames=fields)
         writer.writeheader()
@@ -315,6 +328,7 @@ def run_pilot(output_dir: Path, email: str) -> dict:
                 **{k: x.get(k, "") for k in fields if k not in {"http_status", "content_type", "last_modified", "etag", "date", "counts", "quarantine_reason_counts"}},
                 "http_status": x["http"]["http_status"],
                 "content_type": x["http"]["content_type"],
+                "content_encoding": x["http"]["content_encoding"],
                 "last_modified": x["http"]["last_modified"],
                 "etag": x["http"]["etag"],
                 "date": x["http"]["date"],
