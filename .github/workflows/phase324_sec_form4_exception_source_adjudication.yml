@@ -1,0 +1,105 @@
+name: Phase 324 SEC Form 4 exception source-level adjudication
+
+on:
+  push:
+    branches:
+      - phase324-sec-form4-stratified-clock-validation
+    paths:
+      - ".github/workflows/phase324_sec_form4_exception_source_adjudication.yml"
+      - "research/phase324_sec_form4_exception_source_adjudication.py"
+      - "research/test_phase324_sec_form4_exception_source_adjudication.py"
+      - "research/phase323_sec_bulk_acceptance_index_clock_reconciliation.py"
+      - "research/phase322_sec_bulk_index_exception_adjudication.py"
+      - "research/phase320_sec_bulk_daily_index_join.py"
+      - "research/phase319_sec_daily_index_live_pilot.py"
+      - "research/phase283_sec_daily_index_parser.py"
+      - "research/phase318_nport_next_business_day_clock.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: phase324-sec-form4-exception-source-adjudication
+  cancel-in-progress: false
+
+jobs:
+  adjudicate-source-exceptions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      SEC_CONTACT_EMAIL: \${{ secrets.SEC_CONTACT_EMAIL }}
+      GH_TOKEN: \${{ github.token }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+
+      - name: Compile and run offline regressions
+        run: |
+          python -m compileall -q research/phase324_sec_form4_exception_source_adjudication.py research/test_phase324_sec_form4_exception_source_adjudication.py research/phase323_sec_bulk_acceptance_index_clock_reconciliation.py research/phase322_sec_bulk_index_exception_adjudication.py research/phase320_sec_bulk_daily_index_join.py research/phase319_sec_daily_index_live_pilot.py research/phase283_sec_daily_index_parser.py research/phase318_nport_next_business_day_clock.py
+          python -m unittest -v research.test_phase324_sec_form4_exception_source_adjudication
+
+      - name: Verify immutable Phase 322 and 323 source artifact identities
+        run: |
+          test "$(gh api repos/jafelix81/NuevaEstrategia/actions/artifacts/13928752264 --jq .digest)" = "sha256:c7eaf3cfc751e401d543bceeec20c3fe6643b09dfb8d2b0ff97df86070dca50d"
+          test "$(gh api repos/jafelix81/NuevaEstrategia/actions/artifacts/13928449264 --jq .digest)" = "sha256:dacc9f8374e4f86cc31dbe59de5d856ee1900902ce4096b879b69127e38e66fb"
+
+      - name: Download immutable Phase 322 source artifact
+        run: |
+          mkdir -p phase324_input/phase322
+          gh run download 43187165781 --repo jafelix81/NuevaEstrategia --name phase322-sec-bulk-index-exception-adjudication --dir phase324_input/phase322
+
+      - name: Download immutable Phase 323 source artifact
+        run: |
+          mkdir -p phase324_input/phase323
+          gh run download 43188524842 --repo jafelix81/NuevaEstrategia --name phase323-sec-bulk-acceptance-index-clock-reconciliation --dir phase324_input/phase323
+
+      - name: Re-fetch three original Form 4 filings and targeted SEC daily indexes
+        run: |
+          python -m research.phase324_sec_form4_exception_source_adjudication --source-dir phase324_input --output-dir phase324_output
+
+      - name: Enforce source identity, quarantine and frozen-baseline controls
+        run: |
+          python - <<'PY'
+          import json, sys
+          p = "phase324_output/phase324_exception_source_adjudication_result.json"
+          r = json.load(open(p, encoding="utf-8"))
+          s = r.get("summary", {})
+          if s.get("target_exceptions") != 3 or s.get("original_filings_retrieved") != 3:
+              sys.exit("Phase 324 must retrieve all three unresolved original filings")
+          if r.get("retrieval", {}).get("http_request_errors") != 0:
+              sys.exit("SEC retrieval incomplete")
+          if r.get("retrieval", {}).get("parser_errors") != 0:
+              sys.exit("SEC daily-index parsing incomplete")
+          c = r.get("controls", {})
+          for key in ("strict_pit_admitted", "alpha_test_authorized", "return_test_run",
+                      "bootstrap_loo_run", "chronological_oos_run", "holdout_used",
+                      "production_changed", "universe_changed", "capital_changed",
+                      "parameters_changed", "raw_sec_bytes_uploaded", "vendor_contacted",
+                      "data_purchased", "email_sent"):
+              if c.get(key) is not False:
+                  sys.exit("Research control unexpectedly opened: " + key)
+          if c.get("f80_frozen") is not True:
+              sys.exit("F80 frozen control failed")
+          if r.get("retrieval", {}).get("raw_sec_bytes_uploaded") is not False:
+              sys.exit("Raw SEC bytes must not be uploaded")
+          print("PHASE324_STATUS=" + str(r.get("status")))
+          print("SUMMARY=" + str(s))
+          print("CLASS_COUNTS=" + str(s.get("class_counts")))
+          print("CONTROLS=" + str(c))
+          PY
+
+      - name: Upload parsed exception adjudication, manifests and hashes only
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase324-sec-form4-exception-source-adjudication
+          path: phase324_output/
+          retention-days: 90
+          if-no-files-found: warn
