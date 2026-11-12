@@ -33,10 +33,14 @@ The deterministic Phase 301 sample was retained without changing case selection:
 | Accessions with first observed index date equal to filing date | **71/71** |
 | Later index-date sightings | **0** |
 | Pre-filing negative-control sightings | **0** |
-| SEC acceptances after 16:00 ET | **42/71** |
-| SEC acceptances after 22:00 ET | **0/71** |
+| SEC acceptances at/after 16:00 ET | **42/71** |
+| SEC acceptances at/after the 17:30 ET Form 3/4/5 cutoff | **19/71** |
+| SEC acceptances at/after 18:00 ET | **14/71** |
+| SEC acceptances at/after 20:00 ET | **7/71** |
+| SEC acceptances at/after 21:30 ET | **1/71** |
+| SEC acceptances at/after 22:00 ET | **0/71** |
 
-All 71 accession windows were complete. The earliest observed daily-index date within each complete window matched the SEC bulk filing date (zero calendar-day lag). The 42 after-16:00 ET acceptances also had same-filing-date index sightings. This is a date-granular observation only: the daily index is built nightly and does not prove that the index was publicly reachable before the close on the named date.
+All 71 accession windows were complete. The earliest observed daily-index date within each complete window matched the SEC bulk filing date (zero calendar-day lag). Of the 71 acceptances, 19 occurred at or after 17:30 ET, the special same-day filing-date threshold for Forms 3, 4 and 5; 14 were at/after 18:00, seven at/after 20:00, and one at/after 21:30. None was accepted at/after 22:00 ET. The SEC states that Forms 3/4/5 accepted after 17:30 and before 22:00 retain that day's filing date and are disseminated by 22:00; EDGAR filing hours end at 22:00 ET. The SEC also says daily indexes are built nightly starting around 22:00 and may take hours to complete. Thus same-filing-date index membership is consistent with the rule, but does not establish the precise intraday moment the filing became public or whether it was available before the market close.
 
 ### Original/amendment daily-index ordering
 
@@ -52,7 +56,7 @@ The 24 unique candidate pairs all passed the SEC acceptance chronology check. In
 ## Interpretation and limitations
 
 1. The sample supports a reproducible daily-index knowledge-date bound for these 71 accessions. It does not establish exact first-public receipt.
-2. The sample contains no acceptance after 22:00 ET, so it does not empirically exercise the SEC's documented delayed-dissemination case. A targeted late-night sample remains necessary.
+2. The sample contains no acceptance at/after 22:00 ET. Because EDGAR's filing window closes at 22:00 ET, the next test should not seek impossible after-22:00 acceptances; it should target the 17:30–22:00 Form 4/4-A window and filings whose transmission misses the cutoff and receives a next-business-day filing date.
 3. The sample is purposive and inherited from Phase 301; it is not a prevalence estimate for all Form 4/4-A filings.
 4. The daily index cannot order an original and amendment that share one index date.
 5. SEC-HEADER acceptance time is not an exact public-receipt timestamp and must not replace a missing daily-index observation.
@@ -77,12 +81,17 @@ Artifact: [13904715073](https://github.com/jafelix81/NuevaEstrategia/actions/run
 
 Two preliminary attempts failed before any SEC request: the first regression omitted the 2023-07-04 federal holiday from the test calendar; the second exposed a missing repository-root import path. Both were corrected. The final run includes an additional fail-closed guard requiring both parent and amendment index identities to be window-verified before pair-clock comparison.
 
+## Official SEC timing references
+
+- SEC, [Determine the Status of My Filing](https://www.sec.gov/submit-filings/filer-support-resources/how-do-i-guides/determine-status-my-filing): EDGAR operating hours are 06:00–22:00 ET; Forms 3/4/5 accepted after 17:30 and before 22:00 receive the same day's filing date and are disseminated by 22:00.
+- SEC, [Accessing EDGAR Data](https://www.sec.gov/search-filings/edgar-search-assistance/accessing-edgar-data): daily indexes are updated nightly starting around 22:00 ET and usually complete within a few hours; it describes the special treatment of Ownership Forms 3/4/5 and later-business-day PAC handling.
+
 ## Decision and next gate
 
 **Decision:** retain Form 4/A as a conditional public-data candidate. Do not admit strict PIT, a stock-selection feature or alpha.
 
 Next gate:
-- Build a targeted, stratified sample of Form 4/4-A filings accepted after 22:00 ET across multiple historical periods.
+- Build a targeted, stratified sample across multiple historical periods with Form 4/4-A acceptances in the 17:30–22:00 ET window, especially 21:30–22:00, plus submissions that miss the 22:00 cutoff and receive a next-business-day filing date.
 - Capture filing date, acceptance time, daily-index first observed date and same-day/next-business-day index appearances.
 - Inspect same-day correction/PAC sequences separately; daily-index date alone cannot order them intraday.
 - Continue effective-dated issuer/security-class identity and owner/transaction attribution.
