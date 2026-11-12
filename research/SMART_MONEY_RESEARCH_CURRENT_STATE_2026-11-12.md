@@ -427,3 +427,13 @@ This offline audit re-read the six raw ZIPs from Phase 294 artifact [13884014630
 - PR #13 and PR #14 remain open and unmerged; 11 PRs are open in total. No PR was merged or retargeted.
 - `SEC_CONTACT_EMAIL` was used only in the SEC User-Agent. No email was sent. No Feed/Oldloads archive or PDS subscription was downloaded/purchased.
 - `F80_TOP20_PARTIAL50_BASELINE_C20`, production, universe, capital, parameters and the consumed legacy holdout remain unchanged.
+
+
+## Phase 304 — SEC Latest Filings RSS count-cap and accession-grain audit (2026-11-12 01:10 UTC)
+
+- Latest Filings Atom was queried for Forms 4 and 4/A at requested `count` values 100, 200, 500 and 1,000. All 8 requests succeeded. Form 4 returned exactly 100 entity rows / 50 accessions at every requested count; Form 4/A returned 36 rows / 18 accessions at every count. Larger `count` values did not expand the result. The Form 4 endpoint therefore behaves as if limited to 100 entity rows, or ignores larger counts; a `start`-offset audit is required to distinguish cap from pagination semantics.
+- Accession sets were nested across count requests. Zero orphan rows, Atom-id/link accession mismatches, query-form mismatches, path/title CIK mismatches, duplicate entity rows, form conflicts or `updated` conflicts. The sample happened to contain exactly one Issuer and one Reporting row per accession; code preserves arbitrary row multiplicity and does not assume two rows universally.
+- Four additional complete submissions (newest/oldest for each form) matched Atom `updated` to SEC-HEADER `ACCEPTANCE-DATETIME` in 4/4. Combined Phase 303/304 cross-checks are 6/6; `updated` remains an acceptance-time proxy, not first-public time.
+- Workflow [43132595262](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43132595262) passed 18/18 tests (11 Phase 304 + 7 Phase 303). Artifact [13905652996](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43132595262/artifacts/13905652996), ZIP SHA-256 `ae8a81b0d3067348fdcb36063b659cc38a8b9ef6a0987c250866bf5c3e4d2dda`.
+- Next gate: test SEC RSS `start` offsets with `count=100`, including accession rows split across page boundaries. Do not infer exact public time or strict PIT from Atom `updated`.
+- No return/alpha, bootstrap/LOO, chronological OOS or holdout test. F80, production, universe, capital and parameters remain unchanged. No email was sent.
