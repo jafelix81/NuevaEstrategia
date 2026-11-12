@@ -34,7 +34,7 @@ The FASB technical guides describe the standard-label and documentation linkbase
 | 2022 | [us-gaap-lab-2022.xml](https://xbrl.fasb.org/us-gaap/2022/elts/us-gaap-lab-2022.xml) | 200 | 13,886,233 | \`b05abba64f933de9a2084e7aede54af77a7f67f048c636e6ae4f2a85c912a536\` |
 | 2022 | [us-gaap-doc-2022.xml](https://xbrl.fasb.org/us-gaap/2022/elts/us-gaap-doc-2022.xml) | 200 | 13,510,945 | \`a9d515b582ddab7961cfc5283c4d5799db03b6c4fbc6875bdb0fd31de482f0d2\` |
 
-All four resources parsed successfully. The audit extracted only the two target member QNames from each version and retained URL, version, HTTP status, byte count and SHA-256. FASB's [2021 taxonomy technical guide](https://storage.fasb.org/2021%20US%20GAAP%20Financial%20Reporting%20Taxonomy%20and%20Data%20Quality%20Committe%20Rules%20Taxonomy%20Technical%20Guide.pdf) and [2022 taxonomy technical guide](https://storage.fasb.org/2022%20GAAP%20Financial%20Reporting%20Taxonomy%20Technical%20Guide.pdf) document the separate label/documentation resources.
+All four resources parsed successfully. The audit extracted only the two target member QNames from each version and retained URL, version, HTTP status, byte count and SHA-256. FASB's [2021 taxonomy technical guide](https://storage.fasb.org/2021%20US%20GAAP%20Financial%20Reporting%20Taxonomy%20and%20Data%20Quality%20Committe%20Rules%20Taxonomy%20Technical%20Guide.pdf) and [2022 taxonomy technical guide](https://storage.fasb.org/2022%20GAAP%20Financial%20Reporting%20Taxonomy%20and%20Data%20Quality%20Committee%20Rules%20Taxonomy%20Technical%20Guide.pdf) document the separate label/documentation resources.
 
 ## 3. Common-role results
 
