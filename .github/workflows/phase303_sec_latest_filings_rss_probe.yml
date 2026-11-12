@@ -1,7 +1,13 @@
 name: Phase 303 SEC Latest Filings RSS probe
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - phase303-sec-feed-live-rss-feasibility
+    paths:
+      - research/phase303_sec_latest_filings_rss_probe.py
+      - research/test_phase303_sec_latest_filings_rss_probe.py
+      - .github/workflows/phase303_sec_latest_filings_rss_probe.yml
 
 permissions:
   contents: read
@@ -58,6 +64,9 @@ jobs:
           assert r["summary"]["unique_accessions"] == r["summary"]["form4_accessions"] + r["summary"]["form4a_accessions"]
           assert r["summary"]["accessions_with_both_issuer_and_reporting_rows"] == r["summary"]["unique_accessions"]
           assert r["summary"]["path_title_cik_mismatches"] == 0
+          assert r["summary"]["raw_entity_entry_rows"] == 2 * r["summary"]["unique_accessions"]
+          assert r["summary"]["accessions_with_exactly_two_entity_rows"] == r["summary"]["unique_accessions"]
+          assert r["summary"]["complete_submission_header_crosschecks"] == 2
           assert r["controls"]["exact_first_public_timestamp_verified"] is False
           assert r["controls"]["historical_backfill_available"] is False
           assert r["controls"]["strict_pit_admitted"] is False
@@ -66,6 +75,7 @@ jobs:
           assert r["controls"]["f80_frozen"] is True
           print(json.dumps(r["summary"], indent=2, sort_keys=True))
           print("PROSPECTIVE_ONLY=true EXACT_FIRST_PUBLIC=false STRICT_PIT=false ALPHA=false HOLDOUT=false F80_FROZEN=true")
+          print("RSS_UPDATED_EQUALS_ACCEPTANCE=" + str(r["summary"]["feed_updated_equals_acceptance"]))
           PY
 
       - name: Upload raw feed and audit artifact
