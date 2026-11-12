@@ -1,0 +1,59 @@
+{
+  "phase": 311,
+  "audit_date_utc": "2026-11-12T04:44:56Z",
+  "status": "PASS",
+  "workflow_run_id": 43156706936,
+  "artifact_id": 13916331861,
+  "artifact_sha256": "b03abc72c5ed9d59005ccca9a1285169c6bac7b7a607e9f415ec4c0fe1a342be",
+  "artifact_expires_at": "2027-02-10T04:43:59Z",
+  "coverage": {
+    "quarters": 28,
+    "start": "2019Q4",
+    "end": "2026Q3",
+    "filing_date_min": "2019-10-22",
+    "filing_date_max": "2026-09-30",
+    "nport_p": 349076,
+    "nport_p_a": 5343,
+    "nt_nport_p_notice": 696,
+    "data_bearing_accessions": 354419,
+    "total_unique_accessions": 355115,
+    "distinct_registrant_ciks": 2458,
+    "duplicate_accessions": 0,
+    "quarterly_master_zip_total_bytes": 98553317
+  },
+  "sample": {
+    "count": 56,
+    "nport_p": 28,
+    "nport_p_a": 28,
+    "unique_accessions": 56,
+    "distinct_registrant_ciks": 54,
+    "design": "SHA-256 minimum per quarter and data-bearing form; deterministic QA only, not representative"
+  },
+  "validation": {
+    "unit_tests": 13,
+    "passed": 13,
+    "raw_holdings_downloaded": false,
+    "series_identity_admitted": false,
+    "effective_dated_security_crosswalk": false,
+    "f80_universe_coverage_measured": false,
+    "first_public_timestamp_admitted": false,
+    "returns_test": false,
+    "alpha_test": false,
+    "bootstrap": false,
+    "loo": false,
+    "chronological_oos": false,
+    "holdout_used": false
+  },
+  "decisions": {
+    "nt_nport_p_is_holdings": false,
+    "amendment_lineage_resolved": false,
+    "f80_frozen": true,
+    "production_changed": false,
+    "universe_changed": false,
+    "capital_changed": false,
+    "parameters_changed": false,
+    "data_purchase": false,
+    "vendor_contact": false,
+    "email_sent": false
+  }
+}
