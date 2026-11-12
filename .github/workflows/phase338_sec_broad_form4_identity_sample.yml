@@ -1,5 +1,11 @@
 name: Phase 338 SEC broad Form 4 issuer identity sample
 on:
+  push:
+    branches: [phase338-sec-broad-form4-identity-sample]
+    paths:
+      - "research/phase338_sec_broad_form4_identity_sample.py"
+      - "research/test_phase338_sec_broad_form4_identity_sample.py"
+      - ".github/workflows/phase338_sec_broad_form4_identity_sample.yml"
   pull_request:
     types: [opened, reopened, synchronize]
     paths:
