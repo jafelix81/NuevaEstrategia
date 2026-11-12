@@ -8,6 +8,7 @@ from pathlib import Path
 from research.phase343_form4_candidate_specific_event_time_crosswalk import (
     crosswalk_symbol_to_anchor,
     extract_candidate_rows,
+    norm_date,
     parse_ownership_document,
     select_prior_anchor,
     transaction_signature,
@@ -133,6 +134,9 @@ class Phase343Tests(unittest.TestCase):
             rows=extract_candidate_rows(raw,{"candidate_rows":1,"candidate_accessions":1,"candidate_issuer_ciks":1})
         self.assertEqual(len(rows),1)
         self.assertEqual(rows[0]["accession"],"acc-1")
+        self.assertEqual(rows[0]["filing_date"],"2026-08-01")
+        self.assertEqual(rows[0]["filing_date_raw"],"01-AUG-2026")
+        self.assertEqual(norm_date("29-SEP-2026"),"2026-09-29")
         self.assertEqual(rows[0]["owner_count_bulk"],1)
         self.assertEqual(rows[0]["aff10b5one_bulk"],"false")
         self.assertEqual(rows[0]["footnote_ids_bulk"],["F1"])
