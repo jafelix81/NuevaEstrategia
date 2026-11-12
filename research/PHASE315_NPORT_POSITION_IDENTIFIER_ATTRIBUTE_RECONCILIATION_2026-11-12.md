@@ -3,13 +3,13 @@
 **Date:** 2026-11-12 UTC  
 **Workflow:** [run 43163123951](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43163123951) — PASS  
 **Artifact:** [13919006564](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43163123951/artifacts/13919006564)  
-**Artifact SHA-256:** \`2073ea5b39578e0a5fec7b838561db7f5fb917f2c45a1ef9bbaf18d1529bd1b6\`
+**Artifact SHA-256:** `2073ea5b39578e0a5fec7b838561db7f5fb917f2c45a1ef9bbaf18d1529bd1b6`
 
 ## Defect found and corrected
 
-Phase 314's short-position parser read the SEC N-PORT \`<isin>\` and \`<ticker>\` nodes as text. In actual SEC XML, these identifiers are encoded in a \`value\` attribute, for example \`<ticker value="AAPL"/>\`. The text-only parser therefore returned blank ISIN and ticker fields.
+Phase 314's short-position parser read the SEC N-PORT `<isin>` and `<ticker>` nodes as text. In actual SEC XML, these identifiers are encoded in a `value` attribute, for example `<ticker value="AAPL"/>`. The text-only parser therefore returned blank ISIN and ticker fields.
 
-The Phase 314 comparison key used CUSIP, so the parent-candidate result and the 20-row original/amendment comparison were not changed by this omission. However, the blank identifiers would have blocked reliable security mapping and could have contaminated any later ticker-level analysis. The parser now reads \`value\` first and falls back to element text; the Phase 314 fixture now uses the actual SEC attribute form.
+The Phase 314 comparison key used CUSIP, so the parent-candidate result and the 20-row original/amendment comparison were not changed by this omission. However, the blank identifiers would have blocked reliable security mapping and could have contaminated any later ticker-level analysis. The parser now reads `value` first and falls back to element text; the Phase 314 fixture now uses the actual SEC attribute form.
 
 ## Reconciliation result
 
