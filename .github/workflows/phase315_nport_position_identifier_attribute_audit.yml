@@ -39,7 +39,7 @@ jobs:
           name: phase314-otter-creek-parent-audit
           repository: jafelix81/NuevaEstrategia
           run-id: 43160951691
-          github-token: \${{ github.token }}
+          github-token: ${"$"}{{ github.token }}
           path: phase314_input
 
       - name: Compile and run Phase 314 and 315 regressions
