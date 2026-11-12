@@ -1,0 +1,139 @@
+{
+  "phase": 317,
+  "status": "PASS_NPORT_FILING_CLOCK_AND_REPEATABILITY_ADJUDICATION",
+  "sample": {
+    "accessions": 280,
+    "quarters": 28,
+    "quarter_form_strata": 56,
+    "per_stratum": 5,
+    "nport_p": 140,
+    "nport_p_a": 140,
+    "distinct_registrant_ciks": 212,
+    "phase311_prior_accessions_excluded": 56,
+    "phase310_purposive_controls": 5,
+    "phase310_control_overlap": 0,
+    "probability_sample": false
+  },
+  "repeatability": {
+    "run_a": 43166221052,
+    "artifact_a": 13919534524,
+    "run_b": 43166231154,
+    "artifact_b": 13920352803,
+    "accessions_compared": 280,
+    "raw_sha256_identical": 280,
+    "raw_sha256_mismatches": 0,
+    "candidate_accession_sets_identical": true,
+    "coverage_summary_identical": true,
+    "reconciliation_summary_identical": true,
+    "holdings_summary_identical": true,
+    "short_row_count_identical": true,
+    "short_row_content_identical": true
+  },
+  "filing_clock": {
+    "filed_as_of_date_equals_master_index_date": 280,
+    "acceptance_calendar_date_matches_filed_date": 266,
+    "acceptance_calendar_date_precedes_filed_date": 14,
+    "acceptance_at_or_after_1730_et": 15,
+    "after_1730_next_filed_date_consistent": 14,
+    "after_1730_same_filed_date_unresolved": 1,
+    "calendar_day_shift_distribution": {"1": 12, "3": 2},
+    "date_mismatch_accessions": [
+      "0001752724-19-180407",
+      "0001752724-20-040779",
+      "0001145549-20-001063",
+      "0001145549-20-001076",
+      "0001493152-20-009866",
+      "0001752724-20-099915",
+      "0001752724-21-001438",
+      "0001412350-21-000060",
+      "0001752724-22-078261",
+      "0001752724-22-041288",
+      "0001145549-22-079988",
+      "0001752724-22-240187",
+      "0001752724-24-043613",
+      "0001752724-24-050003"
+    ],
+    "first_public_receipt_time_verified": false,
+    "acceptance_datetime_is_first_public_time": false,
+    "sec_rule": "17 CFR 232.13",
+    "sec_filer_manual_version": "Version 72, December 2024",
+    "sec_filer_manual_url": "https://www.sec.gov/files/edgar/filermanual/archive/efmvol2-v72.pdf",
+    "nport_in_10pm_exception_list": false,
+    "conservative_backtest_availability_rule": "Use the official SEC FILED AS OF DATE / master-index filing date as the date-level public filing anchor, then permit strategy use only from the first full XNYS session strictly after that date. Do not backdate to REPORT_DATE or use ACCEPTANCE-DATETIME alone as the first-public clock."
+  },
+  "report_to_filing_lag_days": {
+    "NPORT-P": {
+      "n": 140, "min_days": 37, "p25_days": 54.75, "median_days": 57.0,
+      "p75_days": 58.0, "p90_days": 60.0, "max_days": 62,
+      "at_least_90_days": 0, "at_least_180_days": 0,
+      "at_least_365_days": 0, "at_least_730_days": 0,
+      "interpretation": "report-date-to-filing-date lag; not amendment delay from its parent"
+    },
+    "NPORT-P/A": {
+      "n": 140, "min_days": 49, "p25_days": 63.0, "median_days": 119.0,
+      "p75_days": 233.75, "p90_days": 400.8, "max_days": 1114,
+      "at_least_90_days": 85, "at_least_180_days": 49,
+      "at_least_365_days": 16, "at_least_730_days": 5,
+      "interpretation": "report-date-to-filing-date lag; not amendment delay from its parent"
+    }
+  },
+  "short_holdings": {
+    "sign_concordant_rows": 194,
+    "filings_with_short_rows": 2,
+    "filings": [
+      {
+        "accession": "0001752724-20-219487",
+        "registrant_cik": "0001041673",
+        "company_name": "NUVEEN INVESTMENT TRUST II",
+        "report_date": "2020-08-31",
+        "filing_date": "2020-10-29",
+        "rows": 102
+      },
+      {
+        "accession": "0001752724-23-016197",
+        "registrant_cik": "0000772129",
+        "company_name": "GMO TRUST",
+        "report_date": "2022-11-30",
+        "filing_date": "2023-01-27",
+        "rows": 92
+      }
+    ],
+    "unique_cusips": 173,
+    "unique_isins": 174,
+    "unique_tickers": 0,
+    "cusip_present_rows": 193,
+    "isin_present_rows": 194,
+    "ticker_present_rows": 0,
+    "cusip_check_digit_valid_rows": 193,
+    "isin_check_digit_valid_rows": 194
+  },
+  "legacy_nport_phase27o_disposition": {
+    "status": "QUARANTINED_IMPLEMENTATION_DEFECT_NOT_NEGATIVE_ALPHA",
+    "reason": "Legacy Phase 27O read UNITS from the SEC flattened FUND_REPORTED_HOLDING table; the official field is UNIT (singular). Phase 247 confirmed this schema defect. Its zero-share/zero-rank output is not an economic null result.",
+    "phase247_report": "research/PHASE247_NPORT_FLATTENED_UNIT_FIELD_AND_PIT_DESIGN_AUDIT_2026-11-09.md",
+    "phase27o_output_admitted": false
+  },
+  "controls": {
+    "raw_bytes_repeated_identically": true,
+    "raw_hashes_identical_count": 280,
+    "report_date_is_knowledge_date": false,
+    "acceptance_datetime_is_first_public_time": false,
+    "effective_dated_security_master_complete": false,
+    "f80_universe_coverage_measured": false,
+    "returns_test": false,
+    "alpha_test": false,
+    "bootstrap": false,
+    "loo": false,
+    "chronological_oos": false,
+    "holdout_used": false,
+    "f80_frozen": true,
+    "production_changed": false,
+    "universe_changed": false,
+    "capital_changed": false,
+    "parameters_changed": false,
+    "vendor_contact": false,
+    "data_purchase": false,
+    "email_sent": false
+  },
+  "decision": "N-PORT raw filing identity and parser coverage are reproducible across 280 multi-registrant accessions, but the short-position sample has no ticker values and requires an effective-dated CUSIP/ISIN security master. The legal filed date, not acceptance calendar date or report date, is the conservative public-date anchor; backtests should wait until the first full XNYS session after that date. Amendments must correct prior state rather than create fresh flow events."
+}
