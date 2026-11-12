@@ -1,0 +1,75 @@
+name: Phase 310 SEC N-PORT raw filing vintage retrieval
+
+on:
+  push:
+    branches: [phase310-nport-raw-filing-vintage-retrieval]
+    paths:
+      - "research/phase310_nport_raw_vintage_validation.py"
+      - "research/test_phase310_nport_raw_vintage_validation.py"
+      - ".github/workflows/phase310_nport_raw_filing_vintage_retrieval.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase310-nport-raw-filing-vintage-retrieval
+  cancel-in-progress: false
+
+jobs:
+  retrieval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SEC_CONTACT_EMAIL: ${{ secrets.SEC_CONTACT_EMAIL }}
+      PYTHONPATH: .:research
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Install XNYS calendar dependency
+        run: pip install exchange-calendars
+      - name: Compile and run Phase 193 and Phase 310 offline regressions
+        run: |
+          python -m py_compile research/phase193_nport_raw_filing_retrieval.py research/test_phase193_nport_raw_filing_retrieval.py research/phase310_nport_raw_vintage_validation.py research/test_phase310_nport_raw_vintage_validation.py
+          python -m unittest -v research.test_phase193_nport_raw_filing_retrieval
+          python -m unittest -v research.test_phase310_nport_raw_vintage_validation
+      - name: Retrieve and hash the five purposive SEC N-PORT filings
+        run: python -u -m research.phase193_nport_raw_filing_retrieval --output-dir phase193_output
+      - name: Reconcile sign-concordant direct-short controls and conservative execution dates
+        run: python -u -m research.phase310_nport_raw_vintage_validation --input phase193_output/phase193_nport_raw_filing_audit.json --evidence research/phase193_nport_raw_filing_retrieval.json --output phase310_output/phase310_nport_raw_vintage_validation.json
+      - name: Validate no PIT or alpha promotion
+        run: |
+          python - <<'PY'
+          import json
+          p = "phase310_output/phase310_nport_raw_vintage_validation.json"
+          s = json.load(open(p, encoding="utf-8"))
+          assert s["phase"] == 310
+          assert s["controls"]["first_public_receipt_verified"] is False
+          assert s["controls"]["strict_pit_admitted"] is False
+          assert s["controls"]["alpha_test_authorized"] is False
+          assert s["controls"]["holdout_used"] is False
+          assert s["controls"]["f80_frozen"] is True
+          assert s["controls"]["production_changed"] is False
+          assert s["controls"]["universe_changed"] is False
+          assert s["controls"]["capital_changed"] is False
+          assert s["controls"]["parameters_changed"] is False
+          assert s["controls"]["data_purchase"] is False
+          assert s["controls"]["vendor_contact"] is False
+          assert s["status"] in {
+              "RAW_BYTES_HASHED_ACCEPTANCE_RECONCILED",
+              "PARTIAL_RAW_RETRIEVAL_OR_RECONCILIATION"
+          }
+          print("PHASE310_STATUS=" + s["status"])
+          print("EXPECTED_SHORT_SIGN_GATE=" + s["expected_public_positive_control_sign_gate"])
+          PY
+      - name: Upload raw filings, hashes and audit outputs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase310-nport-raw-filing-vintage-audit
+          path: |
+            phase193_output/
+            phase310_output/
+          if-no-files-found: warn
+          retention-days: 90
