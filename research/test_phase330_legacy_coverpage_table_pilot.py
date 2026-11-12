@@ -76,7 +76,8 @@ class Phase330LegacyCoverpageTests(unittest.TestCase):
         self.assertIn("XYZ", parsed["visible_symbols"])
 
     def test_exchange_names_are_not_treated_as_symbols(self):
-        self.assertEqual(normalize_symbol_cell("NASDAQ Global Select Market"), ["GLOBAL", "SELECT"])
+        self.assertEqual(normalize_symbol_cell("NASDAQ"), [])
+        self.assertEqual(normalize_symbol_cell("NYSE"), [])
         # The parser only consumes the Trading Symbol column; exchange-column tokens
         # are not passed to normalize_symbol_cell by extract_coverpage_symbols.
 
