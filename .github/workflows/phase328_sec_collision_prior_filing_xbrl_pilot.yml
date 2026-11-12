@@ -39,12 +39,12 @@ jobs:
           python -m compileall -q research/phase328_sec_collision_prior_filing_xbrl_pilot.py research/test_phase328_sec_collision_prior_filing_xbrl_pilot.py
           python -m unittest -v research.test_phase328_sec_collision_prior_filing_xbrl_pilot
 
-      - name: Download and verify immutable Phase 326 collision-pair metadata
+      - name: Download and verify successful immutable Phase 325 collision metadata
         run: |
           curl -fsSL -H "Accept: application/vnd.github+json" -H "Authorization: Bearer $GH_TOKEN" \
-            "https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13939999128/zip" \
+            "https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13931894766/zip" \
             -o phase326_source.zip
-          echo "eea7eaf97b91acfdbdac866f8d98660ec98be03adc8c4038b800f74cf86d81d5  phase326_source.zip" | sha256sum --check
+          echo "6d7930230a60036931857520df07b28087720d54ae9d3bee8f4b1cfe2fbcefa3  phase326_source.zip" | sha256sum --check
 
       - name: Retrieve latest prior SEC periodic filings and parse identity facts
         run: |
