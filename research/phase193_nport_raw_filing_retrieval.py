@@ -88,6 +88,8 @@ def submission_header_diagnostic(payload: bytes) -> dict[str, str | None]:
         "ACCEPTANCE-DATETIME",
     ):
         match = re.search(r"(?im)^\s*" + re.escape(name) + r"\s*:\s*([^\r\n]+)", text)
+        if match is None and name == "ACCEPTANCE-DATETIME":
+            match = re.search(r"(?im)^\s*<ACCEPTANCE-DATETIME>\s*([^<\r\n]+)", text)
         fields[name] = match.group(1).strip() if match else None
     return fields
 
@@ -104,6 +106,8 @@ def parse_submission_header(payload: bytes, expected_accession: str, expected_fo
         "ACCEPTANCE-DATETIME",
     ):
         match = re.search(r"(?im)^\s*" + re.escape(name) + r"\s*:\s*([^\r\n]+)", text)
+        if match is None and name == "ACCEPTANCE-DATETIME":
+            match = re.search(r"(?im)^\s*<ACCEPTANCE-DATETIME>\s*([^<\r\n]+)", text)
         if match:
             fields[name] = match.group(1).strip()
 
@@ -209,6 +213,30 @@ def parse_nport_xml(payload: bytes) -> dict[str, object]:
     }
 
 
+def parse_filing_index_html(payload: bytes) -> dict[str, object]:
+    """Parse filing-page metadata without treating acceptance as first public receipt."""
+    import html
+
+    source = html.unescape(payload.decode("utf-8", errors="replace"))
+    plain = re.sub(r"<[^>]+>", " ", source)
+    plain = re.sub(r"\\s+", " ", plain)
+    series_ids = sorted(set(re.findall(r"\\bS\\d{9}\\b", plain, re.I)))
+    class_ids = sorted(set(re.findall(r"\\bC\\d{9}\\b", plain, re.I)))
+    accepted = re.search(
+        r"\\bAccepted\\s+(\\d{4}-\\d{2}-\\d{2})\\s+(\\d{2}:\\d{2}:\\d{2})\\b",
+        plain,
+        re.I,
+    )
+    accepted_et = f"{accepted.group(1)}T{accepted.group(2)}" if accepted else None
+    return {
+        "series_ids": series_ids,
+        "class_ids": class_ids,
+        "accepted_datetime_et": accepted_et,
+        "series_metadata_present": bool(series_ids),
+        "accepted_metadata_present": accepted_et is not None,
+    }
+
+
 def parse_index_listing(payload: bytes, accession: str, primary_document: str) -> dict[str, object]:
     data = json.loads(payload.decode("utf-8"))
     directory = data.get("directory", {})
@@ -226,6 +254,13 @@ def parse_index_listing(payload: bytes, accession: str, primary_document: str) -
     ]
     if len(candidates) != 1:
         raise ValueError("complete_submission_text_not_uniquely_resolved")
+    index_pages = [
+        x for x in items
+        if str(x.get("name", "")).lower().endswith("-index.html")
+        and target in normalize_accession(str(x.get("name", "")))
+    ]
+    if len(index_pages) != 1:
+        raise ValueError("filing_index_html_not_uniquely_resolved")
     return {
         "primary_document_name": primary.get("name"),
         "primary_document_size": primary.get("size"),
@@ -233,6 +268,9 @@ def parse_index_listing(payload: bytes, accession: str, primary_document: str) -
         "submission_text_name": candidates[0].get("name"),
         "submission_text_size": candidates[0].get("size"),
         "submission_text_last_modified": candidates[0].get("last-modified"),
+        "filing_index_html_name": index_pages[0].get("name"),
+        "filing_index_html_size": index_pages[0].get("size"),
+        "filing_index_html_last_modified": index_pages[0].get("last-modified"),
         "directory_item_count": len(items),
     }
 
@@ -342,6 +380,9 @@ def run_audit(email: str, output_dir: Path, evidence: dict[str, object] | None =
             total_bytes += len(submission_bytes)
             primary_bytes, primary_headers = _fetch(base + quote(primary_name), user_agent)
             total_bytes += len(primary_bytes)
+            index_html_name = str(listing["filing_index_html_name"])
+            index_html_bytes, index_html_headers = _fetch(base + quote(index_html_name), user_agent)
+            total_bytes += len(index_html_bytes)
             if total_bytes > MAX_TOTAL_BYTES:
                 raise RetrievalError("total_download_limit_exceeded")
 
@@ -350,22 +391,27 @@ def run_audit(email: str, output_dir: Path, evidence: dict[str, object] | None =
             (folder / "index.json").write_bytes(index_bytes)
             (folder / _safe_name(submission_name)).write_bytes(submission_bytes)
             (folder / _safe_name(primary_name)).write_bytes(primary_bytes)
+            (folder / _safe_name(index_html_name)).write_bytes(index_html_bytes)
 
             # Preserve and hash the exact public bytes before any semantic parser can fail.
             hashes = {
                 "index_sha256": hashlib.sha256(index_bytes).hexdigest(),
                 "submission_sha256": hashlib.sha256(submission_bytes).hexdigest(),
                 "primary_xml_sha256": hashlib.sha256(primary_bytes).hexdigest(),
+                "filing_index_sha256": hashlib.sha256(index_html_bytes).hexdigest(),
             }
             result.update({
                 **hashes,
                 "index_bytes": len(index_bytes),
                 "submission_bytes": len(submission_bytes),
                 "primary_xml_bytes": len(primary_bytes),
+                "filing_index_bytes": len(index_html_bytes),
                 "index_response_headers": index_headers,
                 "submission_response_headers": submission_headers,
                 "primary_xml_response_headers": primary_headers,
+                "filing_index_response_headers": index_html_headers,
                 "index_listing": listing,
+                "filing_index_metadata": parse_filing_index_html(index_html_bytes),
                 "raw_files_staged_for_artifact": True,
                 "submission_header_diagnostic": submission_header_diagnostic(submission_bytes),
             })
@@ -396,7 +442,10 @@ def run_audit(email: str, output_dir: Path, evidence: dict[str, object] | None =
                 "expected_cusips": sorted(expected_cusips),
                 "missing_expected_cusips": missing_cusips,
                 "expected_cusip_gate_pass": not missing_cusips,
-                "series_id_gate_pass": bool(parsed["series_ids"]),
+                "series_id_gate_pass": bool(
+                    set(parsed["series_ids"])
+                    | set(result.get("filing_index_metadata", {}).get("series_ids", []))
+                ),
             })
         except (RetrievalError, ValueError, ET.ParseError, json.JSONDecodeError) as exc:
             code = exc.code if isinstance(exc, RetrievalError) else str(exc)
@@ -434,7 +483,7 @@ def run_audit(email: str, output_dir: Path, evidence: dict[str, object] | None =
         "accessions_attempted": len(results),
         "accessions_total": len(ev["accessions"]),
         "email_secret_present": True,
-        "files_downloaded": len(downloaded) * 3,
+        "files_downloaded": len(downloaded) * 4,
         "downloaded_accessions": len(downloaded),
         "complete_accessions": len(complete),
         "total_download_bytes": total_bytes,
