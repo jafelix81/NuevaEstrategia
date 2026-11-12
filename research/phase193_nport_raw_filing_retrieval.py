@@ -153,6 +153,15 @@ def parse_nport_xml(payload: bytes) -> dict[str, object]:
         for node in root.iter()
         if local_name(node.tag).lower() == "seriesid" and "".join(node.itertext()).strip()
     })
+    registrant_cik = field_text(root, "regCik")
+    registrant_file_number = field_text(root, "regFileNumber")
+    series_name = field_text(root, "seriesName")
+    class_ids = sorted({
+        str(node.attrib.get("classId", "")).strip()
+        for node in root.iter()
+        if local_name(node.tag).lower() == "monthlytotreturn"
+        and str(node.attrib.get("classId", "")).strip()
+    })
 
     counts: Counter[str] = Counter()
     direct_short_rows: list[dict[str, object]] = []
@@ -206,6 +215,10 @@ def parse_nport_xml(payload: bytes) -> dict[str, object]:
         "holding_nodes": len(holdings),
         "series_ids": series_ids,
         "distinct_series_id_count": len(series_ids),
+        "registrant_cik": registrant_cik,
+        "registrant_file_number": registrant_file_number,
+        "series_name": series_name,
+        "class_ids": class_ids,
         "counts": dict(sorted(counts.items())),
         "direct_short_cusips": sorted(cusips),
         "direct_short_rows_sample": direct_short_rows,
@@ -228,9 +241,13 @@ def parse_filing_index_html(payload: bytes) -> dict[str, object]:
         re.I,
     )
     accepted_et = f"{accepted.group(1)}T{accepted.group(2)}" if accepted else None
+    cik_match = re.search(r"\bCIK:\s*(\d{10})\b", plain, re.I)
+    file_match = re.search(r"\bFile No\.?:\s*([0-9]{3}-[0-9]{5})\b", plain, re.I)
     return {
         "series_ids": series_ids,
         "class_ids": class_ids,
+        "cik": cik_match.group(1) if cik_match else None,
+        "file_number": file_match.group(1) if file_match else None,
         "accepted_datetime_et": accepted_et,
         "series_metadata_present": bool(series_ids),
         "accepted_metadata_present": accepted_et is not None,
@@ -272,6 +289,67 @@ def parse_index_listing(payload: bytes, accession: str, primary_document: str) -
         "filing_index_html_size": index_pages[0].get("size"),
         "filing_index_html_last_modified": index_pages[0].get("last-modified"),
         "directory_item_count": len(items),
+    }
+
+
+def resolve_fund_identity(parsed: dict[str, object], index_meta: dict[str, object], expected_cik: str) -> dict[str, object]:
+    """Resolve the N-PORT fund even when the optional EDGAR Series ID is absent.
+
+    Form N-PORT labels the EDGAR series identifier as "if any". The official
+    fund identity therefore also uses registrant CIK, registration file number,
+    and the reported series name. A missing Series ID is not itself a parser
+    failure when those fields reconcile.
+    """
+    digits = lambda value: re.sub(r"\D", "", str(value or ""))
+    expected = digits(expected_cik)
+    xml_cik = digits(parsed.get("registrant_cik"))
+    index_cik = digits(index_meta.get("cik"))
+    xml_file = re.sub(r"\s+", "", str(parsed.get("registrant_file_number") or "")).upper()
+    index_file = re.sub(r"\s+", "", str(index_meta.get("file_number") or "")).upper()
+    series_name = re.sub(r"\s+", " ", str(parsed.get("series_name") or "")).strip()
+    xml_series = sorted(set(parsed.get("series_ids", [])))
+    index_series = sorted(set(index_meta.get("series_ids", [])))
+    all_series = sorted(set(xml_series) | set(index_series))
+    xml_classes = sorted(set(parsed.get("class_ids", [])))
+    index_classes = sorted(set(index_meta.get("class_ids", [])))
+    errors = []
+    if not expected or not xml_cik or xml_cik != expected:
+        errors.append("registrant_cik_missing_or_mismatch")
+    if index_cik and index_cik != expected:
+        errors.append("index_cik_mismatch")
+    if not xml_file:
+        errors.append("registrant_file_number_missing")
+    if index_file and xml_file and index_file != xml_file:
+        errors.append("index_file_number_mismatch")
+    if not series_name:
+        errors.append("series_name_missing")
+    if len(xml_series) > 1:
+        errors.append("multiple_series_ids_in_primary_xml")
+    if xml_series and index_series and not set(xml_series).issubset(set(index_series)):
+        errors.append("primary_xml_series_id_not_in_index_metadata")
+
+    series_id = None
+    if len(xml_series) == 1:
+        series_id = xml_series[0]
+    elif not xml_series and len(index_series) == 1:
+        series_id = index_series[0]
+    if errors:
+        state = "FUND_IDENTITY_CONFLICT_OR_INCOMPLETE"
+    elif series_id:
+        state = "SEC_SERIES_ID_PRESENT"
+    else:
+        state = "OPTIONAL_SERIES_ID_ABSENT_CIK_FILE_NUMBER_SERIES_NAME_RESOLVED"
+    return {
+        "gate_pass": not errors,
+        "state": state,
+        "errors": errors,
+        "registrant_cik": xml_cik or None,
+        "registrant_file_number": xml_file or None,
+        "series_name": series_name or None,
+        "series_id": series_id,
+        "series_id_present": series_id is not None,
+        "observed_series_ids": all_series,
+        "observed_class_ids": sorted(set(xml_classes) | set(index_classes)),
     }
 
 
@@ -432,20 +510,25 @@ def run_audit(email: str, output_dir: Path, evidence: dict[str, object] | None =
             short_count = int(parsed["counts"].get("short_ec_corp_us_rows", 0))
             min_rows = int(item.get("expected_min_direct_short_rows", 0))
             rows_gate = short_count >= min_rows
+            fund_identity = resolve_fund_identity(
+                parsed,
+                result.get("filing_index_metadata", {}),
+                str(item["cik"]),
+            )
+            series_id_present = bool(fund_identity["series_id_present"])
             result.update({
                 "status": "RAW_RETRIEVED" if header_error is None else "RAW_RETRIEVED_HEADER_ERROR",
                 "submission_header": header,
                 "submission_header_error": header_error,
                 "xml_audit": parsed,
+                "fund_identity": fund_identity,
+                "fund_identity_gate_pass": bool(fund_identity["gate_pass"]),
                 "expected_min_direct_short_rows": min_rows,
                 "expected_row_count_gate_pass": rows_gate,
                 "expected_cusips": sorted(expected_cusips),
                 "missing_expected_cusips": missing_cusips,
                 "expected_cusip_gate_pass": not missing_cusips,
-                "series_id_gate_pass": bool(
-                    set(parsed["series_ids"])
-                    | set(result.get("filing_index_metadata", {}).get("series_ids", []))
-                ),
+                "series_id_gate_pass": series_id_present,
             })
         except (RetrievalError, ValueError, ET.ParseError, json.JSONDecodeError) as exc:
             code = exc.code if isinstance(exc, RetrievalError) else str(exc)
@@ -465,10 +548,11 @@ def run_audit(email: str, output_dir: Path, evidence: dict[str, object] | None =
     ) and all_complete
     all_cusips = all(x.get("expected_cusip_gate_pass") for x in complete) and all_complete
     all_rows = all(x.get("expected_row_count_gate_pass") for x in complete) and all_complete
-    all_series = all(x.get("series_id_gate_pass") for x in complete) and all_complete
+    all_series_ids = all(x.get("series_id_gate_pass") for x in complete) and all_complete
+    all_fund_identity = all(x.get("fund_identity_gate_pass") for x in complete) and all_complete
     status = (
         "RAW_SAMPLE_RETRIEVED_ACCEPTANCE_RECONCILED"
-        if all_downloaded and all_complete and all_acceptance and all_cusips and all_rows and all_series
+        if all_downloaded and all_complete and all_acceptance and all_cusips and all_rows and all_fund_identity
         else "RAW_BYTES_RETRIEVED_HEADER_OR_RECONCILIATION_BLOCKED"
         if all_downloaded
         else "PARTIAL_RETRIEVAL_OR_RECONCILIATION"
@@ -492,7 +576,13 @@ def run_audit(email: str, output_dir: Path, evidence: dict[str, object] | None =
         "acceptance_time_reconciled": all_acceptance,
         "curated_cusips_reconciled": all_cusips,
         "expected_row_count_gates_passed": all_rows,
-        "series_ids_present_for_all": all_series,
+        "series_ids_present_for_all": all_series_ids,
+        "series_ids_present_count": sum(bool(x.get("series_id_gate_pass")) for x in complete),
+        "optional_series_id_absent_count": sum(
+            bool(x.get("fund_identity_gate_pass")) and not bool(x.get("series_id_gate_pass"))
+            for x in complete
+        ),
+        "fund_identity_resolved_for_all": all_fund_identity,
         "first_public_receipt_verified": False,
         "strict_pit_admitted": False,
         "alpha_test_authorized": False,
@@ -507,7 +597,7 @@ def run_audit(email: str, output_dir: Path, evidence: dict[str, object] | None =
         "amendment_lineage_in_scope": False,
         "f80_frozen": True,
         "accession_results": results,
-        "decision": "Full filing bytes, hashes, SEC-HEADER acceptance timestamps and direct-short row counts are audited only for the purposive five-accession sample. Acceptance is not first public receipt; no same-session use is authorized. No amendments, historical listing crosswalk, broad universe or alpha test are admitted."
+        "decision": "Full filing bytes, hashes, SEC-HEADER acceptance timestamps and direct-short row counts are audited only for the purposive five-accession sample. Fund identity is resolved through registrant CIK, registration file number and series name; the EDGAR Series ID is optional on Form N-PORT and is absent in one otherwise reconciled filing. Acceptance is not first public receipt; no same-session use is authorized. No amendments, historical listing crosswalk, broad universe or alpha test are admitted."
     }
 
 
