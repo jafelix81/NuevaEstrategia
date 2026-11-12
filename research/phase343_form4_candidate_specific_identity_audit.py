@@ -46,6 +46,20 @@ def canonical_sec_date(value):
     return parsed.isoformat() if parsed else ""
 
 
+def classify_header_cik(header_cik, issuer_cik, owner_ciks):
+    """SEC filing-header CIK identifies the filer (usually a reporting owner), not necessarily the issuer."""
+    header = norm_cik(str(header_cik or ""))
+    issuer = norm_cik(str(issuer_cik or ""))
+    owners = {norm_cik(str(x)) for x in (owner_ciks or []) if norm_cik(str(x))}
+    if not header:
+        return "MISSING"
+    if header == issuer:
+        return "ISSUER"
+    if header in owners:
+        return "REPORTING_OWNER"
+    return "UNMATCHED"
+
+
 def tx_key_bulk(row):
     return (norm(row.get("security_title", "")), canonical_sec_date(row.get("transaction_date", "")),
             str(row.get("transaction_code", "")).strip().upper(), "D", "A",
@@ -273,17 +287,50 @@ def run(archive_path, outdir, email):
                                      "details": meta})
             print(f"PHASE343_FORM4_PROGRESS={index}/{len(by_accession)} FAILED")
             continue
-        parsed = raw_meta(raw)
-        xml_summary, xml_transactions = extract_transaction_rows(raw, norm_cik(sample["issuer_cik"]))
+        raw_path = rawdir / f"{accession.replace('-', '')}.txt"
+        raw_path.write_bytes(raw)
+        try:
+            parsed = raw_meta(raw)
+            xml_summary, xml_transactions = extract_transaction_rows(raw, norm_cik(sample["issuer_cik"]))
+            footnotes = extract_raw_footnotes(raw)
+        except Exception as exc:
+            accession_rows[accession] = {
+                "retrieval_status": "QUARANTINED_PARSE_FAILURE",
+                "raw_sha256": meta.get("submission_sha256", sha256_bytes(raw)),
+                "raw_bytes": len(raw), "parse_error": f"{type(exc).__name__}:{str(exc)[:240]}",
+            }
+            accession_errors.append({"accession": accession, "status": "FORM4_XML_PARSE_FAILURE",
+                                     "details": accession_rows[accession]["parse_error"]})
+            print(f"PHASE343_FORM4_PROGRESS={index}/{len(by_accession)} QUARANTINED_PARSE_FAILURE")
+            continue
         header_cik = norm_cik(meta.get("header_cik", "")) if meta.get("header_cik") else ""
-        if parsed["cik"] != norm_cik(sample["issuer_cik"]) or xml_summary.get("issuer_matches_expected") is not True:
-            raise ValueError(f"form4_xml_issuer_cik_mismatch:{accession}")
-        if header_cik and header_cik != norm_cik(sample["issuer_cik"]):
-            raise ValueError(f"form4_header_cik_mismatch:{accession}")
+        expected_issuer = norm_cik(sample["issuer_cik"])
+        if norm_cik(parsed.get("cik", "")) != expected_issuer or xml_summary.get("issuer_matches_expected") is not True:
+            accession_rows[accession] = {
+                "retrieval_status": "QUARANTINED_ISSUER_IDENTITY_MISMATCH",
+                "issuer_cik": expected_issuer, "filing_date": filing_date_iso,
+                "raw_sha256": meta.get("submission_sha256", sha256_bytes(raw)),
+                "raw_bytes": len(raw), "xml_issuer_cik": parsed.get("cik", ""),
+            }
+            accession_errors.append({"accession": accession, "status": "FORM4_XML_ISSUER_CIK_MISMATCH"})
+            print(f"PHASE343_FORM4_PROGRESS={index}/{len(by_accession)} QUARANTINED_ISSUER_MISMATCH")
+            continue
+        header_role = classify_header_cik(header_cik, expected_issuer, xml_summary.get("xml_owner_ciks", []))
+        if header_role not in {"ISSUER", "REPORTING_OWNER"}:
+            accession_rows[accession] = {
+                "retrieval_status": "QUARANTINED_HEADER_CIK_MISMATCH",
+                "issuer_cik": expected_issuer, "filing_date": filing_date_iso,
+                "raw_sha256": meta.get("submission_sha256", sha256_bytes(raw)),
+                "raw_bytes": len(raw), "header_cik": header_cik,
+                "header_cik_role": header_role, "xml_owner_ciks": xml_summary.get("xml_owner_ciks", []),
+            }
+            accession_errors.append({"accession": accession, "status": "FORM4_HEADER_CIK_NOT_ISSUER_OR_REPORTING_OWNER",
+                                     "header_cik_role": header_role})
+            print(f"PHASE343_FORM4_PROGRESS={index}/{len(by_accession)} QUARANTINED_HEADER_CIK")
+            continue
         bulk_token, bulk_status, _ = parse_symbol(sample.get("issuer_symbol_as_filed", ""))
         xml_token, xml_status, _ = parse_symbol(parsed.get("symbol", ""))
         symbol_reconciled = bulk_status == "SINGLE_TOKEN" and xml_status == "SINGLE_TOKEN" and bulk_token == xml_token
-        footnotes = extract_raw_footnotes(raw)
         checks = [verify_candidate_row(c, xml_transactions, parsed["rows"], footnotes,
                                        len(parsed["owners"]), parsed.get("aff", ""))
                   for c in by_accession[accession]]
@@ -291,7 +338,8 @@ def run(archive_path, outdir, email):
             "retrieval_status": "RETRIEVED", "issuer_cik": norm_cik(sample["issuer_cik"]),
             "filing_date": sample["filing_date"], "raw_sha256": meta["submission_sha256"],
             "raw_bytes": meta["submission_bytes"], "path_cik": meta["path_cik"],
-            "path_route": meta["route"], "header_cik": meta.get("header_cik", ""),
+            "path_route": meta["route"], "header_cik": header_cik, "header_cik_role": header_role,
+            "xml_owner_ciks": xml_summary.get("xml_owner_ciks", []),
             "acceptance_datetime_et": meta.get("acceptance_datetime_et", ""),
             "xml_issuer_cik": parsed["cik"], "xml_symbol_raw": parsed.get("symbol", ""),
             "bulk_symbol_raw": sample.get("issuer_symbol_as_filed", ""),

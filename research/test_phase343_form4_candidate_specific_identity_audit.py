@@ -2,7 +2,7 @@ from __future__ import annotations
 import unittest
 from research.phase328_sec_collision_prior_filing_xbrl_pilot import select_prior_periodic_filing
 from research.phase343_form4_candidate_specific_identity_audit import (
-    canonical_sec_date, crosswalk, decimal_key, facts_to_contexts, group_event_units,
+    canonical_sec_date, classify_header_cik, crosswalk, decimal_key, facts_to_contexts, group_event_units,
     strict_date_relation, tx_key_bulk, tx_key_xml,
 )
 
@@ -76,6 +76,12 @@ class Phase343Tests(unittest.TestCase):
         self.assertEqual(strict_date_relation("2026-07-01","2026-07-01"),(False,0))
         self.assertEqual(strict_date_relation("2026-07-02","2026-07-01"),(False,-1))
         self.assertEqual(strict_date_relation("","2026-07-01"),(False,None))
+
+    def test_form4_header_cik_may_be_issuer_or_reporting_owner(self):
+        self.assertEqual(classify_header_cik("0000843006", "843006", ["1062993"]), "ISSUER")
+        self.assertEqual(classify_header_cik("0001062993", "843006", ["1062993"]), "REPORTING_OWNER")
+        self.assertEqual(classify_header_cik("9999999", "843006", ["1062993"]), "UNMATCHED")
+        self.assertEqual(classify_header_cik("", "843006", ["1062993"]), "MISSING")
 
     def test_sec_bulk_dates_normalize_for_form4_header_and_event_clock(self):
         self.assertEqual(canonical_sec_date("24-SEP-2026"), "2026-09-24")
