@@ -2,7 +2,7 @@
 """One-time SEC Latest Filings Atom/RSS feasibility probe for Forms 4 and 4/A.
 
 This is a prospective endpoint probe only. Feed updated timestamps are not
-treated as exact first-public timestamps; the raw response and poll interval
+treated as exact first-public timestamps; raw entity rows and poll intervals
 are preserved for future validation.
 """
 from __future__ import annotations
@@ -11,8 +11,8 @@ import argparse
 import hashlib
 import json
 import re
-import sys
 import time
+from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.error import HTTPError, URLError
@@ -56,6 +56,16 @@ def accession_from_url(url: str) -> str:
     return f"{value[:10]}-{value[10:12]}-{value[12:]}"
 
 
+def parse_entity_title(title: str) -> dict:
+    role_match = re.search(r"\((Issuer|Reporting)\)\s*$", title, re.I)
+    role = role_match.group(1).title() if role_match else ""
+    cik_match = re.search(r"\((\d{10})\)\s*(?:\((?:Issuer|Reporting)\))?\s*$", title, re.I)
+    entity_cik = cik_match.group(1) if cik_match else ""
+    name = re.sub(r"^\s*\d+(?:/A)?\s*[-–:]\s*", "", title, flags=re.I)
+    name = re.sub(r"\s+\(\d{10}\)\s*(?:\((?:Issuer|Reporting)\))?\s*$", "", name, flags=re.I)
+    return {"entity_name_from_title": name.strip(), "entity_cik_from_title": entity_cik, "entity_role_from_title": role}
+
+
 def parse_atom(payload: bytes) -> list[dict]:
     root = ET.fromstring(payload)
     if local_name(root.tag) != "feed":
@@ -74,12 +84,19 @@ def parse_atom(payload: bytes) -> list[dict]:
             if local_name(child.tag) == "link" and child.attrib.get("href")
         ]
         link = links[0] if links else ""
-        cik_match = re.search(r"/data/(\d+)/", link)
-        form = form_from_title(title)
+        path_cik_match = re.search(r"/data/(\d+)/", link)
+        entity = parse_entity_title(title)
+        path_cik = path_cik_match.group(1) if path_cik_match else ""
+        path_matches_title = bool(
+            path_cik and entity["entity_cik_from_title"]
+            and str(int(path_cik)) == str(int(entity["entity_cik_from_title"]))
+        )
         entries.append({
             "title": title,
-            "form_type_from_title": form,
-            "issuer_cik_from_link": cik_match.group(1) if cik_match else "",
+            "form_type_from_title": form_from_title(title),
+            **entity,
+            "path_cik_from_link": path_cik,
+            "path_cik_matches_title_entity": path_matches_title,
             "accession_from_link": accession_from_url(link),
             "entry_id": entry_id,
             "feed_updated_raw": updated,
@@ -87,6 +104,36 @@ def parse_atom(payload: bytes) -> list[dict]:
             "summary_raw": summary,
         })
     return entries
+
+
+def group_filing_entries(entries: list[dict]) -> tuple[list[dict], list[dict]]:
+    grouped = defaultdict(list)
+    orphans = []
+    for entry in entries:
+        key = entry["accession_from_link"]
+        if key:
+            grouped[key].append(entry)
+        else:
+            orphans.append(entry)
+    filings = []
+    for accession, rows in sorted(grouped.items()):
+        forms = sorted({x["form_type_from_title"] for x in rows if x["form_type_from_title"]})
+        issuer_ciks = sorted({x["entity_cik_from_title"] for x in rows if x["entity_role_from_title"] == "Issuer" and x["entity_cik_from_title"]})
+        reporting_ciks = sorted({x["entity_cik_from_title"] for x in rows if x["entity_role_from_title"] == "Reporting" and x["entity_cik_from_title"]})
+        roles = sorted({x["entity_role_from_title"] for x in rows if x["entity_role_from_title"]})
+        filings.append({
+            "accession": accession,
+            "form_type": forms[0] if len(forms) == 1 else "CONFLICT",
+            "form_types": forms,
+            "raw_entity_row_count": len(rows),
+            "entity_roles": roles,
+            "issuer_ciks": issuer_ciks,
+            "reporting_ciks": reporting_ciks,
+            "path_title_cik_match_count": sum(bool(x["path_cik_matches_title_entity"]) for x in rows),
+            "path_title_cik_mismatch_count": sum(not x["path_cik_matches_title_entity"] for x in rows),
+            "feed_updated_values": sorted({x["feed_updated_raw"] for x in rows if x["feed_updated_raw"]}),
+        })
+    return filings, orphans
 
 
 def fetch(url: str, user_agent: str) -> tuple[bytes, dict]:
@@ -147,15 +194,16 @@ def run_probe(email: str, output_dir: Path) -> dict:
                 "poll_completed_at_utc": completed.isoformat(),
                 "response_headers": headers,
                 "raw_file": str(raw_path.relative_to(output_dir)),
-                "entry_count": len(entries),
-                "form_counts": {},
+                "entry_row_count": len(entries),
+                "form_counts_by_entity_row": {},
             })
             counts = {}
             for entry in entries:
                 form = entry["form_type_from_title"] or "UNPARSED"
                 counts[form] = counts.get(form, 0) + 1
                 entry["query_label"] = label
-            item["form_counts"] = counts
+            item["form_counts_by_entity_row"] = counts
+            item["unique_accession_count"] = len({x["accession_from_link"] for x in entries if x["accession_from_link"]})
             all_entries.extend(entries)
         except (HTTPError, URLError, TimeoutError, ValueError, ET.ParseError) as exc:
             item.update({
@@ -167,17 +215,17 @@ def run_probe(email: str, output_dir: Path) -> dict:
         query_results.append(item)
         time.sleep(1.0)
 
-    dedup = {}
-    for entry in all_entries:
-        key = entry["accession_from_link"] or entry["entry_id"] or entry["link"]
-        if key and key not in dedup:
-            dedup[key] = entry
-    entries = list(dedup.values())
+    filings, orphan_entries = group_filing_entries(all_entries)
     form_counts = {}
-    for entry in entries:
-        form = entry["form_type_from_title"] or "UNPARSED"
+    raw_form_counts = {}
+    for filing in filings:
+        form = filing["form_type"]
         form_counts[form] = form_counts.get(form, 0) + 1
+    for entry in all_entries:
+        form = entry["form_type_from_title"] or "UNPARSED"
+        raw_form_counts[form] = raw_form_counts.get(form, 0) + 1
     valid_queries = sum(x["status"] == "ATOM_PARSED" for x in query_results)
+    issuer_reporting_pairs = sum(bool(x["issuer_ciks"]) and bool(x["reporting_ciks"]) for x in filings)
     status = "PASS_ATOM_ENDPOINT" if valid_queries >= 1 else "BLOCKED_NO_VALID_ATOM_RESPONSE"
     result = {
         "phase": 303,
@@ -187,14 +235,22 @@ def run_probe(email: str, output_dir: Path) -> dict:
         "summary": {
             "queries_attempted": len(QUERIES),
             "valid_atom_responses": valid_queries,
-            "unique_entries": len(entries),
-            "form_counts": form_counts,
-            "form4_entries": form_counts.get("4", 0),
-            "form4a_entries": form_counts.get("4/A", 0),
-            "accessions_with_parseable_accession": sum(bool(x["accession_from_link"]) for x in entries),
-            "accessions_with_parseable_issuer_cik": sum(bool(x["issuer_cik_from_link"]) for x in entries),
+            "raw_entity_entry_rows": len(all_entries),
+            "unique_accessions": len(filings),
+            "orphan_entry_rows_without_accession": len(orphan_entries),
+            "raw_form_counts_by_entity_row": raw_form_counts,
+            "form_counts_by_accession": form_counts,
+            "form4_accessions": form_counts.get("4", 0),
+            "form4a_accessions": form_counts.get("4/A", 0),
+            "accessions_with_issuer_entity_row": sum(bool(x["issuer_ciks"]) for x in filings),
+            "accessions_with_reporting_entity_row": sum(bool(x["reporting_ciks"]) for x in filings),
+            "accessions_with_both_issuer_and_reporting_rows": issuer_reporting_pairs,
+            "accessions_with_exactly_two_entity_rows": sum(x["raw_entity_row_count"] == 2 for x in filings),
+            "path_title_cik_mismatches": sum(x["path_title_cik_mismatch_count"] for x in filings),
         },
-        "entries": entries,
+        "entity_rows": all_entries,
+        "filings": filings,
+        "orphan_entity_rows": orphan_entries,
         "controls": {
             "exact_first_public_timestamp_verified": False,
             "historical_backfill_available": False,
