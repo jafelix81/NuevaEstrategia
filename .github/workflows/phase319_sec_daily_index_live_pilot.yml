@@ -1,0 +1,50 @@
+name: Phase 319 SEC daily-index live format pilot
+
+on:
+  push:
+    branches:
+      - phase319-sec-daily-index-live-format-pilot
+    paths:
+      - ".github/workflows/phase319_sec_daily_index_live_pilot.yml"
+      - "research/phase319_sec_daily_index_live_pilot.py"
+      - "research/test_phase319_sec_daily_index_live_pilot.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase319-sec-daily-index-live-format-pilot
+  cancel-in-progress: false
+
+jobs:
+  live-index-pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SEC_CONTACT_EMAIL: ${{ secrets.SEC_CONTACT_EMAIL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+
+      - name: Compile and run offline parser regressions
+        run: |
+          python -m compileall -q research/phase283_sec_daily_index_parser.py research/phase318_nport_next_business_day_clock.py research/phase319_sec_daily_index_live_pilot.py research/test_phase283_sec_daily_index_parser.py research/test_phase318_nport_next_business_day_clock.py research/test_phase319_sec_daily_index_live_pilot.py
+          python -m unittest -v research.test_phase283_sec_daily_index_parser research.test_phase318_nport_next_business_day_clock research.test_phase319_sec_daily_index_live_pilot
+
+      - name: Download selected raw SEC daily indexes and crosscheck original filings
+        run: |
+          python -m research.phase319_sec_daily_index_live_pilot --output-dir phase319_output
+
+      - name: Upload hashes and parsed metadata only (no raw SEC bytes)
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase319-sec-daily-index-live-format-pilot
+          path: phase319_output/
+          retention-days: 90
+          if-no-files-found: error
