@@ -1,14 +1,15 @@
 import unittest
 
-from research.phase305_sec_rss_start_offset_audit import analyze_offset_pages
+from research.phase305_sec_rss_start_offset_audit import analyze_offset_pages, exact_form_type
 
 
-def row(accession, role, cik, path_cik, updated="2026-11-12T00:00:00-05:00"):
+def row(accession, role, cik, path_cik, updated="2026-11-12T00:00:00-05:00", form="4"):
     compact = accession.replace("-", "")
     return {
         "accession_from_link": accession,
         "entry_id": f"urn:tag:sec.gov,2008:accession-number={accession}",
-        "form_type_from_title": "4",
+        "title": f"{form} - Test Company ({cik}) ({role})",
+        "form_type_from_title": form,
         "entity_role_from_title": role,
         "entity_cik_from_title": cik,
         "path_cik_from_link": path_cik,
@@ -80,6 +81,28 @@ class Phase305OffsetTests(unittest.TestCase):
         ])
         self.assertTrue(result["offset_parameter_effective"])
         self.assertEqual(result["unique_accessions_union"], 1)
+
+    def test_exact_form_parser_does_not_truncate_prefixed_forms(self):
+        self.assertEqual(exact_form_type("4 - Example Corp (0000000123) (Issuer)"), "4")
+        self.assertEqual(exact_form_type("4/A - Example Corp (0000000123) (Issuer)"), "4/A")
+        self.assertEqual(exact_form_type("40-APP/A - Example Fund (0000000123) (Filer)"), "40-APP/A")
+        self.assertEqual(exact_form_type("424B5 - Example Corp (0000000123) (Filer)"), "424B5")
+
+    def test_type4_prefix_spillover_is_counted_but_excluded_from_form4_union(self):
+        a = "0000000123-26-000001"
+        b = "0000000123-26-000002"
+        c = "0000000123-26-000003"
+        result = analyze_offset_pages([
+            page(0, [row(a, "Issuer", "0000000123", "123")], "a"),
+            page(100, [
+                row(b, "Issuer", "0000000123", "123"),
+                row(c, "Filer", "0000000123", "123", form="424B5"),
+            ], "b"),
+        ])
+        self.assertEqual(result["unique_accessions_union"], 2)
+        self.assertEqual(result["non_target_form_rows"], 1)
+        self.assertIn("424B5", result["non_target_form_types"])
+        self.assertEqual(result["structural_error_count"], 0)
 
     def test_structural_mismatch_is_counted(self):
         item = row("0000000123-26-000001", "Issuer", "0000000123", "123")
