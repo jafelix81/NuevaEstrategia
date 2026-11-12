@@ -13,7 +13,7 @@
 - The 2022 original and amendment have exactly the same 20 short rows. The 2022 amendment versus the 2023 same-series snapshot has 23 added, 4 modified, 16 removed and 0 unchanged rows. Those are delayed snapshot differences, not trades or trade dates.
 - Absolute reported short value is $49.203M (25.6799 reported NAV percentage points) in the 2022 snapshot and $46.452M (32.8880 points) in the 2023 snapshot. Descriptive only; no predictive inference.
 - Report: [Phase 315](https://github.com/jafelix81/NuevaEstrategia/blob/phase315-nport-position-identifier-attribute-audit/research/PHASE315_NPORT_POSITION_IDENTIFIER_ATTRIBUTE_RECONCILIATION_2026-11-12.md). Phase 314 parent audit: [report](https://github.com/jafelix81/NuevaEstrategia/blob/phase315-nport-position-identifier-attribute-audit/research/PHASE314_NPORT_OTTER_CREEK_AMENDMENT_PARENT_AUDIT_2026-11-12.md).
-- Five preliminary Phase 315 workflow attempts failed only in workflow setup (artifact-token expression, dependency and import path); they produced no accepted research artifact and made no SEC requests. Final run 43163123951 passed. No data were purchased or vendor contacted.
+- Five preliminary Phase 315 attempts failed before producing a research artifact: four from an incorrectly escaped cross-run token expression and one from the direct-script import path. The final run corrected both; requests was installed to reuse the Phase 312 parser. No SEC request was made in any Phase 315 attempt. No data were purchased or vendor contacted.
 
 ## Latest SEC Form 4 prospective capture
 
