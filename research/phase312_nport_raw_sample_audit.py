@@ -54,6 +54,21 @@ def decimal_value(value: str | None) -> Decimal | None:
         return None
     return parsed if parsed.is_finite() else None
 
+def normalize_identifier(value: str | None) -> str:
+    text = str(value or "").strip()
+    if text.upper() in {"", "N/A", "NA", "NONE", "NULL", "-", "NOT AVAILABLE"}:
+        return ""
+    return text
+
+
+def is_valid_cusip(value: str) -> bool:
+    return bool(re.fullmatch(r"[0-9A-Z*@#]{9}", normalize_identifier(value).upper()))
+
+
+def is_valid_isin(value: str) -> bool:
+    return bool(re.fullmatch(r"[A-Z]{2}[A-Z0-9]{10}", normalize_identifier(value).upper()))
+
+
 
 def unique_ordered(values: list[str]) -> list[str]:
     out = []
@@ -101,7 +116,7 @@ def _identifier_children(element: ET.Element) -> dict[str, str]:
     for child in list(element):
         if local_name(child.tag) == "identifiers":
             for identifier in list(child):
-                result[local_name(identifier.tag)] = (identifier.text or "").strip()
+                result[local_name(identifier.tag)] = normalize_identifier(identifier.attrib.get("value") or identifier.text)
     return result
 
 
@@ -117,9 +132,12 @@ def parse_holding_rows(root: ET.Element) -> tuple[list[dict[str, Any]], int]:
         row = {
             "issuer_name": fields.get("name", ""),
             "issue_title": fields.get("title", ""),
-            "cusip": fields.get("cusip", ""),
-            "isin": identifiers.get("isin", ""),
-            "ticker": identifiers.get("ticker", ""),
+            "cusip": normalize_identifier(fields.get("cusip")),
+            "isin": normalize_identifier(identifiers.get("isin")),
+            "ticker": normalize_identifier(identifiers.get("ticker")),
+            "cusip_valid_format": is_valid_cusip(fields.get("cusip", "")),
+            "isin_valid_format": is_valid_isin(identifiers.get("isin", "")),
+            "ticker_reported": bool(normalize_identifier(identifiers.get("ticker"))),
             "balance": fields.get("balance", ""),
             "units": fields.get("units", ""),
             "currency_value_usd": fields.get("valUSD", ""),
@@ -259,9 +277,9 @@ def parse_submission(raw_bytes: bytes, expected: dict[str, str]) -> tuple[dict[s
         "short_category_rows": len(short_rows),
         "short_sign_concordant_rows": sum(1 for row in short_rows if row["sign_concordant"]),
         "short_sign_nonconcordant_rows": sum(1 for row in short_rows if not row["sign_concordant"]),
-        "short_rows_with_cusip": sum(1 for row in short_rows if row["cusip"]),
-        "short_rows_with_isin": sum(1 for row in short_rows if row["isin"]),
-        "short_rows_with_ticker": sum(1 for row in short_rows if row["ticker"]),
+        "short_rows_with_cusip": sum(1 for row in short_rows if row["cusip_valid_format"]),
+        "short_rows_with_isin": sum(1 for row in short_rows if row["isin_valid_format"]),
+        "short_rows_with_ticker": sum(1 for row in short_rows if row["ticker_reported"]),
         "core_reconciliation_pass": all([
             header_accession == expected_accession,
             header_form == expected_form,
@@ -404,9 +422,9 @@ def run_audit(input_dir: Path, output_dir: Path, contact_email: str) -> dict[str
     series_states = Counter(x.get("series_identity_state", "UNKNOWN") for x in parsed)
     form_counts = Counter(x.get("form_type") for x in filings)
     sign_rows = [x for x in short_rows_all if x.get("sign_concordant")]
-    unique_cusips = sorted({x["cusip"] for x in sign_rows if x.get("cusip")})
-    unique_isins = sorted({x["isin"] for x in sign_rows if x.get("isin")})
-    unique_tickers = sorted({x["ticker"] for x in sign_rows if x.get("ticker")})
+    unique_cusips = sorted({x["cusip"] for x in sign_rows if x.get("cusip_valid_format")})
+    unique_isins = sorted({x["isin"] for x in sign_rows if x.get("isin_valid_format")})
+    unique_tickers = sorted({x["ticker"] for x in sign_rows if x.get("ticker_reported")})
 
     status = (
         "PASS_RAW_SAMPLE_CORE_RECONCILIATION"
@@ -452,9 +470,9 @@ def run_audit(input_dir: Path, output_dir: Path, contact_email: str) -> dict[str
             "narrow_short_category_rows": sum(int(x.get("short_category_rows", 0)) for x in parsed),
             "sign_concordant_short_rows": len(sign_rows),
             "nonconcordant_short_category_rows": sum(int(x.get("short_sign_nonconcordant_rows", 0)) for x in parsed),
-            "sign_concordant_rows_with_cusip": sum(1 for x in sign_rows if x.get("cusip")),
-            "sign_concordant_rows_with_isin": sum(1 for x in sign_rows if x.get("isin")),
-            "sign_concordant_rows_with_ticker": sum(1 for x in sign_rows if x.get("ticker")),
+            "sign_concordant_rows_with_cusip": sum(1 for x in sign_rows if x.get("cusip_valid_format")),
+            "sign_concordant_rows_with_isin": sum(1 for x in sign_rows if x.get("isin_valid_format")),
+            "sign_concordant_rows_with_ticker": sum(1 for x in sign_rows if x.get("ticker_reported")),
             "unique_cusips": len(unique_cusips),
             "unique_isins": len(unique_isins),
             "unique_tickers": len(unique_tickers),
@@ -521,7 +539,7 @@ def run_audit(input_dir: Path, output_dir: Path, contact_email: str) -> dict[str
     short_fields = [
         "accession", "registrant_cik", "form_type", "filing_date", "acceptance_datetime_et",
         "report_date", "series_ids", "series_identity_state", "row_number_within_short_candidates",
-        "issuer_name", "issue_title", "cusip", "isin", "ticker", "balance", "units",
+        "issuer_name", "issue_title", "cusip", "isin", "ticker", "cusip_valid_format", "isin_valid_format", "ticker_reported", "balance", "units",
         "currency_value_usd", "percentage_nav", "payoff_profile", "asset_category", "issuer_type",
         "investment_country", "category_match", "sign_concordant",
     ]
