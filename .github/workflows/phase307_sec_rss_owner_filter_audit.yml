@@ -1,0 +1,50 @@
+name: Phase 307 SEC RSS owner filter semantics audit
+
+on:
+  push:
+    branches: [phase307-sec-rss-owner-only-filter-audit]
+    paths:
+      - 'research/phase306_sec_rss_contiguous_scan.py'
+      - 'research/test_phase306_sec_rss_contiguous_scan.py'
+      - 'research/phase307_sec_rss_owner_filter_audit.py'
+      - 'research/test_phase307_sec_rss_owner_filter_audit.py'
+      - '.github/workflows/phase307_sec_rss_owner_filter_audit.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase307-sec-rss-owner-only-filter-audit
+  cancel-in-progress: false
+
+jobs:
+  owner-filter-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SEC_CONTACT_EMAIL: ${{ secrets.SEC_CONTACT_EMAIL }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.11'
+      - name: Compile and run offline regression tests
+        env:
+          PYTHONPATH: .:research
+        run: |
+          python -m py_compile research/phase303_sec_latest_filings_rss_probe.py research/phase304_sec_rss_count_cap_audit.py research/phase305_sec_rss_start_offset_audit.py research/phase306_sec_rss_contiguous_scan.py research/phase307_sec_rss_owner_filter_audit.py research/test_phase306_sec_rss_contiguous_scan.py research/test_phase307_sec_rss_owner_filter_audit.py
+          python -m unittest -v research.test_phase307_sec_rss_owner_filter_audit
+          python -m unittest -v research.test_phase306_sec_rss_contiguous_scan
+          python -m unittest -v research.test_phase305_sec_rss_start_offset_audit
+          python -m unittest -v research.test_phase304_sec_rss_count_cap_audit
+          python -m unittest -v research.test_phase303_sec_latest_filings_rss_probe
+      - name: Audit SEC owner filter modes
+        run: python -u -m research.phase307_sec_rss_owner_filter_audit --output phase307_output
+      - name: Upload raw Atom responses and owner-filter ledger
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase307-sec-rss-owner-filter-audit
+          path: phase307_output/
+          if-no-files-found: warn
+          retention-days: 90
