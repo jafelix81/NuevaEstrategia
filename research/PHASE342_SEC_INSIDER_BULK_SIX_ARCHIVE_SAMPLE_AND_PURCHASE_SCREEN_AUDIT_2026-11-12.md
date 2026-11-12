@@ -2,7 +2,7 @@
 
 **Date:** 2026-11-12 UTC  
 **Status:** PASS — six official SEC quarterly ZIP archives downloaded, hash-pinned, schema-audited and reconciled.  
-**GitHub Actions:** [run 43265704634](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43265704634) — success; 5/5 offline regression tests passed.  
+**GitHub Actions:** [run 43265704634](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43265704634) — success; 6/6 offline regression tests passed.  
 **Artifact:** [13965917386](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43265704634/artifacts/13965917386)  
 **Artifact ZIP SHA-256:** `16614b404f007b78f47951ef84604660ea6612f0c86f1b2ba5a6fa7b7d52d80c`  
 **Disposition:** historical bulk source and high-precision candidate screen reproduced; no security identity, strict PIT, price panel or alpha admission.
