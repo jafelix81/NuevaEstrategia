@@ -1,0 +1,59 @@
+name: Phase 313 N-PORT SGML header identity correction
+
+on:
+  push:
+    branches:
+      - phase313-nport-sgml-header-identity-correction
+    paths:
+      - ".github/workflows/phase313_nport_sgml_header_identity_correction.yml"
+      - "research/phase313_nport_sgml_header_reconciliation.py"
+      - "research/test_phase313_nport_sgml_header_reconciliation.py"
+      - "research/phase313_f80_legacy_ticker_snapshot_2026-10-20.csv"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: phase313-nport-sgml-header-identity
+  cancel-in-progress: false
+
+jobs:
+  offline-reconciliation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+
+      - name: Download immutable Phase 312 raw sample artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: phase312-nport-raw-stratified-sample
+          repository: jafelix81/NuevaEstrategia
+          run-id: 43157888685
+          github-token: ${{ github.token }}
+          path: phase312_input
+
+      - name: Compile and run Phase 313 regressions
+        run: |
+          python -m compileall -q research/phase313_nport_sgml_header_reconciliation.py research/test_phase313_nport_sgml_header_reconciliation.py
+          python -m unittest -v research.test_phase313_nport_sgml_header_reconciliation
+
+      - name: Reconcile all 56 immutable raw submissions offline
+        run: |
+          python research/phase313_nport_sgml_header_reconciliation.py --input-dir phase312_input --output-dir phase313_output --ticker-snapshot research/phase313_f80_legacy_ticker_snapshot_2026-10-20.csv
+
+      - name: Upload corrected identity reconciliation
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase313-nport-sgml-header-identity-correction
+          path: phase313_output/
+          retention-days: 90
+          if-no-files-found: error
