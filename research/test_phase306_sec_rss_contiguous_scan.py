@@ -124,6 +124,19 @@ class Phase306ContiguousScanTests(unittest.TestCase):
         self.assertEqual(result["target_structural_errors"]["orphan_entity_rows"], 1)
         self.assertFalse(result["complete_current_snapshot_scan"])
 
+    def test_short_next_page_does_not_shrink_expected_overlap(self):
+        rows = [make_row(i) for i in range(100)]
+        short = rows[80:90]
+        result = analyze_contiguous_scan(
+            [page(0, rows), page(80, short)],
+            page(0, rows),
+            "4",
+        )
+        self.assertEqual(result["overlap_checks"][0]["expected_entity_row_overlap"], 20)
+        self.assertEqual(result["overlap_checks"][0]["shared_entity_rows"], 10)
+        self.assertFalse(result["all_adjacent_overlaps_match"])
+        self.assertFalse(result["complete_current_snapshot_scan"])
+
     def test_failed_page_is_not_complete(self):
         rows = [make_row(i) for i in range(100)]
         pages = [page(0, rows), page(80, [], status=503)]
