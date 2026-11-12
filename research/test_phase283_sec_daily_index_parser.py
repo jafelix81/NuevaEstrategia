@@ -59,6 +59,23 @@ class Phase283DailyIndexTests(unittest.TestCase):
         self.assertEqual(result["records"][0]["accession"], "0000789000-26-000001")
         self.assertEqual(result["records"][0]["cik"], "320193")
 
+    def test_multiword_fixed_width_form_types_are_ignored_not_malformed(self):
+        rows = [
+            "AW WD       AEGIS VALUE FUND INC                                          1052169     20060103    edgar/data/1052169/0000919574-06-000024.txt",
+            "DEF 14A     ALTIGEN COMMUNICATIONS INC                                    1003607     20060103    edgar/data/1003607/0001104659-06-000132.txt",
+            "CT ORDER    APOLLO GROUP INC                                              929887      20120103    edgar/data/929887/9999999997-12-000021.txt",
+            "APP ORDR    JPMorgan Private Markets Fund                                 1940499     20230403    edgar/data/1940499/9999999997-23-001318.txt",
+            "1-A POS     Emergent Health Corp.                                         1463459     20230103    edgar/data/1463459/0001903596-23-000006.txt",
+        ]
+        for row in rows:
+            result = parse_daily_form_index(
+                (FIXED_INDEX_HEADER + row + "\n").encode(),
+                "form.20260102.idx",
+            )
+            self.assertEqual(result["counts"]["malformed_rows"], 0)
+            self.assertEqual(result["counts"]["non_form4_rows_ignored"], 1)
+            self.assertEqual(result["records"], [])
+
     def test_parses_actual_sec_legacy_fixed_width_index_with_dashed_accession(self):
         raw = (FIXED_INDEX_HEADER + FIXED_FORM4 + "\n").encode("latin-1")
         result = parse_daily_form_index(raw, "form.20260102.idx")
