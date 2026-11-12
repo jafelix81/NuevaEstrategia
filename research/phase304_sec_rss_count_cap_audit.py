@@ -102,7 +102,7 @@ def analyze_feed_snapshot(entries: list[dict], expected_form: str) -> dict:
         "duplicate_entity_rows": duplicate_entity_rows,
         "accession_form_conflicts": form_conflicts,
         "accession_updated_timestamp_conflicts": updated_conflicts,
-        "entity_rows_per_accession": dict(sorted(Counter(len(v) for v in grouped.values()).items())),
+        "entity_rows_per_accession": {str(k): v for k, v in sorted(Counter(len(v) for v in grouped.values()).items())},
         "accessions_with_issuer_and_reporting": sum(bool(x["issuer_ciks"]) and bool(x["reporting_ciks"]) for x in ledger),
         "feed_updated_order_nonincreasing": ordered,
         "oldest_feed_updated": min((x.isoformat() for x in timestamps), default=None),
