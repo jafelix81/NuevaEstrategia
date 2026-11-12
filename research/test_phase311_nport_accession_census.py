@@ -38,6 +38,20 @@ class Phase311NportCensusTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "index_cik_path_cik_mismatch"):
             accession_from_filename("edgar/data/123456/000012345620000001/primary_doc.xml", "999999")
 
+    def test_legacy_dashed_accession_filename_can_use_filing_agent_prefix(self):
+        accession = accession_from_filename(
+            "edgar/data/1000249/0001752724-19-181391.txt",
+            "1000249",
+        )
+        self.assertEqual(accession, "0001752724-19-181391")
+
+    def test_accession_folder_prefix_need_not_equal_registrant_cik(self):
+        accession = accession_from_filename(
+            "edgar/data/1000249/000175272419181391/primary_doc.xml",
+            "1000249",
+        )
+        self.assertEqual(accession, "0001752724-19-181391")
+
     def test_exact_forms_are_kept_and_nt_prefix_is_excluded(self):
         lines = [
             "Description: Form 13F-HR",
