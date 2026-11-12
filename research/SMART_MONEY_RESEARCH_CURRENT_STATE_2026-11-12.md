@@ -1,7 +1,40 @@
 # Smart Money Research — current state (2026-11-12 UTC)
 
-**Active research branch:** `phase320-sec-bulk-daily-index-join`  
-**Latest completed research:** Phase 320 — SEC bulk-to-daily-index accession join audit.  
+**Active research branch:** `phase324-sec-form4-stratified-clock-validation`  
+**Latest completed research:** Phase 324 — source-level adjudication of the three remaining SEC Form 4 clock exceptions.  
+
+## Latest verified research — Phase 324 (2026-11-12 UTC)
+
+- Final GitHub Actions [run 43192937006](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43192937006) passed 9/9 offline regressions and completed the source-level recheck. [Artifact 13930934547](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43192937006/artifacts/13930934547), ZIP SHA-256 \`e2828741eba0317dc5a582e0c70796f88ec438a606e268807f92cb9a2ef0f78b\`.
+- Re-fetched all three original Form 4 submissions that remained quarantined after Phase 323. All 3/3 original header identity checks passed, including accession, form, header CIK, filed date, acceptance timestamp and XML issuer/reporting-owner CIK set.
+- Retrieved and parsed 21 targeted SEC daily indexes with zero HTTP or parser errors. Six exact accession/index rows were recovered across two cases; all row CIK/path-CIK pairs matched.
+- VIST accession \`0000775662-08-000044\`: four exact rows across 2008-10-02 and 2008-10-06, with conflicting row filed dates (2008-10-02 vs. 2006-02-15); acceptance lag 662 EDGAR business days. Remains quarantined.
+- BeOne accession \`0001193125-26-393103\`: no exact row in six business-day indexes from 2026-09-16 through 2026-09-23, despite original header/XML identity confirmation. Six reporting owners plus issuer. XML transaction code M is exercise/conversion, not an open-market purchase. Remains quarantined.
+- Nalco accession \`0001298341-06-000168\`: two exact entity rows on 2006-10-13 match acceptance/index date, but the header filed date is 2006-02-14 (168 business-day lag). XML code P means open-market **or private** purchase; not proof of a public-market execution. Remains quarantined.
+- Decision: keep all three exceptions quarantined. Phase 323's 21/24 corroborated cases are date-level evidence only; the exception set is purposive, not a probability sample. Daily-index date is not an exact first-public receipt timestamp. Strict PIT remains closed.
+- No alpha/return, bootstrap/LOO, chronological OOS or holdout test. F80 and production controls remain unchanged.
+
+- [Phase 324 report](PHASE324_SEC_FORM4_EXCEPTION_SOURCE_LEVEL_ADJUDICATION_2026-11-12.md)
+
+## Latest verified research — Phase 323 (2026-11-12 UTC)
+
+- GitHub Actions [run 43188524842](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43188524842) passed. [Artifact 13928449264](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43188524842/artifacts/13928449264), ZIP SHA-256 \`dacc9f8374e4f86cc31dbe59de5d856ee1900902ce4096b879b69127e38e66fb\`.
+- Corrected the semantic comparison between SEC bulk/header \`FILED AS OF DATE\`, \`ACCEPTANCE-DATETIME\` and the daily-index file/row date. Of 24 full-census exceptions, 21 had acceptance date and daily-index date agree; 20 were one EDGAR business day later than the header/bulk date, one was four business days later.
+- One long-acceptance-lag case, one multi-index-date conflict and one daily-index-absent case remained quarantined. The 24 cases are the exception population, not a probability sample.
+- No strict PIT admission or return test.
+
+## Latest verified research — Phase 322 (2026-11-12 UTC)
+
+- GitHub Actions [run 43187165781](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43187165781) passed. [Artifact 13928752264](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43187165781/artifacts/13928752264), SHA-256 \`c7eaf3cfc751e401d543bceeec20c3fe6643b09dfb8d2b0ff97df86070dca50d\`.
+- All 24 exceptions from Phase 321 had an original SEC header and a master-index hit. Twenty-one initially differed between bulk/header filed date and daily-index evidence; three had no daily-index hit in the first search. Phase 323/324 further adjudicated these cases.
+
+## Latest verified research — Phase 321 (2026-11-12 UTC)
+
+- GitHub Actions [run 43177940904](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43177940904) passed. [Artifact 13925636412](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43177940904/artifacts/13925636412), SHA-256 \`e45cab68d1ebe15248cc76bad70b015c8f0bd2052689c0690478bbca4526965c\`.
+- Full join census: 317,267 Form 4/4-A accessions across six SEC quarterly archives; 317,243 matched the daily index on the bulk filed date, leaving 24 exceptions. The six archives contain 6,706 multi-owner accessions (2.11%).
+- Stratified original-header sample: 48/48 identity checks passed; 42/42 independent issuer-path vs. owner-path hashes matched. Six same-path cases are not independent crosschecks.
+- This establishes broad index-join coverage in the six selected archive quarters, not uninterrupted daily coverage or strict PIT for all accessions.
+
 ## Latest verified research — Phase 320 (2026-11-12 UTC)
 
 - GitHub Actions [run 43176308146](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43176308146) passed **10/10 Phase 320 regressions** plus live SEC validation. [Artifact 13924636727](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43176308146/artifacts/13924636727), ZIP SHA-256 `995f114e641443df2f6f32bc8f8cc0509fbf7efa3aeef18cc3bfd7d940aef150`.
@@ -13,7 +46,7 @@
 - All 72 sampled accessions were single-owner. The six source archives contain 6,706 multi-owner accessions (2.11%), with up to ten owners; they require a separate stratified live-header audit. The sample is not a probability sample and is not a prevalence estimate.
 - No returns, alpha, bootstrap/LOO, chronological OOS or holdout test. No raw SEC bytes uploaded, vendor contacted, data purchased, email sent, or production/universe/capital/parameter change. F80 remains frozen.
 
-**Next gate:** complete the daily-index join census for all 317,267 accessions across the six archives and stratify original-header crosschecks across single- and multi-owner cohorts. Then resolve effective-dated issuer/security-class identity and broad survivorship-aware universe coverage before any Form 4 signal test.
+**Next gate:** the six-archive daily-index join census and the 24-case exception adjudication are complete. Resolve effective-dated issuer/listing/security/share-class identity, survivorship-aware universe coverage and transaction-level security mapping before any Form 4 event study.
 
 - [Phase 320 report](PHASE320_SEC_BULK_TO_DAILY_INDEX_JOIN_AUDIT_2026-11-12.md)
 
@@ -43,7 +76,7 @@
 
 ## Current broad-source disposition
 
-- **Form 4 / Form 4/A:** strongest public insider-event candidate. The daily-index parser now passes live raw-format/path validation, but the Phase 279 bulk-archive-to-daily-index join, historical issuer/security identity and universe coverage gates remain incomplete. The historical issuer-CIK coverage audit was only 54.6% (2016Q1), 65.4% (2020Q1), 76.4% (2024Q1) and 83.3% (2026Q3), below the 95% admission threshold.
+- **Form 4 / Form 4/A:** strongest public insider-event candidate. Phase 321 completed a 317,267-accession join census across six quarterly archives (317,243 filed-date index matches; 24 exceptions); Phases 322–324 corroborated 21 exceptions at date level and kept three quarantined. Historical issuer/security/share-class identity, survivorship-aware universe coverage and exact first-public timing remain incomplete. The historical issuer-CIK coverage audit was only 54.6% (2016Q1), 65.4% (2020Q1), 76.4% (2024Q1) and 83.3% (2026Q3), below the 95% admission threshold.
 - **Form 4 RSS:** seven successful captures, 30/30 requests per capture, 1,040 unique initial accessions (1,022 Form 4 and 18 Form 4/A). No new accession has appeared in those seven captures. All 1,040 initial records remain left-censored; no real new-event first-observation interval has yet been validated. Latest capture: [run 43152333818](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43152333818), [artifact 13914172674](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43152333818/artifacts/13914172674).
 - **N-PORT:** delayed holdings snapshots, not trade flow. The short-position rows lack tickers; issuer/security mapping and public-availability vintages are hard gates. Do not promote N-PORT to an event signal yet.
 - **13F:** prior issuer/security mapping coverage was 70.43% (2016Q1), 81.73% (2020Q1) and 93.02% (2024Q1), below the 95% gate; no signal admission.
@@ -53,8 +86,8 @@
 
 ## Next research gates
 
-1. Join a deterministic sample from the six Phase 279 Form 345 quarterly archives to daily indexes, searching the filed date and next EDGAR business day. Reconcile accession, form, issuer CIK, filed date and original header; quarantine unresolved cases and PAC ambiguity.
-2. Resolve historical issuer/security identity and coverage, including delisted names and share classes. No N-PORT or Form 4 event study until the effective-dated mapping and PIT gates pass.
+1. Build an effective-dated CIK-to-listing/security/share-class crosswalk with permanent IDs, ticker changes, symbol reuse, ADRs, mergers, delistings and relistings. IssuerTradingSymbol remains an as-filed issuer label, not a transaction-security key.
+2. Validate broad survivorship-aware universe coverage and transaction-level mapping. No N-PORT or Form 4 event study until the identity, PIT and coverage gates pass.
 3. Only after those gates, construct ex-ante event features and test incremental information versus frozen LTM/F80 using identical exposure/costs, chronological OOS, bootstrap and LOO.
 4. Keep failed hypotheses archived; do not promote a source because it is labelled "smart money".
 
