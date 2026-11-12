@@ -33,3 +33,9 @@
 
 ## Research discipline
 Smart money is a hypothesis, not a label. No forward returns, alpha, chronological OOS, bootstrap, LOO or holdout test is authorized by Phases 347–349. Do not infer a positive result from data availability. Archive failed hypotheses and keep F80, production, universe, capital and parameters unchanged.
+
+
+## Phase 350 access block — 2026-11-12
+- Phase 350's 10 offline tests passed. The first SEC Archives request returned HTTP 403; the project-URL-only User-Agent did not provide a monitored contact email. The run stopped after one request: 0/44 parent documents retrieved, 0 raw files saved.
+- Diagnostic artifact: [13991999046](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43327053770/artifacts/13991999046), SHA-256 `04c6568b01de176e55492d75f3224503c38cc8842a549b10f23a30c8d510d6c1`.
+- Human action required: add repository Actions secret `SEC_USER_AGENT` with a project identifier and monitored contact email. The workflow preflights this secret and will not send another SEC request while it is missing.

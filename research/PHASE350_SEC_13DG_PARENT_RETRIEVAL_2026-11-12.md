@@ -32,3 +32,11 @@ The accession-prefix CIK is never used as subject issuer or reporting-person ide
 The SEC states that filings often appear on sec.gov within 1–3 minutes after EDGAR acceptance and does not provide a timestamp for first public availability. Therefore, even after header validation, no same-session execution is assumed: any later event study must use the next trading session after acceptance, with a conservative price-side execution rule.
 
 No forward returns, alpha, OOS, bootstrap, LOO or holdout test is authorized. No source is admitted to production. F80 remains frozen.
+
+
+## Material access block — 2026-11-12
+
+- [Run 43327053770](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43327053770) passed all 10 offline tests and downloaded the immutable Phase 349 artifact, then received HTTP 403 on the first SEC Archives request.
+- The request used a project-URL User-Agent but no monitored contact email. The SEC response contained no explanatory body. The script stopped immediately: 1 request attempted, 0 raw documents saved, 0 of 44 parents retrieved; no repeated requests were made.
+- [Partial diagnostic artifact 13991999046](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43327053770/artifacts/13991999046), SHA-256 `04c6568b01de176e55492d75f3224503c38cc8842a549b10f23a30c8d510d6c1`.
+- The workflow now requires a GitHub Actions repository secret named `SEC_USER_AGENT`, containing a project identifier and a monitored contact email. The value is not written to logs or committed. No further SEC request will be attempted until that secret is configured.

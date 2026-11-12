@@ -205,8 +205,8 @@ def write_json(path, payload):
 
 def run(args):
     user_agent = args.user_agent or ""
-    if not user_agent.strip():
-        raise ValueError("A declared SEC_USER_AGENT is required")
+    if not user_agent.strip() or "@" not in user_agent:
+        raise ValueError("SEC_USER_AGENT must include a monitored contact email; store it as a GitHub Actions secret")
     manifest = load_manifest(args.manifest)
     out = Path(args.outdir)
     raw_dir = out / "parents"

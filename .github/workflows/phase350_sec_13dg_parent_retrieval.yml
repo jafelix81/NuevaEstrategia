@@ -43,9 +43,17 @@ jobs:
           test -s phase350_input/phase349_output/phase349_predecessor_target_manifest.csv
       - name: Run Phase 350 offline parser and validation tests
         run: python -m unittest -v research.test_phase350_sec_13dg_parent_retrieval
+      - name: Validate SEC contact configuration
+        env:
+          SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
+        run: |
+          if [ -z "$SEC_USER_AGENT" ] || [[ "$SEC_USER_AGENT" != *"@"* ]]; then
+            echo "::error::Configure the repository Actions secret SEC_USER_AGENT with a project identifier and monitored contact email."
+            exit 2
+          fi
       - name: Retrieve exact parent submissions from SEC Archives
         env:
-          SEC_USER_AGENT: "NuevaEstrategia research (https://github.com/jafelix81/NuevaEstrategia)"
+          SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
         run: |
           python -m research.phase350_sec_13dg_parent_retrieval \
             --manifest phase350_input/phase349_output/phase349_predecessor_target_manifest.csv \
