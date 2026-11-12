@@ -14,16 +14,28 @@ from pathlib import Path
 from typing import Any
 import xml.etree.ElementTree as ET
 
-from research.phase312_nport_raw_sample_audit import (
-    cusip_check_digit_valid,
-    isin_check_digit_valid,
-    parse_holding_rows,
-)
-from research.phase314_nport_amendment_parent_audit import (
-    compare_positions,
-    extract_primary_xml,
-    parse_submission,
-)
+try:
+    from research.phase312_nport_raw_sample_audit import (
+        cusip_check_digit_valid,
+        isin_check_digit_valid,
+        parse_holding_rows,
+    )
+    from research.phase314_nport_amendment_parent_audit import (
+        compare_positions,
+        extract_primary_xml,
+        parse_submission,
+    )
+except ModuleNotFoundError:
+    from phase312_nport_raw_sample_audit import (
+        cusip_check_digit_valid,
+        isin_check_digit_valid,
+        parse_holding_rows,
+    )
+    from phase314_nport_amendment_parent_audit import (
+        compare_positions,
+        extract_primary_xml,
+        parse_submission,
+    )
 
 PHASE314_RUN_ID = 43160951691
 PHASE314_ARTIFACT_ID = 13917229995
