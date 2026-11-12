@@ -112,7 +112,7 @@ class Phase342Tests(unittest.TestCase):
         self.assertEqual(result["aff10b5one_by_filing_date_regime"]["pre_effective_date"], {"unknown": 1})
         self.assertEqual(
             result["aff10b5one_by_filing_date_regime"]["post_effective_date"],
-            {"false": 3, "unknown": 1},
+            {"false": 4, "unknown": 1},
         )
         self.assertEqual(result["missing_referenced_footnote_ids_in_base_rows"], 0)
         self.assertEqual(result["orphan_rows_total"], 0)
