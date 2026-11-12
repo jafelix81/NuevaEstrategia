@@ -1,6 +1,6 @@
 # Smart Money Research — current state (2026-11-12 UTC)
 
-**Active research branch:** `phase302-form4a-daily-index-pac-clock-audit`  
+**Active research branch:** `phase303-sec-feed-live-rss-feasibility`  
 **PR chain:** #14 stacked on #13; both open and unmerged.  
 
 ## Latest verified research — Phase 302 (2026-11-12 00:33 UTC)
@@ -407,3 +407,13 @@ This offline audit re-read the six raw ZIPs from Phase 294 artifact [13884014630
 - PR #13 remains open against main; PR #14 remains open and stacked on PR #13. Neither was merged or modified by Phase 302.
 - SEC_CONTACT_EMAIL was injected only into the SEC User-Agent. Its value was not logged or stored, and no email was sent.
 - F80_TOP20_PARTIAL50_BASELINE_C20, production, universe, capital, parameters and the consumed legacy holdout remain unchanged. No data purchase, vendor contact, alpha promotion, return test, bootstrap/LOO, chronological OOS or holdout use occurred.
+
+
+## Phase 303 — SEC Feed archive and Latest Filings RSS feasibility (2026-11-12)
+
+- SEC public Feed/Oldloads archives are daily concatenated filing payloads, not compact accession-level PAC ledgers. Directory samples show Feed archives of 642,473–8,728,562 KB per day in 2023 Q2 and 693,801–2,299,770 KB per day in 2026 Q4. **Disposition: reject as the primary broad historical PAC/clock source**; do not download multi-year archives. Retain a single-day extraction only for a specific high-value diagnostic.
+- The SEC Webmaster FAQ identifies Latest Filings search and its associated RSS as the best public route to get close to real-time availability. The feed can be filtered for Ownership filings; SEC documentation still says exact first-public time is unavailable and the acceptance-to-availability lag is variable.
+- **Disposition: conditional prospective pilot only.** Polling can create a first-seen interval with raw response/hash and poll timestamps, but cannot backfill history or create an exact first-public timestamp. Form 4/A inclusion, cap/retention, gap recovery and endpoint behavior remain to be tested. No live poll was run in this documentation-only phase.
+- Phase 302 did not retrieve actual PAC .pc/Feed/Oldloads event records; it audits Form 4/A amendment chronology only. Keep PAC distinct from Form 4/A.
+- Report: [PHASE303_SEC_FEED_ARCHIVES_AND_LIVE_FILINGS_RSS_FEASIBILITY_2026-11-12.md](PHASE303_SEC_FEED_ARCHIVES_AND_LIVE_FILINGS_RSS_FEASIBILITY_2026-11-12.md).
+- No return/alpha, strict PIT admission, bootstrap/LOO, chronological OOS or holdout test. F80, production, universe, capital and parameters remain unchanged. No data purchase, vendor contact, PR or merge.
