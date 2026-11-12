@@ -1,0 +1,107 @@
+name: Phase 326 SEC Form 4 same-day collision security-title adjudication
+
+on:
+  push:
+    branches:
+      - phase326-form4-collision-security-title-adjudication
+    paths:
+      - ".github/workflows/phase326_form4_collision_security_title_audit.yml"
+      - "research/phase326_form4_collision_security_title_audit.py"
+      - "research/test_phase326_form4_collision_security_title_audit.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: phase326-form4-collision-security-title-adjudication
+  cancel-in-progress: false
+
+jobs:
+  collision-security-title-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      SEC_CONTACT_EMAIL: \${{ secrets.SEC_CONTACT_EMAIL }}
+      GH_TOKEN: \${{ github.token }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+
+      - name: Compile and run offline regressions
+        run: |
+          python -m compileall -q research/phase326_form4_collision_security_title_audit.py research/test_phase326_form4_collision_security_title_audit.py
+          python -m unittest -v research.test_phase326_form4_collision_security_title_audit
+
+      - name: Download immutable Phase 321 and Phase 325 source artifacts
+        run: |
+          curl -fsSL -H "Accept: application/vnd.github+json" -H "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13925636412/zip" -o phase321_source.zip
+          echo "e45cab68d1ebe15248cc76bad70b015c8f0bd2052689c0690478bbca4526965c  phase321_source.zip" | sha256sum --check
+          curl -fsSL -H "Accept: application/vnd.github+json" -H "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13931894766/zip" -o phase325_source.zip
+          echo "6d7930230a60036931857520df07b28087720d54ae9d3bee8f4b1cfe2fbcefa3  phase325_source.zip" | sha256sum --check
+
+      - name: Verify deterministic collision sample before SEC retrieval
+        run: |
+          python -m research.phase326_form4_collision_security_title_audit \
+            --phase321-zip phase321_source.zip --phase325-zip phase325_source.zip \
+            --output-dir phase326_output --plan-only | tee phase326_plan.json
+          python - <<'PY'
+          import json, sys
+          p=json.load(open("phase326_plan.json", encoding="utf-8"))
+          expected={"phase":326,"phase321_census_rows":317267,"phase325_collision_pairs":28,
+                    "shared_dates":42,"selected_accessions":283,
+                    "selected_forms":{"4":280,"4/A":3},"selected_issuer_ciks":56}
+          for k,v in expected.items():
+              if p.get(k)!=v: sys.exit(f"Phase 326 plan mismatch {k}: {p.get(k)} != {v}")
+          print("PHASE326_PLAN="+str(p))
+          PY
+
+      - name: Re-fetch and parse original SEC submissions for all collision-side accessions
+        run: |
+          python -m research.phase326_form4_collision_security_title_audit \
+            --phase321-zip phase321_source.zip --phase325-zip phase325_source.zip \
+            --output-dir phase326_output --email "$SEC_CONTACT_EMAIL"
+
+      - name: Enforce retrieval, header identity and frozen-baseline controls
+        run: |
+          python - <<'PY'
+          import json, sys
+          r=json.load(open("phase326_output/phase326_result.json", encoding="utf-8"))
+          s=r["summary"]; c=r["controls"]; i=r["interpretation"]
+          if s["selected_accessions"]!=283 or s["retrieved"]!=283:
+              sys.exit("Phase 326 source retrieval incomplete")
+          if s["retrieval_failures"]!=0 or s["header_identity_matches"]!=283:
+              sys.exit("Phase 326 original header identity incomplete")
+          if s["xml_parsed"]<280 or s["xml_issuer_cik_matches"]<280:
+              sys.exit("Phase 326 XML identity coverage below 280/283")
+          for key in ("strict_pit_admitted","alpha_test_authorized","return_test_run","bootstrap_loo_run",
+                      "chronological_oos_run","holdout_used","production_changed","universe_changed",
+                      "capital_changed","parameters_changed","raw_sec_bytes_uploaded","vendor_contacted",
+                      "data_purchased","email_sent"):
+              if c.get(key) is not False: sys.exit("Research control unexpectedly opened: "+key)
+          if c.get("f80_frozen") is not True: sys.exit("F80 frozen control failed")
+          for key in ("issuer_symbol_is_security_key","transaction_title_is_permanent_security_id",
+                      "same_title_proves_same_security","different_titles_prove_different_share_classes",
+                      "collision_is_corporate_relationship_adjudication","strict_pit_admitted","alpha_test_authorized"):
+              if i.get(key) is not False: sys.exit("Identity interpretation gate unexpectedly opened: "+key)
+          print("PHASE326_STATUS="+r["status"])
+          print("PHASE326_SUMMARY="+str(s))
+          print("PHASE326_CONTROLS="+str(c))
+          PY
+
+      - name: Upload parsed metadata, transaction-title labels and hashes only
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase326-form4-collision-security-title-audit
+          path: phase326_output/
+          retention-days: 90
+          if-no-files-found: warn
