@@ -1,0 +1,75 @@
+name: Phase 332 SEC event-driven corporate-action identity feasibility
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    paths:
+      - "research/phase332_sec_event_driven_identity_audit.py"
+      - "research/test_phase332_sec_event_driven_identity_audit.py"
+      - ".github/workflows/phase332_sec_event_driven_identity_pilot.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase332-sec-event-driven-identity
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      SEC_CONTACT_EMAIL: ${{ secrets.SEC_CONTACT_EMAIL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile Phase 332 and regressions
+        run: python -m py_compile research/phase332_sec_event_driven_identity_audit.py research/test_phase332_sec_event_driven_identity_audit.py
+      - name: Run offline regressions
+        run: python -m unittest -v research.test_phase332_sec_event_driven_identity_audit
+      - name: Retrieve strictly pre-event SEC corporate-action filings
+        run: python -m research.phase332_sec_event_driven_identity_audit --output-dir phase332_output
+      - name: Validate chronology, coverage accounting and frozen-baseline controls
+        run: |
+          python - <<'PY'
+          import json
+          p = "phase332_output/phase332_event_identity_audit.json"
+          s = json.load(open(p, encoding="utf-8"))
+          assert s["phase"] == 332
+          c = s["controls"]
+          assert c["f80_frozen"] is True
+          assert c["strict_pit_admitted"] is False
+          assert c["security_master_admitted"] is False
+          assert c["universe_coverage_admitted"] is False
+          assert c["alpha_test_authorized"] is False
+          assert c["return_test_run"] is False
+          assert c["bootstrap_loo_run"] is False
+          assert c["chronological_oos_run"] is False
+          assert c["holdout_used"] is False
+          assert c["production_changed"] is False
+          assert c["data_purchased"] is False
+          if s["status"] == "COMPLETED_SEC_EVENT_DRIVEN_IDENTITY_FEASIBILITY_PILOT":
+              assert len(s["observations"]) == 56
+              assert len(s["event_filings"]) == s["summary"]["event_filings_retrieved"]
+              for obs in s["observations"]:
+                  assert obs["event_filing_candidates"] >= obs["event_filings_retrieved"]
+                  assert obs["event_filings_retrieved"] <= 25
+              for filing in s["event_filings"]:
+                  assert filing["filing_date"] < filing["event_date"]
+                  assert filing["is_pre_event_by_filing_date"] is True
+          else:
+              assert s["status"] == "BLOCKED_MISSING_SEC_CONTACT_EMAIL"
+          print("PHASE332_STATUS=" + s["status"])
+          print("PHASE332_SUMMARY=" + json.dumps(s["summary"], sort_keys=True))
+          PY
+      - name: Upload Phase 332 metadata and audit artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase332-sec-event-driven-identity-audit
+          path: phase332_output/
+          if-no-files-found: error
+          retention-days: 90
