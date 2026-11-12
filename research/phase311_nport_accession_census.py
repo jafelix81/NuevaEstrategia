@@ -62,15 +62,28 @@ def quarter_list(start: str = "2019Q4", end: str = "2026Q3") -> list[str]:
 
 
 def accession_from_filename(filename: str, row_cik: str) -> str:
-    match = re.search(r"(?:^|/)edgar/data/(\d+)/(\d{18})/", filename.strip(), flags=re.I)
-    if not match:
+    path_match = re.search(r"(?:^|/)edgar/data/(\d+)/(.*)$", filename.strip(), flags=re.I)
+    if not path_match:
         raise ValueError(f"target_form_filename_missing_accession_path:{filename!r}")
-    path_cik = match.group(1).zfill(10)
-    accession_digits = match.group(2)
+    path_cik = path_match.group(1).zfill(10)
     if path_cik != str(row_cik).strip().zfill(10):
         raise ValueError("index_cik_path_cik_mismatch")
-    if accession_digits[:10] != path_cik:
-        raise ValueError("accession_prefix_path_cik_mismatch")
+
+    tail = path_match.group(2).strip()
+    # Current index paths commonly use an 18-digit accession directory;
+    # older master indexes can instead point directly to an accession-named
+    # complete-submission text file with the canonical 10-2-6 hyphenation.
+    folder = re.match(r"(\d{18})(?:/|$)", tail)
+    dashed_file = re.match(r"(\d{10}-\d{2}-\d{6})(?:\.txt)?$", tail, flags=re.I)
+    compact_file = re.match(r"(\d{18})\.txt$", tail, flags=re.I)
+    if folder:
+        accession_digits = folder.group(1)
+    elif dashed_file:
+        accession_digits = dashed_file.group(1).replace("-", "")
+    elif compact_file:
+        accession_digits = compact_file.group(1)
+    else:
+        raise ValueError(f"target_form_filename_accession_unrecognized:{filename!r}")
     return f"{accession_digits[:10]}-{accession_digits[10:12]}-{accession_digits[12:]}"
 
 
