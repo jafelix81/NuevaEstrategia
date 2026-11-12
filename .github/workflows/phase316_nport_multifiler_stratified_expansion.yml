@@ -48,7 +48,7 @@ jobs:
       - name: Compile and run Phase 316 regressions
         run: |
           python -m compileall -q research/phase316_nport_multifiler_stratified_expansion.py research/test_phase316_nport_multifiler_stratified_expansion.py
-          python -m unittest -v research.test_phase316_nport_multifiler_stratified_expansion
+          python -m unittest -v research.test_phase314_nport_amendment_parent_audit research.test_phase316_nport_multifiler_stratified_expansion
 
       - name: Retrieve and reconcile expanded 280-accession sample
         run: python research/phase316_nport_multifiler_stratified_expansion.py --input-dir phase311_input --output-dir phase316_output --per-stratum 5
