@@ -1,10 +1,51 @@
 # Smart Money Research — current state (2026-11-12 UTC)
 
-**Active research branch:** `phase313-nport-sgml-header-identity-correction`  
-**Latest completed research:** Phase 313 N-PORT SGML header identity correction.  
-**Open PR:** [#17 — Phase 313](https://github.com/jafelix81/NuevaEstrategia/pull/17), based on Phase 312. PRs #13–#16 also remain open and unmerged; 14 PRs are currently open in total.
+**Active research branch:** `phase319-sec-daily-index-live-format-pilot`  
+**Latest completed research:** Phase 319 — live SEC daily-index format and original-header pilot.  
+**Open PR:** [#17 — Phase 313](https://github.com/jafelix81/NuevaEstrategia/pull/17) remains open, as do PRs #13–#16; 14 PRs are open in total. Phase 318/319 are independent research branches and were not merged.
 
-## Latest verified research — Phase 313
+## Latest verified research — Phase 319
+
+- GitHub Actions [run 43170779986](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43170779986) passed **39/39** offline regressions plus live SEC validation. [Artifact 13922595355](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43170779986/artifacts/13922595355). No workflow remains active.
+- Seven actual daily form indexes (2006-01-03, 2012-01-03, 2023-01-03, 2023-04-03, 2025-07-01, 2026-07-01, 2026-11-10) were downloaded. All seven use the legacy fixed-width layout, including the 2026 sample.
+- Across the seven files: 19,198 Form 4/Form 4/A entity rows encountered; 19,195 retained after collapsing three exact duplicates; 9,356 multi-entity accessions; 22,783 other-form rows ignored; zero malformed rows, zero row-CIK/path-CIK mismatches, zero filed-date/index-date ordering violations and zero conflicting accession identities.
+- Fourteen accessions (seven Form 4 and seven Form 4/A) were selected deterministically. All 14 original submission headers matched the index on accession, form, issuer CIK and FILED AS OF DATE; all had ACCEPTANCE-DATETIME. Every sampled accession had two entity CIK rows. The original header's CENTRAL INDEX KEY identified the issuer row. In six of fourteen cases, the first selected path was under a non-issuer CIK; the issuer path returned the identical payload SHA-256. The parser must preserve entity rows and must not assume the first row is the issuer.
+- All 14 sample index dates equaled their filed dates. Four acceptance timestamps were at/after 17:30 ET and none at/after 22:00 ET. These are acceptance times, not transmission-start times; they do not establish an exact first-public receipt timestamp.
+- The live run exposed and corrected a fixed-width parser weakness: legacy form types may contain spaces (e.g. DEF 14A, APP ORDR, CT ORDER, 1-A POS). The parser now extracts CIK/date/path from the right, then splits the form/company prefix. Fixed-width test fixtures with double-escaped newlines were also corrected.
+- Raw SEC index and filing bytes were not uploaded. The artifact contains hashes, metadata and parsed crosschecks only. This is a deterministic format/path smoke sample, not a probability sample and not yet a bulk-archive coverage estimate.
+
+## Latest verified research — Phase 318
+
+- GitHub Actions [run 43169018518](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43169018518) passed 10/10 regressions. [Artifact 13921710493](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43169018518/artifacts/13921710493).
+- All 280 Phase 316 N-PORT sample filings were re-adjudicated against the SEC master-index FILED AS OF DATE. Fourteen had acceptance dates shifted to a later filed date; all fourteen matched the next EDGAR business day (12 one-day shifts, two Friday-to-Monday three-day shifts). One additional filing was accepted after 17:30 ET but retained the same filed date.
+- 17 CFR 232.13 keys the cutoff to when transmission commences, not ACCEPTANCE-DATETIME. The fourteen shifts are consistent with next-business-day treatment, not proof of transmission start. The same-date/after-17:30 case remains unresolved, not a rule violation. Use FILED AS OF DATE as a date-level anchor and, conservatively, allow strategy use only from the first full XNYS session strictly after it. [SEC guidance](https://www.sec.gov/submit-filings/filer-support-resources/how-do-i-guides/determine-status-my-filing) · [17 CFR 232.13](https://www.ecfr.gov/current/title-17/chapter-II/part-232/section-232.13).
+
+## Latest verified research — Phase 317 and 316
+
+- Phase 316 expanded N-PORT to 280 deterministic hash-ranked filings across 56 quarter/form strata (2019Q4–2026Q3), five registrants per stratum and 212 distinct CIKs. This is a QA sample, not a probability sample.
+- The sample contained 194 sign-concordant reported short rows in only two filings, with 173 unique CUSIPs, 174 ISINs and zero reported tickers. This is not a prevalence estimate. These are holdings snapshots, not executions; no effective-dated security crosswalk exists yet.
+- Phase 317 verified 280/280 FILED AS OF DATE values against the SEC master index and rechecked repeatability. The N-PORT-P report-date-to-filed-date lag was median 57 days (n=140); N-PORT-P/A median 119 days, with 85/140 at least 90 days and 49/140 at least 180 days. These are report-date-to-filing-date lags, not amendment delays from an original parent.
+
+## Current broad-source disposition
+
+- **Form 4 / Form 4/A:** strongest public insider-event candidate. The daily-index parser now passes live raw-format/path validation, but the Phase 279 bulk-archive-to-daily-index join, historical issuer/security identity and universe coverage gates remain incomplete. The historical issuer-CIK coverage audit was only 54.6% (2016Q1), 65.4% (2020Q1), 76.4% (2024Q1) and 83.3% (2026Q3), below the 95% admission threshold.
+- **Form 4 RSS:** seven successful captures, 30/30 requests per capture, 1,040 unique initial accessions (1,022 Form 4 and 18 Form 4/A). No new accession has appeared in those seven captures. All 1,040 initial records remain left-censored; no real new-event first-observation interval has yet been validated. Latest capture: [run 43152333818](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43152333818), [artifact 13914172674](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43152333818/artifacts/13914172674).
+- **N-PORT:** delayed holdings snapshots, not trade flow. The short-position rows lack tickers; issuer/security mapping and public-availability vintages are hard gates. Do not promote N-PORT to an event signal yet.
+- **13F:** prior issuer/security mapping coverage was 70.43% (2016Q1), 81.73% (2020Q1) and 93.02% (2024Q1), below the 95% gate; no signal admission.
+- **Options (Cboe Open-Close / trade-by-trade):** remains a candidate only if historical licensed data can be sampled and its PIT timestamps, universe coverage and costs validated. No data purchase or vendor contact.
+- **FINRA short volume/short interest and ATS/OTC:** continue as separate hypotheses; no evidence in this run justifies promotion.
+- **CFTC positioning and OCC:** remain contextual or parked until a security-level, timestamped hypothesis and adequate historical coverage are demonstrated.
+
+## Next research gates
+
+1. Join a deterministic sample from the six Phase 279 Form 345 quarterly archives to daily indexes, searching the filed date and next EDGAR business day. Reconcile accession, form, issuer CIK, filed date and original header; quarantine unresolved cases and PAC ambiguity.
+2. Resolve historical issuer/security identity and coverage, including delisted names and share classes. No N-PORT or Form 4 event study until the effective-dated mapping and PIT gates pass.
+3. Only after those gates, construct ex-ante event features and test incremental information versus frozen LTM/F80 using identical exposure/costs, chronological OOS, bootstrap and LOO.
+4. Keep failed hypotheses archived; do not promote a source because it is labelled "smart money".
+
+F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No alpha/return, bootstrap/LOO or chronological OOS test was run in Phases 316–319; the holdout was not used. Production, universe, capital and parameters were not changed. No vendor was contacted, no data was purchased and no email was sent.
+
+## Prior verified research — Phase 313
 
 - GitHub Actions [run 43160004366](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43160004366) completed successfully. It passed 8/8 offline regression tests and re-read all 56 Phase 312 raw submissions, verifying 56/56 original SHA-256 hashes. [Artifact 13916694212](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43160004366/artifacts/13916694212).
 - Root cause: SEC N-PORT submission headers use unclosed SGML tags. Phase 312's closing-tag regex missed header identifiers and incorrectly labeled 53 records XML_ONLY. Corrected Phase 313 result: series 53 MATCH / 3 MISSING_BOTH; classes 53 MATCH / 3 MISSING_BOTH; zero mismatches. The three missing-ID cases remain fund/CIK/name-level only.
