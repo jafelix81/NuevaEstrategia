@@ -1,7 +1,7 @@
 # Phase 308 — SEC RSS prospective first-observation capture
 
 **Date:** 2026-11-12  
-**Status:** four consecutive complete current-feed snapshots captured; Phase 309 corrected event-level observation semantics and quarantined legacy placeholders.  
+**Status:** five consecutive complete current-feed snapshots captured; Phase 309 corrected event-level observation semantics and quarantined legacy placeholders.  
 **Branch:** `phase308-sec-rss-prospective-capture`
 
 ## Purpose and acquisition design
@@ -27,7 +27,7 @@ Phase 307 showed that `owner=only` isolates ownership filings from unrelated 4-p
 | [43144785036](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43144785036) | PASS | 1,022 / 2,111 | 18 / 36 | 0 | 2.589 min |
 | [43145246814](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43145246814) | PASS | 1,022 / 2,111 | 18 / 36 | 0 | 3.666 min |
 
-All four snapshots completed all 30 SEC requests, passed the head recheck and contiguous-overlap checks, and reported zero target structural errors and zero row-fingerprint conflicts. The cumulative ledger contains four captures and 1,040 unique accession keys. The three subsequent snapshots showed zero new accessions, zero changed entity-row sets and zero missing accessions relative to the preceding complete snapshot.
+All five snapshots completed all 30 SEC requests, passed the head recheck and contiguous-overlap checks, and reported zero target structural errors and zero row-fingerprint conflicts. The cumulative ledger contains five captures and 1,040 unique accession keys. The four subsequent snapshots showed zero new accessions, zero changed entity-row sets and zero missing accessions relative to the preceding complete snapshot.
 
 Artifacts:
 - Initial: [13910476984](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43142830440/artifacts/13910476984), SHA-256 `3277211eccd5c048932a98a9fe7ac9b8061e167db66ab61449668041f1d78eb8`.
@@ -50,7 +50,7 @@ Phase 309 now:
 
 Hosted run [43144785036](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43144785036) passed **53/53 regressions** (13 Phase 308, 14 Phase 306, 8 Phase 305, 11 Phase 304, 7 Phase 303) and completed another 30/30-request capture. The artifact ledger confirms all 1,040 legacy placeholders were quarantined.
 
-No new accession arrived in the four snapshots. Thus the page-level timestamp path is regression-validated but has not yet been observed on a newly arriving live accession. The next new accession is the first empirical live test of a non-left-censored interval.
+No new accession arrived in the five snapshots. Thus the page-level timestamp path is regression-validated but has not yet been observed on a newly arriving live accession. The next new accession is the first empirical live test of a non-left-censored interval.
 
 ## Durable legacy-ledger migration snapshot
 
