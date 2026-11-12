@@ -1,7 +1,30 @@
 # Smart Money Research — current state (2026-11-12 UTC)
 
-**Active research branch:** `phase325-sec-form4-issuer-symbol-full-census`  
-**Latest completed research:** Phase 325 — six-quarter SEC Form 4/4-A issuer-symbol full-census quality audit.  
+**Active research branch:** `phase327-form4-single-accession-recovery`  
+**Latest completed research:** Phase 327 — targeted recovery of the sole unavailable original SEC submission from Phase 326; one accession remains explicitly quarantined.  
+
+## Latest verified research — Phase 327 (2026-11-12 UTC)
+
+- Final recovery workflow [run 43211633876](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43211633876) passed **5/5 offline regressions** and completed the single-accession recovery audit. [Artifact 13941202444](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43211633876/artifacts/13941202444), SHA-256 a2b0f342958448a33f0337383c2f8b21d82efac19bf1be098a6ea7d3e6ad3b77.
+- Reused the SHA-pinned Phase 326 result manifest and retried only accession 0000939057-26-000239; none of the previously validated 282 submissions was re-fetched.
+- Six zero-padded SEC archive layouts (flat and accession-directory forms for CIKs 939057, 1041368 and 1972440) all returned HTTP 404; zero response bytes were downloaded. Together with the six unpadded 404s from Phase 326, 12 tested path/layout variants failed. The accession remains quarantined; no secondary source was substituted.
+- Final source-retrieval population remains 282/283. This is a source-availability exception, not proof that the filing never existed or that its index row is false.
+- Report: [Phase 327 single-accession recovery](PHASE327_FORM4_SINGLE_ACCESSION_RECOVERY_2026-11-12.md). Immutable prior manifest: [Phase 326 prior recovery manifest](phase326_prior_recovery_manifest_2026-11-12.json).
+
+## Latest verified research — Phase 326 (2026-11-12 UTC)
+
+- Phase 326 selected all 283 accessions attached to the 28 Phase 325 exact same-day ticker-collision pairs: 280 Form 4, 3 Form 4/A, 56 issuer CIKs and 42 shared dates.
+- Final full retrieval [run 43209373482](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43209373482) passed **14/14 offline regression tests**, but its full-retrieval step was marked failure because only 282/283 original submissions were retrievable. All 282 retrieved submissions passed header identity, XML parse, issuer CIK, reporting-owner CIK and as-filed symbol checks. [Artifact 13939999128](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43209373482/artifacts/13939999128), SHA-256 eea7eaf97b91acfdbdac866f8d98660ec98be03adc8c4038b800f74cf86d81d5.
+- The 282 documents contain 268 non-derivative transaction rows, 186 derivative transaction rows and 45 distinct title labels. Title comparisons: 20 pairs with overlapping labels (not proof of same security), 7 with disjoint labels (not proof of different share classes), and one incomplete pair.
+- Transaction-code figures are filing-presence counts, not transaction counts: A 156, D 14, F 35, G 4, J 39, M 20, P 6, S 20, X 3. The collision sample is purposive and is not a prevalence estimate or trading-signal sample.
+- Accession 0000939057-26-000239 (issuer CIK 1041368, reporting-owner CIK 1972440, as-filed ticker label TSBK, filed 2026-09-25) remains unavailable through all tested archive layouts. Phase 327 records the explicit quarantine.
+- Report: [Phase 326 collision security-title audit](PHASE326_FORM4_COLLISION_SECURITY_TITLE_ADJUDICATION_2026-11-12.md).
+
+## Current repository verification — 2026-11-12 04:44 UTC
+
+- Latest 100 Actions runs: 37 success, 58 failure, 5 cancelled; zero queued/in-progress. The Phase 327 final run is successful. Phase 326's strict 283/283 retrieval gate remains red because of the single quarantined source gap; Phase 327 closes that gap transparently without claiming full retrieval.
+- Branch inventory: 176 branches (100 on page 1, 76 on page 2). Fifteen PRs remain open; PR #18 (Phase 325) remains draft/unmerged. No new PR was opened or merged in Phases 326–327.
+- No vendor contact, data purchase or email. F80, production, universe, capital, parameters and holdout remain unchanged.
 
 ## Latest verified research — Phase 325 (2026-11-12 UTC)
 
@@ -197,7 +220,6 @@ F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No alpha/return, bootstrap/LOO 
 
 
 ## Earlier material research result — Phase 281
-
 SEC EDGAR's historical daily `form.YYYYMMDD.idx` archives provide a conditional route to reconstruct a conservative daily public-dissemination date for Form 4 accessions. SEC documentation says daily indexes extend from 1994Q3 to present, list form/CIK/date/path, are built nightly, and prior daily indexes are not rewritten by later-business-day post-acceptance corrections. Full and quarterly indexes are rebuilt weekly and do incorporate later PAC changes.
 
 **Proposed Form 4 knowledge clock:** join each Phase 279 bulk-dataset accession to all historical daily form-index sightings; use the earliest verified index date; execute no earlier than the close of the next full XNYS session. Do not fall back to FILING_DATE or acceptance time when the index join is missing. This is a conservative daily-PIT candidate, not yet strict PIT: no raw index bytes have been downloaded, same-day PAC handling is not fully measured, the SEC does not publish an exact first-public timestamp, and owner/security identity remain open.
@@ -399,7 +421,6 @@ Dedicated run [43074329311](https://github.com/jafelix81/NuevaEstrategia/actions
 
 The validation is offline and fixture-based. It does not establish raw XML parsing, bulk-history coverage, first-public timing, longitudinal fund/security identity or economic predictability.
 
-
 ## Phase 293 — second-filer N-PORT public short controls (2026-11-11)
 
 The hardened Phase 292 classifier was replayed against 23 selected, line-referenced U.S. common-equity short rows from ACAP Strategic Fund (CIK 0001467631, accession 0001145549-25-033457, report date 2025-03-31), a second registrant independent of the three Cromwell rows in Phase 291. Expected combined positive controls: 26 rows across two registrants and two report periods; Phase 292 negative controls remain 5. This is still a manually selected fixture sample; the ACAP filing has no EDGAR series ID in the fixture, and neither filing has raw bytes/hashes or first-public receipt verification. No PIT or alpha admission.
@@ -598,7 +619,6 @@ This offline audit re-read the six raw ZIPs from Phase 294 artifact [13884014630
 - The next gate is a contiguous page scan with entity-row overlap and accession-level reassembly, then a separate prospective first-receipt capture protocol. `updated` remains an acceptance-time proxy, not exact first-public time.
 - Latest 100 Actions runs after Phase 305: 56 success, 20 failure, 24 cancelled; zero queued/in-progress. 154 branches inventoried. PRs #13/#14 and the broader open research PR queue remain unmerged; no PR was merged in this phase. The Phase 305 branch is research-only.
 - No return/alpha, bootstrap/LOO, chronological OOS or holdout test. F80, production, universe, capital and parameters remain unchanged. No email was sent.
-
 
 ## Current GitHub verification and prospective capture follow-up — 2026-11-12 03:39 UTC
 
