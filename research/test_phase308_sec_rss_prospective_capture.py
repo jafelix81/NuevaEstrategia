@@ -1,6 +1,6 @@
 import unittest
 
-from research.phase308_sec_rss_prospective_capture import merge_capture_into_ledger
+from research.phase308_sec_rss_prospective_capture import build_accession_events, merge_capture_into_ledger
 
 
 def capture(start, end, complete=True, run_id="1"):
@@ -16,7 +16,7 @@ def capture(start, end, complete=True, run_id="1"):
     }
 
 
-def event(form, accession, rows=None):
+def event(form, accession, rows=None, observed_at=None, poll_started=None, page_start=None):
     return {
         "form_type": form,
         "accession": accession,
@@ -30,6 +30,10 @@ def event(form, accession, rows=None):
             "feed_updated_raw": "2026-11-12T01:00:00-05:00",
         }],
         "feed_updated_values": ["2026-11-12T01:00:00-05:00"],
+        "first_observed_at_utc": observed_at,
+        "first_observation_poll_started_at_utc": poll_started,
+        "first_observation_page_start": page_start,
+        "first_observation_page_label": "form4" if form == "4" else "form4a",
     }
 
 
@@ -38,10 +42,12 @@ class Phase308ProspectiveLedgerTests(unittest.TestCase):
         ledger, summary = merge_capture_into_ledger(
             {},
             capture("2026-11-12T02:00:00+00:00", "2026-11-12T02:01:00+00:00", True),
-            [event("4", "0000000001-26-000001")],
+            [event("4", "0000000001-26-000001", observed_at="2026-11-12T02:00:45+00:00")],
         )
         record = ledger["accessions"]["4:0000000001-26-000001"]
         self.assertIsNone(record["first_observation_interval_start_utc"])
+        self.assertEqual(record["first_observation_interval_end_utc"], "2026-11-12T02:00:45+00:00")
+        self.assertEqual(record["first_observed_at_utc"], "2026-11-12T02:00:45+00:00")
         self.assertEqual(record["first_observation_lower_bound_quality"], "left_censored_no_prior_complete_capture")
         self.assertEqual(record["seen_count"], 1)
         self.assertEqual(summary["new_accessions_this_capture"], 1)
@@ -56,20 +62,32 @@ class Phase308ProspectiveLedgerTests(unittest.TestCase):
         ledger, summary = merge_capture_into_ledger(
             ledger,
             capture("2026-11-12T02:00:00+00:00", "2026-11-12T02:01:00+00:00", True, "2"),
-            [event("4", "new")],
+            [event(
+                "4", "new",
+                observed_at="2026-11-12T02:00:45+00:00",
+                poll_started="2026-11-12T02:00:44+00:00",
+                page_start=80,
+            )],
         )
         record = ledger["accessions"]["4:new"]
         self.assertEqual(record["first_observation_interval_start_utc"], "2026-11-12T01:00:00+00:00")
-        self.assertEqual(record["first_observation_interval_end_utc"], "2026-11-12T02:00:00+00:00")
-        self.assertEqual(record["first_observation_interval_width_minutes"], 60)
+        self.assertEqual(record["first_observation_interval_end_utc"], "2026-11-12T02:00:45+00:00")
+        self.assertEqual(record["first_observation_interval_width_minutes"], 60.75)
+        self.assertEqual(record["first_observation_poll_started_at_utc"], "2026-11-12T02:00:44+00:00")
+        self.assertEqual(record["first_observation_page_start"], 80)
+        self.assertTrue(record["first_observation_interval_valid"])
         self.assertEqual(summary["missing_since_previous_complete_snapshot"], 1)
 
     def test_existing_accession_preserves_first_observation_and_increments_seen_count(self):
         first = capture("2026-11-12T02:00:00+00:00", "2026-11-12T02:01:00+00:00", True, "1")
-        ledger, _ = merge_capture_into_ledger({}, first, [event("4", "same")])
+        ledger, _ = merge_capture_into_ledger(
+            {}, first, [event("4", "same", observed_at="2026-11-12T02:00:30+00:00")]
+        )
         first_seen = ledger["accessions"]["4:same"]["first_observed_at_utc"]
         second = capture("2026-11-12T03:00:00+00:00", "2026-11-12T03:01:00+00:00", True, "2")
-        ledger, summary = merge_capture_into_ledger(ledger, second, [event("4", "same")])
+        ledger, summary = merge_capture_into_ledger(
+            ledger, second, [event("4", "same", observed_at="2026-11-12T03:00:30+00:00")]
+        )
         record = ledger["accessions"]["4:same"]
         self.assertEqual(record["first_observed_at_utc"], first_seen)
         self.assertEqual(record["seen_count"], 2)
@@ -188,15 +206,76 @@ class Phase308ProspectiveLedgerTests(unittest.TestCase):
         )
         self.assertTrue(third["repo_snapshot_due"])
 
+    def test_build_accession_events_uses_earliest_response_completion_and_unions_rows(self):
+        accession = "0000000001-26-000001"
+        issuer = {
+            "title": "4 - Example Inc. (0000000001) (Issuer)",
+            "link": f"https://www.sec.gov/Archives/edgar/data/1/000000000126000001/{accession}-index.htm",
+            "accession_from_link": accession,
+            "feed_updated_raw": "2026-11-12T01:00:00-05:00",
+        }
+        owner = {
+            "title": "4 - Example Owner (0000000002) (Reporting)",
+            "link": f"https://www.sec.gov/Archives/edgar/data/2/000000000126000001/{accession}-index.htm",
+            "accession_from_link": accession,
+            "feed_updated_raw": "2026-11-12T01:00:00-05:00",
+        }
+        pages = {
+            "form4": [
+                {
+                    "label": "form4",
+                    "start": 0,
+                    "poll_started_at_utc": "2026-11-12T02:00:01+00:00",
+                    "poll_completed_at_utc": "2026-11-12T02:00:02+00:00",
+                    "entries": [issuer],
+                },
+                {
+                    "label": "form4",
+                    "start": 80,
+                    "poll_started_at_utc": "2026-11-12T02:00:03+00:00",
+                    "poll_completed_at_utc": "2026-11-12T02:00:04+00:00",
+                    "entries": [owner],
+                },
+            ],
+            "form4a": [],
+        }
+        events, counts = build_accession_events(pages)
+        found = next(x for x in events if x["accession"] == accession)
+        self.assertEqual(found["first_observed_at_utc"], "2026-11-12T02:00:02+00:00")
+        self.assertEqual(found["first_observation_poll_started_at_utc"], "2026-11-12T02:00:01+00:00")
+        self.assertEqual(found["first_observation_page_start"], 0)
+        self.assertEqual(len(found["entity_rows"]), 2)
+        self.assertEqual(counts["form4"]["unique_accessions"], 1)
+
+    def test_invalid_event_time_before_prior_complete_boundary_is_not_bounded(self):
+        ledger = {
+            "last_complete_capture_end_utc": "2026-11-12T02:00:00+00:00",
+            "last_complete_snapshot_accessions": [],
+            "accessions": {},
+            "captures": [],
+        }
+        ledger, _ = merge_capture_into_ledger(
+            ledger,
+            capture("2026-11-12T02:01:00+00:00", "2026-11-12T02:02:00+00:00", True, "2"),
+            [event("4", "clock-error", observed_at="2026-11-12T01:59:59+00:00")],
+        )
+        record = ledger["accessions"]["4:clock-error"]
+        self.assertFalse(record["first_observation_interval_valid"])
+        self.assertIsNone(record["first_observation_interval_width_minutes"])
+        self.assertEqual(
+            record["first_observation_lower_bound_quality"],
+            "invalid_event_timestamp_before_previous_complete_capture",
+        )
+
     def test_atom_updated_is_not_promoted_to_first_public_time(self):
         ledger, _ = merge_capture_into_ledger(
             {},
             capture("2026-11-12T02:00:00+00:00", "2026-11-12T02:01:00+00:00", True),
-            [event("4", "time")],
+            [event("4", "time", observed_at="2026-11-12T02:00:15+00:00")],
         )
         record = ledger["accessions"]["4:time"]
         self.assertNotIn("first_public_at_utc", record)
-        self.assertIn("first_observation_interval_end_utc", record)
+        self.assertEqual(record["first_observation_interval_end_utc"], "2026-11-12T02:00:15+00:00")
 
 
 if __name__ == "__main__":
