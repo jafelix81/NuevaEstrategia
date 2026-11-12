@@ -1,13 +1,7 @@
 name: Phase 303 SEC Latest Filings RSS probe
 
 on:
-  push:
-    branches:
-      - phase303-sec-feed-live-rss-feasibility
-    paths:
-      - research/phase303_sec_latest_filings_rss_probe.py
-      - research/test_phase303_sec_latest_filings_rss_probe.py
-      - .github/workflows/phase303_sec_latest_filings_rss_probe.yml
+  workflow_dispatch:
 
 permissions:
   contents: read
