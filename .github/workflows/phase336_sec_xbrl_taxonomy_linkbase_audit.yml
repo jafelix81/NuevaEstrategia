@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
-      SEC_CONTACT_EMAIL: \${{ secrets.SEC_CONTACT_EMAIL }}
+      SEC_CONTACT_EMAIL: ${{ secrets.SEC_CONTACT_EMAIL }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -31,8 +31,8 @@ jobs:
       - name: Download pinned Phase 334 source artifact
         uses: actions/download-artifact@v4
         with:
-          github-token: \${{ github.token }}
-          repository: \${{ github.repository }}
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
           run-id: 43226260351
           artifact-ids: 13947767592
           path: phase334_source
