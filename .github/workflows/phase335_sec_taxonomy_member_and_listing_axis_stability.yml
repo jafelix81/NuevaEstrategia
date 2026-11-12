@@ -29,8 +29,8 @@ jobs:
       - name: Download the immutable Phase 334 source artifact
         uses: actions/download-artifact@v4
         with:
-          github-token: \${{ github.token }}
-          repository: \${{ github.repository }}
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
           run-id: 43226260351
           artifact-ids: 13947767592
           path: phase334_source
