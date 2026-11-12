@@ -1,7 +1,7 @@
 # Phase 308 — SEC RSS prospective first-observation capture
 
 **Date:** 2026-11-12  
-**Status:** five consecutive complete current-feed snapshots captured; Phase 309 corrected event-level observation semantics and quarantined legacy placeholders.  
+**Status:** six consecutive complete current-feed snapshots captured; Phase 309 corrected event-level observation semantics and quarantined legacy placeholders.  
 **Branch:** `phase308-sec-rss-prospective-capture`
 
 ## Purpose and acquisition design
@@ -26,8 +26,9 @@ Phase 307 showed that `owner=only` isolates ownership filings from unrelated 4-p
 | [43144426570](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43144426570) | PASS | 1,022 / 2,111 | 18 / 36 | 0 | 4.294 min |
 | [43144785036](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43144785036) | PASS | 1,022 / 2,111 | 18 / 36 | 0 | 2.589 min |
 | [43145246814](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43145246814) | PASS | 1,022 / 2,111 | 18 / 36 | 0 | 3.666 min |
+| [43149574581](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43149574581) | PASS | 1,022 / 2,111 | 18 / 36 | 0 | 37.413 min |
 
-All five snapshots completed all 30 SEC requests, passed the head recheck and contiguous-overlap checks, and reported zero target structural errors and zero row-fingerprint conflicts. The cumulative ledger contains five captures and 1,040 unique accession keys. The four subsequent snapshots showed zero new accessions, zero changed entity-row sets and zero missing accessions relative to the preceding complete snapshot.
+All six snapshots completed all 30 SEC requests, passed the head recheck and contiguous-overlap checks, and reported zero target structural errors and zero row-fingerprint conflicts. The cumulative ledger contains six captures and 1,040 unique accession keys. The five subsequent snapshots showed zero new accessions, zero changed entity-row sets and zero missing accessions relative to the preceding complete snapshot.
 
 Artifacts:
 - Initial: [13910476984](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43142830440/artifacts/13910476984), SHA-256 `3277211eccd5c048932a98a9fe7ac9b8061e167db66ab61449668041f1d78eb8`.
@@ -69,3 +70,14 @@ The migrated five-capture ledger was committed as [1431ab323f37382fc9c6480e266db
 - Holdout used: **false**.
 - `F80_TOP20_PARTIAL50_BASELINE_C20`, production, universe, capital and parameters: unchanged.
 - No vendor purchase, email sent, PR opened or merged.
+
+
+## Sixth prospective capture — 2026-11-12 03:38–03:39 UTC
+
+- Trigger commit: `9bdbf909914a82b6f9bfa3734d5ee9b368104b42`.
+- Workflow [43149574581](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43149574581) completed successfully; job `130955300483` passed the full regression suite and all 30 SEC requests.
+- Form 4 remained 1,022 accessions / 2,111 entity rows; Form 4/A remained 18 / 36. New accessions: 0; changed entity sets: 0; missing accessions: 0; structural errors and row-fingerprint conflicts: 0.
+- Interval from previous complete capture end to new capture start: 37.4126 minutes. The snapshot was complete and the gap threshold was not breached.
+- Cumulative ledger: 6 captures, 1,040 unique accessions. All 1,040 remain left-censored legacy records with invalid/null first-observation timestamps; **zero live non-left-censored event intervals have yet been observed**.
+- Artifact [13913710003](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43149574581/artifacts/13913710003), 206,817 bytes, SHA-256 `d3de6a5f20c4cf17f6b5841b69c59a499b430524c1df277724d6f54c21519c1d`. The downloaded ZIP was inspected: 32 files, including 30 raw Atom responses, the result JSON and 1.1 MB ledger snapshot. The ledger contains 1,040/1,040 quarantined legacy records and six capture records.
+- No PIT/alpha admission or return test. F80, production, universe, capital, parameters and holdout remain unchanged.
