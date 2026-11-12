@@ -18,7 +18,7 @@ from research.phase341_form4_issuer_symbol_class_crosswalk_audit import (
     cls, match_title, norm, parse_symbol, raw_meta,
 )
 from research.phase342_sec_insider_bulk_sample_audit import (
-    ARCHIVES, audit_archive, classify_purchase_row, normalize_aff,
+    ARCHIVES, audit_archive, classify_purchase_row, normalize_aff, parse_sec_date,
 )
 
 PHASE = 343
@@ -40,15 +40,21 @@ def decimal_key(value):
         return raw
 
 
+def canonical_sec_date(value):
+    """Normalize SEC bulk DD-MON-YYYY and ISO dates to canonical YYYY-MM-DD."""
+    parsed = parse_sec_date(value)
+    return parsed.isoformat() if parsed else ""
+
+
 def tx_key_bulk(row):
-    return (norm(row.get("security_title", "")), str(row.get("transaction_date", "")).strip(),
+    return (norm(row.get("security_title", "")), canonical_sec_date(row.get("transaction_date", "")),
             str(row.get("transaction_code", "")).strip().upper(), "D", "A",
             decimal_key(row.get("transaction_shares")),
             decimal_key(row.get("transaction_price_per_share")))
 
 
 def tx_key_xml(row):
-    return (norm(row.get("security_title", "")), str(row.get("transaction_date", "")).strip(),
+    return (norm(row.get("security_title", "")), canonical_sec_date(row.get("transaction_date", "")),
             str(row.get("transaction_code", "")).strip().upper(),
             str(row.get("direct_or_indirect", "")).strip().upper(),
             str(row.get("acquired_disposed", "")).strip().upper(),
@@ -184,10 +190,10 @@ def crosswalk(symbol_raw, transaction_title, contexts):
 
 
 def strict_date_relation(anchor_date, event_date):
-    try:
-        anchor, event = date.fromisoformat(anchor_date), date.fromisoformat(event_date)
-    except (TypeError, ValueError):
+    anchor_iso, event_iso = canonical_sec_date(anchor_date), canonical_sec_date(event_date)
+    if not anchor_iso or not event_iso:
         return False, None
+    anchor, event = date.fromisoformat(anchor_iso), date.fromisoformat(event_iso)
     return anchor < event, (event - anchor).days
 
 
@@ -255,8 +261,11 @@ def run(archive_path, outdir, email):
     accession_rows, accession_errors = {}, []
     for index, accession in enumerate(sorted(by_accession), 1):
         sample = by_accession[accession][0]
+        filing_date_iso = canonical_sec_date(sample.get("filing_date", ""))
+        if not filing_date_iso:
+            raise ValueError(f"candidate_filing_date_unparseable:{accession}:{sample.get('filing_date', '')}")
         filing_row = {"accession": accession, "issuer_cik": sample["issuer_cik"],
-                      "form_type": "4", "filing_date": sample["filing_date"]}
+                      "form_type": "4", "filing_date": filing_date_iso}
         raw, meta = fetch_submission(client, filing_row)
         if raw is None:
             accession_rows[accession] = {"retrieval_status": "FAILED"}
@@ -299,7 +308,9 @@ def run(archive_path, outdir, email):
             accession_errors.append({"accession": accession, "status": "CANDIDATE_ROW_XML_OR_SCREEN_RECONCILIATION_FAILED"})
         print(f"PHASE343_FORM4_PROGRESS={index}/{len(by_accession)} RETRIEVED candidates={len(checks)}")
 
-    event_keys = sorted({(norm_cik(x["issuer_cik"]), x["filing_date"]) for x in candidates})
+    event_keys = sorted({(norm_cik(x["issuer_cik"]), canonical_sec_date(x["filing_date"])) for x in candidates})
+    if any(not filing_date for _, filing_date in event_keys):
+        raise ValueError("candidate_filing_date_normalization_failed")
     submissions_cache, event_anchor, anchor_cache = {}, {}, {}
     for cik in sorted({x[0] for x in event_keys}):
         url = f"https://data.sec.gov/submissions/CIK{cik.zfill(10)}.json"
@@ -330,7 +341,11 @@ def run(archive_path, outdir, email):
         anchor_date = str(filing.get("filingDate") or "")
         prior, age = strict_date_relation(anchor_date, filing_date)
         if not prior or age is None or age <= 0:
-            raise ValueError(f"periodic_anchor_not_strictly_pre_filing:{cik}:{filing_date}")
+            event_anchor[(cik, filing_date)] = {
+                "anchor_status": "ANCHOR_NOT_STRICTLY_PRIOR_QUARANTINED",
+                "anchor_filing_date": anchor_date, "selection_source": selection_source,
+            }
+            continue
         anchor_accession = str(filing.get("accessionNumber") or "")
         if anchor_accession not in anchor_cache:
             facts, doc = retrieve_filing_facts(client, cik, filing)
@@ -356,7 +371,7 @@ def run(archive_path, outdir, email):
         checks = doc.get("candidate_row_checks", [])
         for pos, candidate in enumerate(candidates_for_accession):
             verified = checks[pos] if pos < len(checks) else {}
-            cik, filing_date = norm_cik(candidate["issuer_cik"]), candidate["filing_date"]
+            cik, filing_date = norm_cik(candidate["issuer_cik"]), canonical_sec_date(candidate["filing_date"])
             anchor = event_anchor.get((cik, filing_date), {})
             cross = {"crosswalk_status": "NOT_TESTED"}
             if anchor.get("anchor_status") == "SELECTED":
@@ -379,7 +394,9 @@ def run(archive_path, outdir, email):
             tx_identity = bool(source_ok and identity_ok and fresh_tx)
             row_results.append({
                 "period": "2026Q3", "accession": accession, "issuer_cik": cik,
-                "filing_date": filing_date, "transaction_date": candidate.get("transaction_date", ""),
+                "filing_date": filing_date, "filing_date_raw": candidate.get("filing_date", ""),
+                "transaction_date": canonical_sec_date(candidate.get("transaction_date", "")),
+                "transaction_date_raw": candidate.get("transaction_date", ""),
                 "security_title": candidate.get("security_title", ""),
                 "transaction_shares": candidate.get("transaction_shares", ""),
                 "transaction_price_per_share": candidate.get("transaction_price_per_share", ""),
@@ -413,7 +430,7 @@ def run(archive_path, outdir, email):
         doc = accession_rows.get(accession, {})
         accession_summaries.append({
             "accession": accession, "issuer_cik": norm_cik(candidates_for_accession[0]["issuer_cik"]),
-            "filing_date": candidates_for_accession[0]["filing_date"],
+            "filing_date": canonical_sec_date(candidates_for_accession[0]["filing_date"]),
             "candidate_rows": len(candidates_for_accession),
             "form4_retrieved": doc.get("retrieval_status") == "RETRIEVED",
             "xml_symbol_reconciled": doc.get("symbol_reconciled", False),

@@ -1,6 +1,6 @@
 # Phase 343 — SEC Form 4 high-precision cohort: candidate-specific event-time identity audit
 
-**Status:** implementation and offline validation prepared; hosted SEC retrieval pending.  
+**Status:** first hosted retrieval completed, but reconciliation halted on a SEC bulk-date normalization defect; corrected rerun pending.  
 **Population:** 2026Q3 high-precision Form 4 cohort from the Phase 342 official SEC bulk archive.  
 **Pre-registered denominator:** 85 candidate rows, 59 accessions, 31 issuer CIKs and 48 issuer-CIK × filing-date event units.  
 **Research boundary:** identity/availability audit only; no return, alpha, OOS, bootstrap/LOO or holdout test.
@@ -34,6 +34,15 @@ The hosted artifact will contain the pinned bulk ZIP, original Form 4 submission
 - SecurityExchangeName=NONE is preserved as a no-national-exchange status; it is not silently treated as missing or as a listed exchange.
 - SEC acceptance time and date-only FILING_DATE are not claimed to be exact first-public receipt.
 - No event study begins in this phase. A later price-coverage phase must use the first full exchange session strictly after the official Form 4 filing date unless exact public availability is independently established.
+
+
+## Hosted execution diagnostic and correction (2026-11-12)
+
+- Initial hosted attempts [43271361011](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43271361011) and [43271791093](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43271791093) passed all 9 offline regressions and downloaded the pinned 2026Q3 archive. They did **not** produce a candidate identity result.
+- The second attempt halted at `periodic_anchor_not_strictly_pre_filing:102109:24-SEP-2026`. SEC bulk `FILING_DATE`/`TRANS_DATE` values use `DD-MON-YYYY` (for example `24-SEP-2026`), while the prior code compared them lexicographically with ISO dates and passed them to `date.fromisoformat`. The same raw date also reached the original-submission header reconciliation, so Form 4 retrievals were not yet proven by that run.
+- Corrective change: normalize bulk filing and transaction dates to canonical ISO before Form 4 header checks, transaction-row matching, prior-periodic selection and strict temporal comparisons. If a selected periodic filing is not strictly prior after normalization, quarantine that event unit instead of aborting the entire cohort; no look-ahead row can pass.
+- Added regression tests for SEC date normalization, equivalent bulk/XML transaction keys and prior-periodic selection across a mixed-format event date. The uploaded failure artifact [13968634062](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43271791093/artifacts/13968634062) contains the pinned archive and response headers only; it contains no row-level crosswalk or coverage result.
+- A corrected hosted run is required before any Phase 343 identity coverage is reported.
 
 ## Controls
 

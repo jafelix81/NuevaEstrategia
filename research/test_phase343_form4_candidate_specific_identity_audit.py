@@ -1,7 +1,8 @@
 from __future__ import annotations
 import unittest
+from research.phase328_sec_collision_prior_filing_xbrl_pilot import select_prior_periodic_filing
 from research.phase343_form4_candidate_specific_identity_audit import (
-    crosswalk, decimal_key, facts_to_contexts, group_event_units,
+    canonical_sec_date, crosswalk, decimal_key, facts_to_contexts, group_event_units,
     strict_date_relation, tx_key_bulk, tx_key_xml,
 )
 
@@ -76,13 +77,34 @@ class Phase343Tests(unittest.TestCase):
         self.assertEqual(strict_date_relation("2026-07-02","2026-07-01"),(False,-1))
         self.assertEqual(strict_date_relation("","2026-07-01"),(False,None))
 
+    def test_sec_bulk_dates_normalize_for_form4_header_and_event_clock(self):
+        self.assertEqual(canonical_sec_date("24-SEP-2026"), "2026-09-24")
+        self.assertEqual(canonical_sec_date("2026-09-24"), "2026-09-24")
+        self.assertEqual(strict_date_relation("2026-09-23", "24-SEP-2026"), (True, 1))
+        self.assertEqual(strict_date_relation("2026-09-25", "24-SEP-2026"), (False, -1))
+
+    def test_prior_periodic_selector_uses_normalized_bulk_event_date(self):
+        submissions = {"filings": {"recent": {
+            "form": ["10-Q", "10-K"],
+            "filingDate": ["2026-09-25", "2026-06-30"],
+            "accessionNumber": ["later", "prior"],
+            "primaryDocument": ["later.htm", "prior.htm"],
+            "reportDate": ["2026-09-30", "2026-06-30"],
+        }}}
+        selected, source = select_prior_periodic_filing(
+            submissions, canonical_sec_date("24-SEP-2026")
+        )
+        self.assertEqual(source, "RECENT")
+        self.assertEqual(selected["accessionNumber"], "prior")
+        self.assertEqual(selected["filingDate"], "2026-06-30")
+
     def test_decimal_and_transaction_keys_are_stable(self):
         self.assertEqual(decimal_key("1,000.0000"),"1000")
         self.assertEqual(decimal_key("10.5000"),"10.5")
-        bulk = {"security_title":"Common Stock","transaction_date":"2026-08-01",
+        bulk = {"security_title":"Common Stock","transaction_date":"24-AUG-2026",
                 "transaction_code":"P","transaction_shares":"100.000",
                 "transaction_price_per_share":"12.5000"}
-        xml = {"security_title":"Common Stock","transaction_date":"2026-08-01",
+        xml = {"security_title":"Common Stock","transaction_date":"2026-08-24",
                "transaction_code":"P","direct_or_indirect":"D","acquired_disposed":"A",
                "shares":"100","price_per_share":"12.5"}
         self.assertEqual(tx_key_bulk(bulk),tx_key_xml(xml))
