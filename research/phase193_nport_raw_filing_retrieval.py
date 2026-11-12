@@ -75,6 +75,23 @@ def parse_decimal(value: str) -> Decimal | None:
     return result if result.is_finite() else None
 
 
+def submission_header_diagnostic(payload: bytes) -> dict[str, str | None]:
+    """Expose only the SEC header fields needed to diagnose parsing; raw bytes stay in the artifact."""
+    text = payload.decode("latin-1", errors="replace")
+    fields = {}
+    for name in (
+        "ACCESSION NUMBER",
+        "CONFORMED SUBMISSION TYPE",
+        "CONFORMED PERIOD OF REPORT",
+        "FILED AS OF DATE",
+        "DATE AS OF CHANGE",
+        "ACCEPTANCE-DATETIME",
+    ):
+        match = re.search(r"(?im)^\\s*" + re.escape(name) + r"\\s*:\\s*([^\\r\\n]+)", text)
+        fields[name] = match.group(1).strip() if match else None
+    return fields
+
+
 def parse_submission_header(payload: bytes, expected_accession: str, expected_form: str) -> dict[str, str]:
     text = payload.decode("latin-1", errors="replace")
     fields = {}
@@ -328,7 +345,40 @@ def run_audit(email: str, output_dir: Path, evidence: dict[str, object] | None =
             if total_bytes > MAX_TOTAL_BYTES:
                 raise RetrievalError("total_download_limit_exceeded")
 
-            header = parse_submission_header(submission_bytes, accession, item["form"])
+            folder = raw_root / normalize_accession(accession)
+            folder.mkdir(parents=True, exist_ok=True)
+            (folder / "index.json").write_bytes(index_bytes)
+            (folder / _safe_name(submission_name)).write_bytes(submission_bytes)
+            (folder / _safe_name(primary_name)).write_bytes(primary_bytes)
+
+            # Preserve and hash the exact public bytes before any semantic parser can fail.
+            hashes = {
+                "index_sha256": hashlib.sha256(index_bytes).hexdigest(),
+                "submission_sha256": hashlib.sha256(submission_bytes).hexdigest(),
+                "primary_xml_sha256": hashlib.sha256(primary_bytes).hexdigest(),
+            }
+            result.update({
+                **hashes,
+                "index_bytes": len(index_bytes),
+                "submission_bytes": len(submission_bytes),
+                "primary_xml_bytes": len(primary_bytes),
+                "index_response_headers": index_headers,
+                "submission_response_headers": submission_headers,
+                "primary_xml_response_headers": primary_headers,
+                "index_listing": listing,
+                "raw_files_staged_for_artifact": True,
+                "submission_header_diagnostic": submission_header_diagnostic(submission_bytes),
+            })
+
+            header = {}
+            header_error = None
+            try:
+                header = parse_submission_header(submission_bytes, accession, item["form"])
+            except ValueError as exc:
+                header_error = str(exc)
+
+            # XML is parsed independently of SEC-HEADER reconciliation so raw filing
+            # and position evidence are not discarded by a header-clock defect.
             parsed = parse_nport_xml(primary_bytes)
             expected_cusips = set(item.get("expected_cusips", []))
             observed_cusips = set(parsed["direct_short_cusips"])
@@ -337,18 +387,9 @@ def run_audit(email: str, output_dir: Path, evidence: dict[str, object] | None =
             min_rows = int(item.get("expected_min_direct_short_rows", 0))
             rows_gate = short_count >= min_rows
             result.update({
-                "status": "RAW_RETRIEVED",
-                "index_sha256": hashlib.sha256(index_bytes).hexdigest(),
-                "submission_sha256": hashlib.sha256(submission_bytes).hexdigest(),
-                "primary_xml_sha256": hashlib.sha256(primary_bytes).hexdigest(),
-                "index_bytes": len(index_bytes),
-                "submission_bytes": len(submission_bytes),
-                "primary_xml_bytes": len(primary_bytes),
-                "index_response_headers": index_headers,
-                "submission_response_headers": submission_headers,
-                "primary_xml_response_headers": primary_headers,
-                "index_listing": listing,
+                "status": "RAW_RETRIEVED" if header_error is None else "RAW_RETRIEVED_HEADER_ERROR",
                 "submission_header": header,
+                "submission_header_error": header_error,
                 "xml_audit": parsed,
                 "expected_min_direct_short_rows": min_rows,
                 "expected_row_count_gate_pass": rows_gate,
@@ -357,19 +398,15 @@ def run_audit(email: str, output_dir: Path, evidence: dict[str, object] | None =
                 "expected_cusip_gate_pass": not missing_cusips,
                 "series_id_gate_pass": bool(parsed["series_ids"]),
             })
-            folder = raw_root / normalize_accession(accession)
-            folder.mkdir(parents=True, exist_ok=True)
-            (folder / "index.json").write_bytes(index_bytes)
-            (folder / _safe_name(submission_name)).write_bytes(submission_bytes)
-            (folder / _safe_name(primary_name)).write_bytes(primary_bytes)
-            result["raw_files_staged_for_artifact"] = True
         except (RetrievalError, ValueError, ET.ParseError, json.JSONDecodeError) as exc:
             code = exc.code if isinstance(exc, RetrievalError) else str(exc)
             result.update({"status": "RETRIEVAL_OR_PARSE_ERROR", "error_code": code})
         results.append(result)
         time.sleep(0.25)
 
+    downloaded = [x for x in results if x.get("raw_files_staged_for_artifact")]
     complete = [x for x in results if x["status"] == "RAW_RETRIEVED"]
+    all_downloaded = len(downloaded) == len(ev["accessions"])
     all_complete = len(complete) == len(ev["accessions"])
     all_acceptance = all(
         x.get("submission_header", {}).get("header_accession_reconciled") == "true"
@@ -382,9 +419,11 @@ def run_audit(email: str, output_dir: Path, evidence: dict[str, object] | None =
     all_series = all(x.get("series_id_gate_pass") for x in complete) and all_complete
     status = (
         "RAW_SAMPLE_RETRIEVED_ACCEPTANCE_RECONCILED"
-        if all_complete and all_acceptance and all_cusips and all_rows and all_series
+        if all_downloaded and all_complete and all_acceptance and all_cusips and all_rows and all_series
+        else "RAW_BYTES_RETRIEVED_HEADER_OR_RECONCILIATION_BLOCKED"
+        if all_downloaded
         else "PARTIAL_RETRIEVAL_OR_RECONCILIATION"
-        if complete
+        if downloaded
         else "RETRIEVAL_FAILED"
     )
     return {
@@ -395,11 +434,12 @@ def run_audit(email: str, output_dir: Path, evidence: dict[str, object] | None =
         "accessions_attempted": len(results),
         "accessions_total": len(ev["accessions"]),
         "email_secret_present": True,
-        "files_downloaded": len(complete) * 3,
+        "files_downloaded": len(downloaded) * 3,
+        "downloaded_accessions": len(downloaded),
         "complete_accessions": len(complete),
         "total_download_bytes": total_bytes,
-        "raw_xml_sha256_verified": all_complete,
-        "submission_sha256_verified": all_complete,
+        "raw_xml_sha256_verified": all_downloaded,
+        "submission_sha256_verified": all_downloaded,
         "acceptance_time_reconciled": all_acceptance,
         "curated_cusips_reconciled": all_cusips,
         "expected_row_count_gates_passed": all_rows,
