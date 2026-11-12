@@ -1,8 +1,8 @@
 # Smart Money Research — current state (2026-11-12 UTC)
 
-**Latest completed research:** Phase 342 — six-quarter SEC Insider Transactions bulk archive and high-precision Form 4 candidate-screen audit.  
+**Latest completed research:** Phase 343 — candidate-specific SEC Form 4 event-time identity audit (2026Q3 cohort).  
 **Active research branch:** `phase343-form4-candidate-specific-event-time-identity`.  
-**Latest review:** [PR #32](https://github.com/jafelix81/NuevaEstrategia/pull/32), draft/open, based on Phase 342. PR #31 remains draft/open; no research PR was merged.
+**Latest review:** [PR #32](https://github.com/jafelix81/NuevaEstrategia/pull/32), draft/open, based on Phase 342. [PR #33](https://github.com/jafelix81/NuevaEstrategia/pull/33) separately tracks Phase 344 N-PORT identity reconciliation on the Phase 327 branch. Both remain draft/open; no production change.
 
 ## Historical baseline — Phases 332–337
 
@@ -21,31 +21,52 @@
 - Keep all 12 raw QNames, namespace versions, accessions, contexts and source hashes. Taxonomy labels are identity metadata, not a smart-money signal.
 - Stop extending this six-symbol taxonomy-label comparison. The next useful test is a survivorship-aware, stratified issuer sample outside the purposive 28 collision pairs.
 
+## Latest verified research — Phase 343 (2026-11-12 UTC)
+
+- Final candidate-specific Form 4 event-time identity audit [run 43286198150](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43286198150) passed **16/16 offline regressions**. [Artifact 13975421281](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43286198150/artifacts/13975421281).
+- Cohort: 85 high-precision candidate transaction rows, 59 original Form 4/Form 4-A accessions, 31 issuer CIKs and 48 issuer-CIK × filing-date event units. All 59 original submissions and 32 unique prior periodic anchors were retrieved and hashed; all 59 issuer symbols reconciled.
+- Two false-negative join defects were corrected: Phase 342's compact cohort omitted the already-screened P/D/A fields, and SEC bulk prices are rounded to cents while original XML may retain more decimals. The final join is unique for 85/85 rows at the bulk source precision; all 85 original XML/footnote purchase screens revalidated.
+- 72/85 rows (84.71%) have a unique compatible same-context security-class mapping; 41/48 event units (85.42%) are complete. Thirteen rows remain quarantined: nine without a supported same-context symbol/title/exchange triple and four with an incompatible class title. All 72 mapped anchors predate both transaction and Form 4 filing dates.
+- Report: [Phase 343 candidate-specific event-time identity audit](PHASE343_SEC_FORM4_CANDIDATE_SPECIFIC_EVENT_TIME_IDENTITY_AUDIT_2026-11-12.md).
+- This is data-identity feasibility only. No returns, alpha, OOS, bootstrap/LOO or holdout test was run.
+
+## Latest verified research — Phase 344 (2026-11-12 UTC)
+
+- Phase 193/344 final N-PORT raw filing audit [run 43288306677](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43288306677) passed **22/22 offline regressions**. [Artifact 13976801076](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43288306677/artifacts/13976801076).
+- Five purposively selected original N-PORT-P filings (2020–2025) were retrieved: 5/5 accessions, 20/20 raw files, 5/5 SEC-HEADER acceptance timestamps, 5/5 fund identities, expected CUSIP checks and row-count gates passed. The five filings contain 327 direct short-equity rows, all sign-concordant.
+- Four filings have an EDGAR Series ID. The 2025 ACAP Strategic Fund filing has no Series ID in the primary XML or index, but Form N-PORT labels the field "if any"; registrant CIK, registration file number, series name and class IDs reconcile. This is an optional-ID case, not a parser failure. CIKs are normalized to ten digits.
+- The five-filing sample is purposive and cannot estimate prevalence. Phase 316's broader 280-filing sample found direct-short rows in only 2 filings (194 rows, 173 unique CUSIPs, no tickers). CUSIP/ISIN-to-effective-dated-security mapping and first-public-receipt proof remain unresolved; no N-PORT alpha or strict PIT admission.
+- Report: [Phase 344 N-PORT optional Series ID identity reconciliation](PHASE344_NPORT_OPTIONAL_SERIES_IDENTITY_RECONCILIATION_2026-11-12.md). [Draft PR #33](https://github.com/jafelix81/NuevaEstrategia/pull/33).
+
 ## Next research gates
 
-1. **Phase 343 — candidate-specific event-time identity:** crosswalk the 2026Q3 high-precision Form 4 cohort (59 accessions, 31 issuers, 48 issuer-CIK × filing-date events) against each original Form 4 and the latest supported periodic XBRL filing strictly before its filing date.
-2. Require exact same-CIK `TradingSymbol`, `Security12bTitle` and `SecurityExchangeName` context; compatible common-stock title; a prior anchor no more than 365 days old; and byte-hash/filing-header reconciliation. No fuzzy ticker joins.
-3. Keep event-time identity separate from transaction-date identity. The prior periodic anchor may be after the transaction but before Form 4 disclosure; that is not transaction-date proof.
-4. If the candidate-specific 2026Q3 crosswalk passes, expand to the other five sampled quarters. Do not treat the six non-contiguous quarters as a continuous or probability sample.
-5. Only after security/listing identity passes, measure survivorship-aware historical price coverage and conservative next-full-XNYS-session availability.
-6. Only then consider a candidate event study versus frozen LTM/F80, with identical exposure/costs, chronological OOS, bootstrap/LOO and no use of the consumed legacy holdout.
+1. Expand the same candidate-specific Form 4 identity audit to 2023Q1, 2023Q2, 2025Q3, 2012Q1 and 2006Q1. Treat all six periods as non-contiguous audit strata, not a continuous or probability sample.
+2. Build an effective-dated security master joining issuer CIK, CUSIP/ISIN, ticker, exchange, share class, ADR status, corporate actions and delistings. Never backfill current tickers.
+3. Establish survivorship-aware historical universe membership and price/volume coverage before calculating returns.
+4. Only then preregister an insider-event study using conservative next-full-session availability and multiple economically justified horizons; no minimum or maximum holding period is imposed.
+5. Compare incremental information against frozen LTM/F80 under identical exposure/costs, chronological validation, bootstrap/LOO and untouched OOS discipline. Preserve the legacy holdout.
 
-## Source dispositions
+## Source dispositions — cross-source, not FINRA-only
 
 | Source / line | Current disposition |
 |---|---|
-| FINRA short flow Phase 20C | Weak, incomplete and not strict PIT; no promotion; do not retune the consumed sample |
-| FINRA short interest Phase 267 | Pagination/date-availability defects; no strict PIT panel |
-| FINRA ATS/OTC Phases 264/277/278 | Context-only; later revisions and unresolved duplicate-grain conflicts; do not sum or choose arbitrarily |
-| SEC Form 4 | Six-quarter high-precision screen: 413 rows / 262 accessions / 109 issuers / 224 issuer-filing events. Candidate-only; no direct proof of discretionary execution, candidate-specific event-time identity pending, no strict PIT or alpha admission |
-| SEC 13D/G | Extensive event, amendment and identity audits; no broad issuer/security panel admitted |
-| SEC 13F / N-PORT | Delayed context only; acceptance, amendment, CUSIP/security mapping and PIT issues remain |
-| Form 144/Form 4 | Document-linkage and conditional placebo results only; no market-execution or return edge established |
-| Cboe Open-Close | One C1 20% EOD sample date reprocessed; no multi-date PIT/vintage proof |
-| Cboe options quotes / sentiment / TradeFlow / OI | Conditional candidates; no full licensed historical sample with first-receipt and effective-dated identity admitted |
-| CFTC BPR/TFF | Market-regime context candidate; prior walk-forward quarantined for label-maturity defects; prospective capture remains research-branch only |
+| SEC Form 4 | 2026Q3 identity feasibility passed for 72/85 rows and 41/48 complete event units; expand historical periods, then security master and price coverage |
+| SEC FTD | 2004+ public history; prior coverage 75.5% in 2018 and 94.3% in 2026; CUSIP/security and historical-universe identity unresolved |
+| SEC Form 144 | Large 14-quarter event sample; proposed sale notices are not executed sales; retain as a separate supply/overhang hypothesis |
+| SEC N-PORT | Phase 344 resolved five purposive raw filings with 327 direct short-equity rows; broad sample prevalence is sparse and CUSIP/ISIN-to-security mapping remains unresolved |
+| SEC 13F | Quarterly and delayed; prior worst-quarter CUSIP mapping 54.8%; park pending deterministic historical security identity |
+| SEC 13D/G | Filing/event-date retrieval is broad; amendment lineage and subject-security semantics remain unresolved |
+| FINRA short flow × short interest | Prior standalone OOS test failed; coverage incomplete; do not retune |
+| FINRA ATS/off-exchange | Current public aggregates are not a clean ticker-level trade panel; context only |
+| Cboe Open-Close | Conditional EOD options-flow source; one-date C1 sample only, not full OPRA or multi-date PIT |
+| OptionMetrics IvyDB + Signed Volume | Highest-priority paid options candidate, conditional on sample, price, delisted coverage and PIT/revision audit; no purchase authorized |
+| ORATS / IVolatility / Databento OPRA / MIAX | Alternative or independent options sources; no source admitted pending multi-date schema/PIT/universe coverage |
+| CFTC TFF/COT | Broad index-futures regime context only; historical release calendar unresolved |
+| SEC MIDAS | Daily security-level aggregates but quarterly archive release timing is not strict PIT; context only |
 
-**Controls:** F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No security master, strict-PIT source admission, broad-universe coverage, alpha/return test, bootstrap/LOO, chronological OOS or holdout use in Phases 334–337. No production, universe, capital or parameter changes. No vendor contact or data purchase.
+**Controls:** F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No security master, strict-PIT source admission, broad-universe coverage, alpha/return test, bootstrap/LOO, chronological OOS or holdout use in Phase 343. No production, universe, capital or parameter changes. No vendor contact or data purchase.
+
+ F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No security master, strict-PIT source admission, broad-universe coverage, alpha/return test, bootstrap/LOO, chronological OOS or holdout use in Phases 334–337. No production, universe, capital or parameter changes. No vendor contact or data purchase.
 
 ---
 
