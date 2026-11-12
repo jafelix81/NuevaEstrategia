@@ -25,6 +25,7 @@ from research.phase328_sec_collision_prior_filing_xbrl_pilot import (
 from research.phase339_sec_security_exchange_context_audit import (
     build_symbol_exchange_associations, extract_context_rows, find_filing_row,
 )
+from research.phase340_form4_transaction_date_anchor_pit_audit import fetch_submission as fetch_form4_submission
 from research.phase341_form4_issuer_symbol_class_crosswalk_audit import (
     match_title, parse_symbol,
 )
@@ -98,17 +99,42 @@ def path_value(root: ET.Element, path: str) -> str:
 
 
 def parse_ownership_document(raw: bytes) -> dict[str, Any]:
-    text = raw.decode("utf-8-sig", errors="replace")
-    match = re.search(r"<XML>\s*(.*?)\s*</XML>", text, re.I | re.S)
-    xml_text = match.group(1) if match else text
-    start = re.search(r"<(?:[A-Za-z0-9_]+:)?ownershipDocument\b", xml_text, re.I)
-    if not start:
-        raise ValueError("PRIMARY_DOCUMENT_HAS_NO_OWNERSHIP_XML")
-    xml_text = xml_text[start.start():]
-    end = re.search(r"</(?:[A-Za-z0-9_]+:)?ownershipDocument\s*>", xml_text, re.I)
-    if end:
-        xml_text = xml_text[:end.end()]
-    root = ET.fromstring(xml_text)
+    # SEC complete-submission text is SGML. Select the Form 4 document rather
+    # than parsing the XSL display document listed as primaryDocument.
+    text = raw.decode("latin-1", errors="replace")
+    documents = re.findall(r"<DOCUMENT>\s*(.*?)\s*</DOCUMENT>", text, flags=re.I | re.S)
+    candidates = []
+    for document in documents:
+        typ = re.search(r"<TYPE>\s*([^\s<]+)", document, flags=re.I)
+        body = re.search(r"<TEXT>\s*(.*?)\s*</TEXT>", document, flags=re.I | re.S)
+        if not body:
+            continue
+        content = body.group(1).strip()
+        xml_match = re.search(r"<XML>\s*(.*?)\s*</XML>", content, flags=re.I | re.S)
+        content = xml_match.group(1).strip() if xml_match else content
+        if (typ and typ.group(1).upper() in {"4", "4/A"}) or "ownershipdocument" in content.lower():
+            candidates.append(content)
+    if not candidates:
+        candidates = [text]
+
+    root = None
+    for candidate in candidates:
+        start = re.search(r"<(?:[A-Za-z0-9_]+:)?ownershipDocument\b", candidate, re.I)
+        if not start:
+            continue
+        xml_text = candidate[start.start():]
+        end = re.search(r"</(?:[A-Za-z0-9_]+:)?ownershipDocument\s*>", xml_text, re.I)
+        if end:
+            xml_text = xml_text[:end.end()]
+        try:
+            root = ET.fromstring(xml_text.encode("latin-1"))
+            if local_name(root.tag).lower() == "ownershipdocument":
+                break
+            root = None
+        except ET.ParseError:
+            root = None
+    if root is None:
+        raise ValueError("COMPLETE_SUBMISSION_HAS_NO_PARSEABLE_OWNERSHIP_XML")
 
     owners = []
     for owner in [x for x in list(root) if local_name(x.tag) == "reportingOwner"]:
@@ -357,39 +383,35 @@ def retrieve_anchor_xbrl(client: SECClient, cik: str, filing: dict, raw_dir: Pat
     }
 
 
-def retrieve_form4_primary(client: SECClient, cik: str, accession: str, filing_row: dict, raw_dir: Path) -> tuple[dict | None, dict]:
-    compact = accession.replace("-", "")
-    base = f"https://www.sec.gov/Archives/edgar/data/{int(cik)}/{compact}/"
-    primary = str(filing_row.get("primaryDocument") or "")
-    if not primary:
-        return None, {"document_status": "NO_PRIMARY_DOCUMENT"}
-    index_raw, index_status, index_error, _ = client.get(base + "index.json", max_bytes=3_000_000)
-    index_ok = False
-    if index_raw:
-        try:
-            items = json.loads(index_raw).get("directory", {}).get("item", []) or []
-            names = {str(x.get("name") or "") for x in items}
-            index_ok = primary in names or Path(primary).name in {Path(x).name for x in names}
-        except (ValueError, AttributeError, TypeError):
-            pass
-    raw, status, error, headers = client.get(base + primary, max_bytes=15_000_000)
-    if not raw:
-        return None, {"document_status": error or "FORM4_PRIMARY_UNAVAILABLE", "document_http_status": status, "index_http_status": index_status}
+def retrieve_form4_submission(client: SECClient, cik: str, accession: str, filing_date: str, raw_dir: Path) -> tuple[dict | None, dict]:
+    row = {"accession": accession, "issuer_cik": cik, "form_type": "4", "filing_date": filing_date}
+    raw, meta = fetch_form4_submission(client, row)
+    if raw is None:
+        return None, {"document_status": "FORM4_COMPLETE_SUBMISSION_UNAVAILABLE", **meta}
     try:
         parsed = parse_ownership_document(raw)
     except (ET.ParseError, ValueError) as exc:
-        return None, {"document_status": f"FORM4_XML_PARSE_FAILED:{str(exc)[:120]}", "document_http_status": status, "index_http_status": index_status, "primary_index_verified": index_ok}
+        return None, {
+            "document_status": f"FORM4_COMPLETE_SUBMISSION_XML_PARSE_FAILED:{str(exc)[:120]}",
+            "submission_sha256": meta.get("submission_sha256", ""),
+            "submission_bytes": meta.get("submission_bytes", 0),
+            **meta,
+        }
     raw_dir.mkdir(parents=True, exist_ok=True)
-    (raw_dir / f"{compact}_{Path(primary).name}").write_bytes(raw)
+    compact = accession.replace("-", "")
+    (raw_dir / f"{compact}.txt").write_bytes(raw)
     return parsed, {
-        "document_status": "FORM4_PRIMARY_PARSED",
-        "document_name": primary,
-        "document_sha256": sha(raw),
-        "document_bytes": len(raw),
-        "document_http_status": status,
-        "index_http_status": index_status,
-        "primary_index_verified": index_ok,
-        "last_modified": headers.get("last-modified", ""),
+        "document_status": "FORM4_COMPLETE_SUBMISSION_PARSED",
+        "document_sha256": meta.get("submission_sha256", sha(raw)),
+        "document_bytes": meta.get("submission_bytes", len(raw)),
+        "fetch_path_cik": meta.get("path_cik", ""),
+        "fetch_path_route": meta.get("route", ""),
+        "header_cik": meta.get("header_cik", ""),
+        "acceptance_datetime_et": meta.get("acceptance_datetime_et", ""),
+        "xml_issuer_cik_from_fetcher": meta.get("xml_issuer_cik", ""),
+        "xml_owner_ciks_from_fetcher": meta.get("xml_owner_ciks", []),
+        "prior_route_errors": meta.get("prior_route_errors", []),
+        "http_status": meta.get("http_status", ""),
     }
 
 
@@ -478,42 +500,12 @@ def run(phase342_artifact: Path, phase341_artifact: Path, email: str, output_dir
         filing_date = first["filing_date"]
         if any(x["issuer_cik"] != cik or x["filing_date"] != filing_date for x in rows_for_acc):
             raise ValueError("CANDIDATE_ACCESSION_HAS_MULTIPLE_ISSUER_OR_FILING_DATE")
-        if cik not in submissions_cache:
-            url = f"https://data.sec.gov/submissions/CIK{cik.zfill(10)}.json"
-            raw, status, error, headers = client.get(url, max_bytes=20_000_000)
-            if raw:
-                try:
-                    payload = json.loads(raw)
-                    submissions_cache[cik] = (payload, {"http_status": status, "sha256": sha(raw), "bytes": len(raw)})
-                except ValueError:
-                    submissions_cache[cik] = (None, {"http_status": status, "error": "SUBMISSIONS_JSON_PARSE_ERROR"})
-            else:
-                submissions_cache[cik] = (None, {"http_status": status, "error": error})
-        payload, submissions_meta = submissions_cache[cik]
-        if payload is None:
-            accession_rows.append({
-                "accession": accession, "issuer_cik": cik, "filing_date_bulk": filing_date,
-                "form4_status": "SUBMISSIONS_UNAVAILABLE", **submissions_meta,
-            })
-            continue
-        form4_row, lookup_source, lookup_status = find_filing_row(client, cik, accession, filing_date)
-        if not form4_row or str(form4_row.get("form") or "") != "4" or str(form4_row.get("filingDate") or "") != filing_date:
-            accession_rows.append({
-                "accession": accession, "issuer_cik": cik, "filing_date_bulk": filing_date,
-                "form4_status": "FORM4_SUBMISSIONS_ROW_NOT_RECONCILED",
-                "lookup_source": lookup_source, "lookup_status": lookup_status,
-                **submissions_meta,
-            })
-            continue
-        parsed, doc_meta = retrieve_form4_primary(client, cik, accession, form4_row, raw_form4_dir)
+        parsed, doc_meta = retrieve_form4_submission(client, cik, accession, filing_date, raw_form4_dir)
         if parsed is None:
             accession_rows.append({
                 "accession": accession, "issuer_cik": cik, "filing_date_bulk": filing_date,
-                "form4_status": doc_meta["document_status"],
-                "lookup_source": lookup_source, "lookup_status": lookup_status,
-                "form4_date_api": form4_row.get("filingDate", ""),
-                "primary_document": form4_row.get("primaryDocument", ""),
-                **submissions_meta, **doc_meta,
+                "form4_status": doc_meta.get("document_status", "FORM4_COMPLETE_SUBMISSION_UNAVAILABLE"),
+                **doc_meta,
             })
             continue
         symbol_bulk = parse_symbol(first["issuer_symbol_bulk"])[0]
@@ -521,25 +513,28 @@ def run(phase342_artifact: Path, phase341_artifact: Path, email: str, output_dir
         owners_xml = sorted({x["cik"] for x in parsed["owners"] if x["cik"]})
         owner_match = owners_xml == first["owner_ciks_bulk"] and len(parsed["owners"]) == 1
         aff_xml = normalize_aff(parsed["aff10b5one_raw"])
+        header_cik = str(doc_meta.get("header_cik") or "").lstrip("0")
+        header_entity_match = header_cik in {cik, *first["owner_ciks_bulk"]}
         form4_ok = (
             parsed["issuer_cik"] == cik
             and symbol_bulk != ""
             and symbol_bulk == symbol_xml
             and aff_xml == first["aff10b5one_bulk"] == "false"
             and owner_match
-            and str(form4_row.get("filingDate") or "") == filing_date
-            and doc_meta.get("primary_index_verified") is True
+            and header_entity_match
+            and bool(doc_meta.get("document_sha256"))
         )
         accession_rows.append({
             "accession": accession, "issuer_cik": cik, "filing_date_bulk": filing_date,
-            "form4_date_api": form4_row.get("filingDate", ""),
-            "form4_form_api": form4_row.get("form", ""),
-            "primary_document": form4_row.get("primaryDocument", ""),
-            "lookup_source": lookup_source, "lookup_status": lookup_status,
-            "form4_status": "FORM4_PRIMARY_PARSED",
+            "form4_form": "4",
+            "form4_status": "FORM4_COMPLETE_SUBMISSION_PARSED",
             "form4_document_sha256": doc_meta.get("document_sha256", ""),
             "form4_document_bytes": doc_meta.get("document_bytes", 0),
-            "primary_index_verified": doc_meta.get("primary_index_verified", False),
+            "form4_fetch_path_cik": doc_meta.get("fetch_path_cik", ""),
+            "form4_fetch_path_route": doc_meta.get("fetch_path_route", ""),
+            "form4_header_cik": header_cik,
+            "form4_header_entity_match": header_entity_match,
+            "form4_acceptance_datetime_et": doc_meta.get("acceptance_datetime_et", ""),
             "issuer_cik_xml": parsed["issuer_cik"],
             "issuer_symbol_bulk": first["issuer_symbol_bulk"],
             "issuer_symbol_xml": parsed["issuer_symbol_raw"],
@@ -551,11 +546,11 @@ def run(phase342_artifact: Path, phase341_artifact: Path, email: str, output_dir
             "owner_ciks_xml": owners_xml,
             "owner_count_xml": len(parsed["owners"]),
             "form4_metadata_reconciled": form4_ok,
-            **submissions_meta, **doc_meta,
+            **doc_meta,
         })
         form4_meta[accession] = {
-            "parsed": parsed, "row": form4_row, "meta": doc_meta,
-            "reconciled": form4_ok, "submissions": submissions_meta,
+            "parsed": parsed, "meta": doc_meta,
+            "reconciled": form4_ok,
         }
         form4_docs[accession] = parsed
         print(f"PHASE343_FORM4_PROGRESS={n}/{len(candidate_accessions)} status={doc_meta['document_status']} reconciled={form4_ok}")
@@ -708,10 +703,10 @@ def run(phase342_artifact: Path, phase341_artifact: Path, email: str, output_dir
         "phase341_2026_sample_accessions": len(phase341_2026),
         "phase341_candidate_accession_overlap": len(overlap_accessions),
         "phase341_candidate_issuer_cik_overlap": len(overlap_issuers),
-        "form4_submissions_rows_reconciled": sum(x.get("form4_status") == "FORM4_PRIMARY_PARSED" for x in accession_rows),
-        "form4_primary_documents_parsed": sum(x.get("form4_status") == "FORM4_PRIMARY_PARSED" for x in accession_rows),
+        "form4_full_submissions_parsed": sum(x.get("form4_status") == "FORM4_COMPLETE_SUBMISSION_PARSED" for x in accession_rows),
         "form4_metadata_reconciled_accessions": sum(x.get("form4_metadata_reconciled", False) for x in accession_rows),
-        "form4_primary_hashes_unique": len({x.get("form4_document_sha256") for x in accession_rows if x.get("form4_document_sha256")}),
+        "form4_submission_hashes_unique": len({x.get("form4_document_sha256") for x in accession_rows if x.get("form4_document_sha256")}),
+        "form4_acceptance_timestamps_captured": sum(bool(x.get("form4_acceptance_datetime_et")) for x in accession_rows),
         "issuer_filing_date_units_with_fresh_prior_anchor": sum(
             x.get("anchor_status") == "XBRL_INSTANCE_PARSED" for x in unit_to_anchor.values()
         ),
