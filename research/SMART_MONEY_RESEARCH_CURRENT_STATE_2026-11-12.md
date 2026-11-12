@@ -1,9 +1,19 @@
 # Smart Money Research — current state (2026-11-12 UTC)
 
-**Active research branch:** `phase307-sec-rss-owner-only-filter-audit`  
+**Active research branch:** `phase308-sec-rss-prospective-capture`  
 **PR chain:** #14 stacked on #13; both open and unmerged.  
 
-## Latest verified research — Phase 307 (2026-11-12 02:34 UTC)
+## Latest verified research — Phase 309 (2026-11-12 02:57 UTC)
+
+- Phase 309 corrected the SEC RSS collector's first-observation timestamp. New accession timestamps now use the earliest successful Atom page `poll_completed_at_utc` containing the accession; poll-start time, page offset and label are stored separately. Event intervals are measured from the previous complete-capture end to that response completion. An event timestamp before the prior boundary is invalidated.
+- The original Phase 308 run used capture start as a placeholder for all 1,040 initial accessions. Those values were not actual observations. Phase 309 migrates them to `legacy_capture_started_at_utc`, nulls `first_observed_at_utc` and interval end, and marks the timestamp `legacy_capture_start_pre_response_not_observation`. The fourth-capture artifact confirms **1,040/1,040** placeholders quarantined. They remain left-censored.
+- Final hosted run [43144785036](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43144785036) passed **53/53** regressions (13 Phase 308 + 14 Phase 306 + 8 Phase 305 + 11 Phase 304 + 7 Phase 303) and completed 30/30 live SEC requests. Artifact [13910594586](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43144785036/artifacts/13910594586), 206,509 bytes, SHA-256 `4ad1da53d979e996d0d2e20738f72712346b2a6563c8a1b921f7e91a013bd7be`.
+- Four consecutive complete snapshots have now been captured. Latest: 1,022 Form 4 accessions / 2,111 entity rows; 18 Form 4/A accessions / 36 entity rows; 1,040 unique accession keys. Zero new accessions, zero changed entity-row sets, zero missing accessions, zero structural errors and zero row-fingerprint conflicts. Gap from prior complete capture end to latest capture start: 2.589 minutes.
+- No new accession arrived in the four snapshots. The new event-level timestamp path is covered by deterministic tests but has not yet been exercised by a live newly arriving accession. Continue the prospective capture; do not claim a non-left-censored live interval yet.
+- Reports: [Phase 309](PHASE309_SEC_RSS_EVENT_LEVEL_OBSERVATION_BOUND_CORRECTION_2026-11-12.md) and [Phase 308 capture ledger](PHASE308_SEC_RSS_PROSPECTIVE_CAPTURE_2026-11-12.md).
+- No strict PIT admission, alpha/return test, bootstrap/LOO or chronological OOS. Holdout unused. `F80_TOP20_PARTIAL50_BASELINE_C20`, production, universe, capital and parameters unchanged. PR #13 and #14 remain open and unmerged; no new PR, email or vendor purchase.
+
+## Prior verified research — Phase 307 (2026-11-12 02:34 UTC)
 
 - Final run [43142273073](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43142273073) passed 48/48 regressions and 37/37 live SEC Atom requests. Artifact [13910211291](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43142273073/artifacts/13910211291), 155,654 bytes, SHA-256 028c6af605e771fd3362b269f509b09ab210d66ece1d1b328421fa0b6ff010d0.
 - **owner=only passed** the ownership-form isolation, owner=exclude negative-control and page-zero accession-preservation tests. It returned 2,111 exact Form 4 entity rows / 1,022 accessions plus 36 Form 4/A prefix spillovers. Form 4 reached the current-feed tail at start=2,080 (final page 67 rows), with 26/26 ordered overlaps and stable page-zero recheck. Form 4/A returned 36 rows / 18 accessions in one page and also passed its recheck.
