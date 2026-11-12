@@ -85,3 +85,8 @@ A final regression and capture run verified that the legacy timestamp migration 
 - Artifact [13911053496](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43145246814/artifacts/13911053496), SHA-256 `acbbf03bae44d7d07fff1666896ae8d8e2bed6da5d7310ac8a71f4c9c0f9e597`, confirms the durable ledger has five captures, 1,040 accessions, and all 1,040 legacy placeholders quarantined.
 
 This closes the persistence gap: cache loss can no longer roll the branch's committed ledger back to the pre-migration timestamp placeholders. The first 1,040 accessions remain left-censored; no live newly arriving accession has yet exercised a bounded event interval.
+
+
+## Sixth-capture follow-up — 2026-11-12 03:38–03:39 UTC
+
+Workflow [43149574581](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43149574581) completed successfully after a 37.4126-minute interval from the prior complete snapshot. All 30 SEC requests succeeded; Form 4 remained 1,022 accessions / 2,111 entity rows and Form 4/A 18 / 36. There were no new, missing or changed accessions and no structural/fingerprint errors. The artifact [13913710003](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43149574581/artifacts/13913710003) was downloaded and inspected. The durable ledger now records six captures and 1,040 accessions; all 1,040 are still left-censored and quarantined, with zero live bounded event intervals. This extends observation coverage but does not yet validate the new-event timestamp path empirically.
