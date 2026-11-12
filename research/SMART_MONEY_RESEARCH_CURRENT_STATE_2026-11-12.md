@@ -1,7 +1,22 @@
 # Smart Money Research — current state (2026-11-12 UTC)
 
-**Active research branch:** `phase319-sec-daily-index-live-format-pilot`  
-**Latest completed research:** Phase 319 — live SEC daily-index format and original-header pilot.  
+**Active research branch:** `phase320-sec-bulk-daily-index-join`  
+**Latest completed research:** Phase 320 — SEC bulk-to-daily-index accession join audit.  
+## Latest verified research — Phase 320 (2026-11-12 UTC)
+
+- GitHub Actions [run 43176308146](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43176308146) passed **10/10 Phase 320 regressions** plus live SEC validation. [Artifact 13924636727](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43176308146/artifacts/13924636727), ZIP SHA-256 `995f114e641443df2f6f32bc8f8cc0509fbf7efa3aeef18cc3bfd7d940aef150`.
+- Six Phase 294 bulk archives (2006Q1, 2012Q1, 2023Q1, 2023Q2, 2025Q3, 2026Q3) passed manifest SHA-256 and ZIP CRC checks; 317,267 Form 4/4-A rows in total.
+- A deterministic non-probability sample of 72 accessions (12/quarter; 8 Form 4 + 4 Form 4/A) spans 72 distinct filing dates. All 72 were found on their exact bulk `FILING_DATE` SEC daily index; none required next-business-day fallback, none were missing, and all index form/date/issuer-CIK checks passed.
+- 72 daily indexes (58,389,807 bytes) parsed as legacy fixed-width files: 354,742 rows after headers, 124,741 Form 4/4-A entity rows, 230,001 other-form rows ignored, 60,222 multi-entity accession instances, 19 exact duplicate rows collapsed, zero malformed rows, zero CIK/path mismatches and zero conflicting accession identities.
+- 72/72 original headers reconciled on accession, form and filed date; all had ACCEPTANCE-DATETIME. Header CIK was a reporting owner in 66 cases and the issuer in six; all header and issuer CIKs were present in the index rows. **66/66 independent issuer-path vs. owner-path hashes matched**; six issuer/header same-path cases are reported separately, not counted as independent crosschecks.
+- 21/72 acceptance timestamps were at or after 17:30 ET. Acceptance is not transmission commencement or exact first-public receipt. Retain only the conservative date-level rule: first full XNYS session strictly after the official filed/index date. Strict PIT remains closed.
+- All 72 sampled accessions were single-owner. The six source archives contain 6,706 multi-owner accessions (2.11%), with up to ten owners; they require a separate stratified live-header audit. The sample is not a probability sample and is not a prevalence estimate.
+- No returns, alpha, bootstrap/LOO, chronological OOS or holdout test. No raw SEC bytes uploaded, vendor contacted, data purchased, email sent, or production/universe/capital/parameter change. F80 remains frozen.
+
+**Next gate:** complete the daily-index join census for all 317,267 accessions across the six archives and stratify original-header crosschecks across single- and multi-owner cohorts. Then resolve effective-dated issuer/security-class identity and broad survivorship-aware universe coverage before any Form 4 signal test.
+
+- [Phase 320 report](PHASE320_SEC_BULK_TO_DAILY_INDEX_JOIN_AUDIT_2026-11-12.md)
+
 **Open PR:** [#17 — Phase 313](https://github.com/jafelix81/NuevaEstrategia/pull/17) remains open, as do PRs #13–#16; 14 PRs are open in total. Phase 318/319 are independent research branches and were not merged.
 
 ## Latest verified research — Phase 319
