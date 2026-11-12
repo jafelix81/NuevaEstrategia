@@ -95,7 +95,8 @@ class Phase312NportRawSampleTests(unittest.TestCase):
 
     def test_strict_short_filter_uses_structured_fields_not_title_text(self):
         meta, rows = parse_submission(SUBMISSION.encode(), self.expected())
-        self.assertEqual(len(rows), 1)
+        self.assertEqual(len(rows), 2)
+        self.assertEqual(sum(1 for row in rows if row["sign_concordant"]), 1)
         self.assertEqual(rows[0]["issuer_name"], "American Express Co")
         self.assertEqual(rows[0]["issue_title"], "Issuer description without stock wording")
         self.assertTrue(rows[0]["sign_concordant"])
@@ -130,7 +131,7 @@ class Phase312NportRawSampleTests(unittest.TestCase):
         self.assertIn("<edgarSubmission", extract_primary_xml(text, "NPORT-P"))
 
     def test_missing_primary_xml_fails_closed(self):
-        with self.assertRaisesRegex(ValueError, "primary_nport_xml_document_not_found"):
+        with self.assertRaisesRegex(ValueError, "primary_nport_xml_root_missing"):
             extract_primary_xml("<DOCUMENT><TYPE>NPORT-P</TYPE><TEXT>bad</TEXT></DOCUMENT>", "NPORT-P")
 
     def test_series_identity_states(self):
