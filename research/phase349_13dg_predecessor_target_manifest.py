@@ -13,14 +13,14 @@ TARGET_STATUS = "explicit_predecessor_outside_600_header_sample"
 
 
 def normalize_accession(value):
-    digits = re.sub(r"\\D", "", str(value or ""))
+    digits = re.sub(r"\D", "", str(value or ""))
     if len(digits) != 18:
         return ""
     return f"{digits[:10]}-{digits[10:12]}-{digits[12:]}"
 
 
 def normalize_cik(value):
-    digits = re.sub(r"\\D", "", str(value or ""))
+    digits = re.sub(r"\D", "", str(value or ""))
     return digits.zfill(10) if digits and len(digits) <= 10 else digits
 
 
@@ -35,7 +35,7 @@ def parse_json_list(value):
 
 
 def cusip_checksum_valid(value):
-    cusip = re.sub(r"\\s+", "", str(value or "")).upper()
+    cusip = re.sub(r"\s+, "", str(value or "")).upper()
     if not re.fullmatch(r"[A-Z0-9*@#]{9}", cusip) or not cusip[-1].isdigit():
         return False
     total = 0
@@ -55,7 +55,7 @@ def cusip_checksum_valid(value):
 
 
 def child_cusip_status(cusips):
-    normalized = sorted(set(re.sub(r"\\s+", "", str(x or "")).upper() for x in cusips if str(x or "").strip()))
+    normalized = sorted(set(re.sub(r"\s+, "", str(x or "")).upper() for x in cusips if str(x or "").strip()))
     if len(normalized) != 1:
         return "", "MISSING_OR_MULTIPLE"
     cusip = normalized[0]
@@ -69,6 +69,10 @@ def child_cusip_status(cusips):
 def load_csv(path):
     with Path(path).open("r", newline="", encoding="utf-8-sig") as handle:
         return list(csv.DictReader(handle))
+
+
+def write_json(path, payload):
+    Path(path).write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
 def build_manifest(lineage_rows, event_rows, phase84_header_rows, phase93_summary, expected_target_count=44):
@@ -216,7 +220,7 @@ def run(args):
         writer = csv.DictWriter(handle, fieldnames=fields)
         writer.writeheader()
         writer.writerows(records)
-    (out / "phase349_summary.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\\n", encoding="utf-8")
+    write_json(out / "phase349_summary.json", summary)
     print(json.dumps(summary, indent=2, sort_keys=True))
     return summary
 

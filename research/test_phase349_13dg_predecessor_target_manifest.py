@@ -1,6 +1,9 @@
+import json
+import tempfile
 import unittest
+from pathlib import Path
 from research.phase349_13dg_predecessor_target_manifest import (
-    build_manifest, child_cusip_status, cusip_checksum_valid, normalize_accession,
+    build_manifest, child_cusip_status, cusip_checksum_valid, normalize_accession, write_json,
 )
 
 class Phase349ManifestTests(unittest.TestCase):
@@ -34,6 +37,7 @@ class Phase349ManifestTests(unittest.TestCase):
 
     def test_accession_normalization(self):
         self.assertEqual(normalize_accession("000000000124000001"), "0000000001-24-000001")
+        self.assertEqual(normalize_accession("0000000001-24-000001"), "0000000001-24-000001")
         self.assertEqual(normalize_accession("bad"), "")
 
     def test_known_cusip_checksum(self):
@@ -56,11 +60,17 @@ class Phase349ManifestTests(unittest.TestCase):
         self.assertEqual(row["parent_path_cik_role"], "ARCHIVE_PATH_ONLY_NOT_ISSUER_IDENTITY")
         self.assertFalse(summary["strict_pit_admitted"])
 
+    def test_summary_json_is_parseable_after_write(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "summary.json"
+            write_json(path, {"phase": 349, "ok": True})
+            self.assertEqual(json.loads(path.read_text(encoding="utf-8")), {"phase": 349, "ok": True})
+
     def test_parent_already_in_phase84_sample_is_rejected(self):
-        args = self.fixture()
-        args[2] = [{"accession": "0000000002-23-000001"}]
+        lineage, events, _, summary = self.fixture()
+        phase84 = [{"accession": "0000000002-23-000001"}]
         with self.assertRaises(ValueError):
-            build_manifest(*args, expected_target_count=1)
+            build_manifest(lineage, events, phase84, summary, expected_target_count=1)
 
     def test_child_subject_mismatch_is_rejected(self):
         args = self.fixture()
