@@ -820,3 +820,18 @@ This offline audit re-read the six raw ZIPs from Phase 294 artifact [13884014630
 - Acceptance datetimes are captured but are not treated as exact first-public receipt. A prior anchor before the transaction is necessary but does not prove effective-dated listing continuity.
 - F80 remains frozen. No security master, transaction mapping, alpha/return/OOS, bootstrap/LOO, holdout, production, universe, capital or parameter changes; no data purchase/vendor contact.
 - Report: [Phase 340 audit](PHASE340_FORM4_TRANSACTION_DATE_ANCHOR_PIT_AUDIT_2026-11-12.md).
+
+
+## Phase 341 — Form 4 issuer-symbol and security-class crosswalk (2026-11-12 UTC)
+
+- Hosted run [43262590091](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43262590091) SUCCESS; 12/12 offline regressions passed. Output artifact [13963219558](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43262590091/artifacts/13963219558), ZIP SHA-256 `b15232741016bf39445acd3dde5c010c3aeef013cb59e6997a1ba9a9763e8130`.
+- Immutable inputs: Phase340 artifact 13959807159 (SHA-256 `246fc82c5fa6c9fdb6071a58ad5675e7892bbc389fcb5798e3cc2e27f55c78f5`) and Phase339 artifact 13959007527 (SHA-256 `186bd582c8cd0ffff73cda16c7331e5a2bd34e413b6aba3715b5fac430a0a66f`). The hosted workflow verified both ZIPs and primary JSON hashes; all 72 raw Form 4/Form 4/A submissions were re-hashed.
+- Exact single-symbol crosswalk: 30/72 accessions (41.67% unweighted; 47.77% design-weighted). 57 had a parseable single-token issuer symbol; 9 were multi/malformed/unknown-prefix; 6 placeholder/missing. 42/72 did not obtain a unique same-CIK Phase339 symbol context.
+- Historical coverage is inadequate for a broad backtest in this sample: 0/12 matches in 2006, 0/12 in 2012, 16/24 in 2023, 7/12 in 2025, 7/12 in 2026.
+- Separate gates: transaction-date identity candidates 38 rows / 23 accessions; event-time identity corroboration (fresh prior anchor before Form4 filing) 41 rows / 26 accessions. The event-time gate adds three rows (MNTX code A, ARKO code M, OMEX code A) whose anchor is after transaction but before filing. These are not transaction-date identity candidates.
+- Of 41 event-time equity rows, 5 exact title matches and 36 controlled same-instrument-class matches. 16 derivative-underlying rows across 10 accessions are separately mapped. No fuzzy ticker matching; common stock, ordinary shares, beneficial-interest shares, preferred, debt and ADS remain distinct.
+- Purchase disposition: 27 code-P rows in sample (15 direct, 12 indirect). Four mapped code-P rows across CMRX and MNSB are all indirect (trust / 401(k)); all 15 direct code-P rows remain unmapped. Code P can be open-market or private, so zero confirmed discretionary open-market purchases in this sample is not a population-wide absence claim.
+- Median transaction-to-filing lag among 41 event-time candidates is 4 calendar days; maximum 7. Descriptive only.
+- Decision: candidate-only crosswalk; no security master, strict PIT identity, event study, alpha, return/OOS, bootstrap/LOO or holdout admission. Form4 issuerTradingSymbol is available at disclosure but is not ex-ante relative to the underlying transaction. Next: test Phase271 high-precision Form4 cohort at event time, with effective-dated listing/corporate-action continuity and survivorship-aware price coverage.
+- F80 remains frozen. No production, universe, capital or parameter changes; no data purchase/vendor contact.
+- Report: [Phase 341 audit](PHASE341_FORM4_ISSUER_SYMBOL_CLASS_CROSSWALK_AUDIT_2026-11-12.md).
