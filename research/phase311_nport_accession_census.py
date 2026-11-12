@@ -89,12 +89,16 @@ def parse_master_index(text: str, quarter: str) -> list[dict[str, str]]:
         raw = line.strip("\r\n")
         if not raw or raw.startswith("-"):
             continue
-        parts = raw.rsplit("|", 4)
-        if len(parts) != 5:
+        try:
+            cik, remainder = raw.split("|", 1)
+            company_name, form_type, filed, filename = remainder.rsplit("|", 3)
+        except ValueError:
             if "NPORT-P" in raw:
                 malformed_target_rows += 1
             continue
-        cik, company_name, form_type, filed, filename = [x.strip() for x in parts]
+        cik, company_name, form_type, filed, filename = [
+            x.strip() for x in (cik, company_name, form_type, filed, filename)
+        ]
         if form_type not in TARGET_FORMS:
             continue
         if not cik.isdigit() or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", filed):
