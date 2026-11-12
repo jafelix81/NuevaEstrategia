@@ -1,0 +1,156 @@
+name: Phases 347–349 - SEC 13D/G identity and predecessor manifest audit
+# Reproducible offline audit pinned to the immutable Phase 93 artifact.
+
+on:
+  pull_request:
+    branches:
+      - phase93-13dg-amendment-lineage-and-event-mechanism-audit
+    paths:
+      - research/phase347_13dg_cusip_integrity_audit.py
+      - research/test_phase347_13dg_cusip_integrity_audit.py
+      - research/phase347_13dg_cusip_integrity_audit_result.json
+      - research/PHASE347_SEC_13DG_CUSIP_INTEGRITY_AND_SUBJECT_CONSISTENCY_AUDIT_2026-11-12.md
+      - research/phase348_13dg_legacy_html_parent_validation.py
+      - research/test_phase348_13dg_legacy_html_parent_validation.py
+      - research/phase348_13dg_legacy_html_parent_validation_result.json
+      - research/phase348_legacy_html_parent_validation_result.csv
+      - research/PHASE348_SEC_13DG_LEGACY_HTML_EXPLICIT_PREDECESSOR_VALIDATION_2026-11-12.md
+      - research/phase349_13dg_predecessor_target_manifest.py
+      - research/test_phase349_13dg_predecessor_target_manifest.py
+      - research/phase349_13dg_predecessor_target_manifest_result.json
+      - research/PHASE349_SEC_13DG_EXPLICIT_PREDECESSOR_TARGET_MANIFEST_2026-11-12.md
+      - .github/workflows/phase347_13dg_cusip_integrity_audit.yml
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: phase347-13dg-cusip-integrity-audit
+  cancel-in-progress: true
+
+jobs:
+  offline-cusip-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Download immutable Phase 93 artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p phase347_input
+          curl --fail --silent --show-error --location \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13375652511/zip \
+            -o phase347_input/phase93_13dg_lineage.zip
+      - name: Verify immutable source digest and extract
+        run: |
+          echo "e9252a741d111319f7d93796658ebe4e1c439903444e905d557e8de0a023497a  phase347_input/phase93_13dg_lineage.zip" | sha256sum --check
+          unzip -q phase347_input/phase93_13dg_lineage.zip -d phase347_input
+          test -s phase347_input/phase93_event_mechanism_audit.csv
+          test -s phase347_input/phase93_summary.json
+      - name: Download immutable Phase 84 raw-submission artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p phase348_input
+          curl --fail --silent --show-error --location \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13364856424/zip \
+            -o phase348_input/phase84_13dg_role_aware.zip
+          echo "b807be9099e1a777c232f6d50b341e8e714585dc4da5fe993e833c2051494b16  phase348_input/phase84_13dg_role_aware.zip" | sha256sum --check
+          mkdir -p phase348_input/phase84
+          unzip -q phase348_input/phase84_13dg_role_aware.zip -d phase348_input/phase84
+          test -s phase348_input/phase84/pilot_header_validation.csv
+          test -d phase348_input/phase84/raw_submissions
+      - name: Run Phase 347 regression tests
+        run: python -m unittest -v research.test_phase347_13dg_cusip_integrity_audit
+      - name: Recompute CUSIP integrity audit
+        run: |
+          python -m research.phase347_13dg_cusip_integrity_audit \
+            --phase93-artifact-dir phase347_input \
+            --outdir phase347_output
+          python -m json.tool phase347_output/phase347_summary.json >/dev/null
+          python -m json.tool research/phase347_13dg_cusip_integrity_audit_result.json >/dev/null
+          python - <<'PY'
+          import json
+          committed = json.load(open("research/phase347_13dg_cusip_integrity_audit_result.json", encoding="utf-8"))
+          fresh = json.load(open("phase347_output/phase347_summary.json", encoding="utf-8"))
+          assert committed == fresh
+          assert fresh["input_filings"] == 200
+          assert fresh["valid_nonzero_security_cusip_rows"] == 197
+          assert fresh["unique_checksum_valid_nonzero_cusips"] == 179
+          assert fresh["nonzero_cusips_with_multiple_subject_ciks"] == 0
+          assert fresh["strict_pit_admitted"] is False
+          assert fresh["alpha_test_authorized"] is False
+          PY
+      - name: Run Phase 348 legacy-HTML parent regression tests
+        run: python -m unittest -v research.test_phase348_13dg_legacy_html_parent_validation
+      - name: Revalidate the two legacy-HTML predecessor references
+        run: |
+          python -m research.phase348_13dg_legacy_html_parent_validation \
+            --phase84-artifact-dir phase348_input/phase84 \
+            --phase93-artifact-dir phase347_input \
+            --outdir phase348_output
+          python -m json.tool phase348_output/phase348_summary.json >/dev/null
+          python -m json.tool research/phase348_13dg_legacy_html_parent_validation_result.json >/dev/null
+          python - <<'PY'
+          import json
+          committed = json.load(open("research/phase348_13dg_legacy_html_parent_validation_result.json", encoding="utf-8"))
+          fresh = json.load(open("phase348_output/phase348_summary.json", encoding="utf-8"))
+          assert committed == fresh
+          assert fresh["verified_legacy_html_parents"] == 2
+          assert fresh["failed_parent_validations"] == 0
+          assert fresh["explicit_predecessor_refs_outside_600_header_sample_remaining"] == 44
+          PY
+      - name: Run Phase 349 target-manifest regression tests
+        run: python -m unittest -v research.test_phase349_13dg_predecessor_target_manifest
+      - name: Build explicit predecessor target manifest
+        run: |
+          python -m research.phase349_13dg_predecessor_target_manifest \
+            --phase84-artifact-dir phase348_input/phase84 \
+            --phase93-artifact-dir phase347_input \
+            --outdir phase349_output
+          python -m json.tool phase349_output/phase349_summary.json >/dev/null
+          python -m json.tool research/phase349_13dg_predecessor_target_manifest_result.json >/dev/null
+          python - <<'PY'
+          import json
+          committed = json.load(open("research/phase349_13dg_predecessor_target_manifest_result.json", encoding="utf-8"))
+          fresh = json.load(open("phase349_output/phase349_summary.json", encoding="utf-8"))
+          assert committed == fresh
+          assert fresh["target_references"] == 44
+          assert fresh["unique_parent_accessions"] == 44
+          assert fresh["unique_subject_issuer_ciks"] == 41
+          assert fresh["family_counts"] == {"13D": 25, "13G": 19}
+          assert fresh["child_cusip_status_counts"] == {"VALID_NONZERO": 43, "ZERO_SENTINEL": 1}
+          assert fresh["parent_documents_retrieved"] == 0
+          assert fresh["new_sec_requests_made"] is False
+          assert fresh["strict_pit_admitted"] is False
+          assert fresh["alpha_test_authorized"] is False
+          import csv
+          rows = list(csv.DictReader(open("phase349_output/phase349_predecessor_target_manifest.csv", encoding="utf-8")))
+          assert len(rows) == 44
+          assert len({row["explicit_parent_accession"] for row in rows}) == 44
+          assert sum(row["child_cusip_status"] == "VALID_NONZERO" for row in rows) == 43
+          assert sum(row["child_cusip_status"] == "ZERO_SENTINEL" for row in rows) == 1
+          assert all(row["parent_path_cik_role"] == "ARCHIVE_PATH_ONLY_NOT_ISSUER_IDENTITY" for row in rows)
+          assert all(row["parent_document_retrieval_status"] == "NOT_RETRIEVED" for row in rows)
+          PY
+      - name: Upload deterministic result
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase347-349-13dg-identity-and-predecessor-audit
+          path: |
+            phase347_output/
+            phase348_output/
+            phase349_output/
+          if-no-files-found: error
+          retention-days: 90
