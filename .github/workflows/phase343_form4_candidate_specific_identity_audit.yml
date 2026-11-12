@@ -1,0 +1,67 @@
+name: Phase 343 SEC Form 4 candidate-specific event-time identity audit
+
+on:
+  push:
+    branches:
+      - phase343-form4-candidate-specific-event-time-identity
+    paths:
+      - "research/phase343_form4_candidate_specific_identity_audit.py"
+      - "research/test_phase343_form4_candidate_specific_identity_audit.py"
+      - ".github/workflows/phase343_form4_candidate_specific_identity_audit.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase343-form4-candidate-specific-event-time-identity
+  cancel-in-progress: false
+
+jobs:
+  candidate-identity-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      SEC_CONTACT_EMAIL: ${{ secrets.SEC_CONTACT_EMAIL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Compile and run offline regressions
+        run: |
+          python -m py_compile research/phase343_form4_candidate_specific_identity_audit.py research/test_phase343_form4_candidate_specific_identity_audit.py
+          python -m unittest -v research.test_phase343_form4_candidate_specific_identity_audit
+      - name: Download pinned 2026Q3 SEC Insider Transactions archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${SEC_CONTACT_EMAIL}" ]; then
+            echo "SEC_CONTACT_EMAIL secret is required; no substitute identity will be invented."
+            exit 1
+          fi
+          mkdir -p phase343_input phase343_output
+          UA="NuevaEstrategia Smart Money Research (contact: ${SEC_CONTACT_EMAIL})"
+          curl --retry 8 --retry-all-errors --retry-delay 3 --retry-max-time 240 \
+            -fSL -A "$UA" -H "Accept-Encoding: identity" \
+            -D phase343_input/2026Q3.headers \
+            "https://www.sec.gov/files/datastandardsinnovation/data/insider-transactions-data-sets/2026q3_form345.zip" \
+            -o phase343_input/2026q3_form345.zip
+          test -s phase343_input/2026q3_form345.zip
+      - name: Reconcile 59 original Form 4s and 48 event-time periodic anchors
+        run: |
+          python -m research.phase343_form4_candidate_specific_identity_audit \
+            --archive phase343_input/2026q3_form345.zip \
+            --output-dir phase343_output \
+            --email "${SEC_CONTACT_EMAIL}"
+      - name: Upload immutable source, raw SEC responses, and audit outputs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase343-form4-candidate-specific-event-time-identity
+          path: |
+            phase343_input/
+            phase343_output/
+          retention-days: 90
+          if-no-files-found: warn
