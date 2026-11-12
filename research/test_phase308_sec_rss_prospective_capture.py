@@ -297,6 +297,44 @@ class Phase308ProspectiveLedgerTests(unittest.TestCase):
         )
 
 
+    def test_legacy_timestamp_migration_forces_durable_repo_snapshot(self):
+        ledger = {
+            "last_repo_snapshot_date": "2026-11-12",
+            "last_complete_capture_end_utc": "2026-11-12T02:57:01+00:00",
+            "last_complete_snapshot_accessions": ["4:legacy"],
+            "accessions": {
+                "4:legacy": {
+                    "form_type": "4",
+                    "accession": "legacy",
+                    "first_seen_run_id": "43142830440",
+                    "first_observed_at_utc": None,
+                    "first_observation_interval_end_utc": None,
+                    "first_observation_interval_start_utc": None,
+                    "first_observation_interval_width_minutes": None,
+                    "first_observation_lower_bound_quality": "left_censored_no_prior_complete_capture",
+                    "first_observation_timestamp_quality": "legacy_capture_start_pre_response_not_observation",
+                    "legacy_capture_started_at_utc": "2026-11-12T02:38:45.928105+00:00",
+                    "seen_count": 4,
+                    "entity_row_set_sha256": "a" * 64,
+                }
+            },
+            "captures": [],
+        }
+        ledger, first = merge_capture_into_ledger(
+            ledger,
+            capture("2026-11-12T03:00:00+00:00", "2026-11-12T03:00:30+00:00", True, "5"),
+            [event("4", "legacy", observed_at="2026-11-12T03:00:10+00:00")],
+        )
+        self.assertTrue(first["repo_snapshot_due"])
+        self.assertEqual(ledger["legacy_timestamp_migration_snapshot_date"], "2026-11-12")
+        ledger, second = merge_capture_into_ledger(
+            ledger,
+            capture("2026-11-12T03:10:00+00:00", "2026-11-12T03:10:30+00:00", True, "6"),
+            [event("4", "legacy", observed_at="2026-11-12T03:10:10+00:00")],
+        )
+        self.assertFalse(second["repo_snapshot_due"])
+
+
     def test_atom_updated_is_not_promoted_to_first_public_time(self):
         ledger, _ = merge_capture_into_ledger(
             {},
