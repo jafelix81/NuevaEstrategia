@@ -126,6 +126,36 @@ def validate_parent(child, parent, header_row, parsed):
         reasons.append("phase84_header_acceptance_mismatch")
     return reasons
 
+def summarize_results(results):
+    if not results:
+        raise ValueError("Cannot summarize an empty predecessor-validation result set")
+    return {
+        "phase": "348-13dg-legacy-html-explicit-predecessor-validation",
+        "status": "COMPLETE",
+        "target_references": len(results),
+        "verified_legacy_html_parents": sum(x["explicit_reference_validated"] for x in results),
+        "failed_parent_validations": sum(not x["explicit_reference_validated"] for x in results),
+        "all_parents_legacy_html": all(x["legacy_html"] for x in results),
+        "all_parent_child_cusips_match": all(
+            bool(x["parent_cusip"]) and x["parent_cusip"] == x["child_cusip"] for x in results
+        ),
+        "all_parent_acceptances_strictly_earlier": all(
+            bool(x["parent_acceptance_utc"]) and bool(x["child_acceptance_utc"])
+            and datetime.fromisoformat(x["parent_acceptance_utc"]) < datetime.fromisoformat(x["child_acceptance_utc"])
+            for x in results
+        ),
+        "all_subject_ciks_match": all(
+            bool(x["subject_cik"]) and x["subject_cik"] == x["child_subject_cik"] for x in results
+        ),
+        "explicit_predecessor_refs_outside_600_header_sample_remaining": 44,
+        "immediate_predecessor_inference_performed": False,
+        "new_sec_requests_made": False,
+        "alpha_test_authorized": False,
+        "strict_pit_admitted": False,
+        "f80_frozen": True,
+    }
+
+
 def run(args):
     p84, p93 = Path(args.phase84_artifact_dir), Path(args.phase93_artifact_dir)
     headers = {normalize_accession(x.get("accession","")): x for x in load_csv(p84/"pilot_header_validation.csv")}
@@ -152,7 +182,9 @@ def run(args):
         reasons = validate_parent(child, parent_acc, header, parsed)
         results.append({
             "child_accession": child_acc, "parent_accession": parent_acc,
-            "subject_cik": parsed["subject_cik"], "family": child_lineage["family"],
+            "subject_cik": parsed["subject_cik"],
+            "child_subject_cik": normalize_cik(child.get("subject_cik", "")),
+            "family": child_lineage["family"],
             "parent_form": parsed["form"], "parent_filing_date": parsed["filing_date"],
             "parent_acceptance_utc": parsed["acceptance_utc"],
             "child_filing_date": child_lineage["filing_date"],
@@ -165,20 +197,7 @@ def run(args):
             "explicit_reference_validated": not reasons,
             "immediate_predecessor_claimed": False,
         })
-    summary = {
-        "phase": "348-13dg-legacy-html-explicit-predecessor-validation",
-        "status": "COMPLETE", "target_references": len(results),
-        "verified_legacy_html_parents": sum(x["explicit_reference_validated"] for x in results),
-        "failed_parent_validations": sum(not x["explicit_reference_validated"] for x in results),
-        "all_parents_legacy_html": all(x["legacy_html"] for x in results),
-        "all_parent_child_cusips_match": all(x["parent_cusip"] == x["child_cusip"] for x in results),
-        "all_parent_acceptances_strictly_earlier": all(datetime.fromisoformat(x["parent_acceptance_utc"]) < datetime.fromisoformat(x["child_acceptance_utc"]) for x in results),
-        "all_subject_ciks_match": all(bool(x["subject_cik"]) for x in results),
-        "explicit_predecessor_refs_outside_600_header_sample_remaining": 44,
-        "immediate_predecessor_inference_performed": False,
-        "new_sec_requests_made": False, "alpha_test_authorized": False,
-        "strict_pit_admitted": False, "f80_frozen": True,
-    }
+    summary = summarize_results(results)
     out = Path(args.outdir); out.mkdir(parents=True, exist_ok=True)
     with (out/"phase348_legacy_html_parent_validation.csv").open("w",newline="",encoding="utf-8") as f:
         w=csv.DictWriter(f,fieldnames=list(results[0]));w.writeheader();w.writerows(results)

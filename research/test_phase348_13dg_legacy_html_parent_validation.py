@@ -1,6 +1,6 @@
 import unittest
 from research.phase348_13dg_legacy_html_parent_validation import (
-    cusip_checksum_valid, parse_acceptance_et, parse_legacy_submission, validate_parent,
+    cusip_checksum_valid, parse_acceptance_et, parse_legacy_submission, summarize_results, validate_parent,
 )
 
 class Phase348LegacyParentTests(unittest.TestCase):
@@ -25,6 +25,16 @@ SUBJECT COMPANY: COMPANY CONFORMED NAME: PIMCO FUND CENTRAL INDEX KEY: 000114041
         self.assertEqual(row["subject_cik"], "0001140411")
         self.assertEqual(row["primary_cusips"], ["72200N700"])
         self.assertEqual(row["primary_filename"], "sample.htm")
+
+    def test_summary_compares_parent_and_child_subject_ciks(self):
+        row = {
+            "explicit_reference_validated": True, "legacy_html": True,
+            "parent_cusip": "72200N700", "child_cusip": "72200N700",
+            "parent_acceptance_utc": "2024-04-24T21:18:35+00:00",
+            "child_acceptance_utc": "2025-08-06T00:57:32+00:00",
+            "subject_cik": "0001140411", "child_subject_cik": "0000000001",
+        }
+        self.assertFalse(summarize_results([row])["all_subject_ciks_match"])
 
     def test_parent_requires_same_subject_family_earlier_time_and_cusip(self):
         child = {"family":"13D","subject_cik":"0001140411","filing_date":"2025-08-05","acceptance_utc":"2025-08-06T00:57:32+00:00","cusips":'["72200N700"]'}

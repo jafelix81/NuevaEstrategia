@@ -1,7 +1,10 @@
+import json
+import tempfile
 import unittest
+from pathlib import Path
 
 from research.phase347_13dg_cusip_integrity_audit import (
-    audit_rows, cusip_checksum_valid, is_valid_security_cusip,
+    audit_rows, cusip_checksum_valid, is_valid_security_cusip, write_json,
 )
 
 class Phase347CusipTests(unittest.TestCase):
@@ -29,7 +32,10 @@ class Phase347CusipTests(unittest.TestCase):
         row["cusips"] = '["037833100", "594918104"]'
         summary, details = audit_rows([row])
         self.assertEqual(summary["exactly_one_cusip_rows"], 0)
+        self.assertEqual(summary["valid_nonzero_security_cusip_rows"], 0)
+        self.assertEqual(summary["unique_nonzero_cusips"], 0)
         self.assertEqual(details[0]["cusip_count"], 2)
+        self.assertEqual(details[0]["cusip"], "")
 
     def test_nonzero_cusip_cross_subject_collision_is_reported(self):
         rows = [
@@ -47,6 +53,12 @@ class Phase347CusipTests(unittest.TestCase):
         summary, _ = audit_rows(rows)
         self.assertEqual(summary["subject_ciks_with_multiple_nonzero_cusips"], 1)
         self.assertEqual(summary["maximum_nonzero_cusips_for_one_subject_cik"], 2)
+
+    def test_summary_json_is_parseable_after_write(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "summary.json"
+            write_json(path, {"phase": 347, "ok": True})
+            self.assertEqual(json.loads(path.read_text(encoding="utf-8")), {"phase": 347, "ok": True})
 
     def test_duplicate_accessions_rejected(self):
         row = self.base("0000000001-24-000001")

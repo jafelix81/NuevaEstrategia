@@ -88,6 +88,8 @@ jobs:
           python -m research.phase347_13dg_cusip_integrity_audit \
             --phase93-artifact-dir phase347_input \
             --outdir phase347_output
+          python -m json.tool phase347_output/phase347_summary.json >/dev/null
+          python -m json.tool research/phase347_13dg_cusip_integrity_audit_result.json >/dev/null
           python - <<'PY'
           import json
           committed = json.load(open("research/phase347_13dg_cusip_integrity_audit_result.json", encoding="utf-8"))
@@ -108,6 +110,8 @@ jobs:
             --phase84-artifact-dir phase348_input/phase84 \
             --phase93-artifact-dir phase347_input \
             --outdir phase348_output
+          python -m json.tool phase348_output/phase348_summary.json >/dev/null
+          python -m json.tool research/phase348_13dg_legacy_html_parent_validation_result.json >/dev/null
           python - <<'PY'
           import json
           committed = json.load(open("research/phase348_13dg_legacy_html_parent_validation_result.json", encoding="utf-8"))

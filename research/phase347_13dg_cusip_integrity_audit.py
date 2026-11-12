@@ -55,6 +55,10 @@ def load_csv(path):
     with Path(path).open("r", newline="", encoding="utf-8-sig") as handle:
         return list(csv.DictReader(handle))
 
+def write_json(path, payload):
+    Path(path).write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
 def audit_rows(rows, phase93_summary=None):
     if not rows:
         raise ValueError("Phase 93 event-mechanism input is empty")
@@ -75,7 +79,8 @@ def audit_rows(rows, phase93_summary=None):
         cusips = [normalize_cusip(x) for x in parse_json_list(row.get("cusips")) if normalize_cusip(x)]
         if len(cusips) != 1:
             invalid_rows.append({"accession": accession, "reason": "missing_cusip" if not cusips else "multiple_cusips"})
-        cusip = cusips[0] if cusips else ""
+        # A filing with zero or multiple CUSIPs is not assigned an arbitrary first value.
+        cusip = cusips[0] if len(cusips) == 1 else ""
         checksum = bool(cusip and cusip_checksum_valid(cusip))
         zero = cusip == ZERO_CUSIP
         valid = bool(cusip and is_valid_security_cusip(cusip))
@@ -154,7 +159,7 @@ def run(args):
     out = Path(args.outdir); out.mkdir(parents=True, exist_ok=True)
     with (out / "phase347_cusip_filing_audit.csv").open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=list(details[0])); writer.writeheader(); writer.writerows(details)
-    (out / "phase347_summary.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\\n", encoding="utf-8")
+    write_json(out / "phase347_summary.json", summary)
     print(json.dumps(summary, indent=2, sort_keys=True))
     return summary
 
