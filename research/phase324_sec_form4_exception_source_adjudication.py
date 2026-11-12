@@ -32,6 +32,8 @@ EXPECTED_EXCEPTIONS = 3
 MAX_ROUTINE_ACCEPTANCE_LAG_BUSINESS_DAYS = 5
 EXPECTED_PHASE322_ARTIFACT_SHA256 = "c7eaf3cfc751e401d543bceeec20c3fe6643b09dfb8d2b0ff97df86070dca50d"
 EXPECTED_PHASE323_ARTIFACT_SHA256 = "dacc9f8374e4f86cc31dbe59de5d856ee1900902ce4096b879b69127e38e66fb"
+EXPECTED_PHASE322_RESULT_SHA256 = "f568d50b314dbff5828d1d78e6e3730b80a9cceb22acd4f1500a9f9b5586ebdb"
+EXPECTED_PHASE323_RESULT_SHA256 = "96a999064d4aa0443b787a3fcbfe64234ec55c0e85c3c669ded6abb6f70bd588"
 
 
 def parse_json_field(value):
@@ -170,37 +172,55 @@ def write_csv(path: Path, rows: list[dict]) -> None:
 
 
 def load_sources(source_dir: Path):
-    p322 = source_dir / "phase322" / "phase322_exception_adjudication_result.json"
-    p323 = source_dir / "phase323" / "phase323_two_clock_reconciliation_result.json"
-    if not p322.is_file() or not p323.is_file():
-        raise FileNotFoundError("phase322_or_phase323_source_artifact_missing")
-    raw322, raw323 = p322.read_bytes(), p323.read_bytes()
-    d322, d323 = json.loads(raw322), json.loads(raw323)
-    if d322.get("phase") != 322 or d323.get("phase") != 323:
-        raise ValueError("source_phase_identity_mismatch")
-    if d322.get("exception_summary", {}).get("total") != 24:
-        raise ValueError("phase322_exception_denominator_mismatch")
-    if d323.get("summary", {}).get("total_exceptions") != 24:
-        raise ValueError("phase323_exception_denominator_mismatch")
-    if d323.get("source_phase322", {}).get("source_result_sha256") != sha256_bytes(raw322):
-        raise ValueError("phase322_result_hash_mismatch")
-    if d323.get("source_phase322", {}).get("artifact_sha256") != EXPECTED_PHASE322_ARTIFACT_SHA256:
+    path = source_dir / "phase324_source_cases.json"
+    if not path.is_file():
+        raise FileNotFoundError("phase324_source_manifest_missing")
+    raw = path.read_bytes()
+    manifest = json.loads(raw)
+    source = manifest.get("source", {})
+    if manifest.get("phase") != PHASE:
+        raise ValueError("source_manifest_phase_mismatch")
+    if source.get("phase322_artifact_sha256") != EXPECTED_PHASE322_ARTIFACT_SHA256:
         raise ValueError("phase322_artifact_identity_mismatch")
-    if d323.get("controls", {}).get("f80_frozen") is not True:
-        raise ValueError("f80_source_control_not_frozen")
-    phase322_by_accession = {x["accession"]: x for x in d322.get("cases", [])}
-    unresolved = [
-        x for x in d323.get("cases", [])
-        if x.get("classification") != "FILED_DATE_ACCEPTANCE_INDEX_TWO_CLOCKS_CORROBORATED"
-    ]
-    if len(unresolved) != EXPECTED_EXCEPTIONS:
-        raise ValueError("expected_exactly_three_unresolved_phase323_cases")
-    return d322, d323, phase322_by_accession, unresolved, {
-        "phase322_result_sha256": sha256_bytes(raw322),
-        "phase323_result_sha256": sha256_bytes(raw323),
-        "phase322_artifact_sha256_expected": EXPECTED_PHASE322_ARTIFACT_SHA256,
-        "phase323_artifact_sha256_expected": EXPECTED_PHASE323_ARTIFACT_SHA256,
+    if source.get("phase323_artifact_sha256") != EXPECTED_PHASE323_ARTIFACT_SHA256:
+        raise ValueError("phase323_artifact_identity_mismatch")
+    if source.get("phase322_result_sha256") != EXPECTED_PHASE322_RESULT_SHA256:
+        raise ValueError("phase322_result_identity_mismatch")
+    if source.get("phase323_result_sha256") != EXPECTED_PHASE323_RESULT_SHA256:
+        raise ValueError("phase323_result_identity_mismatch")
+    if source.get("phase321_population_accessions") != 317267 or source.get("phase321_exceptions") != 24:
+        raise ValueError("phase321_population_provenance_mismatch")
+    if source.get("phase322_all_24_original_headers_and_master_index_hits") is not True:
+        raise ValueError("phase322_exception_adjudication_provenance_mismatch")
+    if source.get("phase323_two_clock_corroborated") != 21 or source.get("phase323_quarantined") != 3:
+        raise ValueError("phase323_exception_provenance_mismatch")
+    if manifest.get("controls", {}).get("f80_frozen") is not True:
+        raise ValueError("f80_manifest_control_not_frozen")
+    if manifest.get("controls", {}).get("raw_sec_bytes_included") is not False:
+        raise ValueError("raw_sec_bytes_must_not_be_in_manifest")
+    cases = manifest.get("cases", [])
+    if len(cases) != EXPECTED_EXCEPTIONS:
+        raise ValueError("source_manifest_case_denominator_mismatch")
+    if len({x.get("accession") for x in cases}) != EXPECTED_EXCEPTIONS:
+        raise ValueError("source_manifest_accession_uniqueness_failure")
+    if any(x.get("phase323_classification") == "FILED_DATE_ACCEPTANCE_INDEX_TWO_CLOCKS_CORROBORATED" for x in cases):
+        raise ValueError("already_corroborated_case_in_unresolved_manifest")
+    if any(not x.get("header_cik") or not x.get("expected_entity_ciks") for x in cases):
+        raise ValueError("source_manifest_identity_fields_missing")
+    source_hashes = {
+        "phase324_manifest_sha256": sha256_bytes(raw),
+        "phase322_artifact_sha256": source["phase322_artifact_sha256"],
+        "phase322_result_sha256": source["phase322_result_sha256"],
+        "phase323_artifact_sha256": source["phase323_artifact_sha256"],
+        "phase323_result_sha256": source["phase323_result_sha256"],
+        "phase321_run_id": source["phase321_run_id"],
+        "phase322_run_id": source["phase322_run_id"],
+        "phase323_run_id": source["phase323_run_id"],
     }
+    # The same three source cases carry both Phase 322 identity fields and
+    # Phase 323 clock fields; the original 24-case denominators stay explicit.
+    by_accession = {x["accession"]: x for x in cases}
+    return manifest, manifest, by_accession, cases, source_hashes
 
 
 def run_audit(source_dir: Path, output_dir: Path, email: str) -> dict:
@@ -360,8 +380,8 @@ def run_audit(source_dir: Path, output_dir: Path, email: str) -> dict:
         "phase": PHASE,
         "status": "PASS_SOURCE_LEVEL_EXCEPTION_ADJUDICATION_WITH_QUARANTINE",
         "source_hashes": source_hashes,
-        "source_phase322_cases": len(d322.get("cases", [])),
-        "source_phase323_cases": len(d323.get("cases", [])),
+        "source_phase322_exception_denominator": 24,
+        "source_phase323_exception_denominator": 24,
         "summary": {
             "target_exceptions": EXPECTED_EXCEPTIONS,
             "original_filings_retrieved": len(filing_manifests),
