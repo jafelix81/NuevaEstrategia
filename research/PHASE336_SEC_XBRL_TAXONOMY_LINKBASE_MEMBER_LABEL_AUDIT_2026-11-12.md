@@ -16,13 +16,13 @@ Phase 336 consumed the immutable Phase 334 symbol/class-binding artifact, select
 - 12/12 QNames were found in a schema element; 10/12 had a preferred label under the Phase 336 extraction rule.
 - No raw QName was merged.
 
-GitHub Actions [run 43228785778](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43228785778) passed **8/8 offline regressions**. Artifact [13949661332](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43228785778/artifacts/13949661332), ZIP SHA-256 \`da010b603e408260d3191b9af9d70de3f03537db97e1dfd0a98ed8c3b8739dac\`.
+GitHub Actions [run 43228785778](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43228785778) passed **8/8 offline regressions**. Artifact [13949661332](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43228785778/artifacts/13949661332), ZIP SHA-256 `da010b603e408260d3191b9af9d70de3f03537db97e1dfd0a98ed8c3b8739dac`.
 
 ## What the first classifier missed
 
-The initial classifier compared each member's complete set of default-role label texts. If one QName had an extra \`label\` resource and the other had only a \`terseLabel\`, the complete sets differed even when the pair shared an exact \`terseLabel\`.
+The initial classifier compared each member's complete set of default-role label texts. If one QName had an extra `label` resource and the other had only a `terseLabel`, the complete sets differed even when the pair shared an exact `terseLabel`.
 
-For PCG-PB, PCG-PE, PCG-PG and PCG-PI, both QNames share an identical \`terseLabel\`; one QName also has a one-sided default \`label\` resource. PCG-PH has a different default-label string on the common \`label\` role, although one member's \`terseLabel\` exactly overlaps the other member's \`label\` text.
+For PCG-PB, PCG-PE, PCG-PG and PCG-PI, both QNames share an identical `terseLabel`; one QName also has a one-sided default `label` resource. PCG-PH has a different default-label string on the common `label` role, although one member's `terseLabel` exactly overlaps the other member's `label` text.
 
 STR's two members use standard US-GAAP namespaces. Their standard label/documentation linkbases are not referenced from the base schema and were not retrieved by the Phase 336 custom-linkbase-only path. This was a retrieval-scope omission, not evidence that the members lack standard labels.
 
