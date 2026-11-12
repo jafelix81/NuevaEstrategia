@@ -39,3 +39,10 @@ Smart money is a hypothesis, not a label. No forward returns, alpha, chronologic
 - Phase 350's 10 offline tests passed. The first SEC Archives request returned HTTP 403; the project-URL-only User-Agent did not provide a monitored contact email. The run stopped after one request: 0/44 parent documents retrieved, 0 raw files saved.
 - Diagnostic artifact: [13991999046](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43327053770/artifacts/13991999046), SHA-256 `04c6568b01de176e55492d75f3224503c38cc8842a549b10f23a30c8d510d6c1`.
 - Human action required: add repository Actions secret `SEC_USER_AGENT` with a project identifier and monitored contact email. The workflow preflights this secret and will not send another SEC request while it is missing.
+
+
+## FINRA ATS/OTC disposition — Phase 117 (2026-11-05)
+- The expanded revision-impact audit found that only 1.735% of symbol-aggregate rows were marked revised, but those rows represented 10.08% of shares and 11.44% of trades. In T1 OTC non-ATS, excluding revised rows would remove 33.24% of shares and 36.22% of trades.
+- Do not backdate current final values to `initialPublishedDate`; the later `lastUpdateDate` is not a verified public dissemination timestamp, and the final extract is not a historical first-publication vintage.
+- FINRA's 2019 website guide documents a year selector for historical weekly reports (including 2016), but the affirmative user certification was not accepted in the prior audit. No attempt was made to bypass it. Treat the older website archive as a gated feasibility candidate, not an admitted source.
+- The FINRA ATS/OTC series is therefore parked for predictive use until actual immutable publication vintages or a verified conservative availability timestamp can be obtained. It remains a possible delayed liquidity/venue-composition feature, not directional evidence of informed buying or selling.
