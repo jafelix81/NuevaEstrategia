@@ -1,12 +1,45 @@
 # Smart Money Research — current state (2026-11-12 UTC)
 
-**Latest completed research:** Phase 333 — direct SEC XBRL TradingSymbol-to-share-class binding demonstrated in a nine-document purposive sample. Phase 332 event-driven identity pilot completed. Neither source is yet admitted as a broad security master or trading signal.
+**Latest completed research:** Phase 334 — stratified SEC XBRL symbol-to-class coverage with a hard 365-calendar-day fresh-anchor and completeness gate.  
+**Active research branch:** phase334-sec-stratified-symbol-class-coverage.  
+**Review:** [PR #23](https://github.com/jafelix81/NuevaEstrategia/pull/23), draft/open, based on Phase 333. No PR was merged.
 
-## Latest results — Phases 332–333
+## Latest results — Phases 332–334
 
-- **Phase 332 — SEC event-driven corporate-action identity:** 56 issuer-side observations across 28 purposive ticker-collision pairs; 56/56 SEC submissions responses; 44 prior-periodic anchors; 182 candidate event filings; 178 retrieved. After a conservative post-hoc 365-day anchor-freshness screen, 38 observations are fresh, 6 anchors are stale and 12 have no supported periodic anchor. All 11 latest-symbol-evidence observations are within the 38 fresh anchors: 10 match and 1 mismatch. The 10 match observations represent 8 unique accessions because DLR and PCG are co-filer duplicates. One stale CSAN window was truncated; two 1997 OKE documents had no primary document or XBRL instance. [Report](PHASE332_SEC_EVENT_DRIVEN_CORPORATE_ACTION_IDENTITY_FEASIBILITY_2026-11-12.md) · [Run](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43222287571) · [Artifact](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43222287571/artifacts/13945213682).
-- **Phase 333 — direct symbol/class binding:** 9 unique, hash-pinned pre-event 8-K/8-K/A XBRL documents; 9/9 SHA-256 matches and 9/9 exact symbol-set matches. There are 25 TradingSymbol facts, 20 with explicit class-axis dimensions. Four documents directly bind every symbol fact to a class: FTAI (4 symbols), STR (common/warrant), PCG (10 common/preferred/equity-unit symbols) and DLR (common/Series J/K/L preferred). Five other documents have only issuer-level symbol facts without a class axis. The TSBK candidate is contradicted by an explicit pre-event RVSB fact. [Report](PHASE333_SEC_TRADING_SYMBOL_SHARE_CLASS_BINDING_AUDIT_2026-11-12.md) · [Run](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43223597921) · [Artifact](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43223597921/artifacts/13946542878).
-- **Interpretation:** SEC event-filing XBRL can directly map ticker to share class for some complex issuers, but the nine-document sample is purposive and conditional on TradingSymbol availability. It does not establish universe-wide coverage. A 365-day anchor-freshness screen must be encoded in future event audits rather than applied only post hoc. Same-day filings remain excluded unless acceptance/publication order is independently established.
+- **Phase 332 — event-driven corporate-action identity:** 56 issuer-side observations across 28 purposive ticker-collision pairs; 56/56 SEC submissions responses; 182 candidate event filings; 178 retrieved. The result contains 38 fresh-anchor observations after a 365-day rule, 6 stale anchors and 12 with no supported periodic anchor. [Report](PHASE332_SEC_EVENT_DRIVEN_CORPORATE_ACTION_IDENTITY_FEASIBILITY_2026-11-12.md) · [Run](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43222287571).
+- **Phase 333 — direct symbol/class binding pilot:** 9 unique, hash-pinned pre-event documents; 9/9 hashes and symbol sets matched; 25 TradingSymbol facts, 20 with class-axis dimensions. Four documents directly bound every symbol fact; five had issuer-level symbol facts without a class axis. [Report](PHASE333_SEC_TRADING_SYMBOL_SHARE_CLASS_BINDING_AUDIT_2026-11-12.md) · [Run](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43224074720).
+- **Phase 334 — expanded fresh-anchor sample:** 38/56 complete fresh anchors across 25 pairs; 6 stale and 12 without an anchor; zero incomplete windows. It rechecked 26 unique symbol-bearing accessions from nine pairs, collapsed 9 co-filer duplicate rows after hash/schema agreement, and found zero conflicts. All 26 SHA-256 hashes and all 26 TradingSymbol sets matched. [Report](PHASE334_SEC_STRATIFIED_SYMBOL_CLASS_COVERAGE_2026-11-12.md) · [Run](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43226260351) · [Artifact](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43226260351/artifacts/13947767592).
+- **Class binding:** 98 symbol facts; 86 have a class axis on the TradingSymbol fact's own context (87.8%). Fourteen documents bind every symbol fact directly; twelve have no direct class binding. Twenty unique symbols have at least one class-axis fact; six do not.
+- **Listing exchange:** 18 TradingSymbol facts in two PCG filings carry a direct EntityListingsExchangeAxis: PCG/PCGU map to NYSE and eight preferred symbols map to NYSE American. This is one issuer group, not broad exchange coverage.
+- **Taxonomy drift:** six symbols (PCG-PB, PCG-PE, PCG-PG, PCG-PH, PCG-PI, STR) have multiple exact class-axis QNames across filings, but their same-context security-title text is identical across the observed variants. Preserve raw QNames; do not merge them until taxonomy/linkbase labels and effective dates are independently reconciled.
+- **TSBK/RVSB:** four pre-event filings in the TSBK collision pair report RVSB, not TSBK, but no direct class-axis fact. The missing original Form 4 accession remains quarantined.
+
+## Next research gates
+
+1. Phase 335: audit taxonomy/linkbase labels and filing-vintage stability for the six multi-QName symbols; quantify whether same-context titles support a candidate alias, without merging raw QNames.
+2. Check the listing-axis relationships and their stability against class-axis facts.
+3. Expand beyond the purposive 28-pair collision panel to a survivorship-aware sample from the actual historical Form 4 universe; report issuer, listing, security and share-class coverage separately.
+4. Build an effective-dated issuer → listing → security → share-class crosswalk only after broad coverage and primary-source/PIT gates pass.
+5. Only then construct transaction-level Form 4 features and test incremental information versus frozen LTM/F80 under identical exposure/costs, chronological OOS, bootstrap and LOO.
+
+## Source dispositions
+
+| Source / line | Current disposition |
+|---|---|
+| FINRA short flow Phase 20C | Weak, incomplete and not strict PIT; no promotion; do not retune the consumed sample |
+| FINRA short interest Phase 267 | Pagination/date-availability defects; no strict PIT panel |
+| FINRA ATS/OTC Phases 264/277/278 | Context-only; later revisions and unresolved duplicate-grain conflicts; do not sum or choose arbitrarily |
+| SEC Form 4 | Highest-priority historical candidate, but owner attribution, transaction semantics and effective-dated security identity remain open |
+| SEC 13D/G | Extensive event, amendment and identity audits; no broad issuer/security panel admitted |
+| SEC 13F / N-PORT | Delayed context only; acceptance, amendment, CUSIP/security mapping and PIT issues remain |
+| Form 144/Form 4 | Document-linkage and conditional placebo results only; no market-execution or return edge established |
+| Cboe Open-Close | One C1 20% EOD sample date reprocessed; no multi-date PIT/vintage proof |
+| Cboe options quotes / sentiment / TradeFlow / OI | Conditional candidates; no full licensed historical sample with first-receipt and effective-dated identity admitted |
+| CFTC BPR/TFF | Market-regime context candidate; prior walk-forward quarantined for label-maturity defects; prospective capture remains research-branch only |
+
+**Controls:** F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No security master, strict-PIT source admission, broad universe coverage, alpha/return test, bootstrap/LOO, chronological OOS or holdout use in Phase 334. No production, universe, capital or parameter changes. No vendor contact or data purchase.
+
+---
 
 ## Integration and CI
 
