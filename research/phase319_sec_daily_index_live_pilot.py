@@ -219,7 +219,7 @@ def run_pilot(output_dir: Path, email: str) -> dict:
         "ledger_quarantine_count": len(ledger["quarantine"]),
     }
     (output_dir / "phase319_preflight_debug.json").write_text(
-        json.dumps(preflight, indent=2, sort_keys=True) + "\\n", encoding="utf-8"
+        json.dumps(preflight, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
     print("PHASE319_PREFLIGHT", json.dumps(preflight, sort_keys=True))
     header_checks = []
