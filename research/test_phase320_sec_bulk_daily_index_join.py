@@ -89,6 +89,7 @@ class Phase320BulkDailyIndexJoinTests(unittest.TestCase):
         self.assertFalse(flags["header_cik_matches_issuer"])
         self.assertTrue(flags["accession_match"])
         self.assertTrue(flags["filed_date_match"])
+        self.assertTrue(flags["acceptance_datetime_present"])
 
     def test_sec_urls_are_scoped_to_official_host(self):
         self.assertEqual(
@@ -112,11 +113,19 @@ FILED AS OF DATE: 20260901
         sample = {
             "accession": "0000000001-26-000001",
             "form_type": "4/A",
-            "issuer_cik": "1",
+            "issuer_cik": "2",
             "filing_date": "2026-09-01",
+            "reporting_owner_ciks": ["1"],
         }
-        self.assertTrue(all(header_identity_flags(header, sample)[key]
-                            for key in ("accession_match", "form_match", "issuer_cik_match", "filed_date_match")))
+        flags = header_identity_flags(header, sample, ["1", "2"])
+        self.assertTrue(flags["accession_match"])
+        self.assertTrue(flags["form_match"])
+        self.assertTrue(flags["filed_date_match"])
+        self.assertTrue(flags["header_cik_in_index_entities"])
+        self.assertTrue(flags["issuer_cik_in_index_entities"])
+        self.assertTrue(flags["header_cik_matches_reporting_owner"])
+        self.assertFalse(flags["header_cik_matches_issuer"])
+        self.assertTrue(flags["acceptance_datetime_present"])
 
     def test_result_validator_keeps_all_research_controls_closed(self):
         result = {
