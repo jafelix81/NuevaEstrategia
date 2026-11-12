@@ -60,8 +60,8 @@ class Phase332Tests(unittest.TestCase):
 
     def test_latest_symbol_fact_controls_evidence_classification(self):
         events = [
-            {"filing_date": "2023-01-09", "accession": "a1", "trading_symbols": ["LNDC"]},
-            {"filing_date": "2023-01-10", "accession": "a2", "trading_symbols": ["LFCR"]},
+            {"filing_date": "2023-01-09", "form": "8-K", "accession": "a1", "trading_symbols": ["LNDC"]},
+            {"filing_date": "2023-01-10", "form": "8-K", "accession": "a2", "trading_symbols": ["LFCR"]},
         ]
         got = classify_latest_symbol_evidence(events, "LFCR")
         self.assertEqual(got["latest_symbol_evidence_status"], "MATCH_SINGLE_SYMBOL")
@@ -70,8 +70,8 @@ class Phase332Tests(unittest.TestCase):
 
     def test_latest_mismatch_is_not_overridden_by_an_older_match(self):
         events = [
-            {"filing_date": "2023-01-09", "accession": "a1", "trading_symbols": ["LFCR"]},
-            {"filing_date": "2023-01-10", "accession": "a2", "trading_symbols": ["LNDC"]},
+            {"filing_date": "2023-01-09", "form": "8-K", "accession": "a1", "trading_symbols": ["LFCR"]},
+            {"filing_date": "2023-01-10", "form": "8-K", "accession": "a2", "trading_symbols": ["LNDC"]},
         ]
         got = classify_latest_symbol_evidence(events, "LFCR")
         self.assertEqual(got["latest_symbol_evidence_status"], "MISMATCH")
