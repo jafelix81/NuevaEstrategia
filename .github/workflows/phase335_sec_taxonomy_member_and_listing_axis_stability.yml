@@ -1,0 +1,102 @@
+name: Phase 335 SEC taxonomy member and listing-axis stability audit
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    paths:
+      - "research/phase335_sec_taxonomy_member_and_listing_axis_stability.py"
+      - "research/test_phase335_sec_taxonomy_member_and_listing_axis_stability.py"
+      - ".github/workflows/phase335_sec_taxonomy_member_and_listing_axis_stability.yml"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: phase335-sec-taxonomy-member-and-listing-axis-stability
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Download the immutable Phase 334 source artifact
+        uses: actions/download-artifact@v4
+        with:
+          github-token: \${{ github.token }}
+          repository: \${{ github.repository }}
+          run-id: 43226260351
+          artifact-ids: 13947767592
+          path: phase334_source
+      - name: Compile Phase 335 and regressions
+        run: |
+          python -m py_compile \
+            research/phase335_sec_taxonomy_member_and_listing_axis_stability.py \
+            research/test_phase335_sec_taxonomy_member_and_listing_axis_stability.py
+      - name: Run offline regressions
+        run: python -m unittest -v research.test_phase335_sec_taxonomy_member_and_listing_axis_stability
+      - name: Audit raw QName stability, same-context title evidence and listing axes
+        run: |
+          python -m research.phase335_sec_taxonomy_member_and_listing_axis_stability \
+            --input-json phase334_source/phase334_symbol_class_binding_audit.json \
+            --output-dir phase335_output
+      - name: Validate pinned source, alias quarantine and listing coverage
+        run: |
+          python - <<'PY'
+          import json
+          p = "phase335_output/phase335_taxonomy_listing_stability_audit.json"
+          s = json.load(open(p, encoding="utf-8"))
+          assert s["phase"] == 335
+          assert s["status"] == "COMPLETED_TAXONOMY_MEMBER_AND_LISTING_AXIS_STABILITY_AUDIT"
+          assert s["source"]["run_id"] == 43226260351
+          assert s["source"]["artifact_id"] == 13947767592
+          assert s["source"]["audit_json_sha256"] == "c360eac0358ca4181664ecf18ea6699bccedd0e3d2251ea936c296a19588bc46"
+          q = s["summary"]
+          assert q["source_documents"] == 26
+          assert q["admitted_documents"] == 26
+          assert q["excluded_source_documents"] == 0
+          assert q["symbol_fact_rows"] == 98
+          assert q["unique_symbols"] == 26
+          assert q["symbols_with_direct_class_axis"] == 20
+          assert q["symbols_without_direct_class_axis"] == 6
+          assert q["class_axis_fact_rows"] == 86
+          assert q["symbols_with_one_class_qname"] == 14
+          assert q["symbols_with_multiple_class_qnames"] == 6
+          assert q["multi_qname_same_title_candidate_aliases"] == 6
+          assert q["multi_qname_ambiguous"] == 0
+          assert q["listing_axis_fact_rows"] == 18
+          assert q["listing_and_class_axis_fact_rows"] == 18
+          assert q["symbols_with_listing_axis"] == 10
+          assert q["unique_listing_axis_members"] == 2
+          assert q["documents_with_listing_axis"] == 2
+          assert q["symbols_with_multiple_listing_members"] == 0
+          assert q["qname_aliases_merged"] == 0
+          c = s["controls"]
+          assert c["f80_frozen"] is True
+          assert c["strict_pit_admitted"] is False
+          assert c["security_master_admitted"] is False
+          assert c["universe_coverage_admitted"] is False
+          assert c["alpha_test_run"] is False
+          assert c["return_test_run"] is False
+          assert c["bootstrap_loo_run"] is False
+          assert c["chronological_oos_run"] is False
+          assert c["holdout_used"] is False
+          assert c["production_changed"] is False
+          assert c["qname_aliases_merged"] is False
+          print("PHASE335_STATUS=" + s["status"])
+          print("PHASE335_SUMMARY=" + json.dumps(q, sort_keys=True))
+          PY
+      - name: Upload Phase 335 taxonomy and listing audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase335-sec-taxonomy-member-and-listing-axis-stability
+          path: phase335_output/
+          if-no-files-found: error
+          retention-days: 90
