@@ -38,8 +38,8 @@ jobs:
           python -m unittest -v research.test_phase303_sec_latest_filings_rss_probe
       - name: Capture SEC Form 4 and Form 4/A owner-only feeds
         env:
-          GITHUB_RUN_ID: \${{ github.run_id }}
-          GITHUB_SHA: \${{ github.sha }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_SHA: ${{ github.sha }}
         run: |
           python -u -m research.phase308_sec_rss_prospective_capture --output phase308_output --ledger research/data/sec_rss_prospective_ledger.json
       - name: Commit cumulative first-observation ledger
@@ -48,14 +48,14 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add research/data/sec_rss_prospective_ledger.json
           if ! git diff --cached --quiet; then
-            git commit -m "Record SEC RSS prospective capture \${{ github.run_id }}"
+            git commit -m "Record SEC RSS prospective capture ${{ github.run_id }}"
             git push origin HEAD:phase308-sec-rss-prospective-capture
           fi
       - name: Upload raw Atom pages, manifest and ledger snapshot
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: phase308-sec-rss-capture-\${{ github.run_id }}
+          name: phase308-sec-rss-capture-${{ github.run_id }}
           path: phase308_output/
           if-no-files-found: warn
           retention-days: 90
