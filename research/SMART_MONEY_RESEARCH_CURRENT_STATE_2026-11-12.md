@@ -1,0 +1,403 @@
+# Smart Money Research — current state (2026-11-12 UTC)
+
+**Active research branch:** `phase302-form4a-daily-index-pac-clock-audit`  
+**PR chain:** #14 stacked on #13; both open and unmerged.  
+
+
+## Latest verified research — Phase 300 (2026-11-11 22:59 UTC)
+
+- Phase 299 SEC source capture [run 43115460066](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43115460066) downloaded 90 unique original/amended EDGAR complete submissions for a stratified sample of 46 Form 4/A candidate pairs. All 90 raw files and SHA-256 hashes are preserved in artifact [13898356586](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43115460066/artifacts/13898356586). All 90 XML documents parsed and their header/XML accession, form, filing date, issuer CIK and reporting-owner sets matched the bulk archive.
+- Phase 300 offline XML-to-bulk reconciliation [run 43116245184](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43116245184) passed 6 new tests plus 6 Phase 299 and 17 Phase 153 regressions. Artifact [13898537038](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43116245184/artifacts/13898537038).
+- **46/46** sampled candidate links were corroborated by issuer identity, reporting-owner overlap, amendment XML dateOfOriginalSubmission matching the candidate parent's filing date, and parent-before-amendment acceptance chronology. This remains metadata corroboration, not an authoritative accession foreign key.
+- After normalizing dates to ISO and numeric values to the SEC bulk archive's two-decimal precision, 80/90 documents match the full transaction signature; 88/90 match core transaction fields after excluding only NATURE_OF_OWNERSHIP footnote association and TRANS_TIMELINESS metadata. All 90 Table I/II row counts match. Eight documents differ only in those footnote/timeliness fields (six NATURE_OF_OWNERSHIP, two TRANS_TIMELINESS).
+- Two documents, both sides of candidate pair P299-022 (accessions 0001474427-12-000001 and 0001474427-12-000002), have derivative-table field-placement discrepancies between bulk and XML. Quarantine those derivative rows; the pair is also multi-owner/partial-overlap, so transaction-to-individual-owner attribution is unresolved.
+- Pair-level: 45/46 pairs have both original and amendment filings matching on core transaction rows; 38/46 match full rows; core bulk/XML amendment-difference summaries agree for 46/46. The sample is purposive/stratified, not a prevalence estimate.
+- Phase 299's first 3/90 full-row comparison is superseded: it did not normalize bulk DD-MMM-YYYY dates to XML ISO dates or account for the bulk archive's two-decimal numeric precision. Phase 300 corrected this using the preserved raw XML; no raw data was overwritten.
+- No return/alpha/OOS/bootstrapping/LOO or holdout test. Strict PIT not admitted; acceptance chronology is not exact first-public availability. F80, production, universe, capital and parameters remain unchanged; no PR merged.
+
+**Next Form 4 gates:** expand XML validation to an intermediate era and ambiguous/no-candidate amendments; preserve footnote/timeliness fields; quarantine derivative mapping exceptions or use XML-first parsing; resolve effective-dated issuer/security identity and owner attribution; complete the Phase 281 daily-index knowledge clock before any signal test.
+
+## Latest verified correction — Phase 297 (2026-11-11 20:11 UTC)
+
+- Hosted workflow [43094005689](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43094005689) passed; 6 deterministic tests passed and metadata artifact [13889458408](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43094005689/artifacts/13889458408) is present.
+- Phase 296's conservative Form 4 cohort omitted the transaction-level `TRANS_FORM_TYPE=4` condition already required by the Phase 271 Table I contract. The 15,590-row cohort included 115 type-5 rows. Corrected cohort: **15,475 rows**, 10,997 accessions, 3,226 issuer CIKs and 6,677 reporting-owner CIKs.
+- The 115 excluded rows occur across 97 accessions, 42 issuers and 70 owners; these gross counts overlap with valid type-4 rows, so net identity reductions are smaller.
+- AFF10B5ONE status in the corrected cohort: 6,963 false, 201 true, 8,311 unknown. Unknown remains unknown. The gate uses actual filing date from 2023-04-01, not quarter label.
+- Versioned Phase 271 explicit-open-market footnote screen reproduced 413 rows across the six purposive quarters; 365 also have positive price and shares. This remains text evidence only, not proof of discretionary intent or alpha.
+- No returns, strict PIT, bootstrap/LOO, OOS or holdout test. F80, production, universe, capital and parameters remain unchanged.
+
+**Frozen baseline:** `F80_TOP20_PARTIAL50_BASELINE_C20`  
+**Legacy holdout:** `CONSUMED_NOT_PRISTINE`; never reuse.  
+**Economic result:** no new Smart Money signal has demonstrated incremental, cost-adjusted OOS edge.
+
+## Latest verified results — Phases 295–296 (2026-11-11 19:31 UTC)
+
+- **Phase 295 passed:** 11/11 offline tests; 18/18 SEC complete-submission headers reconciled; 18/18 accession identities matched their first observed daily-index rows; 18/18 first index dates equaled the bulk filing date. The sample is purposive, not random. Exact first-public timestamp remains unverified.
+- 57/88 requested daily index files downloaded and parsed; the other 31 were HTTP 403 on 27 weekends and four U.S. federal holidays. Zero parser errors occurred in the 57 retrieved files.
+- SEC acceptance time was after 16:00 ET for 15/18 accessions, after 18:00 ET for 5/18, and after 20:00 ET for 2/18. The daily index date is date-granular and cannot establish the exact public-availability time. Use no earlier than the next full XNYS session after acceptance for any future test.
+- **Phase 296 data-quality audit:** the six Phase 294 raw archives contain 317,267 Form 4/4-A accessions. 310,561 (97.89%) have one reporting owner; 6,706 have multiple owners. A conservative candidate filter leaves 15,590 direct, positive-price/positive-share, non-derivative P acquisitions in original Form 4 filings with one owner and a 0–2 calendar-day transaction-to-filing lag, across 11,088 accessions, 3,243 issuers and 6,728 owners. This is feasibility, not alpha.
+- SEC Form 4 transaction code P explicitly includes **open-market or private purchases**. Footnotes, 10b5-1 status, delayed/amended filings, multiple-owner attribution and effective-dated issuer/security identity must be handled before any signal test. No strict PIT, return test, alpha, bootstrap/LOO or OOS result has been produced.
+- `SEC_CONTACT_EMAIL` is operational in Actions. It is used only in the SEC User-Agent contact string; no email was sent by the workflow, and no inbox check is required for this data pull.
+
+
+## Earlier material research result — Phase 281
+
+SEC EDGAR's historical daily `form.YYYYMMDD.idx` archives provide a conditional route to reconstruct a conservative daily public-dissemination date for Form 4 accessions. SEC documentation says daily indexes extend from 1994Q3 to present, list form/CIK/date/path, are built nightly, and prior daily indexes are not rewritten by later-business-day post-acceptance corrections. Full and quarterly indexes are rebuilt weekly and do incorporate later PAC changes.
+
+**Proposed Form 4 knowledge clock:** join each Phase 279 bulk-dataset accession to all historical daily form-index sightings; use the earliest verified index date; execute no earlier than the close of the next full XNYS session. Do not fall back to FILING_DATE or acceptance time when the index join is missing. This is a conservative daily-PIT candidate, not yet strict PIT: no raw index bytes have been downloaded, same-day PAC handling is not fully measured, the SEC does not publish an exact first-public timestamp, and owner/security identity remain open.
+
+- [Phase 281 report](PHASE281_SEC_DAILY_INDEX_FIRST_PUBLICATION_PIT_FEASIBILITY_2026-11-11.md)
+- Official sources: [SEC EDGAR access and daily indexes](https://www.sec.gov/search-filings/edgar-search-assistance/accessing-edgar-data), [SEC timestamp FAQ](https://www.sec.gov/about/webmaster-frequently-asked-questions).
+
+
+
+## Phase 282 — SEC PDS public-clock adjudication
+
+The SEC's current PDS system page says PDS is a paid subscriber service and that, following the 2025-05-19 system update, filings are available on sec.gov before they are made available to PDS subscribers. The inspected historical 2014 PDS specification documents EDGAR receipt/acceptance/build fields and PAC timestamps, but ordinary `.dissem` files and the daily EOD filename list do not provide a per-filing first-public timestamp. The 2014 specification is not assumed to represent every field in the current 2025 ZIP.
+
+**Decision:** PDS is not a superior public-availability clock and no paid subscription/contact is justified. Retain the Phase 281 historical daily `form` index as the primary conservative Form 4 knowledge-date candidate; PDS may be only an optional acceptance/PAC cross-check if lawful existing archive bytes become available. No PDS or SEC raw bytes were downloaded, no automated SEC request was sent, and no alpha test was run.
+
+- [Phase 282 report](PHASE282_SEC_PDS_VS_DAILY_INDEX_PUBLICATION_CLOCK_AUDIT_2026-11-11.md)
+- Official SEC source: [PDS system and 2025 ordering change](https://www.sec.gov/oit/announcement/public-dissemination-service-system-contact.html).
+
+## Phase 279 — SEC Insider Transactions bulk history
+
+- SEC lists 83 quarterly archives from 2006Q1 through 2026Q3; listed ZIP sizes sum to about 887.43 MB.
+- Eight documented tables include submissions, owners, transactions, holdings, footnotes and signatures.
+- Critical issues: SUBMISSION has date-only FILING_DATE; NONDERIV_TRANS lacks owner CIK; transaction table lacks permanent security/CUSIP; AFF10B5ONE varies by archive era; P is not sufficient proof of open-market execution.
+- Phase 279's documentation gate passed 17/17 deterministic tests, but no ZIP bytes were downloaded and no alpha test was run.
+- [Phase 279 report](PHASE279_SEC_INSIDER_TRANSACTIONS_BULK_HISTORY_AND_PIT_FEASIBILITY_2026-11-11.md).
+
+## Latest verified GitHub state — 2026-11-11 08:05 UTC
+
+- Latest 100 Actions runs: **97 success, 3 cancelled, 0 failed, 0 queued/in-progress**. No workflow was duplicated.
+- PR #14 head: `816662c125d626542763a1d0d034e3aaf6cd8119`; **23/23 check-runs successful**. It remains open, mergeable and stacked on PR #13. [PR #14](https://github.com/jafelix81/NuevaEstrategia/pull/14).
+- PR #13 head: `61f737f18b410bc6d85b8c56ed96bc1fd9c130f5`; open/mergeable, with **zero check-runs registered on that SHA**. [PR #13](https://github.com/jafelix81/NuevaEstrategia/pull/13).
+- Latest Phase 272 hosted run [42982871024](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42982871024) passed. The job log preserves the Phase 272 status gate; metadata-only artifact [13838231849](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42982871024/artifacts/13838231849), SHA-256 `459cea1eb615d83efb618310ff15d63a5fd655cddfe3df7b29934c31d566877d`.
+- Latest Phase 278 targeted follow-up [42982870960](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42982870960) passed **20/20 tests** and re-fetched 147,725 rows over 30 pages. Two BQ/T2 candidate-key groups remain conflicting; no row was selected or summed. Artifact [13838767377](https://github.com/jafelix81/NuevaEstrategia/actions/runs/42982870960/artifacts/13838767377), SHA-256 `22cfdeaed6616d487bf403d459a0778b5f5a86516c30656a1ea1bda5235179e8`.
+- Phase 279 bulk-history gate passed 17/17 on the current PR head; Phase 276 security gate passed. The 31-workflow / 103-action inventory still has no mutable/unverified action refs or missing explicit permissions.
+- Branch inventory: **134 branches** (100 on page 1, 34 on page 2). No CFTC capture was activated and no workflow was manually dispatched.
+- No PR was merged. Do not merge either PR without explicit authorization.
+
+## Source dispositions
+
+| Source / line | Current disposition |
+|---|---|
+| FINRA short flow Phase 20C | Weak, incomplete and not strict PIT; no promotion; do not retune the consumed sample |
+| FINRA short interest Phase 267 | Pagination/date-availability defects; no strict PIT panel |
+| FINRA ATS/OTC Phases 264/277/278 | Context-only; later revisions and two unresolved duplicate-grain conflict groups; do not sum or choose arbitrarily |
+| SEC Form 4 | Highest-priority historical candidate after Phase 281 daily-index route; owner attribution and effective-dated security identity still open |
+| SEC 13D/G | Extensive event, amendment and identity audits; no broad issuer/security panel admitted |
+| SEC 13F / N-PORT | Delayed context only; acceptance, amendment, CUSIP/security mapping and PIT issues remain |
+| Form 144/Form 4 | Document-linkage and conditional placebo results only; no market-execution or return edge established |
+| Cboe Open-Close | One C1 20% EOD sample date reprocessed; feature construction works, but no multi-date PIT/vintage proof |
+| Cboe options quotes / sentiment / TradeFlow / OI | Conditional candidates; no full licensed historical sample with first-receipt and effective-dated identity admitted |
+| CFTC BPR/TFF | Market-regime context candidate; prior walk-forward quarantined for label-maturity defects; prospective capture workflow remains research-branch only |
+| Form SHO / SLATE | Future regulatory sources only; not a current historical public panel |
+
+## Next research gates
+
+1. Configure the authorized GitHub Actions secret `SEC_CONTACT_EMAIL` before automated SEC retrieval. Do not guess an address or send programmatic requests without the declared User-Agent.
+2. Run the Phase 281 sample gate across the six Phase 279 quarters: download only the needed daily `form` index files, validate accession/path parsing, preserve hashes, and reconcile sampled index dates with acceptance headers and original Form 4/Form 4/A content.
+3. Measure missing-index, duplicate-sighting, same-day PAC, missing-content and after-hours rates. Test Oldloads only as a targeted fallback; do not bulk-download all daily Oldloads archives.
+4. Resolve joint/group transaction-owner attribution and effective-dated issuer/security-class identity, including inactive/delisted names.
+5. Only after all data gates pass, preregister a new chronological test against frozen LTM/F80 with identical exposure/costs, label-maturity embargo, date/issuer/owner-clustered bootstrap, LOO and multiplicity controls. Use a new prospective holdout.
+
+## Controls
+
+No returns, alpha, economic optimization, bootstrap/LOO or fresh independent OOS evidence has been produced by Phases 279–281. No holdout was used. No vendor was contacted, no data purchased, no terms accepted, no PR merged, no production/universe/capital/parameter changes, and no F80 change occurred. No CAGR target or minimum/maximum holding period is imposed.
+
+
+## Phase 283 — SEC daily-index parser contract (2026-11-11)
+
+Implemented an offline parser/ledger for the conditional Phase 281 SEC daily-index route. It validates Form 4/Form 4-A accession paths, CIK consistency, filing-date/index-date consistency, duplicate/conflicting rows, multi-date accession sightings and the next full XNYS session close using timezone-aware calendar inputs. Synthetic tests are wired into the existing PR workflow. No SEC requests or raw index downloads were made; live format/PAC validation, six-quarter joins, owner attribution and effective-dated security identity remain open. See research/PHASE283_SEC_DAILY_INDEX_PARSER_CONTRACT_2026-11-11.md.
+
+## GitHub verification correction — 2026-11-11 10:35 UTC
+
+- Latest 100 Actions runs: 97 successful, 3 cancelled, 0 failed and 0 queued/in-progress. The three cancellations were Phase 258, Phase 259 and Phase 260; no active run was duplicated.
+- PR #14 remains open/mergeable and stacked on PR #13. Before Phase 283 files are added, its head is 1f33ecb237521e4dda9101f1742862c2f18f2bb5; the 22 registered check-runs on that SHA all completed successfully.
+- PR #13 remains open/mergeable with zero check-runs registered on head 61f737f18b410bc6d85b8c56ed96bc1fd9c130f5.
+- Latest Phase 231 raw-row reparse run 42987915103 passed. Metadata-only artifact 13839449799, SHA-256 8127533c1d1fc1835cf6ef7718a2558b0fb6787fc1f8d6900af3e982ee86aa65.
+- Phase 279 passed 17/17 tests in run 42987914989; artifact 13840302271, SHA-256 13be9e426f464d15a3d2135148c5df87de9b2685e2390b19da5565a655938b4d.
+- Phase 278 passed 20/20 tests and reconciled 147,725 rows / 30 pages in run 42982870960; its two unresolved duplicate-grain conflict groups remain quarantined. Artifact 13838767377, SHA-256 22cfdeaed6616d487bf403d459a0778b5f5a86516c30656a1ea1bda5235179e8.
+- Phase 272 passed in run 42982871024; artifact 13838231849, SHA-256 459cea1eb615d83efb618310ff15d63a5fd655cddfe3df7b29934c31d566877d.
+- Branch inventory is 134 branches (100 on page 1, 34 on page 2). No PR was merged; F80, production, universe, capital and holdout remain unchanged.
+
+Phase 283 is an offline parser contract only. Do not describe parser tests as passing until the final PR workflow run is inspected.
+
+
+## Phase 283 refinement — delayed Form 4 index-date handling (2026-11-11)
+
+A code review found that the original parser required `Date Filed == form.YYYYMMDD.idx`, making its advertised multi-date accession ledger unreachable for a later daily-index sighting. This was too strict for the SEC's documented next-business-day dissemination of some Forms 3/4/5 filed after 10 p.m. ET.
+
+The parser now quarantines only index dates before `Date Filed`, retains later index sightings with explicit lag days, and never backdates a later-only sighting to FILING_DATE. Synthetic tests cover the delayed sighting, multi-date aggregation and no-backdating rule. Raw SEC bytes, actual late-sighting frequency and PAC behavior remain unverified.
+
+This is a data-contract correction, not a new source or alpha result. SEC_CONTACT_EMAIL remains unconfigured; no SEC request was made. F80 and all production/holdout controls remain unchanged.
+
+
+## Phase 284 — SEC delayed-sighting correction (2026-11-11)
+
+The daily-index ledger now retains later index sightings of a Form 4 accession with explicit lag days and never backdates a later-only sighting to FILING_DATE. Synthetic regression suite passed 17/17 in run 43019575009; artifact 13855150143. Real SEC bytes/PAC behavior remain unverified. No SEC request was made.
+
+## Phase 285 — FIS SLD and UREF source admission (2026-11-11)
+
+Documented FIS Astec Securities Lending and Nasdaq UREF as candidates/controls, not admitted signals. Run 43030407555: 13/13 metadata-audit tests passed; artifact 13859064142. No data was purchased or downloaded.
+
+## Phase 286 — Nasdaq NOTO/NOP feasibility (2026-11-11)
+
+Documented NOTO EOD/intraday and NOP as options-flow candidates. Run 43031307177: 12/12 metadata-audit tests passed; artifact 13860368810. NOTO is one exchange only; participant classes are not beneficial-owner identities; intraday snapshots are cumulative. No data was purchased or downloaded.
+
+## Phase 287 — Nasdaq ISE/PHLX options and TotalView-ITCH/NOII feasibility (2026-11-11)
+
+Added research/PHASE287_NASDAQ_OPTIONS_TRADE_OUTLINE_AND_ITCH_NOII_FEASIBILITY_2026-11-11.md on branch phase287-nasdaq-options-and-itch-source-feasibility (documentation-only commit c4ace566a871c0b6b042da46ea46e3b1e761e09d). ISE Trade Outline EOD has history from Jan 2006 but the full-history ad-hoc cost is approximately $150,000 at current list rates; a first-time one-month EOD trial is documented. PHLX PHOTO history begins Jan 2009, with a free Jan-Jun 2014 sample formally documented but current retrieval path unverified. Nasdaq TotalView-ITCH/NOII offers high-resolution order/auction microstructure, but full SFTP access requires credentials, files are large, the public archive is sparse samples, and MPID attribution is partial. No raw sample was obtained, no subscription/contact/purchase was made, and no model test was run.
+
+## Current verification — 2026-11-11 14:24 UTC
+
+- PR #14 remains open/mergeable at head 6dedb088d7289ca5155a319b5f88155c2d431be3. Its 23 associated GitHub Actions runs are all completed successfully; no queued/in-progress run was found. The latest Phase 285 run completed 13/13 tests and its artifact 13859064142 is present and unexpired.
+- Phase 286 run 43031307177 completed successfully with one metadata-audit job and artifact 13860368810 present and unexpired.
+- PR #13 remains open/mergeable at head 61f737f18b410bc6d85b8c56ed96bc1fd9c130f5 with zero associated workflow runs/check-runs on that SHA.
+- Phase 287 branch exists; no PR was opened and no merge was performed.
+- SEC_CONTACT_EMAIL remains unconfigured; no SEC request was made. No Nasdaq trial, data purchase, or vendor contact was initiated.
+- No raw new source data, return test, alpha, bootstrap/LOO or independent OOS result has been produced by Phases 284–287. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen; production, universe, capital, parameters and holdout are unchanged. No CAGR target or holding-period constraint is imposed.
+
+
+## Phase 288 — SEC Form 13F PIT feasibility (2026-11-11)
+
+Added research/PHASE288_SEC_13F_HOLDINGS_PIT_COVERAGE_AMENDMENT_AUDIT_2026-11-11.md on branch phase288-sec-13f-pit-coverage-amendment-audit (report commit 84db69351977302c10f2721796e4f552696c1a4b). SEC 13F structured data is public/free, with quarterly packages from 2013 Q2 / July 2013 through August 2026. It includes accession numbers, filing date/type, CIK, report period, amendment/restatement/addition flags, confidential-treatment metadata, CUSIP, optional FIGI, shares/value, put/call and manager-discretion fields. It is a promising slow-frequency ownership source, but only a candidate: 45-day reporting lag, no shorts, incomplete Section 13(f) universe, confidential omissions, amendments, and CUSIP/FIGI mapping require strict PIT reconstruction. SEC Q3 2026 filings are due 2026-11-16; no Q3 holdings are available as of this run. No raw ZIP bytes were obtained because the runtime cannot resolve external SEC hosts; SEC_CONTACT_EMAIL remains unconfigured. No backtest or signal test was run.
+
+## Current verification — 2026-11-11 14:24 UTC
+
+- PR #14: head 6dedb088d7289ca5155a319b5f88155c2d431be3; 23 associated Actions runs, all completed successfully; no active run was found.
+- Phase 285 run 43030407555: metadata-audit job succeeded, 13/13 tests; artifact 13859064142 present and unexpired.
+- Phase 286 run 43031307177: metadata-audit job succeeded, 12/12 tests; artifact 13860368810 present and unexpired.
+- PR #13: head 61f737f18b410bc6d85b8c56ed96bc1fd9c130f5; zero associated workflow runs/check-runs.
+- Phase 287 and Phase 288 are documentation/source-audit branches only; no PRs were opened and no merges were made. No workflow was started by these documentation commits.
+- No raw data was acquired from FIS, UREF, NOTO, ISE, PHLX, NYSE Open-Close, Nasdaq ITCH/NOII or SEC 13F. No vendor was contacted and no paid data/trial was requested.
+- SEC_CONTACT_EMAIL remains the only previously identified human configuration blocker for automated SEC downloads. No SEC request was made.
+- No model test, alpha estimate, bootstrap, LOO or independent OOS result has been produced by Phases 284–288. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen; production, universe, capital, parameters and holdout are unchanged.
+
+
+## Phase 289 — SEC 13F re-entry decision and source-priority correction (2026-11-11)
+
+**Decision: keep 13F parked for broad-universe stock selection; defer raw ZIP acquisition until historical identity coverage improves.** Phase 22C already found only 301 current candidate mappings for the 335-name frozen universe. Its historical matches were 212/301 (70.43%) in 2016Q1, 246/301 (81.73%) in 2020Q1 and 280/301 (93.02%) in 2024Q1. Against the full 335-name universe these are 63.28%, 73.43% and 83.58%, respectively. The direct report-date CUSIP/common-equity route had a 54.8% minimum in 2016Q1. Phase 166's 83.18% is a 13(f)-eligibility match in a separate 13D/G sample, not 13F holdings coverage.
+
+Phase 205's ten accessions are purposive edge cases, not a prevalence sample: four original reports were accepted 44–48 days after quarter-end; six amendments were 60–1,137 days after quarter-end (median 361.5 days); five of ten filing dates differ from acceptance calendar dates. The findings reinforce accession-level event clocks and append-only restatement/add-only amendment state, but do not establish population rates or alpha.
+
+Source priority remains: (1) Form 4 bulk + daily-index real-data sample; (2) N-PORT direct short-equity sample as a distinct preregistered registered-fund hypothesis; (3) 13F only after effective-dated security identity and broad-universe coverage pass; (4) paid options/lending sources only after authorized sample/license and cost gates. No synthetic 13F workflow should be added until real bytes reveal a concrete issue.
+
+- [Phase 289 report](PHASE289_SEC_13F_REENTRY_DECISION_AND_SOURCE_PRIORITY_2026-11-11.md) on branch `phase289-sec13f-reentry-adjudication`.
+- Latest 30 Actions runs checked: 24 completed successfully, 6 cancelled, zero failed, zero queued/in-progress. Latest run 43031307177 (Phase 286) succeeded; its metadata-only artifact 13860368810 is present and unexpired. No workflow was duplicated.
+- PR #14 head remains `6dedb088d7289ca5155a319b5f88155c2d431be3`, open/mergeable, 23/23 check-runs successful. PR #13 head `61f737f18b410bc6d85b8c56ed96bc1fd9c130f5`, open/mergeable, zero check-runs on that SHA.
+- Phase 278 latest targeted run 43030407560 passed 20/20 tests but still found 147,725 rows, 30 pages and two conflicting duplicate-grain groups; no rows were selected or summed. Artifact 13861545967 is present and unexpired.
+- Phase 231 run 43030407294 passed the raw-row reparse gate: 115,617 populated rows; 112,313 unambiguous valid rows; 3,304 ambiguous expiration rows quarantined. No PIT or alpha admission. Artifact 13860267856 is present and unexpired.
+- Branch inventory before this Phase 289 branch was 137 (100 on page 1, 37 on page 2); Phase 289 adds one documentation-only branch. No PR or merge was created.
+- The repository state records `SEC_CONTACT_EMAIL` as not configured; no secret was inspected or changed and no SEC request was made.
+
+No raw data, return test, bootstrap/LOO, OOS result or holdout use occurred. F80, production, universe, capital and parameters remain unchanged. The legacy holdout remains consumed and unavailable for reuse.
+
+
+## Phase 290 — N-PORT / FINRA output reconciliation (2026-11-11)
+
+- Inspected the actual Phase 27O run 39493106882 and artifact 12296499022 (SHA-256 `c8207cd99b5bc80be730db89da62ced1298a18af0330b11335e41864fca4478b`). All eight snapshots have blank `balance_units`, zero tickers with positive shares, and all seven transitions have `n_ranked=0` with no forward returns. This confirms the Phase 247 `UNITS` versus official flattened `UNIT` defect in the real historical output. Quarantine Phase 27N/27O; this is not evidence for or against long accumulation alpha.
+- The Phase 27O/27K scripts hard-code `research@example.com` in the SEC User-Agent. Phase 27O logs confirm that eight SEC archives were downloaded historically. Do not reuse that placeholder. No new SEC request was sent; automated SEC retrieval remains blocked until an actual authorized contact is configured in `SEC_CONTACT_EMAIL`.
+- Reconciled Phase 20C run 40098425254 / artifact 12562171831 (SHA-256 `c15f75340bdedfbb37c82f79bb563a450dd1da11989d09e18bb745d93b7d3a5c`). All 1,382 XNYS sessions required by the run's signal lookback windows had FINRA CNMS files; the 638 HTTP 403 dates were weekends, XNYS closures or pre-source-start dates, not a 31.6% trading-session gap.
+- Phase 20C's 12 pseudo-OOS dates compare four blocked and four replacement names per date. Mean replacement-minus-blocked: +0.141% (5D), -1.686% (10D), -0.858% (20D); positive dates 5/12, 3/12 and 5/12. Factor/direction selection is unstable. All exploratory date-level 95% intervals cross zero; no costs or cluster bootstrap/LOO were included.
+- Phase 20C uses same-day FINRA data and starts forward returns at the same day's close without a verified first-public timestamp. Treat as not strict PIT; no promotion. Any revisit must enter no earlier than the next full XNYS session unless source receipt timing is proven.
+- Phase 278 remains context-only: 147,725 rows, 30 pages and two unresolved conflicting duplicate-grain groups; do not sum or select those groups.
+- Current Actions verification: latest 100 runs = 67 success, 33 cancelled, zero failed and zero active/queued. PR #14 remains open/mergeable with 23/23 checks successful; PR #13 remains open/mergeable with zero checks on its current SHA. Branch count was 138 before this Phase 290 branch; this documentation branch makes 139. No PR was opened or merged.
+- [Phase 290 report](PHASE290_NPORT_FINRA_OUTPUT_RECONCILIATION_2026-11-11.md).
+
+**Current decision:** Form 4 remains the first real-data priority after a valid SEC contact is configured; N-PORT direct-short remains a separate, unadmitted hypothesis; 13F remains parked; Phase 20C is not promoted pending next-session PIT correction and a stronger test. No holdout was used. F80, production, universe, capital and parameters remain unchanged.
+
+
+## Phase 291 — N-PORT direct-short real public-filing positive control (2026-11-11)
+
+A public SEC NPORT-P filing (accession 0001145549-24-071567; CIK 0001872253; series S000074017, Cromwell Long Short Fund) was inspected. It reports at least three explicit short U.S. common-equity positions: DAY (-4,447 shares), CLX (-1,920) and CDW (-1,115), each with negative USD value and negative percent of NAV. The filing was accepted 2024-11-22 12:10:57 ET for report date 2024-09-30; the conservative first full XNYS session after acceptance is 2024-11-25.
+
+This exposed a real Phase 221 parser false-negative: the code required the descriptive ISSUER_TITLE to contain the literal words "Common Stock". The SEC filing uses issuer names such as "Dayforce Inc", while the structured fields identify the instrument as Equity-common / Corporate. The classifier now uses UNIT=NS + ASSET_CAT=EC + ISSUER_TYPE=CORP and leaves the title as descriptive metadata; non-finite balances fail closed. The old predicate rejected 3/3 actual rows; the corrected logic accepts 3/3. The 13 existing Phase 221 semantic cases were rechecked and pass; new tests cover the three real public rows and negative controls.
+
+Important limit: the public SEC filing detail and EDGAR-rendered primary document were inspected, but raw XML/ZIP bytes were not downloaded or hashed. This validates a real filing row-classification path, not bulk-history coverage, series/security longitudinal identity, a PIT panel, or alpha. No return test, bootstrap/LOO, or holdout was run. SEC_CONTACT_EMAIL remains unconfigured; no automated SEC request was made.
+
+- [Phase 291 report](PHASE291_NPORT_DIRECT_SHORT_PUBLIC_FILING_POSITIVE_CONTROL_2026-11-11.md) on branch `phase291-nport-public-short-positive-control`.
+- Latest Actions inventory before this branch: 100 most recent runs = 67 success, 33 cancelled, zero failed, zero active/queued. PR #14 head 6dedb088d7289ca5155a319b5f88155c2d431be3 has 23/23 successful check-runs; PR #13 head 61f737f18b410bc6d85b8c56ed96bc1fd9c130f5 has zero check-runs. Phase 286, 285 and 278 logs/artifacts were inspected; all metadata/source-gate jobs succeeded but did not admit data or alpha. This new branch is documentation/parser correction only; no workflow was started.
+- No PR opened or merge made. F80, production, universe, capital, parameters and holdout remain unchanged.
+
+
+## Phase 292 — N-PORT direct-short classifier hardening (2026-11-11)
+
+A review found the Phase 291 predicate did not fully preserve the preregistered Phase 219 row filter: it omitted U.S. investment-country validation, negative CURRENCY_VALUE/PERCENTAGE sign concordance, and row-level exact CUSIP/ISIN matching. The Phase 291 test commit used [skip ci] and had zero check-runs. Phase 292 adds these fail-closed gates, updates the 13 Phase 221 semantic fixtures, replays the three manually transcribed public SEC filing rows with all required fields, and adds five negative controls. A dedicated offline Actions workflow compiles/runs the tests and emits a metadata-only artifact. This remains a public rendered-document fixture, not raw XML parsing or a bulk-data/PIT admission.
+
+- [Phase 292 report](PHASE292_NPORT_DIRECT_SHORT_CLASSIFIER_HARDENING_2026-11-11.md) on branch phase292-nport-short-classification-hardening.
+- No SEC requests, raw bytes, hashes, return tests, bootstrap/LOO or holdout use. F80, production, universe, capital and parameters remain unchanged.
+
+
+## GitHub Actions validation — completed 2026-11-11 18:05 UTC
+
+Dedicated run [43074329311](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43074329311) completed successfully on commit `d20874ca28734d1d6ec05099eb51f877965b2e39`. Job `offline-classifier-audit` passed compilation, all three test modules and the final no-alpha/data-control gate.
+
+- **26/26 tests passed**: 14 Phase 221 semantic tests, 3 Phase 291 public-filing controls and 9 Phase 292 hardening tests.
+- Public rendered-document positive controls: 3/3.
+- Negative controls: 5/5.
+- Artifact: [13880167054](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43074329311/artifacts/13880167054), SHA-256 `321ef631c94d4a5a3b5909a07b7ddc1e497be2c2527ffc7a52a3aef9d5e6f3a2`.
+- The artifact records raw XML bytes/hash, automated SEC requests, strict PIT admission, alpha, return tests, bootstrap/LOO, holdout use and all production changes as false; F80 remains frozen.
+
+The validation is offline and fixture-based. It does not establish raw XML parsing, bulk-history coverage, first-public timing, longitudinal fund/security identity or economic predictability.
+
+
+## Phase 293 — second-filer N-PORT public short controls (2026-11-11)
+
+The hardened Phase 292 classifier was replayed against 23 selected, line-referenced U.S. common-equity short rows from ACAP Strategic Fund (CIK 0001467631, accession 0001145549-25-033457, report date 2025-03-31), a second registrant independent of the three Cromwell rows in Phase 291. Expected combined positive controls: 26 rows across two registrants and two report periods; Phase 292 negative controls remain 5. This is still a manually selected fixture sample; the ACAP filing has no EDGAR series ID in the fixture, and neither filing has raw bytes/hashes or first-public receipt verification. No PIT or alpha admission.
+
+- [Phase 293 report](PHASE293_NPORT_SECOND_FILER_PUBLIC_POSITIVE_CONTROLS_2026-11-11.md) on branch phase293-nport-second-filer-public-positive-controls.
+- Dedicated offline workflow runs the Phase 221/291/292/293 tests and emits a metadata-only artifact.
+- No SEC requests, raw downloads, hashes, return tests, bootstrap/LOO or holdout use. F80, production, universe, capital and parameters remain unchanged.
+
+
+## GitHub Actions validation — completed 2026-11-11 18:10 UTC
+
+Dedicated run [43075250170](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43075250170) completed successfully on workflow-trigger commit `02d658aa82126a035aac32eadfe58bb5ee72f9a8`. Job `second-filer-audit` passed compilation, all four regression modules and the final cross-filer/no-alpha gate.
+
+- **29/29 tests passed**.
+- Second-filer ACAP selected positive controls: 23/23.
+- Combined selected positive controls: 26 across two distinct registrants.
+- Existing negative controls: 5/5.
+- Artifact: [13879983178](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43075250170/artifacts/13879983178), SHA-256 `fdedf37b1d62674e114ae848e835f830feb39d700f3ca950b091955161b838f1`.
+
+The artifact confirms the sample is non-exhaustive; raw XML/submission bytes and hashes, first-public receipt, longitudinal series identity, PIT admission, prevalence, alpha, return tests, bootstrap/LOO, holdout and production changes remain false. F80 remains frozen.
+
+
+## Repository snapshot after Phase 293 (2026-11-11)
+
+- Latest 100 Actions runs: 69 success, 31 cancelled, zero failed, zero queued/in-progress. No active workflow was duplicated.
+- Phase 292 run 43074329311: success; 26 tests; artifact 13880167054, SHA-256 `321ef631c94d4a5a3b5909a07b7ddc1e497be2c2527ffc7a52a3aef9d5e6f3a2`.
+- Phase 293 run 43075250170: success; 29 tests; 26 selected public positive rows across two registrants; five negative controls; artifact 13879983178, SHA-256 `fdedf37b1d62674e114ae848e835f830feb39d700f3ca950b091955161b838f1`.
+- Branch inventory: 142. Phase 293 head `e12d7b8ff1ff2847a1a8e71296e599c562bf80bd`.
+- PR #14 remains open on head `6dedb088d7289ca5155a319b5f88155c2d431be3` with 23/23 successful checks. PR #13 remains open on head `61f737f18b410bc6d85b8c56ed96bc1fd9c130f5` with zero checks on that SHA. No PR was opened or merged for Phases 291–293.
+- SEC automated retrieval remains gated on a real authorized `SEC_CONTACT_EMAIL`; no secret was inspected or changed in these phases.
+
+No raw SEC bytes, first-public receipt, broad-universe coverage, PIT panel, return test, bootstrap/LOO or alpha result was produced. F80, production, universe, capital, parameters and the consumed legacy holdout remain unchanged.
+
+
+## Phase 294 — SEC Insider Transactions bulk archive raw sample and schema audit (2026-11-11)
+
+- GitHub Actions successfully injected `SEC_CONTACT_EMAIL`; six sequential official SEC requests returned HTTP 200. The email value was not logged, stored or inspected.
+- Six stratified raw archives downloaded, CRC-checked and SHA-256 hashed: 2006Q1, 2012Q1, 2023Q1, 2023Q2, 2025Q3 and 2026Q3. Total 72,767,570 bytes. All eight tables were present and all six passed the required schema/core-key/accession checks.
+- Aggregate sample: 353,212 SUBMISSION rows; 308,940 Form 4 and 8,327 Form 4/A submissions (317,267 combined); 568,055 NONDERIV_TRANS rows; 377,553 REPORTINGOWNER rows; 766,389 FOOTNOTES rows.
+- SUBMISSION schema differs by era: AFF10B5ONE absent in 2006Q1/2012Q1, present in 2023Q1 onward in the sample. Missing pre-field values remain UNKNOWN.
+- SEC bulk FILING_DATE is `DD-MMM-YYYY`, not ISO; Phase 294 added explicit normalization. All 317,267 Form 4/4-A rows in the sample had valid accession and normalized date values.
+- OWNER_SIGNATURE's documented two-field key is not unique: 1,107 repeated key rows across the sample (1,055 exact repeated rows; 52 same accession/name with different signature dates). This is a non-core-table warning. Do not deduplicate it on accession+name alone.
+- 7,769 accessions in the sample have multiple REPORTINGOWNER rows. NONDERIV_TRANS lacks reporting-owner CIK; accession-only owner joins remain prohibited.
+- Run [43083625013](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43083625013): 11/11 offline tests passed; six archives retrieved and schema gate passed. Artifact [13884014630](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43083625013/artifacts/13884014630), 72,791,924 bytes, 90-day retention. Raw ZIPs remain in the Actions artifact, not the repository.
+- Report: [PHASE294_SEC_FORM4_BULK_ARCHIVE_RAW_SAMPLE_AND_SCHEMA_AUDIT_2026-11-11.md](PHASE294_SEC_FORM4_BULK_ARCHIVE_RAW_SAMPLE_AND_SCHEMA_AUDIT_2026-11-11.md) on branch `phase294-sec-form4-bulk-sample-acquisition`. No PR or merge was created.
+- This is a purposive six-quarter sample, not all 83 archives or universe coverage. Acceptance-time joins, first daily-index sighting, exact first-public receipt, multi-owner transaction attribution and effective-dated security identity remain open. No PIT panel, return test, alpha, bootstrap/LOO or holdout use occurred. F80 and production controls remain unchanged.
+
+**Next priority:** real-data Phase 283 daily-index reconciliation for a stratified Form 4 accession sample, plus SEC-HEADER acceptance-time validation. Preserve first observed index dates without backdating to FILING_DATE; do not treat the index date as exact first-public time.
+
+## Repository snapshot after Phase 294 (2026-11-11)
+
+- SEC_CONTACT_EMAIL is now verified operational for GitHub Actions by successful SEC HTTP 200 retrievals; its value remains secret and is not stored in repository files.
+- Phase 294 branch is documentation/acquisition-only. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen; production, universe, capital, parameters and the consumed legacy holdout are unchanged.
+- No data purchase, vendor contact, model test, alpha promotion, chronological OOS, bootstrap/LOO or holdout use.
+
+## Phase 295 — SEC Form 4 daily-index and acceptance-time real-data pilot (2026-11-11)
+
+**Result: acquisition and header reconciliation passed; strict PIT did not pass and remains closed.**
+
+- Run [43087726733](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43087726733) completed successfully. The workflow compiled and passed **11/11 tests** after adding a Form 4-specific SGML parser. The earlier failure was a parser-format mismatch: Form 4 complete-submission text uses `<ACCEPTANCE-DATETIME>YYYYMMDDHHMMSS`, while the reused N-PORT parser expected a colon-delimited field. Raw SEC responses are now preserved before parsing so future parser errors cannot discard evidence.
+- Across 18 purposive accessions (first/middle/last sample from 2006Q1, 2012Q1, 2023Q1, 2023Q2, 2025Q3 and 2026Q3): **18/18** SEC-HEADER accession/form/filing-date/acceptance timestamps reconciled; **18/18** first observed daily-index sightings matched the bulk filing identity and had zero calendar-day lag.
+- Of 88 daily-index date requests, 57 downloaded and parsed with zero parse errors. The 31 HTTP 403 dates were 27 weekends and four U.S. federal holidays, not parser failures.
+- **15/18** acceptances were at or after 16:00 ET, **5/18** at or after 18:00 ET and **2/18** at or after 20:00 ET. All 18 acceptance local dates matched the SEC filing date and all 18 daily index first-sighting dates matched that date. This does not prove when the nightly index itself first became publicly reachable; no sample captured a later-index-date case.
+- Artifact [13887641760](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43087726733/artifacts/13887641760), SHA-256 `89c9904d9bdd8f4cbde2706c40111a3e5ddeabed79788b77ed76b6a1e92390ed`, contains the 18 complete-submission text files, 57 raw daily indexes and manifest (60,334,796 downloaded bytes). Raw files are not committed to the repository.
+- `SEC_CONTACT_EMAIL` was injected successfully and masked in logs. The value is used only in the SEC User-Agent; this workflow did not send email. No user action is required.
+- Controls: `first_public_timestamp_verified=false`, `strict_pit_admitted=false`, `alpha_test_authorized=false`, `return_test_run=false`, `bootstrap_loo_run=false`, `holdout_used=false`, `f80_frozen=true`, and no production/universe/capital/parameter changes.
+
+**Next clock gate:** deliberately sample after-22:00 ET filings, next-business-day index sightings, Forms 4/A and post-acceptance corrections. Preserve acceptance timestamp and first observed index date separately. For any later return test, enter no earlier than the next full XNYS session after acceptance; do not use same-day returns.
+
+## Phase 296 — SEC Form 4 owner-attribution and purchase-quality feasibility (2026-11-11)
+
+This offline audit re-read the six raw ZIPs from Phase 294 artifact [13884014630](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43083625013/artifacts/13884014630). The six nested archive SHA-256 hashes are recorded in the report [PHASE296_SEC_FORM4_OWNER_ATTRIBUTION_AND_PURCHASE_QUALITY_AUDIT_2026-11-11.md](PHASE296_SEC_FORM4_OWNER_ATTRIBUTION_AND_PURCHASE_QUALITY_AUDIT_2026-11-11.md).
+
+- The six quarters contain **317,267** Form 4/4-A accessions: **310,561 (97.89%)** have exactly one reporting owner; **6,706 (2.11%)** have multiple owners; none have zero owners.
+- Among **27,902** non-derivative P/acquired/direct transactions with positive shares and price, **25,997** are in single-owner accessions and **1,905** in multi-owner accessions. Multi-owner transactions remain quarantined; the bulk `NONDERIV_TRANS` table has no reporting-owner CIK on each transaction row.
+- A conservative data-quality subset requiring original Form 4 (not 4/A), exactly one reporting owner, positive shares/price, P + acquired + direct, and 0–2 calendar days from transaction to filing contains **15,590 rows**, **11,088 accessions**, **3,243 issuers** and **6,728 owners**. All rows in this subset have an issuer ticker as filed, but effective-dated security-class identity is not verified.
+- The transaction-to-filing lag has a long tail in the broader candidate set: median 2 days, p90 20 days, p95 94 days, p99 715 days, maximum 7,308 days, with seven negative-lag rows. The 0–2-day filter is a conservative screening choice, not proof of execution timing or public availability.
+- The SEC data dictionary defines transaction code P as **“Open market or private purchase”**; it cannot be labeled open-market buying by itself. In a lexical footnote screen of 28,663 P/acquired/direct rows, 11,762 had at least one referenced footnote; overlapping keyword hits included 671 explicit open-market mentions, 147 private-purchase/placement mentions, 233 public-offering mentions, 3,339 weighted-average-price mentions, 1,697 trust/indirect mentions and 1,249 10b5-1 mentions. These are triage counts, not a mutually exclusive classification.
+- In the 15,590-row conservative subset, `AFF10B5ONE` is explicitly negative on 6,995 rows, affirmative on 201 and unknown/blank/absent on 8,394. The field is absent in 2006Q1 and 2012Q1 in this sample; blanks must not be interpreted as false.
+
+**Decision:** Form 4 is now a credible public-data candidate for a broad, next-session-only insider-transaction hypothesis. It is not an admitted signal. Continue with (1) after-hours/late-index/PAC sample expansion, (2) XML/footnote and multiple-owner adjudication, and (3) effective-dated issuer/security-class mapping and broad-universe price coverage. Only then preregister a chronological, cost-adjusted test against frozen LTM/F80 with independent OOS and a new holdout. No return test or alpha estimate was run in Phase 296.
+
+## Current repository verification — 2026-11-11 19:31 UTC
+
+- Latest 100 Actions runs: **67 successful, 8 failed, 25 cancelled, zero active/queued**. All eight failures were intermediate Phase 294/295 iterations; final Phase 294 run 43083625013 and final Phase 295 run 43087726733 succeeded. No workflow was duplicated while an earlier run was active.
+- Branch inventory: **145** (100 branches on page 1, 45 on page 2) after creating this Phase 296 research-only branch. PR #14 remains open on head `6dedb088d7289ca5155a319b5f88155c2d431be3`; PR #13 remains open on head `61f737f18b410bc6d85b8c56ed96bc1fd9c130f5`. No PR was opened or merged for Phases 294–296.
+- Historical statements in Phases 281–293 that `SEC_CONTACT_EMAIL` was unconfigured were accurate at the time and are superseded by the successful Phase 294/295 secret-injection checks.
+- F80, production, universe, capital, parameters and the consumed legacy holdout remain unchanged. No paid data, vendor contact or data license was initiated.
+
+
+## Phase 297 — Form 4 transaction-form-type reconciliation (2026-11-11)
+
+- Corrected the Phase 296 Table I cohort by requiring transaction-level `TRANS_FORM_TYPE=4`. The candidate set fell from 15,590 to **15,475 rows**, 10,997 accessions, 3,226 issuers and 6,677 reporting owners; 115 type-5 rows were excluded.
+- Recomputed the versioned high-precision open-market-footnote screen: 413 rows, 365 also with positive shares and price. Code P remains open-market **or private** purchase; it is not an open-market-only label.
+- Workflow 43094005689 passed 6/6 deterministic tests. No return/alpha test or PIT admission.
+
+## Phase 298 — Form 4/A cross-quarter parent-lineage live audit (2026-11-11)
+
+- Downloaded and CRC-checked 2011Q4 and 2026Q2 SEC bulk archives. Including the immediately prior quarter increased unique candidate links to 1,355/1,862 (72.77%) for 2012Q1 and 518/627 (82.62%) for 2026Q3.
+- Remaining candidates were ambiguous (44 and 8) or had no parent in the two-quarter search windows (463 and 101). Candidate links still lack an authoritative parent-accession foreign key.
+- Workflow 43101285104 succeeded; no alpha/return test.
+
+## Phase 299 — Form 4/A original EDGAR submission sample (2026-11-11)
+
+- Deterministically selected 46 candidate original/amendment pairs across 2012Q1 and 2026Q3, including adjacent-quarter, line-difference and partial-owner strata; 90 raw SEC complete-submission documents were retrieved.
+- The sample is a source-validation design, not a prevalence estimate. It does not establish parent accession identity, transaction-owner attribution, first-public availability or alpha.
+- Final workflow 43115460066 succeeded after an intermediate failed attempt 43115373933.
+
+## Phase 300 — Form 4/A XML-to-bulk reconciliation (2026-11-11)
+
+- Corroborated all **46/46** candidate links using original EDGAR headers/XML: issuer, date-of-original-submission, owner overlap, form type and acceptance chronology.
+- Of 90 documents, 88 matched the central transaction signature and 80 matched the broader signature. Remaining differences were limited to `NATURE_OF_OWNERSHIP` and/or `TRANS_TIMELINESS`; no transaction economics were promoted from an ambiguous line diff.
+- Workflow 43116245184 succeeded. No return or alpha test.
+
+## Phase 301 — 2023Q2 intermediate-era Form 4/A lineage and XML audit (2026-11-11)
+
+- Retrieved and validated SEC bulk archives 2022Q4, 2023Q1 and 2023Q2 (151,185 Form 4/4-A accessions across the three quarters). Target 2023Q2 has 937 Form 4/A accessions with an original-submission date and owner: **719 unique owner-overlap candidates (76.73%)**, 24 ambiguous, 15 same-issuer/date with no owner overlap, and 179 with no parent candidate in the loaded three-quarter window.
+- Adding 2022Q4 to the 2023Q1–Q2 window added 22 unique candidates and reduced the no-parent-in-window count from 202 to 179. No-parent means no candidate in the loaded window, not no parent anywhere in EDGAR.
+- The deterministic sample contains 52 cases and 102 original EDGAR documents: 24 unique pairs, 8 ambiguous, 8 no-owner-overlap and 12 no-parent. All 24 unique pairs were corroborated by XML metadata; all 8 ambiguous cases remained ambiguous. Two no-owner-overlap cases were capped at 12 of 15 candidate parent documents.
+- All 102 documents passed download, XML parse, header/XML identity and row-count checks; all 102 matched the core transaction signature. 98/102 matched the broader signature. The four full-signature differences were limited to `NATURE_OF_OWNERSHIP` and/or `TRANS_TIMELINESS` (one Table I document and three Table II documents).
+- Final workflow 43121592821 succeeded with 35 regression tests across Phases 153/299/300/301. The first Phase 301 attempt 43121407654 stopped at the GitHub artifact endpoint with HTTP 401 before SEC requests; the final workflow retrieved all three archives directly from the SEC. Raw archives, 102 submissions, manifest and result are preserved in artifact 13901611120 (SHA-256 `5840790fac1d411f95dad60737e68d9a6bc26d08380a7be9b8d1d18d74b51333`).
+- Decision: lineage is better supported but still not admitted for strict PIT/event-flow modeling. Date-only original-submission metadata is not a parent-accession foreign key; owner sets are accession-level, not transaction-line-level. Next gate: SEC daily-index first-appearance and PAC/correction audit for the 2023 sample, plus targeted longer lookback for no-parent cases and effective-dated security identity.
+- No return/alpha, bootstrap/LOO, chronological OOS or holdout test. F80, production, universe, capital and parameters remain unchanged. No email was sent; the SEC contact secret was used only in the User-Agent.
+
+## Current repository verification — 2026-11-11 23:42 UTC
+
+- Latest 100 Actions runs: **63 successful, 12 failed, 25 cancelled, zero active/queued**. The final Phase 301 run 43121592821 succeeded; the earlier 43121407654 failed before any SEC request because the GitHub artifact-download endpoint returned HTTP 401. The final workflow avoided that dependency by retrieving the public SEC archives directly.
+- Branch inventory: **150** (100 on page 1, 50 on page 2). The Phase 301 work remains on research-only branch `phase301-form4a-intermediate-era-lineage-audit`; no PR was opened or merged.
+- PR #13 and PR #14 remain open and unchanged. Eleven PRs are currently open in the repository.
+- The workflow's SEC contact expression was corrected for future runs; the final run's contact value was masked in logs and used only in the SEC User-Agent. No email was sent.
+- F80, production, universe, capital, parameters and the consumed legacy holdout remain unchanged. No paid data, vendor contact or data license was initiated.
+
+
+## Phase 302 — 2023 Form 4/A daily-index and PAC/correction clock audit (2026-11-12)
+
+**Result: source acquisition and date-granular index reconciliation passed; strict PIT remains closed.**
+
+- Reused the deterministic Phase 301 sample: 32 cases (24 unique owner-overlap candidates and 8 ambiguous parent sets), 71 unique original/amendment documents. The three SEC bulk archives 2022Q4, 2023Q1 and 2023Q2 were re-downloaded and matched their pinned SHA-256 values.
+- Downloaded and SEC-header reconciled 71/71 complete submissions. All accession, form and filing-date checks passed.
+- Downloaded and parsed 121/121 historical daily form.YYYYMMDD.idx files (90,998,369 raw index bytes). Zero HTTP/retrieval errors, zero index parse/write errors and zero pre-filing negative-control sightings.
+- All 71/71 accessions had a complete requested index window, matching issuer/form/filing identity, and an earliest observed index date equal to the bulk filing date (0-day lag). No later index-date sighting occurred in the sample.
+- Acceptance timestamps were after 16:00 ET for 42/71 documents; none were after 22:00 ET. This sample therefore does not exercise the documented after-22:00 delayed-dissemination case.
+- Among the 24 unique candidate original/amendment pairs, 23 had the parent on an earlier daily-index date; one pair shared the same daily-index date and remains intraday-unordered. All eight ambiguous parent sets remain unassigned; no candidate was selected.
+- The daily index is date-granular and built nightly. Its date is not an exact first-public timestamp and does not prove same-day market availability. A same-index-date pair cannot be ordered intraday by acceptance timestamps alone. Use no earlier than the close of the next full XNYS session after the earliest complete-window index date in any future conservative test; do not fall back to acceptance time or filing date when the index window is incomplete.
+- Workflow [43127646850](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43127646850) succeeded. 48/48 tests passed across Phase 153, 299, 300, 301 and 302 (17 + 6 + 6 + 6 + 13). The final artifact is [13904715073](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43127646850/artifacts/13904715073), 44,933,819 bytes, SHA-256 e1be6ae8cf030d9e80769d93ce1d96d08e399cd3fb3f4b4fc826da20247628b5.
+- Two preliminary Phase 302 attempts failed before any SEC request: one regression omitted the 2023-07-04 federal holiday; the next exposed a missing repository-root import path. Both were corrected before the final successful run. The final code also requires a window-verified index identity before comparing parent/amendment clocks.
+- Report: [PHASE302_FORM4A_DAILY_INDEX_PAC_CLOCK_AUDIT_2026-11-12.md](PHASE302_FORM4A_DAILY_INDEX_PAC_CLOCK_AUDIT_2026-11-12.md).
+
+**Decision:** Form 4/A now has a stronger 2023 daily-index date-granular knowledge-date pilot, but no exact first-public timestamp, no after-22:00 case, no broad prevalence estimate, no effective-dated security-class panel and no transaction-to-individual-owner proof. Keep it conditional; do not admit strict PIT or a stock-selection feature. Next, deliberately find a larger stratified sample of Form 4/4-A acceptances after 22:00 ET and same-day corrections, then reconcile next-business-day index sightings and preserve PAC vintages. Continue issuer/security-class identity and owner attribution in parallel.
+
+## Current GitHub verification — 2026-11-12 00:33 UTC
+
+- Latest 100 Actions runs: 61 success, 14 failure, 25 cancelled, 0 queued/in-progress. The two preliminary Phase 302 failures were corrected before SEC retrieval; final Phase 302 run 43127646850 passed. No active workflow was duplicated.
+- Branch inventory: 151. Phase 302 remains on research-only branch phase302-form4a-daily-index-pac-clock-audit; no PR was opened or merged.
+- PR #13 remains open against main; PR #14 remains open and stacked on PR #13. Neither was merged or modified by Phase 302.
+- SEC_CONTACT_EMAIL was injected only into the SEC User-Agent. Its value was not logged or stored, and no email was sent.
+- F80_TOP20_PARTIAL50_BASELINE_C20, production, universe, capital, parameters and the consumed legacy holdout remain unchanged. No data purchase, vendor contact, alpha promotion, return test, bootstrap/LOO, chronological OOS or holdout use occurred.
