@@ -8,6 +8,7 @@ on:
       - ".github/workflows/phase327_form4_single_accession_recovery.yml"
       - "research/phase327_form4_single_accession_recovery.py"
       - "research/test_phase327_form4_single_accession_recovery.py"
+      - "research/phase326_prior_recovery_manifest_2026-11-12.json"
   workflow_dispatch:
 
 permissions:
@@ -39,7 +40,7 @@ jobs:
           python -m compileall -q research/phase327_form4_single_accession_recovery.py research/test_phase327_form4_single_accession_recovery.py
           python -m unittest -v research.test_phase327_form4_single_accession_recovery
 
-      - name: Download immutable Phase 321, 325 and 326 artifacts
+      - name: Download immutable Phase 321 and Phase 325 source artifacts
         run: |
           curl -fsSL -H "Accept: application/vnd.github+json" -H "Authorization: Bearer $GH_TOKEN" \
             "https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13925636412/zip" -o phase321_source.zip
@@ -47,16 +48,13 @@ jobs:
           curl -fsSL -H "Accept: application/vnd.github+json" -H "Authorization: Bearer $GH_TOKEN" \
             "https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13931894766/zip" -o phase325_source.zip
           echo "6d7930230a60036931857520df07b28087720d54ae9d3bee8f4b1cfe2fbcefa3  phase325_source.zip" | sha256sum --check
-          curl -fsSL -H "Accept: application/vnd.github+json" -H "Authorization: Bearer $GH_TOKEN" \
-            "https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13939999128/zip" -o phase326_prior.zip
-          echo "eea7eaf97b91acfdbdac866f8d98660ec98be03adc8c4038b800f74cf86d81d5  phase326_prior.zip" | sha256sum --check
 
       - name: Retry only the single quarantined accession through zero-padded SEC paths
         run: |
           python -m research.phase327_form4_single_accession_recovery \
             --phase321-zip phase321_source.zip \
             --phase325-zip phase325_source.zip \
-            --phase326-zip phase326_prior.zip \
+            --prior-manifest research/phase326_prior_recovery_manifest_2026-11-12.json \
             --output-dir phase327_output \
             --email "$SEC_CONTACT_EMAIL"
 
@@ -68,14 +66,14 @@ jobs:
           s=r["summary"]; c=r["controls"]
           if s["prior_retrieved"] != 282 or s["retried_accessions"] != 1:
               sys.exit("Phase 327 did not preserve the one-record recovery scope")
-          if s["retrieved"] not in (282, 283) or s["retrieval_failures"] not in (0, 1):
+          if s["final_retrieved"] not in (282, 283):
               sys.exit("Unexpected Phase 327 retrieval population")
-          if s["unresolved_accessions"] not in ([], ["0000939057-26-000239"]):
+          if s["final_unresolved_accessions"] not in ([], ["0000939057-26-000239"]):
               sys.exit("Unexpected unresolved accession set")
-          if s["header_identity_matches"] != s["retrieved"]:
+          if s["final_header_identity_matches"] != s["final_retrieved"]:
               sys.exit("Retrieved header identity is incomplete")
-          if s["xml_parsed"] < 282 or s["xml_issuer_cik_matches"] < 282:
-              sys.exit("XML identity coverage fell below the prior validated 282")
+          if s["final_xml_parsed"] != s["final_retrieved"] or s["final_xml_issuer_cik_matches"] != s["final_retrieved"] or s["final_xml_owner_ciks_matches"] != s["final_retrieved"]:
+              sys.exit("Retrieved XML identity is incomplete")
           for key in ("strict_pit_admitted","alpha_test_authorized","return_test_run",
                       "bootstrap_loo_run","chronological_oos_run","holdout_used",
                       "production_changed","universe_changed","capital_changed",
@@ -83,14 +81,14 @@ jobs:
                       "data_purchased","email_sent"):
               if c.get(key) is not False:
                   sys.exit("Research control unexpectedly opened: "+key)
-          if c.get("f80_frozen") is not True:
-              sys.exit("F80 frozen control failed")
+          if c.get("f80_frozen") is not True or c.get("previously_validated_filings_refetched") is not False:
+              sys.exit("F80 or no-refetch control failed")
           print("PHASE327_STATUS="+r["status"])
           print("PHASE327_SUMMARY="+str(s))
           print("PHASE327_CONTROLS="+str(c))
           PY
 
-      - name: Upload parsed metadata and recovery diagnostics only
+      - name: Upload recovery diagnostics only
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:

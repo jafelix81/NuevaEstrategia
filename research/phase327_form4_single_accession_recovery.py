@@ -1,16 +1,13 @@
 #!/usr/bin/env python3
-"""Phase 327: single-accession recovery for the sole Phase 326 SEC 404 quarantine.
-
-Reuses the immutable Phase 326 metadata artifact and retries only its one missing
-accession through zero-padded SEC archive CIK paths. No successful filing is
-downloaded again. This is source recovery, not a signal or alpha test.
-"""
+"""Phase 327: recover only the sole unresolved Phase 326 Form 4 accession."""
 from __future__ import annotations
 
 import argparse
+import csv
+import hashlib
 import json
 import time
-import zipfile
+from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -23,14 +20,11 @@ from research.phase320_sec_bulk_daily_index_join import (
     submission_url,
 )
 from research.phase326_form4_collision_security_title_audit import (
-    N_ACCESSIONS,
     classify_symbol,
     load_plan,
-    pair_summary,
     parse_filing_header,
     parse_ownership_xml,
     path_ciks_for,
-    write_csv,
 )
 
 PHASE = 327
@@ -38,9 +32,9 @@ FAILED_ACCESSION = "0000939057-26-000239"
 PRIOR_PHASE326_RUN_ID = 43209373482
 PRIOR_PHASE326_ARTIFACT_ID = 13939999128
 PRIOR_PHASE326_ARTIFACT_SHA256 = "eea7eaf97b91acfdbdac866f8d98660ec98be03adc8c4038b800f74cf86d81d5"
+PRIOR_MANIFEST_SHA256 = "27da1916a60c5d725b9d16e01eeb6d8f307ab0d9cf8ca99eccd2dd22f48e2b6e"
 PHASE321_SHA256 = "e45cab68d1ebe15248cc76bad70b015c8f0bd2052689c0690478bbca4526965c"
 PHASE325_SHA256 = "6d7930230a60036931857520df07b28087720d54ae9d3bee8f4b1cfe2fbcefa3"
-EXPECTED_PRIOR_RETRIEVED = 282
 
 
 def padded_submission_urls_for(accession: str, path_cik: str):
@@ -64,67 +58,59 @@ def padded_submission_urls_for(accession: str, path_cik: str):
     ]
 
 
-def load_prior_result(path: Path):
+def load_prior_manifest(path: Path):
     raw = path.read_bytes()
-    digest = sha256_bytes(raw)
-    if digest != PRIOR_PHASE326_ARTIFACT_SHA256:
-        raise ValueError(f"phase326_prior_artifact_sha256_mismatch:{digest}")
-    with zipfile.ZipFile(path) as zf:
-        matches = [n for n in zf.namelist() if n.endswith("phase326_result.json")]
-        if len(matches) != 1:
-            raise ValueError(f"phase326_result_member_count:{len(matches)}")
-        result = json.loads(zf.read(matches[0]))
-    if result.get("phase") != 326:
-        raise ValueError("prior_result_phase_mismatch")
-    source = result.get("source", {})
-    if source.get("phase321_artifact_sha256") != PHASE321_SHA256:
-        raise ValueError("prior_phase321_source_hash_mismatch")
-    if source.get("phase325_artifact_sha256") != PHASE325_SHA256:
-        raise ValueError("prior_phase325_source_hash_mismatch")
-    filings = result.get("filings", [])
-    accessions = [normalize_accession(x.get("accession")) for x in filings]
-    if len(filings) != N_ACCESSIONS or len(set(accessions)) != N_ACCESSIONS:
-        raise ValueError("prior_phase326_population_or_duplicate_mismatch")
-    failed = [normalize_accession(x.get("accession")) for x in filings
-              if x.get("retrieval_status") != "RETRIEVED"]
-    retrieved = [x for x in filings if x.get("retrieval_status") == "RETRIEVED"]
-    if len(retrieved) != EXPECTED_PRIOR_RETRIEVED or failed != [FAILED_ACCESSION]:
-        raise ValueError(f"prior_phase326_quarantine_shape_mismatch:{len(retrieved)}:{failed}")
-    if any(not x.get("header_identity_match") for x in retrieved):
-        raise ValueError("prior_phase326_header_identity_not_complete")
-    if any(x.get("xml_status") != "PARSED" or not x.get("xml_issuer_cik_match")
-           or not x.get("xml_owner_ciks_match") or not x.get("xml_issuer_symbol_match")
-           for x in retrieved):
-        raise ValueError("prior_phase326_retrieved_xml_identity_not_complete")
-    return result, digest
+    digest = hashlib.sha256(raw).hexdigest()
+    if digest != PRIOR_MANIFEST_SHA256:
+        raise ValueError(f"prior_manifest_sha256_mismatch:{digest}")
+    manifest = json.loads(raw)
+    if manifest.get("phase") != 326:
+        raise ValueError("prior_manifest_phase_mismatch")
+    if manifest.get("phase321_artifact_sha256") != PHASE321_SHA256:
+        raise ValueError("prior_manifest_phase321_hash_mismatch")
+    if manifest.get("phase325_artifact_sha256") != PHASE325_SHA256:
+        raise ValueError("prior_manifest_phase325_hash_mismatch")
+    if manifest.get("artifact_sha256") != PRIOR_PHASE326_ARTIFACT_SHA256:
+        raise ValueError("prior_manifest_phase326_artifact_hash_mismatch")
+    if manifest.get("selected_accessions") != 283 or manifest.get("retrieved") != 282:
+        raise ValueError("prior_manifest_population_mismatch")
+    if manifest.get("retrieval_failures") != 1:
+        raise ValueError("prior_manifest_failure_count_mismatch")
+    if manifest.get("unresolved_accessions") != [FAILED_ACCESSION]:
+        raise ValueError("prior_manifest_unresolved_set_mismatch")
+    for key in ("header_identity_matches", "xml_parsed", "xml_issuer_cik_matches",
+                "xml_symbol_matches", "xml_owner_ciks_matches"):
+        if manifest.get(key) != 282:
+            raise ValueError(f"prior_manifest_validated_count_mismatch:{key}")
+    return manifest, digest
 
 
-def recover_one(row, email):
+def retrieve_zero_padded_only(row, email):
     if not email or "@" not in email:
         raise ValueError("SEC_CONTACT_EMAIL_secret_required")
     accession = normalize_accession(row.get("accession"))
     if accession != FAILED_ACCESSION:
         raise ValueError("unexpected_recovery_accession")
     issuer_cik = normalize_cik(row.get("issuer_cik"))
-    owners = list(row.get("reporting_owner_ciks") or [])
+    owners = [normalize_cik(x) for x in row.get("reporting_owner_ciks", [])]
+    owners = [x for x in owners if x]
     path_ciks = path_ciks_for(accession, issuer_cik, owners)
+    expected_entities = {issuer_cik, *owners}
+    expected_symbol = classify_symbol(row.get("ticker_as_filed"))
     ua = f"NuevaEstrategia Smart Money Research (contact: {email})"
     total_bytes = [0]
     attempts = []
-    expected_entities = {issuer_cik, *[normalize_cik(x) for x in owners if normalize_cik(x)]}
 
     for path_cik in path_ciks:
         for route, url in padded_submission_urls_for(accession, path_cik):
             try:
                 raw, headers = _fetch_bytes(url, ua, total_bytes)
             except Exception as exc:
+                error = f"{type(exc).__name__}:{str(exc)[:160]}"
                 attempts.append({
                     "path_cik": path_cik, "route": route, "url": url,
-                    "http_status": "", "result": "ERROR",
-                    "error": f"{type(exc).__name__}:{str(exc)[:160]}",
+                    "http_status": "", "result": "ERROR", "error": error,
                 })
-                # _fetch_bytes sleeps after successful responses and on retryable
-                # errors. Apply the same minimum spacing to terminal 404s.
                 time.sleep(MIN_REQUEST_DELAY_SECONDS)
                 continue
 
@@ -139,14 +125,23 @@ def recover_one(row, email):
                 attempts.append({
                     "path_cik": path_cik, "route": route, "url": url,
                     "http_status": headers.get("http_status", ""),
-                    "result": "HEADER_IDENTITY_MISMATCH",
-                    "error": "",
+                    "result": "HEADER_IDENTITY_MISMATCH", "error": "",
                 })
                 continue
 
             x = parse_ownership_xml(raw)
-            expected_symbol = classify_symbol(row.get("ticker_as_filed"))
-            recovered = {
+            issuer_ok = x.get("xml_status") == "PARSED" and x.get("xml_issuer_cik") == issuer_cik
+            owner_ok = bool(owners) and set(owners).issubset(set(x.get("xml_owner_ciks", [])))
+            if not issuer_ok or not owner_ok:
+                attempts.append({
+                    "path_cik": path_cik, "route": route, "url": url,
+                    "http_status": headers.get("http_status", ""),
+                    "result": "XML_IDENTITY_MISMATCH",
+                    "error": f"issuer_ok={issuer_ok};owner_ok={owner_ok}",
+                })
+                continue
+
+            record = {
                 "accession": accession,
                 "form_type": row["form_type"],
                 "filing_date": row["filing_date"],
@@ -156,7 +151,6 @@ def recover_one(row, email):
                 "ticker_as_filed": row.get("ticker_as_filed", ""),
                 "ticker_candidate": expected_symbol or "",
                 "reporting_owner_ciks_bulk": owners,
-                "pair_memberships": [],
                 "fetch_path_cik": path_cik,
                 "fetch_path_route": route,
                 "http_status": headers.get("http_status", ""),
@@ -167,67 +161,90 @@ def recover_one(row, email):
                 "acceptance_datetime": h.get("acceptance_datetime_et"),
                 "header_identity_match": True,
                 **x,
-                "xml_issuer_cik_match": x["xml_issuer_cik"] == issuer_cik,
-                "xml_issuer_symbol_match": bool(expected_symbol) and x["xml_issuer_symbol"] == expected_symbol,
-                "xml_owner_ciks_match": bool(owners) and set(owners).issubset(set(x["xml_owner_ciks"])),
+                "xml_issuer_cik_match": issuer_ok,
+                "xml_issuer_symbol_match": bool(expected_symbol) and x.get("xml_issuer_symbol") == expected_symbol,
+                "xml_owner_ciks_match": owner_ok,
                 "retrieval_status": "RETRIEVED",
-                "prior_path_errors": row.get("prior_path_errors", []),
-                "recovery_errors": [],
                 "recovery_route_attempts": attempts,
             }
             attempts.append({
                 "path_cik": path_cik, "route": route, "url": url,
                 "http_status": headers.get("http_status", ""),
-                "result": "RETRIEVED_AND_HEADER_VALIDATED", "error": "",
+                "result": "RETRIEVED_AND_XML_IDENTITY_VALIDATED", "error": "",
             })
-            return recovered, attempts, total_bytes[0]
+            record["recovery_route_attempts"] = attempts
+            return record, attempts, total_bytes[0]
 
-    quarantined = dict(row)
-    quarantined["recovery_errors"] = attempts
-    quarantined["recovery_route_attempts"] = attempts
-    quarantined["recovery_failure_reason"] = "ALL_ZERO_PADDED_SEC_ARCHIVE_LAYOUTS_UNAVAILABLE_OR_INVALID"
-    return quarantined, attempts, total_bytes[0]
+    return None, attempts, total_bytes[0]
 
 
-def run(plan, prior, prior_digest, outdir: Path, email: str):
-    expected = set(plan["selected"])
-    prior_by_accession = {normalize_accession(x["accession"]): dict(x) for x in prior["filings"]}
-    if set(prior_by_accession) != expected:
-        raise ValueError("prior_phase326_accession_set_differs_from_immutable_plan")
-    missing = [a for a, row in prior_by_accession.items() if row.get("retrieval_status") != "RETRIEVED"]
-    if missing != [FAILED_ACCESSION]:
-        raise ValueError(f"unexpected_missing_accessions:{missing}")
+def write_csv(path: Path, rows):
+    rows = list(rows)
+    if not rows:
+        path.write_text("", encoding="utf-8")
+        return
+    fields = sorted({k for row in rows for k in row})
+    with path.open("w", newline="", encoding="utf-8-sig") as f:
+        writer = csv.DictWriter(f, fieldnames=fields)
+        writer.writeheader()
+        for row in rows:
+            writer.writerow({
+                k: json.dumps(row.get(k), ensure_ascii=False, sort_keys=True)
+                if isinstance(row.get(k), (dict, list)) else row.get(k, "")
+                for k in fields
+            })
 
-    selected = dict(plan["selected"][FAILED_ACCESSION])
-    selected["accession"] = FAILED_ACCESSION
-    selected["reporting_owner_ciks"] = list(selected.get("reporting_owner_ciks") or [])
-    recovered, attempts, bytes_downloaded = recover_one(selected, email)
-    prior_by_accession[FAILED_ACCESSION] = recovered
-    filings = [prior_by_accession[a] for a in sorted(prior_by_accession)]
-    pairs = pair_summary(plan["pairs"], filings)
-    got = [x for x in filings if x.get("retrieval_status") == "RETRIEVED"]
-    unresolved = [x["accession"] for x in filings if x.get("retrieval_status") != "RETRIEVED"]
-    summary = dict(prior["summary"])
-    summary.update({
-        "prior_retrieved": EXPECTED_PRIOR_RETRIEVED,
+
+def run(plan, manifest, manifest_digest, outdir: Path, email: str):
+    row = plan["selected"].get(FAILED_ACCESSION)
+    if not row:
+        raise ValueError("quarantined_accession_not_in_immutable_plan")
+    if normalize_cik(row.get("issuer_cik")) != "1041368":
+        raise ValueError("quarantined_issuer_cik_changed")
+    if list(row.get("reporting_owner_ciks") or []) != ["1972440"]:
+        raise ValueError("quarantined_owner_cik_changed")
+    if row.get("ticker_as_filed") != "TSBK" or row.get("filing_date") != "2026-09-25":
+        raise ValueError("quarantined_bulk_identity_changed")
+
+    recovered, attempts, bytes_downloaded = retrieve_zero_padded_only(row, email)
+    unresolved = [] if recovered else [FAILED_ACCESSION]
+    prior_relations = Counter(manifest["pair_title_relations"])
+    relation_after = dict(prior_relations)
+    relation = None
+    if recovered:
+        titles_a = set(recovered.get("non_derivative_titles", [])) | set(recovered.get("derivative_titles", []))
+        titles_b = set(manifest["tsbk_pair"]["side_b_titles"])
+        relation = (
+            "OVERLAPPING_LABELS_NOT_SECURITY_IDENTITY"
+            if titles_a.intersection(titles_b)
+            else "DISJOINT_LABELS_NOT_SHARE_CLASS_PROOF"
+        )
+        relation_after["INCOMPLETE_RETRIEVAL"] = max(0, relation_after.get("INCOMPLETE_RETRIEVAL", 0) - 1)
+        relation_after[relation] = relation_after.get(relation, 0) + 1
+    summary = {
+        "prior_selected_accessions": manifest["selected_accessions"],
+        "prior_retrieved": manifest["retrieved"],
         "retried_accessions": 1,
         "padded_route_attempts": len(attempts),
         "recovery_sec_bytes_downloaded": bytes_downloaded,
-        "retrieved": len(got),
-        "retrieval_failures": len(unresolved),
-        "header_identity_matches": sum(bool(x.get("header_identity_match")) for x in got),
-        "xml_parsed": sum(x.get("xml_status") == "PARSED" for x in got),
-        "xml_issuer_cik_matches": sum(bool(x.get("xml_issuer_cik_match")) for x in got),
-        "xml_symbol_matches": sum(bool(x.get("xml_issuer_symbol_match")) for x in got),
-        "xml_owner_ciks_matches": sum(bool(x.get("xml_owner_ciks_match")) for x in got),
-        "pair_title_relations": dict(sorted(
-            __import__("collections").Counter(x["title_relation"] for x in pairs).items()
-        )),
-        "recovered_accessions": [FAILED_ACCESSION] if not unresolved else [],
-        "unresolved_accessions": unresolved,
-    })
-    controls = dict(prior.get("controls", {}))
-    controls.update({
+        "final_retrieved": manifest["retrieved"] + (1 if recovered else 0),
+        "final_unresolved_accessions": unresolved,
+        "final_header_identity_matches": manifest["header_identity_matches"] + (1 if recovered else 0),
+        "final_xml_parsed": manifest["xml_parsed"] + (1 if recovered else 0),
+        "final_xml_issuer_cik_matches": manifest["xml_issuer_cik_matches"] + (1 if recovered else 0),
+        "final_xml_owner_ciks_matches": manifest["xml_owner_ciks_matches"] + (1 if recovered else 0),
+        "final_xml_symbol_matches": manifest["xml_symbol_matches"] + (
+            1 if recovered and recovered.get("xml_issuer_symbol_match") else 0
+        ),
+        "final_pair_title_relations": dict(sorted(relation_after.items())),
+        "recovered_pair_title_relation": relation,
+        "recovered_accession": FAILED_ACCESSION if recovered else None,
+        "prior_phase326_transaction_code_presence_by_filing": manifest["transaction_code_presence_by_filing"],
+        "prior_phase326_non_derivative_transaction_rows": manifest["non_derivative_transactions"],
+        "prior_phase326_derivative_transaction_rows": manifest["derivative_transactions"],
+        "prior_phase326_distinct_title_labels": manifest["distinct_title_labels"],
+    }
+    controls = {
         "f80_frozen": True,
         "strict_pit_admitted": False,
         "alpha_test_authorized": False,
@@ -243,25 +260,27 @@ def run(plan, prior, prior_digest, outdir: Path, email: str):
         "vendor_contacted": False,
         "data_purchased": False,
         "email_sent": False,
-        "only_one_previously_failed_accession_retried": True,
-    })
+        "only_previously_failed_accession_retried": True,
+        "previously_validated_filings_refetched": False,
+    }
     result = {
         "phase": PHASE,
-        "status": "COMPLETED_SOURCE_RECOVERY" if not unresolved else "COMPLETED_WITH_ONE_QUARANTINED_ACCESSION",
+        "status": "RECOVERED_ONE_ACCESSION" if recovered else "COMPLETED_WITH_ONE_QUARANTINED_ACCESSION",
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "source": {
             "phase321_artifact_sha256": PHASE321_SHA256,
             "phase325_artifact_sha256": PHASE325_SHA256,
             "phase326_run_id": PRIOR_PHASE326_RUN_ID,
             "phase326_artifact_id": PRIOR_PHASE326_ARTIFACT_ID,
-            "phase326_artifact_sha256": prior_digest,
+            "phase326_artifact_sha256": PRIOR_PHASE326_ARTIFACT_SHA256,
+            "phase326_prior_manifest_sha256": manifest_digest,
         },
+        "prior_manifest": manifest,
         "summary": summary,
-        "interpretation": dict(prior.get("interpretation", {})),
         "controls": controls,
-        "filings": filings,
-        "pairs": pairs,
+        "recovered_record": recovered,
         "recovery_attempts": attempts,
+        "unresolved_accessions": unresolved,
     }
     outdir.mkdir(parents=True, exist_ok=True)
     (outdir / "phase327_recovery_result.json").write_text(
@@ -269,8 +288,9 @@ def run(plan, prior, prior_digest, outdir: Path, email: str):
     )
     write_csv(outdir / "phase327_recovery_attempts.csv", attempts)
     write_csv(outdir / "phase327_unresolved_accession.csv",
-              [x for x in filings if x.get("retrieval_status") != "RETRIEVED"])
-    write_csv(outdir / "phase327_pair_summary.csv", pairs)
+              [{"accession": FAILED_ACCESSION, "reason": "NO_VALID_ZERO_PADDED_SEC_SUBMISSION_FOUND"}]
+              if unresolved else [])
+    write_csv(outdir / "phase327_recovered_record.csv", [recovered] if recovered else [])
     print("PHASE327_STATUS=" + result["status"])
     print("PHASE327_SUMMARY=" + json.dumps(summary, sort_keys=True))
     print("PHASE327_UNRESOLVED=" + json.dumps(unresolved))
@@ -281,13 +301,13 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--phase321-zip", type=Path, required=True)
     p.add_argument("--phase325-zip", type=Path, required=True)
-    p.add_argument("--phase326-zip", type=Path, required=True)
+    p.add_argument("--prior-manifest", type=Path, required=True)
     p.add_argument("--output-dir", type=Path, required=True)
     p.add_argument("--email", default="")
     a = p.parse_args()
     plan = load_plan(a.phase321_zip, a.phase325_zip)
-    prior, digest = load_prior_result(a.phase326_zip)
-    run(plan, prior, digest, a.output_dir, a.email)
+    manifest, digest = load_prior_manifest(a.prior_manifest)
+    run(plan, manifest, digest, a.output_dir, a.email)
 
 
 if __name__ == "__main__":

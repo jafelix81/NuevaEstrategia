@@ -1,0 +1,68 @@
+{
+  "alpha_test_authorized": false,
+  "artifact_id": 13939999128,
+  "artifact_sha256": "eea7eaf97b91acfdbdac866f8d98660ec98be03adc8c4038b800f74cf86d81d5",
+  "derivative_transactions": 186,
+  "distinct_title_labels": 45,
+  "f80_frozen": true,
+  "header_identity_matches": 282,
+  "non_derivative_transactions": 268,
+  "pair_title_relations": {
+    "DISJOINT_LABELS_NOT_SHARE_CLASS_PROOF": 7,
+    "INCOMPLETE_RETRIEVAL": 1,
+    "OVERLAPPING_LABELS_NOT_SECURITY_IDENTITY": 20
+  },
+  "phase": 326,
+  "phase321_artifact_sha256": "e45cab68d1ebe15248cc76bad70b015c8f0bd2052689c0690478bbca4526965c",
+  "phase325_artifact_sha256": "6d7930230a60036931857520df07b28087720d54ae9d3bee8f4b1cfe2fbcefa3",
+  "prior_unpadded_attempts": [
+    "939057:flat:http_404",
+    "939057:accession_directory:http_404",
+    "1041368:flat:http_404",
+    "1041368:accession_directory:http_404",
+    "1972440:flat:http_404",
+    "1972440:accession_directory:http_404"
+  ],
+  "retrieval_failures": 1,
+  "retrieved": 282,
+  "run_id": 43209373482,
+  "sec_bytes_downloaded": 2205746,
+  "selected_accessions": 283,
+  "selected_forms": {
+    "4": 280,
+    "4/A": 3
+  },
+  "selected_issuer_ciks": 56,
+  "strict_pit_admitted": false,
+  "transaction_code_presence_by_filing": {
+    "A": 156,
+    "D": 14,
+    "F": 35,
+    "G": 4,
+    "J": 39,
+    "M": 20,
+    "P": 6,
+    "S": 20,
+    "X": 3
+  },
+  "tsbk_pair": {
+    "issuer_cik_a": "1041368",
+    "issuer_cik_b": "1046050",
+    "issuer_name_a": "RIVERVIEW BANCORP INC",
+    "issuer_name_b": "TIMBERLAND BANCORP INC",
+    "pair_id": "P27_TSBK_1041368_1046050",
+    "side_b_titles": [
+      "Common Stock, $.01 par value",
+      "Common Stock, $0.01 per value"
+    ],
+    "ticker_candidate": "TSBK",
+    "unresolved_accession_a": "0000939057-26-000239"
+  },
+  "unresolved_accessions": [
+    "0000939057-26-000239"
+  ],
+  "xml_issuer_cik_matches": 282,
+  "xml_owner_ciks_matches": 282,
+  "xml_parsed": 282,
+  "xml_symbol_matches": 282
+}
