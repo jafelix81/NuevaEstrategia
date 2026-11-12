@@ -1,0 +1,67 @@
+name: Phase 343 Form 4 candidate-specific event-time identity crosswalk
+
+on:
+  push:
+    branches:
+      - phase343-form4-candidate-specific-event-time-crosswalk
+    paths:
+      - "research/phase343_form4_candidate_specific_event_time_crosswalk.py"
+      - "research/test_phase343_form4_candidate_specific_event_time_crosswalk.py"
+      - ".github/workflows/phase343_form4_candidate_specific_event_time_crosswalk.yml"
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: phase343-form4-candidate-specific-event-time-crosswalk
+  cancel-in-progress: false
+
+jobs:
+  candidate-crosswalk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SEC_CONTACT_EMAIL: ${{ secrets.SEC_CONTACT_EMAIL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Compile and run offline regressions
+        run: |
+          python -m py_compile research/phase343_form4_candidate_specific_event_time_crosswalk.py research/test_phase343_form4_candidate_specific_event_time_crosswalk.py
+          python -m unittest -v research.test_phase343_form4_candidate_specific_event_time_crosswalk
+      - name: Download immutable Phase 342 and Phase 341 reference artifacts
+        run: |
+          set -euo pipefail
+          if [ -z "$GH_TOKEN" ]; then echo "GH_TOKEN is required"; exit 1; fi
+          mkdir -p phase343_input phase343_output
+          curl --retry 5 --retry-all-errors --retry-delay 2 -fsSL \
+            -H "Accept: application/vnd.github+json" -H "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13965917386/zip" \
+            -o phase343_input/phase342_reference_artifact.zip
+          curl --retry 5 --retry-all-errors --retry-delay 2 -fsSL \
+            -H "Accept: application/vnd.github+json" -H "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13963219558/zip" \
+            -o phase343_input/phase341_reference_artifact.zip
+      - name: Reconcile original Form 4 XML and prior periodic XBRL for candidate cohort
+        run: |
+          python -m research.phase343_form4_candidate_specific_event_time_crosswalk \
+            --phase342-artifact phase343_input/phase342_reference_artifact.zip \
+            --phase341-artifact phase343_input/phase341_reference_artifact.zip \
+            --output-dir phase343_output \
+            --email "$SEC_CONTACT_EMAIL"
+      - name: Upload immutable raw documents and audit outputs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase343-form4-candidate-specific-crosswalk
+          path: |
+            phase343_input/
+            phase343_output/
+          retention-days: 90
+          if-no-files-found: warn
