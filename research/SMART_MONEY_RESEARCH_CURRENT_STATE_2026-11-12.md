@@ -1,8 +1,49 @@
 # Smart Money Research — current state (2026-11-12 UTC)
 
-**Active research branch:** `phase313-nport-sgml-header-identity-correction`  
-**Latest completed research:** Phase 313 N-PORT SGML header identity correction.  
-**Open PR:** [#17 — Phase 313](https://github.com/jafelix81/NuevaEstrategia/pull/17), based on Phase 312. PRs #13–#16 also remain open and unmerged; 14 PRs are currently open in total.
+**Active research branch:** \`phase315-nport-position-identifier-attribute-audit\`  
+**Latest completed research:** Phase 315 N-PORT identifier-attribute reconciliation.  
+**Open PRs:** 14; PR [#17 — Phase 313](https://github.com/jafelix81/NuevaEstrategia/pull/17) remains open against Phase 312. PRs #13–#16 and the older research PRs remain open/unmerged. Phase 315 is a separate research branch and has no PR. No PR was merged.
+
+## Latest verified research — Phase 315
+
+- GitHub Actions [run 43163123951](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43163123951) passed **12/12** offline regressions (8 Phase 314 + 4 Phase 315). [Artifact 13919006564](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43163123951/artifacts/13919006564), SHA-256 \`2073ea5b39578e0a5fec7b838561db7f5fb917f2c45a1ef9bbaf18d1529bd1b6\`.
+- Phase 314's N-PORT parser incorrectly read \`<isin>\` and \`<ticker>\` as element text. Actual SEC N-PORT XML encodes these in \`value\` attributes. The parser now reads the attribute first, with text fallback; the regression fixture now uses the actual SEC schema. The Phase 314 CUSIP-based parent and position comparisons were unaffected, but the omitted identifiers would have blocked later security mapping.
+- The corrected parser reconciled against the Phase 312 reference parser on **27/27** documents. All 25 candidate raw hashes verified. All 20 2022 original rows, 20 amendment rows and 27 2023 same-series rows have CUSIP, ISIN and ticker present; all CUSIP and ISIN check digits pass.
+- The complete 2022 Q3 NPORT-P cohort for registrant CIK 0000811030 contains 25 filings; one filing has 20 sign-concordant common-equity short rows. This is one registrant/one quarter, not a representative market prevalence estimate.
+- The 2022 original and amendment have exactly the same 20 short rows. The 2022 amendment versus the 2023 same-series snapshot has 23 added, 4 modified, 16 removed and 0 unchanged rows. Those are delayed snapshot differences, not trades or trade dates.
+- Absolute reported short value is $49.203M (25.6799 reported NAV percentage points) in the 2022 snapshot and $46.452M (32.8880 points) in the 2023 snapshot. Descriptive only; no predictive inference.
+- Report: [Phase 315](https://github.com/jafelix81/NuevaEstrategia/blob/phase315-nport-position-identifier-attribute-audit/research/PHASE315_NPORT_POSITION_IDENTIFIER_ATTRIBUTE_RECONCILIATION_2026-11-12.md). Phase 314 parent audit: [report](https://github.com/jafelix81/NuevaEstrategia/blob/phase315-nport-position-identifier-attribute-audit/research/PHASE314_NPORT_OTTER_CREEK_AMENDMENT_PARENT_AUDIT_2026-11-12.md).
+- Five preliminary Phase 315 workflow attempts failed only in workflow setup (artifact-token expression, dependency and import path); they produced no accepted research artifact and made no SEC requests. Final run 43163123951 passed. No data were purchased or vendor contacted.
+
+## Latest SEC Form 4 prospective capture
+
+- The latest verified capture is [Phase 308 run 43152333818](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43152333818), [artifact 13914172674](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43152333818/artifacts/13914172674), SHA-256 \`2731025a14027eb3daba06b591bb7cd6bb682a4ebd15a9a9ad0699830d43fe30\`.
+- The ledger contains **7 complete captures** and 1,040 unique accessions (1,022 Form 4 and 18 Form 4/A; 2,111 and 36 entity rows respectively). The seventh capture completed 2026-11-12 04:04:58.728653 UTC after a 24.985-minute interval; 30/30 requests succeeded, with zero new or missing accessions, zero changed entity rows, zero fingerprint conflicts and zero structural errors.
+- The first 1,040 accessions remain left-censored: no real new accession has yet exercised the event-level first-observation interval. The seven unchanged snapshots do not establish a predictive Form 4 signal.
+
+## Latest GitHub inventory
+
+- The latest 200 workflow runs were inspected; **no queued or in-progress run** remained after Phase 315.
+- 164 branches were returned across two pages; 14 PRs are open. No PR was merged.
+- Phase 315 branch remains unmerged and isolated from production.
+
+## Next research gates
+
+1. Expand N-PORT to a reproducible multi-registrant, multi-quarter sample; keep NPORT-P and NPORT-P/A separate, cluster by registrant/series and avoid treating one-registrant cohorts as prevalence estimates.
+2. Build an effective-dated CUSIP/ISIN-to-security crosswalk, including ticker changes, mergers, delistings and F80-universe coverage. Do not use a current ticker as a historical identity.
+3. Establish first-public availability and amendment-vintage rules before constructing any N-PORT event. Report date and acceptance time are not first-public time.
+4. Continue the SEC Form 4 RSS capture until a new accession is observed and its first-observation interval can be validated against the raw Atom response and EDGAR content.
+5. Keep FINRA, Cboe, CFTC and SEC 13D/G/13F/N-PORT source gates independent. No source is promoted merely because it is the most developed line.
+6. Only after data gates pass, preregister chronological incremental tests against frozen LTM/F80 with identical exposure/costs, label-maturity embargo, issuer/owner/fund-clustered bootstrap, LOO, multiplicity controls and a new untouched holdout.
+
+## Strategy and governance
+
+- \`F80_TOP20_PARTIAL50_BASELINE_C20\` remains frozen.
+- No production, universe, capital, parameter or holdout changes.
+- No N-PORT alpha/return, bootstrap, LOO or OOS test was run. No holdout was used.
+- No data purchase, vendor contact, terms acceptance or email was made.
+- No CAGR target or minimum/maximum holding period is imposed.
+
 
 ## Latest verified research — Phase 313
 
