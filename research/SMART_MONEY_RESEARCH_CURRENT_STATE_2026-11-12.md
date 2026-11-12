@@ -1,5 +1,38 @@
 # Smart Money Research — current state (2026-11-12 UTC)
 
+**Latest completed research:** Phase 333 — direct SEC XBRL TradingSymbol-to-share-class binding demonstrated in a nine-document purposive sample. Phase 332 event-driven identity pilot completed. Neither source is yet admitted as a broad security master or trading signal.
+
+## Latest results — Phases 332–333
+
+- **Phase 332 — SEC event-driven corporate-action identity:** 56 issuer-side observations across 28 purposive ticker-collision pairs; 56/56 SEC submissions responses; 44 prior-periodic anchors; 182 candidate event filings; 178 retrieved. After a conservative post-hoc 365-day anchor-freshness screen, 38 observations are fresh, 6 anchors are stale and 12 have no supported periodic anchor. All 11 latest-symbol-evidence observations are within the 38 fresh anchors: 10 match and 1 mismatch. The 10 match observations represent 8 unique accessions because DLR and PCG are co-filer duplicates. One stale CSAN window was truncated; two 1997 OKE documents had no primary document or XBRL instance. [Report](PHASE332_SEC_EVENT_DRIVEN_CORPORATE_ACTION_IDENTITY_FEASIBILITY_2026-11-12.md) · [Run](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43222287571) · [Artifact](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43222287571/artifacts/13945213682).
+- **Phase 333 — direct symbol/class binding:** 9 unique, hash-pinned pre-event 8-K/8-K/A XBRL documents; 9/9 SHA-256 matches and 9/9 exact symbol-set matches. There are 25 TradingSymbol facts, 20 with explicit class-axis dimensions. Four documents directly bind every symbol fact to a class: FTAI (4 symbols), STR (common/warrant), PCG (10 common/preferred/equity-unit symbols) and DLR (common/Series J/K/L preferred). Five other documents have only issuer-level symbol facts without a class axis. The TSBK candidate is contradicted by an explicit pre-event RVSB fact. [Report](PHASE333_SEC_TRADING_SYMBOL_SHARE_CLASS_BINDING_AUDIT_2026-11-12.md) · [Run](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43223597921) · [Artifact](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43223597921/artifacts/13946542878).
+- **Interpretation:** SEC event-filing XBRL can directly map ticker to share class for some complex issuers, but the nine-document sample is purposive and conditional on TradingSymbol availability. It does not establish universe-wide coverage. A 365-day anchor-freshness screen must be encoded in future event audits rather than applied only post hoc. Same-day filings remain excluded unless acceptance/publication order is independently established.
+
+## Integration and CI
+
+- **PR #19** remains draft/open, Phase 328–331, base `phase327-form4-single-accession-recovery`. It is no longer targeted at `main`; its base advanced by one commit after the Phase 193 CI correction.
+- **PR #20** was merged into Phase 327 as commit `e4b9b973244830d8e7539eb74d97b9e4f440a865`. It corrects the Phase 193 validator so the explicit `RAW_BYTES_RETRIEVED_HEADER_OR_RECONCILIATION_BLOCKED` state is accepted only when all five raw accessions and both XML/submission hashes are complete; the diagnostic artifact is then uploaded. Runs [43221244991](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43221244991) and [43221246107](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43221246107) passed. The research gate remains blocked because series identity is incomplete; no N-PORT signal is admitted.
+- **PR #21** is draft/open, Phase 332, based on Phase 328.
+- **PR #22** is draft/open, Phase 333, based on Phase 332.
+- Phase 311 N-PORT census passed: 355,115 unique accessions, 354,419 data-bearing accessions, zero duplicate accessions; artifact [13945117277](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43220873846/artifacts/13945117277).
+- Phase 312 N-PORT raw stratified sample core reconciliation passed; artifact [13945708228](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43220873797/artifacts/13945708228).
+- Phase 204 SEC MIDAS methodology-aware reconciliation passed. Phase 157's initial failure was a transient GitHub artifact-server error downloading an 82 MB predecessor artifact; the single-job retry passed.
+- Phase 332's first attempt failed only because three offline test fixtures omitted a field required by the result schema; the classifier was hardened and the final two same-head runs passed. Phase 333's 10 offline regressions and live nine-document audit passed.
+
+## Current decision and next work
+
+1. Extend the SEC event-driven identity audit across a stratified sample of the 28 collision pairs and multiple years, with a 365-day fresh-anchor gate, exact accession deduplication and co-filer handling.
+2. Expand direct TradingSymbol/class-axis binding coverage beyond the nine conditional documents; measure denominator coverage before building a security-master graph.
+3. Resolve TSBK/RVSB only if the original Form 4 XML or an independent primary event record becomes available; otherwise keep it quarantined.
+4. Continue independent source feasibility for options, FINRA, CFTC, SEC 13F/N-PORT and market microstructure. Do not promote any source on narrative interpretation alone.
+5. Massive All Tickers Starter may supply historical reference snapshots, but it does not provide full 2003+ price history on that plan; any vendor access or spend requires authorization. CRSP/Databento access is not assumed.
+
+**Controls:** F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No alpha, return, bootstrap/LOO or chronological OOS test was run in Phases 332–333; no holdout was used. No production, universe, capital or parameter changes. No data purchase, vendor contact, account creation or email.
+
+---
+
+# Smart Money Research — current state (2026-11-12 UTC)
+
 **Active research branch:** `phase328-sec-collision-prior-filing-xbrl-pilot`  
 **Review:** [PR #19](https://github.com/jafelix81/NuevaEstrategia/pull/19), reopened as a draft and correctly retargeted to `phase327-form4-single-accession-recovery`; branch is 24 commits ahead, 0 behind, with only the Phase 328–331 audit files plus the Phase 193 CI validator correction in the review diff.  
 **Latest completed research:** Phase 331 — historical security-master source feasibility comparison. No source is admitted; no alpha test was run.

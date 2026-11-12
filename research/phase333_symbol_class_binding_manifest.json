@@ -1,0 +1,161 @@
+{
+  "phase": 333,
+  "source_phase": 332,
+  "source_run_id": 43222287571,
+  "source_artifact_id": 13945213682,
+  "source_artifact_sha256": "c093a63c5c4a12799eb37661fff87f1786768a382d4af4e977e7c97a2d597025",
+  "selection_rule": "One unique accession per latest pre-event TradingSymbol evidence document; co-filer duplicate rows are represented once. Nine accessions: eight candidate matches and one TSBK/RVSB mismatch.",
+  "documents": [
+    {
+      "accession": "0000939057-26-000233",
+      "issuer_cik": "1041368",
+      "filing_date": "2026-09-08",
+      "form": "8-K/A",
+      "primary_document": "rvsb-20260904.htm",
+      "expected_instance_sha256": "5b7656f1d6ef16377b4dae47b51f822357056dd628371f1f144e06d562efd2dc",
+      "candidate_ticker": "TSBK",
+      "expected_symbols": [
+        "RVSB"
+      ],
+      "expected_status": "MISMATCH",
+      "event_date": "2026-09-25",
+      "pair_id": "P27_TSBK_1041368_1046050"
+    },
+    {
+      "accession": "0001005286-23-000015",
+      "issuer_cik": "1005286",
+      "filing_date": "2023-01-10",
+      "form": "8-K",
+      "primary_document": "lndc-20230109.htm",
+      "expected_instance_sha256": "3edb3d40bbecb1a089aa30e892457c7abaa660bfd7eb80b28968f6decf986ebc",
+      "candidate_ticker": "LFCR",
+      "expected_symbols": [
+        "LFCR"
+      ],
+      "expected_status": "MATCH_SINGLE_SYMBOL",
+      "event_date": "2023-01-11",
+      "pair_id": "P11_LFCR_1005286_28626"
+    },
+    {
+      "accession": "0001104659-23-039699",
+      "issuer_cik": "1688852",
+      "filing_date": "2023-03-31",
+      "form": "8-K",
+      "primary_document": "tm2311045d1_8k.htm",
+      "expected_instance_sha256": "7a04efb04253e7ac633427d25f96818bbfd7408af5ad76f9ef2a230217fe4007",
+      "candidate_ticker": "SAFE",
+      "expected_symbols": [
+        "SAFE"
+      ],
+      "expected_status": "MATCH_SINGLE_SYMBOL",
+      "event_date": "2023-04-04",
+      "pair_id": "P24_SAFE_1095651_1688852"
+    },
+    {
+      "accession": "0001140361-22-042854",
+      "issuer_cik": "1590364",
+      "filing_date": "2022-11-23",
+      "form": "8-K",
+      "primary_document": "brhc10044610_8k.htm",
+      "expected_instance_sha256": "ab58a4fb4846700f70b3bcc130ff70f892926453f3cdb867805570b121eaf974",
+      "candidate_ticker": "FTAI",
+      "expected_symbols": [
+        "FTAI",
+        "FTAIN",
+        "FTAIO",
+        "FTAIP"
+      ],
+      "expected_status": "MATCH_AMONG_MULTIPLE_SYMBOLS",
+      "event_date": "2023-01-05",
+      "pair_id": "P08_FTAI_1590364_1942420"
+    },
+    {
+      "accession": "0001193125-22-314836",
+      "issuer_cik": "1703785",
+      "filing_date": "2022-12-29",
+      "form": "8-K",
+      "primary_document": "d384928d8k.htm",
+      "expected_instance_sha256": "d6e67929840ac40dbc6b96889fa358d700723714d7813ceecaf6bdc874bc4569",
+      "candidate_ticker": "STR",
+      "expected_symbols": [
+        "STR",
+        "STRWS"
+      ],
+      "expected_status": "MATCH_AMONG_MULTIPLE_SYMBOLS",
+      "event_date": "2023-01-03",
+      "pair_id": "P25_STR_1703785_1949543"
+    },
+    {
+      "accession": "0001193125-23-003548",
+      "issuer_cik": "1004980",
+      "filing_date": "2023-01-06",
+      "form": "8-K",
+      "primary_document": "d440659d8k.htm",
+      "expected_instance_sha256": "5e34dcd68efb31865b6d4de3e637ac5ecd2232529e50585539d295ad3e3125a7",
+      "candidate_ticker": "PCG",
+      "expected_symbols": [
+        "PCG",
+        "PCG-PA",
+        "PCG-PB",
+        "PCG-PC",
+        "PCG-PD",
+        "PCG-PE",
+        "PCG-PG",
+        "PCG-PH",
+        "PCG-PI",
+        "PCGU"
+      ],
+      "expected_status": "MATCH_AMONG_MULTIPLE_SYMBOLS",
+      "event_date": "2023-01-11",
+      "pair_id": "P18_PCG_1004980_75488"
+    },
+    {
+      "accession": "0001193125-26-292577",
+      "issuer_cik": "1297996",
+      "filing_date": "2026-07-01",
+      "form": "8-K",
+      "primary_document": "d332992d8k.htm",
+      "expected_instance_sha256": "e96438a9bf18f1d58756d92068f833281f429f04bf4a7252003533acf8785190",
+      "candidate_ticker": "DLR",
+      "expected_symbols": [
+        "DLR",
+        "DLRPRJ",
+        "DLRPRK",
+        "DLRPRL"
+      ],
+      "expected_status": "MATCH_AMONG_MULTIPLE_SYMBOLS",
+      "event_date": "2026-07-02",
+      "pair_id": "P05_DLR_1297996_1494877"
+    },
+    {
+      "accession": "0001635984-23-000025",
+      "issuer_cik": "1635984",
+      "filing_date": "2023-05-16",
+      "form": "8-K",
+      "primary_document": "nwli-20230516.htm",
+      "expected_instance_sha256": "cb7b6e6b2ec162f562caebdbbcc7ac4cc9336e8d2ec319a7e22ccb9daad8cea5",
+      "candidate_ticker": "NWLI",
+      "expected_symbols": [
+        "NWLI"
+      ],
+      "expected_status": "MATCH_SINGLE_SYMBOL",
+      "event_date": "2023-06-26",
+      "pair_id": "P14_NWLI_1635984_70684"
+    },
+    {
+      "accession": "0001733998-25-000144",
+      "issuer_cik": "1733998",
+      "filing_date": "2025-09-02",
+      "form": "8-K",
+      "primary_document": "nwn-20250829.htm",
+      "expected_instance_sha256": "2913774e11ca2b98a3d8fae1846fbb310d22d06f16cadee0f9649e2b09abbaf0",
+      "candidate_ticker": "NWN",
+      "expected_symbols": [
+        "NWN"
+      ],
+      "expected_status": "MATCH_SINGLE_SYMBOL",
+      "event_date": "2025-09-04",
+      "pair_id": "P15_NWN_17_1733998"
+    }
+  ]
+}
