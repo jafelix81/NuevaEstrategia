@@ -8,11 +8,11 @@ on:
       - ".github/workflows/phase328_sec_collision_prior_filing_xbrl_pilot.yml"
       - "research/phase328_sec_collision_prior_filing_xbrl_pilot.py"
       - "research/test_phase328_sec_collision_prior_filing_xbrl_pilot.py"
+      - "research/phase328_collision_pair_manifest.csv"
   workflow_dispatch:
 
 permissions:
   contents: read
-  actions: read
 
 concurrency:
   group: phase328-sec-collision-prior-filing-xbrl-pilot
@@ -24,7 +24,6 @@ jobs:
     timeout-minutes: 45
     env:
       SEC_CONTACT_EMAIL: \${{ secrets.SEC_CONTACT_EMAIL }}
-      GH_TOKEN: \${{ github.token }}
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -39,17 +38,14 @@ jobs:
           python -m compileall -q research/phase328_sec_collision_prior_filing_xbrl_pilot.py research/test_phase328_sec_collision_prior_filing_xbrl_pilot.py
           python -m unittest -v research.test_phase328_sec_collision_prior_filing_xbrl_pilot
 
-      - name: Download and verify successful immutable Phase 325 collision metadata
+      - name: Verify pinned Phase 325 collision manifest
         run: |
-          curl -fsSL -H "Accept: application/vnd.github+json" -H "Authorization: Bearer $GH_TOKEN" \
-            "https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13931894766/zip" \
-            -o phase326_source.zip
-          echo "6d7930230a60036931857520df07b28087720d54ae9d3bee8f4b1cfe2fbcefa3  phase326_source.zip" | sha256sum --check
+          echo "c9fb97c2572da04760188a47fac6d9d983f406f16f2797b656525bfeb10ecd2d  research/phase328_collision_pair_manifest.csv" | sha256sum --check
 
       - name: Retrieve latest prior SEC periodic filings and parse identity facts
         run: |
           python -m research.phase328_sec_collision_prior_filing_xbrl_pilot \
-            --input-zip phase326_source.zip \
+            --input-csv research/phase328_collision_pair_manifest.csv \
             --output-dir phase328_output \
             --email "$SEC_CONTACT_EMAIL"
 
