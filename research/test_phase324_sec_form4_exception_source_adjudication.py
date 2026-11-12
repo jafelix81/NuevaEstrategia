@@ -80,6 +80,14 @@ class Phase324ExceptionSourceTests(unittest.TestCase):
         self.assertIn("EXERCISE_OR_CONVERSION_NOT_OPEN_MARKET", buckets)
         self.assertNotIn("OPEN_MARKET_PURCHASE", buckets)
 
+
+    def test_p_code_does_not_overstate_public_market_execution(self):
+        raw = b"<transactionCode>P</transactionCode>"
+        result = extract_xml_identity(raw)
+        buckets = transaction_code_buckets(result["transaction_codes"])
+        self.assertIn("OPEN_MARKET_OR_PRIVATE_PURCHASE", buckets)
+        self.assertNotIn("OPEN_MARKET_PURCHASE", buckets)
+
     def test_validator_keeps_strategy_controls_closed(self):
         result = {
             "phase": 324,
