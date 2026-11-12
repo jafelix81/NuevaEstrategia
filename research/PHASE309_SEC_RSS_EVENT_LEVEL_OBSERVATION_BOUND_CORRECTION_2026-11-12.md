@@ -72,3 +72,16 @@ On the next new accession:
 5. Check for capture gaps and head-page drift.
 
 Only after repeated new-event observations and independent historical knowledge-date checks should this collector be considered for a strict PIT event panel.
+
+
+## Durable-snapshot follow-up — run 43145246814
+
+A final regression and capture run verified that the legacy timestamp migration is persisted even when the ordinary daily repository snapshot has already occurred.
+
+- Hosted run [43145246814](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43145246814) passed **54/54 regressions** (14 Phase 308, 14 Phase 306, 8 Phase 305, 11 Phase 304, 7 Phase 303).
+- Another complete live capture passed **30/30 requests** with 1,022 Form 4 accessions / 2,111 entity rows and 18 Form 4/A accessions / 36 entity rows.
+- No new accessions, entity-row changes, missing accessions, structural errors or row-fingerprint conflicts occurred. The interval from the previous complete-capture end to this capture start was 3.666 minutes.
+- The migration-specific snapshot override set `repo_snapshot_due=true` despite the same-day snapshot already being committed. The five-capture migrated ledger was durably committed as [1431ab323f37382fc9c6480e266db676b8afeee3](https://github.com/jafelix81/NuevaEstrategia/commit/1431ab323f37382fc9c6480e266db676b8afeee3).
+- Artifact [13911053496](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43145246814/artifacts/13911053496), SHA-256 `acbbf03bae44d7d07fff1666896ae8d8e2bed6da5d7310ac8a71f4c9c0f9e597`, confirms the durable ledger has five captures, 1,040 accessions, and all 1,040 legacy placeholders quarantined.
+
+This closes the persistence gap: cache loss can no longer roll the branch's committed ledger back to the pre-migration timestamp placeholders. The first 1,040 accessions remain left-censored; no live newly arriving accession has yet exercised a bounded event interval.
