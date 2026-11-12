@@ -2,10 +2,20 @@ import unittest
 import xml.etree.ElementTree as ET
 from research.phase326_form4_collision_security_title_audit import (
     classify_symbol, normalize_accession, normalize_cik, parse_filing_header,
-    parse_ownership_xml, value_of, load_plan
+    parse_ownership_xml, value_of, load_plan, submission_urls_for
 )
 
 class Phase326Tests(unittest.TestCase):
+    def test_submission_urls_cover_flat_and_accession_directory_layouts(self):
+        urls = submission_urls_for("0000939057-26-000239", "1041368")
+        self.assertEqual(urls[0], (
+            "flat",
+            "https://www.sec.gov/Archives/edgar/data/1041368/0000939057-26-000239.txt"
+        ))
+        self.assertEqual(urls[1], (
+            "accession_directory",
+            "https://www.sec.gov/Archives/edgar/data/1041368/000093905726000239/0000939057-26-000239.txt"
+        ))
     def test_accession_prefix_is_a_retrieval_path_not_issuer_identity(self):
         from research.phase326_form4_collision_security_title_audit import path_ciks_for
         self.assertEqual(path_ciks_for("0000939057-26-000239", "1041368", ["1972440"]), ["939057", "1041368", "1972440"])

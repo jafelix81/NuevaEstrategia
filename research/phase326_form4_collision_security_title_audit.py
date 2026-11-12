@@ -204,40 +204,52 @@ def parse_ownership_xml(raw):
     }
 
 
+def submission_urls_for(accession, path_cik):
+    """Return both SEC archive layouts; validate identity after every fetch."""
+    cik = normalize_cik(path_cik)
+    accession = normalize_accession(accession)
+    flat_url = submission_url(accession, cik)
+    accession_directory_url = (
+        f"{flat_url.rsplit('/', 1)[0]}/{accession.replace('-', '')}/{accession}.txt"
+    )
+    return [("flat", flat_url), ("accession_directory", accession_directory_url)]
+
+
 def retrieve_one(r, user_agent, total_bytes):
     errors = []
     for path_cik in r["path_ciks"]:
-        try:
-            raw, headers = _fetch_bytes(submission_url(r["accession"], path_cik), user_agent, total_bytes)
-        except Exception as exc:
-            errors.append(f"{path_cik}:{type(exc).__name__}:{str(exc)[:100]}")
-            continue
-        h = parse_filing_header(raw)
-        expected_entities = {r["issuer_cik"], *r["reporting_owner_ciks"]}
-        header_ok = (
-            h.get("accession") == r["accession"] and h.get("form_type") == r["form_type"]
-            and h.get("filed_date") == r["filing_date"] and normalize_cik(h.get("cik")) in expected_entities
-        )
-        if not header_ok:
-            errors.append(f"{path_cik}:header_identity_mismatch")
-            continue
-        x = parse_ownership_xml(raw)
-        expected_symbol = classify_symbol(r.get("ticker_as_filed"))
-        return {
-            "accession": r["accession"], "form_type": r["form_type"], "filing_date": r["filing_date"],
-            "quarter": r["quarter"], "issuer_cik": r["issuer_cik"], "issuer_name_bulk": r["issuer_name"],
-            "ticker_as_filed": r["ticker_as_filed"], "ticker_candidate": expected_symbol or "",
-            "reporting_owner_ciks_bulk": r["reporting_owner_ciks"], "pair_memberships": r["pair_memberships"],
-            "fetch_path_cik": path_cik, "http_status": headers.get("http_status", ""),
-            "bytes": len(raw), "submission_sha256": sha256_bytes(raw),
-            "header_cik": normalize_cik(h.get("cik")), "header_filed_date": h.get("filed_date"),
-            "acceptance_datetime": h.get("acceptance_datetime_et"), "header_identity_match": header_ok,
-            **x,
-            "xml_issuer_cik_match": x["xml_issuer_cik"] == r["issuer_cik"],
-            "xml_issuer_symbol_match": bool(expected_symbol) and x["xml_issuer_symbol"] == expected_symbol,
-            "xml_owner_ciks_match": bool(r["reporting_owner_ciks"]) and set(r["reporting_owner_ciks"]).issubset(set(x["xml_owner_ciks"])),
-            "retrieval_status": "RETRIEVED", "prior_path_errors": errors,
-        }
+        for route, url in submission_urls_for(r["accession"], path_cik):
+            try:
+                raw, headers = _fetch_bytes(url, user_agent, total_bytes)
+            except Exception as exc:
+                errors.append(f"{path_cik}:{route}:{type(exc).__name__}:{str(exc)[:100]}")
+                continue
+            h = parse_filing_header(raw)
+            expected_entities = {r["issuer_cik"], *r["reporting_owner_ciks"]}
+            header_ok = (
+                h.get("accession") == r["accession"] and h.get("form_type") == r["form_type"]
+                and h.get("filed_date") == r["filing_date"] and normalize_cik(h.get("cik")) in expected_entities
+            )
+            if not header_ok:
+                errors.append(f"{path_cik}:{route}:header_identity_mismatch")
+                continue
+            x = parse_ownership_xml(raw)
+            expected_symbol = classify_symbol(r.get("ticker_as_filed"))
+            return {
+                "accession": r["accession"], "form_type": r["form_type"], "filing_date": r["filing_date"],
+                "quarter": r["quarter"], "issuer_cik": r["issuer_cik"], "issuer_name_bulk": r["issuer_name"],
+                "ticker_as_filed": r["ticker_as_filed"], "ticker_candidate": expected_symbol or "",
+                "reporting_owner_ciks_bulk": r["reporting_owner_ciks"], "pair_memberships": r["pair_memberships"],
+                "fetch_path_cik": path_cik, "fetch_path_route": route, "http_status": headers.get("http_status", ""),
+                "bytes": len(raw), "submission_sha256": sha256_bytes(raw),
+                "header_cik": normalize_cik(h.get("cik")), "header_filed_date": h.get("filed_date"),
+                "acceptance_datetime": h.get("acceptance_datetime_et"), "header_identity_match": header_ok,
+                **x,
+                "xml_issuer_cik_match": x["xml_issuer_cik"] == r["issuer_cik"],
+                "xml_issuer_symbol_match": bool(expected_symbol) and x["xml_issuer_symbol"] == expected_symbol,
+                "xml_owner_ciks_match": bool(r["reporting_owner_ciks"]) and set(r["reporting_owner_ciks"]).issubset(set(x["xml_owner_ciks"])),
+                "retrieval_status": "RETRIEVED", "prior_path_errors": errors,
+            }
     return {
         "accession": r["accession"], "form_type": r["form_type"], "filing_date": r["filing_date"],
         "quarter": r["quarter"], "issuer_cik": r["issuer_cik"], "issuer_name_bulk": r["issuer_name"],
