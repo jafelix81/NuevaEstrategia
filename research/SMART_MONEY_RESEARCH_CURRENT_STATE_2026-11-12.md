@@ -840,7 +840,7 @@ This offline audit re-read the six raw ZIPs from Phase 294 artifact [13884014630
 
 ## Phase 342 — SEC Insider Transactions six-archive sample and high-precision purchase screen (2026-11-12 UTC)
 
-- Final hosted run [43265704634](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43265704634) SUCCESS; 5/5 offline regressions passed. Artifact [13965917386](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43265704634/artifacts/13965917386), ZIP SHA-256 `16614b404f007b78f47951ef84604660ea6612f0c86f1b2ba5a6fa7b7d52d80c`.
+- Final hosted run [43265704634](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43265704634) SUCCESS; 6/6 offline regressions passed. Artifact [13965917386](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43265704634/artifacts/13965917386), ZIP SHA-256 `16614b404f007b78f47951ef84604660ea6612f0c86f1b2ba5a6fa7b7d52d80c`.
 - Six official SEC archives downloaded and hash-pinned: 2006Q1, 2012Q1, 2023Q1, 2023Q2, 2025Q3 and 2026Q3; 72,767,570 raw ZIP bytes; 6/6 ZIP integrity; all eight documented tables and required fields present; zero child-table orphan rows; zero missing referenced footnotes in screened rows.
 - Phase39 inner archive hashes matched exactly for 2012Q1 and 2026Q3; Phase271 screen reproduced exactly: 2012Q1 = 102 rows / 47 accessions / 16 issuers; 2026Q3 = 85 / 59 / 31.
 - Corrected AFF10B5ONE gate uses actual FILING_DATE >= 2023-04-01. The field is absent in 2006Q1/2012Q1 and present in the updated 2023Q1/Q2, 2025Q3 and 2026Q3 archives. 2023Q1 is pre-effective and the checkbox is not used as a gate.
