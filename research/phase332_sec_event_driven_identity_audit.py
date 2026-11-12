@@ -139,8 +139,8 @@ def classify_latest_symbol_evidence(event_results: list[dict], candidate: str) -
     return {
         "latest_symbol_evidence_status": status,
         "latest_symbol_evidence_date": latest["filing_date"],
-        "latest_symbol_evidence_form": latest["form"],
-        "latest_symbol_evidence_accession": latest["accession"],
+        "latest_symbol_evidence_form": latest.get("form", ""),
+        "latest_symbol_evidence_accession": latest.get("accession", ""),
         "latest_symbol_evidence_symbols": symbols,
     }
 
