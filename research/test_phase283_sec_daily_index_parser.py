@@ -118,23 +118,19 @@ class Phase283DailyIndexTests(unittest.TestCase):
         self.assertEqual(result["records"], [])
         self.assertEqual(result["counts"]["conflicting_duplicate_accessions"], 1)
 
-    def test_same_accession_can_have_issuer_and_reporting_owner_index_rows(self):
+    def test_reporting_owner_cik_does_not_override_issuer_path_cik(self):
         owner_row = (
             "1184085|BEST ROBERT O|4|2026-01-02|"
-            "edgar/data/1184085/000032019326000001.txt"
+            "edgar/data/320193/000032019326000001.txt"
         )
         result = self.parse(FORM4 + "\\n" + owner_row)
-        self.assertEqual(len(result["records"]), 2)
-        self.assertEqual(result["counts"]["multi_entity_accessions"], 1)
-        ledger = build_accession_ledger(result["records"])
-        self.assertEqual(len(ledger["ledger"]), 1)
-        self.assertEqual(ledger["ledger"][0]["index_sightings"], 1)
-        self.assertEqual(ledger["ledger"][0]["index_rows"], 2)
-        self.assertEqual(ledger["ledger"][0]["index_entity_count"], 2)
+        self.assertEqual(len(result["records"]), 1)
+        self.assertEqual(result["counts"]["issuer_cik_path_mismatches"], 1)
         self.assertEqual(
-            {x["cik"] for x in ledger["ledger"][0]["index_entities"]},
-            {"320193", "1184085"},
+            result["quarantine"][0]["reason"],
+            "row_cik_path_cik_mismatch",
         )
+        self.assertEqual(result["counts"]["multi_entity_accessions"], 0)
 
     def test_ledger_keeps_all_sightings_and_uses_earliest_index_date(self):
         first = self.parse(FORM4, "form.20260102.idx")["records"][0]
