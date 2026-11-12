@@ -98,7 +98,7 @@ def parse_daily_form_index(raw: bytes, index_filename: str) -> dict[str, Any]:
         raise ValueError("expected SEC daily form-index header not found")
 
     seen: dict[tuple[str, ...], dict[str, Any]] = {}
-    accession_identity: dict[str, tuple[str, str]] = {}
+    accession_identity: dict[str, tuple[str, str, str, str]] = {}
     conflicts: set[str] = set()
     quarantine: list[dict[str, Any]] = []
     counts = {
@@ -200,7 +200,10 @@ def parse_daily_form_index(raw: bytes, index_filename: str) -> dict[str, Any]:
             "index_date_lag_days": index_lag_days,
             "filename": filing_path,
         }
-        accession_key = (form_type, filing_date.isoformat())
+        # The index row CIK is the filing entity/issuer CIK and has already
+        # been required to match the CIK in the accession path. Do not infer
+        # separate reporting-owner entities from a synthetic row.
+        accession_key = (form_type, filing_date.isoformat(), str(int(cik)), company_name)
         previous_identity = accession_identity.get(accession)
         if previous_identity is not None and previous_identity != accession_key:
             conflicts.add(accession)
@@ -245,14 +248,14 @@ def parse_daily_form_index(raw: bytes, index_filename: str) -> dict[str, Any]:
     }
 
 def build_accession_ledger(records: Iterable[dict[str, Any]]) -> dict[str, Any]:
-    """Collapse daily sightings while preserving issuer/owner index entities."""
+    """Collapse daily sightings while preserving each verified index entity row."""
     grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for record in records:
         grouped[str(record["accession"])].append(record)
 
     ledger: list[dict[str, Any]] = []
     quarantine: list[dict[str, Any]] = []
-    identity_fields = ("form_type", "filing_date")
+    identity_fields = ("form_type", "filing_date", "cik", "company_name")
     for accession in sorted(grouped):
         sightings = grouped[accession]
         identities = {
