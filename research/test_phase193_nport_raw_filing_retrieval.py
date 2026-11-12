@@ -7,6 +7,7 @@ from research.phase193_nport_raw_filing_retrieval import (
     blocked_audit,
     normalize_accession,
     parse_index_listing,
+    parse_filing_index_html,
     parse_nport_xml,
     parse_submission_header,
     submission_header_diagnostic,
@@ -18,7 +19,7 @@ ACCESSION NUMBER: 0001752724-20-163166
 CONFORMED SUBMISSION TYPE: NPORT-P
 CONFORMED PERIOD OF REPORT: 20200731
 FILED AS OF DATE: 20200821
-ACCEPTANCE-DATETIME: 20200821125543
+<ACCEPTANCE-DATETIME>20200821125543
 </SEC-HEADER>
 """
 
@@ -78,7 +79,7 @@ class Phase193Tests(unittest.TestCase):
             parse_submission_header(HEADER, "0001752724-20-163166", "NPORT-P/A")
 
     def test_submission_header_requires_acceptance_datetime(self):
-        bad = HEADER.replace(b"ACCEPTANCE-DATETIME: 20200821125543", b"ACCEPTANCE-DATETIME: unavailable")
+        bad = HEADER.replace(b"<ACCEPTANCE-DATETIME>20200821125543", b"ACCEPTANCE-DATETIME: unavailable")
         with self.assertRaisesRegex(ValueError, "acceptance_datetime_missing_or_invalid"):
             parse_submission_header(bad, "0001752724-20-163166", "NPORT-P")
 
@@ -99,13 +100,25 @@ class Phase193Tests(unittest.TestCase):
 
     def test_index_listing_resolves_exact_primary_and_submission_text(self):
         payload = json.dumps({"directory":{"item":[
-            {"name":"primary_doc.xml","size":"1000","last-modified":"2020-08-21 12:00:00"},
-            {"name":"0001752724-20-163166.txt","size":"2000","last-modified":"2020-08-21 12:00:00"},
-            {"name":"index.htm","size":"500","last-modified":"2020-08-21 12:00:00"}
+            {"name":"primary_doc.xml","size":"1000","last-modified":"2020-08-21 12:55:43"},
+            {"name":"0001752724-20-163166.txt","size":"2000","last-modified":"2020-08-21 12:55:43"},
+            {"name":"0001752724-20-163166-index.html","size":"500","last-modified":"2020-08-21 12:55:43"},
+            {"name":"index.htm","size":"500","last-modified":"2020-08-21 12:55:43"}
         ]}}).encode()
         result = parse_index_listing(payload, "0001752724-20-163166", "primary_doc.xml")
         self.assertEqual(result["submission_text_name"], "0001752724-20-163166.txt")
         self.assertEqual(result["primary_document_name"], "primary_doc.xml")
+        self.assertEqual(result["filing_index_html_name"], "0001752724-20-163166-index.html")
+
+    def test_filing_index_html_extracts_series_class_and_accepted_clock(self):
+        payload = b"""<html><body>
+        Accepted 2025-05-28 16:04:35
+        Series S000074017 Class/Contract C000199461
+        </body></html>"""
+        result = parse_filing_index_html(payload)
+        self.assertEqual(result["series_ids"], ["S000074017"])
+        self.assertEqual(result["class_ids"], ["C000199461"])
+        self.assertEqual(result["accepted_datetime_et"], "2025-05-28T16:04:35")
 
     def test_index_listing_rejects_ambiguous_submission_text(self):
         payload = json.dumps({"directory":{"item":[
