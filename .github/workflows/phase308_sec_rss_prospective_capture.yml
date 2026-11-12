@@ -23,6 +23,13 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           ref: phase308-sec-rss-prospective-capture
+      - name: Restore rolling SEC first-observation ledger
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57
+        with:
+          path: research/data/sec_rss_prospective_ledger.json
+          key: sec-rss-ledger-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: |
+            sec-rss-ledger-${{ runner.os }}-
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: '3.11'
@@ -42,14 +49,19 @@ jobs:
           GITHUB_SHA: ${{ github.sha }}
         run: |
           python -u -m research.phase308_sec_rss_prospective_capture --output phase308_output --ledger research/data/sec_rss_prospective_ledger.json
-      - name: Commit cumulative first-observation ledger
+      - name: Commit compact ledger snapshot once per UTC day
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add research/data/sec_rss_prospective_ledger.json
-          if ! git diff --cached --quiet; then
-            git commit -m "Record SEC RSS prospective capture ${{ github.run_id }}"
-            git push origin HEAD:phase308-sec-rss-prospective-capture
+          DUE=$(python -c "import json; print(str(json.load(open('research/data/sec_rss_prospective_ledger.json')).get('repo_snapshot_due', False)).lower())")
+          if [ "$DUE" = "true" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add research/data/sec_rss_prospective_ledger.json
+            if ! git diff --cached --quiet; then
+              git commit -m "Daily SEC RSS first-observation ledger snapshot"
+              git push origin HEAD:phase308-sec-rss-prospective-capture
+            fi
+          else
+            echo "Daily repository snapshot already committed; rolling cache retains the latest ledger."
           fi
       - name: Upload raw Atom pages, manifest and ledger snapshot
         if: always()
