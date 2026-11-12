@@ -34,3 +34,5 @@ class Phase340Tests(unittest.TestCase):
         self.assertEqual(exact_title_matches("456","Common Stock",m),["XYZ"])
 
 if __name__=="__main__":unittest.main()
+
+# Regression suite for date-only anchor and exact security-title gates.
