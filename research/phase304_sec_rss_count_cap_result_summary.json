@@ -1,0 +1,51 @@
+{
+  "phase": 304,
+  "date": "2026-11-12",
+  "workflow_run_id": 43132595262,
+  "artifact_id": 13905652996,
+  "artifact_sha256": "ae8a81b0d3067348fdcb36063b659cc38a8b9ef6a0987c250866bf5c3e4d2dda",
+  "tests": {
+    "phase304": 11,
+    "phase303": 7,
+    "total": 18
+  },
+  "requests_successful": 8,
+  "requests_failed": 0,
+  "form4": {
+    "rows_by_count": {
+      "100": 100,
+      "200": 100,
+      "500": 100,
+      "1000": 100
+    },
+    "accessions_by_count": {
+      "100": 50,
+      "200": 50,
+      "500": 50,
+      "1000": 50
+    },
+    "nested": true
+  },
+  "form4a": {
+    "rows_by_count": {
+      "100": 36,
+      "200": 36,
+      "500": 36,
+      "1000": 36
+    },
+    "accessions_by_count": {
+      "100": 18,
+      "200": 18,
+      "500": 18,
+      "1000": 18
+    },
+    "nested": true
+  },
+  "structural_errors": 0,
+  "complete_submission_crosschecks": 4,
+  "feed_updated_equals_acceptance": 4,
+  "strict_pit_admitted": false,
+  "alpha_test": false,
+  "holdout_used": false,
+  "f80_frozen": true
+}
