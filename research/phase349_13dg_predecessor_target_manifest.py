@@ -13,14 +13,14 @@ TARGET_STATUS = "explicit_predecessor_outside_600_header_sample"
 
 
 def normalize_accession(value):
-    digits = re.sub(r"\D", "", str(value or ""))
+    digits = "".join(ch for ch in str(value or "") if ch.isdigit())
     if len(digits) != 18:
         return ""
     return f"{digits[:10]}-{digits[10:12]}-{digits[12:]}"
 
 
 def normalize_cik(value):
-    digits = re.sub(r"\D", "", str(value or ""))
+    digits = "".join(ch for ch in str(value or "") if ch.isdigit())
     return digits.zfill(10) if digits and len(digits) <= 10 else digits
 
 
@@ -35,7 +35,7 @@ def parse_json_list(value):
 
 
 def cusip_checksum_valid(value):
-    cusip = re.sub(r"\s+, "", str(value or "")).upper()
+    cusip = "".join(ch for ch in str(value or "") if not ch.isspace()).upper()
     if not re.fullmatch(r"[A-Z0-9*@#]{9}", cusip) or not cusip[-1].isdigit():
         return False
     total = 0
@@ -55,7 +55,7 @@ def cusip_checksum_valid(value):
 
 
 def child_cusip_status(cusips):
-    normalized = sorted(set(re.sub(r"\s+, "", str(x or "")).upper() for x in cusips if str(x or "").strip()))
+    normalized = sorted(set("".join(ch for ch in str(x or "") if not ch.isspace()).upper() for x in cusips if str(x or "").strip()))
     if len(normalized) != 1:
         return "", "MISSING_OR_MULTIPLE"
     cusip = normalized[0]
