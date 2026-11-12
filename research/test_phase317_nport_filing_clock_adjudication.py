@@ -68,7 +68,7 @@ class LagSummaryTests(unittest.TestCase):
         result = lag_summary(rows, "NPORT-P/A")
         self.assertEqual(result["n"], 3)
         self.assertEqual(result["at_least_90_days"], 2)
-        self.assertEqual(result["at_least_180_days"], 1)
+        self.assertEqual(result["at_least_180_days"], 2)
         self.assertEqual(result["at_least_365_days"], 1)
 
 
