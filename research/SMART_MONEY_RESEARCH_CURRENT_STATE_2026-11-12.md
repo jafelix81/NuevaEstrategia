@@ -2,7 +2,7 @@
 
 **Latest completed research:** Phase 346 — legacy SEC Form 4 HTML identity bridge audit (2006Q1 and 2012Q1), following the six-cohort Phase 345 replication.  
 **Active research branch:** `phase346-form4-legacy-html-identity-bridge`.  
-**Latest review:** Phase 346 is proposed in [PR #35](https://github.com/jafelix81/NuevaEstrategia/pull/35), draft/open, based on Phase 345. [PR #34](https://github.com/jafelix81/NuevaEstrategia/pull/34) and [PR #33](https://github.com/jafelix81/NuevaEstrategia/pull/33) remain separately open. No production change.
+**Latest review:** Phase 346 is proposed in [PR #35](https://github.com/jafelix81/NuevaEstrategia/pull/35), draft/open, based on Phase 345. [PR #34](https://github.com/jafelix81/NuevaEstrategia/pull/34) and [PR #33](https://github.com/jafelix81/NuevaEstrategia/pull/33) remain separately open. Older in-progress phase notes below are historical and are superseded by the completed Phase 345/346 results. No production change.
 
 ## Historical baseline — Phases 332–337
 
@@ -75,7 +75,7 @@
 | CFTC TFF/COT | Broad index-futures regime context only; historical release calendar unresolved |
 | SEC MIDAS | Daily security-level aggregates but quarterly archive release timing is not strict PIT; context only |
 
-**Controls:** F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No security master, strict-PIT source admission, broad-universe coverage, alpha/return test, bootstrap/LOO, chronological OOS or holdout use in Phase 343. No production, universe, capital or parameter changes. No vendor contact or data purchase.
+**Controls:** F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. Phase 346 admitted no source, security master, broad-universe coverage or event study. No alpha/return test, bootstrap/LOO, chronological OOS or holdout use. No production, universe, capital or parameter changes. No vendor contact or data purchase.
 
  F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No security master, strict-PIT source admission, broad-universe coverage, alpha/return test, bootstrap/LOO, chronological OOS or holdout use in Phases 334–337. No production, universe, capital or parameter changes. No vendor contact or data purchase.
 
