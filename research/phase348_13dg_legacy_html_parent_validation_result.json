@@ -1,0 +1,17 @@
+{
+  "phase": "348-13dg-legacy-html-explicit-predecessor-validation",
+  "status": "COMPLETE",
+  "target_references": 2,
+  "verified_legacy_html_parents": 2,
+  "failed_parent_validations": 0,
+  "all_parents_legacy_html": true,
+  "all_parent_child_cusips_match": true,
+  "all_parent_acceptances_strictly_earlier": true,
+  "all_subject_ciks_match": true,
+  "explicit_predecessor_refs_outside_600_header_sample_remaining": 44,
+  "immediate_predecessor_inference_performed": false,
+  "new_sec_requests_made": false,
+  "alpha_test_authorized": false,
+  "strict_pit_admitted": false,
+  "f80_frozen": true
+}
