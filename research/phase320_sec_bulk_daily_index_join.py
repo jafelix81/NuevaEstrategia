@@ -227,15 +227,15 @@ def build_quarter_sample(zf: zipfile.ZipFile, quarter: str) -> tuple[list[dict[s
     }
 
 
-def reporting_owner_counts(zf: zipfile.ZipFile, sample_accessions: set[str]) -> Counter:
-    counts: Counter = Counter()
+def reporting_owner_ciks_by_accession(zf: zipfile.ZipFile, sample_accessions: set[str]) -> dict[str, set[str]]:
+    owners: dict[str, set[str]] = defaultdict(set)
     for row in _read_table_rows(zf, "REPORTINGOWNER"):
         accession = normalize_accession(row.get("ACCESSION_NUMBER", ""))
         if accession in sample_accessions:
             owner = normalize_cik(row.get("RPTOWNERCIK", ""))
             if owner:
-                counts[accession] += 1
-    return counts
+                owners[accession].add(owner)
+    return owners
 
 
 def verify_source_archives(artifact_dir: Path) -> tuple[dict[str, zipfile.ZipFile], dict[str, Any]]:
@@ -380,12 +380,23 @@ def index_row_summary(
     }
 
 
-def header_identity_flags(header: dict[str, str], sample: dict[str, str]) -> dict[str, bool]:
+def header_identity_flags(
+    header: dict[str, str],
+    sample: dict[str, str],
+    index_entity_ciks: list[str],
+) -> dict[str, bool]:
+    header_cik = normalize_cik(header.get("cik", ""))
+    issuer_cik = normalize_cik(sample.get("issuer_cik", ""))
+    owner_ciks = {normalize_cik(value) for value in sample.get("reporting_owner_ciks", [])}
+    index_ciks = {normalize_cik(value) for value in index_entity_ciks}
     return {
         "accession_match": header.get("accession") == sample["accession"],
         "form_match": header.get("form_type", "").upper() == sample["form_type"],
-        "issuer_cik_match": normalize_cik(header.get("cik", "")) == normalize_cik(sample["issuer_cik"]),
         "filed_date_match": header.get("filed_date") == sample["filing_date"],
+        "header_cik_in_index_entities": bool(header_cik and header_cik in index_ciks),
+        "issuer_cik_in_index_entities": bool(issuer_cik and issuer_cik in index_ciks),
+        "header_cik_matches_reporting_owner": bool(header_cik and header_cik in owner_ciks),
+        "header_cik_matches_issuer": bool(header_cik and header_cik == issuer_cik),
         "acceptance_datetime_present": bool(re.fullmatch(r"\d{14}", header.get("acceptance_datetime_et", ""))),
     }
 
@@ -442,12 +453,13 @@ def run_audit(artifact_dir: Path, output_dir: Path, email: str) -> dict[str, Any
         raise ValueError("global_sample_accession_count_or_uniqueness_failure")
 
     sample_accessions = {row["accession"] for row in sample}
-    owner_counts: Counter = Counter()
+    owner_ciks_by_acc: dict[str, set[str]] = {}
     for quarter in QUARTERS:
         quarter_accessions = {row["accession"] for row in sample if row["quarter"] == quarter}
-        owner_counts.update(reporting_owner_counts(zips[quarter], quarter_accessions))
+        owner_ciks_by_acc.update(reporting_owner_ciks_by_accession(zips[quarter], quarter_accessions))
     for row in sample:
-        row["reporting_owner_count"] = owner_counts.get(row["accession"], 0)
+        row["reporting_owner_ciks"] = sorted(owner_ciks_by_acc.get(row["accession"], set()))
+        row["reporting_owner_count"] = len(row["reporting_owner_ciks"])
         row["multiple_reporting_owners"] = row["reporting_owner_count"] > 1
 
     user_agent = f"NuevaEstrategia Smart Money Research (contact: {email})"
@@ -592,19 +604,66 @@ def run_audit(artifact_dir: Path, output_dir: Path, email: str) -> dict[str, Any
             })
             sample_results.append(row_result)
             continue
-        flags = header_identity_flags(header, item)
+        flags = header_identity_flags(header, item, summary["index_entity_ciks"])
         acceptance = header.get("acceptance_datetime_et", "")
         acceptance_after_cutoff = False
         if re.fullmatch(r"\d{14}", acceptance):
             acceptance_after_cutoff = datetime.strptime(acceptance, "%Y%m%d%H%M%S").time() >= CUTOFF_1730
+        header_cik = normalize_cik(header.get("cik", ""))
+        issuer_cik = normalize_cik(item["issuer_cik"])
+        header_cik_role = (
+            "ISSUER_AND_REPORTING_OWNER" if flags["header_cik_matches_issuer"] and flags["header_cik_matches_reporting_owner"]
+            else "ISSUER" if flags["header_cik_matches_issuer"]
+            else "REPORTING_OWNER" if flags["header_cik_matches_reporting_owner"]
+            else "OTHER_INDEX_ENTITY" if flags["header_cik_in_index_entities"]
+            else "UNRESOLVED"
+        )
+        # The SEC-HEADER CENTRAL INDEX KEY is the filing entity CIK; it is not
+        # assumed to equal the issuer CIK in the flattened SEC bulk SUBMISSION table.
+        # Verify both CIKs against the daily-index entity rows and owner table.
+        header_entity_path_hash_match = None
+        header_entity_path_sha256 = ""
+        header_entity_path_error = ""
+        if header_cik and header_cik == issuer_cik:
+            header_entity_path_hash_match = True
+            header_entity_path_sha256 = sha256_bytes(header_payload)
+        else:
+            header_entity_row = next(
+                (entity for entity in matching if normalize_cik(entity.get("cik", "")) == header_cik),
+                None,
+            )
+            if header_entity_row is None:
+                header_entity_path_hash_match = False
+                header_entity_path_error = "header_cik_not_present_in_index_rows"
+            else:
+                entity_url = urljoin(SEC_ARCHIVES, str(header_entity_row.get("filename", "")).lstrip("/"))
+                try:
+                    entity_payload, _entity_headers = _fetch_bytes(entity_url, user_agent, total_bytes)
+                    header_entity_path_sha256 = sha256_bytes(entity_payload)
+                    header_entity_path_hash_match = header_entity_path_sha256 == sha256_bytes(header_payload)
+                except RetrievalError as exc:
+                    header_entity_path_error = str(exc)
+                    retrieval_errors.append({
+                        "accession": item["accession"],
+                        "stage": "header_entity_path_hash_crosscheck",
+                        "error": str(exc),
+                    })
         row_result.update({
             "header_sha256": sha256_bytes(header_payload),
             "header_bytes": len(header_payload),
             "header_fetch_source": fetch_source,
+            "header_cik": header_cik,
+            "header_cik_role": header_cik_role,
+            "header_cik_equals_issuer_cik": header_cik == issuer_cik,
             "header_identity_flags": flags,
             "header_identity_match": all(flags[key] for key in (
-                "accession_match", "form_match", "issuer_cik_match", "filed_date_match"
-            )),
+                "accession_match", "form_match", "filed_date_match",
+                "header_cik_in_index_entities", "issuer_cik_in_index_entities",
+                "acceptance_datetime_present",
+            )) and (flags["header_cik_matches_reporting_owner"] or flags["header_cik_matches_issuer"]),
+            "header_entity_path_sha256": header_entity_path_sha256,
+            "header_entity_path_hash_match": header_entity_path_hash_match,
+            "header_entity_path_error": header_entity_path_error,
             "acceptance_datetime_et": acceptance,
             "acceptance_date_matches_filed_date": header.get("acceptance_date") == item["filing_date"],
             "acceptance_at_or_after_1730_et": acceptance_after_cutoff,
@@ -622,6 +681,13 @@ def run_audit(artifact_dir: Path, output_dir: Path, email: str) -> dict[str, Any
     owner_multiple = sum(row["reporting_owner_count"] > 1 for row in sample_results)
     acceptance_present = sum(bool(row.get("acceptance_datetime_et")) for row in header_checked)
     acceptance_after = sum(bool(row.get("acceptance_at_or_after_1730_et")) for row in header_checked)
+    header_cik_in_index = sum(bool(row.get("header_identity_flags", {}).get("header_cik_in_index_entities")) for row in header_checked)
+    issuer_cik_in_index = sum(bool(row.get("header_identity_flags", {}).get("issuer_cik_in_index_entities")) for row in header_checked)
+    header_cik_owner_match = sum(bool(row.get("header_identity_flags", {}).get("header_cik_matches_reporting_owner")) for row in header_checked)
+    header_cik_issuer_match = sum(bool(row.get("header_identity_flags", {}).get("header_cik_matches_issuer")) for row in header_checked)
+    dual_path_checked = sum(row.get("header_entity_path_hash_match") is not None for row in header_checked)
+    dual_path_matches = sum(row.get("header_entity_path_hash_match") is True for row in header_checked)
+    header_cik_roles = dict(sorted(Counter(row.get("header_cik_role", "") for row in header_checked).items()))
     index_manifest_rows = list(index_manifests.values())
     all_index_counts = [row["counts"] for row in index_manifest_rows]
     index_parser_malformed = sum(row.get("malformed_rows", 0) for row in all_index_counts)
@@ -664,6 +730,14 @@ def run_audit(artifact_dir: Path, output_dir: Path, email: str) -> dict[str, Any
             "identity_mismatch_accessions": identity_mismatches,
             "acceptance_datetime_present": acceptance_present,
             "acceptance_at_or_after_1730_et": acceptance_after,
+            "header_cik_in_index_entities": header_cik_in_index,
+            "issuer_cik_in_index_entities": issuer_cik_in_index,
+            "header_cik_matches_reporting_owner": header_cik_owner_match,
+            "header_cik_matches_issuer": header_cik_issuer_match,
+            "header_cik_roles": header_cik_roles,
+            "dual_path_equivalence_checked": dual_path_checked,
+            "dual_path_equivalence_verified": dual_path_matches,
+            "dual_path_equivalence_mismatch": dual_path_checked - dual_path_matches,
             "header_fetch_fallbacks": sum(row.get("header_fetch_source") == "index_entity_path_fallback" for row in header_checked),
         },
         "availability_interpretation": {
