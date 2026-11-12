@@ -86,12 +86,13 @@ def build_validation(summary: dict[str, Any], evidence: dict[str, Any]) -> dict[
         files = row.get("files", {})
         hashes = {
             "index": row.get("index_sha256"),
+            "filing_index_html": row.get("filing_index_sha256"),
             "submission": row.get("submission_sha256"),
             "primary_xml": row.get("primary_xml_sha256"),
         }
         hash_ok = all(_valid_sha(v) for v in hashes.values())
         sizes_ok = all(int(row.get(k, 0) or 0) > 0 for k in (
-            "index_bytes", "submission_bytes", "primary_xml_bytes"
+            "index_bytes", "filing_index_bytes", "submission_bytes", "primary_xml_bytes"
         ))
         raw_ok = hash_ok and sizes_ok and bool(row.get("raw_files_staged_for_artifact"))
         all_raw = all_raw and raw_ok
@@ -106,8 +107,11 @@ def build_validation(summary: dict[str, Any], evidence: dict[str, Any]) -> dict[
         all_headers = all_headers and header_ok
 
         xml = row.get("xml_audit", {})
-        series_ids = sorted(set(str(x) for x in xml.get("series_ids", []) if str(x)))
-        series_ok = len(series_ids) >= 1 and int(xml.get("distinct_series_id_count", 0)) >= 1
+        index_meta = row.get("filing_index_metadata", {})
+        xml_series_ids = sorted(set(str(x) for x in xml.get("series_ids", []) if str(x)))
+        index_series_ids = sorted(set(str(x) for x in index_meta.get("series_ids", []) if str(x)))
+        series_ids = sorted(set(xml_series_ids) | set(index_series_ids))
+        series_ok = len(series_ids) >= 1
         all_series = all_series and series_ok
 
         expected_cusips = sorted(set(str(x).strip().upper() for x in item.get("expected_cusips", []) if str(x).strip()))
@@ -143,6 +147,12 @@ def build_validation(summary: dict[str, Any], evidence: dict[str, Any]) -> dict[
                 ) == accepted_local.to_pydatetime()
             except Exception:
                 index_clock_match = None
+        index_page_acceptance = index_meta.get("accepted_datetime_et")
+        index_page_clock_match = None
+        if accepted_local is not None and index_page_acceptance:
+            index_page_clock_match = (
+                accepted_local.strftime("%Y-%m-%dT%H:%M:%S") == str(index_page_acceptance)
+            )
 
         accession_audits.append({
             "accession": accession,
@@ -152,6 +162,7 @@ def build_validation(summary: dict[str, Any], evidence: dict[str, Any]) -> dict[
             "sha256": hashes,
             "byte_sizes": {
                 "index": row.get("index_bytes"),
+                "filing_index_html": row.get("filing_index_bytes"),
                 "submission": row.get("submission_bytes"),
                 "primary_xml": row.get("primary_xml_bytes"),
             },
@@ -162,7 +173,13 @@ def build_validation(summary: dict[str, Any], evidence: dict[str, Any]) -> dict[
             "acceptance_date_matches_filed_date": header.get("acceptance_date_matches_filed_date"),
             "index_primary_last_modified": index_modified or None,
             "index_last_modified_matches_acceptance": index_clock_match,
+            "index_page_accepted_datetime_et": index_page_acceptance,
+            "index_page_acceptance_matches_header": index_page_clock_match,
+            "submission_header_error": row.get("submission_header_error"),
+            "submission_header_diagnostic": row.get("submission_header_diagnostic", {}),
             "conservative_next_full_xnys_session": next_session,
+            "xml_series_ids": xml_series_ids,
+            "index_series_ids": index_series_ids,
             "series_ids": series_ids,
             "series_gate": "PASS" if series_ok else "FAIL",
             "holding_nodes": xml.get("holding_nodes"),
