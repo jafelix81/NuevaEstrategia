@@ -2,8 +2,8 @@
 """One-time SEC Latest Filings Atom/RSS feasibility probe for Forms 4 and 4/A.
 
 This is a prospective endpoint probe only. Feed updated timestamps are not
-treated as exact first-public timestamps; raw entity rows and poll intervals
-are preserved for future validation.
+treated as exact first-public timestamps; raw entity rows, complete-submission
+header cross-checks and poll intervals are preserved for future validation.
 """
 from __future__ import annotations
 
@@ -18,6 +18,7 @@ from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode, urlparse
 from urllib.request import Request, urlopen
+from zoneinfo import ZoneInfo
 from xml.etree import ElementTree as ET
 
 BASE = "https://www.sec.gov/cgi-bin/browse-edgar"
@@ -136,6 +137,24 @@ def group_filing_entries(entries: list[dict]) -> tuple[list[dict], list[dict]]:
     return filings, orphans
 
 
+def parse_acceptance_datetime(payload: bytes) -> str:
+    match = re.search(rb"<ACCEPTANCE-DATETIME>\s*(\d{14})", payload, re.I)
+    if not match:
+        return ""
+    raw = match.group(1).decode("ascii")
+    value = datetime.strptime(raw, "%Y%m%d%H%M%S").replace(tzinfo=ZoneInfo("America/New_York"))
+    return value.isoformat()
+
+
+def feed_updated_matches_acceptance(feed_updated_raw: str, acceptance_iso: str) -> bool:
+    if not feed_updated_raw or not acceptance_iso:
+        return False
+    try:
+        return datetime.fromisoformat(feed_updated_raw) == datetime.fromisoformat(acceptance_iso)
+    except ValueError:
+        return False
+
+
 def fetch(url: str, user_agent: str) -> tuple[bytes, dict]:
     parsed = urlparse(url)
     if parsed.scheme != "https" or parsed.netloc.lower() != HOST:
@@ -163,6 +182,62 @@ def fetch(url: str, user_agent: str) -> tuple[bytes, dict]:
             "sha256": hashlib.sha256(payload).hexdigest(),
         }
         return payload, headers
+
+
+def crosscheck_complete_submissions(
+    filings: list[dict], entity_rows: list[dict], user_agent: str, raw_dir: Path
+) -> list[dict]:
+    checks = []
+    for form in ("4", "4/A"):
+        filing = next((x for x in filings if x["form_type"] == form), None)
+        if filing is None:
+            checks.append({"form_type": form, "status": "NO_SAMPLE_ACCESSION"})
+            continue
+        accession = filing["accession"]
+        rows = [x for x in entity_rows if x["accession_from_link"] == accession]
+        selected = next((x for x in rows if x["entity_role_from_title"] == "Issuer"), rows[0] if rows else None)
+        if not selected or not selected["path_cik_from_link"]:
+            checks.append({"form_type": form, "accession": accession, "status": "NO_USABLE_ENTITY_PATH"})
+            continue
+        accession_compact = accession.replace("-", "")
+        path_cik = str(int(selected["path_cik_from_link"]))
+        url = f"https://www.sec.gov/Archives/edgar/data/{path_cik}/{accession_compact}/{accession}.txt"
+        item = {
+            "form_type": form,
+            "accession": accession,
+            "selected_entity_role": selected["entity_role_from_title"],
+            "selected_entity_cik": selected["entity_cik_from_title"],
+            "requested_url": url,
+            "feed_updated_values": filing["feed_updated_values"],
+            "status": "PENDING",
+        }
+        try:
+            payload, headers = fetch(url, user_agent)
+            raw_path = raw_dir / f"submission_{form.replace('/', '_')}_{accession_compact}.txt"
+            raw_path.write_bytes(payload)
+            acceptance_iso = parse_acceptance_datetime(payload)
+            updated_matches = [
+                feed_updated_matches_acceptance(x, acceptance_iso)
+                for x in filing["feed_updated_values"]
+            ]
+            item.update({
+                "status": "HEADER_PARSED" if acceptance_iso else "ACCEPTANCE_HEADER_MISSING",
+                "response_headers": headers,
+                "raw_file": str(raw_path.relative_to(raw_dir.parent)),
+                "acceptance_datetime_et": acceptance_iso,
+                "feed_updated_equals_acceptance": any(updated_matches),
+                "complete_submission_bytes": len(payload),
+                "complete_submission_sha256": hashlib.sha256(payload).hexdigest(),
+            })
+        except (HTTPError, URLError, TimeoutError, ValueError) as exc:
+            item.update({
+                "status": "DOWNLOAD_FAILED",
+                "error_type": type(exc).__name__,
+                "error": str(exc)[:240],
+            })
+        checks.append(item)
+        time.sleep(1.0)
+    return checks
 
 
 def run_probe(email: str, output_dir: Path) -> dict:
@@ -226,6 +301,7 @@ def run_probe(email: str, output_dir: Path) -> dict:
         raw_form_counts[form] = raw_form_counts.get(form, 0) + 1
     valid_queries = sum(x["status"] == "ATOM_PARSED" for x in query_results)
     issuer_reporting_pairs = sum(bool(x["issuer_ciks"]) and bool(x["reporting_ciks"]) for x in filings)
+    complete_checks = crosscheck_complete_submissions(filings, all_entries, user_agent, raw_dir)
     status = "PASS_ATOM_ENDPOINT" if valid_queries >= 1 else "BLOCKED_NO_VALID_ATOM_RESPONSE"
     result = {
         "phase": 303,
@@ -247,7 +323,10 @@ def run_probe(email: str, output_dir: Path) -> dict:
             "accessions_with_both_issuer_and_reporting_rows": issuer_reporting_pairs,
             "accessions_with_exactly_two_entity_rows": sum(x["raw_entity_row_count"] == 2 for x in filings),
             "path_title_cik_mismatches": sum(x["path_title_cik_mismatch_count"] for x in filings),
+            "complete_submission_header_crosschecks": sum(x.get("status") == "HEADER_PARSED" for x in complete_checks),
+            "feed_updated_equals_acceptance": sum(x.get("feed_updated_equals_acceptance") is True for x in complete_checks),
         },
+        "complete_submission_crosschecks": complete_checks,
         "entity_rows": all_entries,
         "filings": filings,
         "orphan_entity_rows": orphan_entries,
