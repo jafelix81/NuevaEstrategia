@@ -2,8 +2,10 @@ import unittest
 
 from phase303_sec_latest_filings_rss_probe import (
     accession_from_url,
+    feed_updated_matches_acceptance,
     form_from_title,
     group_filing_entries,
+    parse_acceptance_datetime,
     parse_atom,
 )
 
@@ -69,6 +71,22 @@ class Phase303RssTests(unittest.TestCase):
         self.assertEqual(filings[0]["issuer_ciks"], ["0000000123"])
         self.assertEqual(filings[0]["reporting_ciks"], ["0000000456"])
         self.assertEqual(filings[0]["entity_roles"], ["Issuer", "Reporting"])
+
+    def test_acceptance_header_parser_uses_eastern_timezone(self):
+        self.assertEqual(
+            parse_acceptance_datetime(b"<ACCEPTANCE-DATETIME>20261110214531"),
+            "2026-11-10T21:45:31-05:00",
+        )
+        self.assertEqual(parse_acceptance_datetime(b"<NO-ACCEPTANCE-DATETIME>"), "")
+
+    def test_feed_updated_equality_is_only_a_literal_clock_comparison(self):
+        self.assertTrue(feed_updated_matches_acceptance(
+            "2026-11-10T21:45:31-05:00", "2026-11-10T21:45:31-05:00"
+        ))
+        self.assertFalse(feed_updated_matches_acceptance(
+            "2026-11-10T21:45:32-05:00", "2026-11-10T21:45:31-05:00"
+        ))
+        self.assertFalse(feed_updated_matches_acceptance("", "2026-11-10T21:45:31-05:00"))
 
     def test_atom_parser_rejects_non_feed_root(self):
         with self.assertRaisesRegex(ValueError, "atom_root_is_not_feed"):
