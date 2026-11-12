@@ -311,6 +311,7 @@ def write_csv(path: Path, rows: list[dict[str, Any]], fields: list[str]) -> None
 
 
 def run_audit(input_dir: Path, output_dir: Path, contact_email: str) -> dict[str, Any]:
+    started_at = datetime.now(timezone.utc).isoformat()
     if not contact_email or "@" not in contact_email:
         raise RuntimeError("SEC_CONTACT_EMAIL_secret_missing_or_invalid")
     candidates = read_sample(input_dir / "nport_stratified_sample_candidates.csv")
@@ -412,7 +413,8 @@ def run_audit(input_dir: Path, output_dir: Path, contact_email: str) -> dict[str
     )
     result = {
         "phase": 312,
-        "audit_started_utc": datetime.now(timezone.utc).isoformat(),
+        "audit_started_utc": started_at,
+        "audit_completed_utc": datetime.now(timezone.utc).isoformat(),
         "status": status,
         "sample": {
             "expected_candidates": 56,
