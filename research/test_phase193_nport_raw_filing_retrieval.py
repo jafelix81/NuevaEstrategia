@@ -9,6 +9,7 @@ from research.phase193_nport_raw_filing_retrieval import (
     parse_index_listing,
     parse_nport_xml,
     parse_submission_header,
+    submission_header_diagnostic,
     run_audit,
 )
 
@@ -56,6 +57,11 @@ XML = b"""<?xml version="1.0" encoding="UTF-8"?>
 class Phase193Tests(unittest.TestCase):
     def test_normalize_accession_removes_non_digits(self):
         self.assertEqual(normalize_accession("0001752724-20-163166"), "000175272420163166")
+
+    def test_header_diagnostic_extracts_acceptance_value(self):
+        result = submission_header_diagnostic(HEADER)
+        self.assertEqual(result["ACCESSION NUMBER"], "0001752724-20-163166")
+        self.assertEqual(result["ACCEPTANCE-DATETIME"], "20200821125543")
 
     def test_submission_header_reconciles_accession_form_and_acceptance(self):
         result = parse_submission_header(HEADER, "0001752724-20-163166", "NPORT-P")
