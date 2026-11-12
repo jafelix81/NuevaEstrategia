@@ -6,6 +6,9 @@ on:
     paths:
       - "research/phase337_sec_xbrl_common_role_standard_taxonomy_audit.py"
       - "research/test_phase337_sec_xbrl_common_role_standard_taxonomy_audit.py"
+      - "research/PHASE336_SEC_XBRL_TAXONOMY_LINKBASE_MEMBER_LABEL_AUDIT_2026-11-12.md"
+      - "research/PHASE337_SEC_XBRL_COMMON_ROLE_AND_US_GAAP_STANDARD_LABEL_AUDIT_2026-11-12.md"
+      - "research/SMART_MONEY_RESEARCH_CURRENT_STATE_2026-11-12.md"
       - ".github/workflows/phase337_sec_xbrl_common_role_audit.yml"
   workflow_dispatch:
 
