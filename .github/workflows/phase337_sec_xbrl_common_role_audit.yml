@@ -29,8 +29,8 @@ jobs:
       - name: Download pinned Phase 336 source artifact
         uses: actions/download-artifact@v4
         with:
-          github-token: \${{ github.token }}
-          repository: \${{ github.repository }}
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
           run-id: 43228785778
           artifact-ids: 13949661332
           path: phase336_source
