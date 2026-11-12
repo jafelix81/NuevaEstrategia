@@ -14,12 +14,20 @@ from pathlib import Path
 from typing import Any
 import requests
 
-from research.phase312_nport_raw_sample_audit import (
-    cusip_check_digit_valid, isin_check_digit_valid, parse_holding_rows,
-)
-from research.phase314_nport_amendment_parent_audit import (
-    extract_primary_xml, parse_submission,
-)
+try:
+    from research.phase312_nport_raw_sample_audit import (
+        cusip_check_digit_valid, isin_check_digit_valid, parse_holding_rows,
+    )
+    from research.phase314_nport_amendment_parent_audit import (
+        extract_primary_xml, parse_submission,
+    )
+except ModuleNotFoundError:
+    from phase312_nport_raw_sample_audit import (
+        cusip_check_digit_valid, isin_check_digit_valid, parse_holding_rows,
+    )
+    from phase314_nport_amendment_parent_audit import (
+        extract_primary_xml, parse_submission,
+    )
 
 SEC_ARCHIVES = "https://www.sec.gov/Archives"
 DATA_FORMS = {"NPORT-P", "NPORT-P/A"}
