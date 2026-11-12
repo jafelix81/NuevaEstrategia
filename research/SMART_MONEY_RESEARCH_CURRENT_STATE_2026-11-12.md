@@ -1,9 +1,17 @@
 # Smart Money Research — current state (2026-11-12 UTC)
 
-**Active research branch:** `phase306-sec-rss-contiguous-overlap-scan`  
+**Active research branch:** `phase307-sec-rss-owner-only-filter-audit`  
 **PR chain:** #14 stacked on #13; both open and unmerged.  
 
-## Latest verified research — Phase 306 (2026-11-12 02:26 UTC)
+## Latest verified research — Phase 307 (2026-11-12 02:34 UTC)
+
+- Final run [43142273073](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43142273073) passed 48/48 regressions and 37/37 live SEC Atom requests. Artifact [13910211291](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43142273073/artifacts/13910211291), 155,654 bytes, SHA-256 028c6af605e771fd3362b269f509b09ab210d66ece1d1b328421fa0b6ff010d0.
+- **owner=only passed** the ownership-form isolation, owner=exclude negative-control and page-zero accession-preservation tests. It returned 2,111 exact Form 4 entity rows / 1,022 accessions plus 36 Form 4/A prefix spillovers. Form 4 reached the current-feed tail at start=2,080 (final page 67 rows), with 26/26 ordered overlaps and stable page-zero recheck. Form 4/A returned 36 rows / 18 accessions in one page and also passed its recheck.
+- No non-ownership forms appeared under owner=only; the only non-target token in type=4 was 4/A. owner=exclude returned zero exact Form 4/4/A accessions. The include control preserved the same 50 Form 4 accessions on page zero but contained 54 non-target rows across sampled offsets 0,80,320,400.
+- **Decision:** use owner=only for prospective SEC Form 4/4-A capture, with exact form-token separation and accession-level reassembly. Preserve raw responses/hashes and first-observation intervals. Do not equate Atom updated with first-public time.
+- Phase306 partial-page overlap expectation was corrected and regression-tested (14 tests). No strict PIT admission, return/alpha, bootstrap/LOO, chronological OOS or holdout test. F80, production, universe, capital and parameters unchanged. No PR/merge, email or vendor purchase.
+
+## Prior verified research — Phase 306 (2026-11-12 02:26 UTC)
 
 - Final Phase 306 run [43141258597](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43141258597) passed 39/39 regressions (13/8/11/7 across Phases 306/305/304/303) and completed 53/53 live SEC Atom requests. Artifact [13910016050](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43141258597/artifacts/13910016050), 225,439 bytes, SHA-256 1930481f22dae87525273ba028901df5ec0e10009c8b1edbffef4783c399720c.
 - Form 4 type=4, owner=include: 50 contiguous pages, starts 0–3,920, count 100/step 80. The 4,020-position cap was reached with the last page full, so the Form 4 current feed remains **incomplete/capped**, not a complete snapshot. Exact-form filtering found 979 accessions / 2,025 entity rows; 1,939 unique non-target rows remained, including 1,510 424B2 rows. Target Form 4 rows were 51.1% of unique raw rows in the scanned window.
