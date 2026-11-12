@@ -110,5 +110,11 @@
     "data_purchase": false,
     "vendor_contact": false,
     "email_sent": false
-  }
+  },
+  "phase313_workflow_run_id": 43160004366,
+  "phase313_workflow_artifact_id": 13916694212,
+  "phase313_workflow_artifact_sha256": "957cfecdcf5fc740597b4b1f161b3f6c58731c93c307ec57f8f4aea48839a1ed",
+  "phase313_workflow_conclusion": "success",
+  "first_attempt_run_id": 43159947904,
+  "first_attempt_failure": "cross-run artifact download failed because the github-token expression was escaped; corrected before successful rerun"
 }
