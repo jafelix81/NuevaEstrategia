@@ -1,9 +1,19 @@
 # Smart Money Research — current state (2026-11-12 UTC)
 
-**Active research branch:** `phase303-sec-feed-live-rss-feasibility`  
+**Active research branch:** `phase306-sec-rss-contiguous-overlap-scan`  
 **PR chain:** #14 stacked on #13; both open and unmerged.  
 
-## Latest verified research — Phase 302 (2026-11-12 00:33 UTC)
+## Latest verified research — Phase 306 (2026-11-12 02:26 UTC)
+
+- Final Phase 306 run [43141258597](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43141258597) passed 39/39 regressions (13/8/11/7 across Phases 306/305/304/303) and completed 53/53 live SEC Atom requests. Artifact [13910016050](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43141258597/artifacts/13910016050), 225,439 bytes, SHA-256 1930481f22dae87525273ba028901df5ec0e10009c8b1edbffef4783c399720c.
+- Form 4 type=4, owner=include: 50 contiguous pages, starts 0–3,920, count 100/step 80. The 4,020-position cap was reached with the last page full, so the Form 4 current feed remains **incomplete/capped**, not a complete snapshot. Exact-form filtering found 979 accessions / 2,025 entity rows; 1,939 unique non-target rows remained, including 1,510 424B2 rows. Target Form 4 rows were 51.1% of unique raw rows in the scanned window.
+- All 49 adjacent 20-row overlaps matched in order after preserving duplicate rows; the page-zero recheck was identical. Zero row-fingerprint conflicts and zero target structural errors. 250 accessions spanned multiple page windows and 22 had different entity-row subsets across windows; reassemble by accession.
+- The preliminary set-based overlap checker falsely flagged 19/20 where an exact duplicate Filer row reduced set cardinality. Raw-page inspection proved the ordered 20-row sequence was identical. The final implementation now compares ordered signatures, normalizes Filer role/CIK, and separately counts 65 within-page duplicates and 971 row identities repeated across pages.
+- Form 4/A type=4/A, owner=include: one 36-row page / 18 accessions, followed by an empty page; page-zero recheck stable; zero target structural errors. This is only a current-snapshot observation.
+- **Decision:** do not claim complete Form 4 feed coverage and do not admit strict PIT. Next test owner=only semantics to reduce the 4-prefix contamination, with exact form-token and negative-control checks. Then design prospective first-observation capture. Atom updated is still not first-public time.
+- No return/alpha, bootstrap/LOO, chronological OOS or holdout test. F80, production, universe, capital and parameters remain unchanged. No email, vendor purchase, PR or merge.
+
+## Prior verified research — Phase 302 (2026-11-12 00:33 UTC)
 
 - Phase 302 [run 43127646850](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43127646850) passed 48/48 regression tests across Phases 153/299/300/301/302 and downloaded 71/71 SEC submissions plus 121/121 daily `form` indexes (90,998,369 bytes); all 71 accession windows were complete and identity-matched.
 - All 71 earliest observed daily-index dates equaled the filing date. Among 24 unique original/amendment candidate pairs, 23 had the parent on an earlier index date and one shared a date (intraday order unresolved); eight ambiguous parent sets remain unassigned.
