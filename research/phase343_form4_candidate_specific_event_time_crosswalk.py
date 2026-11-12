@@ -255,7 +255,8 @@ def extract_candidate_rows(archive_bytes: bytes, phase342_expected: dict) -> lis
             out.append({
                 "accession": acc,
                 "issuer_cik": (sub.get("ISSUERCIK") or "").strip().lstrip("0"),
-                "filing_date": (sub.get("FILING_DATE") or "").strip(),
+                "filing_date": norm_date(sub.get("FILING_DATE")),
+                "filing_date_raw": (sub.get("FILING_DATE") or "").strip(),
                 "issuer_symbol_bulk": (sub.get("ISSUERTRADINGSYMBOL") or "").strip(),
                 "aff10b5one_bulk": normalize_aff(aff),
                 "owner_ciks_bulk": sorted(owner_ciks.get(acc, set())),
@@ -626,7 +627,7 @@ def run(phase342_artifact: Path, phase341_artifact: Path, email: str, output_dir
         # Reconcile the original XML row and bulk owner/issuer/plan metadata.
         row_reconciled = bool(
             form4_reconciled and xml_row and refs_match
-            and norm_text(xml_row["footnote_text"]) == norm_text(candidate["footnote_text_bulk"])
+            and norm_text(" ".join(xml_row["footnote_text"])) == norm_text(candidate["footnote_text_bulk"])
             and xml_row["transaction_code"] == "P"
             and xml_row["direct_indirect"] == "D"
         )
@@ -656,7 +657,7 @@ def run(phase342_artifact: Path, phase341_artifact: Path, email: str, output_dir
             "original_xml_transaction_match_count": len(matching_xml),
             "original_xml_transaction_unique_match": xml_row is not None,
             "original_xml_footnote_reference_match": refs_match,
-            "original_xml_footnote_text_match": bool(xml_row) and norm_text(xml_row["footnote_text"]) == norm_text(candidate["footnote_text_bulk"]),
+            "original_xml_footnote_text_match": bool(xml_row) and norm_text(" ".join(xml_row["footnote_text"])) == norm_text(candidate["footnote_text_bulk"]),
             "original_xml_row_reconciled": row_reconciled,
             "form4_symbol_xml": parsed["issuer_symbol_raw"] if parsed else "",
             "form4_aff10b5one_xml": normalize_aff(parsed["aff10b5one_raw"]) if parsed else "unknown",
