@@ -87,7 +87,7 @@ def submission_header_diagnostic(payload: bytes) -> dict[str, str | None]:
         "DATE AS OF CHANGE",
         "ACCEPTANCE-DATETIME",
     ):
-        match = re.search(r"(?im)^\\s*" + re.escape(name) + r"\\s*:\\s*([^\\r\\n]+)", text)
+        match = re.search(r"(?im)^\s*" + re.escape(name) + r"\s*:\s*([^\r\n]+)", text)
         fields[name] = match.group(1).strip() if match else None
     return fields
 
