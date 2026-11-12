@@ -477,3 +477,13 @@ This offline audit re-read the six raw ZIPs from Phase 294 artifact [13884014630
 - The next gate is a contiguous page scan with entity-row overlap and accession-level reassembly, then a separate prospective first-receipt capture protocol. `updated` remains an acceptance-time proxy, not exact first-public time.
 - Latest 100 Actions runs after Phase 305: 56 success, 20 failure, 24 cancelled; zero queued/in-progress. 154 branches inventoried. PRs #13/#14 and the broader open research PR queue remain unmerged; no PR was merged in this phase. The Phase 305 branch is research-only.
 - No return/alpha, bootstrap/LOO, chronological OOS or holdout test. F80, production, universe, capital and parameters remain unchanged. No email was sent.
+
+
+## Current GitHub verification and prospective capture follow-up — 2026-11-12 03:39 UTC
+
+- Latest 100 Actions runs: **56 success, 22 failure, 22 cancelled, zero active/queued**. The final Phase 308 capture run [43149574581](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43149574581) succeeded; no workflow was duplicated while active.
+- Phase 308 capture #6 completed all 30 SEC requests. Form 4: 1,022 accessions / 2,111 entity rows; Form 4/A: 18 / 36. No new, missing or changed accessions; zero structural/fingerprint errors. Inter-capture gap: 37.4126 minutes.
+- Artifact [13913710003](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43149574581/artifacts/13913710003) was downloaded and inspected (32 files; 30 raw Atom pages, result JSON, 1.1 MB ledger). Durable ledger: 6 captures, 1,040 accession keys; all 1,040 initial records remain left-censored/quarantined; zero live non-left-censored event intervals so far.
+- Current branch inventory: 157 branches (100 on page 1, 57 on page 2). Eleven PRs remain open; PR #13 and #14 remain open/unmerged. No PR was opened or merged by this follow-up.
+- `SEC_CONTACT_EMAIL` remains only in the masked SEC User-Agent; no email was sent. No paid data, vendor contact or purchase.
+- `F80_TOP20_PARTIAL50_BASELINE_C20`, production, universe, capital, parameters and legacy holdout remain unchanged. No strict PIT admission, alpha/return test, bootstrap/LOO or chronological OOS.
