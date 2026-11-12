@@ -52,6 +52,17 @@ class Phase311NportCensusTests(unittest.TestCase):
         self.assertEqual([x["form_type"] for x in result], ["NPORT-P", "NPORT-P/A"])
         self.assertEqual(result[0]["accession"], "0001145549-22-056239")
 
+    def test_company_name_pipe_does_not_shift_form_and_filename_columns(self):
+        text = "\\n".join([
+            HEADER,
+            "-----",
+            row("1145549", "Fund | Series A", "NPORT-P", "2022-09-15", "000114554922056239"),
+        ])
+        result = parse_master_index(text, "2022Q3")
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]["company_name"], "Fund | Series A")
+        self.assertEqual(result[0]["form_type"], "NPORT-P")
+
     def test_target_filing_outside_quarter_fails_closed(self):
         text = "\n".join([
             HEADER,
