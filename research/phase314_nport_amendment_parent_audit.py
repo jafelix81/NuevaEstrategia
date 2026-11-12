@@ -96,7 +96,7 @@ def parse_header_fields(text: str) -> dict[str, str]:
         "registrant_cik": one(r"CENTRAL INDEX KEY:\s*([0-9]+)").zfill(10),
         "filed_as_of_date": one(r"FILED AS OF DATE:\s*([0-9]{8})"),
         "period_of_report": one(r"CONFORMED PERIOD OF REPORT:\s*([0-9]{8})"),
-        "acceptance_datetime_et": one(r"ACCEPTANCE-DATETIME:\s*([0-9]{14})"),
+        "acceptance_datetime_et": one(r"<ACCEPTANCE-DATETIME>\s*([0-9]{14})"),
     }
 
 
