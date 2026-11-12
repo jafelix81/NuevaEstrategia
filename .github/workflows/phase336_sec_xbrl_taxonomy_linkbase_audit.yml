@@ -1,0 +1,98 @@
+name: Phase 336 SEC XBRL taxonomy linkbase member-label audit
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    paths:
+      - "research/phase336_sec_xbrl_taxonomy_linkbase_audit.py"
+      - "research/test_phase336_sec_xbrl_taxonomy_linkbase_audit.py"
+      - ".github/workflows/phase336_sec_xbrl_taxonomy_linkbase_audit.yml"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: phase336-sec-xbrl-taxonomy-linkbase-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      SEC_CONTACT_EMAIL: ${{ secrets.SEC_CONTACT_EMAIL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Download pinned Phase 334 source artifact
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 43226260351
+          artifact-ids: 13947767592
+          path: phase334_source
+      - name: Compile Phase 328 and Phase 336
+        run: |
+          python -m py_compile \
+            research/phase328_sec_collision_prior_filing_xbrl_pilot.py \
+            research/phase336_sec_xbrl_taxonomy_linkbase_audit.py \
+            research/test_phase336_sec_xbrl_taxonomy_linkbase_audit.py
+      - name: Run offline regressions
+        run: python -m unittest -v research.test_phase336_sec_xbrl_taxonomy_linkbase_audit
+      - name: Retrieve filing-specific taxonomy schemas and label linkbases
+        run: |
+          python -m research.phase336_sec_xbrl_taxonomy_linkbase_audit \
+            --input-json phase334_source/phase334-sec-stratified-symbol-class-coverage/phase334_symbol_class_binding_audit.json \
+            --output-dir phase336_output
+      - name: Validate instance hashes, target panel and no-merge controls
+        run: |
+          python - <<'PY'
+          import json
+          p = "phase336_output/phase336_taxonomy_linkbase_audit.json"
+          s = json.load(open(p, encoding="utf-8"))
+          assert s["phase"] == 336
+          assert s["status"] in {
+              "COMPLETED_TAXONOMY_LINKBASE_AUDIT",
+              "COMPLETED_WITH_EXPLICIT_LINKBASE_QUARANTINES",
+          }, s["status"]
+          assert s["source"]["run_id"] == 43226260351
+          assert s["source"]["artifact_id"] == 13947767592
+          assert s["source"]["audit_json_sha256"] == "c360eac0358ca4181664ecf18ea6699bccedd0e3d2251ea936c296a19588bc46"
+          q = s["summary"]
+          assert q["documents_selected"] == 8
+          assert q["documents_with_instance_hash_match"] == 8
+          assert q["alias_groups"] == 6
+          assert q["raw_qnames_merged"] == 0
+          assert {x["symbol"] for x in s["alias_profiles"]} == {
+              "PCG-PB", "PCG-PE", "PCG-PG", "PCG-PH", "PCG-PI", "STR"
+          }
+          assert all(x["raw_qnames_merged"] is False for x in s["alias_profiles"])
+          c = s["controls"]
+          assert c["f80_frozen"] is True
+          assert c["strict_pit_admitted"] is False
+          assert c["security_master_admitted"] is False
+          assert c["universe_coverage_admitted"] is False
+          assert c["alpha_test_run"] is False
+          assert c["return_test_run"] is False
+          assert c["bootstrap_loo_run"] is False
+          assert c["chronological_oos_run"] is False
+          assert c["holdout_used"] is False
+          assert c["production_changed"] is False
+          assert c["raw_qnames_merged"] is False
+          print("PHASE336_STATUS=" + s["status"])
+          print("PHASE336_SUMMARY=" + json.dumps(q, sort_keys=True))
+          print("PHASE336_ALIAS_PROFILES=" + json.dumps(s["alias_profiles"], sort_keys=True))
+          PY
+      - name: Upload Phase 336 taxonomy and label evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase336-sec-xbrl-taxonomy-linkbase-member-label-audit
+          path: phase336_output/
+          if-no-files-found: error
+          retention-days: 90
