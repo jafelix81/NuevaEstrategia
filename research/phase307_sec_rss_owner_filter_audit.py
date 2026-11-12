@@ -24,7 +24,7 @@ from research.phase306_sec_rss_contiguous_scan import (
 
 COUNT = 100
 STEP = 80
-ONLY_OFFSETS = tuple(range(0, 2001, 80))
+ONLY_OFFSETS = tuple(range(0, 3921, 80))
 INCLUDE_FORM4_OFFSETS = (0, 80, 320, 400)
 MODES = ("include", "only", "exclude")
 FORMS = {"form4": "4", "form4a": "4/A"}
