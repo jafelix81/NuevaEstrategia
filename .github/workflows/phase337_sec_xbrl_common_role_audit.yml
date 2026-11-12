@@ -39,7 +39,7 @@ jobs:
           python - <<'PY'
           import hashlib
           from pathlib import Path
-          p = Path("phase336_source/phase336_taxonomy_linkbase_audit.json")
+          p = Path("phase336_source/phase336-sec-xbrl-taxonomy-linkbase-member-label-audit/phase336_taxonomy_linkbase_audit.json")
           digest = hashlib.sha256(p.read_bytes()).hexdigest()
           expected = "17f088d14cdc1f271afc54ab0fd968237b615902ac06a763b2f45a4a37e9aa5e"
           assert digest == expected, (digest, expected)
@@ -52,7 +52,7 @@ jobs:
       - name: Retrieve official US-GAAP 2021 and 2022 label and documentation linkbases
         run: |
           python -m research.phase337_sec_xbrl_common_role_standard_taxonomy_audit \
-            --input-json phase336_source/phase336_taxonomy_linkbase_audit.json \
+            --input-json phase336_source/phase336-sec-xbrl-taxonomy-linkbase-member-label-audit/phase336_taxonomy_linkbase_audit.json \
             --output-dir phase337_output
       - name: Validate source, common-role comparisons and no-merge controls
         run: |
