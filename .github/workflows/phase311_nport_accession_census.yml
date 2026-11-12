@@ -8,6 +8,13 @@ on:
       - ".github/workflows/phase311_nport_accession_census.yml"
       - "research/phase311_nport_accession_census.py"
       - "research/test_phase311_nport_accession_census.py"
+  pull_request:
+    branches:
+      - phase310-nport-raw-filing-vintage-retrieval
+    paths:
+      - ".github/workflows/phase311_nport_accession_census.yml"
+      - "research/phase311_nport_accession_census.py"
+      - "research/test_phase311_nport_accession_census.py"
   workflow_dispatch:
 
 permissions:
