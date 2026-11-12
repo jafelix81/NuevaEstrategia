@@ -317,7 +317,20 @@ def merge_capture_into_ledger(
         ledger["last_complete_snapshot_accessions"] = sorted(current_snapshot)
     ledger["updated_at_utc"] = capture["capture_completed_at_utc"]
     today_utc = capture["capture_completed_at_utc"][:10]
-    repo_snapshot_due = ledger.get("last_repo_snapshot_date") != today_utc
+    legacy_timestamp_migration_present = any(
+        record.get("first_observation_timestamp_quality") == "legacy_capture_start_pre_response_not_observation"
+        for record in ledger["accessions"].values()
+    )
+    migration_snapshot_due = (
+        legacy_timestamp_migration_present
+        and ledger.get("legacy_timestamp_migration_snapshot_date") != today_utc
+    )
+    repo_snapshot_due = (
+        migration_snapshot_due
+        or ledger.get("last_repo_snapshot_date") != today_utc
+    )
+    if migration_snapshot_due:
+        ledger["legacy_timestamp_migration_snapshot_date"] = today_utc
     if repo_snapshot_due:
         ledger["last_repo_snapshot_date"] = today_utc
     ledger["repo_snapshot_due"] = repo_snapshot_due
