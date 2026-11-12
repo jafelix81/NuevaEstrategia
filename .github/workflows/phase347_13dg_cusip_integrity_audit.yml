@@ -1,0 +1,74 @@
+name: Phase 347 - SEC 13D/G CUSIP integrity audit
+
+on:
+  pull_request:
+    branches:
+      - phase93-13dg-amendment-lineage-and-event-mechanism-audit
+    paths:
+      - research/phase347_13dg_cusip_integrity_audit.py
+      - research/test_phase347_13dg_cusip_integrity_audit.py
+      - research/phase347_13dg_cusip_integrity_audit_result.json
+      - research/PHASE347_SEC_13DG_CUSIP_INTEGRITY_AND_SUBJECT_CONSISTENCY_AUDIT_2026-11-12.md
+      - .github/workflows/phase347_13dg_cusip_integrity_audit.yml
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: phase347-13dg-cusip-integrity-audit
+  cancel-in-progress: false
+
+jobs:
+  offline-cusip-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Download immutable Phase 93 artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p phase347_input
+          curl --fail --silent --show-error --location \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13375652511/zip \
+            -o phase347_input/phase93_13dg_lineage.zip
+      - name: Verify immutable source digest and extract
+        run: |
+          echo "e9252a741d111319f7d93796658ebe4e1c439903444e905d557e8de0a023497a  phase347_input/phase93_13dg_lineage.zip" | sha256sum --check
+          unzip -q phase347_input/phase93_13dg_lineage.zip -d phase347_input
+          test -s phase347_input/phase93_event_mechanism_audit.csv
+          test -s phase347_input/phase93_summary.json
+      - name: Run Phase 347 regression tests
+        run: python -m unittest -v research.test_phase347_13dg_cusip_integrity_audit
+      - name: Recompute CUSIP integrity audit
+        run: |
+          python -m research.phase347_13dg_cusip_integrity_audit \
+            --phase93-artifact-dir phase347_input \
+            --outdir phase347_output
+          python - <<'PY'
+          import json
+          committed = json.load(open("research/phase347_13dg_cusip_integrity_audit_result.json", encoding="utf-8"))
+          fresh = json.load(open("phase347_output/phase347_summary.json", encoding="utf-8"))
+          assert committed == fresh
+          assert fresh["input_filings"] == 200
+          assert fresh["valid_nonzero_security_cusip_rows"] == 197
+          assert fresh["unique_checksum_valid_nonzero_cusips"] == 179
+          assert fresh["nonzero_cusips_with_multiple_subject_ciks"] == 0
+          assert fresh["strict_pit_admitted"] is False
+          assert fresh["alpha_test_authorized"] is False
+          PY
+      - name: Upload deterministic result
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase347-13dg-cusip-integrity-audit
+          path: phase347_output/
+          if-no-files-found: error
+          retention-days: 90
