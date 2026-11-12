@@ -47,6 +47,7 @@ class Phase323TwoClockTests(unittest.TestCase):
     def test_long_acceptance_lag_remains_quarantined(self):
         case = base_case()
         case.update({
+            "issuer_cik": "775662",
             "bulk_filing_date": "2006-02-15",
             "header_filed_date": "2006-02-15",
             "master_filed_dates": ["2006-02-15"],
