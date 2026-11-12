@@ -3,15 +3,15 @@
 **Date:** 2026-11-12 UTC  
 **Workflow:** [run 43160951691](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43160951691) — PASS  
 **Artifact:** [13917229995](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43160951691/artifacts/13917229995)  
-**Artifact SHA-256:** \`ec1a61d1172350778b9da1d4ef0e49f25a6279c1b3b328747992fdccc92ebe2b\`
+**Artifact SHA-256:** `ec1a61d1172350778b9da1d4ef0e49f25a6279c1b3b328747992fdccc92ebe2b`
 
 ## Scope and parent-candidate result
 
-The audit examined the complete 2022 Q3 NPORT-P filing cohort for registrant CIK \`0000811030\` (Professionally Managed Portfolios): **25 original NPORT-P filings** filed before the target amendment.
+The audit examined the complete 2022 Q3 NPORT-P filing cohort for registrant CIK `0000811030` (Professionally Managed Portfolios): **25 original NPORT-P filings** filed before the target amendment.
 
-The target amendment was accession \`0001145549-22-060851\`, filed 2022-10-03, for report date 2022-07-31 and series \`S000043717\` (Otter Creek Long/Short Opportunity Fund). Exactly one earlier NPORT-P candidate met all available metadata conditions:
+The target amendment was accession `0001145549-22-060851`, filed 2022-10-03, for report date 2022-07-31 and series `S000043717` (Otter Creek Long/Short Opportunity Fund). Exactly one earlier NPORT-P candidate met all available metadata conditions:
 
-- accession \`0001145549-22-059178\`, filed 2022-09-28;
+- accession `0001145549-22-059178`, filed 2022-09-28;
 - same registrant CIK, report date, series ID and exact series name;
 - class-contract IDs matched the amendment;
 - original NPORT-P form and earlier filing date.
@@ -31,13 +31,13 @@ The original filing and the 2022-10-03 amendment each contain 20 sign-concordant
 | Added | 0 |
 | Removed | 0 |
 
-A same-series NPORT-P control, accession \`0001145549-23-060491\`, was filed 2023-09-29 for report date 2023-07-31 and contains 27 qualifying rows. Comparing the 2022 amendment snapshot with this 2023 snapshot gives 23 added, 4 modified, 16 removed and 0 unchanged rows.
+A same-series NPORT-P control, accession `0001145549-23-060491`, was filed 2023-09-29 for report date 2023-07-31 and contains 27 qualifying rows. Comparing the 2022 amendment snapshot with this 2023 snapshot gives 23 added, 4 modified, 16 removed and 0 unchanged rows.
 
 These are differences between two delayed portfolio snapshots one year apart. They are **not trade records**, cannot identify execution dates, and do not establish that the fund initiated or covered a position at any particular time.
 
 ## Descriptive exposure (not a signal)
 
-| Snapshot | Qualifying rows | Sum of absolute reported \`valUSD\` | Sum of absolute reported \`pctVal\` |
+| Snapshot | Qualifying rows | Sum of absolute reported `valUSD` | Sum of absolute reported `pctVal` |
 |---|---:|---:|---:|
 | 2022 original | 20 | $49,202,870.08 | 25.6799 percentage points |
 | 2022 amendment | 20 | $49,202,870.08 | 25.6799 percentage points |
