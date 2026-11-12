@@ -1,5 +1,43 @@
 # Smart Money Research — current state (2026-11-12 UTC)
 
+**Latest completed research:** Phase 344 — N-PORT raw-filing and optional-Series-ID fund-identity reconciliation.  
+**Active research branches:** \`phase343-form4-candidate-specific-event-time-identity\` and \`phase344-nport-optional-series-id-identity\`.  
+**Open drafts:** [PR #32](https://github.com/jafelix81/NuevaEstrategia/pull/32) (Form 4 event-time identity) and [PR #33](https://github.com/jafelix81/NuevaEstrategia/pull/33) (N-PORT fund identity). Neither is merged.
+
+## Latest verified research — Phase 344 (2026-11-12 UTC)
+
+- Final N-PORT raw filing audit [run 43288306677](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43288306677) passed **22/22 offline regressions**. [Artifact 13976801076](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43288306677/artifacts/13976801076).
+- Five purposively selected original N-PORT-P filings (2020–2025): 5/5 accessions, 20/20 raw files, 5/5 SEC-HEADER acceptance timestamps, 5/5 fund identities, expected CUSIP checks and row-count gates passed. The sample contains 327 direct short-equity rows, all sign-concordant.
+- Four filings have an EDGAR Series ID. The 2025 ACAP Strategic Fund filing has no Series ID, but Form N-PORT marks the identifier “if any”; registrant CIK, registration file number, series name and class IDs reconcile. The optional-ID case is not a parser failure.
+- This sample is purposive, not representative. A separate broad Phase316 sample found direct-short rows in only 2/280 filings (194 rows, 173 CUSIPs, zero tickers). CUSIP/ISIN-to-effective-dated-security mapping and first-public-receipt proof remain unresolved; no strict PIT or alpha admission.
+- Report: [Phase 344 N-PORT optional Series ID identity reconciliation](PHASE344_NPORT_OPTIONAL_SERIES_IDENTITY_RECONCILIATION_2026-11-12.md).
+
+## Latest verified research — Phase 343 (separate research branch)
+
+- Final Form 4 candidate-specific identity audit [run 43286198150](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43286198150) passed **16/16 offline regressions**; [artifact 13975421281](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43286198150/artifacts/13975421281).
+- 85 candidate rows, 59 original Form 4 accessions, 31 issuer CIKs and 48 issuer-date event units. 85/85 transaction rows matched at SEC bulk price precision; 85/85 raw XML/footnote screens revalidated; 59/59 symbols reconciled.
+- 72/85 rows (84.71%) have unique compatible class context; 41/48 event units (85.42%) are complete. Thirteen rows remain quarantined. All mapped anchors predate both transaction and filing dates.
+- Report: [Phase 343 Form 4 candidate-specific event-time identity audit](https://github.com/jafelix81/NuevaEstrategia/blob/phase343-form4-candidate-specific-event-time-identity/research/PHASE343_SEC_FORM4_CANDIDATE_SPECIFIC_EVENT_TIME_IDENTITY_AUDIT_2026-11-12.md).
+
+## Current repository verification — 2026-11-12 19:16 UTC
+
+- Latest 100 Actions runs: 77 success, 18 failure, 5 cancelled; zero queued or in progress.
+- Branch inventory: 193 branches across the first two pages. 29 PRs remain open; PRs #32 and #33 are draft/open.
+- No data purchase, vendor contact, production, universe, capital or parameter change.
+
+## Current cross-source priorities
+
+1. **Historical identity/security master is the common bottleneck.** Continue Form 4 across the other sampled quarters; build effective-dated CIK/CUSIP/ISIN/ticker/share-class/listing/delisting continuity before stock-level return tests.
+2. **SEC FTD** is the strongest public short-pressure candidate after security identity: 2004+ history and improved later coverage, but CUSIP and survivorship gates remain open.
+3. **Options:** OptionMetrics IvyDB US + Signed Volume is the strongest paid candidate; Cboe Open-Close is the strongest already-sampled EOD alternative. Neither has multi-date strict-PIT/universe admission; no purchase authorized.
+4. **N-PORT:** direct short positions are real and measurable, but broad filing-level prevalence is sparse and security mapping is absent. Keep conditional, not a broad signal.
+5. **Form 144 and 13D/G** remain event-mechanism candidates, not executed smart-money flow; event/subject-security lineage must pass first.
+6. **13F** remains parked due delayed disclosure and weak worst-quarter CUSIP mapping. **CFTC TFF/COT** is broad market regime context only; historical release calendar unresolved. **FINRA short flow × SI** remains killed as standalone alpha; ATS aggregates are context-only. **SEC MIDAS** remains delayed context pending exact publication timing.
+
+No holding-period restriction is imposed. All source interpretations remain hypotheses. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+---
+
 **Active research branch:** `phase327-form4-single-accession-recovery`  
 **Latest completed research:** Phase 327 — targeted recovery of the sole unavailable original SEC submission from Phase 326; one accession remains explicitly quarantined.  
 
@@ -20,7 +58,7 @@
 - Accession 0000939057-26-000239 (issuer CIK 1041368, reporting-owner CIK 1972440, as-filed ticker label TSBK, filed 2026-09-25) remains unavailable through all tested archive layouts. Phase 327 records the explicit quarantine.
 - Report: [Phase 326 collision security-title audit](PHASE326_FORM4_COLLISION_SECURITY_TITLE_ADJUDICATION_2026-11-12.md).
 
-## Current repository verification — 2026-11-12 04:44 UTC
+## Historical repository verification — 2026-11-12 04:44 UTC
 
 - Latest 100 Actions runs: 37 success, 58 failure, 5 cancelled; zero queued/in-progress. The Phase 327 final run is successful. Phase 326's strict 283/283 retrieval gate remains red because of the single quarantined source gap; Phase 327 closes that gap transparently without claiming full retrieval.
 - Branch inventory: 176 branches (100 on page 1, 76 on page 2). Fifteen PRs remain open; PR #18 (Phase 325) remains draft/unmerged. No new PR was opened or merged in Phases 326–327.
