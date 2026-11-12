@@ -90,6 +90,15 @@ def normalize_accession(value: str) -> str:
     return f"{digits[:10]}-{digits[10:12]}-{digits[12:]}"
 
 
+def header_path_check_type(header_cik: str, issuer_cik: str) -> str:
+    """Distinguish an independent filer/owner path check from a same-path identity."""
+    header = normalize_cik(header_cik)
+    issuer = normalize_cik(issuer_cik)
+    if not header or not issuer:
+        return "UNRESOLVED"
+    return "SAME_ISSUER_PATH" if header == issuer else "INDEPENDENT_ENTITY_PATH"
+
+
 def normalize_bulk_date(value: str) -> str:
     raw = str(value or "").strip()
     if re.fullmatch(r"\d{4}-\d{2}-\d{2}", raw):
@@ -618,6 +627,7 @@ def run_audit(artifact_dir: Path, output_dir: Path, email: str) -> dict[str, Any
             else "OTHER_INDEX_ENTITY" if flags["header_cik_in_index_entities"]
             else "UNRESOLVED"
         )
+        path_check_type = header_path_check_type(header_cik, issuer_cik)
         # The SEC-HEADER CENTRAL INDEX KEY is the filing entity CIK; it is not
         # assumed to equal the issuer CIK in the flattened SEC bulk SUBMISSION table.
         # Verify both CIKs against the daily-index entity rows and owner table.
@@ -654,6 +664,7 @@ def run_audit(artifact_dir: Path, output_dir: Path, email: str) -> dict[str, Any
             "header_fetch_source": fetch_source,
             "header_cik": header_cik,
             "header_cik_role": header_cik_role,
+            "header_entity_path_check_type": path_check_type,
             "header_cik_equals_issuer_cik": header_cik == issuer_cik,
             "header_identity_flags": flags,
             "header_identity_match": all(flags[key] for key in (
@@ -685,8 +696,25 @@ def run_audit(artifact_dir: Path, output_dir: Path, email: str) -> dict[str, Any
     issuer_cik_in_index = sum(bool(row.get("header_identity_flags", {}).get("issuer_cik_in_index_entities")) for row in header_checked)
     header_cik_owner_match = sum(bool(row.get("header_identity_flags", {}).get("header_cik_matches_reporting_owner")) for row in header_checked)
     header_cik_issuer_match = sum(bool(row.get("header_identity_flags", {}).get("header_cik_matches_issuer")) for row in header_checked)
-    dual_path_checked = sum(row.get("header_entity_path_hash_match") is not None for row in header_checked)
-    dual_path_matches = sum(row.get("header_entity_path_hash_match") is True for row in header_checked)
+    dual_path_checked = sum(
+        row.get("header_entity_path_check_type") == "INDEPENDENT_ENTITY_PATH"
+        and row.get("header_entity_path_hash_match") is not None
+        for row in header_checked
+    )
+    dual_path_matches = sum(
+        row.get("header_entity_path_check_type") == "INDEPENDENT_ENTITY_PATH"
+        and row.get("header_entity_path_hash_match") is True
+        for row in header_checked
+    )
+    same_path_identity_checks = sum(
+        row.get("header_entity_path_check_type") == "SAME_ISSUER_PATH"
+        and row.get("header_entity_path_hash_match") is True
+        for row in header_checked
+    )
+    path_identity_checks_total = dual_path_checked + same_path_identity_checks
+    header_path_check_types = dict(sorted(Counter(
+        row.get("header_entity_path_check_type", "") for row in header_checked
+    ).items()))
     header_cik_roles = dict(sorted(Counter(row.get("header_cik_role", "") for row in header_checked).items()))
     index_manifest_rows = list(index_manifests.values())
     all_index_counts = [row["counts"] for row in index_manifest_rows]
@@ -738,6 +766,9 @@ def run_audit(artifact_dir: Path, output_dir: Path, email: str) -> dict[str, Any
             "dual_path_equivalence_checked": dual_path_checked,
             "dual_path_equivalence_verified": dual_path_matches,
             "dual_path_equivalence_mismatch": dual_path_checked - dual_path_matches,
+            "same_path_identity_checks": same_path_identity_checks,
+            "path_identity_checks_total": path_identity_checks_total,
+            "header_path_check_types": header_path_check_types,
             "header_fetch_fallbacks": sum(row.get("header_fetch_source") == "index_entity_path_fallback" for row in header_checked),
         },
         "availability_interpretation": {
