@@ -1,7 +1,7 @@
 # Phase 308 — SEC RSS prospective first-observation capture
 
 **Date:** 2026-11-12  
-**Status:** two consecutive complete current-feed snapshots captured; event-level timestamp correction advanced to Phase 309.  
+**Status:** four consecutive complete current-feed snapshots captured; Phase 309 corrected event-level observation semantics and quarantined legacy placeholders.  
 **Branch:** `phase308-sec-rss-prospective-capture`
 
 ## Purpose and acquisition design
@@ -19,39 +19,43 @@ Phase 307 showed that `owner=only` isolates ownership filings from unrelated 4-p
 
 ## Hosted capture results
 
-### Initial complete snapshot — run 43142830440
+| Run | Status | Form 4 accessions / rows | Form 4/A accessions / rows | New accessions | Gap from prior complete end |
+|---|---|---:|---:|---:|---:|
+| [43142830440](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43142830440) | PASS | 1,022 / 2,111 | 18 / 36 | 1,040 initial | left-censored |
+| [43143888820](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43143888820) | PASS | 1,022 / 2,111 | 18 / 36 | 0 | 8.839 min |
+| [43144426570](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43144426570) | PASS | 1,022 / 2,111 | 18 / 36 | 0 | 4.294 min |
+| [43144785036](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43144785036) | PASS | 1,022 / 2,111 | 18 / 36 | 0 | 2.589 min |
 
-- 30/30 SEC requests succeeded; snapshot complete.
-- Form 4: **1,022 accessions / 2,111 entity rows**.
-- Form 4/A: **18 accessions / 36 entity rows**.
-- Total: **1,040 unique accessions**, 2,147 entity rows.
-- Zero target structural errors and zero row-fingerprint conflicts.
-- First snapshot was left-censored: there was no earlier complete observation boundary. Its 1,040 accessions cannot be assigned a historical first-observation interval.
+All four snapshots completed all 30 SEC requests, passed the head recheck and contiguous-overlap checks, and reported zero target structural errors and zero row-fingerprint conflicts. The cumulative ledger contains four captures and 1,040 unique accession keys. The three subsequent snapshots showed zero new accessions, zero changed entity-row sets and zero missing accessions relative to the preceding complete snapshot.
 
-### Second complete snapshot — run 43143888820
-
-- 30/30 SEC requests succeeded; snapshot complete.
-- Same 1,022 Form 4 and 18 Form 4/A accessions; 2,147 entity rows.
-- **0 new accessions**, **0 changed entity-row sets**, **0 missing accessions** relative to the prior complete snapshot.
-- No gap over 90 minutes; elapsed time from the previous complete capture end to the next capture start was **8.839 minutes**.
-- Zero target structural errors and zero row-fingerprint conflicts.
-- The cumulative ledger reached two captures and 1,040 unique accessions.
-
-The second snapshot validates repeatability and ledger continuity, but it does not retroactively bound the first observation of the initial 1,040 accessions. No new accession arrived in the second interval, so this pair of runs has not yet demonstrated a newly observed accession with a non-left-censored interval.
+Artifacts:
+- Initial: [13910476984](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43142830440/artifacts/13910476984), SHA-256 `3277211eccd5c048932a98a9fe7ac9b8061e167db66ab61449668041f1d78eb8`.
+- Second: [13910598338](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43143888820/artifacts/13910598338), SHA-256 `dacb208aec85762975dab0452ad5b4be5d025be8f09a1d88004866d77946deda`.
+- Third: [13909999401](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43144426570/artifacts/13909999401), SHA-256 `7df92cf7056e5f7b59c7bd9f8625f34845b043d8de957c55b6ccd029d1985ebe`.
+- Fourth: [13910594586](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43144785036/artifacts/13910594586), SHA-256 `4ad1da53d979e996d0d2e20738f72712346b2a6563c8a1b921f7e91a013bd7be`.
 
 ## Phase 309 timestamp correction
 
-Code review found that the first ledger implementation used the overall capture start as the interval end for every accession. That timestamp precedes the actual page response and is not a valid upper bound on when the collector first observed the accession.
+The original ledger implementation used the overall capture start as the interval end for every accession. That precedes the actual page response and is not a valid upper bound on when the collector first observed an accession.
 
-Phase 309 changes the event timestamp to the **earliest successful Atom page response completion containing any row for that accession**, while preserving the corresponding poll-start time and page offset separately. Entity rows remain unioned across pages. If an event timestamp precedes the previous complete-capture boundary, the interval is marked invalid rather than admitted.
+Phase 309 now:
+- Uses the earliest successful Atom page `poll_completed_at_utc` containing any row for an accession as the collector-observation time.
+- Preserves the matching `poll_started_at_utc`, page offset and page label separately.
+- Unions issuer/reporting-owner rows across pages without adding timestamps to row identity.
+- Computes interval width from the previous complete-capture end to the event-specific response completion.
+- Marks an event interval invalid if its event timestamp precedes the previous complete-capture boundary.
+- Quarantines all 1,040 initial-run records: their old capture-start placeholders are moved to `legacy_capture_started_at_utc`; `first_observed_at_utc` and interval end are nulled, with quality `legacy_capture_start_pre_response_not_observation`. They remain left-censored and cannot be admitted as PIT events.
 
-This is a collector-observation interval only. It is not the SEC's exact first-public timestamp and does not establish strict PIT until repeated live captures demonstrate the behavior and gaps remain controlled.
+Hosted run [43144785036](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43144785036) passed **53/53 regressions** (13 Phase 308, 14 Phase 306, 8 Phase 305, 11 Phase 304, 7 Phase 303) and completed another 30/30-request capture. The artifact ledger confirms all 1,040 legacy placeholders were quarantined.
+
+No new accession arrived in the four snapshots. Thus the page-level timestamp path is regression-validated but has not yet been observed on a newly arriving live accession. The next new accession is the first empirical live test of a non-left-censored interval.
 
 ## Interpretation limits and frozen controls
 
 - The RSS current-feed is a rolling snapshot, not a historical archive.
-- Exact first-public timestamp: **not verified**.
-- The first 1,040 accessions are left-censored at the start of prospective capture.
+- Exact SEC first-public timestamp: **not verified**.
+- The initial 1,040 accessions remain left-censored; their legacy capture-start placeholders are explicitly unusable.
+- Collector-observation intervals are not exact first-public timestamps.
 - PAC/deletion events are not captured by this query.
 - Strict PIT admission, return/alpha, bootstrap/LOO and chronological OOS: **not authorized / not run**.
 - Holdout used: **false**.
