@@ -1,0 +1,60 @@
+name: Phase 318 N-PORT next EDGAR business-day adjudication
+
+on:
+  push:
+    branches:
+      - phase318-nport-next-business-day-clock
+    paths:
+      - ".github/workflows/phase318_nport_next_business_day_clock.yml"
+      - "research/phase318_nport_next_business_day_clock.py"
+      - "research/test_phase318_nport_next_business_day_clock.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: phase318-nport-next-business-day-clock
+  cancel-in-progress: false
+
+jobs:
+  offline-adjudication:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+
+      - name: Download immutable Phase 317 adjudication
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: phase317-nport-filing-clock-adjudication
+          repository: jafelix81/NuevaEstrategia
+          run-id: 43167767387
+          github-token: ${{ github.token }}
+          path: phase317_input
+
+      - name: Compile and run offline regressions
+        run: |
+          python -m compileall -q research/phase318_nport_next_business_day_clock.py research/test_phase318_nport_next_business_day_clock.py
+          python -m unittest -v research.test_phase318_nport_next_business_day_clock
+
+      - name: Adjudicate immutable Phase 317 sample
+        run: |
+          python research/phase318_nport_next_business_day_clock.py \
+            --phase317 phase317_input \
+            --output-dir phase318_output
+
+      - name: Upload immutable adjudication
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase318-nport-next-business-day-adjudication
+          path: phase318_output/
+          retention-days: 90
+          if-no-files-found: error
