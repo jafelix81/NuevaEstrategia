@@ -1,0 +1,81 @@
+name: Phase 339 SEC SecurityExchangeName same-context audit
+on:
+  push:
+    branches:
+      - phase339-sec-security-exchange-context-audit
+    paths:
+      - "research/phase339_sec_security_exchange_context_audit.py"
+      - "research/test_phase339_sec_security_exchange_context_audit.py"
+permissions:
+  actions: read
+  contents: read
+concurrency:
+  group: phase339-sec-security-exchange-context-audit
+  cancel-in-progress: false
+jobs:
+  security-exchange-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SEC_CONTACT_EMAIL: ${{ secrets.SEC_CONTACT_EMAIL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Compile and run offline regressions
+        run: |
+          python -m py_compile research/phase339_sec_security_exchange_context_audit.py research/test_phase339_sec_security_exchange_context_audit.py
+          python -m unittest -v research.test_phase339_sec_security_exchange_context_audit
+      - name: Download and verify immutable Phase 338 artifact
+        run: |
+          curl --retry 8 --retry-all-errors --retry-delay 3 --retry-max-time 180 -fsSL -H "Accept: application/vnd.github+json" -H "Authorization: Bearer $GH_TOKEN" "https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13953101909/zip" -o phase338_source.zip
+          echo "30b6a5b6753b24e8bd5d810d4193396249ed3f64de259e2fb8ef9513e29ecf92  phase338_source.zip" | sha256sum --check
+          mkdir -p phase338_source
+          unzip -q phase338_source.zip -d phase338_source
+          echo "0bcd8f355bd697d804296caeffd67fd69ff6aa593b8a5643535ad2f0224027a8  phase338_source/phase338_broad_identity_audit.json" | sha256sum --check
+          echo "9cca7f3eb027776dff89a4b44a0b234386ead708d758051a2b5e604f6d43736a  phase338_source/phase338_sample_manifest.json" | sha256sum --check
+      - name: Re-fetch exact Phase 338 XBRL instances and audit exchange contexts
+        run: |
+          python -m research.phase339_sec_security_exchange_context_audit --audit-json phase338_source/phase338_broad_identity_audit.json --output-dir phase339_output
+      - name: Enforce source hashes, denominators and frozen controls
+        run: |
+          python - <<'PY'
+          import json
+          r=json.load(open("phase339_output/phase339_security_exchange_audit.json",encoding="utf-8"))
+          assert r["phase"]==339
+          assert r["source"]["phase338_artifact_id"]==13953101909
+          assert r["source"]["phase338_audit_json_sha256"]=="0bcd8f355bd697d804296caeffd67fd69ff6aa593b8a5643535ad2f0224027a8"
+          s=r["summary"]
+          assert s["phase338_xbrl_documents_expected"]==42 and s["documents_reprocessed"]==42
+          assert s["hash_verified_documents"]==42 and s["hash_mismatch_or_unavailable_documents"]==0
+          assert len(r["documents"])==42 and len({x["selected_filing_accession"] for x in r["documents"]})==42
+          assert len(r["symbol_exchange_contexts"])==s["trading_symbol_fact_rows"]
+          c=r["controls"]
+          for k in ("strict_pit_admitted","security_master_admitted","listing_security_mapping_admitted","universe_coverage_admitted","alpha_test_run","return_test_run","bootstrap_loo_run","chronological_oos_run","holdout_used","production_changed","universe_changed","capital_changed","parameters_changed","data_purchased","vendor_contacted"):
+              assert c[k] is False
+          assert c["f80_frozen"] is True
+          assert r["interpretation"]["effective_dated_listing_history_established"] is False
+          print("PHASE339_STATUS="+r["status"])
+          print("PHASE339_SUMMARY="+json.dumps(s,sort_keys=True))
+          print("PHASE339_COVERAGE="+json.dumps(r["coverage"],sort_keys=True))
+          PY
+      - name: Upload Phase 339 evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase339-sec-security-exchange-context-audit
+          path: phase339_output/
+          retention-days: 90
+          if-no-files-found: warn
+
+# Workflow file revision to ensure the branch push is observed.
+
+# Retry transient GitHub artifact redirect/server errors before failing the pinned-source gate.
+
+# Phase 339 uses SEC Submissions to recover the exact primaryDocument before re-fetching the pinned instance.
+
+# Documentation/state edits do not re-fetch SEC filings; only code or regression changes trigger this workflow.
