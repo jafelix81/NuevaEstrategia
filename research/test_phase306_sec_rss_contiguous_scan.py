@@ -3,6 +3,7 @@ import unittest
 from research.phase306_sec_rss_contiguous_scan import (
     analyze_contiguous_scan,
     exact_form_type,
+    raw_row_key,
 )
 
 
@@ -60,7 +61,7 @@ class Phase306ContiguousScanTests(unittest.TestCase):
         result = analyze_contiguous_scan(pages, recheck, "4")
         self.assertEqual(result["raw_entity_row_appearances"], 220)
         self.assertEqual(result["unique_raw_entity_rows"], 180)
-        self.assertEqual(result["duplicate_entity_row_appearances_from_overlap"], 40)
+        self.assertEqual(result["duplicate_raw_entity_row_appearances"], 40)
 
     def test_accession_split_across_page_windows_is_reassembled(self):
         rows = [make_row(i) for i in range(180)]
@@ -129,6 +130,22 @@ class Phase306ContiguousScanTests(unittest.TestCase):
         result = analyze_contiguous_scan(pages, page(0, rows), "4")
         self.assertFalse(result["all_requests_succeeded"])
         self.assertFalse(result["complete_current_snapshot_scan"])
+
+    def test_exact_duplicate_rows_do_not_break_ordered_overlap(self):
+        rows = [make_row(i) for i in range(180)]
+        rows[90] = dict(rows[89])
+        pages = [page(0, rows[:100]), page(80, rows[80:180]), page(160, rows[160:180])]
+        result = analyze_contiguous_scan(pages, page(0, rows[:100]), "4")
+        self.assertTrue(result["all_adjacent_overlaps_match"])
+        self.assertTrue(result["complete_current_snapshot_scan"])
+        self.assertEqual(result["unique_raw_entity_rows"], 179)
+        self.assertEqual(result["within_page_duplicate_entity_rows"], 2)
+
+    def test_filer_role_and_cik_are_part_of_raw_row_identity(self):
+        accession = "0000009000-26-000001"
+        first = make_row(1, accession=accession, role="Filer", form="424B5")
+        second = make_row(2, accession=accession, role="Filer", form="424B5")
+        self.assertNotEqual(raw_row_key(first), raw_row_key(second))
 
     def test_exact_form_parser_keeps_full_prefixed_form_token(self):
         self.assertEqual(exact_form_type("4 - Example Corp (0000000123) (Issuer)"), "4")
