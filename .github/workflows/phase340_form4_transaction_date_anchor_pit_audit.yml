@@ -73,3 +73,5 @@ jobs:
           path: phase340_output/
           retention-days: 90
           if-no-files-found: warn
+
+# Workflow registration refresh; SEC retrieval remains gated to the dedicated Phase 340 branch.
