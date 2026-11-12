@@ -62,7 +62,15 @@ jobs:
           if r.get("sample", {}).get("sampled_accessions") != 72:
               sys.exit("Expected 72 deterministic sample accessions")
           if r.get("original_header_crosscheck", {}).get("headers_identity_mismatch", 0) != 0:
-              sys.exit("Original SEC header identity mismatch; inspect quarantined rows")
+              sys.exit("Original SEC header/entity identity mismatch; inspect quarantined rows")
+          if r.get("original_header_crosscheck", {}).get("dual_path_equivalence_mismatch", 0) != 0:
+              sys.exit("Issuer and SEC-HEADER entity paths returned different payload hashes")
+          if r.get("original_header_crosscheck", {}).get("dual_path_equivalence_verified", 0) != 72:
+              sys.exit("Expected 72 original-header entity-path equivalence checks")
+          if r.get("daily_index_join", {}).get("bulk_accessions_found_on_filed_date", 0) != 72:
+              sys.exit("Not all bulk accessions were found on their official filed-date index")
+          if r.get("daily_index_join", {}).get("index_identity_conflicts", 0) != 0:
+              sys.exit("Daily-index accession identity conflict")
           if r.get("retrieval", {}).get("http_request_errors", 0) != 0:
               sys.exit("SEC retrieval error; inspect partial audit artifact")
           if r.get("retrieval", {}).get("parser_errors", 0) != 0:
