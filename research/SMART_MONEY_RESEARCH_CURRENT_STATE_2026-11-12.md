@@ -1,8 +1,8 @@
 # Smart Money Research — current state (2026-11-12 UTC)
 
 **Latest completed research:** Phase 342 — six-quarter SEC Insider Transactions bulk archive and high-precision Form 4 candidate-screen audit.  
-**Active research branch:** `phase342-form4-high-precision-event-time-identity`.  
-**Review:** [PR #31](https://github.com/jafelix81/NuevaEstrategia/pull/31), draft/open, based on Phase 341; no phase PR was merged.
+**Active research branch:** `phase343-form4-candidate-specific-event-time-identity`.  
+**Latest review:** [PR #32](https://github.com/jafelix81/NuevaEstrategia/pull/32), draft/open, based on Phase 342. PR #31 remains draft/open; no research PR was merged.
 
 ## Historical baseline — Phases 332–337
 
@@ -849,3 +849,15 @@ This offline audit re-read the six raw ZIPs from Phase 294 artifact [13884014630
 - The 2026Q3 candidate cohort has zero accession and zero issuer-CIK overlap with Phase341's 12-accession 2026Q3 broad sample. Phase341's broad-sample crosswalk rate must not be extrapolated to the candidate cohort.
 - Report: [Phase 342 audit](PHASE342_SEC_INSIDER_BULK_SIX_ARCHIVE_SAMPLE_AND_PURCHASE_SCREEN_AUDIT_2026-11-12.md). PR [#31](https://github.com/jafelix81/NuevaEstrategia/pull/31), draft/open, based on Phase341.
 - No return/alpha, strict PIT, price panel, bootstrap/LOO, chronological OOS or holdout test. No security master, production, universe, capital or parameter change. F80 remains frozen.
+
+
+## Phase 343 — candidate-specific event-time identity audit (in progress; 2026-11-12 UTC)
+
+- Scope is deliberately restricted to Phase 342's 2026Q3 high-precision cohort: 85 candidate rows, 59 original Form 4 accessions, 31 issuer CIKs and 48 issuer-CIK × filing-date event units. The Phase 341 broad sample has zero accession and zero issuer-CIK overlap; no cross-sample coverage extrapolation is allowed.
+- The workflow re-downloads the official 2026Q3 SEC Insider Transactions ZIP and requires exact SHA-256 `a4e6a681cfcfa43a3d9e4ca9cfec1fd26a59d0a01eac7e9f7b5a0122092c90f3`, then rebuilds the Phase 342 candidate screen and exact denominators.
+- Each candidate row is reconciled to an original Form 4 non-derivative XML transaction by title/date/code/ownership/acquired-disposed/shares/price. Original XML footnotes are re-read and the open-market/exclusion screen is re-applied; missing footnote references fail closed.
+- For each of 48 event units, select the latest supported SEC periodic filing strictly before Form 4 filing date. Event-time identity requires a fresh 1–365 calendar-day anchor and an exact same-context TradingSymbol + Security12bTitle + SecurityExchangeName triple. Class and multi-listing axes are preserved; no fuzzy symbol/title joins.
+- Transaction-date identity is evaluated separately and requires the same anchor to precede the transaction date. A disclosure-time anchor after the transaction is not transaction-date proof.
+- Script, 9 offline regression tests, workflow and initial report are committed. A CIK normalization correction was applied before comparing original Form 4 XML with the SEC bulk cohort. Draft PR [#32](https://github.com/jafelix81/NuevaEstrategia/pull/32) contains the phase.
+- **Hosted retrieval/results remain pending verification.** No identity coverage result is admitted yet. No event study, return/alpha, bootstrap/LOO, chronological OOS or holdout test has been run.
+- F80_TOP20_PARTIAL50_BASELINE_C20, production, universe, capital and parameters remain frozen. No data purchase or vendor contact.
