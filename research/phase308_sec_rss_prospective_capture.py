@@ -130,6 +130,29 @@ def build_accession_events(pages_by_form: dict) -> tuple[list[dict], dict]:
     return events, form_counts
 
 
+def compact_ledger(ledger: dict) -> dict:
+    ledger.setdefault("accessions", {})
+    for record in ledger["accessions"].values():
+        seen = record.pop("entity_rows_seen", {})
+        last_rows = record.pop("last_entity_rows", [])
+        rows = list(seen.values()) if isinstance(seen, dict) else []
+        if not rows:
+            rows = last_rows if isinstance(last_rows, list) else []
+        if rows:
+            identities = sorted({
+                f'{row.get("entity_role","")}|{row.get("entity_cik","")}|{row.get("title","")}|{row.get("link","")}'
+                for row in rows
+            })
+            record["entity_row_count"] = len(identities)
+            record["entity_row_set_sha256"] = hashlib.sha256("\n".join(identities).encode()).hexdigest()
+        updated_values = record.pop("feed_updated_values_seen", [])
+        if updated_values:
+            record.setdefault("first_feed_updated_raw", updated_values[0])
+            record["last_feed_updated_raw"] = updated_values[-1]
+        record.pop("entity_row_set_sha256_history", None)
+    return ledger
+
+
 def merge_capture_into_ledger(
     ledger: dict,
     capture: dict,
@@ -142,6 +165,7 @@ def merge_capture_into_ledger(
     ledger.setdefault("captures", [])
     ledger.setdefault("last_complete_capture_end_utc", None)
     ledger.setdefault("last_complete_snapshot_accessions", [])
+    ledger = compact_ledger(ledger)
 
     previous_complete_end = ledger.get("last_complete_capture_end_utc")
     previous_dt = parse_utc(previous_complete_end)
@@ -185,17 +209,23 @@ def merge_capture_into_ledger(
                 "gap_before_first_observation_detected": gap_detected,
                 "first_seen_run_id": capture.get("run_id"),
                 "seen_count": 0,
-                "entity_rows_seen": {},
-                "feed_updated_values_seen": [],
+                "entity_row_count": 0,
+                "entity_row_set_sha256": "",
+                "first_feed_updated_raw": (
+                    event.get("feed_updated_values", [None])[0]
+                    if event.get("feed_updated_values") else None
+                ),
             }
-        prior_rows = set(existing.get("entity_rows_seen", {}).keys())
-        changed_entity_rows += len(current_row_keys - prior_rows)
-        for row in current_rows:
-            row_key = f'{row.get("entity_role","")}|{row.get("entity_cik","")}|{row.get("title","")}|{row.get("link","")}'
-            existing.setdefault("entity_rows_seen", {})[row_key] = row
-        values = set(existing.get("feed_updated_values_seen", []))
-        values.update(event.get("feed_updated_values", []))
-        existing["feed_updated_values_seen"] = sorted(values)
+        row_set_hash = hashlib.sha256("\n".join(sorted(current_row_keys)).encode()).hexdigest()
+        prior_hash = existing.get("entity_row_set_sha256", "")
+        if prior_hash and prior_hash != row_set_hash:
+            changed_entity_rows += 1
+        elif not prior_hash:
+            changed_entity_rows += len(current_row_keys)
+        existing["entity_row_count"] = len(current_row_keys)
+        existing["entity_row_set_sha256"] = row_set_hash
+        if event.get("feed_updated_values"):
+            existing["last_feed_updated_raw"] = event["feed_updated_values"][-1]
         existing["issuer_ciks"] = event.get("issuer_ciks", [])
         existing["reporting_owner_ciks"] = event.get("reporting_owner_ciks", [])
         existing["last_entity_rows"] = current_rows
@@ -205,6 +235,10 @@ def merge_capture_into_ledger(
         existing["seen_count"] = int(existing.get("seen_count", 0)) + 1
         ledger["accessions"][key] = existing
 
+    raw_manifest = json.dumps(
+        capture.get("raw_page_hashes", {}), sort_keys=True, separators=(",", ":")
+    ).encode()
+    raw_page_count = sum(len(rows) for rows in capture.get("raw_page_hashes", {}).values())
     capture_record = {
         "run_id": capture.get("run_id"),
         "workflow_sha": capture.get("workflow_sha"),
@@ -216,7 +250,8 @@ def merge_capture_into_ledger(
         "gap_before_capture_detected": gap_detected,
         "form_counts": capture.get("form_counts", {}),
         "form_scans": capture.get("form_scans", {}),
-        "raw_page_hashes": capture.get("raw_page_hashes", {}),
+        "raw_page_count": raw_page_count,
+        "raw_page_manifest_sha256": hashlib.sha256(raw_manifest).hexdigest(),
         "new_accessions_this_capture": new_accessions,
         "changed_entity_rows_this_capture": changed_entity_rows,
         "missing_since_previous_complete_snapshot": missing_since_previous,
@@ -230,7 +265,12 @@ def merge_capture_into_ledger(
         ledger["last_complete_capture_end_utc"] = capture["capture_completed_at_utc"]
         ledger["last_complete_snapshot_accessions"] = sorted(current_snapshot)
     ledger["updated_at_utc"] = capture["capture_completed_at_utc"]
-    ledger["total_capture_count"] = len(ledger["captures"])
+    today_utc = capture["capture_completed_at_utc"][:10]
+    repo_snapshot_due = ledger.get("last_repo_snapshot_date") != today_utc
+    if repo_snapshot_due:
+        ledger["last_repo_snapshot_date"] = today_utc
+    ledger["repo_snapshot_due"] = repo_snapshot_due
+    ledger["total_capture_count" = len(ledger["captures"])
     ledger["total_unique_accessions"] = len(ledger["accessions"])
 
     merge_summary = {
@@ -243,6 +283,7 @@ def merge_capture_into_ledger(
         "ledger_total_capture_count": ledger["total_capture_count"],
         "ledger_total_unique_accessions": ledger["total_unique_accessions"],
         "last_complete_capture_end_utc": ledger.get("last_complete_capture_end_utc"),
+        "repo_snapshot_due": repo_snapshot_due,
     }
     return ledger, merge_summary
 
@@ -341,7 +382,7 @@ def run_capture(email: str, output_dir: Path, ledger_path: Path, run_id: str, wo
         ledger = {}
     ledger, merge_summary = merge_capture_into_ledger(ledger, capture, accession_events)
     ledger_path.parent.mkdir(parents=True, exist_ok=True)
-    ledger_path.write_text(json.dumps(ledger, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    ledger_path.write_text(json.dumps(ledger, sort_keys=True, separators=(",", ":")) + "\n", encoding="utf-8")
 
     result = {
         "phase": 308,
