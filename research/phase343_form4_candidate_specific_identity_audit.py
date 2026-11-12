@@ -265,7 +265,7 @@ def run(archive_path, outdir, email):
             print(f"PHASE343_FORM4_PROGRESS={index}/{len(by_accession)} FAILED")
             continue
         parsed = raw_meta(raw)
-        xml_summary, xml_transactions = extract_transaction_rows(raw, sample["issuer_cik"])
+        xml_summary, xml_transactions = extract_transaction_rows(raw, norm_cik(sample["issuer_cik"]))
         header_cik = norm_cik(meta.get("header_cik", "")) if meta.get("header_cik") else ""
         if parsed["cik"] != norm_cik(sample["issuer_cik"]) or xml_summary.get("issuer_matches_expected") is not True:
             raise ValueError(f"form4_xml_issuer_cik_mismatch:{accession}")
