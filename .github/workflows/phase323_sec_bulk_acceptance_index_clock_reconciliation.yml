@@ -1,0 +1,92 @@
+name: Phase 323 SEC bulk/acceptance/daily-index clock reconciliation
+
+on:
+  push:
+    branches:
+      - phase323-sec-bulk-acceptance-index-clock-reconciliation
+    paths:
+      - ".github/workflows/phase323_sec_bulk_acceptance_index_clock_reconciliation.yml"
+      - "research/phase323_sec_bulk_acceptance_index_clock_reconciliation.py"
+      - "research/test_phase323_sec_bulk_acceptance_index_clock_reconciliation.py"
+      - "research/phase322_sec_bulk_index_exception_adjudication.py"
+      - "research/phase320_sec_bulk_daily_index_join.py"
+      - "research/phase319_sec_daily_index_live_pilot.py"
+      - "research/phase283_sec_daily_index_parser.py"
+      - "research/phase318_nport_next_business_day_clock.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: phase323-sec-bulk-acceptance-index-clock-reconciliation
+  cancel-in-progress: false
+
+jobs:
+  reconcile-clocks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      SEC_CONTACT_EMAIL: ${{ secrets.SEC_CONTACT_EMAIL }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+
+      - name: Compile and run offline regressions
+        run: |
+          python -m compileall -q research/phase323_sec_bulk_acceptance_index_clock_reconciliation.py research/test_phase323_sec_bulk_acceptance_index_clock_reconciliation.py research/phase322_sec_bulk_index_exception_adjudication.py research/phase320_sec_bulk_daily_index_join.py research/phase319_sec_daily_index_live_pilot.py research/phase283_sec_daily_index_parser.py research/phase318_nport_next_business_day_clock.py
+          python -m unittest -v research.test_phase323_sec_bulk_acceptance_index_clock_reconciliation
+
+      - name: Download immutable Phase 322 parsed adjudication artifact
+        run: |
+          mkdir -p phase322_input
+          gh run download 43187165781 --repo jafelix81/NuevaEstrategia --name phase322-sec-bulk-index-exception-adjudication --dir phase322_input
+
+      - name: Reconcile filed-as-of, acceptance and daily-index clocks
+        run: |
+          python -m research.phase323_sec_bulk_acceptance_index_clock_reconciliation --source-dir phase322_input --output-dir phase323_output
+
+      - name: Enforce exception denominator and frozen-baseline controls
+        run: |
+          python - <<'PY'
+          import json, sys
+          p = "phase323_output/phase323_two_clock_reconciliation_result.json"
+          r = json.load(open(p, encoding="utf-8"))
+          s = r.get("summary", {})
+          if s.get("total_exceptions") != 24:
+              sys.exit("Expected all 24 Phase 321/322 exception cases")
+          if s.get("two_clock_cases_corroborated", 0) + s.get("long_acceptance_lag_quarantined", 0) + s.get("other_quarantined", 0) != 24:
+              sys.exit("Exception denominator mismatch")
+          c = r.get("controls", {})
+          for key in ("strict_pit_admitted", "alpha_test_authorized", "return_test_run",
+                      "bootstrap_loo_run", "chronological_oos_run", "holdout_used",
+                      "production_changed", "universe_changed", "capital_changed",
+                      "parameters_changed", "raw_sec_bytes_uploaded", "vendor_contacted",
+                      "data_purchased", "email_sent"):
+              if c.get(key) is not False:
+                  sys.exit("Research control unexpectedly opened: " + key)
+          if c.get("f80_frozen") is not True:
+              sys.exit("F80 frozen control failed")
+          if r.get("retrieval", {}).get("raw_sec_bytes_uploaded") is not False:
+              sys.exit("Raw SEC bytes must not be uploaded")
+          print("PHASE323_STATUS=" + str(r.get("status")))
+          print("TWO_CLOCK_SUMMARY=" + str(s))
+          print("AVAILABILITY_INTERPRETATION=" + str(r.get("two_clock_interpretation")))
+          print("RETRIEVAL=" + str({k: r.get("retrieval", {}).get(k) for k in ("http_request_errors", "parser_errors", "total_sec_bytes_downloaded")}))
+          PY
+
+      - name: Upload parsed two-clock adjudication and hashes only
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase323-sec-bulk-acceptance-index-clock-reconciliation
+          path: phase323_output/
+          retention-days: 90
+          if-no-files-found: warn
