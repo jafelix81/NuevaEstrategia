@@ -78,12 +78,14 @@ class Phase302Tests(unittest.TestCase):
         parent = {
             "header_reconciled": True,
             "index_window_complete": True,
+            "first_index_date_is_window_verified": True,
             "first_observed_index_date_within_window": "2023-05-01",
             "acceptance_datetime_et": "2023-05-01T16:10:00-04:00",
         }
         child = {
             "header_reconciled": True,
             "index_window_complete": True,
+            "first_index_date_is_window_verified": True,
             "first_observed_index_date_within_window": "2023-05-01",
             "acceptance_datetime_et": "2023-05-01T17:10:00-04:00",
         }
@@ -96,12 +98,14 @@ class Phase302Tests(unittest.TestCase):
         parent = {
             "header_reconciled": True,
             "index_window_complete": True,
+            "first_index_date_is_window_verified": True,
             "first_observed_index_date_within_window": "2023-05-01",
             "acceptance_datetime_et": "2023-05-01T16:10:00-04:00",
         }
         child = {
             "header_reconciled": True,
             "index_window_complete": True,
+            "first_index_date_is_window_verified": True,
             "first_observed_index_date_within_window": "2023-05-02",
             "acceptance_datetime_et": "2023-05-02T09:10:00-04:00",
         }
@@ -111,12 +115,14 @@ class Phase302Tests(unittest.TestCase):
         parent = {
             "header_reconciled": True,
             "index_window_complete": True,
+            "first_index_date_is_window_verified": True,
             "first_observed_index_date_within_window": "2023-05-02",
             "acceptance_datetime_et": "2023-05-01T16:10:00-04:00",
         }
         child = {
             "header_reconciled": True,
             "index_window_complete": True,
+            "first_index_date_is_window_verified": True,
             "first_observed_index_date_within_window": "2023-05-01",
             "acceptance_datetime_et": "2023-05-02T09:10:00-04:00",
         }
@@ -126,12 +132,14 @@ class Phase302Tests(unittest.TestCase):
         parent = {
             "header_reconciled": True,
             "index_window_complete": True,
+            "first_index_date_is_window_verified": True,
             "first_observed_index_date_within_window": "2023-05-01",
             "acceptance_datetime_et": "2023-05-02T09:10:00-04:00",
         }
         child = {
             "header_reconciled": True,
             "index_window_complete": True,
+            "first_index_date_is_window_verified": True,
             "first_observed_index_date_within_window": "2023-05-03",
             "acceptance_datetime_et": "2023-05-01T16:10:00-04:00",
         }
@@ -147,10 +155,30 @@ class Phase302Tests(unittest.TestCase):
         child = {
             "header_reconciled": True,
             "index_window_complete": True,
+            "first_index_date_is_window_verified": True,
             "first_observed_index_date_within_window": "2023-05-02",
             "acceptance_datetime_et": "2023-05-02T09:10:00-04:00",
         }
         self.assertEqual(pair_clock(parent, child)["status"], "INDEX_WINDOW_INCOMPLETE")
+
+
+    def test_pair_clock_requires_identity_verified_index_dates(self):
+        parent = {
+            "header_reconciled": True,
+            "index_window_complete": True,
+            "first_index_date_is_window_verified": False,
+            "first_observed_index_date_within_window": "2023-05-01",
+            "acceptance_datetime_et": "2023-05-01T16:10:00-04:00",
+        }
+        child = {
+            "header_reconciled": True,
+            "index_window_complete": True,
+            "first_index_date_is_window_verified": True,
+            "first_observed_index_date_within_window": "2023-05-02",
+            "acceptance_datetime_et": "2023-05-02T09:10:00-04:00",
+        }
+        self.assertEqual(pair_clock(parent, child)["status"], "INDEX_IDENTITY_NOT_VERIFIED")
+
 
 
 if __name__ == "__main__":

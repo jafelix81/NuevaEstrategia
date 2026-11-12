@@ -138,6 +138,8 @@ def pair_clock(parent: dict[str, Any] | None, child: dict[str, Any] | None) -> d
         return {"status": "HEADER_INCOMPLETE"}
     if not parent.get("index_window_complete") or not child.get("index_window_complete"):
         return {"status": "INDEX_WINDOW_INCOMPLETE"}
+    if not parent.get("first_index_date_is_window_verified") or not child.get("first_index_date_is_window_verified"):
+        return {"status": "INDEX_IDENTITY_NOT_VERIFIED"}
     parent_date = parent.get("first_observed_index_date_within_window")
     child_date = child.get("first_observed_index_date_within_window")
     if not parent_date or not child_date:
