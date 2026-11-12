@@ -1,0 +1,82 @@
+name: Phase 330 SEC legacy cover-page table feasibility pilot
+
+on:
+  push:
+    branches:
+      - phase328-sec-collision-prior-filing-xbrl-pilot
+    paths:
+      - ".github/workflows/phase330_legacy_coverpage_table_pilot.yml"
+      - "research/phase330_legacy_coverpage_table_pilot.py"
+      - "research/test_phase330_legacy_coverpage_table_pilot.py"
+      - "research/phase330_legacy_coverpage_manifest.csv"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase330-legacy-coverpage-table-pilot
+  cancel-in-progress: false
+
+jobs:
+  legacy-coverpage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      SEC_CONTACT_EMAIL: \${{ secrets.SEC_CONTACT_EMAIL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+
+      - name: Compile and run offline regressions
+        run: |
+          python -m compileall -q research/phase330_legacy_coverpage_table_pilot.py research/test_phase330_legacy_coverpage_table_pilot.py
+          python -m unittest -v research.test_phase330_legacy_coverpage_table_pilot
+
+      - name: Verify pinned Phase 328 legacy-document manifest
+        run: |
+          echo "fb069328bad9e648a85d25264f26cc2a31146d10e14003d004f9725184d30cc7  research/phase330_legacy_coverpage_manifest.csv" | sha256sum --check
+
+      - name: Retrieve and parse original legacy cover pages
+        run: |
+          python -m research.phase330_legacy_coverpage_table_pilot \
+            --manifest research/phase330_legacy_coverpage_manifest.csv \
+            --output-dir phase330_output \
+            --email "$SEC_CONTACT_EMAIL"
+
+      - name: Enforce source hashes and frozen-baseline controls
+        run: |
+          python - <<'PY'
+          import json, sys
+          r=json.load(open("phase330_output/phase330_coverpage_audit.json", encoding="utf-8"))
+          s=r["summary"]; c=r["controls"]
+          if s["manifest_rows"] != 25 or len(r["results"]) != 25:
+              sys.exit("Phase 330 sample population mismatch")
+          if s["source_hash_mismatch"] != 0:
+              sys.exit("One or more source documents differ from Phase 328 pinned hashes")
+          for key in ("legacy_coverpage_identity_admitted","strict_pit_admitted","security_master_admitted",
+                      "universe_coverage_admitted","alpha_test_authorized","return_test_run",
+                      "bootstrap_loo_run","chronological_oos_run","holdout_used","production_changed",
+                      "universe_changed","capital_changed","parameters_changed","raw_sec_bytes_uploaded",
+                      "vendor_contacted","data_purchased","email_sent"):
+              if c.get(key) is not False:
+                  sys.exit("Research control unexpectedly opened: "+key)
+          if c.get("f80_frozen") is not True:
+              sys.exit("F80 frozen control failed")
+          print("PHASE330_SUMMARY="+json.dumps(s, sort_keys=True))
+          print("PHASE330_CONTROLS="+json.dumps(c, sort_keys=True))
+          PY
+
+      - name: Upload parsed cover-page metadata and hashes only
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase330-legacy-coverpage-table-pilot
+          path: phase330_output/
+          retention-days: 90
+          if-no-files-found: warn
