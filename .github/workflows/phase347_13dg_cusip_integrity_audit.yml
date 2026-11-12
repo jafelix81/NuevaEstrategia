@@ -10,6 +10,10 @@ on:
       - research/test_phase347_13dg_cusip_integrity_audit.py
       - research/phase347_13dg_cusip_integrity_audit_result.json
       - research/PHASE347_SEC_13DG_CUSIP_INTEGRITY_AND_SUBJECT_CONSISTENCY_AUDIT_2026-11-12.md
+      - research/phase348_13dg_legacy_html_parent_validation.py
+      - research/test_phase348_13dg_legacy_html_parent_validation.py
+      - research/phase348_13dg_legacy_html_parent_validation_result.json
+      - research/PHASE348_SEC_13DG_LEGACY_HTML_EXPLICIT_PREDECESSOR_VALIDATION_2026-11-12.md
       - .github/workflows/phase347_13dg_cusip_integrity_audit.yml
   pull_request:
     branches:
@@ -56,6 +60,21 @@ jobs:
           unzip -q phase347_input/phase93_13dg_lineage.zip -d phase347_input
           test -s phase347_input/phase93_event_mechanism_audit.csv
           test -s phase347_input/phase93_summary.json
+      - name: Download immutable Phase 84 raw-submission artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p phase348_input
+          curl --fail --silent --show-error --location \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13364856424/zip \
+            -o phase348_input/phase84_13dg_role_aware.zip
+          echo "b807be9099e1a777c232f6d50b341e8e714585dc4da5fe993e833c2051494b16  phase348_input/phase84_13dg_role_aware.zip" | sha256sum --check
+          mkdir -p phase348_input/phase84
+          unzip -q phase348_input/phase84_13dg_role_aware.zip -d phase348_input/phase84
+          test -s phase348_input/phase84/pilot_header_validation.csv
+          test -d phase348_input/phase84/raw_submissions
       - name: Run Phase 347 regression tests
         run: python -m unittest -v research.test_phase347_13dg_cusip_integrity_audit
       - name: Recompute CUSIP integrity audit
@@ -75,10 +94,29 @@ jobs:
           assert fresh["strict_pit_admitted"] is False
           assert fresh["alpha_test_authorized"] is False
           PY
+      - name: Run Phase 348 legacy-HTML parent regression tests
+        run: python -m unittest -v research.test_phase348_13dg_legacy_html_parent_validation
+      - name: Revalidate the two legacy-HTML predecessor references
+        run: |
+          python -m research.phase348_13dg_legacy_html_parent_validation \
+            --phase84-artifact-dir phase348_input/phase84 \
+            --phase93-artifact-dir phase347_input \
+            --outdir phase348_output
+          python - <<'PY'
+          import json
+          committed = json.load(open("research/phase348_13dg_legacy_html_parent_validation_result.json", encoding="utf-8"))
+          fresh = json.load(open("phase348_output/phase348_summary.json", encoding="utf-8"))
+          assert committed == fresh
+          assert fresh["verified_legacy_html_parents"] == 2
+          assert fresh["failed_parent_validations"] == 0
+          assert fresh["explicit_predecessor_refs_outside_600_header_sample_remaining"] == 44
+          PY
       - name: Upload deterministic result
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: phase347-13dg-cusip-integrity-audit
-          path: phase347_output/
+          name: phase347-348-13dg-identity-audit
+          path: |
+            phase347_output/
+            phase348_output/
           if-no-files-found: error
           retention-days: 90
