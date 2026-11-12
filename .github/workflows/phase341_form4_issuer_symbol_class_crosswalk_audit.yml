@@ -1,0 +1,86 @@
+name: Phase 341 Form 4 issuer-symbol and security-class crosswalk audit
+on:
+  push:
+    branches:
+      - phase341-form4-issuer-symbol-class-crosswalk
+    paths:
+      - "research/phase341_form4_issuer_symbol_class_crosswalk_audit.py"
+      - "research/test_phase341_form4_issuer_symbol_class_crosswalk_audit.py"
+      - ".github/workflows/phase341_form4_issuer_symbol_class_crosswalk_audit.yml"
+permissions:
+  actions: read
+  contents: read
+concurrency:
+  group: phase341-form4-issuer-symbol-class-crosswalk
+  cancel-in-progress: false
+jobs:
+  issuer-symbol-class-crosswalk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Compile and run offline regressions
+        run: |
+          python -m py_compile research/phase341_form4_issuer_symbol_class_crosswalk_audit.py research/test_phase341_form4_issuer_symbol_class_crosswalk_audit.py
+          python -m unittest -v research.test_phase341_form4_issuer_symbol_class_crosswalk_audit
+      - name: Download and verify immutable Phase 340 and 339 artifacts
+        run: |
+          curl --retry 8 --retry-all-errors --retry-delay 3 --retry-max-time 180 -fsSL -H "Accept: application/vnd.github+json" -H "Authorization: Bearer $GH_TOKEN" "https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13959807159/zip" -o phase340_source.zip
+          echo "246fc82c5fa6c9fdb6071a58ad5675e7892bbc389fcb5798e3cc2e27f55c78f5  phase340_source.zip" | sha256sum --check
+          mkdir -p phase340_source
+          unzip -q phase340_source.zip -d phase340_source
+          echo "d0382a656cdfc8937a4d5749cf4e1281a0a1f642c93b3d73b7f7d4c4f3a1a731  phase340_source/phase340_transaction_date_anchor_audit.json" | sha256sum --check
+          curl --retry 8 --retry-all-errors --retry-delay 3 --retry-max-time 180 -fsSL -H "Accept: application/vnd.github+json" -H "Authorization: Bearer $GH_TOKEN" "https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13959007527/zip" -o phase339_source.zip
+          echo "186bd582c8cd0ffff73cda16c7331e5a2bd34e413b6aba3715b5fac430a0a66f  phase339_source.zip" | sha256sum --check
+          mkdir -p phase339_source
+          unzip -q phase339_source.zip -d phase339_source
+          echo "4560b26f6cb37db8a3cf499207643026aab7e4e309ef8c7cf496b9e02d2d9e15  phase339_source/phase339_security_exchange_audit.json" | sha256sum --check
+      - name: Run exact issuer-symbol and instrument-class crosswalk
+        run: |
+          python -m research.phase341_form4_issuer_symbol_class_crosswalk_audit --phase340-dir phase340_source --phase339-dir phase339_source --output-dir phase341_output
+      - name: Enforce immutable source accounting and frozen controls
+        run: |
+          python - <<'PY'
+          import json
+          r=json.load(open("phase341_output/phase341_issuer_symbol_class_crosswalk_audit.json",encoding="utf-8"))
+          assert r["phase"]==341
+          s=r["summary"]
+          assert s["accessions"]==72 and s["raw_submissions_hash_verified"]==72
+          assert s["transaction_rows"]==122
+          assert s["unique_issuer_symbol_crosswalk_accessions"]==30
+          assert s["transaction_date_equity_identity_rows"]==38
+          assert s["transaction_date_equity_identity_accessions"]==23
+          assert s["event_time_equity_identity_rows"]==41
+          assert s["event_time_equity_identity_accessions"]==26
+          assert s["event_time_derivative_underlying_rows"]==16
+          assert s["all_code_p_rows"]==27 and s["all_code_p_direct_rows"]==15
+          assert s["event_time_code_p_rows"]==4 and s["event_time_code_p_indirect_rows"]==4
+          assert s["event_time_code_p_direct_rows"]==0
+          assert s["unmapped_direct_code_p_rows"]==15
+          assert s["event_time_only_after_transaction_anchor_rows"]==3
+          assert s["confirmed_discretionary_open_market_purchase_rows"]==0
+          c=r["controls"]
+          for k,v in c.items():
+              if k=="f80_frozen": assert v is True
+              else: assert v is False, k
+          print("PHASE341_STATUS="+r["status"])
+          print("PHASE341_SUMMARY="+json.dumps(s,sort_keys=True))
+          print("PHASE341_COVERAGE="+json.dumps(r["coverage"],sort_keys=True))
+          PY
+      - name: Upload Phase 341 crosswalk evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase341-form4-issuer-symbol-class-crosswalk
+          path: phase341_output/
+          retention-days: 90
+          if-no-files-found: warn
+
+# No new SEC requests: this phase reuses byte-verified Phase 339/340 artifacts only.
