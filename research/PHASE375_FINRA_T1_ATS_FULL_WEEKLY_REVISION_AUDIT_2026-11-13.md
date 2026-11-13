@@ -1,6 +1,6 @@
 # Phase 375 — FINRA T1 ATS full weekly revision-stability audit
 
-**Status at creation:** design and offline tests; full 209-week retrieval pending.  
+**Status:** design and offline tests passed; full 209-week retrieval is running.  
 **Parent evidence:** Phase 374 completed successfully in run 43481384832 / artifact 14067403379.
 
 ## Objective
@@ -38,4 +38,9 @@ initialPublishedDate is date-only; lastUpdateDate is not an intermediate-vintage
 
 No forward returns, alpha, OOS, bootstrap, LOO, or holdout use. No changes to F80, parameters, universe, capital, exposure, or production.
 
-Workflow run and final artifact will be linked here after completion.
+## Execution trail
+
+- First preflight run [43493288658](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43493288658) failed before data retrieval because the synthetic aggregation test fixture omitted the rows/pages fields expected by the summary function. No FINRA requests or data conclusions resulted.
+- Fixed the fixture in commit f2f7ea1d9e9444876c6a2d870aff31c3f900fb16. The corrected run [43493465495](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43493465495) passed compilation and all five offline tests, then began the 209-week retrieval. It remains in progress; no duplicate run has been started.
+
+Final retrieval metrics and artifact link will be added after completion.
