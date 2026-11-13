@@ -1,0 +1,48 @@
+{
+  "phase": 376,
+  "audit_date": "2026-11-13",
+  "source": "CFTC Traders in Financial Futures - Futures Only",
+  "socrata_dataset_id": "gpe5-46if",
+  "api": "https://publicreporting.cftc.gov/resource/gpe5-46if.json",
+  "approximate_rows": 47300,
+  "columns": 90,
+  "data_last_updated": "2026-11-06",
+  "history_start": "2006-06-13",
+  "categories": [
+    "Dealer",
+    "Asset Manager",
+    "Leveraged Money",
+    "Other Reportables",
+    "Non-Reportables"
+  ],
+  "candidate_index_contracts": [
+    {
+      "name": "E-MINI S&P 500",
+      "code": "13874A"
+    },
+    {
+      "name": "NASDAQ-100 STOCK INDEX (MINI)",
+      "code": "209742"
+    },
+    {
+      "name": "RUSSELL 2000 STOCK INDEX (MINI)",
+      "code": "239742"
+    },
+    {
+      "name": "DOW JONES INDUSTRIAL AVG - x $5",
+      "code": "124603"
+    }
+  ],
+  "normal_release": "Friday 15:30 America/New_York; positions as of preceding Tuesday close",
+  "actual_historical_release_dates_available_months": 13,
+  "historical_data_updated_after_publication": false,
+  "current_example": {
+    "report_date": "2026-11-10",
+    "scheduled_release_date": "2026-11-16",
+    "reason": "Veterans Day delay"
+  },
+  "pit_status": "SCHEDULE_PROXY_ONLY_BEFORE_13_MONTHS",
+  "alpha_test_authorized": false,
+  "holdout_used": false,
+  "f80_changed": false
+}
