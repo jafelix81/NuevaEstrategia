@@ -1,0 +1,62 @@
+name: Phase 383 - CFTC Russell E-mini archive PIT panel audit
+
+on:
+  push:
+    branches:
+      - phase383-cftc-russell-eminifutures-pit-panel-audit
+    paths:
+      - "research/phase383_cftc_russell_eminifutures_pit_panel_audit.py"
+      - "research/test_phase383_cftc_russell_eminifutures_pit_panel_audit.py"
+      - ".github/workflows/phase383_cftc_russell_eminifutures_pit_panel_audit.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase383-cftc-russell-eminifutures-pit-panel-audit
+  cancel-in-progress: false
+
+jobs:
+  russell-pit-panel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Install request dependency
+        run: python -m pip install requests
+      - name: Compile and test
+        run: |
+          python -m py_compile research/phase383_cftc_russell_eminifutures_pit_panel_audit.py research/test_phase383_cftc_russell_eminifutures_pit_panel_audit.py
+          python -m unittest -v research.test_phase383_cftc_russell_eminifutures_pit_panel_audit
+      - name: Retrieve and audit all post-2017 Russell E-mini report pages
+        run: python -u -m research.phase383_cftc_russell_eminifutures_pit_panel_audit --output phase383_cftc_russell_eminifutures_pit_panel
+      - name: Enforce Russell-specific conservative timestamp controls
+        run: |
+          python - <<'PY'
+          import json,sys
+          r=json.load(open("phase383_cftc_russell_eminifutures_pit_panel/summary.json",encoding="utf-8"))
+          if not r.get("row_count_reconciled") or not r.get("metadata_stable") or not r.get("natural_key_unique"):
+              sys.exit("CFTC Russell TFF rows did not reconcile")
+          if not r.get("expected_anomaly_dates_match_gate") or r.get("archive_pages_excluded")!=2:
+              sys.exit("Russell archive exclusions differ from audited exceptions")
+          if r.get("official_schedule_not_earlier_count")!=r.get("official_schedule_sample_count"):
+              sys.exit("Official release schedule crosscheck failed")
+          if r.get("strict_historical_pit_authorized") or r.get("alpha_test_authorized") or r.get("holdout_used") or r.get("f80_changed") or r.get("production_changed"):
+              sys.exit("Research-only controls violated")
+          print("PHASE383_RUSSELL_EMINI_ARCHIVE_PANEL=PASS")
+          print("VALID_PAGES=",r["archive_pages_valid"],"/",r["retrieved_row_count"])
+          print("EXCLUDED_DATES=",r["excluded_report_dates"])
+          print("STRICT_PIT=NOT_FORMALLY_CERTIFIED")
+          PY
+      - name: Upload date-only Russell panel
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase383-cftc-russell-eminifutures-pit-panel
+          path: phase383_cftc_russell_eminifutures_pit_panel/
+          if-no-files-found: warn
+          retention-days: 90
