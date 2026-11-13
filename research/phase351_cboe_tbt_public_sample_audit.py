@@ -215,11 +215,16 @@ def audit_zip_bytes(archive_bytes: bytes) -> dict:
                     raise ValueError(f"{name}: PRICE cannot be negative")
                 if price == 0:
                     price_zero += 1
-                strike = _parse_decimal(row["STRIKE_PRICE"], "STRIKE_PRICE", optional=False)
-                contract = (row["UNDERLYING"], row["OSI_ROOT"], row["EXPIRE_DATE"],
-                            cp, str(strike))
+                strike = _parse_decimal(row["STRIKE_PRICE"], "STRIKE_PRICE", optional=True)
+                contract_fields = (row["OSI_ROOT"], row["EXPIRE_DATE"], cp)
+                contract = None
+                if all(contract_fields) and strike is not None:
+                    contract = (row["UNDERLYING"], row["OSI_ROOT"], row["EXPIRE_DATE"],
+                                cp, str(strike))
+                    series_keys.add(contract)
+                else:
+                    incomplete_contract_identity_rows += 1
                 underlyings.add(row["UNDERLYING"])
-                series_keys.add(contract)
 
                 nbbo_bid = _parse_decimal(row["NBBO_BID"], "NBBO_BID")
                 nbbo_ask = _parse_decimal(row["NBBO_ASK"], "NBBO_ASK")
@@ -256,7 +261,7 @@ def audit_zip_bytes(archive_bytes: bytes) -> dict:
                     g = exec_groups[exec_id]
                     g["rows"] += 1
                     g["sides"].add(side)
-                    g["contracts"].add(contract)
+                    g["contracts"].add(contract) if contract is not None else None
                     g["capacities"].add(capacity)
                     g["open_close"].add(oc) if oc else None
                 complex_id = row["COMPLEX_EXEC_ID"]
@@ -265,7 +270,7 @@ def audit_zip_bytes(archive_bytes: bytes) -> dict:
                 else:
                     g = complex_groups[complex_id]
                     g["rows"] += 1
-                    g["contracts"].add(contract)
+                    g["contracts"].add(contract) if contract is not None else None
                     g["sides"].add(side)
 
                 exact_key = tuple(row[c] for c in EXPECTED_COLUMNS)
