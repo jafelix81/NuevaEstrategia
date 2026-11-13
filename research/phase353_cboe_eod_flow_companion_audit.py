@@ -397,7 +397,7 @@ def run_audit() -> dict:
         "open_close_eod_overnight_delivery": "overnight after midnight u.s. eastern" in oc_product_text,
         "open_close_oi_and_industry_volume_are_value_adds": "total industry volume and open interest" in oc_product_text and "third-party vendors" in oc_product_text,
         "option_eod_history_2012": "available from january 2012 to present" in oe_product_text,
-        "option_eod_opra_and_daily": "opra market data feed" in oe_product_text and "daily file delivery" in oe_product_text,
+        "option_eod_opra_and_daily": ("options price reporting authority (opra) market data feed" in oe_product_text or "opra market data feed" in oe_product_text) and "daily file delivery" in oe_product_text,
     }
 
     oc_audit = audit_archive(oc_sample["payload"], product="open_close_eod")
