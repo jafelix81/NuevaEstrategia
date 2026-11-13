@@ -81,3 +81,14 @@ Phase 350's latest hosted attempt [43344689909](https://github.com/jafelix81/Nue
 ## Controls
 
 No signal admitted. No returns, alpha, OOS, bootstrap or LOO test performed in Phase 351. No holdout used. No vendor contacted, no trial requested, no data purchased, no terms accepted, no PR merged, no production/universe/capital/parameter change. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+
+## Latest completed research line — Phase 353: Cboe daily EOD flow + OPRA option context
+
+- Open-Close EOD v1.3 adds a daily participant-capacity/open-close route with a documented preliminary and final file, typically delivered 00:30–01:00 U.S. Eastern the next morning. The final file sources total-industry volume and open interest from OCC; preserve preliminary/final vintages if prospective capture is later activated.
+- Option EOD Summary v1.1 supplies OPRA option context, 15:45 IV/Greeks when purchased, and start-of-day OCC open interest. Zero IV can mean invalid/unavailable model input. On early-close days, the 1545 field is actually 12:45 ET.
+- Product-page history: C1 Open-Close EOD 2005-01-03; BZX/C2/EDGX 2018-01-02; Option EOD Summary January 2012. Full four-venue paired history cannot start before 2018-01-02.
+- Open-Close page says C1 includes RTH and GTH, while Option EOD specification says RTH only. The Option EOD schema also lacks Open-Close's S/N/F series-type field; session and adjusted-contract joins need deterministic resolution.
+- The linked 1-minute sample filename is dated 2026-09-30, before the v1.8 effective date of 2026-11-08. It cannot validate post-cutover headers/corrections.
+- Phase 353 public sample/schema workflow is pending. It emits only aggregate metadata/hashes, not raw market rows.
+- Decision pending sample validation: daily EOD pair is the preferred next feasibility candidate over 1-minute cumulative snapshots, but historical coverage, exact first-receipt PIT, licensing, prospective capture, returns and alpha remain closed.
