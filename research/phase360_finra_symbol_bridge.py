@@ -214,8 +214,13 @@ def audit_pair(rows, week, tier, aggregate_type):
     mapped_count = len(mapped)
     ambiguous_count = len(ambiguous)
     orphan_count = len(aggregate_only) + len(firm_only)
+    aggregate_key_counts = Counter()
+    for symbol, symbol_rows in aggregate_by_symbol.items():
+        for row in symbol_rows:
+            product = norm(row.get("productTypeCode")) or "__MISSING__"
+            aggregate_key_counts[(symbol, product)] += 1
     duplicate_aggregate_symbol_rows = sum(
-        max(0, len(v) - 1) for v in aggregate_by_symbol.values()
+        max(0, count - 1) for count in aggregate_key_counts.values()
     )
     has_explicit_exclusions = (
         ambiguous_count > 0
@@ -223,7 +228,7 @@ def audit_pair(rows, week, tier, aggregate_type):
         or missing_firm_symbol_rows > 0
     )
     mapping_gate = (
-        "FAIL_OR_REVIEW" if orphan_count or duplicate_aggregate_symbol_rows
+        "FAIL_OR_REVIEW" if orphan_count or duplicate_aggregate_symbol_rows or partition_errors
         else ("PASS_WITH_EXCLUSIONS" if has_explicit_exclusions else "PASS")
     )
     reconciliation_gate = (
@@ -231,14 +236,15 @@ def audit_pair(rows, week, tier, aggregate_type):
         and both_exact == mapped_count
         and not invalid_numeric_symbols
         and not mismatch_examples
+        and not partition_errors
         else "FAIL_OR_REVIEW"
     )
-    data_gate = (
-        "PASS_WITH_EXCLUSIONS"
-        if mapping_gate in {"PASS", "PASS_WITH_EXCLUSIONS"}
-        and reconciliation_gate == "PASS"
-        else "FAIL_OR_REVIEW"
-    )
+    if reconciliation_gate != "PASS" or mapping_gate == "FAIL_OR_REVIEW":
+        data_gate = "FAIL_OR_REVIEW"
+    elif mapping_gate == "PASS_WITH_EXCLUSIONS":
+        data_gate = "PASS_WITH_EXCLUSIONS"
+    else:
+        data_gate = "PASS"
     concentration_ready = (
         data_gate == "PASS"
         and ambiguous_count == 0
@@ -320,8 +326,8 @@ def audit_partition(rows, week, tier):
         ),
         "pairs": pairs,
         "partition_status": (
-            "PASS" if all(v["data_gate"] in {"PASS", "PASS_WITH_EXCLUSIONS"} for v in pairs.values())
-            else "FAIL_OR_REVIEW"
+            "FAIL_OR_REVIEW" if any(v["data_gate"] == "FAIL_OR_REVIEW" for v in pairs.values())
+            else ("PASS_WITH_EXCLUSIONS" if any(v["data_gate"] == "PASS_WITH_EXCLUSIONS" for v in pairs.values()) else "PASS")
         ),
         "forward_returns_used": False,
         "alpha_test_authorized": False,
@@ -375,6 +381,11 @@ def main():
         for partition in partitions
         for pair in partition.get("pairs", {}).values()
     ]
+    retrieval_gate = (
+        "PASS" if len(partitions) == 4 and not request_errors
+        and all(p.get("api_record_total_match") for p in partitions)
+        else "FAIL_OR_REVIEW"
+    )
     summary = {
         "phase": 360,
         "source": "FINRA OTCMarket weeklySummaryHistoric",
@@ -391,15 +402,12 @@ def main():
             len(partitions) == 4
             and all(p.get("api_record_total_match") for p in partitions)
         ),
-        "retrieval_gate": (
-            "PASS" if len(partitions) == 4 and not request_errors
-            and all(p.get("api_record_total_match") for p in partitions)
-            else "FAIL_OR_REVIEW"
-        ),
+        "retrieval_gate": retrieval_gate,
         "overall_data_gate": (
-            "PASS_WITH_EXCLUSIONS"
-            if all_pairs and all(p["data_gate"] in {"PASS", "PASS_WITH_EXCLUSIONS"} for p in all_pairs)
-            else "FAIL_OR_REVIEW"
+            "FAIL_OR_REVIEW"
+            if retrieval_gate != "PASS" or not all_pairs
+            or any(p["data_gate"] == "FAIL_OR_REVIEW" for p in all_pairs)
+            else ("PASS_WITH_EXCLUSIONS" if any(p["data_gate"] == "PASS_WITH_EXCLUSIONS" for p in all_pairs) else "PASS")
         ),
         "pit_status": "FINAL_HISTORICAL_SNAPSHOT_ONLY; interim vintages unavailable",
         "economic_interpretation": (
