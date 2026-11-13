@@ -220,6 +220,14 @@ No signal admitted. No economic test, no holdout use, no parameter/universe/capi
 - Full retrieval is queued: [run 43493288658](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43493288658). Do not start a duplicate.
 - This remains data-feasibility only; exact intraday PIT, forward returns, alpha, OOS, bootstrap, LOO and holdout are not authorized.
 
+### Cross-source reconciliation — OptionMetrics TradeFlow vs Cboe Option Trades
+
+- Repository audit confirmed Phases 142/143/180/181 already rank **IvyDB TradeFlow as the primary conditional all-venue signed-flow candidate**. Phase 181 preregistered five competing mechanisms and nine blocked admission gates; no raw data, feature, or backtest has been admitted.
+- TradeFlow advertises all U.S. options across exchanges from 2016-01, 5m/30m/EOD, and four tables (Signed_Volume, Trade_Conditions, Market_Structure, Signed_Exchange). Its 2026-09-30 launch means the 2016 history is a backfill claim, not proof of live 2016 availability. Participant fields are execution-style proxies; Institutional 2 is aggressive liquidity demand, not total institutional activity or beneficial-owner identity.
+- Cboe Option Trades (2012-01 advertised OPRA archive) is now classified as the **independent raw trade/NBBO validation candidate**, not a replacement or higher-priority signal source. Cboe Open-Close is complementary for capacity × side × open/close on four Cboe venues; PITCH is a separate order-book microstructure source.
+- Corrected Phase 373 report and PR #48 to remove the contradictory ranking. No sample bytes or independent classification validation obtained; no vendor contact, trial, purchase, alpha or OOS test.
+- Phase 181's nine gates remain blocked: representative active/inactive sample, interval semantics, first receipt, corrections/vintages, classifier version/backfill, per-field participant/lot-size history, independent classification accuracy, effective-dated identity, and price/license/derived-data rights.
+
 ## Controls reaffirmed
 
 No new Smart Money signal admitted. No economic/OOS test from Phases 371–374, no holdout use, no production/universe/capital/parameter change. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen. No PR merged.
