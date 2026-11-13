@@ -26,6 +26,7 @@ import requests
 from scipy.stats import spearmanr
 
 import Nueva_Estrategia_Fase12_FinalOOS_Selection_LTM as P12
+import Nueva_Estrategia_Fase11_Real1000_LTM_v4 as P11
 
 OUTDIR = Path("phase372_finra_shortflow_next_open_retest")
 RAW_DIR = Path("phase372_raw_cnms")
@@ -52,6 +53,11 @@ COST_BPS_PER_LEG = (0, 5, 10, 20)
 BOOTSTRAP_REPS = 10_000
 BOOTSTRAP_SEED = 372
 
+# Freeze the exact 10-year Yahoo window used by the original Phase 20C run
+# (workflow started 2026-10-24); do not let a rolling period=10y shift signals.
+FIXED_PRICE_START = "2016-10-24"
+FIXED_PRICE_END = "2026-10-24"
+EXPECTED_VALID_UNIVERSE = 329
 EXPECTED_TRAIN_END = "2024-10-30"
 EXPECTED_TRAIN_SIGNALS = 24
 EXPECTED_ELIGIBLE_SIGNALS = 20
@@ -256,10 +262,57 @@ def bootstrap_mean_interval(values, reps=BOOTSTRAP_REPS, seed=BOOTSTRAP_SEED):
     return float(np.quantile(samples, .025)), float(np.quantile(samples, .975))
 
 
+def download_pinned_universe():
+    original_download = P11.yf.download
+    def pinned_download(ticker, period=None, interval="1d", auto_adjust=False, progress=False, threads=False, **kwargs):
+        return original_download(
+            ticker, start=FIXED_PRICE_START, end=FIXED_PRICE_END,
+            interval=interval, auto_adjust=auto_adjust, progress=progress, threads=threads,
+        )
+    P11.yf.download = pinned_download
+    try:
+        data, failures = P12.download_universe(P12.DEFAULT_UNIVERSE)
+    finally:
+        P11.yf.download = original_download
+
+    # Retry transient Yahoo failures without changing the frozen price window.
+    remaining, recovered = [], 0
+    for failure in failures:
+        ticker = str(failure.get("Ticker", ""))
+        ok = False
+        for attempt in range(3):
+            try:
+                raw = original_download(
+                    ticker, start=FIXED_PRICE_START, end=FIXED_PRICE_END,
+                    interval="1d", auto_adjust=False, progress=False, threads=False,
+                )
+                if raw is None or raw.empty:
+                    raise ValueError("empty retry")
+                feat = P11.build_features(raw)
+                if len(feat) < 220:
+                    raise ValueError(f"insufficient retry rows: {len(feat)}")
+                data[ticker] = feat
+                recovered += 1
+                ok = True
+                break
+            except Exception as exc:
+                time.sleep(2 ** attempt)
+                last_error = str(exc)
+        if not ok:
+            remaining.append({"Ticker": ticker, "Error": failure.get("Error", last_error if "last_error" in locals() else "retry_failed")})
+    return data, remaining, recovered
+
+
 def main():
     start = time.time()
     print("PHASE 372 — FINRA short-flow next-session-open retest", flush=True)
-    data, failures = P12.download_universe(P12.DEFAULT_UNIVERSE)
+    print(f"PINNED_PRICE_WINDOW={FIXED_PRICE_START}..{FIXED_PRICE_END} (end exclusive)", flush=True)
+    data, failures, recovered = download_pinned_universe()
+    if len(data) != EXPECTED_VALID_UNIVERSE:
+        raise RuntimeError(
+            f"Valid universe drift: expected {EXPECTED_VALID_UNIVERSE}, got {len(data)}; "
+            f"recovered={recovered}; remaining_failures={[x.get('Ticker') for x in failures]}"
+        )
     calendar = sorted({nd(d) for frame in data.values() for d in frame.Date.dropna().tolist()})
     snapshots = P12.build_snapshots(data, calendar)
     signals = P12.signal_dates_for(calendar, snapshots, F80_FREQ)
@@ -456,6 +509,9 @@ def main():
         "exit_rule": "close of the 5th/10th/20th entry session",
         "universe_size_valid": len(data),
         "universe_failures": len(failures),
+        "universe_recovered_after_retry": recovered,
+        "fixed_price_window_start": FIXED_PRICE_START,
+        "fixed_price_window_end_exclusive": FIXED_PRICE_END,
         "train_signals": len(train_all),
         "finra_eligible_train_signals": len(eligible),
         "train_end": nd(train_end).strftime("%Y-%m-%d"),
