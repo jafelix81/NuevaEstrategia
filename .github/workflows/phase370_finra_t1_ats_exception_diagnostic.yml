@@ -1,0 +1,64 @@
+name: Phase 370 - FINRA T1 ATS boundary and duplicate diagnostic
+
+on:
+  push:
+    branches:
+      - phase370-finra-t1-ats-boundary-and-duplicate-diagnostic
+    paths:
+      - "research/phase370_finra_t1_ats_exception_diagnostic.py"
+      - "research/test_phase370_finra_t1_ats_exception_diagnostic.py"
+      - ".github/workflows/phase370_finra_t1_ats_exception_diagnostic.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase370-finra-t1-ats-boundary-and-duplicate-diagnostic
+  cancel-in-progress: false
+
+jobs:
+  exception-diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Install request dependency
+        run: python -m pip install requests
+      - name: Compile and test
+        run: |
+          python -m py_compile research/phase370_finra_t1_ats_exception_diagnostic.py research/test_phase370_finra_t1_ats_exception_diagnostic.py
+          python -m unittest -v research.test_phase370_finra_t1_ats_exception_diagnostic
+      - name: Retrieve boundary and ambiguous T1 partitions
+        run: python -m research.phase370_finra_t1_ats_exception_diagnostic --output phase370_finra_t1_ats_exception_diagnostic
+      - name: Enforce research-only controls
+        run: |
+          python - <<'PY'
+          import json, sys
+          r=json.load(open("phase370_finra_t1_ats_exception_diagnostic/summary.json",encoding="utf-8"))
+          if not r.get("all_partitions_complete") or r.get("errors"):
+              sys.exit("Phase 370 partition retrieval incomplete")
+          if r.get("pit_availability_established") is not False or r.get("historical_signal_test_authorized"):
+              sys.exit("Phase 370 cannot claim PIT or authorize signal tests")
+          if r.get("forward_returns_used") or r.get("holdout_used") or r.get("f80_changed"):
+              sys.exit("Research-only controls violated")
+          if r.get("raw_rows_retained") or r.get("raw_identifiers_retained"):
+              sys.exit("Raw rows or identifiers retained")
+          print("PHASE370_RETRIEVAL=PASS")
+          print("PIT_AVAILABILITY=NOT_ESTABLISHED")
+          print("HISTORICAL_SIGNAL_TEST=NOT_AUTHORIZED")
+          for p in r["partitions"]:
+              print(p["week"], "ATS_DATE_GATE=", p["ats_date_gate"],
+                    "POSITIVE_GAPS=", p["ats_positive_update_gaps"],
+                    "AMBIGUOUS_SYMBOLS=", p["ambiguous_ats_aggregate_symbol_count"])
+          PY
+      - name: Upload anonymized diagnostic
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase370-finra-t1-ats-exception-diagnostic
+          path: phase370_finra_t1_ats_exception_diagnostic/
+          if-no-files-found: error
+          retention-days: 90
