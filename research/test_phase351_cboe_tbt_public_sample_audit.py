@@ -74,6 +74,14 @@ class Phase351TbtSampleTests(unittest.TestCase):
         self.assertEqual(result["open_close_counts"], {"UNKNOWN_BLANK": 1})
         self.assertEqual(result["missing_required_cells"]["OPEN_CLOSE"], 1)
 
+    def test_incomplete_contract_identity_is_counted_without_fabrication(self):
+        result = audit_zip_bytes(make_archive([
+            row(OSI_ROOT="", CALL_PUT_FLAG="")
+        ]))
+        self.assertEqual(result["incomplete_contract_identity_rows"], 1)
+        self.assertEqual(result["unique_option_series_complete_identity_only"], 0)
+        self.assertEqual(result["call_put_counts"], {"UNKNOWN_BLANK": 1})
+
     def test_schema_and_basic_counts(self):
         result = audit_zip_bytes(make_archive([row()]))
         self.assertEqual(result["rows"], 1)
