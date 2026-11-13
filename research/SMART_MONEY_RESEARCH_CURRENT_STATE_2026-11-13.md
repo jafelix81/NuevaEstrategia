@@ -6,7 +6,7 @@ Develop a strategy with a real statistical and economic edge, validated chronolo
 
 **Frozen baseline:** `F80_TOP20_PARTIAL50_BASELINE_C20`. Do not change it absent robust incremental OOS evidence.  
 **Legacy holdout:** `CONSUMED_NOT_PRISTINE`; do not reuse.  
-**Current economic status:** no new Smart Money feature has demonstrated incremental, cost-adjusted OOS edge. No signal admitted. No forward-return, alpha, OOS, bootstrap, LOO or holdout test has been run in Phases 361–365.
+**Current economic status:** no new Smart Money feature has demonstrated incremental, cost-adjusted OOS edge. No signal admitted. No forward-return, alpha, OOS, bootstrap, LOO or holdout test has been run in Phases 361–366.
 
 ## Latest FINRA work — Phases 361–363
 
@@ -69,12 +69,22 @@ For LND, OTC matched on both reporting dates. ATS matched on 2025-01-10, but 202
 - The current `weeklySummary` partition catalog extends far beyond its documented twelve-month rolling window. This is a catalog anomaly only; it does not prove old rows remain queryable. Both metadata/partition field orders agree, and `totalNotionalSum` is present in metadata.
 - Run [43444007387](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43444007387), artifact [14046932092](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43444007387/artifacts/14046932092), 7/7 tests passed. Report: [Phase 364](PHASE364_FINRA_WEEKLY_PARTITION_INVENTORY_CENSUS_2026-11-13.md).
 
-### Phase 365 — actual-row probe in progress
+### Phase 365 — actual-row probe completed with expected-absence gate defect
 
-- A 50-query, low-volume probe is checking five dates × five tiers × both weekly datasets, requesting at most ten sample rows per query.
-- It will test whether the old current-dataset partitions actually contain rows, whether NA/NMS are meaningful data tiers, and whether historic/current overlapping partitions agree at sample level.
-- Run [43444391496](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43444391496) is active. Do not launch a duplicate.
-- The probe retains only anonymized summaries, not raw symbols, firm names, MPIDs or CRDs. No alpha test is authorized.
+- 33/50 planned probes returned rows. The other 17 were combinations absent from the Phase 364 partition inventory: five historic probes after the historic inventory end; five current probes before its earliest partition; three current NMS probes outside its 17-week 2023 inventory; and four current 2026-10-19 combinations for T2/OTCE/NA/NMS when only T1 was listed.
+- The Phase 365 workflow failed because it required all 50 Cartesian-product probes to succeed. The absent current partitions returned empty bodies (recorded as JSON decode errors); historic out-of-range probes returned HTTP 400. These are expected absent partitions, not evidence of a general FINRA outage.
+- Crucial finding: current `weeklySummary` returned nonzero rows for 12 old partitions across 2022-01-03, 2025-10-20 and 2025-11-10 (T1/T2/OTCE/NA). All 12 Record-Total values matched the corresponding historic dataset. This establishes that some old current-dataset partitions are queryable despite the documentation describing a rolling 12-month window; it does not establish complete historical coverage.
+- Eleven of twelve ten-row sample signatures matched. The only mismatch was 2025-10-20/OTCE: both datasets had 24,292 records and identical sampled row/type/tier/date counts, but the historic sample had participant identifiers on 10/10 De Minimis rows while the current sample had 0/10. The ten-row probe cannot distinguish sample ordering from a real row-vintage difference.
+- NA samples contained six summary-statistic rows (3 ATS_W_VOL_STATS + 3 OTC_W_VOL_STATS) with tier description Not Applicable; treat NA as summary-only, not a stock universe. Historic NMS samples mixed NMS Tier 1, NMS Tier 2 and Not Applicable descriptions; current NMS is sparse (17 inventory weeks in 2023). Keep NMS quarantined rather than mapping it to T1/T2.
+- Run [43444391496](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43444391496), artifact [14047148064](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43444391496/artifacts/14047148064), 7/7 offline tests passed. Full report: [Phase 365 result](PHASE365_FINRA_ACTUAL_ROW_PROBE_RESULT_2026-11-13.md).
+- No raw rows were retained; no returns or alpha test were used.
+
+### Phase 366 — full-row vintage reconciliation in progress
+
+- Compares every row in the overlapping 2025-10-20 T1 and OTCE partitions between `weeklySummaryHistoric` and `weeklySummary`.
+- Uses paged retrieval, canonical order-independent row fingerprints, identity-key group counts, field-presence and numeric-total checks. Only anonymized counts and hashes are retained.
+- T1 tests the principal conditional FINRA slice; OTCE resolves the Phase 365 first-page identity-presence discrepancy.
+- This is still a data-integrity test, not an alpha test. No signal or economic test is authorized.
 
 ## Cross-source re-ranking — SEC Form 4 identity gate (Phases 345–346)
 
