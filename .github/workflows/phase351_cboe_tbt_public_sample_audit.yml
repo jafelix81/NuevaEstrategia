@@ -1,0 +1,60 @@
+name: Phase 351 - Cboe TBT public sample row-grain audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "research/phase351_cboe_tbt_public_sample_audit.py"
+      - "research/test_phase351_cboe_tbt_public_sample_audit.py"
+      - "research/PHASE351_CBOE_TBT_PUBLIC_SAMPLE_ROW_GRAIN_AUDIT_2026-11-13.md"
+      - ".github/workflows/phase351_cboe_tbt_public_sample_audit.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase351-cboe-tbt-public-sample-audit
+  cancel-in-progress: false
+
+jobs:
+  sample-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Compile audit and tests
+        run: python -m py_compile research/phase351_cboe_tbt_public_sample_audit.py research/test_phase351_cboe_tbt_public_sample_audit.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase351_cboe_tbt_public_sample_audit
+      - name: Download and audit public Cboe TBT sample
+        run: python -m research.phase351_cboe_tbt_public_sample_audit --output phase351_output/phase351_cboe_tbt_sample_audit.json
+      - name: Enforce metadata-only sample gate
+        run: |
+          python - <<'PY'
+          import json, sys
+          p = 'phase351_output/phase351_cboe_tbt_sample_audit.json'
+          r = json.load(open(p, encoding='utf-8'))
+          if r.get('status') != 'PASS_SAMPLE_ROW_GRAIN_AUDIT_NO_PIT_NO_ALPHA':
+              print(json.dumps(r, indent=2))
+              sys.exit(1)
+          if r.get('gates', {}).get('historical_pit_admitted') or r.get('gates', {}).get('alpha_admission'):
+              sys.exit(2)
+          if not r.get('gates', {}).get('f80_frozen') or r.get('gates', {}).get('holdout_used'):
+              sys.exit(3)
+          print('PHASE351_STATUS=' + r['status'])
+          print('SAMPLE_ROWS=' + str(r['rows']))
+          print('EXEC_ID_GROUPS=' + str(r['execution_id']['unique_ids']))
+          print('COMPLEX_ID_GROUPS=' + str(r['complex_execution_id']['unique_ids']))
+          print('PIT_ALPHA_GATES=CLOSED')
+          PY
+      - name: Upload metadata-only artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase351-cboe-tbt-public-sample-audit
+          path: phase351_output/phase351_cboe_tbt_sample_audit.json
+          if-no-files-found: warn
+          retention-days: 90
