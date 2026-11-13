@@ -42,3 +42,15 @@ No signal or alpha test is authorized. A successful sample audit only promotes a
 ## Controls
 
 No raw HTML, raw positions, trader identifiers, forward returns, alpha, OOS, bootstrap, LOO or holdout use. No F80, production, universe, capital, parameter or exposure changes.
+
+## Hosted result — completed 2026-11-13
+
+Corrected run [43499068179](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43499068179) passed; date-only artifact [14072598314](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43499068179/artifacts/14072598314).
+
+- All 23 official-schedule archive pages were retrieved and their report headings matched the requested report dates.
+- Archive Updated date was **not earlier than the official publication date in 23/23 cases**.
+- 22/23 were exact matches. One case was later: report date 2025-12-23, official publication 2025-12-29, archive Updated 2025-12-31 (+2 days). This is a conservative delay, not a reason to backdate the signal.
+- Six older archive-only examples (2017, 2020, 2022, 2023 and 2024) were all retrieved; each had an archive Updated date three days after its Tuesday report date. These six are descriptive only because an independent historical release-date list is unavailable.
+- The first run [43498878730](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43498878730) failed because the initial test incorrectly required exact equality. The corrected rule tests the safe direction (archive Updated >= official release), and the second run passed.
+
+**Disposition:** archive Updated is promoted to a candidate conservative availability bound for a wider audit, not a certified first-publication timestamp. If used, first eligible execution is the first regular market session after the archive Updated date; never same-day close. Strict historical PIT and alpha testing remain unauthorized pending a full post-launch archive census and review of any later corrections/migrations.
