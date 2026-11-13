@@ -88,11 +88,20 @@ For LND, OTC matched on both reporting dates. ATS matched on 2025-01-10, but 202
 - Run [43455306406](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43455306406), artifact [14054525109](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43455306406/artifacts/14054525109). Full report: [Phase 366](PHASE366_FINRA_FULL_ROW_VINTAGE_RECONCILIATION_2026-11-13.md).
 - No raw rows or identifiers were retained. No return or alpha test was run.
 
-### Phase 367 — T1 field-level vintage diagnostic in progress
+### Phase 367 — T1 field-level vintage diagnostic completed
 
-- Re-fetches 2025-10-20 T1 from both datasets, includes `summaryStartDate`, and normalizes numeric values with Decimal semantics.
-- Compares rows by hashed identity key and reports only anonymized per-field mismatch counts, signed/absolute numeric differences and summary-type counts.
-- The aim is to determine whether the 24 T1 discrepancies are limited to tiny notional rounding or involve other fields. No signal or economic test is authorized.
+- Re-fetched the full 2025-10-20 T1 partition from both datasets: 65,116 rows each, 14 pages each, zero errors; offline tests passed.
+- 65,092/65,116 rows matched exactly. The other 24 differed only in `totalNotionalSum`; no mismatch occurred in `totalWeeklyShareQuantity`, `totalWeeklyTradeCount`, `lastReportedDate`, `summaryStartDate`, symbols, participant identifiers, publication/update dates or other canonical fields.
+- Current-minus-historic signed notional difference across the 24 rows: +$0.000003; absolute differences sum to $0.000039; maximum absolute per-row difference $0.000005. No key-only or duplicate groups.
+- This is an economically negligible decimal-precision discrepancy, but the source values remain unrounded and the difference is documented. It is not evidence of an alpha signal.
+- Run [43456024316](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43456024316), artifact [14053738587](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43456024316/artifacts/14053738587). Full report: [Phase 367](PHASE367_FINRA_T1_FIELD_LEVEL_VINTAGE_DIAGNOSTIC_2026-11-13.md).
+
+### Phase 368 — FINRA revision-lag / PIT availability audit is the next gate
+
+- Quantify row-level lags from `initialPublishedDate` to `lastUpdateDate` and `lastReportedDate` on the fully retrieved 2025-10-20 T1/OTCE partitions.
+- Determine the fraction of rows whose final values reflect updates after initial publication, distribution of update lags, and whether any field is a genuine publication/knowledge timestamp.
+- Do not backdate final historical values to initial publication. If update-vintage availability cannot be reconstructed, FINRA historical signal use remains inadmissible; keep it for descriptive/current monitoring only.
+- No signal, return or alpha test is authorized.
 
 ## Cross-source re-ranking — SEC Form 4 identity gate (Phases 345–346)
 
