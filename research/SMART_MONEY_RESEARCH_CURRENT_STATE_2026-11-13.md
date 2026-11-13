@@ -86,7 +86,7 @@ No signal admitted. No returns, alpha, OOS, bootstrap or LOO test performed in P
 
 ## Latest completed research line — Phase 353: Cboe daily EOD flow + OPRA option context
 
-<badge>PASS_SAMPLE_SCHEMA_AND_SPEC_SEMANTICS_NO_PIT_NO_ALPHA</badge>
+**Status:** PASS_SAMPLE_SCHEMA_AND_SPEC_SEMANTICS_NO_PIT_NO_ALPHA
 
 - Hosted run [43373927474](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43373927474) passed 11/11 offline tests, both official specification audits, both public EOD sample schema audits, product-page checks and the no-alpha gates. Metadata-only artifact [14014015757](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43373927474/artifacts/14014015757).
 - Open-Close EOD sample: one C1 EOD member from the 2025-03-28 20% sample bundle; 23,179 option-series rows, 1,553 underlyings, 86 columns, no duplicate series keys or missing required cells, all 34 participant-volume fields. Series types: S 23,080, N 11, F 88. The bundle also contained 1m/10m samples, which were excluded from the EOD audit.
