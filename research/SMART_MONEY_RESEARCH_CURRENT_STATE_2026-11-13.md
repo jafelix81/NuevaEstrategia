@@ -201,12 +201,24 @@ No signal admitted. No economic test, no holdout use, no parameter/universe/capi
 - Public sample ZIP bytes could not be retrieved; no parser/sample validation, trial, vendor contact, purchase or card authorization.
 - Report: [Phase 373 Option Trades/PITCH ranking](https://github.com/jafelix81/NuevaEstrategia/blob/phase373-cboe-tbt-source-feasibility-audit/research/PHASE373_CBOE_OPTION_TRADES_AND_OPTIONS_PITCH_SOURCE_RANKING_2026-11-13.md). Draft [PR #48](https://github.com/jafelix81/NuevaEstrategia/pull/48) updated.
 
-### Phase 374 — revision-stable T1 ATS symbol panel in progress
+### Phase 374 — revision-stable T1 ATS symbol panel completed
 
-- Re-fetches the same 47 monthly T1 partitions and will exclude a symbol-week from concentration if any aggregate or firm row has missing/invalid dates or a nonzero `lastUpdateDate - initialPublishedDate`.
-- It accepts 21/22 calendar-day publication lags as schedule-consistent but never backdates: the actual `initialPublishedDate` remains the candidate knowledge date.
-- CTS/UTP aggregate rows are combined only if product codes are distinct and combined shares/trades exactly reconcile to firm rows. Concentration is calculated only for revision-stable, reconciled symbol-weeks with complete unique participant identifiers and no De Minimis bucket.
-- Run [43481384832](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43481384832) is still running. Do not duplicate it. No return test is authorized; exact intraday first receipt and intermediate-vintage history remain unestablished.
+- Full retrieval of the 47 monthly T1 partitions passed: **2,469,987 rows / 517 pages**, all Record-Total counts reconciled, 47/47 symbol bridges passed.
+- Across 98,887 symbol-week groups, **96,919 were revision-stable and concentration-ready (98.0098%)**. The remaining 1,968 groups (1.9902%) were excluded because at least one aggregate or firm row had a post-initial update or date/schedule issue.
+- Revision exclusions were concentrated in 2023-11-13 (1,051 symbol groups) and 2025-05-12 (915); one group each was affected in 2024-02-12 and 2025-06-16.
+- Stable concentration coverage represented **95.3829% of mapped aggregate share volume** in the 47-month sample. This is descriptive broker-dealer reporting-participant concentration, not beneficial-owner or institutional-flow identification.
+- All 47 monthly sample partitions passed exact aggregate-to-firm symbol-level shares/trades reconciliation. The sample remains one selected week per month, not a census of all 209 historic weekly partitions.
+- Correction: Phase 374 summary field unique_participant_keys_union_count is erroneous (it counts distinct per-week count/week pairs, not unique participants). Do not use it. Phase 375 recomputes the union count in memory with hashed keys and persists only the count.
+- Run [43481384832](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43481384832), artifact [14067403379](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43481384832/artifacts/14067403379).
+- Exact PIT remains unestablished: initialPublishedDate is date-only and the API does not expose a complete intermediate-vintage/first-receipt ledger. No historical return test is authorized.
+
+### Phase 375 — exhaustive weekly T1 ATS revision audit in progress
+
+- Expands from the 47-month sample to all **209 consecutive T1 historic weekly partitions**, 2021-11-15 through 2025-11-10.
+- Reuses the Phase 374 symbol-week revision and aggregate-to-firm reconciliation rules; reports anonymized weekly coverage, revision, share-volume, participant-union and concentration statistics only.
+- Corrects the Phase 374 participant-union count defect by hashing MPID/CRD-derived keys in memory; no raw identifiers or hashes are persisted.
+- Full retrieval is queued: [run 43493288658](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43493288658). Do not start a duplicate.
+- This remains data-feasibility only; exact intraday PIT, forward returns, alpha, OOS, bootstrap, LOO and holdout are not authorized.
 
 ## Controls reaffirmed
 
