@@ -1,0 +1,66 @@
+name: Phase 359 - FINRA product-type key alignment diagnostic
+
+on:
+  push:
+    branches:
+      - phase359-finra-product-type-crosswalk-diagnostic
+    paths:
+      - "research/phase359_finra_product_key_diagnostic.py"
+      - "research/test_phase359_finra_product_key_diagnostic.py"
+      - ".github/workflows/phase359_finra_product_key_diagnostic.yml"
+  pull_request:
+    branches:
+      - phase358-finra-weekly-firm-grain-audit
+    paths:
+      - "research/phase359_finra_product_key_diagnostic.py"
+      - "research/test_phase359_finra_product_key_diagnostic.py"
+      - ".github/workflows/phase359_finra_product_key_diagnostic.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase359-finra-product-key-diagnostic
+  cancel-in-progress: false
+
+jobs:
+  product-key-diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Install request dependency
+        run: python -m pip install requests
+      - name: Compile diagnostic and tests
+        run: python -m py_compile research/phase359_finra_product_key_diagnostic.py research/test_phase359_finra_product_key_diagnostic.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase359_finra_product_key_diagnostic
+      - name: Diagnose historical product-key alignment
+        env:
+          FINRA_API_TOKEN: ${{ secrets.FINRA_API_TOKEN }}
+        run: python -m research.phase359_finra_product_key_diagnostic --output phase359_finra_product_key
+      - name: Enforce retrieval-only controls
+        run: |
+          python - <<'PY'
+          import json, sys
+          result = json.load(open("phase359_finra_product_key/summary.json", encoding="utf-8"))
+          if result.get("partitions_completed") != 4 or result.get("request_errors"):
+              sys.exit("Phase 359 did not complete all four requested partitions")
+          if result.get("forward_returns_used") or result.get("alpha_test_authorized") or result.get("f80_changed"):
+              sys.exit("Research-only controls were violated")
+          print("PHASE359_DIAGNOSTIC_COMPLETED=PASS")
+          print("RETRIEVAL_GATE=" + str(result.get("retrieval_gate")))
+          print("ALPHA_TEST=NOT_AUTHORIZED")
+          PY
+      - name: Upload metadata-only artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase359-finra-product-key
+          path: phase359_finra_product_key/
+          if-no-files-found: warn
+          retention-days: 90
