@@ -206,7 +206,7 @@ def _audit_csv(text_bytes: bytes, *, name: str, product: str) -> dict:
 
     for raw in reader:
         rows += 1
-        if None in raw:
+        if None in raw or any(value is None for value in raw.values()):
             width_errors += 1
         row = {_norm(k): (v or "").strip() for k, v in raw.items() if k is not None}
         for field in ("underlying_symbol", date_field, *key_fields[1:]):
@@ -299,6 +299,8 @@ def audit_archive(payload: bytes, *, product: str) -> dict:
 def audit_intraday_sample(payload: bytes) -> dict:
     decoded = gzip.decompress(payload) if payload.startswith(b"\x1f\x8b") else payload
     text, headers = _decode_csv(decoded, "intraday_sample")
+    first_line = next(line for line in text.splitlines() if line.strip())
+    raw_headers = [str(x).strip().replace("\ufeff", "") for x in next(csv.reader([first_line]))]
     reader = csv.DictReader(io.StringIO(text, newline=""))
     row_count = sum(1 for _ in reader)
     date_match = re.search(r"(\d{4}-\d{2}-\d{2})", INTRADAY_SAMPLE)
@@ -308,7 +310,7 @@ def audit_intraday_sample(payload: bytes) -> dict:
         "market_date_from_filename": market_date,
         "row_count": row_count,
         "column_count": len(headers),
-        "headers_lowercase": all(x == x.lower() for x in headers),
+        "headers_lowercase": all(x == x.lower() for x in raw_headers),
         "trading_dt_present": "trading_dt" in headers,
         "trading_segment_present": "trading_segment" in headers,
         "v18_schema_present": all(x in headers for x in ("trading_dt", "trading_segment")),
