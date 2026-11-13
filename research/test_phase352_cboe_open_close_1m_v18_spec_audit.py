@@ -88,6 +88,11 @@ class Phase352OpenCloseOneMinuteSpecTests(unittest.TestCase):
         self.assertTrue(result["checks"]["real_time_publication_cadence"])
         self.assertTrue(result["checks"]["c1_segment_is_product_specific"])
 
+    def test_second_trading_segment_wording_is_accepted(self):
+        text = SPEC_TEXT.replace("second segment", "second trading segment")
+        result = audit_spec_text(text)
+        self.assertTrue(result["checks"]["c1_segment_is_product_specific"])
+
     def test_pit_and_alpha_gates_remain_closed(self):
         result = audit_spec_text(SPEC_TEXT)
         self.assertFalse(result["historical_pit_admitted"])
