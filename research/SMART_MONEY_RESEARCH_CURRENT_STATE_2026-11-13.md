@@ -4,7 +4,21 @@
 **Legacy holdout:** `CONSUMED_NOT_PRISTINE`; do not reuse.  
 **Economic status:** no new Smart Money feature has demonstrated incremental, cost-adjusted OOS edge. No CAGR target or holding-period constraint is imposed.
 
-## Latest completed phase — Phase 351: Cboe TBT public sample
+## Latest completed phase — Phase 354: Cboe EOD OSI reconstruction and OCC OI endpoint kill
+
+The corrected Phase 354 parser reconstructs full OSI from Cboe's `option_symbol` root, expiration, strike and call/put fields. The C1 20% EOD sample for 2025-03-28 contained **23,179 rows, 1,553 underlyings, 23,080 S / 11 N / 88 F series, zero invalid reconstructed OSI keys and zero duplicate OSI rows**.
+
+The OCC public Daily Open Interest endpoint was tested with `reportDate` and `dailyDate` parameter variants. `reportDate` returned the same 2,878-byte, 23-row March 2025 aggregate table (Equity, Index/Other, Debt, Futures and OCC Total) for each requested date; it contains no option-symbol/per-series OI field. `dailyDate` returned HTTP 500. **Kill this public OCC endpoint as a contract-level OI validator.** This is a granularity incompatibility, not evidence of an OI mismatch in Cboe.
+
+- Corrected run [43383418385](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43383418385): 18/18 offline tests passed; metadata artifact [14017970948](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43383418385/artifacts/14017970948). The initial hosted gate rejected the aggregate-only schema; the workflow gate was updated to treat this as an expected source kill.
+- [Phase 354 report](PHASE354_CBOE_OCC_OI_CROSSCHECK_AND_ENDPOINT_KILL_2026-11-13.md)
+- [Draft PR #41](https://github.com/jafelix81/NuevaEstrategia/pull/41), stacked on Phase 353, not merged.
+
+The Cboe EOD sample remains a conditional candidate only. This one-day 20% sample is not representative full-market or historical/inactive-symbol coverage. First-receipt PIT, corrections, licensing and alpha remain closed.
+
+**Universe rule:** the frozen 335-symbol panel is a comparison denominator, not a hard research-universe limit. Expand beyond it when source identity and historical price coverage permit; report both broad-universe and frozen-panel coverage.
+
+## Previous completed phase — Phase 351: Cboe TBT public sample
 
 The public Cboe TBT 3% sample for 2025-03-28 was downloaded and parsed against the 22-field v1.1 schema. Hosted workflow passed **16/16 regression tests** and the metadata-only sample gate.
 
@@ -45,7 +59,7 @@ The official v1.8 PDF (effective 2026-11-08) was downloaded and hash-pinned. Hos
 | Source / line | Current disposition |
 |---|---|
 | Cboe TBT | High-priority conditional C1 measurement candidate; sample parser passes, but row-grain/sampling, 17.86% open-close missingness, side-code mapping, session/segment discrepancy, licensing, first receipt, corrections and inactive-underlying coverage remain open |
-| Cboe Open-Close | EOD sample schema/coverage 288/335 in a 20% C1 sample; v1.8 1m specification verified, but snapshots are cumulative/corrected and historical first-receipt vintages are unproven; high-priority conditional prospective candidate, no alpha |
+| Cboe Open-Close | EOD sample schema passes; Phase 354 reconstructs 23,179 unique OSI keys in one C1 20% sample. Public OCC Daily Open Interest endpoint is aggregate-only and killed as a per-series validator. EOD/1m remain conditional candidates; historical first-receipt, corrections, broad/inactive coverage, session alignment and licensing unresolved; no alpha |
 | Cboe Option Sentiment | Historical start advertised at 2012; field cross-tabs and net-delta units/sign remain insufficient for a directional participant hypothesis |
 | Cboe Option Quotes | Conditional option risk/context source; sample parser corrections do not establish PIT, all-symbol history or inactive names |
 | CFTC TFF/COT | Historical strict PIT rejected: CFTC lacks complete historical release-date ledger; 2023 ION outage and 2025 funding lapse invalidate synthetic availability proxies. Legacy Phase 23C walk-forward quarantined; no reuse |
@@ -63,7 +77,7 @@ Phase 350's latest hosted attempt [43344689909](https://github.com/jafelix81/Nue
 
 ## Active GitHub work
 
-- PR #40: Phase 353 daily EOD flow + OPRA context feasibility, Draft/Open, stacked on Phase 352, not merged.
+- PR #41: Phase 354 Cboe EOD OSI/OCC OI endpoint audit, Draft/Open, stacked on Phase 353, not merged.\n- PR #40: Phase 353 daily EOD flow + OPRA context feasibility, Draft/Open, stacked on Phase 352, not merged.
 - PR #39: Phase 352 Open-Close 1m v1.8 spec/PIT audit, Draft/Open, not merged.
 - PR #38: Phase 351 TBT sample audit, Draft/Open, not merged.
 - PR #37: Phase 350 SEC 13D/G parent retrieval, Draft/Open, blocked on `SEC_USER_AGENT`.
@@ -84,7 +98,7 @@ Phase 350's latest hosted attempt [43344689909](https://github.com/jafelix81/Nue
 No signal admitted. No returns, alpha, OOS, bootstrap or LOO test performed in Phase 351. No holdout used. No vendor contacted, no trial requested, no data purchased, no terms accepted, no PR merged, no production/universe/capital/parameter change. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
 
 
-## Latest completed research line — Phase 353: Cboe daily EOD flow + OPRA option context
+## Previous completed research line — Phase 353: Cboe daily EOD flow + OPRA option context
 
 **Status:** PASS_SAMPLE_SCHEMA_AND_SPEC_SEMANTICS_NO_PIT_NO_ALPHA
 
