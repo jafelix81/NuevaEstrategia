@@ -172,7 +172,7 @@ def audit_zip_bytes(archive_bytes: bytes) -> dict:
                     if not row.get(field):
                         missing_required_cells[field] += 1
                 core_fields = ("TRANSACT_TIME", "TRADING_DT", "UNDERLYING", "OSI_ROOT",
-                               "CALL_PUT_FLAG", "SIZE", "PRICE", "SIDE", "OPEN_CLOSE",
+                               "CALL_PUT_FLAG", "SIZE", "PRICE", "SIDE",
                                "CAPACITY", "SESSION")
                 blank_core = [field for field in core_fields if not row.get(field)]
                 if blank_core:
