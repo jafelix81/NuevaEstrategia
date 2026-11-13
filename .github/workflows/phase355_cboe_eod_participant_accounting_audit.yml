@@ -1,6 +1,9 @@
 name: Phase 355 - Cboe EOD participant accounting audit
 
 on:
+  push:
+    branches:
+      - phase355-cboe-eod-participant-accounting-audit
   pull_request:
     paths:
       - "research/phase355_cboe_eod_participant_accounting_audit.py"
