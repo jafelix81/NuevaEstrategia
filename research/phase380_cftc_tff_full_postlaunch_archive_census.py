@@ -189,7 +189,8 @@ def run_audit():
         for future in as_completed(futures):
             pages.append(future.result())
     pages.sort(key=lambda p:p["report_date"])
-    metadata_after=control.get(META_URL,timeout=90); metadata_after.raise_for_status()
+    metadata_after_response=control.get(META_URL,timeout=90); metadata_after_response.raise_for_status()
+    metadata_after=metadata_after_response.json()
     return summarize(pages,all_dates,primary,prelaunch,metadata_before,metadata_after)
 
 def main():

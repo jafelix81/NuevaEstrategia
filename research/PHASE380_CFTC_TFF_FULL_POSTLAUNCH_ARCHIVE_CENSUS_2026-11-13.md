@@ -1,6 +1,6 @@
 # Phase 380 — CFTC TFF full post-launch archive Updated-date census
 
-**Status:** implementation and deterministic tests added; hosted full census pending.  
+**Status:** deterministic tests passed. First hosted retrieval stopped at the final metadata comparison because the HTTP Response object was not decoded as JSON; fixed in the current revision, hosted rerun pending.  
 **Parent:** Phase 379 archive Updated-date feasibility sample.  
 **Scope:** reconstruct a conservative date-only availability panel for every post-launch TFF Futures Only report; no position data or returns.
 
