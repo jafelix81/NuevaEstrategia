@@ -6,7 +6,7 @@ on:
       - ".github/workflows/phase384_cftc_tff_prospective_capture.yml"
   workflow_dispatch:
   schedule:
-    # Run after the 3:30 p.m. ET release on every business day so holiday-delayed Monday releases are captured on time.
+    # Run after the 3:30 p.m. ET release on every business day; weekday polling also handles any future CFTC semiweekly cadence.
     - cron: "15 22 * * 1-5"
 permissions:
   contents: write
