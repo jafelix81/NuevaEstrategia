@@ -1,0 +1,66 @@
+name: Phase 358 - FINRA weekly firm-grain reconciliation audit
+
+on:
+  push:
+    branches:
+      - phase358-finra-weekly-firm-grain-audit
+    paths:
+      - "research/phase358_finra_weekly_firm_grain_audit.py"
+      - "research/test_phase358_finra_weekly_firm_grain_audit.py"
+      - ".github/workflows/phase358_finra_weekly_firm_grain_audit.yml"
+  pull_request:
+    branches:
+      - phase357-cboe-product-metadata-pit-reconciliation
+    paths:
+      - "research/phase358_finra_weekly_firm_grain_audit.py"
+      - "research/test_phase358_finra_weekly_firm_grain_audit.py"
+      - ".github/workflows/phase358_finra_weekly_firm_grain_audit.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase358-finra-weekly-firm-grain-audit
+  cancel-in-progress: false
+
+jobs:
+  firm-grain-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Install request dependency
+        run: python -m pip install requests
+      - name: Compile audit and tests
+        run: python -m py_compile research/phase358_finra_weekly_firm_grain_audit.py research/test_phase358_finra_weekly_firm_grain_audit.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase358_finra_weekly_firm_grain_audit
+      - name: Audit historical symbol/firm rows
+        env:
+          FINRA_API_TOKEN: \${{ secrets.FINRA_API_TOKEN }}
+        run: python -m research.phase358_finra_weekly_firm_grain_audit --output phase358_finra_firm_grain
+      - name: Enforce data-only controls
+        run: |
+          python - <<'PY'
+          import json, sys
+          result = json.load(open("phase358_finra_firm_grain/summary.json", encoding="utf-8"))
+          if result.get("partitions_completed") != 4 or result.get("request_errors"):
+              sys.exit("Phase 358 did not complete all four requested partitions")
+          if result.get("forward_returns_used") or result.get("alpha_test_authorized") or result.get("f80_changed"):
+              sys.exit("Research-only controls were violated")
+          print("PHASE358_AUDIT_COMPLETED=PASS")
+          print("SCHEMA_GATE=" + str(result.get("schema_and_partition_gate")))
+          print("ALPHA_TEST=NOT_AUTHORIZED")
+          PY
+      - name: Upload metadata-only artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase358-finra-weekly-firm-grain
+          path: phase358_finra_firm_grain/
+          if-no-files-found: warn
+          retention-days: 90
