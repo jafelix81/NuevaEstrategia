@@ -1,6 +1,6 @@
 # Phase 383 — CFTC Russell E-mini post-2017 archive availability panel
 
-**Status:** implementation and deterministic tests added; hosted 482-week panel pending.  
+**Status:** completed — 480/482 archive pages valid; two documented exclusions.  
 **Parent:** Phase 378 contract-era split, Phase 380 full archive census, Phase 382 anomaly repair.
 
 ## Why isolate Russell code 239742
@@ -32,3 +32,17 @@ If the panel passes, CFTC Russell E-mini TFF can be considered for a broad small
 ## Controls
 
 No position data retained, no forward returns, feature construction, alpha, OOS, bootstrap, LOO or holdout use. No changes to F80, production, universe, capital, parameters or exposure. Strict historical PIT is not formally certified in this phase.
+
+## Hosted result — completed 2026-11-13
+
+Run [43500752903](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43500752903) passed; date-only artifact [14074056247](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43500752903/artifacts/14074056247).
+
+- CFTC API count reconciled: 482 rows before, retrieved and after; zero duplicate report-date/code keys; metadata snapshot stable.
+- Series: 2017-08-15 through 2026-11-03, contract code 239742, CME E-mini Russell 2000.
+- 480/482 archive pages valid (99.5851%).
+- Excluded exactly two weeks: 2018-09-25 (archive heading is 2018-09-18) and 2019-12-24 (404). Phase 382 confirmed one 239742 row exists in the CFTC API on each date; do not forward-fill.
+- Valid-page archive lag: median 3 days, p90 6 days, maximum 50 days.
+- All 23 official schedule crosschecks within the series were on or after official publication.
+- Contract name metadata has two text variants, but the same CFTC code and CME exchange; the official 2017 CFTC report identifies the contract as E-mini Russell 2000 x $50.
+
+**Disposition:** admit the post-2017 Russell E-mini series as a candidate for exploratory macro positioning/crowding feature research, using the first regular market session after archive Updated and excluding the two exceptions. This remains a conservative archive-derived PIT proxy, not a formally certified first-publication timestamp. No alpha or return test was run.
