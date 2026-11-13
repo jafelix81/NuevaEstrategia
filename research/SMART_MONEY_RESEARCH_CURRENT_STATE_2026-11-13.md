@@ -252,3 +252,33 @@ No new Smart Money signal admitted. No economic/OOS test from Phases 371–374, 
 - Phase 375 full 209-week FINRA T1 ATS retrieval remains active in run 43493465495 / job 132120346426 (step 6, full retrieval). No duplicate FINRA run was started.
 - Phase 376 remains a conditional macro-positioning source only. Actual release dates beyond the latest 13 months are unavailable per CFTC FAQ; older release calendars are schedule proxies, not strict PIT.
 - F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen; legacy holdout remains consumed and unused.
+
+## Latest update — Phases 377–378 (2026-11-13)
+
+### CFTC TFF — full coverage and Russell contract-era audit
+
+- Phase 377 completed successfully: 47,322 TFF Futures Only rows / 90 columns, row count and metadata snapshot reconciled, zero duplicate candidate (report date, contract code) keys.
+- Phase 378 completed successfully: 1,236 Russell rows across codes 239742, 239741 and 23977A; zero duplicate keys, zero invalid dates, stable metadata snapshot.
+- Critical contract identity correction: CFTC code 239742 is not one continuous Russell series. It has 119 old Russell 2000 Mini observations (2006-06-13–2008-09-16, $100 multiplier) and 482 later E-mini observations (2017-08-15–2026-11-03, $50 multiplier), separated by 3,255 days. Use only the post-2017 E-mini era as the current Russell candidate.
+- 239741 is a separate $500 Russell contract and is entirely pre-TFF-launch backcast. 23977A is a separate ICE Russell Mini series, ending 2018-06-05; do not splice or merge it with CME 239742.
+- CFTC's TFF explanatory notes say pre-2010-07-22 historical category labels were backcast using recent trader classifications. Exclude those rows from primary TFF research. Actual historical release dates beyond the verified recent window remain unavailable; strict historical PIT is not established.
+- Correction to Phase 377 coverage reporting: holiday-shifted Monday/Wednesday report dates were counted as missing Tuesday anchors. Phase 378's interval method treats 6–8 day gaps as normal weekly reporting and confirms no internal >8-day gap in the two 239742 episodes or the 239741/23977A samples. The 3,255-day 239742 break remains a separate contract-era break.
+
+Run [Phase 377](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43497266092), artifact [14071613332](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43497266092/artifacts/14071613332). Run [Phase 378](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43498339093), artifact [14071808959](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43498339093/artifacts/14071808959). Draft PR [#53](https://github.com/jafelix81/NuevaEstrategia/pull/53).
+
+**Disposition:** CFTC TFF remains a conditional broad-market positioning/crowding candidate, not a stock-specific smart-money signal. No feature or return test is authorized yet.
+
+### FINRA T1 ATS census
+
+Phase 375 remains the only active FINRA retrieval; its full 209-week T1 audit step is still running in [run 43493465495](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43493465495). Do not start another copy. The latest job inspection showed compile/tests passed and the full historic-partition retrieval step in progress; no final artifact is available yet.
+
+### Economic and production controls
+
+- F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+- No new Smart Money feature admitted; no forward-return, alpha, OOS, bootstrap, LOO or fresh holdout test from Phases 377–378.
+- Legacy holdout remains consumed and unavailable.
+- No production, capital, exposure, universe or parameter changes.
+- Phase 20C remains blocked on reproducible recovery of the original 329 valid price histories; do not change the 335-symbol universe to force completion.
+- OptionMetrics TradeFlow remains a conditional data-access/availability candidate; no purchase or vendor contact.
+
+**Economic progress remains 35%** because no incremental, cost-adjusted OOS edge has been demonstrated.
