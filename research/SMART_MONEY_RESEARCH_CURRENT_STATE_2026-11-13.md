@@ -342,3 +342,13 @@ FINRA Phase 375 remains the only active full 209-week T1 ATS retrieval in [run 4
 - The capture records selected aggregate positions, open interest, source hashes and normalized features. Spread positions remain separate from directional net; OI reconciliation includes spreads on both long and short sides. Missing weeks are not forward-filled.
 - Legacy Phase 23C is not being repeated: it selected among eight features/directions at each of only 12 pseudo-OOS dates, omitted transaction costs and identical-exposure F80 comparison, and produced weak 20-session results (NASDAQ -0.460%, S&P 500 -3.058% mean strategy returns). No new alpha test is authorized.
 - Phase 384 is research-only. The scheduled workflow will not activate until this draft branch is merged. No F80, production, universe, capital, parameter, exposure or holdout changes.
+
+
+### Phase 384 hosted baseline result — 2026-11-13
+
+- Run [43510629316](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43510629316) succeeded; artifact [14078601093](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43510629316/artifacts/14078601093).
+- Corrected test suite: 10/10 passed. The first run exposed a synthetic fixture accounting error only; no source request ran until the fixture was corrected.
+- Captured 3,035 TFF rows: 851 each for E-mini S&P 500 13874A, Nasdaq-100 Mini 209742 and DJIA $5 124603; 482 for post-2017 Russell E-mini 239742.
+- Per-contract row counts reconciled before/retrieved/after; metadata stable; natural key unique; exact OI accounting for every row; no report-date gaps over eight days.
+- Baseline CSV and state hashes were committed append-only. All 3,035 historical rows remain non-signal-eligible. No forward returns or alpha test.
+- The latest baseline report date is 2026-11-03. CFTC currently schedules the 2026-11-10 report for 2026-11-16 at 3:30 p.m. ET; it is not in the baseline. The next prospective capture will only operate after PR #59 is merged to the default branch.

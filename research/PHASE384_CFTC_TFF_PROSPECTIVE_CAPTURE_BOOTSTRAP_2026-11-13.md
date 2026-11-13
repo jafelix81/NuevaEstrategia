@@ -1,7 +1,7 @@
 # Phase 384 — CFTC TFF prospective first-receipt capture bootstrap
 
 **Date:** 2026-11-13  
-**Status:** implementation and hosted baseline test pending.  
+**Status:** hosted baseline completed successfully; prospective schedule awaits merge to the default branch.  
 **Scope:** establish a reproducible, append-only prospective availability clock. No return or alpha test.
 
 ## Why this phase follows Phase 383
@@ -65,3 +65,21 @@ Hit rates were 66.7%/50.0% at 5 sessions and 50.0%/16.7% at 20 sessions for NASD
 ## Controls
 
 No changes to F80_TOP20_PARTIAL50_BASELINE_C20, production, universe, capital, parameters or exposure. The legacy holdout remains consumed and unavailable. No vendor purchase/contact. No Smart Money signal is admitted by this phase.
+
+
+## Hosted result — completed 2026-11-13
+
+Run [43510629316](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43510629316) succeeded; artifact [14078601093](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43510629316/artifacts/14078601093).
+
+- The first run failed only in three synthetic unit-test fixtures because the fixture incorrectly allocated 50% of open interest to each of five categories. The fixture was corrected to reconcile category totals; no source-data request ran in that failed attempt.
+- Corrected run: 10/10 tests passed; API snapshot completed.
+- 3,035 rows: 851 each for 13874A, 209742 and 124603; 482 for post-2017 Russell E-mini 239742.
+- Before/retrieved/after counts matched for all four contracts; CFTC metadata remained stable; natural key was unique.
+- Open-interest accounting reconciled exactly for all 3,035 rows, including spreads on both long and short sides.
+- No contract had a report-date gap greater than eight days. All four series end at 2026-11-03.
+- The historical baseline CSV (1,420,079 bytes), state hash map (3,035 keys) and manifest were committed append-only to the branch. Every historical row remains signal_eligible=false.
+- No forward returns, alpha, OOS, bootstrap, LOO or holdout test was run.
+
+The official CFTC schedule currently lists the report for positions as of 2026-11-10 for release on **2026-11-16 at 3:30 p.m. ET**, delayed by Veterans Day. The Phase 384 baseline ends on 2026-11-03 and therefore predates that release. If PR #59 is merged before the next scheduled capture, the first post-baseline report will be observed prospectively, with its actual pipeline receipt time. See the [CFTC release schedule](https://www.cftc.gov/MarketReports/CommitmentsofTraders/ReleaseSchedule/index.htm).
+
+The workflow schedule is not active on the default branch while PR #59 remains a draft.
