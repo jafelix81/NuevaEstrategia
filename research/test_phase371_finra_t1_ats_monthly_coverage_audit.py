@@ -63,6 +63,17 @@ class Phase371Tests(unittest.TestCase):
         self.assertEqual(out["bridge_gate"], "FAIL_OR_REVIEW")
         self.assertEqual(out["ambiguous_symbols"], 1)
 
+    def test_name_without_mpid_or_crd_is_not_a_valid_participant_key(self):
+        rows = [
+            self.row("ATS_W_SMBL", totalWeeklyShareQuantity="100", totalWeeklyTradeCount="10"),
+            self.row("ATS_W_SMBL_FIRM", totalWeeklyShareQuantity="100", totalWeeklyTradeCount="10",
+                     MPID="", firmCRDNumber="0", marketParticipantName="Firm A"),
+        ]
+        out = audit_bridge(rows)
+        self.assertEqual(out["bridge_gate"], "PASS")
+        self.assertEqual(out["missing_participant_identity_rows"], 1)
+        self.assertEqual(out["concentration_gate"], "FAIL_OR_REVIEW")
+
     def test_de_minimis_censors_concentration(self):
         rows = [
             self.row("ATS_W_SMBL", totalWeeklyShareQuantity="300", totalWeeklyTradeCount="30"),
