@@ -76,6 +76,12 @@ For LND, OTC matched on both reporting dates. ATS matched on 2025-01-10, but 202
 - Run [43444391496](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43444391496) is active. Do not launch a duplicate.
 - The probe retains only anonymized summaries, not raw symbols, firm names, MPIDs or CRDs. No alpha test is authorized.
 
+## Cross-source re-ranking — SEC Form 4 identity gate (Phases 345–346)
+
+- Phase 345 replicated six purposive historical cohorts: 413 candidate transaction rows across 262/262 retrieved Form 4 accessions. In the 2023+ cohorts, event-time identity was 273/301 rows (90.70%); stricter transaction-date identity was 263/301 (87.38%). Both remain below the preregistered 95% admission gate. The 2006Q1/2012Q1 legacy cohorts had 0/112 rows resolved by the current same-context XBRL target-fact method.
+- Phase 346 tested legacy periodic HTML as a bridge. Among 96 transaction-date-eligible older-cohort rows, 53 had issuer-specific ticker prose matching Form 4, but only one unique same-row class/exchange table anchor group (two candidate rows) was usable and strictly pre-transaction. The method is not a universal historical security master.
+- Decision: stop expanding the legacy HTML parser as a universal solution; retain only candidate-level evidence with explicit venue distinctions. No insider return study or security master admission. See [Phase 345](https://github.com/jafelix81/NuevaEstrategia/blob/phase346-form4-legacy-html-identity-bridge/research/PHASE345_SEC_FORM4_MULTIQ_COHORT_IDENTITY_REPLICATION_2026-11-12.md) and [Phase 346](https://github.com/jafelix81/NuevaEstrategia/blob/phase346-form4-legacy-html-identity-bridge/research/PHASE346_FORM4_LEGACY_HTML_IDENTITY_BRIDGE_AUDIT_2026-11-12.md).
+
 ## PIT and source limitations
 
 Official FINRA metadata defines:
