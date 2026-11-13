@@ -171,11 +171,12 @@ def audit_zip_bytes(archive_bytes: bytes) -> dict:
                 for field in EXPECTED_COLUMNS:
                     if not row.get(field):
                         missing_required_cells[field] += 1
-                if any(not row.get(x) for x in
-                       ("TRANSACT_TIME", "TRADING_DT", "UNDERLYING", "OSI_ROOT",
-                        "CALL_PUT_FLAG", "SIZE", "PRICE", "SIDE", "OPEN_CLOSE",
-                        "CAPACITY", "SESSION")):
-                    raise ValueError(f"{name}: required trade field is blank")
+                core_fields = ("TRANSACT_TIME", "TRADING_DT", "UNDERLYING", "OSI_ROOT",
+                               "CALL_PUT_FLAG", "SIZE", "PRICE", "SIDE", "OPEN_CLOSE",
+                               "CAPACITY", "SESSION")
+                blank_core = [field for field in core_fields if not row.get(field)]
+                if blank_core:
+                    raise ValueError(f"{name}: required trade fields blank={blank_core}")
 
                 transact = _parse_datetime(row["TRANSACT_TIME"])
                 trading = _trade_date(row["TRADING_DT"])
