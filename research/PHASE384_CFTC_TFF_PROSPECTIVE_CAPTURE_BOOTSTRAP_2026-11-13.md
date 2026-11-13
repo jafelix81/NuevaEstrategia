@@ -23,7 +23,7 @@ The source is the CFTC TFF Futures Only dataset gpe5-46if. The five CFTC busines
 
 1. The branch-push run creates a historical backfill baseline and marks every row signal_eligible=false.
 2. Manual dispatch is diagnostic only and never advances the state.
-3. Scheduled capture runs Fridays at 22:15 UTC, after the normal 3:30 p.m. ET CFTC release time. If a holiday/backlog delays publication, no new row is invented; the next scheduled run observes it later.
+3. Scheduled capture runs **weekdays at 22:15 UTC** (5:15 p.m. ET in standard time; 6:15 p.m. ET in daylight time), after the normal 3:30 p.m. ET CFTC release time. Weekday cadence is required to catch holiday-delayed Monday releases; a Friday-only cron would miss them until the following Friday. If a holiday/backlog delays publication, no new row is invented; the next scheduled run observes it later.
 4. A new report-date/code key first observed by a scheduled run after the baseline receives first_seen_utc and may be eligible only from the first regular equity session after that receipt timestamp.
 5. A late-arriving older report date is recorded as a late arrival and is never backdated.
 6. A changed hash for an existing key is recorded as a revision event, never overwritten as though it had been known earlier.
@@ -83,3 +83,12 @@ Run [43510629316](https://github.com/jafelix81/NuevaEstrategia/actions/runs/4351
 The official CFTC schedule currently lists the report for positions as of 2026-11-10 for release on **2026-11-16 at 3:30 p.m. ET**, delayed by Veterans Day. The Phase 384 baseline ends on 2026-11-03 and therefore predates that release. If PR #59 is merged before the next scheduled capture, the first post-baseline report will be observed prospectively, with its actual pipeline receipt time. See the [CFTC release schedule](https://www.cftc.gov/MarketReports/CommitmentsofTraders/ReleaseSchedule/index.htm).
 
 The workflow schedule is not active on the default branch while PR #59 remains a draft.
+
+
+## Schedule robustness correction — 2026-11-13
+
+The official CFTC 2026 release schedule lists the report for positions as of 2026-11-10 on **Monday 2026-11-16 at 3:30 p.m. ET**, delayed by Veterans Day. The initial Friday-only cron (`15 22 * * 5`) would not observe that report until 2026-11-20, by which time the report for 2026-11-17 would also be available; the older 2026-11-10 report would then be classified as a late arrival and correctly marked ineligible. That would unnecessarily lose the first post-baseline observation.
+
+Corrected the workflow cron to `15 22 * * 1-5`, running at 22:15 UTC each weekday. This is after the CFTC's 3:30 p.m. ET release in both U.S. standard and daylight time and captures a Monday holiday-delayed report on the same business day. No report is inferred if the source is not yet updated; the next weekday poll observes it. The existing first-seen, late-arrival and revision rules are unchanged.
+
+Official schedule: [CFTC 2026 Release Schedule](https://www.cftc.gov/MarketReports/CommitmentsofTraders/ReleaseSchedule/index.htm). The workflow remains inactive until PR #59 is reviewed and merged to the default branch. The branch-push bootstrap already exists and is protected against overwrite; the cron correction does not reset it.
