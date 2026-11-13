@@ -1,0 +1,64 @@
+name: Phase 360 - FINRA symbol-only bridge and firm-total reconciliation
+
+on:
+  push:
+    branches:
+      - phase360-finra-symbol-bridge-reconciliation
+    paths:
+      - "research/phase360_finra_symbol_bridge.py"
+      - "research/test_phase360_finra_symbol_bridge.py"
+      - ".github/workflows/phase360_finra_symbol_bridge.yml"
+  pull_request:
+    branches:
+      - phase359-finra-product-type-crosswalk-diagnostic
+    paths:
+      - "research/phase360_finra_symbol_bridge.py"
+      - "research/test_phase360_finra_symbol_bridge.py"
+      - ".github/workflows/phase360_finra_symbol_bridge.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase360-finra-symbol-bridge-reconciliation
+  cancel-in-progress: false
+
+jobs:
+  symbol-bridge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Install request dependency
+        run: python -m pip install requests
+      - name: Compile diagnostic and tests
+        run: python -m py_compile research/phase360_finra_symbol_bridge.py research/test_phase360_finra_symbol_bridge.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase360_finra_symbol_bridge
+      - name: Retrieve and reconcile FINRA historical partitions
+        run: python -m research.phase360_finra_symbol_bridge --output phase360_finra_symbol_bridge
+      - name: Enforce retrieval-only controls
+        run: |
+          python - <<'PY'
+          import json, sys
+          result = json.load(open("phase360_finra_symbol_bridge/summary.json", encoding="utf-8"))
+          if result.get("partitions_completed") != 4 or result.get("request_errors"):
+              sys.exit("Phase 360 did not retrieve all four requested partitions")
+          if result.get("forward_returns_used") or result.get("alpha_test_authorized") or result.get("holdout_used") or result.get("f80_changed"):
+              sys.exit("Research-only controls were violated")
+          print("PHASE360_RETRIEVAL=PASS")
+          print("DATA_GATE=" + str(result.get("overall_data_gate")))
+          print("ALPHA_TEST=NOT_AUTHORIZED")
+          PY
+      - name: Upload metadata-only artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase360-finra-symbol-bridge
+          path: phase360_finra_symbol_bridge/
+          if-no-files-found: warn
+          retention-days: 90
