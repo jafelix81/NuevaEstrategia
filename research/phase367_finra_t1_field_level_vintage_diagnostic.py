@@ -196,6 +196,10 @@ def fetch_partition(session: requests.Session, dataset: str):
         if not rows and offset < record_total:
             raise RuntimeError(f"Empty page before end of {dataset}")
         for row in rows:
+            if row.get("weekStartDate") not in (None, "") and str(row.get("weekStartDate")).strip() != WEEK:
+                raise RuntimeError(f"Returned week mismatch for {dataset}")
+            if row.get("tierIdentifier") not in (None, "") and str(row.get("tierIdentifier")).strip() != TIER:
+                raise RuntimeError(f"Returned tier mismatch for {dataset}")
             returned_fields.update(str(key) for key in row)
             key_to_rows[identity_key_fingerprint(row)].append(canonical_row(row))
             summary_types[normalise_value("summaryTypeCode", row.get("summaryTypeCode")) or "__MISSING__"] += 1
@@ -344,10 +348,6 @@ def compare_key_maps(current_map: dict, historic_map: dict):
         if not current_remaining and not historic_remaining:
             key_groups_exact += 1
 
-    unmatched_current_rows = sum(
-        max(0, len(current_map.get(key, [])) - len(historic_map.get(key, [])))
-        for key in current_only_keys and [] or []
-    )
     # Key-only groups are counted separately; row totals remain visible in source summaries.
     numeric_output = {
         field: {
