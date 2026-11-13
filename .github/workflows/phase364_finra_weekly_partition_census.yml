@@ -1,0 +1,64 @@
+name: Phase 364 - FINRA weekly partition census
+
+on:
+  push:
+    branches:
+      - phase364-finra-weekly-partition-census
+    paths:
+      - "research/phase364_finra_weekly_partition_census.py"
+      - "research/test_phase364_finra_weekly_partition_census.py"
+      - ".github/workflows/phase364_finra_weekly_partition_census.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase364-finra-weekly-partition-census
+  cancel-in-progress: false
+
+jobs:
+  partition-census:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      FINRA_API_TOKEN: ${{ secrets.FINRA_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Install request dependency
+        run: python -m pip install requests
+      - name: Compile census and tests
+        run: python -m py_compile research/phase364_finra_weekly_partition_census.py research/test_phase364_finra_weekly_partition_census.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase364_finra_weekly_partition_census
+      - name: Retrieve FINRA metadata and partition inventories
+        run: python -m research.phase364_finra_weekly_partition_census --output phase364_finra_weekly_partition_census
+      - name: Enforce metadata-only research controls
+        run: |
+          python - <<'PY'
+          import json, sys
+          result = json.load(open("phase364_finra_weekly_partition_census/summary.json", encoding="utf-8"))
+          datasets = result.get("datasets", {})
+          if set(datasets) != {"weeklySummaryHistoric", "weeklySummary"}:
+              sys.exit("Both historic and current weekly datasets are required")
+          if any(v.get("unique_partition_pairs", 0) <= 0 for v in datasets.values()):
+              sys.exit("One or more FINRA partition inventories are empty")
+          if result.get("forward_returns_used") or result.get("alpha_test_authorized") or result.get("holdout_used") or result.get("f80_changed"):
+              sys.exit("Research-only controls were violated")
+          print("PHASE364_METADATA_CENSUS=PASS")
+          print("HISTORIC_PARTITIONS=" + str(datasets["weeklySummaryHistoric"]["unique_partition_pairs"]))
+          print("CURRENT_PARTITIONS=" + str(datasets["weeklySummary"]["unique_partition_pairs"]))
+          print("COMBINED_TIERS=" + str(sorted(result.get("combined", {}).get("tiers", {}))))
+          print("ALPHA_TEST=NOT_AUTHORIZED")
+          PY
+      - name: Upload metadata-only artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase364-finra-weekly-partition-census
+          path: phase364_finra_weekly_partition_census/
+          if-no-files-found: warn
+          retention-days: 90
