@@ -5,6 +5,7 @@ from research.phase355_cboe_eod_participant_accounting_audit import (
     VOLUME_FIELDS,
     audit_csv,
     bucket_volume_valid,
+    exchange_contract_equivalent_not_above_industry,
     parse_nonnegative_int,
 )
 
@@ -38,6 +39,14 @@ class Phase355AccountingTests(unittest.TestCase):
 
     def test_missing_bucket_pair_is_not_silently_counted_as_zero(self):
         self.assertEqual(len(BUCKET_PAIRS), 24)
+
+    def test_exchange_and_industry_volume_are_compared_on_matching_units(self):
+        # total_exchange_vol counts both sides; OCC contract volume counts contracts.
+        self.assertTrue(exchange_contract_equivalent_not_above_industry(10, 5))
+        self.assertTrue(exchange_contract_equivalent_not_above_industry(10, 20))
+        self.assertFalse(exchange_contract_equivalent_not_above_industry(12, 5))
+        self.assertTrue(exchange_contract_equivalent_not_above_industry(0, 0))
+        self.assertFalse(exchange_contract_equivalent_not_above_industry(2, 0))
 
     def test_exact_participant_reconciliation_is_required_for_pass(self):
         headers = [

@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - phase355-cboe-eod-participant-accounting-audit
+    paths:
+      - "research/phase355_cboe_eod_participant_accounting_audit.py"
+      - "research/test_phase355_cboe_eod_participant_accounting_audit.py"
+      - ".github/workflows/phase355_cboe_eod_participant_accounting_audit.yml"
   pull_request:
     paths:
       - "research/phase355_cboe_eod_participant_accounting_audit.py"

@@ -77,6 +77,21 @@ def bucket_volume_valid(qty: int, volume: int, bucket: str) -> bool:
     raise ValueError(f"unknown size bucket: {bucket}")
 
 
+def exchange_contract_equivalent_not_above_industry(exchange: int, industry: int) -> bool:
+    """Compare exchange volume counted on both sides with OCC contract volume."""
+    if industry == 0:
+        return exchange == 0
+    return exchange <= 2 * industry
+
+
+def quantile(values: list[float], q: float) -> float | None:
+    if not values:
+        return None
+    ordered = sorted(values)
+    index = round((len(ordered) - 1) * q)
+    return round(ordered[index], 6)
+
+
 def extract_eod_csv(payload: bytes) -> tuple[str, bytes]:
     found: list[tuple[str, bytes]] = []
 
@@ -134,7 +149,11 @@ def audit_csv(payload: bytes, member: str) -> dict:
     bucket_violations = Counter()
     bucket_comparable = Counter()
     exchange_gt_industry = 0
+    exchange_side_adjusted_gt_industry = 0
     exchange_industry_comparable = 0
+    exchange_volume_odd_rows = 0
+    exchange_industry_ratios: list[float] = []
+    sum_industry = 0
     zero_exchange_with_participant = 0
     participant_with_zero_exchange = 0
     underlyings = set()
@@ -197,8 +216,12 @@ def audit_csv(payload: bytes, member: str) -> dict:
                 missing_numeric["total_industry_vol"] += 1
             else:
                 invalid_numeric["total_industry_vol"] += 1
-        elif industry == 0:
-            zero_numeric["total_industry_vol"] += 1
+        else:
+            sum_industry += industry
+            if industry == 0:
+                zero_numeric["total_industry_vol"] += 1
+        if exchange is not None and exchange % 2:
+            exchange_volume_odd_rows += 1
 
         if all_volumes_valid and exchange is not None:
             participant_sum = sum(parsed_volumes.values())
@@ -215,10 +238,14 @@ def audit_csv(payload: bytes, member: str) -> dict:
             if exchange > 0 and participant_sum == 0:
                 participant_with_zero_exchange += 1
 
-        if exchange is not None and industry is not None and industry > 0:
+        if exchange is not None and industry is not None:
             exchange_industry_comparable += 1
             if exchange > industry:
                 exchange_gt_industry += 1
+            if not exchange_contract_equivalent_not_above_industry(exchange, industry):
+                exchange_side_adjusted_gt_industry += 1
+            if industry > 0:
+                exchange_industry_ratios.append(exchange / (2 * industry))
 
         for qty_field, vol_field, bucket in BUCKET_PAIRS:
             qty = parse_nonnegative_int(row.get(qty_field))
@@ -232,11 +259,23 @@ def audit_csv(payload: bytes, member: str) -> dict:
     match_rate = exact_match / comparable if comparable else None
     bucket_total = sum(bucket_comparable.values())
     bucket_violation_total = sum(bucket_violations.values())
-    industry_violation_rate = (
+    raw_exchange_gt_industry_rate = (
         exchange_gt_industry / exchange_industry_comparable
         if exchange_industry_comparable else None
     )
-    # These are predeclared accounting checks, not alpha criteria.
+    side_adjusted_exchange_gt_industry_rate = (
+        exchange_side_adjusted_gt_industry / exchange_industry_comparable
+        if exchange_industry_comparable else None
+    )
+    ratio_summary = {
+        "p50": quantile(exchange_industry_ratios, 0.50),
+        "p90": quantile(exchange_industry_ratios, 0.90),
+        "p95": quantile(exchange_industry_ratios, 0.95),
+        "max": max(exchange_industry_ratios) if exchange_industry_ratios else None,
+    }
+    # Cboe total_exchange_vol counts both sides; OCC industry contract volume is
+    # a one-contract/one-trade-side convention. Compare half of exchange-side
+    # volume to industry contracts, not the unadjusted raw totals.
     accounting_pass = (
         rows > 0
         and width_errors == 0
@@ -244,7 +283,7 @@ def audit_csv(payload: bytes, member: str) -> dict:
         and match_rate is not None and match_rate >= 0.995
         and bucket_total > 0 and bucket_violation_total == 0
         and exchange_industry_comparable == rows
-        and exchange_gt_industry == 0
+        and exchange_side_adjusted_gt_industry == 0
         and duplicate_keys == 0
     )
     return {
@@ -266,7 +305,9 @@ def audit_csv(payload: bytes, member: str) -> dict:
         "participant_volume_exact_match_rows": exact_match,
         "participant_volume_mismatch_rows": mismatches,
         "participant_volume_exact_match_rate": match_rate,
-        "sum_total_exchange_volume": sum_exchange,
+        "sum_total_exchange_volume_both_sides": sum_exchange,
+        "sum_exchange_contract_equivalent": sum_exchange / 2,
+        "sum_total_industry_volume_contracts": sum_industry,
         "sum_participant_side_volume": sum_participant,
         "sum_participant_minus_exchange": sum_participant - sum_exchange,
         "median_absolute_row_difference": (
@@ -277,9 +318,13 @@ def audit_csv(payload: bytes, member: str) -> dict:
         "size_bucket_comparable_pairs": dict(sorted(bucket_comparable.items())),
         "size_bucket_violations": dict(sorted(bucket_violations.items())),
         "size_bucket_violation_total": bucket_violation_total,
-        "exchange_gt_industry_rows": exchange_gt_industry,
+        "raw_exchange_gt_industry_rows_unit_mismatch_only": exchange_gt_industry,
+        "raw_exchange_gt_industry_rate_unit_mismatch_only": raw_exchange_gt_industry_rate,
+        "exchange_side_adjusted_gt_industry_rows": exchange_side_adjusted_gt_industry,
+        "exchange_side_adjusted_gt_industry_rate": side_adjusted_exchange_gt_industry_rate,
         "exchange_industry_comparable_rows": exchange_industry_comparable,
-        "exchange_gt_industry_rate": industry_violation_rate,
+        "exchange_volume_odd_rows": exchange_volume_odd_rows,
+        "exchange_contract_equivalent_to_industry_ratio": ratio_summary,
         "zero_exchange_with_participant_volume_rows": zero_exchange_with_participant,
         "participant_volume_with_zero_exchange_rows": participant_with_zero_exchange,
         "missing_numeric_cells": dict(sorted(missing_numeric.items())),
@@ -289,18 +334,19 @@ def audit_csv(payload: bytes, member: str) -> dict:
             "participant_sum_vs_total_exchange_exact_match_rate_min": 0.995,
             "participant_sum_exact_match_pass": bool(match_rate is not None and match_rate >= 0.995),
             "customer_size_bucket_aggregate_bounds_pass": bucket_violation_total == 0,
-            "exchange_volume_not_above_industry_pass": (
-                exchange_industry_comparable == rows and exchange_gt_industry == 0
+            "exchange_contract_equivalent_not_above_industry_pass": (
+                exchange_industry_comparable == rows and exchange_side_adjusted_gt_industry == 0
             ),
             "unique_series_keys_pass": duplicate_keys == 0,
             "overall_pass": accounting_pass,
         },
         "interpretation": (
             "Cboe EOD specification says total_exchange_vol counts both sides of a trade. "
-            "Participant volume fields are also split by participant side; exact reconciliation "
-            "is tested empirically, not assumed. Customer/Pro-Customer bucket bounds are "
-            "aggregate arithmetic checks implied by per-trade size buckets. A pass validates "
-            "one public C1 sample only, not historical coverage, PIT, licensing or alpha."
+            "The raw exchange/industry comparison therefore mixes units; the diagnostic divides "
+            "exchange-side volume by two before comparing it with OCC contract volume. Participant "
+            "side fields are tested against the two-sided exchange total. Customer/Pro-Customer "
+            "bucket bounds are aggregate arithmetic checks implied by per-trade size buckets. "
+            "A pass validates one public C1 sample only, not historical coverage, PIT, licensing or alpha."
         ),
     }
 
