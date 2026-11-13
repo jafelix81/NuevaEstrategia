@@ -40,3 +40,21 @@ A date-only archive Updated field is treated as a conservative availability-boun
 ## Controls
 
 Date-only metadata only; no raw HTML, positions or trader IDs retained. No forward returns, alpha, OOS, bootstrap, LOO or holdout use. No changes to F80, production, universe, capital, parameters or exposure.
+
+## Hosted full-census result — completed as a diagnostic, acceptance gate not passed
+
+Run [43499455469](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43499455469), date-only artifact [14074090576](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43499455469/artifacts/14074090576).
+
+- CFTC dataset contained 1,065 distinct report dates; 214 pre-first-report/backcast dates (2006-06-13–2010-07-13) and 851 post-launch report dates (2010-07-20–2026-11-03).
+- Retrieved 846/851 static archive pages (99.4125%).
+- Five pages failed retrieval/parsing: 2011-06-14, 2013-12-31, 2014-11-25, 2014-12-02 and 2019-12-24.
+- One page-heading mismatch: requested report date 2018-09-25, but file financial_lf092518.htm says positions as of 2018-09-18.
+- Two archive Updated fields predate their report dates: 2011-05-10 page says Updated 2010-05-13 (362 days earlier); 2012-10-16 page says Updated 2007-06-29 (1,936 days earlier). The 2011 page's stale footer is visible in the official HTML archive.
+- Among the 23 recent official-schedule crosschecks, all 23 archive Updated dates were on/after official publication; 22 exact and one +2 days. This does not cure older archive anomalies.
+- For successfully parsed pages, median archive lag was 3 days, p90 4 days, maximum 70 days (delayed 2025 catch-up reports).
+- First TFF report check passed: positions as of 2010-07-20, archive Updated 2010-07-23.
+
+**Decision:** do not promote archive Updated to a global historical PIT timestamp. A 99.4% page retrieval rate is useful, but missing pages, a misaligned heading and stale Updated fields require per-date exclusions/repair. For any future TFF study, only page-level records with exact report-heading match and a non-stale Updated date may be considered; strict PIT remains unauthorized until the affected dates and the archive field's semantics are resolved. The 2018-09-25 and 2019-12-24 Russell weeks require targeted review.
+
+A separate implementation issue was also found: the Phase 380 workflow checked a non-existent summary key for the first-report gate (it should be first_report_page_gate). The source audit result above is unaffected; the key should be corrected before any rerun.
+
