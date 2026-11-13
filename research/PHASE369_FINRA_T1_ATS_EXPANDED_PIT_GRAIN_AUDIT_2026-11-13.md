@@ -44,7 +44,7 @@ No forward returns, alpha, OOS, bootstrap, LOO, holdout or production tests are 
 
 ## Execution result — 2026-11-13
 
-Run [43462182950](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43462182950) completed successfully; job [132011676403](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43462182950/job/132011676403); anonymized artifact [14056609868](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43462182950/artifacts/14056609868).
+Run [43462182950](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43462182950) completed successfully; job [132011676403](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43462182950/jobs/132011676403); anonymized artifact [14056609868](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43462182950/artifacts/14056609868).
 
 - 19/19 full partitions retrieved: **1,022,474 rows / 215 pages**, zero retrieval errors; every Record-Total reconciled.
 - Original ATS date gate passed 18/19 weeks. The sole failure was the historical boundary week 2021-11-15: 2,411 ATS rows had positive lastUpdateDate-minus-initialPublishedDate gaps. Phase 370 showed 4 rows at 225 days, 56 at 283 days and 2,351 at 284 days across ATS summary types. The initial publication date was 2021-12-06; revisions were dated 2022-07-19, 2022-09-15 and 2022-09-16. Exclude this boundary week from a date-level PIT candidate sample.
