@@ -82,6 +82,14 @@ class Phase351TbtSampleTests(unittest.TestCase):
         self.assertEqual(result["unique_option_series_complete_identity_only"], 0)
         self.assertEqual(result["call_put_counts"], {"UNKNOWN_BLANK": 1})
 
+    def test_unknown_side_capacity_and_session_are_quarantined(self):
+        result = audit_zip_bytes(make_archive([
+            row(SIDE="X", CAPACITY="Q", SESSION="OTHER")
+        ]))
+        self.assertEqual(result["side_counts"], {"UNKNOWN_OTHER": 1})
+        self.assertEqual(result["capacity_counts"], {"UNKNOWN_OTHER": 1})
+        self.assertEqual(result["session_counts"], {"UNKNOWN_OTHER": 1})
+
     def test_schema_and_basic_counts(self):
         result = audit_zip_bytes(make_archive([row()]))
         self.assertEqual(result["rows"], 1)
