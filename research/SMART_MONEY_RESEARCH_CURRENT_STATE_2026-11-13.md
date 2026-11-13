@@ -4,7 +4,20 @@
 **Legacy holdout:** `CONSUMED_NOT_PRISTINE`; do not reuse.  
 **Economic status:** no new Smart Money feature has demonstrated incremental, cost-adjusted OOS edge. No CAGR target or holding-period constraint is imposed.
 
-## Latest completed phase — Phase 354: Cboe EOD OSI reconstruction and OCC OI endpoint kill
+## Latest completed phase — Phase 355: Cboe EOD participant-volume accounting reconciliation
+
+The public C1 20% EOD sample for 2025-03-28 passed the participant accounting gate. The 34 participant-side volume fields sum exactly to `total_exchange_vol` on **23,179/23,179 rows**; all **556,296** Customer/Professional-Customer size-bucket aggregate checks passed; there were zero duplicate series keys, missing/invalid numeric cells or width errors.
+
+A unit correction was necessary: Cboe defines `total_exchange_vol` as counting both sides of a trade, while the OCC industry field is a contract count. A raw comparison falsely flags 7,576 rows (32.68%); after comparing `total_exchange_vol/2` with industry contracts, zero of 23,179 rows exceed the industry total. The sample's normalized C1/industry ratio has p50 0.25 and p90/p95/max 1.00. This is an accounting result for one selected C1 sample, not a representative market-share or alpha result.
+
+- Hosted run [43385780546](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43385780546): **9/9** regression tests passed; accounting diagnostic passed.
+- Metadata-only artifact [14019160327](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43385780546/artifacts/14019160327).
+- [Phase 355 report](PHASE355_CBOE_EOD_PARTICIPANT_ACCOUNTING_AUDIT_2026-11-13.md)
+- [Draft PR #42](https://github.com/jafelix81/NuevaEstrategia/pull/42), stacked on Phase 354, open and unmerged.
+
+**Decision:** pass the one-sample participant-volume accounting gate. Keep Cboe Open-Close EOD conditional. Broad/inactive historical coverage, exact first-receipt PIT/correction vintages, C1 session alignment, S/N/F crosswalk and licensing remain unresolved. No returns/alpha/OOS/bootstrap/LOO/holdout test; no vendor contact or purchase. F80 remains frozen.
+
+## Previous completed phase — Phase 354: Cboe EOD OSI reconstruction and OCC OI endpoint kill
 
 The corrected Phase 354 parser reconstructs full OSI from Cboe's `option_symbol` root, expiration, strike and call/put fields. The C1 20% EOD sample for 2025-03-28 contained **23,179 rows, 1,553 underlyings, 23,080 S / 11 N / 88 F series, zero invalid reconstructed OSI keys and zero duplicate OSI rows**.
 
@@ -77,7 +90,7 @@ Phase 350's latest hosted attempt [43344689909](https://github.com/jafelix81/Nue
 
 ## Active GitHub work
 
-- PR #41: Phase 354 Cboe EOD OSI/OCC OI endpoint audit, Draft/Open, stacked on Phase 353, not merged.\n- PR #40: Phase 353 daily EOD flow + OPRA context feasibility, Draft/Open, stacked on Phase 352, not merged.
+- PR #42: Phase 355 Cboe EOD participant-volume accounting, Draft/Open, stacked on Phase 354, not merged.\n- PR #41: Phase 354 Cboe EOD OSI/OCC OI endpoint audit, Draft/Open, stacked on Phase 353, not merged.\n- PR #40: Phase 353 daily EOD flow + OPRA context feasibility, Draft/Open, stacked on Phase 352, not merged.
 - PR #39: Phase 352 Open-Close 1m v1.8 spec/PIT audit, Draft/Open, not merged.
 - PR #38: Phase 351 TBT sample audit, Draft/Open, not merged.
 - PR #37: Phase 350 SEC 13D/G parent retrieval, Draft/Open, blocked on `SEC_USER_AGENT`.
