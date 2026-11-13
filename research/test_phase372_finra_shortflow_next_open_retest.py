@@ -4,6 +4,7 @@ import pandas as pd
 
 from research.phase372_finra_shortflow_next_open_retest import (
     next_open_forward_return, portfolio_delta_net, matured_exit_date,
+    price_start_for_ticker, FIXED_PRICE_START, ROKU_FIRST_TRADING_DATE,
 )
 
 class Phase372Tests(unittest.TestCase):
@@ -38,6 +39,14 @@ class Phase372Tests(unittest.TestCase):
             matured_exit_date(self.calendar, self.index, "2024-01-02", 3),
             pd.Timestamp("2024-01-05"),
         )
+
+    def test_roku_retry_starts_at_first_trading_day(self):
+        self.assertEqual(price_start_for_ticker("ROKU"), ROKU_FIRST_TRADING_DATE)
+        self.assertEqual(ROKU_FIRST_TRADING_DATE, "2017-09-28")
+
+    def test_other_tickers_keep_frozen_price_window(self):
+        self.assertEqual(price_start_for_ticker("AAPL"), FIXED_PRICE_START)
+        self.assertEqual(price_start_for_ticker("roku"), ROKU_FIRST_TRADING_DATE)
 
     def test_incremental_cost_sensitivity(self):
         # 20% sleeve; two one-way legs at 10 bps each => 4 bps portfolio cost.
