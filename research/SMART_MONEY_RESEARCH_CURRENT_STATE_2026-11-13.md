@@ -228,6 +228,15 @@ No signal admitted. No economic test, no holdout use, no parameter/universe/capi
 - Corrected Phase 373 report and PR #48 to remove the contradictory ranking. No sample bytes or independent classification validation obtained; no vendor contact, trial, purchase, alpha or OOS test.
 - Phase 181's nine gates remain blocked: representative active/inactive sample, interval semantics, first receipt, corrections/vintages, classifier version/backfill, per-field participant/lot-size history, independent classification accuracy, effective-dated identity, and price/license/derived-data rights.
 
+### Phase 376 — CFTC TFF index positioning source feasibility completed
+
+- Added CFTC Traders in Financial Futures (TFF), Futures Only, as a conditional weekly **macro regime / positioning** candidate. Public dataset gpe5-46if advertises about 47.3k rows / 90 columns, history from 2006-06-13, and categories Dealer, Asset Manager, Leveraged Money, Other Reportables and Non-Reportables.
+- Public history includes E-mini S&P 500 (13874A), Nasdaq-100 Mini (209742), Russell E-Mini (239742) and DJIA x $5 (124603); codes remain provisional pending full-history continuity audit.
+- CFTC confirms positions are as of Tuesday and normally released Friday 3:30 p.m. ET; actual release dates are available only for the latest 13 months. Historical data is static after publication, but the release-date gap prevents strict historical PIT before the verified window. The 2025 shutdown backlog requires actual special-announcement dates; the 2026-11-10 report is scheduled for 2026-11-16 due Veterans Day.
+- CFTC categories are self-reported predominant-business-purpose classifications, not trader identities or verified trade intent. Markets can disappear below the 20-large-trader threshold; missing weeks must not be forward-filled.
+- Phase 376 is documentation/source feasibility only. Phase 377 should audit the full public TFF Futures Only dataset, natural keys, index-contract coverage, category continuity, actual recent release dates and historical schedule proxy. No alpha or return test is authorized.
+- [Phase 376 report](research/PHASE376_CFTC_TFF_INDEX_POSITIONING_FEASIBILITY_AUDIT_2026-11-13.md).
+
 ## Controls reaffirmed
 
 No new Smart Money signal admitted. No economic/OOS test from Phases 371–374, no holdout use, no production/universe/capital/parameter change. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen. No PR merged.
