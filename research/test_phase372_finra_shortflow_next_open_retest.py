@@ -46,3 +46,5 @@ class Phase372Tests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+# Trigger the branch-scoped Phase 372 workflow after adding its workflow definition.
