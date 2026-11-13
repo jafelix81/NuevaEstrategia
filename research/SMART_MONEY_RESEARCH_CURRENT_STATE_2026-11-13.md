@@ -6,7 +6,7 @@ Develop a strategy with a real statistical and economic edge, validated chronolo
 
 **Frozen baseline:** `F80_TOP20_PARTIAL50_BASELINE_C20`. Do not change it absent robust incremental OOS evidence.  
 **Legacy holdout:** `CONSUMED_NOT_PRISTINE`; do not reuse.  
-**Current economic status:** no new Smart Money feature has demonstrated incremental, cost-adjusted OOS edge. No signal admitted. No forward-return, alpha, OOS, bootstrap, LOO or holdout test has been run in Phases 361–366.
+**Current economic status:** no new Smart Money feature has demonstrated incremental, cost-adjusted OOS edge. No signal admitted. No forward-return, alpha, OOS, bootstrap, LOO or holdout test has been run in Phases 361–367.
 
 ## Latest FINRA work — Phases 361–363
 
@@ -93,14 +93,14 @@ For LND, OTC matched on both reporting dates. ATS matched on 2025-01-10, but 202
 - Re-fetched the full 2025-10-20 T1 partition from both datasets: 65,116 rows each, 14 pages each, zero errors; offline tests passed.
 - 65,092/65,116 rows matched exactly. The other 24 differed only in `totalNotionalSum`; no mismatch occurred in `totalWeeklyShareQuantity`, `totalWeeklyTradeCount`, `lastReportedDate`, `summaryStartDate`, symbols, participant identifiers, publication/update dates or other canonical fields.
 - Current-minus-historic signed notional difference across the 24 rows: +$0.000003; absolute differences sum to $0.000039; maximum absolute per-row difference $0.000005. No key-only or duplicate groups.
-- This is an economically negligible decimal-precision discrepancy, but the source values remain unrounded and the difference is documented. It is not evidence of an alpha signal.
+- This is an economically negligible decimal-precision discrepancy, but source values remain unrounded and the difference is documented. It is not evidence of an alpha signal.
 - Run [43456024316](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43456024316), artifact [14053738587](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43456024316/artifacts/14053738587). Full report: [Phase 367](PHASE367_FINRA_T1_FIELD_LEVEL_VINTAGE_DIAGNOSTIC_2026-11-13.md).
 
 ### Phase 368 — FINRA revision-lag / PIT availability audit is the next gate
 
-- Quantify row-level lags from `initialPublishedDate` to `lastUpdateDate` and `lastReportedDate` on the fully retrieved 2025-10-20 T1/OTCE partitions.
-- Determine the fraction of rows whose final values reflect updates after initial publication, distribution of update lags, and whether any field is a genuine publication/knowledge timestamp.
-- Do not backdate final historical values to initial publication. If update-vintage availability cannot be reconstructed, FINRA historical signal use remains inadmissible; keep it for descriptive/current monitoring only.
+- Quantify row-level lags from `initialPublishedDate` to `lastUpdateDate` and `lastReportedDate` on the fully retrieved 2025-10-20 T1/OTCE partitions, with older and newer week controls if coverage permits.
+- Measure the fraction of final rows whose update dates postdate initial publication, distribution of update lags, and whether any field is a genuine publication/knowledge timestamp.
+- Do not backdate final historical values to `initialPublishedDate`. If update-vintage availability cannot be reconstructed, FINRA historical signal use remains inadmissible; retain it for descriptive/current monitoring only.
 - No signal, return or alpha test is authorized.
 
 ## Cross-source re-ranking — SEC Form 4 identity gate (Phases 345–346)
