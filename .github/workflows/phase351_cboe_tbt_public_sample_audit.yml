@@ -37,7 +37,7 @@ jobs:
           import json, sys
           p = 'phase351_output/phase351_cboe_tbt_sample_audit.json'
           r = json.load(open(p, encoding='utf-8'))
-          if r.get('status') != 'PASS_SAMPLE_ROW_GRAIN_AUDIT_NO_PIT_NO_ALPHA':
+          if r.get('status') != 'PASS_SAMPLE_SCHEMA_AND_LINKAGE_DIAGNOSTICS_NO_PIT_NO_ALPHA':
               print(json.dumps(r, indent=2))
               sys.exit(1)
           if r.get('gates', {}).get('historical_pit_admitted') or r.get('gates', {}).get('alpha_admission'):
