@@ -1,0 +1,66 @@
+name: Phase 384 - CFTC TFF prospective first-receipt capture
+on:
+  push:
+    branches: [phase384-cftc-tff-prospective-capture-bootstrap]
+    paths:
+      - ".github/workflows/phase384_cftc_tff_prospective_capture.yml"
+      - "research/phase384_cftc_tff_prospective_capture.py"
+      - "research/test_phase384_cftc_tff_prospective_capture.py"
+      - "research/PHASE384_CFTC_TFF_PROSPECTIVE_CAPTURE_BOOTSTRAP_2026-11-13.md"
+  workflow_dispatch:
+  schedule:
+    - cron: "15 22 * * 5"
+permissions:
+  contents: write
+concurrency:
+  group: cftc-tff-prospective-capture
+  cancel-in-progress: false
+jobs:
+  prospective-capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependency
+        run: pip install requests
+      - name: Compile and test
+        run: |
+          python -m py_compile research/phase384_cftc_tff_prospective_capture.py
+          cd research
+          python -m unittest -v test_phase384_cftc_tff_prospective_capture.py
+      - name: Run capture
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          case "$EVENT_NAME" in
+            push) MODE=push ;;
+            schedule) MODE=schedule ;;
+            workflow_dispatch) MODE=manual ;;
+            *) echo "Unsupported event: $EVENT_NAME"; exit 1 ;;
+          esac
+          python research/phase384_cftc_tff_prospective_capture.py --mode "$MODE" --run-id "$RUN_ID" --output phase384_output
+      - name: Commit append-only baseline or scheduled events
+        if: github.event_name == 'push' || github.event_name == 'schedule'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add research/data/cftc_tff_prospective
+          if ! git diff --cached --quiet; then
+            git commit -m "[skip ci] CFTC TFF prospective capture ${GITHUB_RUN_ID}"
+            git push
+          else
+            echo "No persistent capture changes to commit."
+          fi
+      - name: Upload anonymized audit summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase384-cftc-tff-prospective-capture
+          path: phase384_output/
+          retention-days: 90
+          if-no-files-found: error

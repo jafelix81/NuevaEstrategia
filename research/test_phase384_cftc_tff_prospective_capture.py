@@ -1,0 +1,43 @@
+import unittest,statistics
+from datetime import date,timedelta
+from decimal import Decimal
+from phase384_cftc_tff_prospective_capture import CATEGORIES,classify,features,digest,check_oi,num
+
+def make_row(d,lev,am=0,dealer=0,oi=1000):
+ r={"report_date_as_yyyy_mm_dd":d.isoformat()+"T00:00:00.000","cftc_contract_market_code":"13874A",
+    "contract_market_name":"E-MINI S&P 500","market_and_exchange_names":"E-MINI S&P 500 - CME","open_interest_all":str(oi)}
+ nets={"dealer":dealer,"asset_manager":am,"leveraged_money":lev,"other_reportables":0,"non_reportables":0}
+ for c,(lf,sf,pf) in CATEGORIES.items():
+  n=nets[c]; r[lf]=str(oi//2+n//2); r[sf]=str(oi//2-n//2)
+  if pf:r[pf]="0"
+ return r
+
+class Tests(unittest.TestCase):
+ def test_numeric_validation(self):
+  with self.assertRaises(ValueError): num(None)
+  with self.assertRaises(ValueError): num("NaN")
+ def test_oi_accounting(self):
+  self.assertEqual(check_oi(make_row(date(2026,1,6),100,40,-20)),Decimal("1000"))
+ def test_hash_detects_revision(self):
+  r=make_row(date(2026,1,6),100); q=dict(r); q["lev_money_positions_long"]=str(int(q["lev_money_positions_long"])+1)
+  self.assertNotEqual(digest(r),digest(q))
+ def test_scheduled_new_report(self):
+  self.assertEqual(classify("schedule",None,"new","2026-01-13","2026-01-06"),("new_report",True))
+ def test_late_arrival_not_backdated(self):
+  self.assertEqual(classify("schedule",None,"new","2025-12-30","2026-01-06"),("late_arrival",False))
+ def test_revision_not_eligible(self):
+  self.assertEqual(classify("schedule","old","new","2026-01-06","2026-01-06"),("revision",False))
+ def test_manual_not_eligible(self):
+  self.assertEqual(classify("manual",None,"new","2026-01-13","2026-01-06"),("new_report",False))
+ def test_unchanged_no_event(self):
+  self.assertIsNone(classify("schedule","same","same","2026-01-06","2026-01-06"))
+ def test_zscore_uses_prior_rows_only(self):
+  rows=[make_row(date(2024,1,2)+timedelta(days=7*i),10+2*i) for i in range(54)]
+  f,_,_=features(rows); prior=[(10+2*i)/1000 for i in range(1,53)]
+  expected=(f[-1]["leveraged_money_net_oi"]-statistics.mean(prior))/statistics.pstdev(prior)
+  self.assertAlmostEqual(f[-1]["leveraged_money_net_oi_z52"],expected,places=10)
+ def test_four_report_change_requires_continuity(self):
+  ds=[date(2026,1,6),date(2026,1,13),date(2026,1,20),date(2026,1,27),date(2026,2,10)]
+  f,_,_ = features([make_row(d,100+10*i) for i,d in enumerate(ds)])
+  self.assertIsNone(f[-1]["leveraged_money_net_oi_4w_change"])
+if __name__=="__main__": unittest.main()

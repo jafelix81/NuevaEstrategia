@@ -332,3 +332,13 @@ Phase 375 remains the only active FINRA retrieval; its full 209-week T1 audit st
 FINRA Phase 375 remains the only active full 209-week T1 ATS retrieval in [run 43493465495](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43493465495). Compile/tests passed; the historic-partition retrieval step is still running. Do not duplicate it.
 
 **Controls:** F80 remains frozen. No new signal admitted, no holdout used, no production/capital/universe/parameter changes. Phase 20C remains blocked pending reliable prices for all 329 required names.
+
+
+## Phase 384 — CFTC TFF prospective first-receipt capture bootstrap (2026-11-13)
+
+- Added an append-only prospective capture design for four CFTC TFF Futures Only index contracts: E-mini S&P 500 (13874A), Nasdaq-100 Mini (209742), DJIA $5 (124603), and only the post-2017 E-mini Russell era (239742).
+- Historical CFTC rows are stored as a feature warm-up baseline only and are explicitly signal_eligible=false; archive Updated dates are not retroactively certified as first publication.
+- Scheduled captures run Fridays at 22:15 UTC. The pipeline receipt timestamp is the conservative knowledge clock. New report-date/code rows first observed by a scheduled run may be eligible only from the next regular equity session after receipt. Manual runs, late arrivals and revisions are never signal-eligible.
+- The capture records selected aggregate positions, open interest, source hashes and normalized features. Spread positions remain separate from directional net; OI reconciliation includes spreads on both long and short sides. Missing weeks are not forward-filled.
+- Legacy Phase 23C is not being repeated: it selected among eight features/directions at each of only 12 pseudo-OOS dates, omitted transaction costs and identical-exposure F80 comparison, and produced weak 20-session results (NASDAQ -0.460%, S&P 500 -3.058% mean strategy returns). No new alpha test is authorized.
+- Phase 384 is research-only. The scheduled workflow will not activate until this draft branch is merged. No F80, production, universe, capital, parameter, exposure or holdout changes.
