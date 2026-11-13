@@ -61,6 +61,10 @@ A raw, unadjusted comparison would label **7,576 rows (32.68%)** as having excha
 
 The participant sum also reconciled exactly on every row, with no residual difference. This confirms internal arithmetic for this C1 sample; it does not identify beneficial owners or prove that any participant category is informed.
 
+## Implementation note
+
+The first hosted attempts stopped before sample analysis because the initial parser encoded the ZIP magic-byte signature incorrectly. The parser was corrected, then the final unit-adjusted audit completed successfully. Those earlier failures were implementation failures, not sample-data or accounting-gate results.
+
 ## Hosted validation
 
 - Run **43385780546** completed successfully.
