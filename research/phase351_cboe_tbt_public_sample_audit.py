@@ -125,7 +125,8 @@ def audit_zip_bytes(archive_bytes: bytes) -> dict:
     exact_rows = set()
     duplicate_exact_rows = 0
     missing_exec_id = missing_complex_id = 0
-    invalid_quotes = crossed_nbbo = crossed_bbo = outside_nbbo = 0\n    incomplete_contract_identity_rows = 0
+    invalid_quotes = crossed_nbbo = crossed_bbo = outside_nbbo = 0
+    incomplete_contract_identity_rows = 0
     missing_nbbo = missing_bbo = 0
     missing_floor_ts = late_floor = negative_floor_lag = 0
     trading_date_calendar_mismatch = 0
