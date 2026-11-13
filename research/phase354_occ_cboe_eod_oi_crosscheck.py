@@ -59,7 +59,7 @@ def parse_integer(value: str | int | float | Decimal | None) -> int | None:
 
 def parse_date(value: str) -> str | None:
     raw = str(value or "").strip()
-    for fmt in ("%Y-%m-%d", "%m/%d/%Y", "%m/%d/%y", "%Y%m%d"):
+    for fmt in ("%Y-%m-%d", "%m/%d/%Y", "%Y%m%d"):
         try:
             return datetime.strptime(raw, fmt).date().isoformat()
         except ValueError:
