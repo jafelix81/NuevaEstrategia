@@ -1,9 +1,9 @@
 name: Phase 352 - Cboe Open-Close 1m v1.8 spec and PIT audit
 
 on:
-  pull_request:
+  push:
     branches:
-      - phase351-cboe-tbt-public-sample-row-grain-audit
+      - phase352-cboe-open-close-1m-v18-pit-audit
     paths:
       - "research/phase352_cboe_open_close_1m_v18_spec_audit.py"
       - "research/test_phase352_cboe_open_close_1m_v18_spec_audit.py"
