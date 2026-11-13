@@ -141,6 +141,27 @@ class Phase377Tests(unittest.TestCase):
         result = _weekly_coverage([date(2026, 11, 3), date(2026, 11, 10)])
         self.assertEqual(result["non_tuesday_count"], 0)
 
+    def test_all_candidate_codes_must_be_present_and_unique(self):
+        rows = [
+            make_row(code="13874A", row_id="1"),
+            make_row(code="209742", row_id="2"),
+            make_row(code="239742", row_id="3"),
+            make_row(code="124603", row_id="4"),
+        ]
+        result = build_summary(
+            rows, FIELDS, count_before=4, count_after=4,
+            metadata_updated_before=123, metadata_updated_after=123,
+        )
+        self.assertTrue(result["candidate_codes_present_gate"])
+        self.assertTrue(result["candidate_report_date_code_unique_gate"])
+
+    def test_missing_candidate_contract_is_not_silently_accepted(self):
+        result = build_summary(
+            [make_row(code="13874A")], FIELDS, count_before=1, count_after=1,
+            metadata_updated_before=123, metadata_updated_after=123,
+        )
+        self.assertFalse(result["candidate_codes_present_gate"])
+
 
 if __name__ == "__main__":
     unittest.main()
