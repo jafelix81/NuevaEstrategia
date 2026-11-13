@@ -62,6 +62,8 @@ EXPECTED_TRAIN_END = "2024-10-30"
 EXPECTED_TRAIN_SIGNALS = 24
 EXPECTED_ELIGIBLE_SIGNALS = 20
 EXPECTED_HOLDOUT_SIGNALS = 6
+ROKU_FIRST_TRADING_DATE = "2017-09-28"
+
 EXPECTED_TEST_DATES = (
     "2021-05-03", "2021-08-25", "2021-12-17", "2022-04-13",
     "2022-08-09", "2022-12-01", "2023-03-29", "2023-07-25",
@@ -262,6 +264,11 @@ def bootstrap_mean_interval(values, reps=BOOTSTRAP_REPS, seed=BOOTSTRAP_SEED):
     return float(np.quantile(samples, .025)), float(np.quantile(samples, .975))
 
 
+def price_start_for_ticker(ticker):
+    """Use the actual listing date for ROKU; other names retain the frozen window."""
+    return ROKU_FIRST_TRADING_DATE if str(ticker).upper() == "ROKU" else FIXED_PRICE_START
+
+
 def download_pinned_universe():
     original_download = P11.yf.download
     def pinned_download(ticker, period=None, interval="1d", auto_adjust=False, progress=False, threads=False, **kwargs):
@@ -282,12 +289,22 @@ def download_pinned_universe():
         ok = False
         for attempt in range(3):
             try:
+                start_date = price_start_for_ticker(ticker)
                 raw = original_download(
-                    ticker, start=FIXED_PRICE_START, end=FIXED_PRICE_END,
+                    ticker, start=start_date, end=FIXED_PRICE_END,
                     interval="1d", auto_adjust=False, progress=False, threads=False,
                 )
+                # yfinance's download() returned an empty pre-IPO range for ROKU
+                # in the first run. Retry the same Yahoo source through history()
+                # from ROKU's actual first trading date; no post-listing observations
+                # are lost and the fixed end date remains unchanged.
                 if raw is None or raw.empty:
-                    raise ValueError("empty retry")
+                    raw = P11.yf.Ticker(ticker).history(
+                        start=start_date, end=FIXED_PRICE_END, interval="1d",
+                        auto_adjust=False, actions=False,
+                    )
+                if raw is None or raw.empty:
+                    raise ValueError(f"empty retry from {start_date}")
                 feat = P11.build_features(raw)
                 if len(feat) < 220:
                     raise ValueError(f"insufficient retry rows: {len(feat)}")
