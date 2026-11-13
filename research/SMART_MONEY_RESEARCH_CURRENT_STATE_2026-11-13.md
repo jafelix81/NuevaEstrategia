@@ -217,7 +217,7 @@ No signal admitted. No economic test, no holdout use, no parameter/universe/capi
 - Expands from the 47-month sample to all **209 consecutive T1 historic weekly partitions**, 2021-11-15 through 2025-11-10.
 - Reuses the Phase 374 symbol-week revision and aggregate-to-firm reconciliation rules; reports anonymized weekly coverage, revision, share-volume, participant-union and concentration statistics only.
 - Corrects the Phase 374 participant-union count defect by hashing MPID/CRD-derived keys in memory; no raw identifiers or hashes are persisted.
-- Full retrieval is queued: [run 43493288658](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43493288658). Do not start a duplicate.
+- The first preflight run [43493288658](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43493288658) failed only because a synthetic test fixture omitted rows/pages; the fixture was corrected. The corrected run [43493465495](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43493465495) passed compilation and all five offline tests and is now retrieving the 209 partitions. Do not start a duplicate.
 - This remains data-feasibility only; exact intraday PIT, forward returns, alpha, OOS, bootstrap, LOO and holdout are not authorized.
 
 ### Cross-source reconciliation — OptionMetrics TradeFlow vs Cboe Option Trades
