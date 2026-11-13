@@ -12,7 +12,7 @@ Diagnose the two residual exceptions from Phase 369:
 
 ## Execution
 
-Run [43473406924](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43473406924) completed successfully. Job [132050912230](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43473406924/job/132050912230); artifact [14061977572](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43473406924/artifacts/14061977572). Five unit tests passed. Retrieval covered both full partitions: **111,245 rows / 24 pages**, zero errors and all Record-Total values reconciled.
+Run [43473406924](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43473406924) completed successfully. Job [132050912230](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43473406924/jobs/132050912230); artifact [14061977572](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43473406924/artifacts/14061977572). Five unit tests passed. Retrieval covered both full partitions: **111,245 rows / 24 pages**, zero errors and all Record-Total values reconciled.
 
 ## Finding A — 2021-11-15 is a revised boundary vintage
 
