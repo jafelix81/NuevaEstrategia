@@ -214,6 +214,10 @@ def main():
         metadata, metadata_headers = request_json(session, metadata_url)
         partitions, partition_headers = request_json(session, partitions_url)
         summary, records = summarize_dataset(dataset, metadata, partitions)
+        if not records:
+            raise RuntimeError(
+                f"No partition combinations parsed for {dataset}; preserve raw response and revise parser before proceeding"
+            )
         dataset_results[dataset] = summary
         all_records[dataset] = records
         raw_payloads[dataset] = partitions
