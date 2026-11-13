@@ -1,5 +1,32 @@
 # Smart Money Research — current state (2026-11-13 UTC)
 
+## Latest update — Phase 100 final artifact recovery and Phase 358 firm-grain audit
+
+**Frozen baseline:** `F80_TOP20_PARTIAL50_BASELINE_C20`. No new signal admitted; no return/alpha test; no holdout reuse; F80 unchanged.
+
+### Phase 100 FINRA ATS final artifact — recovered and independently reviewed
+
+The completed run [41978867803](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41978867803) had been left in the Phase 107 narrative as pending. Its final metadata artifact [13394110956](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41978867803/artifacts/13394110956) is now recovered and reviewed.
+
+- 968,139 rows across 10 week/tier partitions and 199 pages. All partition Record-Total values matched retrieved row counts; page offsets were contiguous and page hashes were unique.
+- Across five sampled weeks, FINRA returned about 10,776–11,784 unique symbols per week. The union of ATS and non-ATS symbol aggregates overlapped 94.63%–99.10% of the legacy 335-symbol panel. This is only a historical comparability diagnostic: 335 was an arbitrary panel, not a representative or complete universe.
+- Median initial publication lag was 21 calendar days for T1 and 35 for T2. Of 108,444 symbol-aggregate rows, 1,882 (1.735%) had `lastUpdateDate` after `initialPublishedDate`; the rate was 6.70% in T1 and 0.52% in T2. A PIT candidate must use the later date and defer execution to the next trading session; final snapshots do not prove availability of interim vintages.
+- Two T2 rows for 2022-01-03 lacked `issueSymbolIdentifier`.
+- Two conflicting aggregate-key groups appeared for LND in T2 on 2025-01-06: one ATS and one non-ATS. Both rows in each pair shared initial publication/update dates but had different share/trade totals and different `lastReportedDate`. Do not sum, choose or backfill these rows without resolving their grain.
+- The audit gates therefore remained `FAIL_OR_PARTIAL` for partition/integrity, while publication-date completeness and plausible delay passed. This is a completed data-feasibility audit, not an alpha result.
+
+### Phase 358 — FINRA symbol/firm grain
+
+A new audit now requests the current Query API participant fields `MPID` and `firmCRDNumber` and compares `ATS_W_SMBL_FIRM` / `OTC_W_SMBL_FIRM` rows with symbol-level `ATS_W_SMBL` / `OTC_W_SMBL` totals. It samples 2022-01-03 and 2025-10-20 in both T1/T2, checks participant identity, duplicates, orphans and volume/trade reconciliation, and emits metadata only.
+
+- Branch: `phase358-finra-weekly-firm-grain-audit`.
+- Seven offline regression tests pass.
+- Initial run [43408058316](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43408058316) returned HTTP 400 because the first draft used older website field names. The script was corrected to current API metadata names.
+- Corrected run [43408171858](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43408171858) is in progress. A second run [43408201884](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43408201884) is queued from a workflow-file update; do not dispatch or duplicate this audit.
+- No PR opened yet. No raw participant names or raw rows are written to the artifact.
+
+**Economic interpretation:** FINRA ATS/OTC weekly summaries measure reported off-exchange activity by reporting firms/intermediaries. They do not reveal beneficial owner or aggressor direction. The 21/35-day publication lag makes them slow context at best until the firm-grain reconciliation, PIT and revision gates pass.
+
 **Frozen baseline:** `F80_TOP20_PARTIAL50_BASELINE_C20`  
 **Legacy holdout:** `CONSUMED_NOT_PRISTINE`; do not reuse.  
 **Economic status:** no new Smart Money feature has demonstrated incremental, cost-adjusted OOS edge. No CAGR target or holding-period constraint is imposed.
