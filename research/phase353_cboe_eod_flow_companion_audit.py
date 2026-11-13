@@ -65,10 +65,10 @@ OPTION_EOD_CALCS = [
     "gamma_1545", "theta_1545", "vega_1545", "rho_1545",
 ]
 OPTION_EOD_SERIES_KEY = (
-    "underlying_symbol", "root", "expiration", "strike", "option_type"
+    "quote_date", "underlying_symbol", "root", "expiration", "strike", "option_type"
 )
 OPEN_CLOSE_SERIES_KEY = (
-    "underlying_symbol", "option_symbol", "expiration_date", "strike_price",
+    "quote_date", "underlying_symbol", "option_symbol", "expiration_date", "strike_price",
     "call_put_flag", "series_type",
 )
 
