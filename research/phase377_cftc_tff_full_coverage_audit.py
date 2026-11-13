@@ -120,7 +120,8 @@ def _field_missingness(rows, field_map):
     for field in fields:
         out[field] = sum(
             1 for row in rows
-            if numeric(row.get(field)) is None
+            if row.get(field) is None
+            or str(row.get(field)).strip() in ("", ".", "NULL", "null")
         )
     return out
 
@@ -137,28 +138,34 @@ def _oi_reconciliation(rows, field_map):
     checked = exact = 0
     max_abs_residual = Decimal(0)
     for row in rows:
-        values = [numeric(row.get(x)) for x in required]
-        oi = numeric(row.get(oi_field))
+        try:
+            values = [numeric(row.get(x)) for x in required]
+            oi = numeric(row.get(oi_field))
+        except ValueError:
+            continue
         if oi is None or any(x is None for x in values):
             continue
-        checked += 1
         # CFTC instructs users to add spread positions to both long and short
         # sides when reconciling open interest.
         long_total = Decimal(0)
         short_total = Decimal(0)
         valid = True
         for category in field_map.values():
-            long_v = numeric(row.get(category.get("long"))) if category.get("long") else None
-            short_v = numeric(row.get(category.get("short"))) if category.get("short") else None
-            spread_v = numeric(row.get(category.get("spread"))) if category.get("spread") else Decimal(0)
+            try:
+                long_v = numeric(row.get(category.get("long"))) if category.get("long") else None
+                short_v = numeric(row.get(category.get("short"))) if category.get("short") else None
+                spread_v = numeric(row.get(category.get("spread"))) if category.get("spread") else Decimal(0)
+            except ValueError:
+                valid = False
+                break
             if long_v is None or short_v is None or spread_v is None:
                 valid = False
                 break
             long_total += long_v + spread_v
             short_total += short_v + spread_v
         if not valid:
-            checked -= 1
             continue
+        checked += 1
         r = max(abs(long_total - oi), abs(short_total - oi))
         if r == 0:
             exact += 1
