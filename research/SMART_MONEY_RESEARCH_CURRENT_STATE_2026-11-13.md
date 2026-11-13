@@ -292,3 +292,15 @@ Phase 375 remains the only active FINRA retrieval; its full 209-week T1 audit st
 - Archive Updated is a candidate conservative availability bound, not a formally certified first-publication timestamp. Candidate execution rule: first regular market session after Updated; never same-day close. Strict PIT and alpha remain unauthorized pending a full post-launch weekly archive census and correction/migration review.
 - Draft PR [#54](https://github.com/jafelix81/NuevaEstrategia/pull/54).
 
+## CFTC TFF full archive census — Phase 380 (2026-11-13)
+
+- First contemporaneous TFF report date corrected to 2010-07-20 (positions as of July 20; static archive Updated July 23), not the July 22 announcement date. Prelaunch/backcast report dates are before July 20.
+- Phase 380 retrieved 846/851 post-launch static archive pages (99.4125%); 214 report dates before first TFF report are backcast and excluded.
+- Five pages failed: 2011-06-14, 2013-12-31, 2014-11-25, 2014-12-02, 2019-12-24.
+- One page heading mismatch: report date 2018-09-25 requested, archive file says positions as of 2018-09-18.
+- Two stale Updated fields predate report dates: 2011-05-10 page says Updated 2010-05-13; 2012-10-16 page says Updated 2007-06-29.
+- Recent official schedule crosschecks remain 23/23 not earlier than release (22 exact, one +2 days), but the historical anomalies invalidate a global Updated-date PIT assumption.
+- Median archive lag 3 days, p90 4, max 70 days. First TFF report page check: 2010-07-20 positions, Updated 2010-07-23.
+- Decision: no global CFTC PIT acceptance. Per-page date/heading exclusions and targeted anomaly repair required; no TFF alpha test authorized. Phase 380 report includes a workflow key mismatch note (first_report_page_gate key).
+- [Phase 380 run](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43499455469), [artifact](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43499455469/artifacts/14074090576), draft PR #55.
+
