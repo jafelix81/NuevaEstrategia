@@ -63,6 +63,7 @@ Phase 350's latest hosted attempt [43344689909](https://github.com/jafelix81/Nue
 
 ## Active GitHub work
 
+- PR #40: Phase 353 daily EOD flow + OPRA context feasibility, Draft/Open, stacked on Phase 352, not merged.
 - PR #39: Phase 352 Open-Close 1m v1.8 spec/PIT audit, Draft/Open, not merged.
 - PR #38: Phase 351 TBT sample audit, Draft/Open, not merged.
 - PR #37: Phase 350 SEC 13D/G parent retrieval, Draft/Open, blocked on `SEC_USER_AGENT`.
@@ -71,8 +72,8 @@ Phase 350's latest hosted attempt [43344689909](https://github.com/jafelix81/Nue
 
 ## Next gates
 
-1. Inspect a verifiably post-v1.8 Open-Close 1m sample and verify the actual header, cumulative values and correction behavior; the surfaced sample's market date predates the cutover.
-2. Establish exact per-file first-receipt UTC and an append-only snapshot/correction archive before any prospective PIT feature is admitted.
+1. Obtain a verifiably post-2026-11-08 Open-Close 1m sample to validate live correction/removal behavior; the linked 2026-09-30 sample has the new headers but predates the cutover.
+2. For the daily EOD pair, establish exact per-file first-receipt UTC, preliminary/final lineage and an append-only correction archive before any prospective PIT feature is admitted.
 3. Quantify four-venue per-symbol/per-date coverage against the frozen 335 universe, including inactive/delisted names, option-root changes and a separate full-OPRA denominator.
 4. Resolve the TBT sample's 3% selection rule, row grain, missing `OPEN_CLOSE`, 69 unmapped side codes and `TRADING_SEGMENT` discrepancy before any TBT feature construction.
 5. Continue SEC 13D/G and Form 4 retrieval only after the required monitored-contact secret is configured.
@@ -81,3 +82,17 @@ Phase 350's latest hosted attempt [43344689909](https://github.com/jafelix81/Nue
 ## Controls
 
 No signal admitted. No returns, alpha, OOS, bootstrap or LOO test performed in Phase 351. No holdout used. No vendor contacted, no trial requested, no data purchased, no terms accepted, no PR merged, no production/universe/capital/parameter change. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+
+## Latest completed research line — Phase 353: Cboe daily EOD flow + OPRA option context
+
+**Status:** PASS_SAMPLE_SCHEMA_AND_SPEC_SEMANTICS_NO_PIT_NO_ALPHA
+
+- Hosted run [43373927474](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43373927474) passed 11/11 offline tests, both official specification audits, both public EOD sample schema audits, product-page checks and the no-alpha gates. Metadata-only artifact [14014015757](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43373927474/artifacts/14014015757).
+- Open-Close EOD sample: one C1 EOD member from the 2025-03-28 20% sample bundle; 23,179 option-series rows, 1,553 underlyings, 86 columns, no duplicate series keys or missing required cells, all 34 participant-volume fields. Series types: S 23,080, N 11, F 88. The bundle also contained 1m/10m samples, which were excluded from the EOD audit.
+- Option EOD Summary sample: two variants for 2023-08-25, each 32,672 rows across 4 underlyings, 34 columns, all seven calc fields, no duplicate series keys or missing required cells. IV was zero on 7.25%/8.74% of rows in the two variants; zero IV is invalid/unavailable model output, not zero volatility. SOD OI was zero on 22.80%; trade volume was zero on 59.65%. The two variants are not separate dates.
+- Linked 1m sample: 123,022 rows, 88 lowercase columns, trading_dt and trading_segment present. Its filename date is 2026-09-30, before the 2026-11-08 v1.8 cutover. It shows the new headers but does not verify post-cutover live correction/removal behavior.
+- Open-Close EOD v1.3 has preliminary/final files, typically delivered 00:30–01:00 ET next morning; final total-industry volume and OI are sourced from OCC. Option EOD Summary v1.1 supplies OPRA 15:45 IV/Greeks and SOD OCC OI. The full four-venue pair starts no earlier than 2018-01-02.
+- C1 RTH/GTH versus Option EOD RTH alignment, S/N/F contract-class crosswalk, broad historical universe coverage, exact first-receipt PIT, licensing and prospective capture remain open. No returns or alpha test was performed.
+
+**Decision:** daily EOD pair is the highest-priority next options-flow feasibility candidate; no source or signal is admitted. F80 remains frozen. PR #40 is Draft/Open, stacked on Phase 352, unmerged.
