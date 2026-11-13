@@ -61,15 +61,12 @@ def audit_spec_text(text: str) -> dict:
         ),
         "c1_has_gth_and_rth": "c1 (global trading hours and regular trading hours)" in normalized,
         "c2_bzx_edgx_are_rth_only": "c2, bzx, edgx (regular trading hours only)" in normalized,
-        "c1_segment_is_product_specific": all(
-            token in compact
-            for token in (
-                "firsttradingsegment",
-                "secondsegment",
-                "normalrthsession",
-                "normalgthsession",
-                "extendedgthsession",
-            )
+        "c1_segment_is_product_specific": (
+            "firsttradingsegment" in compact
+            and ("secondsegment" in compact or "secondtradingsegment" in compact)
+            and "normalrthsession" in compact
+            and "normalgthsession" in compact
+            and "extendedgthsession" in compact
         ),
         "non_c1_segment_is_null": "null for c2, bzx, and edgx" in normalized,
         "fields_10_to_17_empty_in_1m": empty_interval_count >= 8,
