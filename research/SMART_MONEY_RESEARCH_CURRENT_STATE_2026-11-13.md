@@ -174,3 +174,40 @@ No signal admitted. No economic test, no holdout use, no parameter/universe/capi
 - Decision: retain T1 ATS as a **conditional broker-dealer reporting-concentration candidate**, not an institutional/beneficial-owner signal. Proceed to monthly historical coverage and descriptive concentration feasibility only. Do not run returns until the broader PIT, security identity, universe coverage and historical revision gates pass.
 - FINRA short-flow Phase 20C remains diagnostic-only. Its 12 pseudo-OOS dates were originally evaluated close-to-close despite files arriving after the close. A separate corrected next-session-open evaluation remains required; do not use the six consumed Phase 20B final-OOS dates.
 - No new Smart Money feature has demonstrated incremental cost-adjusted OOS edge. No new signal admitted. No holdout use, no parameter/universe/capital/production change. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## Latest update — Phases 371–374 (2026-11-13)
+
+### Phase 371 — 47-month T1 ATS monthly sample
+
+- FINRA historic inventory contains 209 T1 weekly partitions. Phase 371 selected one week per month (closest to day 15) for Jan-2022–Nov-2025: 47/47 full partitions retrieved, **2,469,987 rows / 517 pages**, zero retrieval errors, all Record-Total values matched.
+- Sample union: 3,092 symbols and 37 participant keys. This is a monthly stratified sample, not a census of all 209 weeks.
+- Aggregate symbol/product rows reconciled to firm rows in **47/47** sampled months; descriptive broker-dealer reporting concentration gate passed 47/47.
+- Strict date gate passed **38/47**. Five other months had a 22-calendar-day initial-publication lag but zero post-publication update gaps; the exact-21-day check was overly strict for holiday-shifted dates. Four months contained actual post-initial revisions: 2023-11-13 (2,103 rows), 2024-02-12 (3), 2025-05-12 (1,831), 2025-06-16 (3). Total positive-update rows: 3,940/2,016,703 ATS symbol-level rows (0.1954%).
+- All HHI/top-share statistics are descriptive reporting-intermediary concentration, not beneficial-owner or institutional-flow identification and not an alpha signal.
+- Full report: [Phase 371](PHASE371_FINRA_T1_ATS_MONTHLY_COVERAGE_CONCENTRATION_AUDIT_2026-11-13.md); run [43474430280](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43474430280), artifact [14065151518](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43474430280/artifacts/14065151518).
+
+### Phase 372 — FINRA daily short-flow next-open retest blocked
+
+- The original Phase 20C used close-to-close returns from the close when the daily FINRA file is posted after the regular session. Phase 372 pins the original price window (2016-10-24 to 2026-10-24), preserves the 335 configured tickers and requires the same 329 valid names before any return calculation.
+- Both hosted attempts failed the pre-analysis data gate: 328/329 valid; seven unresolved symbols (AVB, EA, EQR, LPRO, ROKU, WBD, WBS). A targeted ROKU retry from its first trading date (2017-09-28) did not recover data. Do not drop ROKU, alter the universe, or mix vendors without reconciliation. No next-open pseudo-OOS returns were calculated; no holdout was used.
+- Full blocker report: [Phase 372](PHASE372_FINRA_SHORT_FLOW_NEXT_OPEN_RETEST_BLOCKER_2026-11-13.md); runs [43481196468](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43481196468) and [43481200906](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43481200906).
+- Decision: suspend full Phase 20C reruns until a targeted, source-consistent ROKU price retrieval diagnostic succeeds. The 12-date Phase 20C result remains weak and non-promotable.
+
+### Phase 373 — Cboe source ranking updated
+
+- Cboe Option Trades is now the highest-priority broad options-flow candidate: OPRA-wide U.S. stock/ETF/index options, advertised history from Jan-2012, trade timestamp to milliseconds, trade price/size, NBBO and optional trade-time IV/Greeks. It does not directly expose participant capacity, open/close or beneficial-owner identity; aggressor side must be estimated with trade-condition/NBBO controls.
+- Options PITCH is a conditional four-venue depth-of-book/execution/auction microstructure source (C1/C2/BZX/EDGX), with archive from Oct-2019 and proprietary licensing. TBT remains C1-only and retrospective before the conservative public-launch documentation floor.
+- Public sample ZIP bytes could not be retrieved; no parser/sample validation, trial, vendor contact, purchase or card authorization.
+- Report: [Phase 373 Option Trades/PITCH ranking](https://github.com/jafelix81/NuevaEstrategia/blob/phase373-cboe-tbt-source-feasibility-audit/research/PHASE373_CBOE_OPTION_TRADES_AND_OPTIONS_PITCH_SOURCE_RANKING_2026-11-13.md). Draft [PR #48](https://github.com/jafelix81/NuevaEstrategia/pull/48) updated.
+
+### Phase 374 — revision-stable T1 ATS symbol panel in progress
+
+- Re-fetches the same 47 monthly T1 partitions and will exclude a symbol-week from concentration if any aggregate or firm row has missing/invalid dates or a nonzero `lastUpdateDate - initialPublishedDate`.
+- It accepts 21/22 calendar-day publication lags as schedule-consistent but never backdates: the actual `initialPublishedDate` remains the candidate knowledge date.
+- CTS/UTP aggregate rows are combined only if product codes are distinct and combined shares/trades exactly reconcile to firm rows. Concentration is calculated only for revision-stable, reconciled symbol-weeks with complete unique participant identifiers and no De Minimis bucket.
+- Run [43481384832](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43481384832) is still running. Do not duplicate it. No return test is authorized; exact intraday first receipt and intermediate-vintage history remain unestablished.
+
+## Controls reaffirmed
+
+No new Smart Money signal admitted. No economic/OOS test from Phases 371–374, no holdout use, no production/universe/capital/parameter change. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen. No PR merged.
