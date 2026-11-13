@@ -213,7 +213,7 @@ def audit_zip_bytes(archive_bytes: bytes) -> dict:
                 if price == 0:
                     price_zero += 1
                 strike = _parse_decimal(row["STRIKE_PRICE"], "STRIKE_PRICE", optional=True)
-                contract_fields = (row["OSI_ROOT"], row["EXPIRE_DATE"], cp)
+                contract_fields = (row["OSI_ROOT"], row["EXPIRE_DATE"], cp if cp in CALL_PUT else "")
                 contract = None
                 if all(contract_fields) and strike is not None:
                     contract = (row["UNDERLYING"], row["OSI_ROOT"], row["EXPIRE_DATE"],
