@@ -79,12 +79,20 @@ For LND, OTC matched on both reporting dates. ATS matched on 2025-01-10, but 202
 - Run [43444391496](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43444391496), artifact [14047148064](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43444391496/artifacts/14047148064), 7/7 offline tests passed. Full report: [Phase 365 result](PHASE365_FINRA_ACTUAL_ROW_PROBE_RESULT_2026-11-13.md).
 - No raw rows were retained; no returns or alpha test were used.
 
-### Phase 366 — full-row vintage reconciliation in progress
+### Phase 366 — full-row vintage reconciliation completed with T1 mismatch review
 
-- Compares every row in the overlapping 2025-10-20 T1 and OTCE partitions between `weeklySummaryHistoric` and `weeklySummary`.
-- Uses paged retrieval, canonical order-independent row fingerprints, identity-key group counts, field-presence and numeric-total checks. Only anonymized counts and hashes are retained.
-- T1 tests the principal conditional FINRA slice; OTCE resolves the Phase 365 first-page identity-presence discrepancy.
-- This is still a data-integrity test, not an alpha test. No signal or economic test is authorized.
+- Fully retrieved four partitions (2025-10-20 T1/OTCE × current/historic): 178,816 rows, 38 pages, zero retrieval errors; 7/7 offline tests passed.
+- OTCE: 24,292/24,292 rows matched over the 16 canonical fields used. The Phase 365 first-page participant-ID discrepancy was sampling/order: full-partition participant-ID rows were 13,425 in both datasets, De Minimis rows 7,834 in both, and unique symbols 8,229 in both.
+- T1: 65,092/65,116 selected-field rows matched; 24 current-only and 24 historic-only rows, with 24 mismatched identity-key groups (0.0369%). Summary-type, tier-description and product-type counts, unique symbols (2,420), participant-ID rows (60,282) and De Minimis rows (2,420) matched.
+- Audit caveat: Phase 366 omitted `summaryStartDate` from its canonical row hash; the historic endpoint also returns a query-helper field `historicalweek`. OTCE exact match is therefore limited to the selected 16 fields, not every field in the schema. Numeric aggregate equality also used string formatting and falsely flagged trailing-zero differences for OTCE. T1 aggregate notional sums differ by only a few millionths; the 24 row-level field differences are not yet identified.
+- Run [43455306406](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43455306406), artifact [14054525109](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43455306406/artifacts/14054525109). Full report: [Phase 366](PHASE366_FINRA_FULL_ROW_VINTAGE_RECONCILIATION_2026-11-13.md).
+- No raw rows or identifiers were retained. No return or alpha test was run.
+
+### Phase 367 — T1 field-level vintage diagnostic in progress
+
+- Re-fetches 2025-10-20 T1 from both datasets, includes `summaryStartDate`, and normalizes numeric values with Decimal semantics.
+- Compares rows by hashed identity key and reports only anonymized per-field mismatch counts, signed/absolute numeric differences and summary-type counts.
+- The aim is to determine whether the 24 T1 discrepancies are limited to tiny notional rounding or involve other fields. No signal or economic test is authorized.
 
 ## Cross-source re-ranking — SEC Form 4 identity gate (Phases 345–346)
 
