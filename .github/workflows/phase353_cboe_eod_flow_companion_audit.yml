@@ -1,14 +1,7 @@
 name: Phase 353 - Cboe daily EOD flow and OPRA context audit
 
 on:
-  push:
-    branches:
-      - phase353-cboe-eod-flow-companion-audit
-    paths:
-      - "research/phase353_cboe_eod_flow_companion_audit.py"
-      - "research/test_phase353_cboe_eod_flow_companion_audit.py"
-      - "research/PHASE353_CBOE_EOD_FLOW_COMPANION_AUDIT_2026-11-13.md"
-      - ".github/workflows/phase353_cboe_eod_flow_companion_audit.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read
