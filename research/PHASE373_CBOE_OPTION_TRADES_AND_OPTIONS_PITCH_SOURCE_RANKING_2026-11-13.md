@@ -1,19 +1,35 @@
 # Phase 373 — Cboe Option Trades and Options PITCH source ranking
 
 **Date:** 2026-11-13  
-**Disposition:** **Option Trades becomes the highest-priority broad-coverage options-flow candidate; PITCH remains a high-cost microstructure candidate. Neither is PIT- or alpha-admitted.**  
+**Disposition:** **OptionMetrics IvyDB TradeFlow remains the primary conditional all-venue signed-flow candidate (Phases 142–143 and 180–181). Cboe Option Trades is retained as the independent OPRA-wide raw trade/NBBO reconstruction and validation candidate; PITCH remains a separate microstructure candidate. None is PIT- or alpha-admitted.**  
 **Research class:** public product/specification audit only. No sample bytes, subscription, trial, vendor contact, purchase, return test or production change.
 
 ## Executive decision
 
 The fresh Cboe product/specification review changes the options-source ranking:
 
-1. **Option Trades (OPRA)** — broadest historical trade-print coverage: all U.S. listed stock, ETF and index options disseminated over OPRA, advertised from January 2012, with trade-level NBBO and optional point-in-time IV/Greeks. It does not identify participant capacity, beneficial owner, or open/close position. Direction must be inferred conservatively from trade price versus contemporaneous NBBO and trade conditions.
-2. **Open-Close EOD** — strongest direct participant-capacity and open/close cross-tab among the reviewed products, but limited to Cboe exchanges and subject to historical convention changes, third-party industry-volume/OI fields and PIT-vintage requirements.
-3. **Cboe Options Multicast PITCH** — rich depth-of-book/execution/auction-update feed across C1, C2, BZX and EDGX options, with RTH/GTH sessions and archive from October 2019. It is a microstructure source, not a direct institutional-identity source; processing and licensing burden are high.
-4. **TBT** — detailed C1 execution records with side, open/close, capacity and trade-type fields, but C1-only, costly, and its advertised 2019 archive is retrospective before the conservative public launch-documentation floor of 2026-02-20.
+1. **IvyDB TradeFlow (OptionMetrics)** — primary conditional all-venue signed-flow candidate, advertised across all U.S. options exchanges from January 2016, with 5-minute, 30-minute and EOD snapshots, four reconciled relational tables, and execution-style retail/aggressive-institutional proxies. Its 2026-09-30 launch means the 2016 history is backfill, not proof of live 2016 availability; all Phase 180/181 PIT, version, sample and licensing gates remain blocked.
+2. **Option Trades (Cboe / OPRA)** — independent raw trade-print and contemporaneous NBBO source, advertised from January 2012 across U.S. stock, ETF and index options. It is the best candidate to independently reconstruct/check TradeFlow's directional classification and option-series coverage. It has no documented participant capacity, beneficial-owner or open/close field; direction must be inferred from trade price, NBBO and conditions.
+3. **Open-Close EOD** — complementary participant-capacity and open/close cross-tab on Cboe exchanges only; useful to test whether TradeFlow aggressor-side pressure differs from opening/closing activity, subject to venue coverage, historical conventions and PIT vintages.
+4. **Cboe Options Multicast PITCH** — rich depth-of-book/execution/auction-update feed across C1, C2, BZX and EDGX options, with RTH/GTH sessions and archive from October 2019. It is a microstructure source, not a direct institutional-identity source; processing and licensing burden are high.
+5. **TBT** — detailed C1 execution records with side, open/close, capacity and trade-type fields, but C1-only, costly, and its advertised 2019 archive is retrospective before the conservative public launch-documentation floor of 2026-02-20.
 
-Option Trades is the best next source to test for breadth across the existing and expanded underlying universe. This is a source-priority decision only; no feature has been admitted.
+TradeFlow remains the first conditional candidate for signed-flow feature development after its existing nine data gates pass. Option Trades is the preferred independent raw OPRA validation source if a public sample can be obtained without purchase. This is a source-priority decision only; no feature has been admitted.
+
+
+
+## 0. Reconciliation with prior OptionMetrics TradeFlow research
+
+This source-ranking update must be read together with the earlier repository work:
+
+- Phase 142 (2026-11-05) ranked IvyDB TradeFlow as the highest-priority conditional all-venue options-flow candidate after its 2026-09-30 launch.
+- Phase 143 narrowed the meaning of its participant proxies, interval accounting, multi-leg treatment and classifier-validation requirements.
+- Phase 180 documented its four-table structure, January 2016 advertised history, 5m/30m/EOD intervals, and unresolved PIT/version/sample/licensing gates.
+- Phase 181 preregistered five competing economic hypotheses and explicitly prohibited feature admission or backtesting until nine data gates pass.
+
+Accordingly, Cboe Option Trades is **not a replacement or higher-priority signal source**. Its value is independent OPRA-wide raw trade/NBBO context for checking TradeFlow's signed-volume classification, condition handling, volume totals and effective-dated series coverage. A same-day/same-series comparison is a future data-validation design, not a result: no Cboe sample bytes were obtained and no TradeFlow raw sample is available.
+
+TradeFlow participant fields remain execution-style proxies, not beneficial-owner identities. Institutional 2 is aggressive liquidity demand, not total institutional participation; TradeFlow is not an opening/closing-position feed. Cboe Open-Close is complementary because it provides capacity × side × open/close on Cboe venues, but it does not cover all OPRA venues.
 
 ## 1. Option Trades — product contract
 
@@ -86,8 +102,9 @@ PITCH is proprietary, external redistribution is prohibited, and the public page
 
 | Product | History advertised | Coverage | Direct participant/position fields | Main role |
 |---|---:|---|---|---|
-| Option Trades | 2012-01 | OPRA-wide U.S. stock/ETF/index options | No | Broad options-flow / IV hypothesis |
-| Open-Close EOD | Exchange-specific; C1 2005, BZX/C2/EDGX 2018 | Four Cboe venues, not all OPRA | Yes: capacity × side × open/close | Participant-category context |
+| IvyDB TradeFlow | 2016-01 (backfill claim; product launched 2026-09-30) | All U.S. options exchanges | Execution-style retail/aggressive-institutional proxies; no beneficial-owner/open-close identity | Primary conditional signed-flow candidate |
+| Option Trades | 2012-01 | OPRA-wide U.S. stock/ETF/index options | No | Independent raw trade/NBBO validation and alternative flow reconstruction |
+| Open-Close EOD | Exchange-specific; C1 2005, BZX/C2/EDGX 2018 | Four Cboe venues, not all OPRA | Yes: capacity × side × open/close | Complementary participant-category context |
 | Options PITCH | 2019-10 | C1/C2/BZX/EDGX | No beneficial-owner identity | Depth/order-flow microstructure |
 | TBT | 2019-10-07 archive | C1 only | Side, open/close, capacity | Narrow execution-level study |
 
