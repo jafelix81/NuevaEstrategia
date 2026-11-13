@@ -1,40 +1,35 @@
 # Smart Money Research — current state (2026-11-13 UTC)
 
-## Latest update — Phase 359 completed; Phase 360 symbol bridge reconciliation running
+## Latest update — Phase 360 completed: FINRA symbol bridge and arithmetic reconciliation pass with exclusions
 
 **Frozen baseline:** `F80_TOP20_PARTIAL50_BASELINE_C20`. No new signal admitted; no return/alpha test; no holdout reuse; F80 unchanged.  
 **Legacy holdout:** `CONSUMED_NOT_PRISTINE`; do not reuse.  
 **Economic status:** no new Smart Money feature has demonstrated incremental, cost-adjusted OOS edge. No CAGR target or holding-period constraint is imposed.
 
-### Phase 359 — FINRA product-type key diagnostic (completed)
+### Phase 359 — product-type key diagnostic
 
-Hosted run [43413334750](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43413334750) succeeded: 8/8 offline tests, four historical partitions, 409,225 rows, 84 pages, exact API Record-Total matches, no request/pagination errors. Metadata-only artifact: [14031535676](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43413334750/artifacts/14031535676).
+Hosted run [43413334750](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43413334750) passed 8/8 offline tests and retrieved four historical partitions: 409,225 rows across 84 pages, with exact API Record-Total matches. The zero exact joins from Phase 358 were explained by a row-grain difference: `productTypeCode` was blank on all **363,241** symbol-firm rows but populated on symbol aggregates. Ignoring product type, symbol sets aligned. A unique symbol-only bridge was possible for 45,212 of 45,222 shared symbols (99.9779%); ten multi-product symbols and two missing-symbol rows require exclusion.
 
-The zero exact joins from Phase 358 are explained by a systematic row-grain difference:
-- `productTypeCode` is present on symbol aggregate rows (CTS/UTP) but blank on all **363,241** symbol-firm rows in the four samples.
-- Ignoring product type, aggregate and firm symbol sets align with no aggregate-only or firm-only symbols among nonblank-symbol rows.
-- **45,212 of 45,222 shared symbols (99.9779%)** have exactly one aggregate product type and are eligible for a symbol-only bridge within the same week, tier and ATS/OTC family.
-- Ten symbols are ambiguous because their aggregate has multiple product-type rows: 3 ATS + 5 OTC in 2022-01-03/T2, and 1 ATS + 1 OTC in 2025-10-20/T2. These must be excluded, never multiplied.
-- Two 2022-01-03/T2 rows lack a symbol (one aggregate and one firm row); they remain explicit exclusions.
+### Phase 360 — bridge and arithmetic reconciliation (completed)
 
-FINRA's guide defines the displayed Product as the SIP trade feed for the symbol, supporting its interpretation as symbol-level classification rather than a firm identifier. It separately documents non-ATS De Minimis Firms as aggregated, non-attributed volume. See [FINRA OTC Transparency User Guide](https://www.finra.org/sites/default/files/OTC-transparency-website-user-guide-v5.pdf), especially pp. 1, 10–11.
+Corrected hosted run [43426428636](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43426428636) passed 12/12 offline tests and retrieved all four partitions: **409,225 rows / 84 pages**, all API Record-Total counts matched. Retrieval gate PASS; data gate PASS_WITH_EXCLUSIONS. Metadata-only artifact [14037407295](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43426428636/artifacts/14037407295).
 
-Phase 359 did **not** sum firm quantities, calculate concentration, or test returns. The symbol-only bridge is a hypothesis to validate, not yet an approved join.
+For all **45,212 unambiguous symbol-family-period mappings**, firm-level share quantity and trade count both reconciled exactly to the symbol aggregate. No invalid numeric cells, duplicate aggregate symbol/product keys, duplicate participant-symbol keys or missing MPID/CRD identities among non-de-minimis participant rows were found. Ten multi-product symbol cases were excluded; one aggregate and one firm row in 2022-01-03/T2 lacked a symbol.
 
-### Phase 360 — symbol-only bridge and firm-total reconciliation (in progress)
+- ATS T1 samples (2022 and 2025): bridge 100% and no exclusions; ATS-level intermediary concentration is technically measurable on these samples, but no HHI was calculated. This is venue/routing structure, not beneficial-owner identity or informed direction.
+- ATS T2 samples: 8,871/8,874 and 8,621/8,622 mapped; 3 and 1 ambiguous symbols excluded.
+- OTC non-ATS: exact arithmetic reconciliation also passed, but every mapped symbol has a De Minimis Firms aggregate row. De-minimis share of volume was 33.13%, 31.06%, 22.95% and 12.11% by partition (19.71% weighted across the four sampled partitions). Complete firm concentration is therefore censored.
 
-Branch: `phase360-finra-symbol-bridge-reconciliation`.  
-Corrected hosted run [43426428636](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43426428636) is running. The first attempt [43426326025](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43426326025) exposed two offline-test defects in duplicate-key and PASS/EXCLUSIONS gate classification; both were corrected. The corrected run has passed **12/12 offline regression tests** and is currently retrieving the same four partitions. Do not start another copy.
+[Phase 360 report](PHASE360_FINRA_SYMBOL_BRIDGE_RECONCILIATION_2026-11-13.md) · [run](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43426428636) · [artifact](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43426428636/artifacts/14037407295).
 
-Phase 360 tests whether, for unambiguous symbols only, firm-level weekly share quantity and trade count sum exactly to symbol-level ATS/OTC aggregates. ATS and non-ATS OTC remain separate. It records de-minimis volume and duplicate participant-symbol keys, and will not compute concentration unless all relevant gates pass. No returns, alpha, holdout, or F80 changes.
+**Decision:** FINRA's symbol-only bridge and arithmetic reconciliation pass with explicit exclusions. Keep ATS as a conditional venue-level market-structure candidate; do not interpret it as Smart Money. OTC non-ATS concentration remains censored by de-minimis aggregation. Historical final snapshots do not establish interim-vintage PIT, and FINRA data is published with two-week Tier 1 and four-week Tier 2/OTC delays. No returns, alpha, OOS, bootstrap, LOO or holdout test is authorized yet.
 
-### FINRA interpretation and next gate
+### Next gate
 
-FINRA documents roughly two-week publication delay for Tier 1 and four-week delay for Tier 2/OTC; non-ATS de-minimis activity is aggregated rather than attributed to each firm. The historical API is a final snapshot, not a full interim-vintage ledger. Therefore:
-- Keep ATS and non-ATS OTC separate.
-- Any non-ATS concentration is censored by de-minimis aggregation.
-- MPID/CRD identifies reporting intermediaries, not beneficial owners or trade direction.
-- Even a successful arithmetic reconciliation does not establish strict historical PIT or smart-money alpha. No returns test is authorized until point-in-time availability is independently defensible.
+1. Audit broader weekly coverage over the available historical window, including inactive/delisted securities and the frozen 335-symbol panel as a comparison denominator only.
+2. Determine whether prospective first-receipt and correction capture is feasible without excessive retrieval/storage burden.
+3. If coverage and PIT pass, consider descriptive ATS concentration features; only then test incremental value versus frozen LTM/F80 using strict chronological validation and a new untouched holdout.
+4. Continue Cboe Open-Close EOD/Option EOD feasibility in parallel; its historical first-receipt/correction archive, inactive-underlying coverage, session alignment and licensing remain unresolved.
 
 ## Latest completed phase — Phase 355: Cboe EOD participant-volume accounting reconciliation
 
