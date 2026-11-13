@@ -282,3 +282,13 @@ Phase 375 remains the only active FINRA retrieval; its full 209-week T1 audit st
 - OptionMetrics TradeFlow remains a conditional data-access/availability candidate; no purchase or vendor contact.
 
 **Economic progress remains 35%** because no incremental, cost-adjusted OOS edge has been demonstrated.
+
+## CFTC archive timestamp audit — Phase 379 (2026-11-13)
+
+- Phase 379 corrected run [43499068179](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43499068179) passed; artifact [14072598314](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43499068179/artifacts/14072598314).
+- The CFTC static TFF archive's final Updated date was not earlier than the official publication date in 23/23 recent official-schedule samples; 22 exact, one +2 days (2025-12-23 report: official Dec29, archive Updated Dec31).
+- Six older archive-only samples from 2017/2020/2022/2023/2024 were all retrieved and showed Updated dates three days after report dates; they lack independent release-date verification.
+- First Phase 379 run [43498878730](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43498878730) failed only because the initial acceptance rule demanded exact equality. The corrected conservative rule (Updated >= official publication date) passed.
+- Archive Updated is a candidate conservative availability bound, not a formally certified first-publication timestamp. Candidate execution rule: first regular market session after Updated; never same-day close. Strict PIT and alpha remain unauthorized pending a full post-launch weekly archive census and correction/migration review.
+- Draft PR [#54](https://github.com/jafelix81/NuevaEstrategia/pull/54).
+
