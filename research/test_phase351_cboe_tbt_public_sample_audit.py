@@ -95,6 +95,7 @@ class Phase351TbtSampleTests(unittest.TestCase):
         self.assertEqual(result["rows"], 1)
         self.assertEqual(result["unique_underlyings"], 1)
         self.assertEqual(result["capacity_counts"], {"Customer": 1})
+        self.assertEqual(result["session_segment_counts"], {"RTH|2": 1})
         self.assertFalse(result["gates"]["historical_pit_admitted"])
 
     def test_execution_id_pairing_is_measured_not_assumed(self):
