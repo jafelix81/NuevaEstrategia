@@ -274,7 +274,7 @@ def participant_key(row):
     mpid = norm(row.get("MPID"))
     crd = norm(row.get("firmCRDNumber"))
     name = norm(row.get("marketParticipantName"))
-    return mpid or (crd if crd != "0" else "") or name
+    return mpid or (crd if crd != "0" else "")
 
 
 def percentile(values, p):
@@ -520,9 +520,21 @@ def main():
         raise RuntimeError(f"Monthly partition sample incomplete: missing={missing_months}")
 
     partitions, errors = [], []
+    symbol_union_hashes = set()
+    participant_union_hashes = set()
+    import hashlib
     for week in weeks:
         try:
             rows, total, pages = fetch_partition(session, week)
+            for row in rows:
+                typ = norm(row.get("summaryTypeCode"))
+                value = norm(row.get("issueSymbolIdentifier"))
+                if typ == "ATS_W_SMBL" and value:
+                    symbol_union_hashes.add(hashlib.sha256(value.encode("utf-8")).hexdigest())
+                if typ == "ATS_W_SMBL_FIRM":
+                    key = participant_key(row)
+                    if key:
+                        participant_union_hashes.add(hashlib.sha256(key.encode("utf-8")).hexdigest())
             partitions.append(analyze_partition(rows, week, total, pages))
             del rows
         except Exception as exc:
@@ -550,7 +562,8 @@ def main():
         "all_date_gates_pass": complete and all(p["ats_date_gate"] for p in partitions),
         "all_symbol_bridges_pass": complete and all(p["bridge"]["bridge_gate"] == "PASS" for p in partitions),
         "all_concentration_gates_pass": complete and all(p["bridge"]["concentration_gate"] == "PASS" for p in partitions),
-        "unique_symbols_union_count": None,
+        "unique_symbols_union_count": len(symbol_union_hashes),
+        "unique_participant_keys_union_count": len(participant_union_hashes),
         "pit_availability_established": False,
         "historical_signal_test_authorized": False,
         "forward_returns_used": False,
@@ -565,10 +578,6 @@ def main():
             else "MONTHLY_T1_ATS_REQUIRES_EXCLUSIONS_OR_REVIEW"
         ),
     }
-    # Count the symbol union without retaining identifiers.
-    # A second pass over the in-memory partitions is intentionally avoided;
-    # the per-partition counts are preserved as the coverage diagnostic.
-    summary["unique_symbols_union_count"] = None
     (out / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
     print(json.dumps({
         "phase": 371,
