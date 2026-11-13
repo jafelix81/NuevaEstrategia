@@ -69,6 +69,11 @@ class Phase351TbtSampleTests(unittest.TestCase):
         self.assertEqual(result["trade_type_counts"], {"UNKNOWN_BLANK": 1})
         self.assertEqual(result["missing_required_cells"]["TRADE_TYPE"], 1)
 
+    def test_blank_open_close_is_preserved_as_unknown(self):
+        result = audit_zip_bytes(make_archive([row(OPEN_CLOSE="")]))
+        self.assertEqual(result["open_close_counts"], {"UNKNOWN_BLANK": 1})
+        self.assertEqual(result["missing_required_cells"]["OPEN_CLOSE"], 1)
+
     def test_schema_and_basic_counts(self):
         result = audit_zip_bytes(make_archive([row()]))
         self.assertEqual(result["rows"], 1)
