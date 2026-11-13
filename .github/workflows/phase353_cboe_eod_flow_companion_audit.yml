@@ -9,14 +9,6 @@ on:
       - "research/test_phase353_cboe_eod_flow_companion_audit.py"
       - "research/PHASE353_CBOE_EOD_FLOW_COMPANION_AUDIT_2026-11-13.md"
       - ".github/workflows/phase353_cboe_eod_flow_companion_audit.yml"
-  pull_request:
-    branches:
-      - phase352-cboe-open-close-1m-v18-pit-audit
-    paths:
-      - "research/phase353_cboe_eod_flow_companion_audit.py"
-      - "research/test_phase353_cboe_eod_flow_companion_audit.py"
-      - "research/PHASE353_CBOE_EOD_FLOW_COMPANION_AUDIT_2026-11-13.md"
-      - ".github/workflows/phase353_cboe_eod_flow_companion_audit.yml"
 
 permissions:
   contents: read

@@ -282,8 +282,11 @@ def _audit_csv(text_bytes: bytes, *, name: str, product: str) -> dict:
 def audit_archive(payload: bytes, *, product: str) -> dict:
     archive_hash = hashlib.sha256(payload).hexdigest()
     members = _extract_csv_members(payload)
+    if product == "open_close_eod":
+        # The public bundle also contains 1m and 10m examples; audit only the EOD member.
+        members = [item for item in members if "eod sample" in item[0].lower()]
     if not members:
-        raise ValueError("sample archive contains no readable CSV member")
+        raise ValueError("sample archive contains no matching readable CSV member")
     audits = [_audit_csv(member, name=name, product=product) for name, member in members]
     return {
         "status": "PASS_SAMPLE_SCHEMA" if all(x["status"] == "PASS_SAMPLE_SCHEMA" for x in audits) else "FAIL_SAMPLE_SCHEMA",
@@ -291,8 +294,10 @@ def audit_archive(payload: bytes, *, product: str) -> dict:
         "archive_sha256": archive_hash,
         "csv_members": audits,
         "member_count": len(audits),
-        "row_count": sum(x.get("row_count", 0) for x in audits),
+        "row_count_across_members": sum(x.get("row_count", 0) for x in audits),
+        "max_member_row_count": max((x.get("row_count", 0) for x in audits), default=0),
         "underlying_count_max_member": max((x.get("underlying_count", 0) for x in audits), default=0),
+        "unique_series_count_max_member": max((x.get("unique_series_count", 0) for x in audits), default=0),
     }
 
 
@@ -305,17 +310,24 @@ def audit_intraday_sample(payload: bytes) -> dict:
     row_count = sum(1 for _ in reader)
     date_match = re.search(r"(\d{4}-\d{2}-\d{2})", INTRADAY_SAMPLE)
     market_date = date_match.group(1) if date_match else None
+    v18_schema = all(x in headers for x in ("trading_dt", "trading_segment"))
+    pre_cutover = bool(market_date and market_date < "2026-11-08")
+    if pre_cutover:
+        status = "PRE_CUTOVER_DATE_NEW_SCHEMA" if v18_schema else "PRE_CUTOVER_DATE_OLD_SCHEMA"
+    else:
+        status = "POST_CUTOVER_SCHEMA_PRESENT" if v18_schema else "POST_CUTOVER_SCHEMA_MISSING"
     return {
-        "status": "PRE_CUTOVER_SAMPLE_LINK" if market_date and market_date < "2026-11-08" else "POST_CUTOVER_SAMPLE_LINK",
+        "status": status,
         "market_date_from_filename": market_date,
         "row_count": row_count,
         "column_count": len(headers),
         "headers_lowercase": all(x == x.lower() for x in raw_headers),
         "trading_dt_present": "trading_dt" in headers,
         "trading_segment_present": "trading_segment" in headers,
-        "v18_schema_present": all(x in headers for x in ("trading_dt", "trading_segment")),
+        "v18_schema_present": v18_schema,
+        "post_cutover_sample_verified": bool(not pre_cutover and v18_schema),
         "sha256": hashlib.sha256(payload).hexdigest(),
-        "note": "The linked file's market date is before the 2026-11-08 v1.8 effective date; it cannot validate post-cutover schema or corrections.",
+        "note": "The linked file is dated before the 2026-11-08 cutover. It does contain the new trading_dt/trading_segment headers, but cannot verify the post-cutover live correction/removal regime.",
     }
 
 
@@ -337,7 +349,7 @@ def audit_spec_text(open_close_text: str, option_eod_text: str) -> dict:
         "option_eod_1545_greeks": all(x in oe for x in ("implied_volatility_1545", "delta_1545", "gamma_1545", "15:45")),
         "iv_zero_can_mean_unavailable_model_input": "implied volatility will be zero" in oe,
         "early_close_1545_field_uses_1245": "12:45 pm et" in oe,
-        "option_eod_opra_coverage": "opra market data feed" in oe,
+        "option_eod_opra_coverage": ("options price reporting authority (opra) market data feed" in oe or "opra market data feed" in oe),
     }
     failed = [key for key, value in checks.items() if not value]
     return {

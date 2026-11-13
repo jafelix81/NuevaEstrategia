@@ -9,6 +9,7 @@ from research.phase353_cboe_eod_flow_companion_audit import (
     OPTION_EOD_CALCS,
     _audit_csv,
     _extract_csv_members,
+    audit_archive,
     audit_intraday_sample,
     audit_spec_text,
 )
@@ -75,6 +76,25 @@ class Phase353CboeEodPairTests(unittest.TestCase):
         self.assertEqual(result["status"], "FAIL_REQUIRED_COLUMNS")
         self.assertIn("open_interest", result["missing_columns"])
 
+    def test_open_close_bundle_filters_to_eod_member(self):
+        eod_row = {key: "0" for key in OPEN_CLOSE_REQUIRED}
+        eod_row.update({
+            "quote_date": "03/28/2025", "underlying_symbol": "XYZ",
+            "security_type": "1", "option_symbol": "XYZ",
+            "expiration_date": "2025-04-17", "strike_price": "100",
+            "call_put_flag": "C", "days_to_expire": "20", "series_type": "S",
+        })
+        eod_csv = make_csv(OPEN_CLOSE_REQUIRED, [eod_row])
+        intraday_csv = make_csv(["a", "b", "c", "d", "e"], [{"a":"1","b":"2","c":"3","d":"4","e":"5"}])
+        archive = io.BytesIO()
+        with zipfile.ZipFile(archive, "w", zipfile.ZIP_DEFLATED) as zf:
+            zf.writestr("C1 OpenClose EOD Sample & Spec/sample.csv", eod_csv)
+            zf.writestr("C1 OpenClose 10m Sample & Spec/intraday.csv", intraday_csv)
+        result = audit_archive(archive.getvalue(), product="open_close_eod")
+        self.assertEqual(result["status"], "PASS_SAMPLE_SCHEMA")
+        self.assertEqual(result["member_count"], 1)
+        self.assertEqual(result["row_count_across_members"], 1)
+
     def test_nested_zip_csv_is_found(self):
         csv_bytes = make_csv(["a", "b", "c", "d", "e"], [{"a":"1","b":"2","c":"3","d":"4","e":"5"}])
         inner = io.BytesIO()
@@ -90,8 +110,16 @@ class Phase353CboeEodPairTests(unittest.TestCase):
     def test_intraday_sample_date_is_pre_cutover(self):
         content = b"underlying,quote_datetime,field_a,field_b,field_c\nXYZ,2026-09-30,1,2,3\n"
         result = audit_intraday_sample(content)
-        self.assertEqual(result["status"], "PRE_CUTOVER_SAMPLE_LINK")
+        self.assertEqual(result["status"], "PRE_CUTOVER_DATE_OLD_SCHEMA")
         self.assertFalse(result["v18_schema_present"])
+        self.assertFalse(result["post_cutover_sample_verified"])
+
+    def test_pre_cutover_link_can_have_new_headers_without_proving_live_cutover(self):
+        content = b"underlying,quote_datetime,trading_dt,trading_segment,field_x\nXYZ,2026-09-30,2026-09-30,1,3\n"
+        result = audit_intraday_sample(content)
+        self.assertEqual(result["status"], "PRE_CUTOVER_DATE_NEW_SCHEMA")
+        self.assertTrue(result["v18_schema_present"])
+        self.assertFalse(result["post_cutover_sample_verified"])
 
     def test_spec_gate_requires_both_vintages_and_sod_oi_semantics(self):
         oc = "v1.3 20251110 1 preliminary file and 1 final file per day typically delivered between 00:30AM to 01:00AM U.S. EST the next morning final file sources authoritative values from the OCC firm F, L, J broker-dealer B market maker M, N pro-customer U, W"
