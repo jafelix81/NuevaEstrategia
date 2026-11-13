@@ -1,3 +1,4 @@
+# FINRA Query API v1 field names: MPID and firmCRDNumber (metadata-confirmed)
 name: Phase 358 - FINRA weekly firm-grain reconciliation audit
 
 on:
