@@ -174,7 +174,7 @@ def audit_zip_bytes(archive_bytes: bytes) -> dict:
                 if any(not row.get(x) for x in
                        ("TRANSACT_TIME", "TRADING_DT", "UNDERLYING", "OSI_ROOT",
                         "CALL_PUT_FLAG", "SIZE", "PRICE", "SIDE", "OPEN_CLOSE",
-                        "CAPACITY", "TRADE_TYPE", "SESSION")):
+                        "CAPACITY", "SESSION")):
                     raise ValueError(f"{name}: required trade field is blank")
 
                 transact = _parse_datetime(row["TRANSACT_TIME"])
@@ -201,7 +201,7 @@ def audit_zip_bytes(archive_bytes: bytes) -> dict:
                 counters["capacity"][capacity] += 1
                 counters["session"][session] += 1
                 counters["trading_segment"][row["TRADING_SEGMENT"]] += 1
-                counters["trade_type"][row["TRADE_TYPE"]] += 1
+                counters["trade_type"][row["TRADE_TYPE"] or "UNKNOWN_BLANK"] += 1
 
                 size = _parse_decimal(row["SIZE"], "SIZE", optional=False)
                 price = _parse_decimal(row["PRICE"], "PRICE", optional=False)
