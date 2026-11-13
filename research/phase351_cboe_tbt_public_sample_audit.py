@@ -87,10 +87,10 @@ def _find_csv_payloads(archive_bytes: bytes) -> list[tuple[str, bytes]]:
                     continue
                 child = zf.read(member)
                 label = f"{prefix}{member}"
-                if child.startswith(b"PK\\x03\\x04"):
+                if child.startswith(bytes((80, 75, 3, 4))):
                     scan_zip(child, label + "!", depth + 1)
                     continue
-                if child.startswith(b"\\x1f\\x8b"):
+                if child.startswith(bytes((31, 139))):
                     child = gzip.decompress(child)
                 try:
                     decoded = child.decode("utf-8-sig")
