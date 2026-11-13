@@ -172,9 +172,7 @@ def audit_zip_bytes(archive_bytes: bytes) -> dict:
                 for field in EXPECTED_COLUMNS:
                     if not row.get(field):
                         missing_required_cells[field] += 1
-                core_fields = ("TRANSACT_TIME", "TRADING_DT", "UNDERLYING",
-                               "SIZE", "PRICE", "SIDE",
-                               "CAPACITY", "SESSION")
+                core_fields = ("TRANSACT_TIME", "TRADING_DT", "UNDERLYING", "SIZE", "PRICE")
                 blank_core = [field for field in core_fields if not row.get(field)]
                 if blank_core:
                     raise ValueError(f"{name}: required trade fields blank={blank_core}")
@@ -191,17 +189,16 @@ def audit_zip_bytes(archive_bytes: bytes) -> dict:
 
                 side, oc = row["SIDE"], row["OPEN_CLOSE"]
                 cp, capacity, session = row["CALL_PUT_FLAG"], row["CAPACITY"], row["SESSION"].upper()
-                if side not in SIDES or (oc and oc not in OPEN_CLOSE) or (cp and cp not in CALL_PUT):
-                    raise ValueError(f"{name}: invalid side/open-close/call-put code")
-                if capacity not in CAPACITIES:
-                    raise ValueError(f"{name}: unknown capacity value {capacity!r}")
-                if session not in SESSIONS:
-                    raise ValueError(f"{name}: unknown session value {session!r}")
-                counters["side"][side] += 1
-                counters["open_close"][oc or "UNKNOWN_BLANK"] += 1
-                counters["call_put"][cp or "UNKNOWN_BLANK"] += 1
-                counters["capacity"][capacity] += 1
-                counters["session"][session] += 1
+                side_class = side if side in SIDES else ("UNKNOWN_BLANK" if not side else "UNKNOWN_OTHER")
+                oc_class = oc if oc in OPEN_CLOSE else ("UNKNOWN_BLANK" if not oc else "UNKNOWN_OTHER")
+                cp_class = cp if cp in CALL_PUT else ("UNKNOWN_BLANK" if not cp else "UNKNOWN_OTHER")
+                capacity_class = capacity if capacity in CAPACITIES else ("UNKNOWN_BLANK" if not capacity else "UNKNOWN_OTHER")
+                session_class = session if session in SESSIONS else ("UNKNOWN_BLANK" if not session else "UNKNOWN_OTHER")
+                counters["side"][side_class] += 1
+                counters["open_close"][oc_class] += 1
+                counters["call_put"][cp_class] += 1
+                counters["capacity"][capacity_class] += 1
+                counters["session"][session_class] += 1
                 counters["trading_segment"][row["TRADING_SEGMENT"]] += 1
                 counters["trade_type"][row["TRADE_TYPE"] or "UNKNOWN_BLANK"] += 1
 
@@ -260,10 +257,10 @@ def audit_zip_bytes(archive_bytes: bytes) -> dict:
                 else:
                     g = exec_groups[exec_id]
                     g["rows"] += 1
-                    g["sides"].add(side)
+                    g["sides"].add(side) if side in SIDES else None
                     g["contracts"].add(contract) if contract is not None else None
-                    g["capacities"].add(capacity)
-                    g["open_close"].add(oc) if oc else None
+                    g["capacities"].add(capacity) if capacity in CAPACITIES else None
+                    g["open_close"].add(oc) if oc in OPEN_CLOSE else None
                 complex_id = row["COMPLEX_EXEC_ID"]
                 if not complex_id:
                     missing_complex_id += 1
