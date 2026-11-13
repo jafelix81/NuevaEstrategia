@@ -64,7 +64,7 @@ def audit_spec_text(text: str) -> dict:
             token in normalized
             for token in (
                 "first trading segment",
-                "second trading segment",
+                "second segment",
                 "normal rth session",
                 "normal gth session",
                 "extended gth session",
