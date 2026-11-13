@@ -1,7 +1,7 @@
 # Phase 369 — FINRA T1 ATS expanded PIT and grain audit
 
 **Date:** 2026-11-13 UTC  
-**Status:** PREREGISTERED; full-partition retrieval pending.  
+**Status:** COMPLETED — all 19 partitions retrieved; 17/19 pass both original date and strict grain gates. Residual exceptions diagnosed in Phase 370.  
 **Research class:** source feasibility / PIT and data-grain audit only.
 
 ## Question
@@ -40,3 +40,17 @@ A partition passes the bridge gate only with full symbol coverage, exact share/t
 A full retrieval or passing date/grain gate does not establish a predictive signal. FINRA ATS participants are reporting intermediaries, not beneficial owners, and the data do not provide trade direction. A date-level next-session rule remains conditional on the wider sample and holiday/calendar validation.
 
 No forward returns, alpha, OOS, bootstrap, LOO, holdout or production tests are authorized. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## Execution result — 2026-11-13
+
+Run [43462182950](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43462182950) completed successfully; job [132011676403](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43462182950/job/132011676403); anonymized artifact [14056609868](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43462182950/artifacts/14056609868).
+
+- 19/19 full partitions retrieved: **1,022,474 rows / 215 pages**, zero retrieval errors; every Record-Total reconciled.
+- Original ATS date gate passed 18/19 weeks. The sole failure was the historical boundary week 2021-11-15: 2,411 ATS rows had positive lastUpdateDate-minus-initialPublishedDate gaps. Phase 370 showed 4 rows at 225 days, 56 at 283 days and 2,351 at 284 days across ATS summary types. The initial publication date was 2021-12-06; revisions were dated 2022-07-19, 2022-09-15 and 2022-09-16. Exclude this boundary week from a date-level PIT candidate sample.
+- Original strict bridge gate passed 18/19. In 2025-11-10, one symbol had two aggregate rows with different productTypeCode values (CTS and UTP). The other 2,418 symbols had exact share and trade reconciliation.
+- Phase 370 confirmed the two aggregate rows sum to **6,977,436 shares / 100,079 trades**, exactly equal to the 28 firm rows for that symbol (28 distinct participant keys). The firm rows do not carry productTypeCode and cannot be allocated to CTS versus UTP. Grouping by lastReportedDate does not reconcile the UTP row; therefore lastReportedDate remains rejected as a join key.
+- Revised interpretation: a symbol-level bridge can combine aggregate rows only when there is exactly one row for each distinct nonmissing product type and the combined shares/trades exactly equal the firm-level symbol total. This preserves symbol-week totals but does **not** permit product-specific participant attribution. Under that narrowly defined fallback, all 2,419 symbols in 2025-11-10 reconcile at combined symbol grain. This fallback still requires broader monthly validation before admission.
+- After excluding the 2021-11-15 boundary week and using the documented multi-product combined-symbol fallback, the sampled evidence is 18/18 date candidates and 19/19 symbol-level total reconciliations. This is not proof of exact intraday PIT, a complete vintage ledger, or full-history coverage.
+
+No raw rows, symbols, MPIDs, CRDs or firm names were retained in artifacts. No forward returns, alpha, OOS, bootstrap, LOO or holdout tests were run. F80 remains unchanged.
