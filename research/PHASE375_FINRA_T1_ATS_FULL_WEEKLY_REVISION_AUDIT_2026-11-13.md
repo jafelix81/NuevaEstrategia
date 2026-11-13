@@ -1,6 +1,6 @@
 # Phase 375 — FINRA T1 ATS full weekly revision-stability audit
 
-**Status:** design and offline tests passed; full 209-week retrieval is running.  
+**Status:** completed — 209/209 weekly partitions retrieved; revision-stable concentration feasibility passed; strict historical PIT remains unestablished.  
 **Parent evidence:** Phase 374 completed successfully in run 43481384832 / artifact 14067403379.
 
 ## Objective
@@ -44,3 +44,47 @@ No forward returns, alpha, OOS, bootstrap, LOO, or holdout use. No changes to F8
 - Fixed the fixture in commit f2f7ea1d9e9444876c6a2d870aff31c3f900fb16. The corrected run [43493465495](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43493465495) passed compilation and all five offline tests, then began the 209-week retrieval. It remains in progress; no duplicate run has been started.
 
 Final retrieval metrics and artifact link will be added after completion.
+
+
+## Final hosted result — completed 2026-11-13
+
+Run [43493465495](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43493465495) completed successfully. The initial run [43493288658](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43493288658) was a preflight-only fixture failure; the corrected run performed the full retrieval.
+
+- **209/209** consecutive weekly partitions retrieved, from 2021-11-15 through 2025-11-10.
+- **10,917,933** rows across **2,292** pages; all partition Record-Total counts matched.
+- **209/209** aggregate-to-firm symbol bridges passed; zero missing, ambiguous, invalid-numeric or mismatched symbol bridges.
+- **438,798** aggregate symbol-week groups; **432,804** revision-stable and concentration-ready; **5,994** revised/excluded groups.
+- Stable coverage: **98.633996%** of symbol-week groups and **96.943175%** of mapped aggregate share volume.
+- Revisions occurred in **15/209** weeks. The most affected weeks were 2021-11-15 (1,205 symbols), 2023-11-13 (1,051), 2025-05-12 (915), 2025-05-05 (744), and 2022-06-27 (692). These weeks remain partially quarantined at symbol-week grain; no interpolation or backdating was applied.
+- The panel contains **3,173** unique underlying symbols and **38** unique MPID/CRD-derived reporting-participant keys across the full sample. These are reporting identities, not beneficial owners or verified institutions.
+- No stable symbol-week had missing participant identity, duplicate participant key, or a De Minimis bucket in the concentration-ready set.
+
+### Descriptive concentration diagnostics (not alpha)
+
+Across 432,804 eligible symbol-week observations, symbol-level broker-dealer reporting concentration averaged:
+- HHI: **0.1659** (participant-weighted cross-sectional mean);
+- top-one participant share: **27.37%**;
+- top-three participant share: **56.97%**;
+- reporting participants per symbol: **19.23**.
+
+These are descriptive measures of the distribution of reported ATS activity among FINRA reporting participants. They do not reveal customer identity, beneficial ownership, trade direction, opening/closing intent, or whether any participant was informed. They are not predictive or economic results.
+
+### Coverage sensitivity
+
+- 15 weeks had at least one revised symbol-week.
+- 10 weeks had stable share-volume coverage below 90%; 6 were below 50%.
+- The weakest week was 2021-11-15: 38.99% symbol coverage and 5.66% share-volume coverage. It appears to be a heavily revised early archive week and must not be treated as representative.
+- Outside those revision-heavy weeks, the stable panel generally retained full or near-full symbol and volume coverage; the full-week distribution is retained in the anonymized workflow artifact.
+
+### Final disposition
+
+**PASS — exhaustive retrieval, bridge integrity and revision-stable concentration feasibility. NOT PASS — strict historical PIT.**
+
+The initialPublishedDate field is date-only and the API does not provide intermediate historical vintages or a certified first-receipt timestamp. The first full exchange session after that date is a conservative candidate availability rule, but it has not been certified as an actual contemporaneous receipt ledger. Therefore:
+- no historical forward-return, alpha, chronological OOS, bootstrap, LOO or holdout test is authorized from this panel;
+- no historical row is promoted to signal-eligible;
+- the result is a source/grain/revision feasibility pass only.
+
+The anonymized summary artifact is [14081855428](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43493465495/artifacts/14081855428). It contains weekly aggregate diagnostics only; raw rows, symbols, MPIDs, CRDs, firm names and participant hashes were not retained.
+
+F80, production, universe, capital, exposure and parameters remain unchanged.
