@@ -1,6 +1,6 @@
 # Phase 378 — CFTC TFF Russell contract-era and classification-regime audit
 
-**Status:** implementation and deterministic tests added; hosted subset retrieval pending.  
+**Status:** completed — hosted subset retrieval and deterministic tests passed.  
 **Parent:** Phase 377 full TFF coverage/contract-key audit.  
 **Scope:** source feasibility and series identity only; no feature or return test.
 
@@ -62,3 +62,22 @@ Within an episode, 6–8 day intervals are treated as ordinary weekly intervals 
 ## Controls
 
 No raw data retention, forward returns, feature selection, alpha, OOS, bootstrap, LOO or holdout use. No changes to F80_TOP20_PARTIAL50_BASELINE_C20, production, universe, capital, parameters or exposure.
+
+## Hosted result — completed 2026-11-13
+
+Run [43498339093](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43498339093) completed successfully; anonymized artifact [14071808959](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43498339093/artifacts/14071808959).
+
+- 1,236 selected Russell rows retrieved; filtered count matched before and after; CFTC metadata update stamp remained unchanged.
+- Zero invalid report dates and zero duplicate (report date, code) keys.
+- Code 239742 split into two distinct episodes:
+  - 119 observations, 2006-06-13 to 2008-09-16.
+  - 482 observations, 2017-08-15 to 2026-11-03.
+  - 3,255-day gap between episodes.
+  - No internal report interval exceeded eight days in either episode.
+- Official CFTC archives confirm the contract-specification break: the 2006 report labels 239742 as Russell 2000 Index x $100; the 2017 TFF report labels 239742 as E-mini Russell 2000 Index x $50.
+- Code 239741 is a separate Russell 2000 Stock Index Future x $500 (119 observations, all pre-TFF-launch backcast).
+- Code 23977A is a separate ICE Russell 2000 Mini series (516 observations, 2008-07-22 to 2018-06-05; 105 pre-launch/backcast rows and 411 post-launch rows). Do not merge it with CME code 239742.
+- CFTC TFF was announced 2010-07-22. CFTC states its 2006-2010 historical categories were backcast using recent trader classifications, with accuracy declining further back. Exclude pre-launch rows from primary TFF feature research.
+- The Phase 377 weekly-coverage metric counted 14 holiday-shifted non-Tuesday dates as missing Tuesday anchors for the continuous S&P/Nasdaq/Dow series. Phase 378 uses 6–8 day report-date intervals; this correctly treats those shifted dates as weekly observations. This is a measurement correction, not a data change.
+
+**Disposition:** use only the post-launch 239742 E-mini era as the Russell TFF candidate; keep 23977A and 239741 separate/archival. TFF still fails strict historical PIT beyond the verified actual-release-date window. No feature, return, alpha, OOS, bootstrap, LOO or holdout test was run.
