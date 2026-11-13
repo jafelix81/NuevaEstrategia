@@ -8,7 +8,7 @@
 
 Phase 361 completed all ten requested partitions (five historical weeks × T1/T2): **968,139 rows across 199 pages**, with every API `Record-Total` matching the retrieved row count. Retrieval passed; the data-grain gate remains `FAIL_OR_REVIEW` because two aggregate symbol/product groups for LND in 2025-01-06/T2 contain multiple rows.
 
-Phase 362 re-fetched that complete partition (136,362 rows, 28 pages) and isolated 28 LND rows. The two aggregate rows in each family have different `lastReportedDate` values, and the sum of the two aggregate rows exactly equals the sum of the corresponding firm rows. This is evidence that `lastReportedDate` may be part of the row grain; it is not yet proof that rows can be combined or used as a feature.
+Phase 362 re-fetched that complete partition (136,362 rows, 28 pages) and isolated 28 LND rows. The two aggregate rows in each family have different `lastReportedDate` values. Across all LND rows in each family, the combined aggregate shares/trades equal the combined firm-row shares/trades. Per-date firm-to-aggregate reconciliation remains untested. This is evidence that `lastReportedDate` may be part of the row grain; it is not yet proof that rows can be combined or used as a feature.
 
 ## Phase 361 — five-week bridge
 
@@ -32,12 +32,12 @@ T1 and T2 are security-universe tiers, not participant quality labels: FINRA des
 
 The complete 2025-01-06/T2 partition was retrieved: 136,362/136,362 rows, 28 pages. The 28 LND rows comprised two ATS aggregate rows, 22 ATS firm rows, two OTC aggregate rows and two OTC firm rows.
 
-| Family | Aggregate row | Shares / trades | Firm-row sum | Result |
-|---|---|---:|---:|---|
-| ATS | lastReportedDate 2025-01-10 | 6,224 / 37 | 6,224 / 37 within the date cohort not yet tested | Combined total matches |
-| ATS | lastReportedDate 2025-01-08 | 5,226 / 144 | 5,226 / 144 within the date cohort not yet tested | Combined total matches |
-| OTC | lastReportedDate 2025-01-10 | 28,543 / 137 | 28,543 / 137 within the date cohort not yet tested | Combined total matches |
-| OTC | lastReportedDate 2025-01-08 | 67,210 / 320 | 67,210 / 320 within the date cohort not yet tested | Combined total matches |
+| Family | Aggregate row 1 | Aggregate row 2 | Combined aggregate | Combined firm-row sum |
+|---|---:|---:|---:|---:|
+| ATS | 6,224 / 37 (2025-01-10) | 5,226 / 144 (2025-01-08) | 11,450 / 181 | 11,450 / 181 |
+| OTC | 28,543 / 137 (2025-01-10) | 67,210 / 320 (2025-01-08) | 95,753 / 457 | 95,753 / 457 |
+
+*Shares / trades. The firm-row totals are across both reporting dates; the per-date comparison is the Phase 363 test.*
 
 Combined ATS totals were 11,450 shares / 181 trades; combined OTC totals were 95,753 shares / 457 trades. Both matched the sums across firm rows. ATS had 22 firm rows and 13 unique participant identities; OTC had two firm rows and one unique participant identity. Repeated participant keys across the full week may be expected if rows are split by reporting date, but Phase 362 did not retain firm-row `lastReportedDate` in its anonymized artifact. No deduplication or summing rule is approved.
 
