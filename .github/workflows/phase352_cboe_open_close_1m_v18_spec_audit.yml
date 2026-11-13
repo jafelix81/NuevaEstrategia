@@ -9,6 +9,14 @@ on:
       - "research/test_phase352_cboe_open_close_1m_v18_spec_audit.py"
       - "research/PHASE352_CBOE_OPEN_CLOSE_1M_V18_SPEC_PIT_AUDIT_2026-11-13.md"
       - ".github/workflows/phase352_cboe_open_close_1m_v18_spec_audit.yml"
+  pull_request:
+    branches:
+      - phase351-cboe-tbt-public-sample-row-grain-audit
+    paths:
+      - "research/phase352_cboe_open_close_1m_v18_spec_audit.py"
+      - "research/test_phase352_cboe_open_close_1m_v18_spec_audit.py"
+      - "research/PHASE352_CBOE_OPEN_CLOSE_1M_V18_SPEC_PIT_AUDIT_2026-11-13.md"
+      - ".github/workflows/phase352_cboe_open_close_1m_v18_spec_audit.yml"
 
 permissions:
   contents: read
