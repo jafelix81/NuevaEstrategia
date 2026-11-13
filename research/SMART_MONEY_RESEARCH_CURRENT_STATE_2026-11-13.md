@@ -22,7 +22,7 @@ For all **45,212 unambiguous symbol-family-period mappings**, firm-level share q
 
 [Phase 360 report](PHASE360_FINRA_SYMBOL_BRIDGE_RECONCILIATION_2026-11-13.md) · [run](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43426428636) · [artifact](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43426428636/artifacts/14037407295).
 
-**Decision:** FINRA's symbol-only bridge and arithmetic reconciliation pass with explicit exclusions. Keep ATS as a conditional venue-level market-structure candidate; do not interpret it as Smart Money. OTC non-ATS concentration remains censored by de-minimis aggregation. Historical final snapshots do not establish interim-vintage PIT, and FINRA data is published with two-week Tier 1 and four-week Tier 2/OTC delays. No returns, alpha, OOS, bootstrap, LOO or holdout test is authorized yet.
+**Decision:** FINRA's symbol-only bridge and arithmetic reconciliation pass with explicit exclusions in the four Phase 360 partitions. Keep ATS as a conditional venue-level market-structure candidate; do not interpret it as Smart Money. OTC non-ATS concentration remains censored by de-minimis aggregation. A separate Phase 107 sample found two conflicting LND aggregate-key groups in 2025-01-06/T2 (one ATS and one OTC); Phase 361 is extending the reconciliation to all five Phase 107 sample weeks. Historical final snapshots do not establish interim-vintage PIT, and FINRA data is published with two-week Tier 1 and four-week Tier 2/OTC delays. No returns, alpha, OOS, bootstrap, LOO or holdout test is authorized yet.
 
 ### Next gate
 
