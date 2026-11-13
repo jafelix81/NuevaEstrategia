@@ -43,11 +43,22 @@ Combined OTC aggregates = **95,753 shares / 457 trades**, exactly matching the c
 
 [Phase 362 run](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43431642444) · [anonymized artifact](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43431642444/artifacts/14038968681).
 
-### Phase 363 — reporting-date grain test queued
+### Phase 363 — universal reporting-date key rejected
 
-Tests `(issueSymbolIdentifier,lastReportedDate)` as a candidate bridge key on the full 2025-01-06/T2 partition. Requires one aggregate row and one product type per symbol/date, no duplicate participant key within a date, and exact share/trade reconciliation by date. A passing result applies only to that partition; replication across the five sampled weeks is still required.
+The full 2025-01-06/T2 partition was retrieved again (136,362 rows / 28 pages). Grouping by `(issueSymbolIdentifier,lastReportedDate)` removed duplicate aggregate keys but did not reconcile firm rows universally:
 
-[Phase 363 run](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43432380794) · [branch](https://github.com/jafelix81/NuevaEstrategia/tree/phase363-finra-last-reported-date-grain-audit).
+| Family | Exact share/trade matches | Mismatches | Firm-only symbol/date groups |
+|---|---:|---:|---:|
+| ATS | 1,338/7,907 (16.92%) | 6,569 | 11,948 |
+| OTC non-ATS | 8,608/8,770 (98.15%) | 162 | 175 |
+
+No missing `lastReportedDate`, duplicate aggregate symbol/date keys, multi-product symbol/date keys or duplicate participant keys within a date were found. However, the large ATS mismatch rate and residual OTC mismatches reject `lastReportedDate` as a universal join key.
+
+For LND, OTC matched on both reporting dates. ATS matched on 2025-01-10, but 2025-01-08 was short by 400 shares and 7 trades (aggregate 5,226/144 versus firm sum 4,826/137). Combined totals had masked this mismatch.
+
+**Decision:** do not sum or deduplicate by `lastReportedDate`. T2 ATS is not admitted for concentration features. The five clean T1 ATS samples remain a conditional venue-level candidate only.
+
+[Phase 363 run](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43432380794) · [artifact](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43432380794/artifacts/14041685255) · [report](PHASE363_FINRA_LAST_REPORTED_DATE_GRAIN_AUDIT_2026-11-13.md) · [branch](https://github.com/jafelix81/NuevaEstrategia/tree/phase363-finra-last-reported-date-grain-audit).
 
 ## PIT and source limitations
 
@@ -56,7 +67,7 @@ Official FINRA metadata defines:
 - `lastUpdateDate`: most recent date on which total trades were updated from ATS/OTC data;
 - `initialPublishedDate`: first publication date after the reporting delay (two weeks for T1, four weeks for T2/OTC).
 
-`lastReportedDate` is a candidate row-grain key, **not** the knowledge/availability date. Conservative candidate availability remains the later of `initialPublishedDate` and `lastUpdateDate`, then the next tradable session. Exact first-receipt timestamps and interim vintages are not reconstructed.
+`lastReportedDate` is **not** an approved universal join key and is not the knowledge/availability date. Conservative candidate availability remains the later of `initialPublishedDate` and `lastUpdateDate`, then the next tradable session. Exact first-receipt timestamps and interim vintages are not reconstructed.
 
 FINRA's `weeklySummaryHistoric` is a rolling four-year dataset beginning one year before the current date. It supports week/month and tier partition filters only; no symbol filter or sorting. Data older than one year is static. Full partitions must be retrieved and filtered locally. Official docs: https://developer.finra.org/docs (Weekly Summary).
 
@@ -64,7 +75,7 @@ FINRA's `weeklySummaryHistoric` is a rolling four-year dataset beginning one yea
 
 | Source | Disposition |
 |---|---|
-| FINRA ATS | Conditional venue-level market-structure candidate. T1 ATS is the cleanest sampled slice; T2 awaits row-grain replication. Not beneficial-owner identity, direction, or proof of informed activity. |
+| FINRA ATS | Conditional venue-level market-structure candidate. T1 ATS is the cleanest sampled slice; T2 ATS failed the tested `lastReportedDate` join (16.92% exact in one partition) and is not admitted. Not beneficial-owner identity, direction, or proof of informed activity. |
 | FINRA OTC non-ATS | Context only; De Minimis Firms bucket censors firm concentration. |
 | FINRA short flow / short interest | Weak/incomplete or timing/pagination defects; not promoted. |
 | Cboe Open-Close EOD / Option EOD Summary | Conditional options-flow/context candidate; sample schemas/accounting pass, but full historical/inactive coverage, first-receipt/correction vintages, session alignment and licensing remain unresolved. |
@@ -82,10 +93,10 @@ SEC 13D/G retrieval remains blocked until repository secret `SEC_USER_AGENT` is 
 
 ## Next gates
 
-1. Complete Phase 363. If its candidate date-grain passes, replicate it across all five weeks and both tiers before changing the FINRA bridge.
-2. Use FINRA's partitions endpoint to census the full available history and all tiers, explicitly including OTCE; then measure symbol/week coverage and inactive/delisted representation.
+1. Use FINRA's partitions endpoint to census the full available history in both historic and current weekly datasets, including the separate OTCE tier.
+2. Sample a wider set of T1 ATS weeks; measure symbol/week coverage, participant identity continuity, concentration readiness, and representation of inactive/delisted securities.
 3. Build conservative PIT availability from publication/update dates; do not backdate or treat final snapshots as original vintages.
-4. Only after coverage/PIT pass, consider descriptive ATS venue concentration features. Test incremental information versus frozen LTM/F80 with identical exposure/costs, strict chronological splits, a new untouched holdout, clustered bootstrap, LOO and multiplicity controls.
+4. Only after coverage/PIT pass, consider descriptive T1 ATS venue-concentration features. Test incremental information versus frozen LTM/F80 with identical exposure/costs, strict chronological splits, a new untouched holdout, clustered bootstrap, LOO and multiplicity controls.
 5. Continue Cboe and SEC work in parallel when a data-feasibility gate is ready; do not assume FINRA is the only viable source.
 
 ## Controls
