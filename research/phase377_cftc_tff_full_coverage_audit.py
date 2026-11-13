@@ -290,6 +290,13 @@ def build_summary(rows, field_names, metadata=None, count_before=None, count_aft
         and metadata_updated_before is not None
         and metadata_updated_before == metadata_updated_after
     )
+    candidate_codes_present = all(
+        candidates[code]["row_count"] > 0 for code in CANDIDATE_CODES
+    )
+    candidate_keys_unique = all(
+        candidates[code]["duplicate_report_date_code_groups"] == 0
+        for code in CANDIDATE_CODES
+    )
     return {
         "phase": 377,
         "source": "CFTC TFF Futures Only Socrata dataset",
@@ -318,6 +325,8 @@ def build_summary(rows, field_names, metadata=None, count_before=None, count_aft
             ).values() if n > 1
         ),
         "candidate_contracts": candidates,
+        "candidate_codes_present_gate": candidate_codes_present,
+        "candidate_report_date_code_unique_gate": candidate_keys_unique,
         "related_equity_index_series": related_series[:100],
         "cftc_13874_plus_is_separate_consolidated_series": True,
         "missing_contract_weeks_are_not_zero_or_forward_filled": True,
@@ -338,6 +347,7 @@ def build_summary(rows, field_names, metadata=None, count_before=None, count_aft
             "CFTC_TFF_COVERAGE_AUDIT_COMPLETE_REVIEW_CONTRACT_CONTINUITY_AND_PIT"
             if not missing_required and category_fields_complete
             and count_before == len(rows) == count_after and snapshot_stable
+            and candidate_codes_present and candidate_keys_unique
             else "CFTC_TFF_COVERAGE_AUDIT_INCOMPLETE"
         ),
     }
