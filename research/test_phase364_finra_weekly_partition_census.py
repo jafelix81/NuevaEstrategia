@@ -82,7 +82,7 @@ class Phase364Tests(unittest.TestCase):
         self.assertEqual(calendar_week("2025-01-06"), "2025-01-06")
         self.assertEqual(calendar_week("2025-01-07"), "2025-01-06")
 
-    def test_metadata_partition_field_order_is_audited(self):
+    def test_metadata_and_partitions_field_order_mismatch_fails_closed(self):
         metadata = {
             "partitionFields": ["tierIdentifier", "weekStartDate"],
             "fields": [],
@@ -93,8 +93,8 @@ class Phase364Tests(unittest.TestCase):
                 {"partitions": ["2025-01-06", "T1"]}
             ],
         }
-        summary, _ = summarize_dataset("weeklySummary", metadata, partitions)
-        self.assertFalse(summary["partition_fields_match_expected"])
+        with self.assertRaises(ValueError):
+            summarize_dataset("weeklySummary", metadata, partitions)
 
 
 if __name__ == "__main__":
