@@ -36,6 +36,8 @@ class Phase375Tests(unittest.TestCase):
     def test_summary_uses_correct_unique_union_counts(self):
         partitions = [
             {
+                "rows": 1000,
+                "pages": 2,
                 "bridge_mapped_symbols": 100,
                 "revision_stable_concentration_symbols": 90,
                 "total_aggregate_shares_mapped": 1000,
@@ -48,6 +50,8 @@ class Phase375Tests(unittest.TestCase):
                 "publication_schedule_review_symbols": 0,
             },
             {
+                "rows": 2000,
+                "pages": 4,
                 "bridge_mapped_symbols": 200,
                 "revision_stable_concentration_symbols": 180,
                 "total_aggregate_shares_mapped": 4000,
