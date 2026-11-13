@@ -3,12 +3,14 @@ from datetime import date,timedelta
 from decimal import Decimal
 from phase384_cftc_tff_prospective_capture import CATEGORIES,classify,features,digest,check_oi,num
 
-def make_row(d,lev,am=0,dealer=0,oi=1000):
+def make_row(d,lev,am=0,dealer=None,oi=1000):
  r={"report_date_as_yyyy_mm_dd":d.isoformat()+"T00:00:00.000","cftc_contract_market_code":"13874A",
     "contract_market_name":"E-MINI S&P 500","market_and_exchange_names":"E-MINI S&P 500 - CME","open_interest_all":str(oi)}
+ if dealer is None: dealer=-lev-am
  nets={"dealer":dealer,"asset_manager":am,"leveraged_money":lev,"other_reportables":0,"non_reportables":0}
+ base=oi//5
  for c,(lf,sf,pf) in CATEGORIES.items():
-  n=nets[c]; r[lf]=str(oi//2+n//2); r[sf]=str(oi//2-n//2)
+  n=nets[c]; r[lf]=str(base+n//2); r[sf]=str(base-n//2)
   if pf:r[pf]="0"
  return r
 
@@ -17,7 +19,7 @@ class Tests(unittest.TestCase):
   with self.assertRaises(ValueError): num(None)
   with self.assertRaises(ValueError): num("NaN")
  def test_oi_accounting(self):
-  self.assertEqual(check_oi(make_row(date(2026,1,6),100,40,-20)),Decimal("1000"))
+  self.assertEqual(check_oi(make_row(date(2026,1,6),100,40)),Decimal("1000"))
  def test_hash_detects_revision(self):
   r=make_row(date(2026,1,6),100); q=dict(r); q["lev_money_positions_long"]=str(int(q["lev_money_positions_long"])+1)
   self.assertNotEqual(digest(r),digest(q))
@@ -38,6 +40,6 @@ class Tests(unittest.TestCase):
   self.assertAlmostEqual(f[-1]["leveraged_money_net_oi_z52"],expected,places=10)
  def test_four_report_change_requires_continuity(self):
   ds=[date(2026,1,6),date(2026,1,13),date(2026,1,20),date(2026,1,27),date(2026,2,10)]
-  f,_,_ = features([make_row(d,100+10*i) for i,d in enumerate(ds)])
+  f,_,_=features([make_row(d,100+10*i) for i,d in enumerate(ds)])
   self.assertIsNone(f[-1]["leveraged_money_net_oi_4w_change"])
 if __name__=="__main__": unittest.main()
