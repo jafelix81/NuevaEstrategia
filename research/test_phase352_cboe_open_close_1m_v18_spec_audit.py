@@ -80,6 +80,14 @@ class Phase352OpenCloseOneMinuteSpecTests(unittest.TestCase):
         result = audit_spec_text(SPEC_TEXT.replace("v1.8 20261108", "v1.7 20261001"))
         self.assertFalse(result["checks"]["version_v1_8_20261108"])
 
+    def test_pdf_linebreaks_and_hyphenation_are_normalized(self):
+        text = SPEC_TEXT.replace("real-time", "real-\\ntime")
+        text = text.replace("Normal RTH Session", "Normal\\nRTH Session")
+        text = text.replace("Extended GTH Session", "Extended GTH\\nSession")
+        result = audit_spec_text(text)
+        self.assertTrue(result["checks"]["real_time_publication_cadence"])
+        self.assertTrue(result["checks"]["c1_segment_is_product_specific"])
+
     def test_pit_and_alpha_gates_remain_closed(self):
         result = audit_spec_text(SPEC_TEXT)
         self.assertFalse(result["historical_pit_admitted"])
