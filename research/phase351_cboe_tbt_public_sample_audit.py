@@ -137,6 +137,7 @@ def audit_zip_bytes(archive_bytes: bytes) -> dict:
     price_zero = size_zero = 0
     exec_row_sizes = Counter()
     complex_row_sizes = Counter()
+    session_segment_counts = Counter()
 
     with zipfile.ZipFile(io.BytesIO(archive_bytes)) as zf:
         bad_member = zf.testzip()
@@ -199,7 +200,8 @@ def audit_zip_bytes(archive_bytes: bytes) -> dict:
                 counters["call_put"][cp_class] += 1
                 counters["capacity"][capacity_class] += 1
                 counters["session"][session_class] += 1
-                counters["trading_segment"][row["TRADING_SEGMENT"]] += 1
+                counters["trading_segment"][row["TRADING_SEGMENT"] or "UNKNOWN_BLANK"] += 1
+                session_segment_counts[f"{session_class}|{row['TRADING_SEGMENT'] or 'UNKNOWN_BLANK'}"] += 1
                 counters["trade_type"][row["TRADE_TYPE"] or "UNKNOWN_BLANK"] += 1
 
                 size = _parse_decimal(row["SIZE"], "SIZE", optional=False)
@@ -310,6 +312,7 @@ def audit_zip_bytes(archive_bytes: bytes) -> dict:
         "call_put_counts": dict(sorted(counters["call_put"].items())),
         "session_counts": dict(sorted(counters["session"].items())),
         "trading_segment_counts": dict(sorted(counters["trading_segment"].items())),
+        "session_segment_counts": dict(sorted(session_segment_counts.items())),
         "trade_type_counts": dict(sorted(counters["trade_type"].items())),
         "missing_required_cells": dict(sorted(missing_required_cells.items())),
         "execution_id": {
