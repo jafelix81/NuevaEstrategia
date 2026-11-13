@@ -81,3 +81,7 @@ Run [43498339093](https://github.com/jafelix81/NuevaEstrategia/actions/runs/4349
 - The Phase 377 weekly-coverage metric counted 14 holiday-shifted non-Tuesday dates as missing Tuesday anchors for the continuous S&P/Nasdaq/Dow series. Phase 378 uses 6–8 day report-date intervals; this correctly treats those shifted dates as weekly observations. This is a measurement correction, not a data change.
 
 **Disposition:** use only the post-launch 239742 E-mini era as the Russell TFF candidate; keep 23977A and 239741 separate/archival. TFF still fails strict historical PIT beyond the verified actual-release-date window. No feature, return, alpha, OOS, bootstrap, LOO or holdout test was run.
+
+## Correction — first contemporaneous TFF report date (2026-11-13)
+
+The TFF announcement date (2010-07-22) is not the first report's position date. CFTC's first Futures Only TFF archive page is for positions as of **2010-07-20** and says **Updated July 23, 2010**. Therefore 2010-07-20 is the first contemporaneous report date; backcast report dates are those before 2010-07-20. The Phase 378 code used 2010-07-22 as a conservative announcement-date cutoff. That does not affect the 239742 old/new Russell contract split, but it may misclassify the 2010-07-20 observation in code 23977A. Phase 380 applies the corrected first-report date.
