@@ -66,6 +66,14 @@ One 2022-01-03/T2 OTC symbol aggregate row and one OTC firm row also lacked a sy
 
 FINRA's guide states that non-ATS firms below reporting thresholds are aggregated as De Minimis Firms and further aggregation can occur below a per-security threshold. It also documents approximately two-week publication delay for Tier 1 and four-week delay for Tier 2/OTC. See the [official guide, pp. 1 and 11](https://www.finra.org/sites/default/files/OTC-transparency-website-user-guide-v5.pdf).
 
+## Cross-week caveat from the earlier Phase 107 sample
+
+The earlier Phase 107 ten-partition audit covered five weeks, including **2025-01-06/T2**, which was not included in Phase 360's four partitions. It found **two conflicting duplicate aggregate-key groups for LND** in that week: one `ATS_W_SMBL` and one `OTC_W_SMBL`, both `CTS`, each with two rows carrying different share/trade totals. Phase 360's zero-duplicate result therefore applies only to its four tested partitions and must not be generalized to the full historical window.
+
+Phase 107 also found no duplicate aggregate keys in the other nine partitions, including 2022-01-03, 2023-01-09, 2024-01-08, 2025-01-06/T1 and 2025-10-20. The separate Phase 107 artifact/report should be retained as the source of this cross-week exception: [Phase 107 run](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41978867803) · [Phase 107 report](PHASE107_FINRA_ATS_PRELIMINARY_LIVE_REVALIDATION_2026-11-05.md).
+
+**Follow-up:** Phase 361 extends the firm-to-symbol reconciliation across all five Phase 107 sample weeks and explicitly tests the LND duplicate case. No row will be selected or summed arbitrarily.
+
 ## PIT and economic disposition
 
 This result repairs the **data-grain join and arithmetic reconciliation**, not the point-in-time history. The historic endpoint supplies final snapshots; it does not provide the full sequence of interim vintages. Publication delay and later `lastUpdateDate` values mean final rows cannot be backdated to the initial publication date. A strict PIT/OOS test remains closed until first-receipt and correction vintages are archived prospectively or independently established.
