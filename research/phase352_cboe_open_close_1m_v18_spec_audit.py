@@ -40,6 +40,7 @@ def normalize_text(value: str) -> str:
 
 def audit_spec_text(text: str) -> dict:
     normalized = normalize_text(text)
+    compact = re.sub(r"[^a-z0-9]+", "", normalized)
     empty_interval_count = normalized.count("empty, not included in 1-minute intervals")
     checks = {
         "version_v1_8_20261108": "v1.8 20261108" in normalized,
@@ -47,7 +48,7 @@ def audit_spec_text(text: str) -> dict:
             "trade count and volume within buckets are aggregated throughout the day, not just the latest interval"
             in normalized
         ),
-        "real_time_publication_cadence": "files are published on a real-time cadence" in normalized,
+        "real_time_publication_cadence": "filesarepublishedonarealtimecadence" in compact,
         "late_trades_can_arrive_in_later_snapshot": (
             "processed slightly late" in normalized and "later 1-minute snapshot" in normalized
         ),
@@ -61,13 +62,13 @@ def audit_spec_text(text: str) -> dict:
         "c1_has_gth_and_rth": "c1 (global trading hours and regular trading hours)" in normalized,
         "c2_bzx_edgx_are_rth_only": "c2, bzx, edgx (regular trading hours only)" in normalized,
         "c1_segment_is_product_specific": all(
-            token in normalized
+            token in compact
             for token in (
-                "first trading segment",
-                "second segment",
-                "normal rth session",
-                "normal gth session",
-                "extended gth session",
+                "firsttradingsegment",
+                "secondsegment",
+                "normalrthsession",
+                "normalgthsession",
+                "extendedgthsession",
             )
         ),
         "non_c1_segment_is_null": "null for c2, bzx, and edgx" in normalized,
@@ -94,6 +95,11 @@ def audit_spec_text(text: str) -> dict:
         "spec_effective_date": "2026-11-08",
         "checks": checks,
         "failed_checks": failures,
+        "diagnostic_context": {
+            term: normalized[max(0, normalized.find(term) - 100): normalized.find(term) + 260]
+            for term in ("cadence", "first trading segment", "second segment", "normal rth", "normal gth", "extended gth", "holiday")
+            if term in normalized
+        },
         "empty_not_included_phrase_occurrences": empty_interval_count,
         "snapshot_model": "CUMULATIVE_DAY_TO_DATE",
         "correction_model": "LATER_SNAPSHOTS_REFLECT_LATE_TRADES_AND_SUBSEQUENT_BREAKS_OR_BUSTS",
