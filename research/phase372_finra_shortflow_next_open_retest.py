@@ -310,7 +310,9 @@ def main():
         raise RuntimeError("No FINRA daily short-volume files were parsed")
     raw = pd.concat(frames, ignore_index=True)
     duplicate_keys = int(raw.duplicated(["Date", "Symbol"]).sum())
-    raw = raw.drop_duplicates(["Date", "Symbol"]).sort_values(["Symbol", "Date"]).reset_index(drop=True)
+    if duplicate_keys:
+        raise RuntimeError(f"Unexpected duplicate FINRA Date/Symbol keys: {duplicate_keys}")
+    raw = raw.sort_values(["Symbol", "Date"]).reset_index(drop=True)
     raw["Date"] = pd.to_datetime(raw["Date"]).dt.normalize()
 
     price_indices = build_price_indices(data)
@@ -368,22 +370,24 @@ def main():
         blocked = f80.head(nblock)
         replacement = outside.head(nblock)
         date_rows = []
+        failure = None
         for horizon in HORIZONS:
             b = pd.to_numeric(blocked[f"FwdRet_{horizon}D"], errors="coerce")
             a = pd.to_numeric(replacement[f"FwdRet_{horizon}D"], errors="coerce")
             if b.notna().sum() != nblock or a.notna().sum() != nblock:
-                date_rows = []
-                exclusions.append({
-                    "DateSignal": dt, "Reason": f"missing_forward_returns_H{horizon}",
-                    "NBlocked": int(b.notna().sum()), "NReplacement": int(a.notna().sum()),
-                })
+                failure = {
+                    "DateSignal": nd(dt).strftime("%Y-%m-%d"),
+                    "Reason": f"missing_forward_returns_H{horizon}",
+                    "NBlocked": int(b.notna().sum()),
+                    "NReplacement": int(a.notna().sum()),
+                }
                 break
             blocked_mean = float(b.mean())
             replacement_mean = float(a.mean())
             group_delta = replacement_mean - blocked_mean
             gross_portfolio_delta = REPLACEMENT_FRAC * group_delta
             for cost_bps in COST_BPS_PER_LEG:
-                results.append({
+                date_rows.append({
                     "DateSignal": nd(dt).strftime("%Y-%m-%d"),
                     "Horizon": horizon,
                     "SelectedFactor": factor,
@@ -397,10 +401,12 @@ def main():
                     "CostBpsPerLeg": cost_bps,
                     "PortfolioDeltaNet": portfolio_delta_net(group_delta, REPLACEMENT_FRAC, cost_bps),
                 })
-        if not date_rows and not any(r["DateSignal"] == nd(dt).strftime("%Y-%m-%d") for r in results):
-            # The date may have failed the first horizon before any result was appended.
-            if not any(e["DateSignal"] == dt for e in exclusions):
-                exclusions.append({"DateSignal": dt, "Reason": "forward_return_gate_failed"})
+        if failure:
+            exclusions.append(failure)
+        elif len(date_rows) == len(HORIZONS) * len(COST_BPS_PER_LEG):
+            results.extend(date_rows)
+        else:
+            exclusions.append({"DateSignal": nd(dt).strftime("%Y-%m-%d"), "Reason": "forward_return_gate_failed"})
 
     selection_df = pd.DataFrame(selections)
     result_df = pd.DataFrame(results)
