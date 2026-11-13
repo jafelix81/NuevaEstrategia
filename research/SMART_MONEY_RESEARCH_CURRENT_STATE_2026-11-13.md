@@ -304,3 +304,31 @@ Phase 375 remains the only active FINRA retrieval; its full 209-week T1 audit st
 - Decision: no global CFTC PIT acceptance. Per-page date/heading exclusions and targeted anomaly repair required; no TFF alpha test authorized. Phase 380 report includes a workflow key mismatch note (first_report_page_gate key).
 - [Phase 380 run](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43499455469), [artifact](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43499455469/artifacts/14074090576), draft PR #55.
 
+## Russell E-mini TFF archive panel — Phase 383 (2026-11-13)
+
+- Phase 383 passed: [run 43500752903](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43500752903), [artifact 14074056247](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43500752903/artifacts/14074056247).
+- CFTC code 239742 post-2017 E-mini series: 482 API rows, 2017-08-15–2026-11-03; count reconciled before/after, metadata stable, zero duplicate report-date/code keys.
+- 480/482 static archive pages valid (99.5851%). Exclude 2018-09-25 (page heading is 2018-09-18) and 2019-12-24 (404); CFTC API has one 239742 row on each exception date. Never forward-fill.
+- Valid-page archive lag: median 3 days, p90 6, maximum 50. All 23 official-schedule crosschecks in the series were not earlier than publication.
+- Candidate for exploratory macro positioning/crowding research using first regular session after archive Updated; not a certified first-publication timestamp. No alpha or return test yet.
+- Draft PR [#58](https://github.com/jafelix81/NuevaEstrategia/pull/58).
+
+## FINRA Phase 20C price-provider blockage — Phase 381
+
+- Phase 381 completed in [run 43500356535](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43500356535), artifact [14073108228](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43500356535/artifacts/14073108228).
+- Yahoo query1/query2 returned 2,514 daily rows for all four controls (AAPL/MSFT/NVDA/SPY), but HTTP 200 with zero timestamps for all seven missing names (AVB, EA, EQR, LPRO, ROKU, WBD, WBS).
+- Stooq did not return a parseable Date/Close series; Nasdaq API returned empty rows for all 11 symbols including controls, so its current endpoint/parameters are not validated.
+- No fallback admitted. Phase 20C remains blocked at 328/329; do not change the original 335-symbol universe or mix price sources. Draft PR #57.
+
+## CFTC archive exception repair — Phase 382
+
+- Phase 382 completed in [run 43500470656](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43500470656), artifact [14073179326](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43500470656/artifacts/14073179326).
+- Only 2/8 anomaly targets had exact-heading pages, both with stale Updated dates. No adjacent exact page found for six others.
+- The two missing/misaligned dates inside Russell 239742 are 2018-09-25 and 2019-12-24; each has one API row. The other archive exceptions affect older ICE 23977A or unrelated report weeks.
+- HTTP Last-Modified did not repair stale historical dates; many older pages show a 2018-01-17 migration date. Draft PR #56.
+
+## Still running
+
+FINRA Phase 375 remains the only active full 209-week T1 ATS retrieval in [run 43493465495](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43493465495). Compile/tests passed; the historic-partition retrieval step is still running. Do not duplicate it.
+
+**Controls:** F80 remains frozen. No new signal admitted, no holdout used, no production/capital/universe/parameter changes. Phase 20C remains blocked pending reliable prices for all 329 required names.
