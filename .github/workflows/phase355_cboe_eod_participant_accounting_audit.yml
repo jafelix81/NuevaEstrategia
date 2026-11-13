@@ -1,0 +1,63 @@
+name: Phase 355 - Cboe EOD participant accounting audit
+
+on:
+  pull_request:
+    paths:
+      - "research/phase355_cboe_eod_participant_accounting_audit.py"
+      - "research/test_phase355_cboe_eod_participant_accounting_audit.py"
+      - ".github/workflows/phase355_cboe_eod_participant_accounting_audit.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase355-cboe-eod-participant-accounting-audit
+  cancel-in-progress: false
+
+jobs:
+  accounting-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Compile audit and tests
+        run: python -m py_compile research/phase355_cboe_eod_participant_accounting_audit.py research/test_phase355_cboe_eod_participant_accounting_audit.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase355_cboe_eod_participant_accounting_audit
+      - name: Download and reconcile public Cboe EOD sample
+        run: python -m research.phase355_cboe_eod_participant_accounting_audit --output phase355_output/audit.json
+      - name: Enforce diagnostic-only research gates
+        run: |
+          python - <<'PY'
+          import json, sys
+          result = json.load(open("phase355_output/audit.json", encoding="utf-8"))
+          if result.get("status") != "COMPLETED_DIAGNOSTIC":
+              print(json.dumps(result, indent=2))
+              sys.exit(1)
+          gates = (
+              "historical_coverage_established", "historical_pit_admitted",
+              "prospective_pit_admitted", "licensing_confirmed",
+              "return_test_authorized", "alpha_admission", "holdout_used",
+          )
+          if any(result.get("gates", {}).get(gate) for gate in gates):
+              sys.exit(2)
+          if not result.get("gates", {}).get("f80_frozen"):
+              sys.exit(3)
+          audit = result["eod_accounting_audit"]
+          print("PHASE355_STATUS=" + result["status"])
+          print("ACCOUNTING_STATUS=" + audit["status"])
+          print("PARTICIPANT_EXACT_MATCH_RATE=" + str(audit["participant_volume_exact_match_rate"]))
+          print("PIT_ALPHA_GATES=CLOSED")
+          PY
+      - name: Upload metadata-only artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase355-cboe-eod-participant-accounting-audit
+          path: phase355_output/audit.json
+          if-no-files-found: warn
+          retention-days: 90
