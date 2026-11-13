@@ -88,3 +88,18 @@ The initialPublishedDate field is date-only and the API does not provide interme
 The anonymized summary artifact is [14081855428](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43493465495/artifacts/14081855428). It contains weekly aggregate diagnostics only; raw rows, symbols, MPIDs, CRDs, firm names and participant hashes were not retained.
 
 F80, production, universe, capital, exposure and parameters remain unchanged.
+
+
+## Official publication-clock clarification — 2026-11-13 follow-up
+
+A review of FINRA's own OTC Transparency Data Website User Guide (Version 4.0) narrows the PIT limitation:
+
+- FINRA defines `initialPublishedDate` as the **initial publish date**: the first Monday or next business day after the tier-specific reporting delay (T1: two weeks; T2/OTCE: four weeks).
+- FINRA states that weekly files and updates are available **no earlier than 6:00 a.m. ET on business days**.
+- FINRA defines `lastUpdateDate` as the later of the last reported date or the initial publish date.
+
+Official references: [FINRA OTC Transparency Data Website User Guide](https://www.finra.org/sites/default/files/OTC-transparency-data-user-guide-v5.pdf), especially the File Availability and Weekly Summaries sections; [FINRA Weekly Summary API documentation](https://developer.finra.org/docs#query_api-equity-weekly_summary).
+
+**Revised interpretation:** for a symbol-week that passes the Phase 375 stability rule (`lastUpdateDate == initialPublishedDate`), the date-only `initialPublishedDate` is a documented first-publication date. Because the exact intraday release time is not supplied and FINRA only guarantees availability no earlier than 6:00 a.m. ET, the conservative daily research clock is the **first regular exchange session strictly after `initialPublishedDate`**. This avoids using same-day close/open data when publication may have occurred after the relevant market event. It is a conservative date-level availability bound, not an exact first-receipt timestamp.
+
+This official documentation supports testing the date-level clock; it does not by itself certify every historical row or cure symbol identity, inactive-security coverage, or revised rows. A separate Phase 385 should re-fetch/verify the actual `initialPublishedDate` values for all 209 partitions, confirm the tier delay/calendar mapping, and calculate the next-session eligibility date. No return/alpha test is authorized until that gate and the effective-dated security/universe coverage gate pass.
