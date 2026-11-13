@@ -66,7 +66,13 @@ def _normalise_partition_object(value, fields):
 
 
 def parse_partition_payload(payload, fallback_fields=DEFAULT_PARTITION_FIELDS):
-    fields = tuple(payload.get("partitionFields") or fallback_fields)
+    declared_fields = tuple(payload.get("partitionFields") or ())
+    fallback_fields = tuple(fallback_fields)
+    if declared_fields and fallback_fields and declared_fields != fallback_fields:
+        raise ValueError(
+            f"Partitions/metadata field-order mismatch: {declared_fields} vs {fallback_fields}"
+        )
+    fields = declared_fields or fallback_fields
     available = payload.get("availablePartitions") or payload.get("partitions") or []
     records = []
     for item in available:
@@ -124,7 +130,8 @@ def calendar_week(date_string):
 
 
 def summarize_dataset(name, metadata, raw_partitions):
-    fields, raw_records, records = parse_partition_payload(raw_partitions)
+    metadata_partition_fields = tuple(metadata.get("partitionFields") or DEFAULT_PARTITION_FIELDS)
+    fields, raw_records, records = parse_partition_payload(raw_partitions, metadata_partition_fields)
     by_tier = defaultdict(list)
     for row in records:
         by_tier[row["tierIdentifier"]].append(row["weekStartDate"])
