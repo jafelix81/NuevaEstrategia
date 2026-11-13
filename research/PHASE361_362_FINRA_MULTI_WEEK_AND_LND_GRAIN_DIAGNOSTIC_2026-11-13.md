@@ -52,12 +52,21 @@ Official documentation: https://developer.finra.org/docs (Weekly Summary metadat
 
 `lastReportedDate` is a candidate row-grain key, **not** the knowledge/availability date. For PIT, the conservative candidate remains the later of `initialPublishedDate` and `lastUpdateDate`, followed by the next tradable session; exact first-receipt timestamps and interim vintages remain unavailable in this audit.
 
-## Phase 363 — next test in progress
+## Phase 363 — candidate date-grain key rejected
 
-Phase 363 tests `(issueSymbolIdentifier, lastReportedDate)` as the symbol-to-firm bridge key on the complete 2025-01-06/T2 partition. It requires a unique aggregate product type per symbol/date, one aggregate row per symbol/date, no duplicate participant key within a date, and exact share/trade reconciliation for every matched group. It will not sum across dates to make a failing group pass.
+The complete 2025-01-06/T2 partition was re-fetched (136,362 rows / 28 pages). Grouping by `(issueSymbolIdentifier,lastReportedDate)` removed duplicate aggregate keys but did not reconcile the participant data universally:
+
+- ATS: 1,338/7,907 exact share-and-trade matches (16.92%); 6,569 mismatches and 11,948 firm-only symbol/date groups.
+- OTC non-ATS: 8,608/8,770 exact matches (98.15%); 162 mismatches and 175 firm-only groups.
+- No missing `lastReportedDate`, duplicate aggregate symbol/date keys, multi-product symbol/date keys or duplicate participant keys within a date were found.
+
+LND OTC reconciled on both dates. LND ATS reconciled on 2025-01-10, but 2025-01-08 was short by 400 shares and 7 trades (aggregate 5,226/144 versus firm sum 4,826/137). The combined Phase 362 totals had masked this date-level mismatch.
+
+**Decision:** kill `lastReportedDate` as a universal symbol-to-firm join key. Do not aggregate or deduplicate on it. T2 ATS is not admitted for concentration features. The five clean T1 ATS samples remain a conditional venue-level candidate, not an informed-flow or directional signal.
 
 - [Phase 363 workflow](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43432380794)
-- [Phase 363 branch](https://github.com/jafelix81/NuevaEstrategia/tree/phase363-finra-last-reported-date-grain-audit)
+- [Phase 363 metadata artifact](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43432380794/artifacts/14041685255)
+- [Phase 363 report](PHASE363_FINRA_LAST_REPORTED_DATE_GRAIN_AUDIT_2026-11-13.md)
 
 ## Decision and controls
 
