@@ -9,7 +9,8 @@ on:
       - "research/PHASE384_CFTC_TFF_PROSPECTIVE_CAPTURE_BOOTSTRAP_2026-11-13.md"
   workflow_dispatch:
   schedule:
-    - cron: "15 22 * * 5"
+    # Run after the 3:30 p.m. ET release on every business day so holiday-delayed Monday releases are captured on time.
+    - cron: "15 22 * * 1-5"
 permissions:
   contents: write
 concurrency:
