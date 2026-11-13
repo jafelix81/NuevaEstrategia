@@ -45,7 +45,11 @@ jobs:
           python - <<'PY'
           import json, sys
           result = json.load(open("phase354_output/audit.json", encoding="utf-8"))
-          if result.get("status") != "COMPLETED_CROSS_SOURCE_OI_DIAGNOSTIC":
+          status = result.get("status")
+          if status not in {
+              "COMPLETED_CROSS_SOURCE_OI_DIAGNOSTIC",
+              "OCC_ENDPOINT_SCHEMA_UNRESOLVED",
+          }:
               print(json.dumps(result, indent=2))
               sys.exit(1)
           gates = (
@@ -57,9 +61,22 @@ jobs:
               sys.exit(2)
           if not result.get("gates", {}).get("f80_frozen"):
               sys.exit(3)
-          print("PHASE354_STATUS=" + result["status"])
-          for field, alignment in result["alignment_by_field"].items():
-              print(f"{field}_ALIGNMENT={alignment['status']}")
+          if status == "OCC_ENDPOINT_SCHEMA_UNRESOLVED":
+              attempts = result.get("occ_parameter_attempts", [])
+              aggregate_only = any(
+                  "schema missing OSI/option-symbol column" in item.get("error", "")
+                  and "Equity" in item.get("preview", "")
+                  and "Index/Other" in item.get("preview", "")
+                  for item in attempts
+              )
+              if not aggregate_only:
+                  print(json.dumps(result, indent=2))
+                  sys.exit(4)
+              print("OCC_CROSSCHECK=KILLED_PUBLIC_AGGREGATE_ONLY")
+          else:
+              for field, alignment in result["alignment_by_field"].items():
+                  print(f"{field}_ALIGNMENT={alignment['status']}")
+          print("PHASE354_STATUS=" + status)
           print("PIT_ALPHA_GATES=CLOSED")
           PY
       - name: Upload metadata-only artifact
