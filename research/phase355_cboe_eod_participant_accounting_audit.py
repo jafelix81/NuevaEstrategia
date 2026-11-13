@@ -83,7 +83,7 @@ def extract_eod_csv(payload: bytes) -> tuple[str, bytes]:
     def scan(data: bytes, label: str, depth: int) -> None:
         if depth > 5:
             raise ValueError("nested ZIP depth exceeds safety limit")
-        if data.startswith(b"PK\\x03\\x04"):
+        if data.startswith(b"PK\x03\x04"):
             with zipfile.ZipFile(io.BytesIO(data)) as archive:
                 bad = archive.testzip()
                 if bad:
