@@ -37,7 +37,7 @@ Firm F, L, J. Broker-Dealer B. Market Maker M, N. Customer C. Pro-Customer U, W.
 class Phase352OpenCloseOneMinuteSpecTests(unittest.TestCase):
     def test_official_v18_semantics_pass(self):
         result = audit_spec_text(SPEC_TEXT)
-        self.assertEqual(result["status"], "PASS_SPEC_SEMANTICS")
+        self.assertEqual(result["status"], "PASS_SPEC_SEMANTICS", msg=result["failed_checks"])
         self.assertEqual(result["failed_checks"], [])
         self.assertEqual(result["snapshot_model"], "CUMULATIVE_DAY_TO_DATE")
 
