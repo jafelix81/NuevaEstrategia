@@ -31,8 +31,8 @@ FIELDS = [
     "tierIdentifier",
     "summaryTypeCode",
     "productTypeCode",
-    "firmCrdNumber",
-    "marketParticipantIdentifier",
+    "firmCRDNumber",
+    "MPID",
     "marketParticipantName",
     "totalWeeklyShareQuantity",
     "totalWeeklyTradeCount",
@@ -62,8 +62,8 @@ def number(value):
 
 
 def participant_id(row):
-    mpid = str(row.get("marketParticipantIdentifier") or "").strip().upper()
-    crd = str(row.get("firmCrdNumber") or "").strip()
+    mpid = str(row.get("MPID") or "").strip().upper()
+    crd = str(row.get("firmCRDNumber") or "").strip()
     if mpid:
         return "MPID:" + mpid
     if crd:
