@@ -6,7 +6,7 @@ Develop a strategy with a real statistical and economic edge, validated chronolo
 
 **Frozen baseline:** `F80_TOP20_PARTIAL50_BASELINE_C20`. Do not change it absent robust incremental OOS evidence.  
 **Legacy holdout:** `CONSUMED_NOT_PRISTINE`; do not reuse.  
-**Current economic status:** no new Smart Money feature has demonstrated incremental, cost-adjusted OOS edge. No signal admitted. No forward-return, alpha, OOS, bootstrap, LOO or holdout test has been run in Phases 361–363.
+**Current economic status:** no new Smart Money feature has demonstrated incremental, cost-adjusted OOS edge. No signal admitted. No forward-return, alpha, OOS, bootstrap, LOO or holdout test has been run in Phases 361–367.
 
 ## Latest FINRA work — Phases 361–363
 
@@ -59,6 +59,55 @@ For LND, OTC matched on both reporting dates. ATS matched on 2025-01-10, but 202
 **Decision:** do not sum or deduplicate by `lastReportedDate`. T2 ATS is not admitted for concentration features. The five clean T1 ATS samples remain a conditional venue-level candidate only.
 
 [Phase 363 run](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43432380794) · [artifact](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43432380794/artifacts/14041685255) · [report](PHASE363_FINRA_LAST_REPORTED_DATE_GRAIN_AUDIT_2026-11-13.md) · [branch](https://github.com/jafelix81/NuevaEstrategia/tree/phase363-finra-last-reported-date-grain-audit).
+
+### Phase 364 — full partition-inventory census
+
+- Official metadata/partitions endpoints returned 1,045 historic pairs (209 weeks × five tiers) and 1,031 current pairs; union 1,235 pairs / 258 weeks; historic/current overlap 841 pairs.
+- Historic inventory spans 2021-11-15 through 2025-11-10 with 209 consecutive weekly anchors in each of NA, NMS, OTCE, T1 and T2.
+- Current inventory is irregular: NA, OTCE and T2 each have 253 pairs (2021-12-06 to 2026-10-05); T1 has 255 (to 2026-10-19); NMS has only 17 (2023-06-05 to 2023-11-06) and six missing weekly anchors.
+- FINRA metadata documents T1/T2/OTCE but does not define NA/NMS. Both values remain quarantined pending actual-row semantics.
+- The current `weeklySummary` partition catalog extends far beyond its documented twelve-month rolling window. This is a catalog anomaly only; it does not prove old rows remain queryable. Both metadata/partition field orders agree, and `totalNotionalSum` is present in metadata.
+- Run [43444007387](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43444007387), artifact [14046932092](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43444007387/artifacts/14046932092), 7/7 tests passed. Report: [Phase 364](PHASE364_FINRA_WEEKLY_PARTITION_INVENTORY_CENSUS_2026-11-13.md).
+
+### Phase 365 — actual-row probe completed with expected-absence gate defect
+
+- 33/50 planned probes returned rows. The other 17 were combinations absent from the Phase 364 partition inventory: five historic probes after the historic inventory end; five current probes before its earliest partition; three current NMS probes outside its 17-week 2023 inventory; and four current 2026-10-19 combinations for T2/OTCE/NA/NMS when only T1 was listed.
+- The Phase 365 workflow failed because it required all 50 Cartesian-product probes to succeed. The absent current partitions returned empty bodies (recorded as JSON decode errors); historic out-of-range probes returned HTTP 400. These are expected absent partitions, not evidence of a general FINRA outage.
+- Crucial finding: current `weeklySummary` returned nonzero rows for 12 old partitions across 2022-01-03, 2025-10-20 and 2025-11-10 (T1/T2/OTCE/NA). All 12 Record-Total values matched the corresponding historic dataset. This establishes that some old current-dataset partitions are queryable despite the documentation describing a rolling 12-month window; it does not establish complete historical coverage.
+- Eleven of twelve ten-row sample signatures matched. The only mismatch was 2025-10-20/OTCE: both datasets had 24,292 records and identical sampled row/type/tier/date counts, but the historic sample had participant identifiers on 10/10 De Minimis rows while the current sample had 0/10. The ten-row probe cannot distinguish sample ordering from a real row-vintage difference.
+- NA samples contained six summary-statistic rows (3 ATS_W_VOL_STATS + 3 OTC_W_VOL_STATS) with tier description Not Applicable; treat NA as summary-only, not a stock universe. Historic NMS samples mixed NMS Tier 1, NMS Tier 2 and Not Applicable descriptions; current NMS is sparse (17 inventory weeks in 2023). Keep NMS quarantined rather than mapping it to T1/T2.
+- Run [43444391496](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43444391496), artifact [14047148064](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43444391496/artifacts/14047148064), 7/7 offline tests passed. Full report: [Phase 365 result](PHASE365_FINRA_ACTUAL_ROW_PROBE_RESULT_2026-11-13.md).
+- No raw rows were retained; no returns or alpha test were used.
+
+### Phase 366 — full-row vintage reconciliation completed with T1 mismatch review
+
+- Fully retrieved four partitions (2025-10-20 T1/OTCE × current/historic): 178,816 rows, 38 pages, zero retrieval errors; 7/7 offline tests passed.
+- OTCE: 24,292/24,292 rows matched over the 16 canonical fields used. The Phase 365 first-page participant-ID discrepancy was sampling/order: full-partition participant-ID rows were 13,425 in both datasets, De Minimis rows 7,834 in both, and unique symbols 8,229 in both.
+- T1: 65,092/65,116 selected-field rows matched; 24 current-only and 24 historic-only rows, with 24 mismatched identity-key groups (0.0369%). Summary-type, tier-description and product-type counts, unique symbols (2,420), participant-ID rows (60,282) and De Minimis rows (2,420) matched.
+- Audit caveat: Phase 366 omitted `summaryStartDate` from its canonical row hash; the historic endpoint also returns a query-helper field `historicalweek`. OTCE exact match is therefore limited to the selected 16 fields, not every field in the schema. Numeric aggregate equality also used string formatting and falsely flagged trailing-zero differences for OTCE. T1 aggregate notional sums differ by only a few millionths; the 24 row-level field differences are not yet identified.
+- Run [43455306406](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43455306406), artifact [14054525109](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43455306406/artifacts/14054525109). Full report: [Phase 366](PHASE366_FINRA_FULL_ROW_VINTAGE_RECONCILIATION_2026-11-13.md).
+- No raw rows or identifiers were retained. No return or alpha test was run.
+
+### Phase 367 — T1 field-level vintage diagnostic completed
+
+- Re-fetched the full 2025-10-20 T1 partition from both datasets: 65,116 rows each, 14 pages each, zero errors; offline tests passed.
+- 65,092/65,116 rows matched exactly. The other 24 differed only in `totalNotionalSum`; no mismatch occurred in `totalWeeklyShareQuantity`, `totalWeeklyTradeCount`, `lastReportedDate`, `summaryStartDate`, symbols, participant identifiers, publication/update dates or other canonical fields.
+- Current-minus-historic signed notional difference across the 24 rows: +$0.000003; absolute differences sum to $0.000039; maximum absolute per-row difference $0.000005. No key-only or duplicate groups.
+- This is an economically negligible decimal-precision discrepancy, but source values remain unrounded and the difference is documented. It is not evidence of an alpha signal.
+- Run [43456024316](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43456024316), artifact [14053738587](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43456024316/artifacts/14053738587). Full report: [Phase 367](PHASE367_FINRA_T1_FIELD_LEVEL_VINTAGE_DIAGNOSTIC_2026-11-13.md).
+
+### Phase 368 — FINRA revision-lag / PIT availability audit is the next gate
+
+- Quantify row-level lags from `initialPublishedDate` to `lastUpdateDate` and `lastReportedDate` on the fully retrieved 2025-10-20 T1/OTCE partitions, with older and newer week controls if coverage permits.
+- Measure the fraction of final rows whose update dates postdate initial publication, distribution of update lags, and whether any field is a genuine publication/knowledge timestamp.
+- Do not backdate final historical values to `initialPublishedDate`. If update-vintage availability cannot be reconstructed, FINRA historical signal use remains inadmissible; retain it for descriptive/current monitoring only.
+- No signal, return or alpha test is authorized.
+
+## Cross-source re-ranking — SEC Form 4 identity gate (Phases 345–346)
+
+- Phase 345 replicated six purposive historical cohorts: 413 candidate transaction rows across 262/262 retrieved Form 4 accessions. In the 2023+ cohorts, event-time identity was 273/301 rows (90.70%); stricter transaction-date identity was 263/301 (87.38%). Both remain below the preregistered 95% admission gate. The 2006Q1/2012Q1 legacy cohorts had 0/112 rows resolved by the current same-context XBRL target-fact method.
+- Phase 346 tested legacy periodic HTML as a bridge. Among 96 transaction-date-eligible older-cohort rows, 53 had issuer-specific ticker prose matching Form 4, but only one unique same-row class/exchange table anchor group (two candidate rows) was usable and strictly pre-transaction. The method is not a universal historical security master.
+- Decision: stop expanding the legacy HTML parser as a universal solution; retain only candidate-level evidence with explicit venue distinctions. No insider return study or security master admission. See [Phase 345](https://github.com/jafelix81/NuevaEstrategia/blob/phase346-form4-legacy-html-identity-bridge/research/PHASE345_SEC_FORM4_MULTIQ_COHORT_IDENTITY_REPLICATION_2026-11-12.md) and [Phase 346](https://github.com/jafelix81/NuevaEstrategia/blob/phase346-form4-legacy-html-identity-bridge/research/PHASE346_FORM4_LEGACY_HTML_IDENTITY_BRIDGE_AUDIT_2026-11-12.md).
 
 ## PIT and source limitations
 
