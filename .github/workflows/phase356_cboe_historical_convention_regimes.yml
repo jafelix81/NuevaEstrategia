@@ -1,0 +1,73 @@
+name: Phase 356 - Cboe historical convention regime matrix
+
+on:
+  push:
+    branches:
+      - phase356-cboe-historical-convention-regimes
+    paths:
+      - "research/phase356_cboe_historical_convention_regimes.py"
+      - "research/test_phase356_cboe_historical_convention_regimes.py"
+      - "research/PHASE356_CBOE_HISTORICAL_CONVENTION_REGIMES_2026-11-13.md"
+      - ".github/workflows/phase356_cboe_historical_convention_regimes.yml"
+  pull_request:
+    branches:
+      - phase355-cboe-eod-participant-accounting-audit
+    paths:
+      - "research/phase356_cboe_historical_convention_regimes.py"
+      - "research/test_phase356_cboe_historical_convention_regimes.py"
+      - "research/PHASE356_CBOE_HISTORICAL_CONVENTION_REGIMES_2026-11-13.md"
+      - ".github/workflows/phase356_cboe_historical_convention_regimes.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase356-cboe-historical-convention-regimes
+  cancel-in-progress: false
+
+jobs:
+  convention-matrix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Compile policy and tests
+        run: python -m py_compile research/phase356_cboe_historical_convention_regimes.py research/test_phase356_cboe_historical_convention_regimes.py
+      - name: Run offline regression tests
+        run: python -m unittest -v research.test_phase356_cboe_historical_convention_regimes
+      - name: Build documented regime matrix
+        run: python -m research.phase356_cboe_historical_convention_regimes --output phase356_output/regime_matrix.json
+      - name: Enforce policy-only gates
+        run: |
+          python - <<'PY'
+          import json, sys
+          result = json.load(open("phase356_output/regime_matrix.json", encoding="utf-8"))
+          if result.get("status") != "DOCUMENTED_POLICY_MATRIX_ONLY_NOT_HISTORICAL_DATA_VALIDATION":
+              sys.exit(1)
+          gates = result["gates"]
+          if any(gates.get(key) for key in (
+              "historical_sample_validation", "historical_coverage_established",
+              "pit_vintages_admitted", "numeric_transforms_applied",
+              "return_test_authorized", "alpha_admission", "holdout_used",
+          )):
+              sys.exit(2)
+          if not gates.get("f80_frozen"):
+              sys.exit(3)
+          if len(result.get("matrix_rows", [])) != 31:
+              sys.exit(4)
+          print("PHASE356_POLICY_ONLY=PASS")
+          print("NUMERIC_TRANSFORMS=0")
+          print("PIT_ALPHA_GATES=CLOSED")
+          PY
+      - name: Upload metadata-only artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase356-cboe-historical-convention-regimes
+          path: phase356_output/regime_matrix.json
+          if-no-files-found: warn
+          retention-days: 90
