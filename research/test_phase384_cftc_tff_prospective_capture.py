@@ -42,4 +42,11 @@ class Tests(unittest.TestCase):
   ds=[date(2026,1,6),date(2026,1,13),date(2026,1,20),date(2026,1,27),date(2026,2,10)]
   f,_,_=features([make_row(d,100+10*i) for i,d in enumerate(ds)])
   self.assertIsNone(f[-1]["leveraged_money_net_oi_4w_change"])
+ def test_semiweekly_cadence_suppresses_weekly_features(self):
+  rows=[make_row(date(2026,1,6)+timedelta(days=3*i),10+2*i) for i in range(54)]
+  f,_,_=features(rows)
+  self.assertEqual(f[-1]["cadence_regime"],"SEMIWEEKLY")
+  self.assertFalse(f[-1]["weekly_feature_gate"])
+  self.assertIsNone(f[-1]["leveraged_money_net_oi_4w_change"])
+  self.assertIsNone(f[-1]["leveraged_money_net_oi_z52"])
 if __name__=="__main__": unittest.main()
