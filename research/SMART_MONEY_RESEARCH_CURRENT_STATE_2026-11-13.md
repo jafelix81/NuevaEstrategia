@@ -96,12 +96,16 @@ For LND, OTC matched on both reporting dates. ATS matched on 2025-01-10, but 202
 - This is an economically negligible decimal-precision discrepancy, but source values remain unrounded and the difference is documented. It is not evidence of an alpha signal.
 - Run [43456024316](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43456024316), artifact [14053738587](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43456024316/artifacts/14053738587). Full report: [Phase 367](PHASE367_FINRA_T1_FIELD_LEVEL_VINTAGE_DIAGNOSTIC_2026-11-13.md).
 
-### Phase 368 — FINRA revision-lag / PIT availability audit is the next gate
+### Phase 368 — FINRA revision-lag / PIT availability audit completed
 
-- Quantify row-level lags from `initialPublishedDate` to `lastUpdateDate` and `lastReportedDate` on the fully retrieved 2025-10-20 T1/OTCE partitions, with older and newer week controls if coverage permits.
-- Measure the fraction of final rows whose update dates postdate initial publication, distribution of update lags, and whether any field is a genuine publication/knowledge timestamp.
-- Do not backdate final historical values to `initialPublishedDate`. If update-vintage availability cannot be reconstructed, FINRA historical signal use remains inadmissible; retain it for descriptive/current monitoring only.
-- No signal, return or alpha test is authorized.
+- Retrieved 5/5 full partitions: **258,787 rows / 55 pages**, with every Record-Total reconciled and zero missing/invalid values in the four date fields.
+- For the four T1 partitions, positive lastUpdateDate minus initialPublishedDate gaps were 964/46,834 (2.0583%) in 2022-01-03, 100/56,895 (0.1758%) in 2025-01-06, 31/65,116 (0.0476%) in 2025-10-20 and 111/65,650 (0.1691%) in 2025-11-10. The maximum gaps were 282, 248, 324 and 303 days respectively. OTCE 2025-10-20 had 0/24,292 positive gaps.
+- Crucial refinement: every positive T1 update-date gap occurred in OTC_W_FIRM, OTC_W_SMBL or OTC_W_SMBL_FIRM. The sampled ATS_W_FIRM, ATS_W_SMBL and ATS_W_SMBL_FIRM rows had zero post-initial update-date gaps across all four T1 weeks. This is a narrow candidate, not a universal PIT pass.
+- initialPublishedDate was exactly 21 calendar days after weekStartDate for all sampled T1 rows and 35 days for OTCE, consistent with FINRA's two-week/four-week reporting-delay descriptions plus the week-end/next-Monday schedule.
+- FINRA's API Data Versioning documentation governs schema/field representation, not row-vintage history. No complete intermediate public-vintage ledger is available from the current API response. Generic weekly-summary PIT therefore remains NOT ESTABLISHED.
+- Decision: expand T1 ATS only. Test more weeks, exact symbol/product aggregate-to-firm reconciliation, symbol/participant coverage and next-session availability before any historical signal test. Quarantine OTC rows with post-initial update dates.
+- Run [43460727228](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43460727228), artifact [14056611466](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43460727228/artifacts/14056611466). Full report: [Phase 368](PHASE368_FINRA_REVISION_LAG_PIT_AVAILABILITY_AUDIT_2026-11-13.md).
+- No return or alpha test was run in Phase 368.
 
 ## Cross-source re-ranking — SEC Form 4 identity gate (Phases 345–346)
 
@@ -116,7 +120,7 @@ Official FINRA metadata defines:
 - `lastUpdateDate`: most recent date on which total trades were updated from ATS/OTC data;
 - `initialPublishedDate`: first publication date after the reporting delay (two weeks for T1, four weeks for T2/OTC).
 
-`lastReportedDate` is **not** an approved universal join key and is not the knowledge/availability date. Conservative candidate availability remains the later of `initialPublishedDate` and `lastUpdateDate`, then the next tradable session. Exact first-receipt timestamps and interim vintages are not reconstructed.
+`lastReportedDate` is **not** an approved universal join key and is not the knowledge/availability date. For generic weekly rows, no complete PIT availability ledger is established. In the Phase 368 sample, T1 ATS summary types had no post-initial update-date gaps, while some OTC summary types did. Only if the wider T1 ATS audit passes will the next tradable session after initialPublishedDate be considered as a conservative date-level candidate. Exact intraday first-receipt timestamps and interim vintages are not reconstructed.
 
 FINRA's `weeklySummaryHistoric` is a rolling four-year dataset beginning one year before the current date. It supports week/month and tier partition filters only; no symbol filter or sorting. Data older than one year is static. Full partitions must be retrieved and filtered locally. Official docs: https://developer.finra.org/docs (Weekly Summary).
 
@@ -143,11 +147,20 @@ SEC 13D/G retrieval remains blocked until repository secret `SEC_USER_AGENT` is 
 ## Next gates
 
 1. Use FINRA's partitions endpoint to census the full available history in both historic and current weekly datasets, including the separate OTCE tier.
-2. Sample a wider set of T1 ATS weeks; measure symbol/week coverage, participant identity continuity, concentration readiness, and representation of inactive/delisted securities.
-3. Build conservative PIT availability from publication/update dates; do not backdate or treat final snapshots as original vintages.
-4. Only after coverage/PIT pass, consider descriptive T1 ATS venue-concentration features. Test incremental information versus frozen LTM/F80 with identical exposure/costs, strict chronological splits, a new untouched holdout, clustered bootstrap, LOO and multiplicity controls.
-5. Continue Cboe and SEC work in parallel when a data-feasibility gate is ready; do not assume FINRA is the only viable source.
+2. Phase 369: sample a wider set of T1 ATS weeks and reconcile aggregate symbol/product rows to firm-level rows; measure symbol/week and participant coverage.
+3. Only if the T1 ATS update-date and grain gates pass, define a conservative next-tradable-session availability rule and consider descriptive venue-concentration features.
+4. Re-audit Phase20C execution timing on the 12 pseudo-OOS dates with next-session open entry; never reuse the six consumed Phase20B final-OOS dates.
+5. Test any admitted feature versus frozen LTM/F80 only after data/PIT gates pass, with identical exposure/costs, strict chronology, a new untouched holdout, clustered bootstrap, LOO and multiplicity controls. Continue Cboe and SEC work in parallel when a data-feasibility gate is ready.
 
 ## Controls
 
 No signal admitted. No economic test, no holdout use, no parameter/universe/capital/production change. No PR merged. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+## FINRA daily short-flow review — Phase 20C artifact re-audit
+
+- Phase 20C completed 12 rolling pseudo-OOS training-era test dates from 2021-05-03 to 2024-10-30. The final six signal dates remained untouched. The factor selected by the walk-forward rule changed across SHORT_RATIO_PERSIST20 (1 date), SHORT_RATIO_Z20 (6) and SHORT_EXEMPT_RATIO (5), so selection stability was weak.
+- Replacement-minus-blocked deltas: H5 mean +0.141%, median -0.049%, 5/12 positive; H10 mean -1.686%, median -1.837%, 3/12 positive; H20 mean -0.858%, median -0.333%, 5/12 positive. A post-hoc date-resampling 95% interval included zero at all three horizons. Twelve dates and four blocked/four replacement names per date are insufficient for promotion.
+- Critical execution timing: FINRA states daily Reg SHO files are posted no later than 6:00 p.m. ET on trade date, with rare later corrections. Phase20C used close-to-close forward returns from close t. Since the data arrive after the regular close, close t is not an executable entry. Re-evaluate only the 12 pseudo-OOS dates using next-session open entry and a fixed close exit; do not reuse the six consumed Phase20B final-OOS dates.
+- The consolidated NMS file combines trades reported to FINRA TRFs and the ADF; TotalVolume is not total consolidated market volume. SHORT_RATIO and SHORT_EXEMPT_RATIO are off-exchange-reported-flow fractions, not market-wide short ratios, short interest or direct evidence of directional institutional positioning.
+- Official FINRA timing/correction policy: https://www.finra.org/finra-data/browse-catalog/short-sale-volume-data/daily-short-sale-volume-files. Phase20C run/artifact: https://github.com/jafelix81/NuevaEstrategia/actions/runs/40098425254.
+
