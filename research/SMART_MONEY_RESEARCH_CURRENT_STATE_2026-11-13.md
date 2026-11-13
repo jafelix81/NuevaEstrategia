@@ -23,12 +23,29 @@ This validates the sample parser and execution-linkage diagnostics only. The sam
 - [Metadata-only artifact 14006931596](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43357411197/artifacts/14006931596)
 - [Draft PR #38](https://github.com/jafelix81/NuevaEstrategia/pull/38)
 
+
+## Latest completed phase — Phase 352: Cboe Open-Close 1-minute v1.8
+
+The official v1.8 PDF (effective 2026-11-08) was downloaded and hash-pinned. Hosted run [43365537803](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43365537803) passed **12/12 regression tests and all 14 specification-semantic checks**; metadata-only artifact [14010665042](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43365537803/artifacts/14010665042). PDF SHA-256: \`49bbab63392f9282ad772fc5460bf19575178476f7b0e3ec2653fd8f1ed2c439\`.
+
+- 1-minute files are cumulative day-to-date snapshots, not interval-only bars. Late trades may appear later; subsequent snapshots remove trades later broken/cancelled. Preserve every first-received snapshot and hash; negative differences may be correction events and must not be clipped or called sell flow.
+- Product page documents 1-minute history from 2019-10-07 for C1 and 2019-03-01 for BZX/C2/EDGX. C1 has GTH/RTH; BZX/C2/EDGX are RTH-only. This is four Cboe venues, not all OPRA. C1 GTH begins 2023-12-11.
+- The 1-minute schema leaves fields 10–17 empty, including EOD prices, total exchange/industry volume and OI. IV/Greeks require a separately timestamped companion source.
+- Participant labels are exchange capacity buckets, not beneficial-owner identities. No category is assumed to be informed.
+- The 1-minute product's C1 segment convention is product-specific and is not used to reinterpret the separate TBT v1.1 discrepancy from Phase 351.
+- The surfaced sample file has a 2026-09-30 market-date filename, before the 2026-11-08 cutover; its binary header was not inspected. Historical first-receipt/correction vintages are not established.
+
+**Decision:** high-priority conditional prospective participant-flow candidate; historical PIT and alpha remain closed. Prospective PIT would require append-only first-receipt capture. No sample purchase, vendor contact, subscription, returns test, OOS, bootstrap, LOO or holdout test was made.
+
+- [Phase 352 report](PHASE352_CBOE_OPEN_CLOSE_1M_V18_SPEC_PIT_AUDIT_2026-11-13.md)
+- [Draft PR #39](https://github.com/jafelix81/NuevaEstrategia/pull/39)
+
 ## Source dispositions
 
 | Source / line | Current disposition |
 |---|---|
 | Cboe TBT | High-priority conditional C1 measurement candidate; sample parser passes, but row-grain/sampling, 17.86% open-close missingness, side-code mapping, session/segment discrepancy, licensing, first receipt, corrections and inactive-underlying coverage remain open |
-| Cboe Open-Close | One C1 EOD sample date and feature parsing only; no multi-date PIT/vintage proof |
+| Cboe Open-Close | EOD sample schema/coverage 288/335 in a 20% C1 sample; v1.8 1m specification verified, but snapshots are cumulative/corrected and historical first-receipt vintages are unproven; high-priority conditional prospective candidate, no alpha |
 | Cboe Option Sentiment | Historical start advertised at 2012; field cross-tabs and net-delta units/sign remain insufficient for a directional participant hypothesis |
 | Cboe Option Quotes | Conditional option risk/context source; sample parser corrections do not establish PIT, all-symbol history or inactive names |
 | CFTC TFF/COT | Historical strict PIT rejected: CFTC lacks complete historical release-date ledger; 2023 ION outage and 2025 funding lapse invalidate synthetic availability proxies. Legacy Phase 23C walk-forward quarantined; no reuse |
@@ -46,6 +63,7 @@ Phase 350's latest hosted attempt [43344689909](https://github.com/jafelix81/Nue
 
 ## Active GitHub work
 
+- PR #39: Phase 352 Open-Close 1m v1.8 spec/PIT audit, Draft/Open, not merged.
 - PR #38: Phase 351 TBT sample audit, Draft/Open, not merged.
 - PR #37: Phase 350 SEC 13D/G parent retrieval, Draft/Open, blocked on `SEC_USER_AGENT`.
 - PR #14 and PR #13: broader stacked research work remains open/unmerged. Do not merge any PR without explicit authorization.
@@ -53,11 +71,12 @@ Phase 350's latest hosted attempt [43344689909](https://github.com/jafelix81/Nue
 
 ## Next gates
 
-1. Resolve the TBT sample's 3% selection rule, row grain, missing `OPEN_CLOSE`, 69 unmapped side codes, and `TRADING_SEGMENT` discrepancy before any feature construction.
-2. If later authorized, obtain a lawful representative/eligible sample or trial and written licensing terms; do not purchase or contact a vendor autonomously.
-3. For any prospective TBT feed, archive every received file/version with first-receipt UTC, raw hash, schema version and corrections; use only after receipt.
-4. Continue the SEC 13D/G and Form 4 retrieval path only after the required monitored-contact secret is configured.
-5. Any eventual economic test must use a new untouched prospective holdout, strict chronological splits, label-maturity embargoes, identical exposure/costs versus frozen LTM/F80, clustered bootstrap, LOO and multiplicity controls.
+1. Inspect a verifiably post-v1.8 Open-Close 1m sample and verify the actual header, cumulative values and correction behavior; the surfaced sample's market date predates the cutover.
+2. Establish exact per-file first-receipt UTC and an append-only snapshot/correction archive before any prospective PIT feature is admitted.
+3. Quantify four-venue per-symbol/per-date coverage against the frozen 335 universe, including inactive/delisted names, option-root changes and a separate full-OPRA denominator.
+4. Resolve the TBT sample's 3% selection rule, row grain, missing `OPEN_CLOSE`, 69 unmapped side codes and `TRADING_SEGMENT` discrepancy before any TBT feature construction.
+5. Continue SEC 13D/G and Form 4 retrieval only after the required monitored-contact secret is configured.
+6. Any eventual economic test must use a new untouched prospective holdout, strict chronological splits, label-maturity embargoes, identical exposure/costs versus frozen LTM/F80, clustered bootstrap, LOO and multiplicity controls.
 
 ## Controls
 
