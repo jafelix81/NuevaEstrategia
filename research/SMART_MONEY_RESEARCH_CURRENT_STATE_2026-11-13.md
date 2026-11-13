@@ -6,7 +6,7 @@ Develop a strategy with a real statistical and economic edge, validated chronolo
 
 **Frozen baseline:** `F80_TOP20_PARTIAL50_BASELINE_C20`. Do not change it absent robust incremental OOS evidence.  
 **Legacy holdout:** `CONSUMED_NOT_PRISTINE`; do not reuse.  
-**Current economic status:** no new Smart Money feature has demonstrated incremental, cost-adjusted OOS edge. No signal admitted. No forward-return, alpha, OOS, bootstrap, LOO or holdout test has been run in Phases 361–363.
+**Current economic status:** no new Smart Money feature has demonstrated incremental, cost-adjusted OOS edge. No signal admitted. No forward-return, alpha, OOS, bootstrap, LOO or holdout test has been run in Phases 361–365.
 
 ## Latest FINRA work — Phases 361–363
 
@@ -59,6 +59,22 @@ For LND, OTC matched on both reporting dates. ATS matched on 2025-01-10, but 202
 **Decision:** do not sum or deduplicate by `lastReportedDate`. T2 ATS is not admitted for concentration features. The five clean T1 ATS samples remain a conditional venue-level candidate only.
 
 [Phase 363 run](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43432380794) · [artifact](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43432380794/artifacts/14041685255) · [report](PHASE363_FINRA_LAST_REPORTED_DATE_GRAIN_AUDIT_2026-11-13.md) · [branch](https://github.com/jafelix81/NuevaEstrategia/tree/phase363-finra-last-reported-date-grain-audit).
+
+### Phase 364 — full partition-inventory census
+
+- Official metadata/partitions endpoints returned 1,045 historic pairs (209 weeks × five tiers) and 1,031 current pairs; union 1,235 pairs / 258 weeks; historic/current overlap 841 pairs.
+- Historic inventory spans 2021-11-15 through 2025-11-10 with 209 consecutive weekly anchors in each of NA, NMS, OTCE, T1 and T2.
+- Current inventory is irregular: NA, OTCE and T2 each have 253 pairs (2021-12-06 to 2026-10-05); T1 has 255 (to 2026-10-19); NMS has only 17 (2023-06-05 to 2023-11-06) and six missing weekly anchors.
+- FINRA metadata documents T1/T2/OTCE but does not define NA/NMS. Both values remain quarantined pending actual-row semantics.
+- The current `weeklySummary` partition catalog extends far beyond its documented twelve-month rolling window. This is a catalog anomaly only; it does not prove old rows remain queryable. Both metadata/partition field orders agree, and `totalNotionalSum` is present in metadata.
+- Run [43444007387](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43444007387), artifact [14046932092](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43444007387/artifacts/14046932092), 7/7 tests passed. Report: [Phase 364](PHASE364_FINRA_WEEKLY_PARTITION_INVENTORY_CENSUS_2026-11-13.md).
+
+### Phase 365 — actual-row probe in progress
+
+- A 50-query, low-volume probe is checking five dates × five tiers × both weekly datasets, requesting at most ten sample rows per query.
+- It will test whether the old current-dataset partitions actually contain rows, whether NA/NMS are meaningful data tiers, and whether historic/current overlapping partitions agree at sample level.
+- Run [43444391496](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43444391496) is active. Do not launch a duplicate.
+- The probe retains only anonymized summaries, not raw symbols, firm names, MPIDs or CRDs. No alpha test is authorized.
 
 ## PIT and source limitations
 
