@@ -240,3 +240,15 @@ No signal admitted. No economic test, no holdout use, no parameter/universe/capi
 ## Controls reaffirmed
 
 No new Smart Money signal admitted. No economic/OOS test from Phases 371–374, no holdout use, no production/universe/capital/parameter change. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen. No PR merged.
+
+
+## Phase 377 — CFTC TFF full coverage and contract-key audit (2026-11-13)
+
+- Added a read-only full-snapshot audit for the official TFF Futures Only Socrata dataset (gpe5-46if), with metadata/count checks before and after retrieval, schema/position-field discovery, report-date/code duplicate tests, weekly gaps, candidate contract-code/name continuity, missingness and open-interest reconciliation diagnostics.
+- Candidate series are tested separately: 13874A E-mini S&P 500, 209742 Nasdaq-100 Mini, 239742 Russell 2000 Mini, and 124603 DJIA x $5. The related 13874+ S&P 500 Consolidated line is surfaced as a separate non-additive comparison, not combined with 13874A.
+- Missing contract-weeks remain missing, never zero or forward-filled. CFTC ID is tested for duplicates but is not treated as a natural primary key.
+- Only anonymized summary output is retained; no raw rows or IDs, no return/alpha/OOS/bootstrap/LOO/holdout test.
+- Phase 377 branch workflow has been added and is expected to run on its branch push. The result is pending; no data gate is claimed yet.
+- Phase 375 full 209-week FINRA T1 ATS retrieval remains active in run 43493465495 / job 132120346426 (step 6, full retrieval). No duplicate FINRA run was started.
+- Phase 376 remains a conditional macro-positioning source only. Actual release dates beyond the latest 13 months are unavailable per CFTC FAQ; older release calendars are schedule proxies, not strict PIT.
+- F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen; legacy holdout remains consumed and unused.
