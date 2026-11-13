@@ -389,3 +389,14 @@ No alpha/OOS result from Phase 253. No returns, bootstrap/LOO, chronological OOS
 - Next sample gate: 2006Q1, 2012Q1, 2023Q2, 2025Q3 and 2026Q3; hash exact ZIPs, validate eight schemas/keys and AFF10B5ONE eras, reconcile accession acceptance times, parse original XML for multi-owner filings, and measure effective-dated issuer/class plus active/delisted-universe coverage.
 - Documentation-only audit; no ZIP bytes downloaded, no SEC request, no return/alpha/bootstrap/LOO/OOS or holdout test. SEC_CONTACT_EMAIL remains absent for automated EDGAR acceptance-time retrieval. F80, production, universe and capital unchanged.
 - [Phase 279 report](PHASE279_SEC_INSIDER_TRANSACTIONS_BULK_HISTORY_AND_PIT_FEASIBILITY_2026-11-11.md) · [code](phase279_sec_insider_bulk_history_gate.py) · [tests](test_phase279_sec_insider_bulk_history_gate.py) · [result](phase279_sec_insider_bulk_history_gate_result.json) · [workflow](../.github/workflows/phase279_sec_insider_bulk_history_gate.yml).
+
+
+## Cboe documentation delta — 2026-11-13
+
+Fresh official Cboe pages confirm the Phase 236/251 source ranking but add a material intraday cutover: effective 2026-11-08, Open-Close 1-minute/10-minute files add trading_dt/trading_segment and change correction, bust, cancellation, provisional-row, timestamp and compression handling. This is an intraday-only schema/version regime; do not apply it to EOD or TBT. A later corrected snapshot cannot be backdated to first receipt.
+
+TBT remains C1-only, execution-level, T+1 (typically 00:30–01:30 ET), with advertised archive from 2019-10-07 and 22 documented fields in v1.1 (2026-10-05). Pre-launch archive is retrospective backfill; post-launch live use still requires per-file first-receipt timestamps, immutable hashes, correction lineage and effective-dated security identity. The public sample link was visible but sample bytes could not be retrieved in this runtime, so no row-grain or execution-ID validation is claimed.
+
+Open-Close EOD remains four selected Cboe venues, not consolidated OPRA. C1 EOD starts 2005-01-03; BZX/C2/EDGX EOD start 2018-01-02; intraday starts differ by venue. Historical convention breaks from Phases 250–251 remain mandatory. The last located TBT fee schedule (2026-04-21) listed $12,000/month subscription and $8,000 per month of ad-hoc history; current pricing must be reconfirmed. No trial, card authorization, purchase or vendor contact. No alpha or PIT admission. F80 remains frozen.
+
+Source detail: research/PHASE236_CBOE_TBT_EXECUTION_DETAIL_FEASIBILITY_AND_PIT_AUDIT_2026-11-09.md and research/CBOE_TBT_OPENCLOSE_2026-11-13_DOCUMENTATION_DELTA.md.
