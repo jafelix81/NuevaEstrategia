@@ -8,6 +8,13 @@ on:
       - .github/workflows/phase354_occ_cboe_eod_oi_crosscheck.yml
       - research/phase354_occ_cboe_eod_oi_crosscheck.py
       - research/test_phase354_occ_cboe_eod_oi_crosscheck.py
+  pull_request:
+    branches:
+      - phase353-cboe-eod-flow-companion-audit
+    paths:
+      - .github/workflows/phase354_occ_cboe_eod_oi_crosscheck.yml
+      - research/phase354_occ_cboe_eod_oi_crosscheck.py
+      - research/test_phase354_occ_cboe_eod_oi_crosscheck.py
   workflow_dispatch:
 
 permissions:
