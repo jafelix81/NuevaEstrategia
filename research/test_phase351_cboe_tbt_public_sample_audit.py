@@ -49,6 +49,21 @@ def row(**overrides):
 
 
 class Phase351TbtSampleTests(unittest.TestCase):
+    def test_nested_zip_and_extensionless_gzip_csv_member(self):
+        inner = io.BytesIO()
+        csv_buffer = io.StringIO(newline="")
+        writer = csv.DictWriter(csv_buffer, fieldnames=EXPECTED_COLUMNS)
+        writer.writeheader()
+        writer.writerow(row())
+        with zipfile.ZipFile(inner, "w", zipfile.ZIP_DEFLATED) as nested:
+            nested.writestr("C1_TBT_SAMPLE", gzip.compress(csv_buffer.getvalue().encode()))
+        outer = io.BytesIO()
+        with zipfile.ZipFile(outer, "w", zipfile.ZIP_DEFLATED) as archive:
+            archive.writestr("sample_bundle.zip", inner.getvalue())
+        result = audit_zip_bytes(outer.getvalue())
+        self.assertEqual(result["rows"], 1)
+        self.assertEqual(result["unique_underlyings"], 1)
+
     def test_schema_and_basic_counts(self):
         result = audit_zip_bytes(make_archive([row()]))
         self.assertEqual(result["rows"], 1)
