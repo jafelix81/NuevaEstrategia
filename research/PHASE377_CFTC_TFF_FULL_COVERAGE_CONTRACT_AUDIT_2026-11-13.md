@@ -58,3 +58,15 @@ No hypothesis is tested in this phase. If data gates pass, freeze one primary E-
 ## Controls
 
 No raw data retention, forward returns, alpha, OOS, bootstrap, LOO or holdout use. No vendor purchase/contact. No change to `F80_TOP20_PARTIAL50_BASELINE_C20`, production, universe, capital, parameters or exposure.
+
+## Hosted result and Phase 378 correction — 2026-11-13
+
+Phase 377 completed successfully in run [43497266092](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43497266092), artifact [14071613332](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43497266092/artifacts/14071613332).
+
+- Full TFF Futures Only snapshot: 47,322 rows, 90 columns; reported count matched before/after and metadata update stamp was unchanged.
+- Candidate natural key (report date, CFTC contract market code): zero duplicate groups.
+- 13874A E-mini S&P 500, 209742 Nasdaq-100 Mini and 124603 Dow Jones $5 each had 1,065 report dates from 2006-06-13 through 2026-11-03.
+- Russell code 239742 had 601 rows, but Phase 378 proves it is not one continuous contract: 119 old-era observations (2006-06-13–2008-09-16) and 482 new E-mini observations (2017-08-15–2026-11-03), separated by 3,255 days and different multipliers ($100 versus $50).
+- Phase 377's Tuesday-anchor missing count treated 14 holiday-shifted report dates as missing for the continuous S&P/Nasdaq/Dow series. Phase 378 replaces that interpretation with interval continuity: 6–8 day report-date gaps are normal weekly observations; gaps over eight days require review.
+
+See [Phase 378](PHASE378_CFTC_RUSSELL_CONTRACT_ERA_AUDIT_2026-11-13.md) for the contract-era and backcast ruling. No alpha or return test is authorized.
