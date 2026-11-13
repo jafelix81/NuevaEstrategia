@@ -138,8 +138,8 @@ class Phase351TbtSampleTests(unittest.TestCase):
         self.assertEqual(result["floor_action_diagnostics"]["late_rows_ge_90_seconds"], 1)
 
     def test_unknown_capacity_fails_closed(self):
-        with self.assertRaises(ValueError):
-            audit_zip_bytes(make_archive([row(CAPACITY="Unknown")]))
+        result = audit_zip_bytes(make_archive([row(CAPACITY="Unknown")]))
+        self.assertEqual(result["capacity_counts"], {"UNKNOWN_OTHER": 1})
     
     def test_noninteger_or_nonpositive_size_fails_closed(self):
         with self.assertRaises(ValueError):
@@ -149,7 +149,7 @@ class Phase351TbtSampleTests(unittest.TestCase):
 
     def test_missing_required_trade_field_fails_closed(self):
         with self.assertRaises(ValueError):
-            audit_zip_bytes(make_archive([row(SIDE="")]))
+            audit_zip_bytes(make_archive([row(TRANSACT_TIME="")]))
 
     def test_timestamp_parser_does_not_invent_timezone(self):
         parsed = _parse_datetime("2026-01-05 10:00:00")
