@@ -190,14 +190,14 @@ def audit_zip_bytes(archive_bytes: bytes) -> dict:
 
                 side, oc = row["SIDE"], row["OPEN_CLOSE"]
                 cp, capacity, session = row["CALL_PUT_FLAG"], row["CAPACITY"], row["SESSION"].upper()
-                if side not in SIDES or oc not in OPEN_CLOSE or cp not in CALL_PUT:
+                if side not in SIDES or (oc and oc not in OPEN_CLOSE) or cp not in CALL_PUT:
                     raise ValueError(f"{name}: invalid side/open-close/call-put code")
                 if capacity not in CAPACITIES:
                     raise ValueError(f"{name}: unknown capacity value {capacity!r}")
                 if session not in SESSIONS:
                     raise ValueError(f"{name}: unknown session value {session!r}")
                 counters["side"][side] += 1
-                counters["open_close"][oc] += 1
+                counters["open_close"][oc or "UNKNOWN_BLANK"] += 1
                 counters["call_put"][cp] += 1
                 counters["capacity"][capacity] += 1
                 counters["session"][session] += 1
@@ -257,7 +257,7 @@ def audit_zip_bytes(archive_bytes: bytes) -> dict:
                     g["sides"].add(side)
                     g["contracts"].add(contract)
                     g["capacities"].add(capacity)
-                    g["open_close"].add(oc)
+                    g["open_close"].add(oc) if oc else None
                 complex_id = row["COMPLEX_EXEC_ID"]
                 if not complex_id:
                     missing_complex_id += 1
