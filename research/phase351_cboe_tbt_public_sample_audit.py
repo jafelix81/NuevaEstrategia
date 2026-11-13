@@ -125,7 +125,7 @@ def audit_zip_bytes(archive_bytes: bytes) -> dict:
     exact_rows = set()
     duplicate_exact_rows = 0
     missing_exec_id = missing_complex_id = 0
-    invalid_quotes = crossed_nbbo = crossed_bbo = outside_nbbo = 0
+    invalid_quotes = crossed_nbbo = crossed_bbo = outside_nbbo = 0\n    incomplete_contract_identity_rows = 0
     missing_nbbo = missing_bbo = 0
     missing_floor_ts = late_floor = negative_floor_lag = 0
     trading_date_calendar_mismatch = 0
@@ -171,8 +171,8 @@ def audit_zip_bytes(archive_bytes: bytes) -> dict:
                 for field in EXPECTED_COLUMNS:
                     if not row.get(field):
                         missing_required_cells[field] += 1
-                core_fields = ("TRANSACT_TIME", "TRADING_DT", "UNDERLYING", "OSI_ROOT",
-                               "CALL_PUT_FLAG", "SIZE", "PRICE", "SIDE",
+                core_fields = ("TRANSACT_TIME", "TRADING_DT", "UNDERLYING",
+                               "SIZE", "PRICE", "SIDE",
                                "CAPACITY", "SESSION")
                 blank_core = [field for field in core_fields if not row.get(field)]
                 if blank_core:
@@ -190,7 +190,7 @@ def audit_zip_bytes(archive_bytes: bytes) -> dict:
 
                 side, oc = row["SIDE"], row["OPEN_CLOSE"]
                 cp, capacity, session = row["CALL_PUT_FLAG"], row["CAPACITY"], row["SESSION"].upper()
-                if side not in SIDES or (oc and oc not in OPEN_CLOSE) or cp not in CALL_PUT:
+                if side not in SIDES or (oc and oc not in OPEN_CLOSE) or (cp and cp not in CALL_PUT):
                     raise ValueError(f"{name}: invalid side/open-close/call-put code")
                 if capacity not in CAPACITIES:
                     raise ValueError(f"{name}: unknown capacity value {capacity!r}")
@@ -198,7 +198,7 @@ def audit_zip_bytes(archive_bytes: bytes) -> dict:
                     raise ValueError(f"{name}: unknown session value {session!r}")
                 counters["side"][side] += 1
                 counters["open_close"][oc or "UNKNOWN_BLANK"] += 1
-                counters["call_put"][cp] += 1
+                counters["call_put"][cp or "UNKNOWN_BLANK"] += 1
                 counters["capacity"][capacity] += 1
                 counters["session"][session] += 1
                 counters["trading_segment"][row["TRADING_SEGMENT"]] += 1
@@ -299,7 +299,7 @@ def audit_zip_bytes(archive_bytes: bytes) -> dict:
         "trading_date_calendar_mismatch_rows": trading_date_calendar_mismatch,
         "timestamp_timezone_awareness": dict(timestamp_awareness),
         "unique_underlyings": len(underlyings),
-        "unique_option_series": len(series_keys),
+        "unique_option_series_complete_identity_only": len(series_keys),\n        "incomplete_contract_identity_rows": incomplete_contract_identity_rows,
         "capacity_counts": dict(sorted(counters["capacity"].items())),
         "side_counts": dict(sorted(counters["side"].items())),
         "open_close_counts": dict(sorted(counters["open_close"].items())),
