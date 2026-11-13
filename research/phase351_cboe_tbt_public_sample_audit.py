@@ -72,6 +72,44 @@ def _member_bytes(name: str, payload: bytes) -> bytes:
     return gzip.decompress(payload) if name.lower().endswith(".gz") else payload
 
 
+def _find_csv_payloads(archive_bytes: bytes) -> list[tuple[str, bytes]]:
+    found = []
+
+    def scan_zip(payload: bytes, prefix: str, depth: int):
+        if depth > 3:
+            raise ValueError("nested sample archive depth exceeds safety limit")
+        with zipfile.ZipFile(io.BytesIO(payload)) as zf:
+            bad = zf.testzip()
+            if bad:
+                raise ValueError(f"nested ZIP CRC failure: {bad}")
+            for member in zf.namelist():
+                if member.endswith("/"):
+                    continue
+                child = zf.read(member)
+                label = f"{prefix}{member}"
+                if child.startswith(b"PK\\x03\\x04"):
+                    scan_zip(child, label + "!", depth + 1)
+                    continue
+                if child.startswith(b"\\x1f\\x8b"):
+                    child = gzip.decompress(child)
+                try:
+                    decoded = child.decode("utf-8-sig")
+                except UnicodeDecodeError:
+                    continue
+                first_line = next((line for line in decoded.splitlines() if line.strip()), "")
+                if not first_line:
+                    continue
+                try:
+                    header = [str(x).strip().upper() for x in next(csv.reader([first_line]))]
+                except (csv.Error, StopIteration):
+                    continue
+                if len(header) == len(EXPECTED_COLUMNS) and set(header) == set(EXPECTED_COLUMNS):
+                    found.append((label, child))
+
+    scan_zip(archive_bytes, "", 0)
+    return found
+
+
 def audit_zip_bytes(archive_bytes: bytes) -> dict:
     archive_hash = hashlib.sha256(archive_bytes).hexdigest()
     members = []
@@ -103,12 +141,11 @@ def audit_zip_bytes(archive_bytes: bytes) -> dict:
         bad_member = zf.testzip()
         if bad_member:
             raise ValueError(f"ZIP CRC failure: {bad_member}")
-        csv_names = [n for n in zf.namelist()
-                     if not n.endswith("/") and (n.lower().endswith(".csv") or n.lower().endswith(".csv.gz"))]
-        if not csv_names:
-            raise ValueError("sample ZIP contains no CSV or CSV.GZ member")
-        for name in csv_names:
-            raw = _member_bytes(name, zf.read(name))
+        csv_payloads = _find_csv_payloads(archive_bytes)
+        if not csv_payloads:
+            names = [n for n in zf.namelist() if not n.endswith("/")][:12]
+            raise ValueError(f"sample ZIP has no member matching the 22-field TBT header; members={names}")
+        for name, raw in csv_payloads:
             text = raw.decode("utf-8-sig")
             reader = csv.DictReader(io.StringIO(text, newline=""))
             if not reader.fieldnames:
@@ -116,7 +153,7 @@ def audit_zip_bytes(archive_bytes: bytes) -> dict:
             headers = [str(h).strip().upper() for h in reader.fieldnames]
             if len(headers) != len(set(headers)):
                 raise ValueError(f"{name}: duplicate header names")
-            if headers != EXPECTED_COLUMNS:
+            if len(headers) != len(EXPECTED_COLUMNS) or set(headers) != set(EXPECTED_COLUMNS):
                 raise ValueError(f"{name}: header contract mismatch; got {len(headers)} fields")
             member_rows = 0
             for raw_row in reader:
@@ -251,7 +288,7 @@ def audit_zip_bytes(archive_bytes: bytes) -> dict:
     complex_multi_leg = sum(len(g["contracts"]) > 1 for g in complex_groups.values())
 
     return {
-        "status": "PASS_SAMPLE_ROW_GRAIN_AUDIT_NO_PIT_NO_ALPHA",
+        "status": "PASS_SAMPLE_SCHEMA_AND_LINKAGE_DIAGNOSTICS_NO_PIT_NO_ALPHA",
         "archive_bytes": len(archive_bytes),
         "archive_sha256": archive_hash,
         "members": members,
