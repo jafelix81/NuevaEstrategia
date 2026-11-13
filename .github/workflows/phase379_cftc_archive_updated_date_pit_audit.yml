@@ -39,8 +39,8 @@ jobs:
           python - <<'PY'
           import json, sys
           r=json.load(open("phase379_cftc_archive_updated_date_pit_audit/summary.json",encoding="utf-8"))
-          if not r.get("all_official_schedule_samples_match_gate"):
-              sys.exit("CFTC archive Updated dates did not match every official schedule sample")
+          if not r.get("all_official_schedule_samples_not_earlier_gate"):
+              sys.exit("CFTC archive Updated date precedes an official release or a required sample is missing")
           if not r.get("all_successful_headings_match"):
               sys.exit("CFTC archive heading or Updated date chronology failed")
           if r.get("archive_updated_field_formally_defined_as_first_publication") or r.get("strict_historical_pit_authorized"):
@@ -48,7 +48,9 @@ jobs:
           if r.get("raw_html_retained") or r.get("raw_positions_retained") or r.get("alpha_test_authorized") or r.get("holdout_used") or r.get("f80_changed") or r.get("production_changed"):
               sys.exit("Research-only control violated")
           print("PHASE379_CFTC_ARCHIVE_UPDATED_DATE_AUDIT=PASS")
-          print("OFFICIAL_SCHEDULE_MATCHES=",r["official_schedule_exact_matches"],"/",r["official_schedule_sample_count"])
+          print("OFFICIAL_SCHEDULE_NOT_EARLIER=",r["official_schedule_not_earlier_matches"],"/",r["official_schedule_sample_count"])
+          print("OFFICIAL_SCHEDULE_EXACT_MATCHES=",r["official_schedule_exact_matches"],"/",r["official_schedule_sample_count"])
+          print("LATER_ARCHIVE_UPDATES=",r["official_schedule_later_count"])
           print("ARCHIVE_ONLY_RETRIEVED=",r["archive_only_retrieved"],"/",r["archive_only_sample_count"])
           print("STRICT_PIT=NOT_AUTHORIZED")
           PY

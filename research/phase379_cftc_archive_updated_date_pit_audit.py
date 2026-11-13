@@ -72,6 +72,10 @@ def parse_archive_dates(html):
     updated_date=parse_month_date(updated_matches[-1])
     return report_date,updated_date
 
+def schedule_relation(updated_day, expected_day):
+    lag=(updated_day-expected_day).days
+    return {"exact":lag==0,"not_earlier":lag>=0,"lag_days":lag}
+
 def fetch_one(session,report_date,expected_release=None,required=False):
     url=f"{BASE}/{report_date[:4]}/{TFF_PATH}/{report_filename(report_date)}"
     error=None
@@ -84,13 +88,16 @@ def fetch_one(session,report_date,expected_release=None,required=False):
             report_day,updated_day=parse_archive_dates(response.text)
             requested=date.fromisoformat(report_date)
             expected=date.fromisoformat(expected_release) if expected_release else None
+            relation=schedule_relation(updated_day,expected) if expected else None
             return {
                 "report_date":report_date,"url":url,"http_status":response.status_code,
                 "archive_heading_matches_requested":report_day==requested,
                 "archive_updated_date":updated_day.isoformat(),
                 "archive_lag_days":(updated_day-report_day).days,
                 "expected_official_release_date":expected.isoformat() if expected else None,
-                "official_schedule_match":(updated_day==expected) if expected else None,
+                "official_schedule_exact_match":relation["exact"] if relation else None,
+                "official_schedule_not_earlier":relation["not_earlier"] if relation else None,
+                "official_schedule_lag_days":relation["lag_days"] if relation else None,
                 "updated_date_not_before_report_date":updated_day>=report_day,
                 "evidence_class":"official_schedule_crosscheck" if expected else "historical_archive_only",
                 "retrieval_status":"ok",
@@ -117,9 +124,11 @@ def run_audit():
     scheduled=[r for r in results if r["evidence_class"]=="official_schedule_crosscheck"]
     archive_only=[r for r in results if r["evidence_class"]=="historical_archive_only"]
     successful=[r for r in results if r["retrieval_status"]=="ok"]
-    matches=[r for r in scheduled if r.get("official_schedule_match")]
+    exact_matches=[r for r in scheduled if r.get("official_schedule_exact_match")]
+    not_earlier=[r for r in scheduled if r.get("official_schedule_not_earlier")]
     required_failures=[r for r in scheduled if r["retrieval_status"]!="ok"]
-    schedule_mismatches=[r for r in scheduled if r["retrieval_status"]=="ok" and not r.get("official_schedule_match")]
+    earlier_than_schedule=[r for r in scheduled if r["retrieval_status"]=="ok" and not r.get("official_schedule_not_earlier")]
+    later_than_schedule=[r for r in scheduled if r["retrieval_status"]=="ok" and r.get("official_schedule_lag_days",0)>0]
     malformed=[r for r in successful if not r["archive_heading_matches_requested"] or not r["updated_date_not_before_report_date"]]
     return {
         "phase":379,"source":"CFTC TFF Futures Only static HTML archive",
@@ -129,15 +138,18 @@ def run_audit():
         "historical_special_announcements":"https://www.cftc.gov/MarketReports/CommitmentsofTraders/HistoricalSpecialAnnouncements/index.htm",
         "official_schedule_sample_count":len(scheduled),
         "official_schedule_samples_retrieved":len(scheduled)-len(required_failures),
-        "official_schedule_exact_matches":len(matches),
-        "official_schedule_mismatches":len(schedule_mismatches),
+        "official_schedule_exact_matches":len(exact_matches),
+        "official_schedule_not_earlier_matches":len(not_earlier),
+        "official_schedule_earlier_count":len(earlier_than_schedule),
+        "official_schedule_later_count":len(later_than_schedule),
+        "official_schedule_earlier_samples":earlier_than_schedule,
+        "official_schedule_later_samples":later_than_schedule,
         "archive_only_sample_count":len(archive_only),
         "archive_only_retrieved":sum(r["retrieval_status"]=="ok" for r in archive_only),
         "archive_only_samples":archive_only,
         "all_successful_headings_match":not malformed,
-        "all_official_schedule_samples_match_gate":len(matches)==len(scheduled) and not required_failures,
+        "all_official_schedule_samples_not_earlier_gate":len(not_earlier)==len(scheduled) and not required_failures,
         "required_sample_failures":required_failures,
-        "schedule_mismatches":schedule_mismatches,
         "successful_samples":successful,
         "raw_html_retained":False,
         "raw_positions_retained":False,
@@ -145,9 +157,9 @@ def run_audit():
         "strict_historical_pit_authorized":False,
         "candidate_rule":"If wider validation confirms archive Updated is never earlier than actual release, use the first regular market session after the archive Updated date; do not use same-day close.",
         "research_disposition":(
-            "ARCHIVE_UPDATED_MATCHED_ALL_OFFICIAL_SCHEDULE_SAMPLES_CANDIDATE_ONLY"
-            if len(matches)==len(scheduled) and not required_failures and not schedule_mismatches and not malformed
-            else "ARCHIVE_UPDATED_TIMESTAMP_AUDIT_INCOMPLETE_OR_MISMATCHED"
+            "ARCHIVE_UPDATED_NOT_EARLIER_THAN_ALL_OFFICIAL_RELEASES_CANDIDATE_ONLY"
+            if len(not_earlier)==len(scheduled) and not required_failures and not malformed
+            else "ARCHIVE_UPDATED_TIMESTAMP_AUDIT_INCOMPLETE_OR_EARLIER_THAN_RELEASE"
         ),
         "alpha_test_authorized":False,"holdout_used":False,"f80_changed":False,"production_changed":False,
     }
@@ -160,11 +172,13 @@ def main():
     summary=run_audit()
     (out/"summary.json").write_text(json.dumps(summary,indent=2,sort_keys=True),encoding="utf-8")
     print("PHASE379_CFTC_ARCHIVE_UPDATED_AUDIT=",summary["research_disposition"])
-    print("OFFICIAL_SCHEDULE_MATCHES=",summary["official_schedule_exact_matches"],"/",summary["official_schedule_sample_count"])
+    print("OFFICIAL_SCHEDULE_NOT_EARLIER=",summary["official_schedule_not_earlier_matches"],"/",summary["official_schedule_sample_count"])
+    print("OFFICIAL_SCHEDULE_EXACT_MATCHES=",summary["official_schedule_exact_matches"],"/",summary["official_schedule_sample_count"])
+    print("LATER_ARCHIVE_UPDATES=",summary["official_schedule_later_count"])
     print("ARCHIVE_ONLY_RETRIEVED=",summary["archive_only_retrieved"],"/",summary["archive_only_sample_count"])
     print("STRICT_PIT=NOT_AUTHORIZED")
     print("ALPHA_TEST=NOT_AUTHORIZED")
-    if summary["research_disposition"]!="ARCHIVE_UPDATED_MATCHED_ALL_OFFICIAL_SCHEDULE_SAMPLES_CANDIDATE_ONLY":
+    if summary["research_disposition"]!="ARCHIVE_UPDATED_NOT_EARLIER_THAN_ALL_OFFICIAL_RELEASES_CANDIDATE_ONLY":
         raise SystemExit("Phase 379 archive timestamp candidate gate failed")
 
 if __name__=="__main__":

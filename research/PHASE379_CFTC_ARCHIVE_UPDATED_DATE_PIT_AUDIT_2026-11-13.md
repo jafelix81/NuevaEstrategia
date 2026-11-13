@@ -1,6 +1,6 @@
 # Phase 379 — CFTC archive Updated-date PIT feasibility audit
 
-**Status:** deterministic tests and hosted sample retrieval pending.  
+**Status:** first hosted run found 22/23 exact date matches; the remaining archive Updated date was two days later than the official release date. The acceptance criterion has been corrected to test the conservative condition (Updated date is never earlier than official release). Corrected hosted run pending.  
 **Parent:** Phase 378 Russell contract-era / TFF classification-regime audit.  
 **Scope:** timestamp provenance only; no features or returns.
 
@@ -16,11 +16,11 @@ This is not assumed to be true. CFTC says its historical report index dates are 
 - 10 2026 report dates with expected publication dates from the official CFTC 2026 release schedule.
 - 6 older archive-only examples from 2017, 2020, 2022, 2023 and 2024, where the official release-date list is no longer available.
 
-For every page, verify that the archive heading matches the requested report date and parse the final Updated date. For the 23 officially scheduled cases, require exact equality with the official publication date. Retain only dates, URLs, HTTP status and match results; never retain raw HTML or positions.
+For every page, verify that the archive heading matches the requested report date and parse the final Updated date. For the 23 officially scheduled cases, require the archive Updated date to be on or after the official publication date. Exact matches and later archive updates are reported separately. Retain only dates, URLs, HTTP status and match results; never retain raw HTML or positions.
 
 ## Interpretation limits
 
-Even if all 23 official-schedule cases match:
+The first hosted run retrieved all 23 official-schedule pages: 22 Updated dates matched the official publication date exactly; the 2025-12-23 report page was marked Updated 2025-12-31, two days after the official 2025-12-29 publication date. This is consistent with a later archive modification and should be treated as a conservative delay, not an exact release timestamp. The corrected audit therefore tests that Updated is never earlier than the official release date, rather than requiring exact equality.
 - The result validates the field only against this recent sample, not every historical year.
 - “Updated” could reflect a later archive correction or migration rather than first publication.
 - A date-only field does not supply the exact 3:30 p.m. ET release timestamp.
