@@ -81,9 +81,9 @@ class Phase352OpenCloseOneMinuteSpecTests(unittest.TestCase):
         self.assertFalse(result["checks"]["version_v1_8_20261108"])
 
     def test_pdf_linebreaks_and_hyphenation_are_normalized(self):
-        text = SPEC_TEXT.replace("real-time", "real-\\ntime")
-        text = text.replace("Normal RTH Session", "Normal\\nRTH Session")
-        text = text.replace("Extended GTH Session", "Extended GTH\\nSession")
+        text = SPEC_TEXT.replace("real-time", "real-" + chr(10) + "time")
+        text = text.replace("Normal RTH Session", "Normal " + chr(10) + "RTH Session")
+        text = text.replace("Extended GTH Session", "Extended GTH " + chr(10) + "Session")
         result = audit_spec_text(text)
         self.assertTrue(result["checks"]["real_time_publication_cadence"])
         self.assertTrue(result["checks"]["c1_segment_is_product_specific"])
