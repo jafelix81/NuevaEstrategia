@@ -103,6 +103,10 @@ def features(rows):
                   "exchange_names":sorted({str(r.get("market_and_exchange_names") or "") for r in g})}
   series={c:[] for c in CATEGORIES}
   for i,r in enumerate(g):
+   recent_gaps=gaps[max(0,i-4):i]
+   weekly_gate=len(recent_gaps)==4 and all(6<=x<=8 for x in recent_gaps)
+   semiweekly_gate=len(recent_gaps)==4 and all(2<=x<=5 for x in recent_gaps)
+   cadence_regime="WEEKLY" if weekly_gate else ("SEMIWEEKLY" if semiweekly_gate else "IRREGULAR_OR_INSUFFICIENT")
    oi=num(r["open_interest_all"]); vals={}
    for c,(lf,sf,pf) in CATEGORIES.items():
     lv,sv=num(r[lf]),num(r[sf]); sp=num(r[pf]) if pf else Decimal(0)
@@ -120,6 +124,7 @@ def features(rows):
     "leveraged_money_net_oi_4w_change":None,"leveraged_money_net_oi_z52":None,
     "asset_manager_net_oi_z52":None,"dealer_net_oi_z52":None,
     "leveraged_asset_manager_divergence":vals["leveraged_money"]["net"]-vals["asset_manager"]["net"],
+    "cadence_regime":cadence_regime,"weekly_feature_gate":weekly_gate,
     "historical_pit_status":"UNVERIFIED_ARCHIVE_PROXY","signal_eligible":False,"row_sha256":digest(r)}
    if i>=4:
     w=dates[i-4:i+1]; wg=[(b-a).days for a,b in zip(w,w[1:])]
@@ -167,7 +172,8 @@ def run(mode,outdir,run_id):
   "metadata_stable":mb.get("rowsUpdatedAt")==meta,"metadata_rows_updated":meta,"counts_by_code":counts,
   "accounting_exact_rows_by_code":oi_exact,"coverage_by_code":cov,"total_rows":len(rows),
   "natural_key_unique":len({key(r) for r in rows})==len(rows),"historical_backfill_signal_eligible":False,
-  "scheduled_new_rows_signal_eligible_only_after_first_receipt":True,"revisions_signal_eligible":False,
+  "scheduled_new_rows_research_observation_eligible_only_after_first_receipt":True,"trade_signal_generated":False,"revisions_signal_eligible":False,
+  "cadence_policy":"4-report and 52-report features require weekly 6-8 day report gaps; semiweekly/irregular cadence suppresses weekly features until a separately pre-registered cadence specification is adopted.",
   "late_arrivals_signal_eligible":False,"forward_returns_used":False,"alpha_test_authorized":False,
   "holdout_used":False,"f80_changed":False,"production_changed":False,"state_write":False,"events_written":0}
  if not summary["natural_key_unique"]: raise RuntimeError("duplicate combined natural keys")
@@ -194,7 +200,9 @@ def run(mode,outdir,run_id):
    if c is None: continue
    kind,eligible=c; f=feature_map[k]
    events.append({"event_type":kind,"contract_code":code,"report_date":rd,"first_seen_utc":stamp,
-    "earliest_execution":"first regular equity session after first_seen_utc","signal_eligible":bool(eligible),
+    "earliest_research_use_session":"first regular equity session after first_seen_utc",
+    "research_observation_eligible":bool(eligible),"signal_eligible":False,"trade_signal_generated":False,
+    "observed_cadence_regime":f.get("cadence_regime"),"weekly_feature_gate":bool(f.get("weekly_feature_gate")),
     "previous_row_sha256":old.get(k),"current_row_sha256":h,"source_row":canonical(r),
     "derived_features":{x:f.get(x) for x in CSV_FIELDS if x not in ("historical_pit_status","signal_eligible","row_sha256")}})
    new_hashes[k]=h
@@ -205,7 +213,7 @@ def run(mode,outdir,run_id):
    state["row_hashes"]=new_hashes; state["latest_report_date_by_code"]=new_latest
    state["last_capture_utc"]=stamp; state["last_capture_mode"]="scheduled"; state["metadata_rows_updated"]=meta
    write_json(STATE_PATH,state); summary["state_write"]=True; summary["events_written"]=len(events)
-   summary["eligible_new_reports"]=sum(1 for e in events if e["event_type"]=="new_report" and e["signal_eligible"])
+   summary["eligible_new_reports"]=sum(1 for e in events if e["event_type"]=="new_report" and e["research_observation_eligible"])
    summary["revisions_or_late_arrivals"]=sum(1 for e in events if e["event_type"]!="new_report")
    summary["disposition"]="APPEND_ONLY_PROSPECTIVE_EVENTS_RECORDED"
   else: summary["disposition"]="NO_NEW_REPORTS_OR_REVISIONS_NO_STATE_CHANGE"
