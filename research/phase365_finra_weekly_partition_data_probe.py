@@ -144,6 +144,8 @@ def fetch_one(session, dataset, week, tier):
             result = summarize_sample(dataset, week, tier, rows, headers)
             if result["records_on_page"] != len(rows):
                 raise RuntimeError(f"Page row count mismatch for {dataset}/{week}/{tier}")
+            if result["record_total"] > 0 and not rows:
+                raise RuntimeError(f"Positive Record-Total with empty sample for {dataset}/{week}/{tier}")
             if result["record_offset"] != 0:
                 raise RuntimeError(f"Unexpected nonzero Record-Offset for {dataset}/{week}/{tier}")
             if len(rows) > SAMPLE_LIMIT:
