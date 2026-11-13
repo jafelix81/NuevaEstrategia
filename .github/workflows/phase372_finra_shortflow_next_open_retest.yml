@@ -1,0 +1,62 @@
+name: Phase 372 - FINRA short-flow next-session-open retest
+
+on:
+  push:
+    branches:
+      - phase372-finra-shortflow-next-session-open-retest
+    paths:
+      - "research/phase372_finra_shortflow_next_open_retest.py"
+      - "research/test_phase372_finra_shortflow_next_open_retest.py"
+      - ".github/workflows/phase372_finra_shortflow_next_open_retest.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase372-finra-shortflow-next-session-open-retest
+  cancel-in-progress: false
+
+jobs:
+  next-open-pseudo-oos:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Install research dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy pandas scipy requests yfinance openpyxl
+      - name: Compile and test
+        run: |
+          python -m py_compile research/phase372_finra_shortflow_next_open_retest.py research/test_phase372_finra_shortflow_next_open_retest.py
+          python -m unittest -v research.test_phase372_finra_shortflow_next_open_retest
+      - name: Run corrected next-session-open pseudo-OOS retest
+        run: python -u -m research.phase372_finra_shortflow_next_open_retest
+      - name: Enforce sample and holdout controls
+        run: |
+          python - <<'PY'
+          import json, sys
+          r=json.load(open("phase372_finra_shortflow_next_open_retest/phase372_audit.json",encoding="utf-8"))
+          if r.get("pseudo_oos_dates_completed") != 12:
+              sys.exit("Phase 372 did not complete all 12 frozen pseudo-OOS dates")
+          if r.get("holdout_used") or r.get("legacy_holdout_reused") or r.get("f80_changed") or r.get("production_changed") or r.get("signal_admitted"):
+              sys.exit("Phase 372 holdout or production control violated")
+          if r.get("train_end") != "2024-10-30" or r.get("final_oos_holdout_signals") != 6:
+              sys.exit("Phase 20C sample boundary drift")
+          if not r.get("prior_outcomes_maturity_checked"):
+              sys.exit("Prior outcome maturity gate missing")
+          print("PHASE372_PSEUDO_OOS=PASS")
+          print("HOLDOUT_USED=False")
+          print("SIGNAL_ADMITTED=False")
+          PY
+      - name: Upload summary outputs only (no raw daily files)
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase372-finra-shortflow-next-open-retest
+          path: phase372_finra_shortflow_next_open_retest/
+          if-no-files-found: error
+          retention-days: 90
