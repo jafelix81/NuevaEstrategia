@@ -40,3 +40,13 @@ No forward returns, alpha, OOS, bootstrap, LOO or holdout test is authorized. No
 - The request used a project-URL User-Agent but no monitored contact email. The SEC response contained no explanatory body. The script stopped immediately: 1 request attempted, 0 raw documents saved, 0 of 44 parents retrieved; no repeated requests were made.
 - [Partial diagnostic artifact 13991999046](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43327053770/artifacts/13991999046), SHA-256 `04c6568b01de176e55492d75f3224503c38cc8842a549b10f23a30c8d510d6c1`.
 - The workflow now requires a GitHub Actions repository secret named `SEC_USER_AGENT`, containing a project identifier and a monitored contact email. The value is not written to logs or committed. No further SEC request will be attempted until that secret is configured.
+
+## Safe preflight replay — 2026-11-12
+
+The initial hosted run used the project-URL-only User-Agent and stopped after one HTTP 403. The current workflow revision adds a separate configuration preflight before the retrieval step:
+
+- If repository secret `SEC_USER_AGENT` is absent or lacks an `@` contact address, the job exits before any SEC network request.
+- If present, the secret is passed only through the Actions environment; it is not echoed or committed.
+- The retrieval remains throttled at 2 requests/second and stops immediately on 403.
+
+A documentation-only PR update is used to exercise this preflight against the current repository secret configuration. This does not authorize any request with an invalid/missing contact string. Parent retrieval remains blocked until the preflight passes.
