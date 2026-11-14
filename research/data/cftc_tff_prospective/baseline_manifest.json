@@ -1,0 +1,29 @@
+{
+  "capture_mode": "branch_push_baseline",
+  "counts_by_code": {
+    "124603": {
+      "after": 851,
+      "before": 851,
+      "retrieved": 851
+    },
+    "13874A": {
+      "after": 851,
+      "before": 851,
+      "retrieved": 851
+    },
+    "209742": {
+      "after": 851,
+      "before": 851,
+      "retrieved": 851
+    },
+    "239742": {
+      "after": 482,
+      "before": 482,
+      "retrieved": 482
+    }
+  },
+  "created_utc": "2026-11-13T23:03:38Z",
+  "historical_availability": "NOT_CERTIFIED; feature warm-up only",
+  "row_count": 3035,
+  "signal_eligible": false
+}
