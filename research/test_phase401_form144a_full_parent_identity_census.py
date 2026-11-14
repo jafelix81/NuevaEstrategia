@@ -2,7 +2,9 @@ import json
 import unittest
 from pathlib import Path
 from research.phase401_form144a_full_parent_identity_census import (
-    accession, compare, load_phase400_parents, curated_parent, tranche_sig, tranche_payload_changed
+    accession, compare, load_phase400_parents, curated_parent, tranche_sig, tranche_payload_changed,
+    in_phase67_window, is_candidate_index_row, EXPECTED_INDEX_ACCESSIONS,
+    EXPECTED_CANDIDATE_ACCESSIONS, EXPECTED_CANDIDATE_144A_ACCESSIONS
 )
 
 ROOT=Path(__file__).resolve().parent
@@ -35,6 +37,25 @@ class Phase401Tests(unittest.TestCase):
         self.assertEqual(len(self.candidates),290)
         self.assertTrue(all(len(x)==10 and x.isdigit() for x in self.candidates))
         self.assertEqual(self.manifest["source_artifact_id"],13334881835)
+
+    def test_phase67_window_boundary_is_inclusive(self):
+        self.assertFalse(in_phase67_window({"filing_date":"2023-04-12"}))
+        self.assertTrue(in_phase67_window({"filing_date":"2023-04-13"}))
+        self.assertFalse(in_phase67_window({"filing_date":None}))
+
+    def test_candidate_index_membership_uses_master_index_pair(self):
+        candidate=sorted(self.candidates)[0]
+        self.assertTrue(is_candidate_index_row({"master_index_ciks":[candidate,"0000009999"]},self.candidates))
+        self.assertFalse(is_candidate_index_row({"master_index_ciks":["0000009999"]},self.candidates))
+
+    def test_phase67_baseline_counts_match_frozen_artifact(self):
+        self.assertEqual(EXPECTED_INDEX_ACCESSIONS,125977)
+        self.assertEqual(EXPECTED_CANDIDATE_ACCESSIONS,21648)
+        self.assertEqual(EXPECTED_CANDIDATE_144A_ACCESSIONS,196)
+        baseline=self.manifest["phase67_baseline_counts"]
+        self.assertEqual(baseline["index_accessions"],EXPECTED_INDEX_ACCESSIONS)
+        self.assertEqual(baseline["candidate_index_accessions"],EXPECTED_CANDIDATE_ACCESSIONS)
+        self.assertEqual(baseline["candidate_144a_accessions"],EXPECTED_CANDIDATE_144A_ACCESSIONS)
 
     def test_accession_normalization(self):
         self.assertEqual(accession("000176626423000002"),"0001766264-23-000002")

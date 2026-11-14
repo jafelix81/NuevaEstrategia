@@ -144,11 +144,20 @@ def extract_sale_tranches(root):
 
 QUARTERS=("2023Q2,2023Q3,2023Q4,2024Q1,2024Q2,2024Q3,2024Q4,2025Q1,2025Q2,2025Q3,2025Q4,2026Q1,2026Q2,2026Q3")
 START_DATE="2023-04-13"
-EXPECTED_CHILDREN=609
-EXPECTED_INDEX=56167
+EXPECTED_INDEX_ACCESSIONS=125977
+EXPECTED_CANDIDATE_ACCESSIONS=21648
+EXPECTED_CANDIDATE_144A_ACCESSIONS=196
 EXPECTED_CANDIDATE_CIKS=290
 MANIFEST=Path(__file__).with_name("PHASE401_FORM144_CANDIDATE_CIK_MANIFEST_2026-11-14.json")
 PHASE400=Path(__file__).with_name("PHASE400_FORM144_EXTERNAL_PARENT_IDENTITY_SUMMARY_2026-11-14.json")
+
+def in_phase67_window(row):
+    filed=row.get("filing_date")
+    return bool(filed and filed>=START_DATE)
+
+def is_candidate_index_row(row,candidates):
+    ciks={norm_cik(x) for x in (row.get("master_index_ciks") or [])}
+    return bool(ciks & candidates)
 
 def accession(value):
     digits=re.sub(r"\D","",str(value or ""))
@@ -196,11 +205,14 @@ def load_index(tokens):
     for token in tokens:
         year,qtr=quarter(token)
         url=f"https://www.sec.gov/Archives/edgar/full-index/{year}/QTR{qtr}/master.idx"
-        rows=parse_master_index(fetch_bytes(url,sec=True,timeout=90,retries=5))
-        rows=[r for r in rows if r.get("form") in ("144","144/A")]
-        counts[token]={"accessions":len(rows),"form_144":sum(r.get("form")=="144" for r in rows),
-                       "form_144a":sum(r.get("form")=="144/A" for r in rows)}
-        for r in rows:
+        rows_all=parse_master_index(fetch_bytes(url,sec=True,timeout=90,retries=5))
+        rows_window=[r for r in rows_all if in_phase67_window(r)]
+        counts[token]={"full_quarter_accessions":len(rows_all),
+            "phase67_window_accessions":len(rows_window),
+            "form_144":sum(r.get("form")=="144" for r in rows_window),
+            "form_144a":sum(r.get("form")=="144/A" for r in rows_window),
+            "pre_window_accessions":len(rows_all)-len(rows_window)}
+        for r in rows_all:
             acc=accession(r.get("accession"))
             if not acc: duplicates.append({"quarter":token,"accession":r.get("accession"),"reason":"invalid"}); continue
             if acc in by_acc: duplicates.append({"quarter":token,"accession":acc,"reason":"duplicate"}); continue
@@ -262,7 +274,7 @@ def compare(child,parent,child_row,parent_row,candidates,parent_source):
         "child_filing_date":cd,"parent_filing_date":pd or None,
         "parent_child_date_order_ok":None if not cd or not pd else pd<=cd,
         "child_form":c.get("submission_type"),"parent_form":p.get("submission_type"),
-        "parent_source":parent_source,"parent_in_14q_census":parent_row is not None,
+        "parent_source":parent_source,"parent_in_14q_census":in_phase67_window(parent_row or {}),
         "child_issuer_cik":cc,"parent_issuer_cik":pc,"issuer_cik_changed":changed,
         "child_issuer_name":c.get("issuer_name") or "","parent_issuer_name":p.get("issuer_name") or "",
         "issuer_name_changed":norm_text(c.get("issuer_name"))!=norm_text(p.get("issuer_name")),
@@ -294,7 +306,10 @@ def audit(manifest,workers=5,output=Path("phase401_form144a_full_parent_identity
     if len(candidates)!=EXPECTED_CANDIDATE_CIKS or any(not re.fullmatch(r"\d{10}",x) for x in candidates):
         raise ValueError("Phase 67 candidate CIK manifest integrity failure")
     index,quarter_counts,duplicates=load_index([x for x in QUARTERS.split(",") if x])
-    children=sorted((r for r in index.values() if r.get("form")=="144/A" and r.get("filing_date") and r["filing_date"]>=START_DATE),
+    index_window={a:r for a,r in index.items() if in_phase67_window(r)}
+    candidate_index_rows=[r for r in index_window.values() if is_candidate_index_row(r,candidates)]
+    candidate_144a_index_rows=[r for r in candidate_index_rows if r.get("form")=="144/A"]
+    children=sorted((r for r in index_window.values() if r.get("form")=="144/A"),
                     key=lambda r:(r.get("filing_date") or "",r["accession"]))
     child_results,child_errors={},[]
     with ThreadPoolExecutor(max_workers=workers) as pool:
@@ -340,38 +355,57 @@ def audit(manifest,workers=5,output=Path("phase401_form144a_full_parent_identity
     parent_form_rate=sum(bool(x["parent_xml_form_matches_index"]) for x in parent_form_rows)/len(parent_form_rows) if parent_form_rows else None
     parent_link_rate=len(pairs)/links if links else None
     child_candidate=sum(norm_cik(x["parsed"].get("issuer_cik")) in candidates for x in child_ok)
-    gates={"index_census_matches_phase67_56167":len(index)==EXPECTED_INDEX,
-        "child_census_matches_phase67_609":len(children)==EXPECTED_CHILDREN,
+    date_order_known=sum(x.get("parent_child_date_order_ok") is not None for x in pairs)
+    issuer_cik_changes=sum(x["issuer_cik_changed"] for x in pairs)
+    explicit_identity_changes=sum(x["remarks_explicit_identity_correction"] for x in pairs)
+    tranche_payload_changes=sum(x["sale_tranches_changed"] for x in pairs)
+    gates={"index_census_matches_phase67_125977":len(index_window)==EXPECTED_INDEX_ACCESSIONS,
+        "candidate_index_accessions_matches_phase67_21648":len(candidate_index_rows)==EXPECTED_CANDIDATE_ACCESSIONS,
+        "candidate_144a_accessions_matches_phase67_196":len(candidate_144a_index_rows)==EXPECTED_CANDIDATE_144A_ACCESSIONS,
+        "candidate_issuer_144a_xml_matches_phase67_196":child_candidate==EXPECTED_CANDIDATE_144A_ACCESSIONS,
+        "all_market_144a_child_census_nonempty":bool(children),
         "every_parsed_child_has_explicit_previous_accession":links==len(child_ok),
         "child_xml_fetch_rate_ge_99_5pct":bool(children) and len(child_ok)/len(children)>=.995,
         "child_xml_form_match_rate_ge_99_5pct":child_form_rate is not None and child_form_rate>=.995,
         "child_xml_pair_concordance_ge_99_5pct":child_pair_rate is not None and child_pair_rate>=.995,
         "parent_link_resolution_rate_ge_99_5pct":parent_link_rate is not None and parent_link_rate>=.995,
+        "parent_date_order_coverage_ge_99_5pct":bool(pairs) and date_order_known/len(pairs)>=.995,
         "parent_xml_form_match_rate_ge_99_5pct":parent_form_rate is None or parent_form_rate>=.995,
         "parent_xml_pair_concordance_ge_99_5pct":parent_pair_rate is None or parent_pair_rate>=.995,
         "no_parent_child_date_inversions":not any(x.get("parent_child_date_order_ok") is False for x in pairs),
         "no_duplicate_index_accessions":len(duplicates)==0,
         "historical_f80_identity_gate":False,"economic_test_authorized":False}
+    integrity_pass=all(v for k,v in gates.items() if k not in ("historical_f80_identity_gate","economic_test_authorized"))
     summary={"phase":401,"audit_date_utc":datetime.now(timezone.utc).isoformat(),
-        "source":"SEC master.idx + primary_doc.xml; exact Phase 67 candidate CIK snapshot; Phase 400 curated parent fallback only for known parent outside 14-quarter index.",
+        "source":"SEC master.idx + primary_doc.xml; all-market Form 144/A children in the Phase 67 date window; exact Phase 67 candidate CIK snapshot; Phase 400 curated parent fallback only when separately identified.",
         "candidate_manifest":{"artifact_id":manifest.get("source_artifact_id"),"artifact_sha256":manifest.get("source_artifact_sha256"),"candidate_ciks":len(candidates)},
-        "index_census":{"quarters":[{"quarter":q,**v} for q,v in quarter_counts.items()],"unique_accessions":len(index),
-            "expected_unique_accessions":EXPECTED_INDEX,"child_144a_accessions":len(children),"expected_child_144a_accessions":EXPECTED_CHILDREN,"duplicate_accession_rows":len(duplicates)},
+        "index_census":{"quarters":[{"quarter":q,**v} for q,v in quarter_counts.items()],
+            "full_quarter_unique_accessions":len(index),"phase67_window_unique_accessions":len(index_window),
+            "expected_phase67_window_unique_accessions":EXPECTED_INDEX_ACCESSIONS,
+            "candidate_index_accessions":len(candidate_index_rows),"expected_candidate_index_accessions":EXPECTED_CANDIDATE_ACCESSIONS,
+            "candidate_144a_accessions":len(candidate_144a_index_rows),"expected_candidate_144a_accessions":EXPECTED_CANDIDATE_144A_ACCESSIONS,
+            "all_market_144a_children":len(children),"duplicate_accession_rows":len(duplicates)},
         "child_xml":{"attempted":len(children),"parsed":len(child_ok),"errors":len(child_errors),"form_match_rate":child_form_rate,
             "pair_concordance_rate":child_pair_rate,"child_links_with_previous_accession":links,
-            "child_issuer_ciks_in_phase67_candidate_set":child_candidate,"child_issuer_ciks_outside_phase67_candidate_set":len(child_ok)-child_candidate,
+            "child_issuer_ciks_in_phase67_candidate_set":child_candidate,
+            "expected_candidate_issuer_144a_accessions":EXPECTED_CANDIDATE_144A_ACCESSIONS,
+            "child_issuer_ciks_outside_phase67_candidate_set":len(child_ok)-child_candidate,
             "unique_parent_accessions":len(parent_accs)},
         "parent_xml":{"parents_in_index":len(parent_rows),"parents_fetched_not_reused_from_child_cache":sum(x.get("ok") for x in parent_results.values()),
             "fetch_errors":len(parent_errors),"resolved_parent_links":len(pairs),"parent_link_resolution_rate":parent_link_rate,
+            "date_order_comparable_pairs":date_order_known,"date_order_coverage_rate":date_order_known/len(pairs) if pairs else None,
             "phase400_curated_parent_fallbacks":sum(x["curated_parent_fallback"] for x in pairs),
             "form_match_rate":parent_form_rate,"pair_concordance_rate":parent_pair_rate,"unresolved_links":len(unresolved)},
-        "identity_changes":{"issuer_cik_changes":sum(x["issuer_cik_changed"] for x in pairs),
-            "explicit_identity_correction_remarks":sum(x["remarks_explicit_identity_correction"] for x in pairs),
+        "identity_changes":{"issuer_cik_changes":issuer_cik_changes,
+            "issuer_cik_change_rate":issuer_cik_changes/len(pairs) if pairs else None,
+            "explicit_identity_correction_remarks":explicit_identity_changes,
+            "explicit_correction_rate_among_cik_changes":explicit_identity_changes/issuer_cik_changes if issuer_cik_changes else None,
             "issuer_name_changes":sum(x["issuer_name_changed"] for x in pairs),"filer_cik_changes":sum(x["filer_cik_changed"] for x in pairs),
-            "seller_name_changes":sum(x["seller_changed"] for x in pairs),"sale_tranche_payload_changes":sum(x["sale_tranches_changed"] for x in pairs),
+            "seller_name_changes":sum(x["seller_changed"] for x in pairs),"sale_tranche_payload_changes":tranche_payload_changes,
+            "sale_tranche_payload_change_rate":tranche_payload_changes/len(pairs) if pairs else None,
             "candidate_membership_transitions":dict(transitions)},
         "quality_gates":gates,
-        "data_integrity_gate":"PASS" if all(v for k,v in gates.items() if k not in ("historical_f80_identity_gate","economic_test_authorized")) else "FAIL_OR_INCOMPLETE",
+        "data_integrity_gate":"PASS_WITH_EXPLICIT_UNRESOLVED_LINKS" if integrity_pass and unresolved else ("PASS" if integrity_pass else "FAIL_OR_INCOMPLETE"),
         "decision":{"144a_is_version_update_not_new_sale":True,"corrected_identity_may_be_backdated":False,
             "noOfUnitsOutstanding_feature":"KILLED; raw version comparison only","forward_returns_used":False,
             "alpha_oos_bootstrap_loo_holdout_used":False,"f80_changed":False},
