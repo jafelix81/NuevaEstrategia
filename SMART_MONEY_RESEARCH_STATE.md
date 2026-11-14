@@ -1,5 +1,13 @@
 # Current Smart Money Research State — 2026-11-14
 
+## Phase 390 — FINRA security-master/public-source feasibility (2026-11-14)
+
+- FINRA T1's 209-week date-level publication clock and Phase 375 revision-stable panel are necessary but not sufficient for returns research: the weekly symbol field is not a permanent listing/security ID.
+- SEC's public ticker/CIK/exchange files are periodically updated EDGAR search associations, with no guarantee of accuracy/scope and no historical record-vintage clock.
+- Massive All Tickers is a newly ranked secondary effective-date cross-check (historical-date endpoint from 2003-09-10, active/inactive records), but Massive explicitly says the historical list is not a copy of the record as known then; old records can have later last_updated_utc, identifiers are incomplete/variable, and free-plan reference history is only two years. It fails strict record-known PIT.
+- Databento remains the best-documented two-clock candidate (ts_record / ts_effective, listing/security/issuer IDs); CRSP remains the preferred active/inactive return/delisting benchmark; Norgate remains a separate index-defined universe candidate. No vendor sample, contact, purchase or API-key use occurred.
+- Decision: no ticker-only FINRA joins and no historical FINRA return test until permanent/effective-dated identity, historical eligibility, inactive prices and terminal/delisting returns pass. See [Phase 390 report](research/PHASE390_FINRA_PUBLIC_SECURITY_MASTER_FEASIBILITY_2026-11-14.md).
+
 ## SEC source reconciliation — 2026-11-14
 
 - **SEC Form 4 candidate identity (draft branches / PRs #31–#35):** the six non-contiguous archive cohorts contain 413 screened candidate rows. The 2023Q1–2026Q3 subset reaches 263/301 rows (87.38%) and 152/173 issuer-date event units (87.86%) with an identity anchor strictly before the transaction. The 2006Q1/2012Q1 XBRL route resolves 0/112; the legacy-HTML bridge salvages only a small candidate-level subset (one usable same-row class/exchange anchor group, two rows). The 95% identity gate is not met. No insider event study is authorized; do not continue expanding the same legacy HTML parser as a universal security master. See [PR #34](https://github.com/jafelix81/NuevaEstrategia/pull/34) and [PR #35](https://github.com/jafelix81/NuevaEstrategia/pull/35); both remain draft and unmerged.
