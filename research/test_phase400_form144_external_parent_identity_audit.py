@@ -33,6 +33,11 @@ class Phase400Tests(unittest.TestCase):
         self.assertFalse(policy["corrected_issuer_identity_may_be_backdated"])
         self.assertEqual(policy["first_correct_issuer_identity_known_date"], "amendment filing date")
 
+    def test_all_phase67_parent_links_are_accounted_for(self):
+        self.assertEqual(self.result["phase67_total_parent_pairs_accounted_for"], 196)
+        self.assertEqual(self.result["phase67_total_issuer_cik_change_pairs"], 3)
+        self.assertAlmostEqual(self.result["phase67_issuer_cik_change_rate"], 3 / 196)
+
     def test_outstanding_field_remains_unusable_as_a_feature(self):
         self.assertEqual(self.result["no_of_units_outstanding_feature"], "KILLED; raw value retained only for version comparison")
         self.assertFalse(self.result["economic_test_authorized"])
