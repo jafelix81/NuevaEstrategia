@@ -61,7 +61,7 @@ jobs:
             workflow_dispatch) MODE=manual ;;
             *) echo "Unsupported event: $EVENT_NAME"; exit 1 ;;
           esac
-          python -u research/phase403_sec_form144_first_seen_capture.py --mode "$MODE" --run-id "$RUN_ID" --output phase403_output
+          python -u -m research.phase403_sec_form144_first_seen_capture --mode "$MODE" --run-id "$RUN_ID" --output phase403_output
       - name: Commit append-only first-seen ledger and poll state
         if: github.event_name == 'push' || github.event_name == 'schedule'
         run: |
