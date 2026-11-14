@@ -1,8 +1,21 @@
 # Phase 393 — FINRA Phase 20C Nasdaq ISO-date provider retest
 
-**Status:** implementation prepared; hosted provider result pending.  
+**Status:** hosted diagnostic completed; Nasdaq public quote endpoint rejected all seven missing symbols; no fallback admitted.  
 **Parent:** Phase 372/381; Phase 20C remains blocked at 328/329 valid price histories.  
 **Scope:** diagnose the prior Nasdaq endpoint failure only. No prices are persisted; no fallback, returns or alpha test is authorized.
+
+## 0. Hosted outcome — 2026-11-14 07:52 UTC
+
+Hosted run [43573077044](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43573077044) completed successfully. Job 132381464531 passed compilation, all 6 unit tests, provider diagnostics, research-only controls and artifact upload. Artifact [14105217368](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43573077044/artifacts/14105217368), SHA-256 `407e9b5b42567e317d27139a5a95c4d0766d0dab978481d7020907325858d712`.
+
+**Observed results:**
+- Three Nasdaq-listed equity controls (AAPL, MSFT, NVDA) each returned 2,499 rows, 2016-11-14 through 2026-10-23. Yahoo query1 returned 2,514 rows from 2016-10-24 through 2026-10-23. Nasdaq therefore omitted the first 15 requested sessions in this fixed window; it does not fully satisfy the Phase 20C control window.
+- On the 2,499 common dates, daily-return concordance was very high: AAPL correlation 0.99999935, MSFT 0.999999998, NVDA 0.999999953. Median absolute return differences were below 0.000004%. These are diagnostics only; price-adjustment and corporate-action semantics are not independently certified.
+- All seven unresolved symbols (AVB, EA, EQR, LPRO, ROKU, WBD, WBS) returned HTTP 200 but Nasdaq application code `rCode=400`, message `Symbol not exists.`, zero rows and no dates. This is an endpoint symbol-resolution failure, not proof that the securities lack historical prices.
+- SPY also returned `Symbol not exists` because the script sent `assetclass=stocks`; SPY is an ETF. Its result is an invalid asset-class control and was not retested as `assetclass=etf`. The script's strict four-control flag therefore remains false. The three equity controls do establish that ISO dates and the parser work for those Nasdaq-listed names.
+- No target symbol reached 220 rows. No prices were persisted; no forward returns, alpha, fallback, holdout or production changes occurred.
+
+**Disposition:** close this public `api.nasdaq.com/api/quote/{symbol}/historical` route as a Phase 20C fallback candidate. Do not repeat the same request or infer coverage from HTTP 200. The ISO-date correction fixed the prior request-format defect for supported controls, but it did not resolve the seven missing names. Phase 20C remains blocked at its existing 328/329 price-history gate.
 
 ## 1. Why retest
 
