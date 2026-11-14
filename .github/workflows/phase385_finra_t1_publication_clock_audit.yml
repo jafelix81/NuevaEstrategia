@@ -33,6 +33,7 @@ jobs:
         run: |
           python -m py_compile research/phase371_finra_t1_ats_monthly_coverage_audit.py research/phase385_finra_t1_publication_clock_audit.py research/test_phase385_finra_t1_publication_clock_audit.py
           python -m unittest -v research.test_phase385_finra_t1_publication_clock_audit
+      # The API query uses the proven partition keys; ATS_W_SMBL is selected after full T1 pagination.
       - name: Retrieve 209 weekly publication dates and derive conservative session clock
         run: python -u -m research.phase385_finra_t1_publication_clock_audit --output phase385_finra_t1_publication_clock_audit
       - name: Enforce date-level and research-only controls
