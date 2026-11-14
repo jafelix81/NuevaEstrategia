@@ -5,6 +5,8 @@ on:
     branches: [phase385-finra-t1-publication-clock-census]
     paths:
       - ".github/workflows/phase385_finra_t1_publication_clock_audit.yml"
+      - "research/phase385_finra_t1_publication_clock_audit.py"
+      - "research/test_phase385_finra_t1_publication_clock_audit.py"
   workflow_dispatch:
 
 permissions:
