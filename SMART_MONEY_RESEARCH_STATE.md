@@ -1,5 +1,14 @@
 # Current Smart Money Research State — 2026-11-14
 
+## Phase 395 — CFTC semiweekly transition readiness and atomic-batch guard (2026-11-14)
+
+- Official CFTC press release 9316-26 (2026-10-27) announces a move to twice-weekly COT publication by year-end: Monday positions on Wednesday and Wednesday positions on Friday, both at 3:30 p.m. ET. The current official release schedule still lists the weekly calendar; its next release is Monday 2026-11-16 at 3:30 p.m. ET for positions as of 2026-11-10. The specific TFF Futures Only Socrata dataset gpe5-46if has not yet demonstrated the transition; verify actual report dates prospectively. Sources: https://www.cftc.gov/PressRoom/PressReleases/9316-26 and https://www.cftc.gov/MarketReports/CommitmentsofTraders/ReleaseSchedule/index.htm.
+- Phase 384 weekday polling at 22:15 UTC is after the 3:30 p.m. ET release in both standard and daylight time and can observe either future release day. The first-seen timestamp remains the actual pipeline observation, not an inferred publication time.
+- Found and fixed an atomic-batch edge case: if one scheduled API response contains multiple previously unseen report dates for the same contract, all share one first-seen timestamp and must not be treated as sequential observations. The newest new report per contract is the only research_observation_eligible row; older same-batch rows are retained as same_batch_catchup and ineligible. Revisions/late arrivals remain ineligible; contracts are handled independently; hashes still advance append-only.
+- Added three offline regression tests and a dedicated no-network Phase 395 workflow. Raw-only Phase 388 event payload policy is preserved.
+- Phase 387 remains a frozen weekly preregistration. No weekly/semiweekly stitching, count reinterpretation, threshold/horizon/sample-size changes or semiweekly model is authorized. Any semiweekly study requires confirmed TFF cadence and a separate preregistration with economic-time windows and overlap-aware inference.
+- No live capture, return/alpha/OOS/bootstrap/LOO/holdout test, vendor contact, purchase or production change. F80 remains frozen. See research/PHASE395_CFTC_SEMIWEEKLY_TRANSITION_READINESS_2026-11-14.md.
+
 ## Phase 394 — Nasdaq Data Link Equities 360 / Bars price feasibility (2026-11-14)
 
 - Official Nasdaq Data Link documentation describes Equities 360 as a Premium/custom API with 16,000+ U.S. companies across Nasdaq, NYSE, NYSE American and regional listings, including pricing, reference data and corporate actions. Its product page shows overall history from January 1998; the price-specific Bars/Charting family is separately described as historical since 2008. Do not conflate the overall product history with the Bars start.

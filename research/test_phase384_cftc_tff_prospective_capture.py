@@ -1,7 +1,7 @@
 import unittest,statistics
 from datetime import date,timedelta
 from decimal import Decimal
-from phase384_cftc_tff_prospective_capture import CATEGORIES,classify,features,digest,check_oi,num,canonical,build_event_record
+from phase384_cftc_tff_prospective_capture import CATEGORIES,classify,classify_batch,features,digest,check_oi,num,canonical,build_event_record,key
 
 def make_row(d,lev,am=0,dealer=None,oi=1000):
  r={"report_date_as_yyyy_mm_dd":d.isoformat()+"T00:00:00.000","cftc_contract_market_code":"13874A",
@@ -66,4 +66,26 @@ class Tests(unittest.TestCase):
   self.assertFalse(f[-1]["weekly_feature_gate"])
   self.assertIsNone(f[-1]["leveraged_money_net_oi_4w_change"])
   self.assertIsNone(f[-1]["leveraged_money_net_oi_z52"])
+
+ def test_atomic_batch_only_latest_new_report_per_contract_is_eligible(self):
+  rows=[make_row(date(2026,1,13),100),make_row(date(2026,1,15),120)]
+  latest={"13874A":"2026-01-06"}
+  decisions=classify_batch(rows,{},latest)
+  self.assertEqual(decisions[key(rows[0])],("same_batch_catchup",False))
+  self.assertEqual(decisions[key(rows[1])],("new_report",True))
+  self.assertEqual(decisions,classify_batch(list(reversed(rows)),{},latest))
+ def test_atomic_batch_keeps_contracts_independent(self):
+  a=make_row(date(2026,1,13),100)
+  b=make_row(date(2026,1,13),120); b["cftc_contract_market_code"]="209742"
+  decisions=classify_batch([a,b],{},{"13874A":"2026-01-06","209742":"2026-01-06"})
+  self.assertEqual(decisions[key(a)],("new_report",True))
+  self.assertEqual(decisions[key(b)],("new_report",True))
+ def test_atomic_batch_revisions_and_older_late_arrivals_stay_ineligible(self):
+  prior=make_row(date(2026,1,6),100)
+  revised=dict(prior); revised["lev_money_positions_long"]=str(int(revised["lev_money_positions_long"])+1)
+  late=make_row(date(2025,12,30),80)
+  decisions=classify_batch([revised,late],{key(prior):digest(prior)},{"13874A":"2026-01-06"})
+  self.assertEqual(decisions[key(revised)],("revision",False))
+  self.assertEqual(decisions[key(late)],("late_arrival",False))
+
 if __name__=="__main__": unittest.main()
