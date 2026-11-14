@@ -415,6 +415,8 @@ def audit(manifest_path, output_dir):
         )
         parent_doc = fetch_xml(parent_acc, parent_row, pair.get("parent_xml_url"), parent_seed)
 
+        child_parsed = child_doc.get("parsed", {}) if child_doc.get("ok") else {}
+        parent_parsed = parent_doc.get("parsed", {}) if parent_doc.get("ok") else {}
         child_detail = fetch_filing_detail(child_acc, child_doc if child_doc.get("ok") else {"path_cik": (child_row or {}).get("archive_path_cik")}, child_row) if child_doc.get("ok") or child_row else {}
         parent_detail = fetch_filing_detail(parent_acc, parent_doc if parent_doc.get("ok") else {"path_cik": (parent_row or {}).get("archive_path_cik")}, parent_row) if parent_doc.get("ok") or parent_row else {}
         child_meta = {}
@@ -435,6 +437,8 @@ def audit(manifest_path, output_dir):
                 [(parent_row or {}).get("archive_path_cik")],
                 [child_parsed.get("issuer_cik") if child_doc.get("ok") else None],
                 [child_parsed.get("filer_cik") if child_doc.get("ok") else None],
+                [parent_parsed.get("issuer_cik") if parent_doc.get("ok") else None],
+                [parent_parsed.get("filer_cik") if parent_doc.get("ok") else None],
                 [parent_acc[:10]],
             ))
             if parent_meta.get("found"):
