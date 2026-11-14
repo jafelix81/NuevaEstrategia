@@ -6,6 +6,7 @@ from research.phase402_form144_parent_acceptance_and_unresolved_link_audit impor
     PHASE401_RUN_ID,
     accepted_utc,
     build_pairs,
+    extract_edgar_xml_blocks,
     norm_acc,
     parse_acceptance_html,
     parse_acceptance_submission,
@@ -31,6 +32,12 @@ class Phase402Tests(unittest.TestCase):
 
     def test_archive_path_cik_is_extracted(self):
         self.assertEqual(path_cik_from_url("https://www.sec.gov/Archives/edgar/data/1603923/000195917325007544/primary_doc.xml"), "0001603923")
+
+    def test_extract_xml_block_from_complete_submission_text(self):
+        raw = b"<SEC-HEADER>header</SEC-HEADER>\n<XML><edgarSubmission><headerData/></edgarSubmission></XML>"
+        blocks = extract_edgar_xml_blocks(raw)
+        self.assertEqual(len(blocks), 1)
+        self.assertIn(b"edgarSubmission", blocks[0])
 
     def test_accession_is_normalized(self):
         self.assertEqual(norm_acc("000195917325007544"), "0001959173-25-007544")
