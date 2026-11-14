@@ -179,5 +179,70 @@ class Phase403Tests(unittest.TestCase):
         self.assertTrue(row["first_seen_is_upper_bound_not_exact_receipt"])
 
 
+
+    def test_cross_feed_provenance_and_observation_ledger_preserve_overlap(self):
+        snapshots = {
+            "144": {
+                "url": "https://example.test/144",
+                "raw_sha256": "hash144",
+                "received_at_utc": "2026-11-14T21:17:01Z",
+                "entries": [{
+                    "accession": "0000123456-26-000001",
+                    "form": "144/A",
+                    "feed_updated_raw": "2026-11-14T16:00:00-05:00",
+                    "feed_updated_utc": "2026-11-14T21:00:00Z",
+                    "feed_link": "https://www.sec.gov/Archives/edgar/data/1/x",
+                    "feed_path_cik": "0000000001",
+                }],
+            },
+            "144A": {
+                "url": "https://example.test/144A",
+                "raw_sha256": "hash144a",
+                "received_at_utc": "2026-11-14T21:17:03Z",
+                "entries": [{
+                    "accession": "0000123456-26-000001",
+                    "form": "144/A",
+                    "feed_updated_raw": "2026-11-14T16:00:00-05:00",
+                    "feed_updated_utc": "2026-11-14T21:00:00Z",
+                    "feed_link": "https://www.sec.gov/Archives/edgar/data/1/x",
+                    "feed_path_cik": "0000000001",
+                }],
+            },
+        }
+        self.assertEqual(
+            p403.feed_names_by_accession(snapshots)["0000123456-26-000001"],
+            ["144", "144A"],
+        )
+        rows = p403.build_feed_observation_rows(snapshots, "run-404")
+        self.assertEqual(len(rows), 2)
+        self.assertEqual({row["feed_name"] for row in rows}, {"144", "144A"})
+
+    def test_feed_observation_append_is_idempotent_per_run_feed_accession(self):
+        snapshots = {
+            "144": {
+                "url": "https://example.test/144",
+                "raw_sha256": "hash144",
+                "received_at_utc": "2026-11-14T21:17:01Z",
+                "entries": [{
+                    "accession": "0000123456-26-000001",
+                    "form": "144",
+                    "feed_updated_raw": "2026-11-14T16:00:00-05:00",
+                    "feed_updated_utc": "2026-11-14T21:00:00Z",
+                    "feed_link": "https://www.sec.gov/Archives/edgar/data/1/x",
+                    "feed_path_cik": "0000000001",
+                }],
+            },
+        }
+        rows = p403.build_feed_observation_rows(snapshots, "run-404")
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "feed_observations.csv"
+            self.assertEqual(p403.append_feed_observations(path, rows), 1)
+            self.assertEqual(p403.append_feed_observations(path, rows), 0)
+            import csv
+            with path.open("r", encoding="utf-8") as handle:
+                stored = list(csv.DictReader(handle))
+            self.assertEqual(len(stored), 1)
+            self.assertEqual(stored[0]["feed_name"], "144")
+
 if __name__ == "__main__":
     unittest.main()
