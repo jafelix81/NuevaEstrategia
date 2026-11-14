@@ -1,5 +1,15 @@
 # Current Smart Money Research State — 2026-11-14
 
+## Phase 391 — ThetaData / OPRA options PIT feasibility (2026-11-14)
+
+- Official ThetaData v3 subscriptions now document options tick history from 2012-06-01 at Pro (2016-01-01 Standard), OPRA trade_quote, quote, OI, IV and trade Greeks. trade_quote can pair each OPRA trade with a quote timestamp strictly earlier than the trade via exclusive=true; requests are bounded to one month and require an expiration. This is a strong independent raw-OPRA reconstruction candidate, but no sample, F80 coverage, inactive/delisted coverage, contract-adjustment, correction-vintage or first-receipt audit has been run.
+- ThetaData OI is normally reported around 06:30 ET and represents the previous trading day's close. Its generated EOD report is created at 17:15 ET; created is a generation timestamp, not a first-receipt ledger. No historical file may be treated as strict PIT without verified first receipt/correction vintages.
+- Retail Pro is listed at $160/month for individual personal use only; commercial use is separate. No account, key, trial, contact or purchase occurred.
+- OptionMetrics IvyDB Signed Volume's current official page confirms buyer-/seller-initiated daily volume, 5m/30m snapshots and EOD, with advertised history for every option since 2016. It remains the primary conditional signed-flow candidate, but the exact relationship to the repository's four-table TradeFlow schema must be verified; 2016 backfill is not proof of contemporaneous availability.
+- Cboe Open-Close covers BZX/C1/C2/EDGX, not all OPRA; it provides capacity × buy/sell × open/close and has venue/date-specific OI and volume convention breaks. Keep it complementary, not a substitute for consolidated raw flow. Databento OPRA remains a shorter-history independent timestamp/coverage check from 2023.
+- Decision: no options source is PIT-, universe- or alpha-admitted. See [Phase 391 report](research/PHASE391_THETADATA_OPRA_OPTIONS_PIT_FEASIBILITY_2026-11-14.md). No forward-return test, OOS, bootstrap, LOO or holdout use. F80 remains frozen.
+
+
 ## Phase 390 — FINRA security-master/public-source feasibility (2026-11-14)
 
 - FINRA T1's 209-week date-level publication clock and Phase 375 revision-stable panel are necessary but not sufficient for returns research: the weekly symbol field is not a permanent listing/security ID.
