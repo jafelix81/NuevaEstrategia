@@ -1,7 +1,7 @@
 # Phase 403 — Prospective SEC Form 144 / 144-A first-seen capture
 
 **Date:** 2026-11-14 UTC  
-**Status:** first live bootstrap completed successfully; append-only capture and acceptance-time enrichment are active on the research branch. No return tests or signals.
+**Status:** PR #80 merged to main at 2026-11-14 20:50:18Z (merge commit e9e5628e8b3c88da4cf22a9cbdb51da19fa63f9a). Hourly append-only capture is active on main. The initial bootstrap and acceptance reconciliation are complete; the first scheduled prospective interval begins with the next successful hourly poll. No return tests or signals.
 
 ## Purpose
 
