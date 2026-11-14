@@ -1,5 +1,14 @@
 # Current Smart Money Research State — 2026-11-14
 
+## Phase 394 — Nasdaq Data Link Equities 360 / Bars price feasibility (2026-11-14)
+
+- Official Nasdaq Data Link documentation describes Equities 360 as a Premium/custom API with 16,000+ U.S. companies across Nasdaq, NYSE, NYSE American and regional listings, including pricing, reference data and corporate actions. Its product page shows overall history from January 1998; the price-specific Bars/Charting family is separately described as historical since 2008. Do not conflate the overall product history with the Bars start.
+- This is a stronger conditional price-history candidate than the public Nasdaq quote endpoint closed in Phase 393, but no authenticated sample, account, trial, key, price quote or vendor contact has been used.
+- Unknown/failing gates: explicit inactive/delisted coverage, effective-dated security identity, record-known/first-delivery and correction vintages, exact seven-symbol coverage, field-level corporate-action adjustment policy, business-use rights and price.
+- Decision: documentation-only candidate; no Phase 20C fallback admitted. If a lawful sample becomes available, first audit the seven missing names plus positive and inactive/delisted controls. Keep the 335-name universe/window unchanged; no ticker deletion, imputation or provider splicing.
+- Official sources: [Equities 360](https://data.nasdaq.com/databases/E360), [Nasdaq Data Link Bars overview](https://www.nasdaq.com/es-es/products/data/data-link/api), [Nasdaq Basic context](https://www.nasdaq.com/products/data/equities/nasdaq-basic). Nasdaq Basic is not the same historical product.
+- No prices, forward returns, alpha/OOS/bootstrap/LOO or holdout tests. F80 and production unchanged.
+
 ## Phase 393 — FINRA Phase 20C Nasdaq public endpoint retest (2026-11-14)
 
 - Hosted run [43573077044](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43573077044) passed all 6 unit tests and research-only controls; artifact [14105217368](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43573077044/artifacts/14105217368), SHA-256 `407e9b5b42567e317d27139a5a95c4d0766d0dab978481d7020907325858d712`.
