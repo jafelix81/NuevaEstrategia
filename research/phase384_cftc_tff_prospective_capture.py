@@ -157,6 +157,27 @@ def classify(mode,old_hash,new_hash,report_date,latest_date):
  if old_hash!=new_hash: return ("revision",False)
  return None
 
+def classify_batch(rows,old_hashes,latest_report_date_by_code):
+ """Treat one API snapshot as atomic; only the newest new report per contract is eligible."""
+ newest_new={}
+ for r in rows:
+  k=key(r); code=r["cftc_contract_market_code"]
+  rd=day(r["report_date_as_yyyy_mm_dd"]).isoformat()
+  if old_hashes.get(k) is None and rd>latest_report_date_by_code.get(code,"0001-01-01"):
+   if rd>newest_new.get(code,"0001-01-01"): newest_new[code]=rd
+ decisions={}
+ for r in rows:
+  k=key(r); code=r["cftc_contract_market_code"]
+  rd=day(r["report_date_as_yyyy_mm_dd"]).isoformat()
+  old_hash=old_hashes.get(k); new_hash=digest(r)
+  if old_hash is None and code in newest_new and rd>latest_report_date_by_code.get(code,"0001-01-01"):
+   if rd==newest_new[code]: decision=("new_report",True)
+   else: decision=("same_batch_catchup",False)
+  else:
+   decision=classify("schedule",old_hash,new_hash,rd,latest_report_date_by_code.get(code))
+  if decision is not None: decisions[k]=decision
+ return decisions
+
 def build_event_record(row,event_type,first_seen_utc,research_observation_eligible,
                        previous_row_sha256,current_row_sha256):
  """Persist raw source fields only; downstream features must use prospective events only."""
@@ -174,6 +195,7 @@ def build_event_record(row,event_type,first_seen_utc,research_observation_eligib
   "source_row":canonical(row),
   "historical_backfill_derived_features_included":False,
   "feature_engineering_policy":"RECOMPUTE_FROM_PROSPECTIVE_FIRST_SEEN_EVENTS_ONLY",
+  "capture_batch_policy":"ONE_ELIGIBLE_LATEST_REPORT_PER_CONTRACT_PER_CAPTURE",
  }
 def make_state(rows,mode,stamp,meta_updated):
  hashes={key(r):digest(r) for r in rows}; latest={}
@@ -214,9 +236,10 @@ def run(mode,outdir,run_id):
   if state is None: raise RuntimeError("baseline missing; scheduled capture cannot initialize silently")
   old=state.get("row_hashes",{}); latest=state.get("latest_report_date_by_code",{})
   events=[]; new_hashes=dict(old); new_latest=dict(latest)
+  batch_decisions=classify_batch(rows,old,latest)
   for r in rows:
    k=key(r); code=r["cftc_contract_market_code"]; rd=day(r["report_date_as_yyyy_mm_dd"]).isoformat(); h=digest(r)
-   c=classify("schedule",old.get(k),h,rd,latest.get(code))
+   c=batch_decisions.get(k)
    if c is None: continue
    kind,eligible=c
    events.append(build_event_record(
@@ -226,12 +249,13 @@ def run(mode,outdir,run_id):
    if rd>new_latest.get(code,"0001-01-01"): new_latest[code]=rd
   if events:
    safe=stamp.replace(":","").replace("-","")
-   write_json(DATA_DIR/"events"/f"{safe}_run{run_id}.json",{"schema_version":1,"capture_mode":"scheduled","observed_at_utc":stamp,"dataset_id":DATASET,"events":events})
+   write_json(DATA_DIR/"events"/f"{safe}_run{run_id}.json",{"schema_version":1,"capture_mode":"scheduled","capture_run_id":str(run_id),"capture_batch_policy":"ONE_ELIGIBLE_LATEST_REPORT_PER_CONTRACT_PER_CAPTURE","observed_at_utc":stamp,"dataset_id":DATASET,"events":events})
    state["row_hashes"]=new_hashes; state["latest_report_date_by_code"]=new_latest
    state["last_capture_utc"]=stamp; state["last_capture_mode"]="scheduled"; state["metadata_rows_updated"]=meta
    write_json(STATE_PATH,state); summary["state_write"]=True; summary["events_written"]=len(events)
    summary["eligible_new_reports"]=sum(1 for e in events if e["event_type"]=="new_report" and e["research_observation_eligible"])
-   summary["revisions_or_late_arrivals"]=sum(1 for e in events if e["event_type"]!="new_report")
+   summary["same_batch_catchup_events"]=sum(1 for e in events if e["event_type"]=="same_batch_catchup")
+   summary["revisions_or_late_arrivals"]=sum(1 for e in events if e["event_type"] in ("revision","late_arrival"))
    summary["disposition"]="APPEND_ONLY_PROSPECTIVE_EVENTS_RECORDED"
   else: summary["disposition"]="NO_NEW_REPORTS_OR_REVISIONS_NO_STATE_CHANGE"
  write_json(outdir/"summary.json",summary)
