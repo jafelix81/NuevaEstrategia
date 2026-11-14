@@ -18,7 +18,7 @@ _sec_lock=threading.Lock()
 
 def norm_cik(value):
     if value in (None,""): return None
-    digits=re.sub(r"\\D","",str(value))
+    digits=re.sub(r"\D","",str(value))
     return digits.zfill(10) if digits else None
 
 def normalize_form(value):
@@ -40,7 +40,7 @@ def fetch_bytes(url,sec=True,timeout=60,retries=6):
         try:
             with urlopen(request,timeout=timeout) as response:
                 raw=response.read()
-                if response.headers.get("Content-Encoding","").lower()=="gzip" or raw[:2]==b"\\x1f\\x8b":
+                if response.headers.get("Content-Encoding","").lower()=="gzip" or raw[:2]==b"\x1f\x8b":
                     raw=gzip.decompress(raw)
                 return raw
         except HTTPError as error:
@@ -57,7 +57,7 @@ def fetch_bytes(url,sec=True,timeout=60,retries=6):
 
 def parse_master_index(raw):
     if isinstance(raw,bytes): raw=raw.decode("latin-1","replace")
-    lines=raw.lstrip("\\ufeff").splitlines()
+    lines=raw.lstrip("\ufeff").splitlines()
     header=None
     for i,line in enumerate(lines):
         if line.strip().lower().startswith("cik|company name|form type|date filed|filename"):
@@ -71,10 +71,10 @@ def parse_master_index(raw):
         master_cik,company,raw_form,filed,filename=[x.strip() for x in parts]
         form=normalize_form(raw_form)
         if form not in ("144","144/A"): continue
-        m=re.search(r"(\\d{10}-\\d{2}-\\d{6})\\.txt$",filename,re.I)
+        m=re.search(r"(\d{10}-\d{2}-\d{6})\.txt$",filename,re.I)
         if not m: continue
         acc=m.group(1)
-        path_match=re.search(r"/data/(\\d+)/",filename,re.I)
+        path_match=re.search(r"/data/(\d+)/",filename,re.I)
         item=grouped.setdefault(acc,{"accession":acc,"entities":{},"paths":set(),"forms":set(),"dates":set()})
         item["entities"][norm_cik(master_cik)]=company
         if path_match: item["paths"].add(norm_cik(path_match.group(1)))
