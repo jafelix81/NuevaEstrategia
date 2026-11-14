@@ -1,6 +1,6 @@
 # Phase 385 — FINRA T1 ATS publication-clock census
 
-**Status:** implementation prepared; hosted 209-week date-level audit pending.  
+**Status:** hosted date-level publication-clock audit passed on 209/209 T1 weeks; exact intraday first receipt and security-master/universe gates remain unpassed. Historical return testing is not authorized.  
 **Parent:** Phase 375 completed the exhaustive 209-week T1 ATS retrieval, aggregate-to-firm bridge and revision-stability audit.
 
 ## Objective
@@ -72,3 +72,22 @@ Run [43536201647](https://github.com/jafelix81/NuevaEstrategia/actions/runs/4353
 The second correction now counts observed summary-type labels (including a missing-label bucket), validates the week key on every returned row, ignores non-target summary grains, and calculates the publication clock only from `ATS_W_SMBL`. If the target grain is absent, the failure message reports only aggregate summary-type counts, not symbols or raw records. The full T1 pagination count remains reconciled separately from the target aggregate-row count.
 
 This remains a retrieval/diagnostic correction only. No publication-clock conclusion or return test is claimed until the 209-week census completes.
+
+
+## Final hosted result — 2026-11-14
+
+Run [43536354917](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43536354917) completed successfully. The anonymized date-only artifact is [14096455337](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43536354917/artifacts/14096455337), SHA-256 `8c5b1f15cca3bc90093afd2a81ba154d793bac22f718fa1f3b3f1b7d3084fcac`.
+
+- 209/209 weekly T1 partitions completed; 1,045 unique partition metadata pairs.
+- 10,917,933 full T1 records were paginated across 2,292 pages; 438,822 rows were `ATS_W_SMBL` target-grain aggregates.
+- 209/209 partitions had exactly one valid `initialPublishedDate`; all 209 matched the documented 21/22-day holiday-adjusted publication calendar.
+- 186 partitions had a 21-calendar-day lag and 23 had a 22-day lag due to NYSE holidays.
+- Every date mapped to the first NYSE regular session strictly after publication. No same-day close/open or intraday timestamp was assumed.
+- FINRA metadata remained stable; no retrieval errors occurred.
+- Of the target-grain aggregate rows, 432,828 had `lastUpdateDate == initialPublishedDate` and 5,994 had a later update. These row-grain counts are distinct from Phase 375's symbol-week quarantine totals.
+
+The conservative daily availability rule is therefore validated at date level. It is not an exact first-receipt ledger. The artifact explicitly leaves `intraday_first_receipt_certified=false`, `effective_dated_security_master_gate_passed=false`, and `historical_return_test_authorized=false`.
+
+A second push-triggered run [43536490386](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43536490386) remains in progress. Its two commits after the successful run changed only the workflow and report, not the retrieval script or tests. No additional run was started.
+
+**Disposition:** Phase 385 date-level clock PASS only. No returns, alpha, OOS, bootstrap, LOO or holdout test; no F80 or production changes. The next gate is effective-dated security identity and historical universe coverage.
