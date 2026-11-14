@@ -15,6 +15,7 @@ on:
   workflow_dispatch:
   schedule:
     # Hourly polling; Phase 403 observed a 50-entry response despite requesting 100.
+    # Acceptance timestamps are enriched from filing-detail pages, not inferred from feed updated.
     - cron: "17 * * * *"
 
 permissions:
