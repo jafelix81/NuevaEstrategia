@@ -14,6 +14,7 @@ on:
       - "research/PHASE401_FORM144_CANDIDATE_CIK_MANIFEST_2026-11-14.json"
   workflow_dispatch:
   schedule:
+    # Hourly polling; Phase 403 observed a 50-entry response despite requesting 100.
     - cron: "17 * * * *"
 
 permissions:
