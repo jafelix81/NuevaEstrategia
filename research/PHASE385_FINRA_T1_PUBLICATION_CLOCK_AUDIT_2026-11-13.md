@@ -48,3 +48,18 @@ No forward returns, alpha, chronological OOS, bootstrap, LOO or holdout test. No
 
 - Phase 375 completed in run 43493465495: 209/209 partitions, 10,917,933 rows, 2,292 pages; 98.633996% revision-stable symbol-week coverage and 96.943175% stable share-volume coverage. Phase 375 disposition: exhaustive retrieval/bridge/revision-stability PASS; strict PIT not yet established.
 - Phase 385 will be run once from the dedicated branch. No duplicate workflow will be launched while it is active.
+
+
+## First hosted attempt — systemic query failure and correction
+
+Run [43524460681](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43524460681) passed compilation and all eight offline tests, but failed during the first data-retrieval step. The run completed **0/209** partitions and retained no publication-date observations. Its initial error collector recorded only the exception class (`RuntimeError`), so the precise HTTP response was not preserved; the failure must not be represented as a FINRA data-availability result.
+
+Code review found that this phase added `summaryTypeCode` as a third API compare filter, whereas the proven Phase 371/375 retrieval filters on the dataset's partition keys (`historicalWeek` and `tierIdentifier`) and filters summary types after retrieval. The added filter was not necessary and was not independently validated. Phase 385 is corrected to use the proven partition-key query, paginate the complete T1 response, validate all known T1 summary types, and collect dates only from `ATS_W_SMBL` rows.
+
+The correction also:
+- distinguishes the number of target aggregate rows from the full paginated T1 response count;
+- adds a regression test for mixed summary-type pagination;
+- records a sanitized HTTP status/error detail without response bodies or credentials;
+- stops after a first-partition preflight failure instead of repeating a systemic failure across all 209 weeks.
+
+The corrected workflow is configured to run on changes to its script and tests as well as the workflow file. No second run is launched until this corrected commit triggers. No publication-clock conclusion, return test or alpha result is claimed from the failed attempt.
