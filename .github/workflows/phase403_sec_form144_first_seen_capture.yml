@@ -1,0 +1,85 @@
+name: Phase 403 - SEC Form 144 prospective first-seen capture
+
+on:
+  push:
+    branches: [phase403-sec-form144-prospective-first-seen-capture]
+    paths:
+      - ".github/workflows/phase403_sec_form144_first_seen_capture.yml"
+  pull_request:
+    paths:
+      - ".github/workflows/phase403_sec_form144_first_seen_capture.yml"
+      - "research/phase403_sec_form144_first_seen_capture.py"
+      - "research/test_phase403_sec_form144_first_seen_capture.py"
+      - "research/PHASE403_SEC_FORM144_PROSPECTIVE_FIRST_SEEN_CAPTURE_2026-11-14.md"
+      - "research/PHASE401_FORM144_CANDIDATE_CIK_MANIFEST_2026-11-14.json"
+  workflow_dispatch:
+  schedule:
+    # Hourly polling; Phase 403 observed a 50-entry response despite requesting 100.
+    - cron: "17 * * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sec-form144-prospective-first-seen
+  cancel-in-progress: false
+
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile and run offline regressions
+        run: |
+          python -m py_compile research/phase401_form144a_full_parent_identity_census.py research/phase403_sec_form144_first_seen_capture.py
+          python -m unittest -v research.test_phase403_sec_form144_first_seen_capture
+
+  live-capture:
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    needs: offline-regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile capture client
+        run: python -m py_compile research/phase403_sec_form144_first_seen_capture.py
+      - name: Run SEC Latest Filings capture
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          case "$EVENT_NAME" in
+            push) MODE=bootstrap ;;
+            schedule) MODE=schedule ;;
+            workflow_dispatch) MODE=manual ;;
+            *) echo "Unsupported event: $EVENT_NAME"; exit 1 ;;
+          esac
+          python -u -m research.phase403_sec_form144_first_seen_capture --mode "$MODE" --run-id "$RUN_ID" --output phase403_output
+      - name: Commit append-only first-seen ledger and poll state
+        if: github.event_name == 'push' || github.event_name == 'schedule'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add research/data/sec_form144_first_seen
+          if ! git diff --cached --quiet; then
+            git commit -m "[skip ci] SEC Form 144 first-seen capture ${GITHUB_RUN_ID}"
+            git push
+          else
+            echo "No persistent first-seen changes."
+          fi
+      - name: Upload poll audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase403-sec-form144-first-seen
+          path: phase403_output/
+          retention-days: 90
+          if-no-files-found: warn
