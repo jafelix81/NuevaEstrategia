@@ -1,5 +1,15 @@
 # Current Smart Money Research State — 2026-11-14
 
+## SEC source reconciliation — 2026-11-14
+
+- **SEC Form 4 candidate identity (draft branches / PRs #31–#35):** the six non-contiguous archive cohorts contain 413 screened candidate rows. The 2023Q1–2026Q3 subset reaches 263/301 rows (87.38%) and 152/173 issuer-date event units (87.86%) with an identity anchor strictly before the transaction. The 2006Q1/2012Q1 XBRL route resolves 0/112; the legacy-HTML bridge salvages only a small candidate-level subset (one usable same-row class/exchange anchor group, two rows). The 95% identity gate is not met. No insider event study is authorized; do not continue expanding the same legacy HTML parser as a universal security master. See [PR #34](https://github.com/jafelix81/NuevaEstrategia/pull/34) and [PR #35](https://github.com/jafelix81/NuevaEstrategia/pull/35); both remain draft and unmerged.
+- **SEC Schedule 13D/G identity/lineage (draft PR #36):** Phase 347's 200-filing structured sample has 197/200 valid nonzero CUSIP rows, 179 unique checksum-valid nonzero CUSIPs and no cross-subject collision in this purposive sample; four subject CIKs have multiple CUSIPs, so issuer-to-single-security collapse is prohibited. Phase 348 validated 2/2 explicit legacy-HTML parent references. Phase 349 produced 44 unique explicit parent targets (25 13D / 19 13G; 41 subject CIKs; 43 valid nonzero child CUSIPs; one zero sentinel quarantined). These are identity/lineage feasibility results, not alpha.
+- **Human dependency — SEC parent retrieval:** Phase 350 [PR #37](https://github.com/jafelix81/NuevaEstrategia/pull/37) passed 10 offline tests but its first SEC Archives request returned HTTP 403; 0/44 parent documents were retrieved. The next retrieval requires a repository Actions secret named `SEC_USER_AGENT` containing a project identifier and monitored contact email. Do not put the email in source control or chat. Until the secret is configured, Phase 350/351 cannot verify parent CUSIP continuity and reporting-person overlap. PR #36 and PR #37 remain draft and unmerged; no historical security master or event study is admitted.
+- **N-PORT / 13F disposition:** Phase 386's documentation-only [PR #62](https://github.com/jafelix81/NuevaEstrategia/pull/62) was merged to `main` on 2026-11-14 (commit `34384afcbf88a0888c2c4eaf9962d3048c5ad424`). The current N-PORT share-growth dose-response is archived/killed; broad-universe 13F remains parked pending deterministic historical security identity and PIT coverage.
+
+No SEC source above changes the frozen F80 control or authorizes a return test. The Form 4 six-cohort sample is non-contiguous and purposively selected; the 13D/G 200-filing CUSIP sample is purposive. Do not interpret either as a population coverage estimate.
+
+
 ## Frozen control and promotion status
 - `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen. No production, capital, universe, parameter or exposure changes.
 - No Smart Money signal is admitted. No new alpha/OOS, bootstrap, LOO or holdout test has been run in this research cycle.
