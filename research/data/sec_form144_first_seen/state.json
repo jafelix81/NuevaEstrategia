@@ -1,0 +1,34 @@
+{
+  "candidate_manifest_cik_count": 290,
+  "candidate_manifest_source_artifact_sha256": "939d5564b14ce0f41df23a2c9ab681977cfde141cd0ea2b3c1213b1c5bfaf613",
+  "created_utc": "2026-11-14T20:45:08Z",
+  "historical_f80_membership_verified": false,
+  "last_feed_sha256_by_feed": {
+    "144": "7b951d8394a9aff2eebc189c9decd65d255da32ab13f100f9c17f54d4a05c562",
+    "144A": "af122d5c05d833019b632a90419f907c264cbc882eb8efec1da8b6e70ee7f525"
+  },
+  "last_poll_possible_gap_by_feed": {
+    "144": false,
+    "144A": false
+  },
+  "last_successful_poll_mode": "bootstrap",
+  "last_successful_poll_run_id": "43639113589",
+  "last_successful_poll_utc": "2026-11-14T20:45:21Z",
+  "last_successful_poll_utc_by_feed": {
+    "144": "2026-11-14T20:45:08Z",
+    "144A": "2026-11-14T20:45:08Z"
+  },
+  "latest_accession_by_feed": {
+    "144": "0001950047-26-011102",
+    "144A": "0001950047-26-011101"
+  },
+  "phase": 403,
+  "poll_count": 1,
+  "poll_count_by_feed": {
+    "144": 1,
+    "144A": 1
+  },
+  "schema_version": 1,
+  "signal_eligible": false,
+  "source": "SEC EDGAR Latest Filings Atom feeds filtered to Form 144 and 144/A"
+}
