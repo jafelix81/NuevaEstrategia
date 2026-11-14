@@ -20,6 +20,7 @@ DATA_DIR = Path("research/data/sec_form144_first_seen")
 STATE_PATH = DATA_DIR / "state.json"
 EVENTS_PATH = DATA_DIR / "events.csv"
 RECONCILIATION_PATH = DATA_DIR / "acceptance_reconciliation.csv"
+FEED_OBSERVATIONS_PATH = DATA_DIR / "feed_observations.csv"
 MANIFEST_PATH = Path("research/PHASE401_FORM144_CANDIDATE_CIK_MANIFEST_2026-11-14.json")
 EXPECTED_MANIFEST_SHA256 = "d20a1e42c7dfe3ef91248aa2aeecd5af7d853b91"
 EXPECTED_CANDIDATE_CIK_COUNT = 290
@@ -428,6 +429,67 @@ def fetch_acceptance_from_index(event, run_id):
             continue
     return None
 
+
+def feed_names_by_accession(snapshots):
+    """Return every official feed in which each accession appeared in this poll."""
+    names = {}
+    for feed_name, snapshot in snapshots.items():
+        for item in snapshot.get("entries", []):
+            accession = item.get("accession")
+            if not accession:
+                continue
+            sources = names.setdefault(accession, [])
+            if feed_name not in sources:
+                sources.append(feed_name)
+    return names
+
+
+def build_feed_observation_rows(snapshots, run_id):
+    """Preserve one observation per accession/feed/poll, including overlaps."""
+    rows = []
+    for feed_name, snapshot in snapshots.items():
+        for item in snapshot.get("entries", []):
+            rows.append({
+                "poll_run_id": str(run_id),
+                "feed_name": feed_name,
+                "accession": item.get("accession"),
+                "form": item.get("form"),
+                "feed_updated_raw": item.get("feed_updated_raw"),
+                "feed_updated_utc": item.get("feed_updated_utc"),
+                "feed_link": item.get("feed_link"),
+                "feed_path_cik": item.get("feed_path_cik"),
+                "feed_url": snapshot.get("url"),
+                "feed_raw_sha256": snapshot.get("raw_sha256"),
+                "feed_response_received_utc": snapshot.get("received_at_utc"),
+            })
+    return rows
+
+
+def append_feed_observations(path, rows):
+    """Append idempotently by (run, feed, accession); never rewrite prior observations."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    existing = set()
+    if path.exists() and path.stat().st_size > 0:
+        with path.open("r", newline="", encoding="utf-8-sig") as handle:
+            for row in csv.DictReader(handle):
+                existing.add((row.get("poll_run_id"), row.get("feed_name"), row.get("accession")))
+    pending = []
+    for row in rows:
+        key = (str(row.get("poll_run_id")), row.get("feed_name"), row.get("accession"))
+        if key not in existing:
+            pending.append(row)
+            existing.add(key)
+    if not pending:
+        return 0
+    exists = path.exists() and path.stat().st_size > 0
+    with path.open("a", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=FEED_OBSERVATION_FIELDS, extrasaction="ignore")
+        if not exists:
+            writer.writeheader()
+        writer.writerows(pending)
+    return len(pending)
+
 def run(mode, output_dir, run_id, data_dir=DATA_DIR):
     if mode not in ("bootstrap", "schedule", "manual"):
         raise ValueError("mode must be bootstrap, schedule or manual")
@@ -440,7 +502,10 @@ def run(mode, output_dir, run_id, data_dir=DATA_DIR):
     previous_state = read_json(state_path) or {}
     poll_started = now_utc()
     snapshots = fetch_all_feeds()
+    source_names_by_accession = feed_names_by_accession(snapshots)
+    feed_observation_rows = build_feed_observation_rows(snapshots, run_id)
     existing = read_existing_accessions(events_path)
+    existing_at_poll_start = set(existing)
     new_rows = []
     feed_summaries = {}
     latest_by_feed = dict(previous_state.get("latest_accession_by_feed", {}))
@@ -472,8 +537,13 @@ def run(mode, output_dir, run_id, data_dir=DATA_DIR):
             "new_accessions": [],
         }
         for item in entries:
-            if item["accession"] in existing:
+            accession = item["accession"]
+            if accession not in existing_at_poll_start:
+                feed_summaries[feed_name]["new_accessions"].append(accession)
+            if accession in existing:
                 continue
+            item = dict(item)
+            item["feed_names"] = source_names_by_accession.get(accession, [feed_name])
             metadata = fetch_document_metadata(item, candidate_ciks)
             event = build_event(
                 item, metadata, poll_started, snapshot["received_at_utc"], interval_start,
@@ -484,7 +554,6 @@ def run(mode, output_dir, run_id, data_dir=DATA_DIR):
             else:
                 # Manual diagnostics never create persistent first-seen records.
                 event["research_observation_eligible"] = False
-            feed_summaries[feed_name]["new_accessions"].append(item["accession"])
             if metadata.get("xml_status") == "retrieved":
                 xml_resolved += 1
             if metadata.get("candidate_issuer_match") is True:
@@ -520,8 +589,14 @@ def run(mode, output_dir, run_id, data_dir=DATA_DIR):
     }
     acceptance_reconciliations = []
     acceptance_attempts = 0
+    feed_observation_rows_appended = 0
     if mode != "manual":
         append_events(events_path, new_rows)
+        feed_observation_rows_appended = append_feed_observations(
+            data_dir / "feed_observations.csv", feed_observation_rows
+        )
+        state["last_feed_observation_row_count"] = len(feed_observation_rows)
+        state["last_feed_observation_rows_appended"] = feed_observation_rows_appended
         reconciled = read_reconciled_accessions(data_dir / "acceptance_reconciliation.csv")
         for event in read_event_rows(events_path):
             accession = p401.accession(event.get("accession"))
@@ -541,7 +616,18 @@ def run(mode, output_dir, run_id, data_dir=DATA_DIR):
         "phase": PHASE, "mode": mode, "run_id": str(run_id),
         "poll_started_utc": poll_started, "poll_completed_utc": poll_completed,
         "feed_summaries": feed_summaries,
-        "new_event_count": len(new_rows) if mode != "manual" else sum(len(x["new_accessions"]) for x in feed_summaries.values()),
+        "new_event_count": len(new_rows) if mode != "manual" else len({
+            accession for summary in feed_summaries.values() for accession in summary["new_accessions"]
+        }),
+        "new_feed_entry_count": sum(len(x["new_accessions"]) for x in feed_summaries.values()),
+        "new_cross_feed_overlap_count": max(
+            0,
+            sum(len(x["new_accessions"]) for x in feed_summaries.values()) - len({
+                accession for summary in feed_summaries.values() for accession in summary["new_accessions"]
+            }),
+        ),
+        "feed_observation_rows_observed": len(feed_observation_rows),
+        "feed_observation_rows_appended": feed_observation_rows_appended,
         "new_xml_resolved_count": xml_resolved,
         "acceptance_reconciliation_attempts": acceptance_attempts,
         "acceptance_reconciliations_added": len(acceptance_reconciliations),
