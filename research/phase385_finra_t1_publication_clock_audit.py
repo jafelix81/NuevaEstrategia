@@ -85,6 +85,7 @@ def build_clock_record(
     update_gap_counts,
     pages: int,
     calendar=NYSE,
+    retrieved_row_count: int | None = None,
 ):
     pubs = sorted(publication_dates)
     unique_count = len(pubs)
@@ -93,13 +94,15 @@ def build_clock_record(
     lag = (actual - week).days if actual else None
     eligible = session_strictly_after(actual, calendar) if actual else None
     schedule_match = bool(actual and actual == expected)
-    complete = row_count == record_total and record_total > 0
+    retrieved_count = row_count if retrieved_row_count is None else retrieved_row_count
+    complete = retrieved_count == record_total and record_total > 0
     date_complete = unique_count == 1 and missing_date_rows == 0
     lag_ok = lag in (21, 22)
     gate = complete and date_complete and lag_ok and schedule_match and eligible is not None
     return {
         "week_start_date": week.isoformat(),
         "aggregate_rows": row_count,
+        "retrieved_rows": retrieved_count,
         "record_total": record_total,
         "pages": pages,
         "retrieval_count_match": complete,
@@ -125,7 +128,6 @@ def request_page(session, week, offset):
         "compareFilters": [
             {"fieldName": "historicalWeek", "fieldValue": week.isoformat(), "compareType": "EQUAL"},
             {"fieldName": "tierIdentifier", "fieldValue": TIER, "compareType": "EQUAL"},
-            {"fieldName": "summaryTypeCode", "fieldValue": SUMMARY_TYPE, "compareType": "EQUAL"},
         ],
         "limit": PAGE_LIMIT,
         "offset": offset,
@@ -155,15 +157,28 @@ def request_page(session, week, offset):
             if len(rows) > PAGE_LIMIT:
                 raise RuntimeError("FINRA page exceeded requested limit")
             return rows, int(headers["record-total"])
+        except requests.HTTPError as exc:
+            status = getattr(getattr(exc, "response", None), "status_code", None)
+            if status not in {408, 429, 500, 502, 503, 504}:
+                raise RuntimeError(f"FINRA_HTTP_{status or 'UNKNOWN'}_NONRETRYABLE") from exc
+            if attempt == 3:
+                raise RuntimeError(f"FINRA_HTTP_{status}_RETRIES_EXHAUSTED") from exc
+            retry = getattr(exc.response, "headers", {}).get("Retry-After")
+            try:
+                delay = float(retry) if retry else 2 ** (attempt + 1)
+            except (TypeError, ValueError):
+                delay = 2 ** (attempt + 1)
+            time.sleep(max(0, min(delay, 30)))
         except (requests.RequestException, ValueError) as exc:
             if attempt == 3:
-                raise RuntimeError(f"FINRA aggregate page failed ({type(exc).__name__})") from exc
+                raise RuntimeError(f"FINRA_PAGE_FAILURE_{type(exc).__name__}") from exc
             time.sleep(min(2 ** (attempt + 1), 20))
     raise RuntimeError("FINRA aggregate-page retries exhausted")
 
 
 def fetch_week(session, week):
-    rows_count = 0
+    retrieved_rows = 0
+    aggregate_rows = 0
     record_total = None
     pages = 0
     publication_dates = set()
@@ -178,11 +193,15 @@ def fetch_week(session, week):
             raise RuntimeError("FINRA Record-Total changed during pagination")
         pages += 1
         for row in batch:
-            if P371.norm(row.get("summaryTypeCode")) != SUMMARY_TYPE:
-                raise RuntimeError("Unexpected summaryTypeCode in filtered response")
+            summary_type = P371.norm(row.get("summaryTypeCode"))
+            if summary_type not in P371.ATS_TYPES:
+                raise RuntimeError("Unexpected summaryTypeCode in T1 response")
             row_week = P371.parse_date(row.get("weekStartDate") or row.get("historicalWeek"))
             if row_week != week:
                 raise RuntimeError("Unexpected historicalWeek in filtered response")
+            if summary_type != SUMMARY_TYPE:
+                continue
+            aggregate_rows += 1
             pub = P371.parse_date(row.get("initialPublishedDate"))
             upd = P371.parse_date(row.get("lastUpdateDate"))
             if pub is None or upd is None:
@@ -190,22 +209,22 @@ def fetch_week(session, week):
             else:
                 publication_dates.add(pub)
                 update_gap_counts[(upd - pub).days] += 1
-        rows_count += len(batch)
-        if rows_count == record_total:
+        retrieved_rows += len(batch)
+        if retrieved_rows == record_total:
             break
-        if rows_count > record_total or not batch:
+        if retrieved_rows > record_total or not batch:
             raise RuntimeError("FINRA pagination mismatch or no progress")
         offset += len(batch)
         if offset > P371.MAX_OFFSET:
             raise RuntimeError("FINRA offset exceeded maximum")
         time.sleep(0.12)
-    if not record_total:
-        raise RuntimeError("No ATS_W_SMBL aggregate rows for partition")
+    if aggregate_rows <= 0:
+        raise RuntimeError("No ATS_W_SMBL aggregate rows in complete T1 partition")
     return build_clock_record(
-        week, publication_dates, rows_count, record_total,
+        week, publication_dates, aggregate_rows, record_total,
         missing_date_rows, update_gap_counts, pages,
+        retrieved_row_count=retrieved_rows,
     )
-
 
 def main():
     parser = argparse.ArgumentParser()
@@ -254,8 +273,18 @@ def main():
                 flush=True,
             )
         except Exception as exc:
-            errors.append({"week": week.isoformat(), "error_type": type(exc).__name__})
-            print(f"WEEK_ERROR={week}|TYPE={type(exc).__name__}", flush=True)
+            detail = str(exc).replace("\\n", " ")[:160]
+            errors.append({
+                "week": week.isoformat(),
+                "error_type": type(exc).__name__,
+                "error_detail": detail,
+            })
+            print(f"WEEK_ERROR={week}|TYPE={type(exc).__name__}|DETAIL={detail}", flush=True)
+            # The first partition is a preflight. If it fails, do not repeat a
+            # systemic query/auth/schema error 208 more times.
+            if i == 1:
+                print("STOPPING_AFTER_FIRST_PARTITION_ERROR=true", flush=True)
+                break
 
     metadata_after, _ = P371.request_json(session, P371.META_URL)
     metadata_stable = metadata_before.get("rowsUpdatedAt") == metadata_after.get("rowsUpdatedAt")
@@ -279,6 +308,7 @@ def main():
         "all_partitions_complete": complete,
         "metadata_stable": metadata_stable,
         "total_aggregate_rows": sum(x["aggregate_rows"] for x in partitions),
+        "total_retrieved_rows": sum(x["retrieved_rows"] for x in partitions),
         "total_pages": sum(x["pages"] for x in partitions),
         "partitions_with_one_publication_date": sum(
             x["initial_published_date_unique_count"] == 1 for x in partitions
@@ -323,7 +353,7 @@ def main():
     (out / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
     with (out / "weekly_clock.csv").open("w", newline="", encoding="utf-8") as handle:
         fields_out = [
-            "week_start_date", "aggregate_rows", "record_total", "pages",
+            "week_start_date", "aggregate_rows", "retrieved_rows", "record_total", "pages",
             "initial_published_date", "publication_lag_days", "expected_publication_date",
             "publication_schedule_match",
             "first_eligible_nyse_session_strictly_after_publication",
