@@ -1,0 +1,94 @@
+{
+  "phase": 403,
+  "date_utc": "2026-11-14",
+  "purpose": "prospective SEC Form 144 and 144/A first-seen capture feasibility",
+  "runs": {
+    "initial_bootstrap": {
+      "run_id": "43639113589",
+      "conclusion": "success",
+      "artifact_id": "14130762803",
+      "poll_started_utc": "2026-11-14T20:45:08Z",
+      "poll_completed_utc": "2026-11-14T20:45:21Z"
+    },
+    "acceptance_reconciliation": {
+      "run_id": "43639405055",
+      "conclusion": "success",
+      "artifact_id": "14130779748",
+      "poll_started_utc": "2026-11-14T20:48:21Z",
+      "poll_completed_utc": "2026-11-14T20:48:22Z"
+    }
+  },
+  "feed": {
+    "form_144": {
+      "entries_returned": 50,
+      "forms": {
+        "144": 47,
+        "144/A": 3
+      },
+      "oldest_updated_utc": "2026-11-13T21:24:50Z",
+      "newest_updated_utc": "2026-11-14T01:43:19Z"
+    },
+    "form_144a": {
+      "entries_returned": 5,
+      "unique_additional_accessions": 2,
+      "overlap_with_144_feed": 3,
+      "oldest_updated_utc": "2026-11-12T23:34:06Z",
+      "newest_updated_utc": "2026-11-13T22:46:46Z"
+    },
+    "unique_accessions": 52,
+    "requested_count": 100,
+    "observed_full_window_threshold": 50,
+    "possible_gap": false,
+    "second_poll_previous_latest_present": {
+      "144": true,
+      "144A": true
+    }
+  },
+  "xml": {
+    "retrieved": 52,
+    "unresolved": 0,
+    "issuer_cik_present": 52,
+    "issuer_name_present": 52,
+    "filer_cik_present": 52,
+    "seller_name_present": 52,
+    "current_phase401_candidate_issuer_matches": 5,
+    "candidate_set_size": 290,
+    "candidate_set_is_historical_f80_security_master": false
+  },
+  "acceptance_reconciliation": {
+    "attempts": 52,
+    "successful": 52,
+    "unresolved": 0,
+    "source": "SEC filing-detail index page",
+    "feed_updated_equals_sec_accepted_to_second": 52,
+    "timing_anomalies": 0,
+    "first_seen_upper_minus_acceptance_seconds": {
+      "min": 68509,
+      "median": 83007,
+      "max": 162662
+    },
+    "first_seen_lag_interpretation": "weekend bootstrap baseline only; not a publication latency estimate"
+  },
+  "timing_policy": {
+    "bootstrap_has_lower_bound": false,
+    "bootstrap_events_research_observation_eligible": 0,
+    "first_seen_is_poll_receipt_upper_bound": true,
+    "exact_first_public_availability_certified": false,
+    "same_day_intraday_use_authorized": false,
+    "signal_eligible_events": 0
+  },
+  "validation": {
+    "offline_tests_passed": 13,
+    "offline_tests_total": 13
+  },
+  "controls": {
+    "f80_baseline_changed": false,
+    "production_changed": false,
+    "capital_or_exposure_changed": false,
+    "holdout_used": false,
+    "forward_returns_used": false,
+    "alpha_test_run": false,
+    "paid_data_acquired": false
+  },
+  "disposition": "CAPTURE_INFRASTRUCTURE_VALIDATED_INITIAL_BOOTSTRAP_NOT_YET_PROSPECTIVE_SIGNAL_DATA"
+}
