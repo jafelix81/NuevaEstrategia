@@ -397,34 +397,36 @@ def fetch_acceptance_from_index(event, run_id):
     if not accession or not path_cik:
         return None
     base = f"https://www.sec.gov/Archives/edgar/data/{int(path_cik)}/{accession.replace('-', '')}"
-    url = f"{base}/{accession}-index.htm"
-    try:
-        raw = p401.fetch_bytes(url, sec=True, timeout=40, retries=2)
-        accepted_et, accepted_utc, filing_date = parse_acceptance_html(raw)
-        if not accepted_utc:
-            return None
-        feed_delta = seconds_between(event.get("feed_updated_utc"), accepted_utc)
-        seen_delta = seconds_between(event.get("first_seen_at_utc"), accepted_utc)
-        return {
-            "accession": accession,
-            "form": event.get("form"),
-            "feed_updated_utc": event.get("feed_updated_utc"),
-            "first_seen_at_utc": event.get("first_seen_at_utc"),
-            "acceptance_et": accepted_et,
-            "acceptance_utc": accepted_utc,
-            "acceptance_source": "SEC_filing_detail_index",
-            "filing_date": filing_date,
-            "feed_updated_minus_acceptance_seconds": feed_delta,
-            "first_seen_upper_minus_acceptance_seconds": seen_delta,
-            "timing_anomaly": bool(seen_delta is not None and seen_delta < 0),
-            "filing_detail_url": url,
-            "reconciliation_run_id": str(run_id),
-            "reconciled_at_utc": now_utc(),
-            "signal_eligible": False,
-            "public_availability_certified": False,
-        }
-    except Exception:
-        return None
+    for page_name in (f"{accession}-index.htm", f"{accession}-index.html", f"{accession}-index-headers.html"):
+        url = f"{base}/{page_name}"
+        try:
+            raw = p401.fetch_bytes(url, sec=True, timeout=40, retries=2)
+            accepted_et, accepted_utc, filing_date = parse_acceptance_html(raw)
+            if not accepted_utc:
+                continue
+            feed_delta = seconds_between(event.get("feed_updated_utc"), accepted_utc)
+            seen_delta = seconds_between(event.get("first_seen_at_utc"), accepted_utc)
+            return {
+                "accession": accession,
+                "form": event.get("form"),
+                "feed_updated_utc": event.get("feed_updated_utc"),
+                "first_seen_at_utc": event.get("first_seen_at_utc"),
+                "acceptance_et": accepted_et,
+                "acceptance_utc": accepted_utc,
+                "acceptance_source": "SEC_filing_detail_index",
+                "filing_date": filing_date,
+                "feed_updated_minus_acceptance_seconds": feed_delta,
+                "first_seen_upper_minus_acceptance_seconds": seen_delta,
+                "timing_anomaly": bool(seen_delta is not None and seen_delta < 0),
+                "filing_detail_url": url,
+                "reconciliation_run_id": str(run_id),
+                "reconciled_at_utc": now_utc(),
+                "signal_eligible": False,
+                "public_availability_certified": False,
+            }
+        except Exception:
+            continue
+    return None
 
 def run(mode, output_dir, run_id, data_dir=DATA_DIR):
     if mode not in ("bootstrap", "schedule", "manual"):
