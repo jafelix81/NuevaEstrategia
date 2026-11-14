@@ -70,7 +70,7 @@ The Phase 398 parent reconciliation was:
 - Two parent accessions were in the broader 14-quarter accession census but not in the candidate issuer-event panel.
 - One parent was outside/missing from that census.
 
-Phase 400 now recovers all three external parent XMLs. The 193 in-panel parent-child pairs still have zero issuer-CIK changes; 16 have issuer-name text differences. That result applies only to the 193 pairs where both records were already in the candidate panel. It does not validate the three external parents.
+Phase 400 now recovers all three external parent XMLs. The 193 in-panel parent-child pairs have zero issuer-CIK changes; 16 have issuer-name text differences. Combining those 193 pairs with the three recovered external pairs accounts for all 196 Phase 67 amendment links: 3/196 (1.53%) have issuer-CIK changes within this curated 14-quarter candidate set. This is an exact within-panel count, not a prevalence estimate for all SEC Form 144/A filings.
 
 The mechanism is now clear for these exceptions: the original parent issuer CIK did not match the current candidate CIK set, so the parent was excluded from the issuer-event panel. The amendment's corrected issuer CIK did match and was included. A current-issuer CIK filter therefore creates a selective blind spot for amendments that repair issuer identity.
 
