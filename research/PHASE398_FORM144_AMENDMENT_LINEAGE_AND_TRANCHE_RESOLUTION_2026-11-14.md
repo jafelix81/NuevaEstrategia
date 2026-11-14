@@ -30,12 +30,12 @@ Of the 196 amendments:
 
 Among the 193 matched parents, 188 are original Form 144 filings and five are themselves Form 144/A amendments. There are no parent filing-date inversions, no issuer/filer CIK mismatches and no cycles in the matched amendment chains. Four chains reach a second amendment level in the candidate panel.
 
-Only 106 of the 193 matched amendments preserve an exactly unchanged tranche payload. The remaining 87 change at least one tranche field. The overlapping change counts are:
+Only 106 of the 193 matched amendments show no change across the audited tranche fields. The remaining 87 change at least one audited field. The overlapping change counts are:
 
 | Changed field | Amendments |
 |---|---:|
-| Proposed units, aggregated by security class | 44 |
-| Proposed value, aggregated by security class | 59 |
+| Proposed units, aggregated by canonical security class | 44 |
+| Proposed value, aggregated by canonical security class | 59 |
 | Shares outstanding denominator | 19 |
 | Approximate sale date | 18 |
 | Broker / market maker | 20 |
