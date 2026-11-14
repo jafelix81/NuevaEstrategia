@@ -1,0 +1,53 @@
+{
+  "phase": 404,
+  "date_utc": "2026-11-14",
+  "purpose": "audit and preserve SEC Form 144/144-A cross-feed provenance without changing the immutable first-seen event ledger",
+  "finding": {
+    "form_144_feed_entries": 50,
+    "form_144a_feed_entries": 5,
+    "total_feed_entries": 55,
+    "unique_accessions": 52,
+    "cross_feed_overlap_accessions": 3,
+    "event_rows_with_all_feed_sources_recorded": 0,
+    "affected_accessions": [
+      "0001628280-26-073919",
+      "0001950047-26-011100",
+      "0001950047-26-011101"
+    ],
+    "interpretation": "provenance loss only; all unique accessions were captured and XML-resolved"
+  },
+  "correction": {
+    "cross_feed_source_map": true,
+    "append_only_feed_observations_ledger": "research/data/sec_form144_first_seen/feed_observations.csv",
+    "idempotency_key": [
+      "poll_run_id",
+      "feed_name",
+      "accession"
+    ],
+    "existing_first_seen_events_rewritten": false,
+    "per_feed_new_accessions_counted": true
+  },
+  "current_state_at_audit": {
+    "poll_count": 2,
+    "last_successful_poll_mode": "bootstrap",
+    "last_successful_poll_utc": "2026-11-14T20:48:22Z",
+    "prospective_scheduled_interval_observed": false,
+    "bootstrap_events_research_eligible": 0,
+    "signal_eligible_events": 0
+  },
+  "validation": {
+    "prior_tests": 13,
+    "new_tests": 2,
+    "total_expected": 15,
+    "network_calls_in_ci": false
+  },
+  "controls": {
+    "f80_changed": false,
+    "production_changed": false,
+    "capital_or_exposure_changed": false,
+    "holdout_used": false,
+    "forward_returns_used": false,
+    "alpha_test_run": false,
+    "paid_data_acquired": false
+  }
+}
