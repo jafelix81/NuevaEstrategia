@@ -18,7 +18,7 @@
     "144/A": 5
   },
   "matched_parent_count": 193,
-  "amendments_with_exactly_unchanged_tranche_payload": 106,
+  "amendments_unchanged_across_audited_fields": 106,
   "amendment_payload_change_counts": {
     "broker_changed": 20,
     "class_set_changed": 6,
