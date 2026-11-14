@@ -336,3 +336,33 @@ This section supersedes any older “in progress” status above where later com
 - No Smart Money signal admitted; no new economic/OOS test; holdout untouched.
 - No capital, exposure, universe, or production changes.
 - No data vendor contacted and no data purchased.
+
+
+## Phase 400 — Form 144 external parent issuer-identity corrections (2026-11-14)
+
+- Supersedes the Phase 398 statement that the three external parent payloads remained unrecovered. All three original parent primary_doc.xml files were retrieved from SEC EDGAR and reconciled to their 144/A children through explicit previousAccessionNumber links.
+- WFC: parent 0001766264-23-000002 identifies issuer CIK 0000740906 (Wells Fargo Bank N A; file 028-01341); child 0001766264-23-000004 identifies issuer CIK 0000072971 (Wells Fargo & Company/MN; file 001-02979). Filer CIK remains 0001766264. Proposed units/value remain 91,383 / $3,516,874; raw outstanding remains 582,647.
+- GIS: parent 0001318751-23-000002 identifies issuer CIK 0001635007 (Mason Investment Advisory Services, Inc.; file 150-05248), while its security class says General Mills Common Stock. Child 0001318751-23-000003 identifies issuer CIK 0000040704 (General Mills Inc; file 001-01185). Filer CIK remains 0001318751. Proposed units/value remain 8,675 / $785,608; raw outstanding changes 587,500,000 -> 587,350,000.
+- BKR: parent 0001959173-23-003484 identifies issuer CIK 0000808362 (Baker Hughes Holdings LLC; file 001-09397); child 0001959173-23-003500 identifies issuer CIK 0001701605 (Baker Hughes Co; file 001-38143). Filer CIK remains 0001742205. Proposed units/value/outstanding remain 10,000 / $351,900 / 1,009,653,944. Child remarks explicitly say issuer name and SEC file number were corrected.
+- All three external parent-child pairs have an issuer-CIK change, stable filer CIK, unchanged proposed units and unchanged proposed aggregate value. These three cases are selected unmatched exceptions, not a random sample; 3/3 is not an estimate of correction prevalence.
+- Phase 67 panel reconciliation: 196 144/A rows; 193 parents matched inside issuer_event_raw.csv; two parent accessions were in the broader 14-quarter census but not the candidate panel; one was outside/missing from that census. The 193 matched pairs have zero issuer-CIK changes and 16 issuer-name text differences. This does not contradict the three external corrections because those parents were outside the matched subset.
+- The Phase 67 inclusion rule only admits a row to issuer_event_raw.csv when XML issuerCik is in the current candidate CIK set. For these three cases, the incorrect/affiliate parent issuer CIK caused the original parent to be excluded while the corrected amendment issuer CIK entered the panel. This is a selective identity-correction blind spot.
+- PIT rule: preserve the original parent version and its original issuer fields; mark issuer attribution conflicted/unresolved if the parent XML issuer CIK conflicts with the later corrected security issuer. Do not attach the corrected issuer CIK/ticker to the parent date. Treat the 144/A as a new version of the same proposed-sale order, not a new sale. The corrected issuer identity is first known on the amendment filing date and can be used no earlier than the first regular NYSE session strictly after that date. Never backdate.
+- The raw noOfUnitsOutstanding field remains killed as a denominator/feature; retain only for version comparison. No evidence here that a proposed sale executed.
+- Report/data/script/tests: research/PHASE400_FORM144_EXTERNAL_PARENT_IDENTITY_CORRECTIONS_2026-11-14.md, research/PHASE400_FORM144_EXTERNAL_PARENT_IDENTITY_SUMMARY_2026-11-14.json, research/phase400_form144_external_parent_identity_audit.py, research/test_phase400_form144_external_parent_identity_audit.py.
+- The Form 144 offline regression workflow is extended through Phase 400 and runs once on the PR event; no live SEC crawler or price/return data is used.
+
+## 2026-11-14 — latest Actions and CFTC capture reconciliation
+
+- GitHub Actions REST list returned 7,622 historical runs. Latest runs were 43613198487 (Phase 398-399 PR regression, success) and 43613156045 (same branch push regression, success); all 30 newest runs were completed, with no queued or in-progress run.
+- Latest Form 144 job 132502533044 passed 8/8 Phase 398-399 tests. No artifact was produced because the run is offline-only.
+- Latest CFTC capture run 43525140200 is explicitly event=push, not schedule. It returned BASELINE_ALREADY_EXISTS_NO_OVERWRITE, 3,035 rows (851 each for ES, NQ and Dow; 482 Russell E-mini), zero signal-eligible historical rows, and ALPHA_TEST=NOT_AUTHORIZED. Artifact 14084802705 (1,068 bytes; SHA-256 c7a652038336f852e3c51792d1bdc96ebc1368176bdafdae0693332fb4224eef) contains the anonymized audit summary.
+- PR #60 was merged into main at merge commit e88e553afc235916e37e9236e1890b714163c229, activating the Phase 384 weekday schedule on the default branch. No scheduled event appears in the latest run list because the audit is Saturday 2026-11-14; the next weekday poll is Monday 2026-11-16 at 22:15 UTC. Do not manually duplicate it.
+- Phase 384 remains a capture clock only. Historical backfill remains ineligible; no prospective first-receipt event has yet been observed.
+
+## Strategy controls after Phase 400
+
+- F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+- No Smart Money signal admitted; no new economic/OOS test; holdout untouched.
+- No capital, exposure, universe, parameter or production change.
+- No vendor purchase or contact.
