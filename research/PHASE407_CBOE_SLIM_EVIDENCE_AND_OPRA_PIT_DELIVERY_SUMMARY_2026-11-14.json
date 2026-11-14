@@ -1,0 +1,92 @@
+{
+  "phase": 407,
+  "audit_date_utc": "2026-11-14",
+  "disposition": "MATERIAL_LITERATURE_MEASUREMENT_CORRECTION_CBOE_OPTION_TRADES_CONDITIONAL_NO_ALPHA",
+  "new_paper": {
+    "title": "New Evidence on the Performance of Customer Options Trades",
+    "authors": [
+      "Diego Amaya",
+      "Pedro A. Garcia-Ares",
+      "Neil D. Pearson",
+      "Aurelio Vasquez"
+    ],
+    "date": "2025-04-07",
+    "url": "https://cdn.cboe.com/resources/education/research_publications/Retail_Profitability.pdf",
+    "sample_period_main": "2020-01 through 2023-06",
+    "venues": [
+      "CBOE",
+      "EDGX",
+      "C2",
+      "BATS"
+    ],
+    "slims_focus_venues": [
+      "CBOE",
+      "EDGX"
+    ],
+    "findings": {
+      "closing_trade_share": 0.424,
+      "closing_volume_share": 0.426,
+      "opening_volume_share": 0.574,
+      "customer_share_of_slim_volume": ">0.98",
+      "quote_rule_misclassified_trade_share": 0.424,
+      "quote_rule_misclassified_volume_share": 0.426,
+      "net_daily_lifecycle_pnl_2020_2023_usd_millions": 0.34,
+      "net_daily_lifecycle_pnl_2020_2023_t_stat": 0.29,
+      "net_daily_lifecycle_pnl_2020_2021_usd_millions": 2.07,
+      "net_daily_lifecycle_pnl_2020_2021_t_stat": 1.19
+    },
+    "limitations": [
+      "Customer capacity includes institutional public customers and is not a retail or beneficial-owner label.",
+      "The paper does not demonstrate prediction of underlying equity returns.",
+      "Opening trades are not matched to specific closing trades; lifecycle estimate assumes channel-consistent opening/closing.",
+      "Net P&L excludes commissions; sample is venue-limited.",
+      "Paper is Cboe-hosted and acknowledges Options Institute data research grant support."
+    ]
+  },
+  "cboe_option_trades": {
+    "product_url": "https://datashop.cboe.com/option-trades",
+    "faq_url": "https://datashop.cboe.com/faqs",
+    "product_page_history_start": "2012-01",
+    "faq_history_start": "2010-01",
+    "history_start_resolved": false,
+    "delivery": "T+1 SFTP",
+    "typical_delivery_et": "00:05-03:00",
+    "may_arrive_after_next_market_open": true,
+    "sftp_retention_days": 30,
+    "intraday_delivery_requires_contact": true,
+    "sample_bytes_inspected": false,
+    "official_condition_workbook_inspected": false,
+    "first_receipt_pit_admitted": false,
+    "universe_coverage_admitted": false,
+    "licensing_admitted": false
+  },
+  "tbt_calibration": {
+    "existing_phase": 351,
+    "sample_date": "2025-03-28",
+    "sample_fraction": 0.03,
+    "venue_scope": "C1 only",
+    "open_close_blank_share": 0.1786,
+    "incomplete_contract_identity_share": 0.0045,
+    "unmapped_side_rows": 69,
+    "sampling_rule_verified": false,
+    "population_calibration_authorized": false
+  },
+  "economic_test": {
+    "run": false,
+    "alpha_admission": false,
+    "oos_admission": false,
+    "bootstrap": false,
+    "loo": false,
+    "holdout_used": false
+  },
+  "baseline": "F80_TOP20_PARTIAL50_BASELINE_C20",
+  "baseline_frozen": true,
+  "new_signal_admitted": false,
+  "next_gates": [
+    "Inspect public sample ZIP and official condition workbook",
+    "Resolve January 2010 versus January 2012 history start",
+    "Establish prospective SFTP first-receipt and correction-vintage ledger",
+    "Verify historical universe and inactive-underlying coverage",
+    "Clarify TBT sampling and row-grain before any calibration"
+  ]
+}
