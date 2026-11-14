@@ -390,3 +390,31 @@ This section supersedes any older “in progress” status above where later com
 - No Smart Money signal admitted; no new return/OOS/alpha test; holdout untouched.
 - No capital, exposure, universe, parameter or production change.
 - No vendor purchase, trial, account or contact.
+
+
+## Phase 401 — final corrected full-market Form 144/A parent-identity census (2026-11-14)
+
+- PR [#78](https://github.com/jafelix81/NuevaEstrategia/pull/78) merged to main as `4005a1f77a10f8e497cbd31a4b2ee4530df69e2c`.
+- Final run [43626453375](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43626453375) completed successfully: offline-regression 13/13 tests and live-census SUCCESS. Artifact 14126667342; ZIP SHA-256 `6ce994213e507d6c0637162c520b003bb7e2a239b922f2a13cc24aaadd5d011c`.
+- Correct frozen baselines: 125,977 Phase 67 window accessions, 21,648 candidate-index accessions, 196 candidate 144/A events, and 1,446 all-market 144/A children. 1,442/1,446 parent links resolved; four retained as unresolved.
+- Among 1,442 resolved pairs: 49 issuer CIK changes (24 with explicit correction remarks), 96 issuer-name changes, 108 seller-name changes and 767 tranche-payload changes. Candidate-boundary transitions: three parent-noncandidate → child-candidate and one parent-candidate → child-noncandidate.
+- The artifact was downloaded and inspected; no returns, alpha, OOS, bootstrap, LOO or holdout test was run. No signal admitted; F80 and production unchanged.
+
+## Phase 402 — targeted Form 144 parent recovery and acceptance-time audit (2026-11-14)
+
+- Scope frozen to the four candidate-boundary pairs and four unresolved parent links from Phase 401; no repeated full census and no duplicate Form 144 → Form 4 linkage study.
+- The Phase 401 artifact SHA-256 was verified and the exact eight input rows were materialized in `research/PHASE402_FROZEN_INPUT_PAIRS_2026-11-14.json`. The two initial Phase 402 live attempts (runs 43631231048 and 43631278092) passed offline tests but failed before SEC retrieval because the cross-run artifact API returned HTTP 401 to GITHUB_TOKEN. Workflow corrected to consume the pinned manifest; no SEC request or artifact was produced by those failed attempts.
+- Phase 402 will search seven relevant quarterly master indexes, recover parent/child XMLs, and retrieve filing-detail Accepted / ACCEPTANCE-DATETIME values. Acceptance time remains a version-ordering field, not first-public receipt; no intraday use or economic test is authorized.
+- Historical F80 identity, first-public-receipt and security-class gates remain closed. F80_TOP20_PARTIAL50_BASELINE_C20 frozen; holdout untouched.
+
+
+## Phase 402 — final targeted Form 144 parent recovery and acceptance-time audit (2026-11-14)
+
+- Run [43632820744](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43632820744) completed successfully: offline-regression and live-audit jobs both SUCCESS. Live artifact 14129225020; SHA-256 `24a24b8cad6b37091863168a149cc33c5ec79f70814c6e65f3ad3e7a1c55e477`.
+- Frozen eight-pair scope: four candidate-boundary pairs and four Phase 401 unresolved links. Retrieved 14/16 expected XMLs and 14/16 acceptance timestamps (87.5% full-scope coverage; 100% among the 14 retrieved docs). Six of eight parents recovered. No filing-date or acceptance-order inversions; all eight child previousAccessionNumber links match.
+- All four candidate-boundary pairs are fully recovered. BKR and Teradyne→Weatherford amendments explicitly correct issuer identity; WFC and GIS CIK transitions have no explicit correction remark and remain ambiguous, not automatically classified as corrections.
+- Two previously unresolved pairs recovered. Music Licensing has a seller-name order variation (“Noch Jake P.” / “Jake P. Noch”), requiring controlled identity normalization. A10 Networks confirms a seller correction: Brian Becker → Dhrupad Trivedi; the 2024 Form 144/A expressly says the original seller name was incorrect. Preserve the original seller until the amendment's own availability date; never backdate.
+- Two parents remain unresolved: Freightos parent `0001976408-23-000153` was not found in targeted quarterly/daily indexes or tested archive paths; do not infer deletion. Legacy Housing parent `0001000275-24-000021` appears in the 2024-03-11 daily index as Form 144 but its archive/detail URLs return 404 and it is absent from the current quarterly index. This is consistent with SEC-described post-acceptance removal/correction behavior, but the specific cause is not proven. Both remain excluded from pair-level payload comparison.
+- SEC Form 144 guidance states that covered electronic submissions accepted 6 a.m.–10 p.m. ET on business days are deemed filed and publicly disseminated the same business day; the 10 p.m. extension became effective 2023-03-20 and covered electronic filing began 2023-04-13. SEC Webmaster FAQ says exact first-public-availability is not timestamped, often 1–3 minutes after acceptance, may be longer, and is not guaranteed. ACCEPTANCE-DATETIME orders versions but is not first-public receipt; no intraday use. Keep the next-regular-session date-level rule provisionally and build prospective SEC first-seen capture.
+- Sources: SEC Form 144 guide https://www.sec.gov/submit-filings/filer-support-resources/how-do-i-guides/file-form-144-electronically ; filing-hours announcement https://www.sec.gov/newsroom/whats-new/edgar-extension-144-030323 ; Accessing EDGAR Data https://www.sec.gov/search-filings/edgar-search-assistance/accessing-edgar-data ; Webmaster FAQ https://www.sec.gov/about/webmaster-frequently-asked-questions.
+- Phase 402 is archived as completed with explicit unresolved links, not as a clean full recovery. No forward returns, alpha, OOS, bootstrap, LOO or holdout test; no Smart Money signal admitted. Historical F80/effective-dated security identity and first-public-receipt gates remain closed. F80/production/capital/exposure/universe unchanged.

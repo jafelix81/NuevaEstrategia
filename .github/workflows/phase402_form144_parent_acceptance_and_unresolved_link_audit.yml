@@ -1,0 +1,59 @@
+name: Phase 402 - Form 144 parent recovery and acceptance-time audit
+on:
+  push:
+    branches: [phase402-form144-parent-acceptance-unresolved-link-audit]
+    paths:
+      - "research/phase402_form144_parent_acceptance_and_unresolved_link_audit.py"
+      - "research/test_phase402_form144_parent_acceptance_and_unresolved_link_audit.py"
+      - "research/PHASE402_FROZEN_INPUT_PAIRS_2026-11-14.json"
+      - ".github/workflows/phase402_form144_parent_acceptance_and_unresolved_link_audit.yml"
+  pull_request:
+    paths:
+      - "research/phase402_form144_parent_acceptance_and_unresolved_link_audit.py"
+      - "research/test_phase402_form144_parent_acceptance_and_unresolved_link_audit.py"
+      - "research/PHASE402_FROZEN_INPUT_PAIRS_2026-11-14.json"
+      - ".github/workflows/phase402_form144_parent_acceptance_and_unresolved_link_audit.yml"
+      - "research/PHASE402_FORM144_PARENT_ACCEPTANCE_AND_UNRESOLVED_LINK_AUDIT_2026-11-14.md"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: phase402-form144-parent-acceptance-audit-${{ github.event_name }}
+  cancel-in-progress: false
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile and run offline regressions
+        run: |
+          python -m py_compile research/phase401_form144a_full_parent_identity_census.py research/phase402_form144_parent_acceptance_and_unresolved_link_audit.py
+          python -m unittest -v research.test_phase402_form144_parent_acceptance_and_unresolved_link_audit
+  live-audit:
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs: offline-regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Validate frozen Phase 401 pair manifest
+        run: |
+          python -c "import json; p=json.load(open('research/PHASE402_FROZEN_INPUT_PAIRS_2026-11-14.json')); assert p['source_run_id']==43626453375; assert p['source_artifact_id']==14126667342; assert p['source_artifact_sha256']=='6ce994213e507d6c0637162c520b003bb7e2a239b922f2a13cc24aaadd5d011c'; assert len(p['pairs'])==8"
+      - name: Recover targeted parents and audit acceptance timestamps
+        run: |
+          python -m py_compile research/phase402_form144_parent_acceptance_and_unresolved_link_audit.py
+          python -u -m research.phase402_form144_parent_acceptance_and_unresolved_link_audit --manifest research/PHASE402_FROZEN_INPUT_PAIRS_2026-11-14.json --output-dir phase402_form144_parent_acceptance_audit
+      - name: Upload pair, document, index and summary outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase402-form144-parent-acceptance-audit
+          path: phase402_form144_parent_acceptance_audit/
+          retention-days: 90
+          if-no-files-found: warn
