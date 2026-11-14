@@ -366,3 +366,27 @@ This section supersedes any older “in progress” status above where later com
 - No Smart Money signal admitted; no new economic/OOS test; holdout untouched.
 - No capital, exposure, universe, parameter or production change.
 - No vendor purchase or contact.
+
+
+## 2026-11-14 — Phase 401 full-market Form 144/A parent-identity census (validation correction)
+
+- The initial Phase 401 draft used invalid expected counts (56,167 accessions / 609 amendments). Reconciliation against Phase 67 artifact 13334881835 establishes the correct 2023-04-13–2026Q3 baseline: 125,977 Form 144/144-A index accessions, 21,648 candidate-index accessions, and 196 candidate Form 144/A issuer events. The all-market SEC-wide 144/A child census is a separate 1,446-row set.
+- Run 43621827885 retrieved 1,446/1,446 child XMLs with zero child fetch errors, 100% form/index and filer+issuer CIK-pair concordance. It resolved 1,442/1,446 parent links (99.723%); four unresolved parent accessions are explicitly retained. Parent form and CIK-pair concordance were 100% among resolved parents; no date inversions among comparable resolved links. The run failed only because the initial 56,167/609 gates were wrong; corrected baseline gates and tests are being rerun.
+- Across 1,442 resolved pairs: 49 issuer CIK changes (24 with explicit identity-correction remarks), 96 issuer-name changes, 108 seller-name changes, and 767 proposed-sale tranche payload changes. Candidate-boundary transitions: three parent-noncandidate → child-candidate and one parent-candidate → child-noncandidate. The latter is a Teradyne → Weatherford correction: original Form 144 accepted 2025-12-05 10:28:07 ET; Form 144/A accepted 12:03:06 ET and explicitly says the issuer name was corrected. Preserve the version transition; never backdate.
+- SEC EDGAR filing detail pages / complete submission text expose ACCEPTANCE-DATETIME, but SEC says no timestamp records first public availability; availability is often 1–3 minutes after acceptance, can be longer, and is not guaranteed. Acceptance time is not first-public-receipt. Keep the next-regular-session PIT rule until a prospective first-seen ledger validates public availability. Official sources: https://www.sec.gov/about/webmaster-frequently-asked-questions ; https://www.sec.gov/submit-filings/filer-support-resources/how-do-i-guides/file-form-144-electronically.
+- Existing Form 144 → Form 4 descriptive matching work is already on draft PRs #29/#30; Phase 401 does not repeat it or treat document-linkage significance as alpha.
+- Corrected script separates the 125,977 Phase 67 date-window accessions, 21,648 candidate accessions and 196 candidate 144/A rows from the 1,446 all-market 144/A children. Historical F80 membership, inactive/predecessor security identity, exact first-public-receipt and economic validation remain blockers. No forward returns, alpha/OOS/bootstrap/LOO/holdout test; no signal admitted; F80/production unchanged.
+
+## 2026-11-14 — CFTC historical publication-time feasibility correction
+
+- Official CFTC Historical Viewable states that archive dates are report dates, not release dates. The About COT page says Futures Only reports are generally released Friday at 3:30 p.m. ET, but the agency's historical release-date list is available only for the latest 13 months. The public release schedule is tentative and holiday-adjusted.
+- Historical release timing is not safely reconstructed as report-date + 3 days. CFTC's 2025 shutdown special announcement shows the 2025-09-30 report originally scheduled for 2025-10-03 was not published until 2025-11-19, with other reports released in catch-up order. A naive report-date clock would introduce material lookahead for that period.
+- Therefore the Phase 384 prospective first-receipt ledger is not merely conservative; it is required for reproducible PIT beyond the CFTC's 13-month release-date history. Historical backfill stays ineligible. Phase 387 remains weekly until the TFF dataset itself demonstrates the announced semiweekly schedule.
+- Official sources: CFTC Historical Viewable (https://www.cftc.gov/MarketReports/CommitmentsofTraders/HistoricalViewable/index.htm); About the COT Reports (https://www.cftc.gov/MarketReports/CommitmentsofTraders/AbouttheCOTReports/cot_about.html); Release Schedule (https://www.cftc.gov/MarketReports/CommitmentsofTraders/ReleaseSchedule/index.htm); Historical Special Announcements (https://www.cftc.gov/MarketReports/CommitmentsofTraders/HistoricalSpecialAnnouncements/index.htm); CFTC release 9316-26 (https://www.cftc.gov/PressRoom/PressReleases/9316-26).
+
+## Strategy controls after Phase 401 preflight
+
+- F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+- No Smart Money signal admitted; no new return/OOS/alpha test; holdout untouched.
+- No capital, exposure, universe, parameter or production change.
+- No vendor purchase, trial, account or contact.
