@@ -13,6 +13,7 @@ PHASE401_RUN_ID = 43626453375
 PHASE401_ARTIFACT_ID = 14126667342
 PHASE401_ARTIFACT_SHA256 = "6ce994213e507d6c0637162c520b003bb7e2a239b922f2a13cc24aaadd5d011c"
 QUARTERS = ("2023Q1", "2023Q2", "2023Q3", "2023Q4", "2024Q1", "2024Q2", "2025Q4")
+DAILY_DATES = ("2023-12-04", "2023-12-05", "2023-12-06", "2024-03-11", "2024-03-12", "2024-03-13")
 EXPECTED_BOUNDARY_PAIRS = 4
 EXPECTED_UNRESOLVED_PAIRS = 4
 PHASE67_START = "2023-04-13"
@@ -86,6 +87,42 @@ def load_target_indexes():
         quarter_counts.append({"quarter": token, "unique_form144_rows": found})
     return by_accession, quarter_counts
 
+
+def load_target_daily_indexes(target_accessions):
+    target_accessions = {norm_acc(x) for x in target_accessions}
+    by_accession, daily_counts = {}, []
+    for day in DAILY_DATES:
+        dt = datetime.strptime(day, "%Y-%m-%d")
+        qtr = (dt.month - 1) // 3 + 1
+        compact = dt.strftime("%Y%m%d")
+        url = f"https://www.sec.gov/Archives/edgar/daily-index/{dt.year}/QTR{qtr}/master.{compact}.idx"
+        rows = p401.parse_master_index(p401.fetch_bytes(url, sec=True, timeout=60, retries=4))
+        hits = []
+        for row in rows:
+            acc = norm_acc(row.get("accession"))
+            if acc not in target_accessions:
+                continue
+            item = dict(row)
+            item["accession"] = acc
+            item["index_date"] = day
+            item["index_type"] = "daily_master"
+            by_accession[acc] = item
+            hits.append(acc)
+        daily_counts.append({"date": day, "daily_index_rows": len(rows),
+                             "target_parent_hits": len(hits), "accessions_found": ";".join(sorted(hits))})
+    return by_accession, daily_counts
+
+def extract_edgar_xml_blocks(raw):
+    if isinstance(raw, bytes):
+        text = raw.decode("latin-1", "replace")
+    else:
+        text = str(raw)
+    blocks = re.findall(r"<XML>\s*(.*?)\s*</XML>", text, flags=re.I | re.S)
+    out = [block.encode("utf-8", "replace") for block in blocks if "edgarSubmission" in block]
+    if not out and "edgarSubmission" in text:
+        out = [text.encode("utf-8", "replace")]
+    return out
+
 def fetch_xml(accession, index_row=None, direct_url=None, seed_ciks=()):
     accession = norm_acc(accession)
     candidates = unique_ciks(
@@ -95,32 +132,51 @@ def fetch_xml(accession, index_row=None, direct_url=None, seed_ciks=()):
         seed_ciks,
         [accession[:10] if accession else None],
     )
-    urls = []
-    if direct_url:
-        urls.append(direct_url)
     acc_path = accession.replace("-", "")
-    urls.extend(f"{p401.SEC_ARCHIVES}/{int(cik)}/{acc_path}/primary_doc.xml" for cik in candidates)
+    xml_urls = []
+    if direct_url:
+        xml_urls.append(direct_url)
+    xml_urls.extend(f"{p401.SEC_ARCHIVES}/{int(cik)}/{acc_path}/primary_doc.xml" for cik in candidates)
     errors = []
-    for url in dict.fromkeys(urls):
+    for url in dict.fromkeys(xml_urls):
         try:
             raw = p401.fetch_bytes(url, sec=True, timeout=45, retries=4)
             parsed = p401.parse_form144_xml(raw)
             root = ET.fromstring(raw)
             return {
-                "ok": True,
-                "parsed": parsed,
+                "ok": True, "parsed": parsed,
                 "tranches": p401.tranche_sig(p401.extract_sale_tranches(root)),
-                "url": url,
-                "path_cik": path_cik_from_url(url),
+                "url": url, "path_cik": path_cik_from_url(url),
                 "sha256": hashlib.sha256(raw).hexdigest(),
-                "errors_before_success": errors,
+                "source": "primary_doc.xml", "errors_before_success": errors,
             }
         except HTTPError as exc:
             errors.append(f"{url}:HTTP{exc.code}")
-            if exc.code != 404:
-                continue
         except Exception as exc:
             errors.append(f"{url}:{type(exc).__name__}:{str(exc)[:120]}")
+
+    # A filing may have a retained complete-submission text file even when the
+    # separately linked primary_doc.xml is absent or removed.
+    for cik in candidates:
+        txt_url = f"{p401.SEC_ARCHIVES}/{int(cik)}/{acc_path}/{accession}.txt"
+        try:
+            raw = p401.fetch_bytes(txt_url, sec=True, timeout=45, retries=3)
+            blocks = extract_edgar_xml_blocks(raw)
+            for block in blocks:
+                try:
+                    parsed = p401.parse_form144_xml(block)
+                    root = ET.fromstring(block)
+                    return {
+                        "ok": True, "parsed": parsed,
+                        "tranches": p401.tranche_sig(p401.extract_sale_tranches(root)),
+                        "url": txt_url, "path_cik": p401.norm_cik(cik),
+                        "sha256": hashlib.sha256(raw).hexdigest(),
+                        "source": "complete_submission_text_xml_block", "errors_before_success": errors,
+                    }
+                except Exception as exc:
+                    errors.append(f"{txt_url}:XML_BLOCK:{type(exc).__name__}:{str(exc)[:100]}")
+        except Exception as exc:
+            errors.append(f"{txt_url}:{type(exc).__name__}:{str(exc)[:100]}")
     return {"ok": False, "url": None, "path_cik": None, "errors": errors}
 
 def fetch_filing_detail(accession, doc, index_row=None):
@@ -203,11 +259,15 @@ def audit(manifest_path, output_dir):
         raise ValueError("Phase 401 parent-link counts do not match the frozen result")
     pairs = build_pairs(manifest)
     index, quarter_counts = load_target_indexes()
+    daily_index, daily_counts = load_target_daily_indexes({x["parent_accession"] for x in pairs})
     documents, pair_rows = [], []
 
     for pair in pairs:
         child_acc, parent_acc = pair["child_accession"], pair["parent_accession"]
-        child_row, parent_row = index.get(child_acc), index.get(parent_acc)
+        child_row = index.get(child_acc) or daily_index.get(child_acc)
+        parent_quarter_row = index.get(parent_acc)
+        parent_daily_row = daily_index.get(parent_acc)
+        parent_row = parent_quarter_row or parent_daily_row
         child_seed = [pair.get("child_issuer_cik_expected")]
         child_doc = fetch_xml(child_acc, child_row, pair.get("child_xml_url"), child_seed)
         if child_doc.get("ok"):
@@ -238,8 +298,10 @@ def audit(manifest_path, output_dir):
             )
             documents.append({
                 "pair_id": pair["pair_id"], "pair_type": pair["pair_type"], "role": role,
-                "accession": acc, "master_index_found": bool(row),
+                "accession": acc, "master_index_found": bool((row or {}).get("index_quarter")),
+                "daily_index_found": bool((row or {}).get("index_date")),
                 "index_quarter": (row or {}).get("index_quarter"),
+                "daily_index_date": (row or {}).get("index_date"),
                 "filing_date": filing_date,
                 "form": parsed.get("submission_type"),
                 "issuer_cik": parsed.get("issuer_cik"),
@@ -253,6 +315,7 @@ def audit(manifest_path, output_dir):
                 "acceptance_source": detail.get("source"),
                 "archive_path_cik": doc.get("path_cik"),
                 "xml_url": doc.get("url"),
+                "xml_source": doc.get("source"),
                 "xml_sha256": doc.get("sha256"),
                 "xml_status": "retrieved" if doc.get("ok") else "unresolved",
                 "index_detail_url": detail.get("url"),
@@ -287,7 +350,9 @@ def audit(manifest_path, output_dir):
             "child_filing_date": child_date,
             "parent_filing_date": parent_date,
             "parent_in_phase67_window": None if not parent_date else parent_date >= PHASE67_START,
-            "parent_index_found": bool(parent_row),
+            "parent_index_found": bool(parent_quarter_row),
+            "parent_daily_index_found": bool(parent_daily_row),
+            "parent_daily_index_date": (parent_daily_row or {}).get("index_date"),
             "child_previous_accession_matches": previous_matches,
             "filing_date_order_ok": None if not child_date or not parent_date else parent_date <= child_date,
             "child_accepted_et": child_detail.get("accepted_et"),
@@ -318,6 +383,8 @@ def audit(manifest_path, output_dir):
                   "phase401_unresolved_pairs": EXPECTED_UNRESOLVED_PAIRS,
                   "pairs_audited": len(pair_rows), "documents_expected": len(pair_rows) * 2},
         "quarter_index_search": quarter_counts,
+        "daily_index_search": daily_counts,
+        "daily_index_parent_hits": sum(bool(x.get("parent_daily_index_found")) for x in pair_rows),
         "retrieval": {"documents_retrieved": docs_ok, "documents_expected": len(documents),
                       "parent_documents_retrieved": resolved_parents,
                       "parent_documents_expected": len(pair_rows),
@@ -352,6 +419,7 @@ def audit(manifest_path, output_dir):
     write_csv(output_dir / "pair_audit.csv", pair_rows)
     write_csv(output_dir / "documents.csv", documents)
     write_csv(output_dir / "quarter_index_search.csv", quarter_counts)
+    write_csv(output_dir / "daily_index_search.csv", daily_counts)
     print(json.dumps(summary, indent=2, sort_keys=True), flush=True)
     return summary
 
