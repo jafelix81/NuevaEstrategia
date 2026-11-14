@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import csv
 import hashlib
+import html
 import json
 import re
 import xml.etree.ElementTree as ET
@@ -18,11 +19,12 @@ PHASE = 403
 DATA_DIR = Path("research/data/sec_form144_first_seen")
 STATE_PATH = DATA_DIR / "state.json"
 EVENTS_PATH = DATA_DIR / "events.csv"
+RECONCILIATION_PATH = DATA_DIR / "acceptance_reconciliation.csv"
 MANIFEST_PATH = Path("research/PHASE401_FORM144_CANDIDATE_CIK_MANIFEST_2026-11-14.json")
 EXPECTED_MANIFEST_SHA256 = "d20a1e42c7dfe3ef91248aa2aeecd5af7d853b91"
 EXPECTED_CANDIDATE_CIK_COUNT = 290
 EXPECTED_SOURCE_ARTIFACT_SHA256 = "939d5564b14ce0f41df23a2c9ab681977cfde141cd0ea2b3c1213b1c5bfaf613"
-MAX_FEED_ENTRIES = 100
+MAX_FEED_ENTRIES = 50  # observed maximum in the first live SEC Atom bootstrap
 
 FEEDS = {
     "144": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&type=144&owner=include&count=100&output=atom",
@@ -44,6 +46,14 @@ EVENT_FIELDS = [
     "historical_f80_membership_verified", "public_availability_certified",
     "research_observation_eligible", "signal_eligible", "same_day_intraday_use_authorized",
     "first_seen_is_upper_bound_not_exact_receipt",
+]
+
+RECON_FIELDS = [
+    "accession", "form", "feed_updated_utc", "first_seen_at_utc",
+    "acceptance_et", "acceptance_utc", "acceptance_source", "filing_date",
+    "feed_updated_minus_acceptance_seconds", "first_seen_upper_minus_acceptance_seconds",
+    "timing_anomaly", "filing_detail_url", "reconciliation_run_id",
+    "reconciled_at_utc", "signal_eligible", "public_availability_certified",
 ]
 
 def now_utc() -> str:
@@ -160,6 +170,20 @@ def parse_acceptance_submission(raw):
     dt = datetime.strptime(accepted_et, "%Y-%m-%d %H:%M:%S").replace(tzinfo=ZoneInfo("America/New_York"))
     accepted_utc = dt.astimezone(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
     return accepted_et, accepted_utc
+
+def parse_acceptance_html(raw):
+    if isinstance(raw, bytes):
+        raw = raw.decode("utf-8", "replace")
+    visible = html.unescape(re.sub(r"<[^>]+>", " ", str(raw)))
+    visible = re.sub(r"\s+", " ", visible)
+    match = re.search(r"\bAccepted\b\s*(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})", visible, re.I)
+    filing = re.search(r"\bFiling Date\b\s*(\d{4}-\d{2}-\d{2})", visible, re.I)
+    accepted_et = match.group(1) if match else None
+    accepted_utc = None
+    if accepted_et:
+        dt = datetime.strptime(accepted_et, "%Y-%m-%d %H:%M:%S").replace(tzinfo=ZoneInfo("America/New_York"))
+        accepted_utc = dt.astimezone(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    return accepted_et, accepted_utc, filing.group(1) if filing else None
 
 def extract_submission_xml(raw):
     if isinstance(raw, bytes):
@@ -341,6 +365,67 @@ def fetch_all_feeds():
         }
     return snapshots
 
+def read_event_rows(path=EVENTS_PATH):
+    path = Path(path)
+    if not path.exists():
+        return []
+    with path.open("r", newline="", encoding="utf-8-sig") as handle:
+        return list(csv.DictReader(handle))
+
+def read_reconciled_accessions(path=RECONCILIATION_PATH):
+    path = Path(path)
+    if not path.exists():
+        return set()
+    with path.open("r", newline="", encoding="utf-8-sig") as handle:
+        return {p401.accession(row.get("accession")) for row in csv.DictReader(handle) if row.get("accession")}
+
+def append_reconciliations(path, rows):
+    path = Path(path)
+    if not rows:
+        return
+    path.parent.mkdir(parents=True, exist_ok=True)
+    exists = path.exists() and path.stat().st_size > 0
+    with path.open("a", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=RECON_FIELDS, extrasaction="ignore")
+        if not exists:
+            writer.writeheader()
+        writer.writerows(rows)
+
+def fetch_acceptance_from_index(event, run_id):
+    accession = event.get("accession")
+    path_cik = event.get("feed_path_cik")
+    if not accession or not path_cik:
+        return None
+    base = f"https://www.sec.gov/Archives/edgar/data/{int(path_cik)}/{accession.replace('-', '')}"
+    url = f"{base}/{accession}-index.htm"
+    try:
+        raw = p401.fetch_bytes(url, sec=True, timeout=40, retries=2)
+        accepted_et, accepted_utc, filing_date = parse_acceptance_html(raw)
+        if not accepted_utc:
+            return None
+        feed_delta = seconds_between(event.get("feed_updated_utc"), accepted_utc)
+        seen_delta = seconds_between(event.get("first_seen_at_utc"), accepted_utc)
+        return {
+            "accession": accession,
+            "form": event.get("form"),
+            "feed_updated_utc": event.get("feed_updated_utc"),
+            "first_seen_at_utc": event.get("first_seen_at_utc"),
+            "acceptance_et": accepted_et,
+            "acceptance_utc": accepted_utc,
+            "acceptance_source": "SEC_filing_detail_index",
+            "filing_date": filing_date,
+            "feed_updated_minus_acceptance_seconds": feed_delta,
+            "first_seen_upper_minus_acceptance_seconds": seen_delta,
+            "timing_anomaly": bool(seen_delta is not None and seen_delta < 0),
+            "filing_detail_url": url,
+            "reconciliation_run_id": str(run_id),
+            "reconciled_at_utc": now_utc(),
+            "signal_eligible": False,
+            "public_availability_certified": False,
+        }
+    except Exception:
+        return None
+
 def run(mode, output_dir, run_id, data_dir=DATA_DIR):
     if mode not in ("bootstrap", "schedule", "manual"):
         raise ValueError("mode must be bootstrap, schedule or manual")
@@ -431,8 +516,23 @@ def run(mode, output_dir, run_id, data_dir=DATA_DIR):
         "historical_f80_membership_verified": False,
         "signal_eligible": False,
     }
+    acceptance_reconciliations = []
+    acceptance_attempts = 0
     if mode != "manual":
         append_events(events_path, new_rows)
+        reconciled = read_reconciled_accessions(data_dir / "acceptance_reconciliation.csv")
+        for event in read_event_rows(events_path):
+            accession = p401.accession(event.get("accession"))
+            if not accession or accession in reconciled:
+                continue
+            acceptance_attempts += 1
+            row = fetch_acceptance_from_index(event, run_id)
+            if row:
+                acceptance_reconciliations.append(row)
+                reconciled.add(accession)
+        append_reconciliations(data_dir / "acceptance_reconciliation.csv", acceptance_reconciliations)
+        state["last_acceptance_reconciliation_utc"] = now_utc()
+        state["acceptance_reconciled_accession_count"] = len(reconciled)
         write_json(state_path, state)
 
     summary = {
@@ -441,6 +541,10 @@ def run(mode, output_dir, run_id, data_dir=DATA_DIR):
         "feed_summaries": feed_summaries,
         "new_event_count": len(new_rows) if mode != "manual" else sum(len(x["new_accessions"]) for x in feed_summaries.values()),
         "new_xml_resolved_count": xml_resolved,
+        "acceptance_reconciliation_attempts": acceptance_attempts,
+        "acceptance_reconciliations_added": len(acceptance_reconciliations),
+        "acceptance_reconciliations_unresolved": max(0, acceptance_attempts - len(acceptance_reconciliations)),
+        "acceptance_reconciliation_source": "SEC filing-detail index page; separate append-only enrichment table",
         "new_candidate_issuer_matches": candidate_matches,
         "candidate_manifest_cik_count": len(candidate_ciks),
         "candidate_manifest_is_historical_f80_security_master": False,
