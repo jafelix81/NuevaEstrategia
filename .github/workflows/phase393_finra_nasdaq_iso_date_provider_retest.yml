@@ -1,6 +1,12 @@
 name: Phase 393 - FINRA Nasdaq ISO-date provider retest
 
 on:
+  push:
+    branches: [phase393-finra-nasdaq-iso-date-provider-retest]
+    paths:
+      - ".github/workflows/phase393_finra_nasdaq_iso_date_provider_retest.yml"
+      - "research/phase393_finra_nasdaq_iso_date_provider_retest.py"
+      - "research/test_phase393_finra_nasdaq_iso_date_provider_retest.py"
   pull_request:
     branches: [main]
     paths:
