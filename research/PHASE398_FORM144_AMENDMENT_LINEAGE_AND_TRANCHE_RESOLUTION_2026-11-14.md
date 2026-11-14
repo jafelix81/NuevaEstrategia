@@ -102,3 +102,17 @@ Official references:
 - F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
 - No universe, capital, exposure, parameter or production changes.
 - No SEC crawl, vendor contact, account, trial, license or data purchase.
+
+
+## 7. Follow-up on the two external parent accessions
+
+A targeted SEC filing search identified the two child 144/A documents that point to the parent accessions absent from the candidate issuer-event panel:
+
+| Child 144/A | Parent accession | SEC-visible child details |
+|---|---|---|
+| 0001318751-23-000003, filed 2023-05-17 | 0001318751-23-000002 | General Mills (issuer CIK 0000040704); 8,675 proposed shares, $785,608 |
+| 0001959173-23-003500, filed 2023-08-24 | 0001959173-23-003484 | Baker Hughes Co (issuer CIK 0001701605); 10,000 proposed shares, $351,900; the amendment remarks say the issuer name and SEC file number were corrected |
+
+Official child documents: [General Mills 144/A](https://www.sec.gov/Archives/edgar/data/1318751/000131875123000003/primary_doc.xml) and [Baker Hughes 144/A](https://www.sec.gov/Archives/edgar/data/1742205/000195917323003500/primary_doc.xml).
+
+The original parent payloads remain absent from the candidate panel and were not retrieved in this run. This is an important refinement: the zero issuer/filer CIK mismatch count applies only to the 193 parent-child pairs whose two records are both present in the candidate panel. It does not validate the two external parents. Because the Baker Hughes child expressly says issuer name and SEC file number were corrected, issuer name, issuer CIK and SEC file number must be versioned attributes rather than assumed invariant across all 144/A links. Do not infer the original parent issuer CIK from the amendment, and do not use the amended identity to rewrite the original version. The General Mills parent also remains unverified until its original filing payload is recovered.
