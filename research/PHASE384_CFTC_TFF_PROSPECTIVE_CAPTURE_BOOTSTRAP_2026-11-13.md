@@ -1,7 +1,7 @@
 # Phase 384 — CFTC TFF prospective first-receipt capture bootstrap
 
 **Date:** 2026-11-13  
-**Status:** hosted baseline completed successfully; prospective schedule awaits merge to the default branch.  
+**Status:** mainline activation completed through PR #60; weekday schedule is active on `main`; first scheduled observation is pending.  
 **Scope:** establish a reproducible, append-only prospective availability clock. No return or alpha test.
 
 ## Why this phase follows Phase 383
@@ -29,7 +29,7 @@ The source is the CFTC TFF Futures Only dataset gpe5-46if. The five CFTC busines
 6. A changed hash for an existing key is recorded as a revision event, never overwritten as though it had been known earlier.
 7. Missing contract-weeks remain missing; no forward-fill and no zero substitution.
 
-The first receipt is the pipeline's conservative knowledge clock, not a claim about the exact CFTC publication second. The scheduled workflow is inactive until this draft branch is merged into the default branch.
+The first receipt is the pipeline's conservative knowledge clock, not a claim about the exact CFTC publication second. PR #60 merged the clean activation package to `main`; the scheduled workflow is now active there. The first scheduled observation remains pending.
 
 ## Feature warm-up fields
 
@@ -80,9 +80,7 @@ Run [43510629316](https://github.com/jafelix81/NuevaEstrategia/actions/runs/4351
 - The historical baseline CSV (1,420,079 bytes), state hash map (3,035 keys) and manifest were committed append-only to the branch. Every historical row remains signal_eligible=false.
 - No forward returns, alpha, OOS, bootstrap, LOO or holdout test was run.
 
-The official CFTC schedule currently lists the report for positions as of 2026-11-10 for release on **2026-11-16 at 3:30 p.m. ET**, delayed by Veterans Day. The Phase 384 baseline ends on 2026-11-03 and therefore predates that release. If PR #59 is merged before the next scheduled capture, the first post-baseline report will be observed prospectively, with its actual pipeline receipt time. See the [CFTC release schedule](https://www.cftc.gov/MarketReports/CommitmentsofTraders/ReleaseSchedule/index.htm).
-
-The workflow schedule is not active on the default branch while PR #59 remains a draft.
+The official CFTC schedule lists the report for positions as of 2026-11-10 for release on **2026-11-16 at 3:30 p.m. ET**, delayed by Veterans Day. The Phase 384 baseline ends on 2026-11-03 and predates that release. PR #60 merged the clean activation package to `main` in commit `e88e553afc235916e37e9236e1890b714163c229`; the first scheduled capture is pending and will record the actual pipeline first-receipt time. See the [CFTC release schedule](https://www.cftc.gov/MarketReports/CommitmentsofTraders/ReleaseSchedule/index.htm).
 
 
 ## Schedule robustness correction — 2026-11-13
@@ -91,7 +89,7 @@ The official CFTC 2026 release schedule lists the report for positions as of 202
 
 Corrected the workflow cron to `15 22 * * 1-5`, running at 22:15 UTC each weekday. This is after the CFTC's 3:30 p.m. ET release in both U.S. standard and daylight time and captures a Monday holiday-delayed report on the same business day. No report is inferred if the source is not yet updated; the next weekday poll observes it. The existing first-seen, late-arrival and revision rules are unchanged.
 
-Official schedule: [CFTC 2026 Release Schedule](https://www.cftc.gov/MarketReports/CommitmentsofTraders/ReleaseSchedule/index.htm). The workflow remains inactive until PR #59 is reviewed and merged to the default branch. The branch-push bootstrap already exists and is protected against overwrite; the cron correction does not reset it.
+Official schedule: [CFTC 2026 Release Schedule](https://www.cftc.gov/MarketReports/CommitmentsofTraders/ReleaseSchedule/index.htm). PR #60 subsequently merged the clean activation package to `main`; the weekday cron is active and awaits its first scheduled run. The branch-push bootstrap is protected against overwrite; the cron correction does not reset it.
 
 
 ## Mainline activation correction — 2026-11-13
@@ -103,6 +101,16 @@ A repository topology check found that original PR #59 targets `phase383-cftc-ru
 
 The event ledger distinguishes **research-observation eligibility** from a trading signal. A scheduled first-seen new report may be marked `research_observation_eligible=true` only after the observed receipt timestamp; every captured event keeps `signal_eligible=false` and `trade_signal_generated=false`. The first regular equity session after receipt is only the earliest session at which the observation may enter a future research feature set. This workflow does not generate trades or authorize a signal.
 
-The CFTC announced on 2026-10-27 that it plans to increase COT publication frequency from once to twice weekly by the end of 2026: Monday-position data would be released Wednesday and Wednesday-position data Friday, both at 3:30 p.m. ET ([CFTC press release 9316-26](https://www.cftc.gov/PressRoom/PressReleases/9316-26)). No effective date was specified in the announcement, and the 2026-11-13 public schedule still shows the weekly regime. The weekday capture schedule can observe either cadence, but the existing 4-report and 52-report features are explicitly valid only across 6–8 day weekly report gaps. The capture now labels the observed cadence as WEEKLY, SEMIWEEKLY or IRREGULAR/INSUFFICIENT and suppresses weekly features when the observed gap regime is not weekly. Four reports must never be relabeled as four weeks. Any semiweekly features require a separately pre-registered horizon and validation design before use.
+The CFTC announced on 2026-10-27 that it plans to increase COT publication frequency from once to twice weekly by the end of 2026: Monday-position data would be released Wednesday and Wednesday-position data Friday, both at 3:30 p.m. ET ([CFTC press release 9316-26](https://www.cftc.gov/PressRoom/PressReleases/9316-26)). No effective date was specified in the announcement, and the 2026-11-13 public schedule still shows the weekly regime. The weekday capture schedule can observe either cadence. Static-backfill cadence labels remain diagnostic only; they are not attached to prospective event payloads and cannot supply Phase 387 feature history. The prospective study must calculate cadence from prospectively first-seen report dates only. Four reports must never be relabeled as four weeks. Any semiweekly features require a separately pre-registered horizon and validation design before use.
 
 This cadence guard is a data-integrity control, not an alpha feature. No trade signal is generated and F80 remains frozen.
+
+## Mainline activation completed — 2026-11-14
+
+PR #60 merged the clean Phase 384 activation package directly to `main` in commit `e88e553afc235916e37e9236e1890b714163c229`. The weekday schedule `15 22 * * 1-5` is active on the default branch. The hosted bootstrap run [43525140200](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43525140200) passed 11/11 tests, reread the 3,035-row baseline and returned `BASELINE_ALREADY_EXISTS_NO_OVERWRITE`; it did not rewrite historical state. No scheduled capture has yet verified a new report's first receipt. The next report of interest is the 2026-11-10 position report scheduled for 2026-11-16 at 3:30 p.m. ET.
+
+## Phase 388 — raw-only prospective event payload guard — 2026-11-14
+
+A post-merge code review found that scheduled events still carried derived features and cadence labels computed from the unverified static CFTC archive. Although these fields were not marked trade-eligible, their presence created a contamination path against Phase 387's prospective-only feature-history rule. PR #64 merged the correction to `main` in commit `9a57acb005f6496f707bfc6faf685925553930d4`. Prospective events now retain only raw canonical source rows, first-receipt metadata, hashes, event classification and eligibility flags. Archive-derived feature values and cadence labels are not attached to events. Hosted regression [43539923574](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43539923574) passed 13/13 tests. Downstream Phase 387 features must be recomputed solely from prospectively first-seen eligible events.
+
+No new CFTC report has been captured, no alpha/return test has run, and no signal or production change is authorized.
