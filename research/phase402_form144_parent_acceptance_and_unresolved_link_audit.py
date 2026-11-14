@@ -93,13 +93,11 @@ def parse_daily_master_index(raw):
         raw = raw.decode("latin-1", "replace")
     # Daily EDGAR master indexes label the final column "File Name";
     # quarterly master.idx uses "Filename". Normalize only the header.
-    raw = re.sub(
-        r"(?im)^(CIK\\|Company Name\\|Form Type\\|Date Filed\\|)\\s*File\\s*Name\\s*$",
-        r"\\1Filename",
-        raw,
+    raw = raw.replace(
+        "CIK|Company Name|Form Type|Date Filed|File Name",
+        "CIK|Company Name|Form Type|Date Filed|Filename",
     )
     return p401.parse_master_index(raw)
-
 def load_target_daily_indexes(target_accessions):
     target_accessions = {norm_acc(x) for x in target_accessions}
     by_accession, daily_counts = {}, []
