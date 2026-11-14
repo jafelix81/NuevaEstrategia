@@ -1,0 +1,137 @@
+{
+  "phase": 402,
+  "audit_date_utc": "2026-11-14T19:36:11.486868Z",
+  "status": "completed_with_explicit_unresolved_links",
+  "source_run_id": 43632820744,
+  "source_artifact_id": 14129225020,
+  "source_artifact_sha256": "24a24b8cad6b37091863168a149cc33c5ec79f70814c6e65f3ad3e7a1c55e477",
+  "phase401_source": {
+    "run_id": 43626453375,
+    "artifact_id": 14126667342,
+    "artifact_sha256": "6ce994213e507d6c0637162c520b003bb7e2a239b922f2a13cc24aaadd5d011c"
+  },
+  "scope": {
+    "candidate_boundary_pairs": 4,
+    "phase401_unresolved_pairs": 4,
+    "pairs_audited": 8,
+    "documents_expected": 16
+  },
+  "retrieval": {
+    "documents_retrieved": 14,
+    "documents_expected": 16,
+    "document_coverage": 0.875,
+    "parent_documents_retrieved": 6,
+    "parent_documents_expected": 8,
+    "parent_coverage": 0.75,
+    "acceptance_timestamps_found": 14,
+    "acceptance_timestamps_expected": 16,
+    "acceptance_coverage": 0.875,
+    "acceptance_coverage_among_retrieved_documents": 1
+  },
+  "quality": {
+    "candidate_boundary_pairs_fully_recovered": 4,
+    "previously_unresolved_pairs_fully_recovered": 2,
+    "child_previous_accession_matches": 8,
+    "parent_child_filing_date_inversions": 0,
+    "parent_child_acceptance_order_inversions": 0,
+    "acceptance_time_coverage_ge_90pct": false,
+    "all_parent_documents_retrieved": false,
+    "first_public_receipt_certified": false,
+    "historical_f80_identity_gate": false,
+    "economic_test_authorized": false
+  },
+  "candidate_boundary_pairs": [
+    {
+      "child_accession": "0001766264-23-000004",
+      "parent_accession": "0001766264-23-000002",
+      "parent_issuer_cik": "0000740906",
+      "child_issuer_cik": "0000072971",
+      "explicit_identity_correction": false,
+      "parent_accepted_et": "2023-04-10 11:39:15",
+      "child_accepted_et": "2023-04-14 12:24:45",
+      "decision": "ambiguous_issuer_transition_not_proven_correction"
+    },
+    {
+      "child_accession": "0001318751-23-000003",
+      "parent_accession": "0001318751-23-000002",
+      "parent_issuer_cik": "0001635007",
+      "child_issuer_cik": "0000040704",
+      "explicit_identity_correction": false,
+      "parent_accepted_et": "2023-05-17 10:35:56",
+      "child_accepted_et": "2023-05-17 12:29:58",
+      "decision": "ambiguous_issuer_transition_not_proven_correction"
+    },
+    {
+      "child_accession": "0001959173-23-003500",
+      "parent_accession": "0001959173-23-003484",
+      "parent_issuer_cik": "0000808362",
+      "child_issuer_cik": "0001701605",
+      "explicit_identity_correction": true,
+      "parent_accepted_et": "2023-08-24 10:59:26",
+      "child_accepted_et": "2023-08-24 15:02:25",
+      "decision": "explicit_issuer_name_and_file_number_correction"
+    },
+    {
+      "child_accession": "0001959173-25-007544",
+      "parent_accession": "0001959173-25-007533",
+      "parent_issuer_cik": "0000097210",
+      "child_issuer_cik": "0001603923",
+      "explicit_identity_correction": true,
+      "parent_accepted_et": "2025-12-05 10:28:07",
+      "child_accepted_et": "2025-12-05 12:03:06",
+      "decision": "explicit_issuer_name_correction"
+    }
+  ],
+  "recovered_previously_unresolved": [
+    {
+      "parent_accession": "0001213900-23-013351",
+      "child_accession": "0001213900-23-042097",
+      "issuer_cik": "0001671132",
+      "parent_seller": "Noch Jake P.",
+      "child_seller": "Jake P. Noch",
+      "parent_accepted_et": "2023-02-21 17:27:00",
+      "child_accepted_et": "2023-05-22 19:00:17",
+      "decision": "seller_string_order_variation_requires_identity_normalization"
+    },
+    {
+      "parent_accession": "0001570462-23-000002",
+      "child_accession": "0001580808-24-000063",
+      "issuer_cik": "0001580808",
+      "parent_seller": "Brian Becker",
+      "child_seller": "Dhrupad Trivedi",
+      "parent_accepted_et": "2023-03-14 21:32:12",
+      "child_accepted_et": "2024-04-23 16:15:53",
+      "explicit_seller_identity_correction": true,
+      "decision": "confirmed_seller_identity_correction_not_backdated"
+    }
+  ],
+  "unresolved_parents": [
+    {
+      "parent_accession": "0001976408-23-000153",
+      "child_accession": "0001976408-23-000167",
+      "status": "not_found_in_targeted_quarterly_or_daily_indexes_or_archive_paths",
+      "decision": "unresolved_no_inference_of_deletion"
+    },
+    {
+      "parent_accession": "0001000275-24-000021",
+      "child_accession": "0001000275-24-000022",
+      "status": "daily_index_only_form_144_row_2024-03-11_archive_paths_404",
+      "decision": "consistent_with_post_acceptance_removal_but_not_proven"
+    }
+  ],
+  "pit": {
+    "acceptance_datetime_is_not_first_public_receipt": true,
+    "same_day_intraday_use_authorized": false,
+    "date_level_next_regular_session_rule_retained": true,
+    "prospective_first_seen_ledger_required": true,
+    "corrected_identity_may_be_backdated": false
+  },
+  "decision": {
+    "no_forward_returns": true,
+    "no_alpha_or_oos_test": true,
+    "no_bootstrap_loo_or_holdout": true,
+    "new_signal_admitted": false,
+    "f80_changed": false,
+    "production_changed": false
+  }
+}
