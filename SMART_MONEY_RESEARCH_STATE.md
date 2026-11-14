@@ -1,3 +1,27 @@
+# Current Smart Money Research State — 2026-11-14
+
+## Frozen control and promotion status
+- `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen. No production, capital, universe, parameter or exposure changes.
+- No Smart Money signal is admitted. No new alpha/OOS, bootstrap, LOO or holdout test has been run in the current research cycle.
+- The legacy holdout remains consumed and unavailable. No CAGR target or fixed portfolio holding-period limit is imposed.
+
+## Active source work
+- **FINRA T1 ATS:** Phase 375 exhaustive source/grain/revision audit passed: 209/209 weeks, 10,917,933 rows, 98.633996% revision-stable symbol-week coverage and 96.943175% stable share-volume coverage. This is not a PIT or alpha pass. Phase 385 publication-clock census is in progress on run [43536354917](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43536354917). The first two attempts failed closed before any publication-clock conclusion; the latest run uses the proven partition filters, full mixed-grain pagination, and local `ATS_W_SMBL` selection. Do not duplicate while active. Even a pass will still require effective-dated security identity and historical universe coverage before a return test.
+- **CFTC TFF:** historical archive has 3,035 validated rows across ES, NQ, Dow and post-2017 Russell E-mini contracts, but all static historical rows remain warm-up/diagnostic only and are not signal-eligible. Phase 384 prospective first-receipt capture is now active on `main` after PR #60 merged in commit `e88e553afc235916e37e9236e1890b714163c229`. Weekday capture is scheduled at 22:15 UTC; first scheduled observation is pending. Late arrivals and revisions cannot be backdated; cadence changes suppress weekly features.
+- **CFTC hypothesis:** old Phase 23C directional COT equity-index hypothesis remains killed. Phase 387 preregisters a different prospective downside-risk/crowding hypothesis, with no use of static historical backfill for features or outcomes; see PR #63. No test has started.
+- **Options:** OptionMetrics TradeFlow remains the highest-priority historical signed-flow candidate, but access, licensing, historical-vintage/PIT and broad-universe gates are unresolved. Cboe Open-Close EOD sample accounting passed, but one-day C1 sample coverage is not a historical PIT or alpha pass. No vendor contact or purchase.
+- **FINRA Short Flow / Phase 20C:** no corrected economic retest is authorized while seven original price histories remain unresolved; do not alter the frozen universe to force a run.
+- **SEC:** standalone Form 4 and the tested N-PORT share-growth hypothesis are killed. Form 13F remains parked for security-identity/PIT coverage. SEC 13D/G remains in identity/event-normalization feasibility, not alpha-ready.
+
+## Immediate gates
+1. Complete Phase 385 without launching a duplicate.
+2. Verify the first scheduled CFTC capture and preserve its actual first-receipt timestamp.
+3. Accumulate prospective CFTC observations before testing Phase 387.
+4. Resolve historical security identity/universe membership before any FINRA ATS return test.
+5. Keep all candidate tests chronological, net of realistic costs, exposure-matched to frozen LTM/F80, and subject to dependence-aware bootstrap/LOO before any promotion.
+
+---
+
 # Smart Money Research State
 
 Updated: 2026-11-04
