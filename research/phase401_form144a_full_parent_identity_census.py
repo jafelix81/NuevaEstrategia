@@ -1,14 +1,146 @@
 #!/usr/bin/env python3
 """Full 14-quarter SEC Form 144/A parent-identity census; no returns or signals."""
 from __future__ import annotations
-import argparse, csv, hashlib, json, re, xml.etree.ElementTree as ET
+import argparse, csv, gzip, hashlib, json, random, re, threading, time, xml.etree.ElementTree as ET
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
-from research.phase50_form144_global_index_pilot import SEC_ARCHIVES, fetch_bytes, norm_cik, parse_form144_xml, parse_master_index
-from research.phase65_form144_event_field_coverage_audit import extract_sale_tranches
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
+
+SEC_ARCHIVES="https://www.sec.gov/Archives/edgar/data"
+SEC_UA="NuevaEstrategia quantitative research jose.felix@felixsarmiento.com"
+SEC_INTERVAL=0.20
+_last_sec_request=0.0
+_sec_lock=threading.Lock()
+
+def norm_cik(value):
+    if value in (None,""): return None
+    digits=re.sub(r"\\D","",str(value))
+    return digits.zfill(10) if digits else None
+
+def normalize_form(value):
+    value=" ".join(str(value or "").upper().split()).replace("FORM ","")
+    if "144/A" in value: return "144/A"
+    return "144" if re.search(r"(^|[^A-Z0-9])144([^A-Z0-9]|$)",value) else None
+
+def fetch_bytes(url,sec=True,timeout=60,retries=6):
+    global _last_sec_request
+    last_error=None
+    for attempt in range(retries):
+        if sec:
+            with _sec_lock:
+                wait=SEC_INTERVAL-(time.monotonic()-_last_sec_request)
+                if wait>0: time.sleep(wait)
+                _last_sec_request=time.monotonic()
+        request=Request(url,headers={"User-Agent":SEC_UA,"Accept-Encoding":"gzip, deflate",
+            "Accept":"application/json,text/html,application/xml,*/*"})
+        try:
+            with urlopen(request,timeout=timeout) as response:
+                raw=response.read()
+                if response.headers.get("Content-Encoding","").lower()=="gzip" or raw[:2]==b"\\x1f\\x8b":
+                    raw=gzip.decompress(raw)
+                return raw
+        except HTTPError as error:
+            last_error=error
+            if error.code==404: raise
+            if error.code not in (403,408,429,500,502,503,504): raise
+            retry_after=error.headers.get("Retry-After") if error.headers else None
+            try: delay=float(retry_after) if retry_after else min(45,2**attempt)
+            except (TypeError,ValueError): delay=min(45,2**attempt)
+            time.sleep(delay+random.uniform(0.1,0.6))
+        except (URLError,TimeoutError,OSError) as error:
+            last_error=error; time.sleep(min(30,2**attempt)+random.uniform(0.1,0.6))
+    raise RuntimeError("GET failed after retries: {}: {}".format(url,last_error))
+
+def parse_master_index(raw):
+    if isinstance(raw,bytes): raw=raw.decode("latin-1","replace")
+    lines=raw.lstrip("\\ufeff").splitlines()
+    header=None
+    for i,line in enumerate(lines):
+        if line.strip().lower().startswith("cik|company name|form type|date filed|filename"):
+            header=i; break
+    if header is None: raise ValueError("SEC master.idx header not found")
+    grouped={}
+    for line in lines[header+1:]:
+        if not line.strip() or line.startswith("---"): continue
+        parts=line.split("|",4)
+        if len(parts)!=5: continue
+        master_cik,company,raw_form,filed,filename=[x.strip() for x in parts]
+        form=normalize_form(raw_form)
+        if form not in ("144","144/A"): continue
+        m=re.search(r"(\\d{10}-\\d{2}-\\d{6})\\.txt$",filename,re.I)
+        if not m: continue
+        acc=m.group(1)
+        path_match=re.search(r"/data/(\\d+)/",filename,re.I)
+        item=grouped.setdefault(acc,{"accession":acc,"entities":{},"paths":set(),"forms":set(),"dates":set()})
+        item["entities"][norm_cik(master_cik)]=company
+        if path_match: item["paths"].add(norm_cik(path_match.group(1)))
+        item["forms"].add(form); item["dates"].add(filed)
+    out=[]
+    for acc,item in grouped.items():
+        paths=sorted(item["paths"]); forms=sorted(item["forms"]); dates=sorted(item["dates"])
+        out.append({"accession":acc,"form":forms[0] if len(forms)==1 else None,
+            "filing_date":dates[0] if len(dates)==1 else None,
+            "master_index_ciks":sorted(item["entities"]),
+            "archive_path_cik":paths[0] if len(paths)==1 else None,
+            "metadata_conflict":len(forms)!=1 or len(dates)!=1 or len(paths)>1})
+    return sorted(out,key=lambda x:(x.get("filing_date") or "",x["accession"]))
+
+def local_name(tag): return tag.rsplit("}",1)[-1].lower()
+
+def descendants(root,name):
+    wanted=name.lower()
+    return [x for x in root.iter() if local_name(x.tag)==wanted]
+
+def first_text(root,name):
+    for x in descendants(root,name):
+        if x.text and x.text.strip(): return x.text.strip()
+    return None
+
+def all_text(root,name):
+    return [x.text.strip() for x in descendants(root,name) if x.text and x.text.strip()]
+
+def parse_form144_xml(raw):
+    if isinstance(raw,bytes): raw=raw.decode("utf-8","replace")
+    root=ET.fromstring(raw)
+    if local_name(root.tag)!="edgarsubmission": raise ValueError("Unexpected Form 144 XML root")
+    submission=normalize_form(first_text(root,"submissionType"))
+    if submission not in ("144","144/A"): raise ValueError("Unexpected Form 144 submissionType")
+    filers=descendants(root,"filerCredentials")
+    filer=norm_cik(first_text(filers[0],"cik")) if filers else norm_cik(first_text(root,"cik"))
+    return {"submission_type":submission,"filer_cik":filer,
+        "previous_accession":first_text(root,"previousAccessionNumber"),
+        "issuer_cik":norm_cik(first_text(root,"issuerCik")),"issuer_name":first_text(root,"issuerName"),
+        "seller_name":first_text(root,"nameOfPersonForWhoseAccountTheSecuritiesAreToBeSold"),
+        "remarks":all_text(root,"remarks")}
+
+def parse_number(value):
+    if value in (None,""): return None
+    try: return Decimal(re.sub(r"[$, ]","",str(value).strip()))
+    except (InvalidOperation,TypeError,ValueError): return None
+
+def parse_date(value):
+    value=str(value or "").strip()
+    for fmt in ("%m/%d/%Y","%Y-%m-%d"):
+        try: return datetime.strptime(value,fmt).date().isoformat()
+        except ValueError: pass
+    return None
+
+def extract_sale_tranches(root):
+    nodes=[x for x in root.iter() if local_name(x.tag)=="securitiesinformation"]
+    result=[]
+    for i,node in enumerate(nodes,1):
+        result.append({"sale_tranche_index":i,"security_class":first_text(node,"securitiesClassTitle"),
+            "units_numeric":parse_number(first_text(node,"noOfUnitsSold")),
+            "value_numeric":parse_number(first_text(node,"aggregateMarketValue")),
+            "outstanding_numeric":parse_number(first_text(node,"noOfUnitsOutstanding")),
+            "approx_sale_date_iso":parse_date(first_text(node,"approxSaleDate")),
+            "exchange":first_text(node,"securitiesExchangeName"),
+            "broker_or_market_maker":first_text(node,"name")})
+    return result
 
 QUARTERS=("2023Q2,2023Q3,2023Q4,2024Q1,2024Q2,2024Q3,2024Q4,2025Q1,2025Q2,2025Q3,2025Q4,2026Q1,2026Q2,2026Q3")
 START_DATE="2023-04-13"
