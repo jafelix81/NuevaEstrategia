@@ -156,6 +156,25 @@ def classify(mode,old_hash,new_hash,report_date,latest_date):
   return ("late_arrival",False)
  if old_hash!=new_hash: return ("revision",False)
  return None
+
+def build_event_record(row,event_type,first_seen_utc,research_observation_eligible,
+                       previous_row_sha256,current_row_sha256):
+ """Persist raw source fields only; downstream features must use prospective events only."""
+ return {
+  "event_type":event_type,
+  "contract_code":row["cftc_contract_market_code"],
+  "report_date":day(row["report_date_as_yyyy_mm_dd"]).isoformat(),
+  "first_seen_utc":first_seen_utc,
+  "earliest_research_use_session":"first regular equity session after first_seen_utc",
+  "research_observation_eligible":bool(research_observation_eligible),
+  "signal_eligible":False,
+  "trade_signal_generated":False,
+  "previous_row_sha256":previous_row_sha256,
+  "current_row_sha256":current_row_sha256,
+  "source_row":canonical(row),
+  "historical_backfill_derived_features_included":False,
+  "feature_engineering_policy":"RECOMPUTE_FROM_PROSPECTIVE_FIRST_SEEN_EVENTS_ONLY",
+ }
 def make_state(rows,mode,stamp,meta_updated):
  hashes={key(r):digest(r) for r in rows}; latest={}
  for r in rows:
@@ -175,6 +194,8 @@ def run(mode,outdir,run_id):
   "scheduled_new_rows_research_observation_eligible_only_after_first_receipt":True,"trade_signal_generated":False,"revisions_signal_eligible":False,
   "cadence_policy":"4-report and 52-report features require weekly 6-8 day report gaps; semiweekly/irregular cadence suppresses weekly features until a separately pre-registered cadence specification is adopted.",
   "late_arrivals_signal_eligible":False,"forward_returns_used":False,"alpha_test_authorized":False,
+  "historical_backfill_derived_features_attached_to_events":False,
+  "prospective_feature_engineering_required":True,
   "holdout_used":False,"f80_changed":False,"production_changed":False,"state_write":False,"events_written":0}
  if not summary["natural_key_unique"]: raise RuntimeError("duplicate combined natural keys")
  if mode=="push":
@@ -192,19 +213,15 @@ def run(mode,outdir,run_id):
   state=read_state()
   if state is None: raise RuntimeError("baseline missing; scheduled capture cannot initialize silently")
   old=state.get("row_hashes",{}); latest=state.get("latest_report_date_by_code",{})
-  feature_map={f"{x['contract_code']}|{x['report_date']}":x for x in feat}
   events=[]; new_hashes=dict(old); new_latest=dict(latest)
   for r in rows:
    k=key(r); code=r["cftc_contract_market_code"]; rd=day(r["report_date_as_yyyy_mm_dd"]).isoformat(); h=digest(r)
    c=classify("schedule",old.get(k),h,rd,latest.get(code))
    if c is None: continue
-   kind,eligible=c; f=feature_map[k]
-   events.append({"event_type":kind,"contract_code":code,"report_date":rd,"first_seen_utc":stamp,
-    "earliest_research_use_session":"first regular equity session after first_seen_utc",
-    "research_observation_eligible":bool(eligible),"signal_eligible":False,"trade_signal_generated":False,
-    "observed_cadence_regime":f.get("cadence_regime"),"weekly_feature_gate":bool(f.get("weekly_feature_gate")),
-    "previous_row_sha256":old.get(k),"current_row_sha256":h,"source_row":canonical(r),
-    "derived_features":{x:f.get(x) for x in CSV_FIELDS if x not in ("historical_pit_status","signal_eligible","row_sha256")}})
+   kind,eligible=c
+   events.append(build_event_record(
+    r,kind,stamp,eligible,old.get(k),h
+   ))
    new_hashes[k]=h
    if rd>new_latest.get(code,"0001-01-01"): new_latest[code]=rd
   if events:
