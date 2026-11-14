@@ -39,3 +39,15 @@ Phase 401 therefore expands the audit from the 196 candidate 144/A rows to **all
 ## Economic authorization
 
 This phase calculates no forward returns, no alpha, no model comparison, no bootstrap/LOO and does not touch the holdout. Historical F80 membership, inactive/predecessor security identity, accepted-time PIT and actual sale execution remain separate gates. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## Existing Form 144 → Form 4 work (do not duplicate)
+
+The repository's separate draft branches behind PRs #29 and #30 already contain a 2026Q3 descriptive conversion/linkage study. Its reported sample is 1,451 Form 144 notices / 1,460 tranches and 38,152 Form 4 submissions / 59,885 nonderivative transaction rows. It found 570 one-to-one notice-to-Form-4 links (39.3% of eligible notices), 521 exact date-and-share matches, and 481/521 class-family agreements. A separate selection audit matched 570/1,665 eligible Form 4 sale blocks (34.2%). A global placebo audit found 12/13 tests significant after Holm correction, but those tests concern non-random document linkage, not forward-return prediction. Phase 275 uses issuer CIK × filing date as the descriptive event unit; owner independence remains unproven.
+
+These results are useful execution-conversion evidence, but they are a single-quarter descriptive sample on unmerged draft branches. They do not establish broad historical coverage, strict PIT identity, an independent owner-level panel, or alpha. Phase 401 therefore does **not** repeat the Form 144/Form 4 matching test. It addresses the broader 144/A parent-identity selection boundary that must be solved before any historical proposed-supply event study.
+
+## Current hosted execution
+
+- Run [43621827885](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43621827885) is the single active live census. Its offline regression job passed; the SEC XML retrieval step is still running.
+- No second live census is to be launched while that run is active.
