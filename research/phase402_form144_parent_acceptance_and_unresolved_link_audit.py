@@ -316,7 +316,7 @@ def audit(artifact_dir, output_dir):
             "parent_seller": parent_parsed.get("seller_name"),
             "child_filing_date": child_date,
             "parent_filing_date": parent_date,
-            "parent_in_phase67_window": bool(parent_date and parent_date >= PHASE67_START),
+            "parent_in_phase67_window": None if not parent_date else parent_date >= PHASE67_START,
             "parent_index_found": bool(parent_row),
             "child_previous_accession_matches": previous_matches,
             "filing_date_order_ok": None if not child_date or not parent_date else parent_date <= child_date,
