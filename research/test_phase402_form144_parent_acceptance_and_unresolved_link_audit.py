@@ -1,10 +1,9 @@
-import csv
-import json
-import tempfile
 import unittest
-from pathlib import Path
 
 from research.phase402_form144_parent_acceptance_and_unresolved_link_audit import (
+    PHASE401_ARTIFACT_ID,
+    PHASE401_ARTIFACT_SHA256,
+    PHASE401_RUN_ID,
     accepted_utc,
     build_pairs,
     norm_acc,
@@ -36,45 +35,33 @@ class Phase402Tests(unittest.TestCase):
     def test_accession_is_normalized(self):
         self.assertEqual(norm_acc("000195917325007544"), "0001959173-25-007544")
 
-    def test_build_pairs_keeps_four_boundary_and_four_unresolved(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            with (root / "all_amendment_parent_pairs.csv").open("w", newline="", encoding="utf-8") as f:
-                w = csv.DictWriter(f, fieldnames=[
-                    "candidate_membership_transition", "child_accession", "parent_accession",
-                    "child_filing_date", "parent_filing_date", "child_xml_url", "parent_xml_url",
-                    "child_issuer_cik", "parent_issuer_cik", "remarks_explicit_identity_correction"
-                ])
-                w.writeheader()
-                transitions = [
-                    "parent_noncandidate_to_child_candidate",
-                    "parent_noncandidate_to_child_candidate",
-                    "parent_noncandidate_to_child_candidate",
-                    "parent_candidate_to_child_noncandidate",
-                ]
-                for i, transition in enumerate(transitions):
-                    w.writerow({
-                        "candidate_membership_transition": transition,
-                        "child_accession": f"000000000{i}-25-00000{i}",
-                        "parent_accession": f"000000000{i}-25-00000{i+1}",
-                        "child_filing_date": "2025-12-05", "parent_filing_date": "2025-12-05",
-                        "child_xml_url": "", "parent_xml_url": "",
-                        "child_issuer_cik": "0000000001", "parent_issuer_cik": "0000000002",
-                        "remarks_explicit_identity_correction": "True",
-                    })
-            with (root / "unresolved_parent_links.csv").open("w", newline="", encoding="utf-8") as f:
-                w = csv.DictWriter(f, fieldnames=["child_accession", "parent_accession", "status"])
-                w.writeheader()
-                for i in range(4):
-                    w.writerow({
-                        "child_accession": f"000000001{i}-24-00000{i}",
-                        "parent_accession": f"000000002{i}-24-00000{i}",
-                        "status": "parent_xml_unresolved",
-                    })
-            pairs = build_pairs(root)
-            self.assertEqual(len(pairs), 8)
-            self.assertEqual(sum(x["pair_type"] == "candidate_boundary" for x in pairs), 4)
-            self.assertEqual(sum(x["pair_type"] == "phase401_unresolved" for x in pairs), 4)
+    def test_build_pairs_accepts_only_frozen_phase401_scope(self):
+        pairs = []
+        for i in range(4):
+            pairs.append({"pair_id": f"boundary:{i}", "pair_type": "candidate_boundary",
+                          "child_accession": f"000000000{i}-25-00000{i}",
+                          "parent_accession": f"000000000{i}-25-00000{i+1}"})
+        for i in range(4):
+            pairs.append({"pair_id": f"unresolved:{i}", "pair_type": "phase401_unresolved",
+                          "child_accession": f"000000001{i}-24-00000{i}",
+                          "parent_accession": f"000000002{i}-24-00000{i}"})
+        manifest = {
+            "source_run_id": PHASE401_RUN_ID,
+            "source_artifact_id": PHASE401_ARTIFACT_ID,
+            "source_artifact_sha256": PHASE401_ARTIFACT_SHA256,
+            "pairs": pairs,
+        }
+        self.assertEqual(len(build_pairs(manifest)), 8)
+
+    def test_build_pairs_rejects_wrong_artifact_digest(self):
+        manifest = {
+            "source_run_id": PHASE401_RUN_ID,
+            "source_artifact_id": PHASE401_ARTIFACT_ID,
+            "source_artifact_sha256": "0" * 64,
+            "pairs": [],
+        }
+        with self.assertRaises(ValueError):
+            build_pairs(manifest)
 
 if __name__ == "__main__":
     unittest.main()

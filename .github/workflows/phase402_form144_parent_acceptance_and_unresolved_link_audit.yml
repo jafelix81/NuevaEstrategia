@@ -11,13 +11,14 @@ on:
     paths:
       - "research/phase402_form144_parent_acceptance_and_unresolved_link_audit.py"
       - "research/test_phase402_form144_parent_acceptance_and_unresolved_link_audit.py"
+      - "research/PHASE402_FROZEN_INPUT_PAIRS_2026-11-14.json"
       - ".github/workflows/phase402_form144_parent_acceptance_and_unresolved_link_audit.yml"
       - "research/PHASE402_FORM144_PARENT_ACCEPTANCE_AND_UNRESOLVED_LINK_AUDIT_2026-11-14.md"
   workflow_dispatch:
 permissions:
   contents: read
 concurrency:
-  group: phase402-form144-parent-acceptance-audit-\${{ github.event_name }}
+  group: phase402-form144-parent-acceptance-audit-${{ github.event_name }}
   cancel-in-progress: false
 jobs:
   offline-regression:
@@ -36,8 +37,6 @@ jobs:
     needs: offline-regression
     runs-on: ubuntu-latest
     timeout-minutes: 90
-    env:
-      GITHUB_TOKEN: \${{ github.token }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
