@@ -39,7 +39,7 @@ The five current-candidate issuer matches are diagnostic only. The 290-CIK Phase
 
 ## Acceptance-time enrichment
 
-The complete submission text was retrieved for all 52 accessions and supplied the XML block for 42; ten required the primary_doc.xml fallback. The complete-submission header did not yield a parseable ACCEPTANCE-DATETIME in this sample. The capture now performs a separate filing-detail-page reconciliation and writes successful matches to an append-only acceptance_reconciliation.csv keyed by accession. This avoids rewriting the immutable first-seen rows.
+The complete submission text was retrieved for all 52 accessions and supplied the XML block for 42; ten required the primary_doc.xml fallback. The complete-submission header did not yield a parseable ACCEPTANCE-DATETIME in this sample. A separate filing-detail-page reconciliation writes successful matches to an append-only acceptance_reconciliation.csv keyed by accession, avoiding any rewrite of the immutable first-seen rows. The 52/52 exact equality of Atom updated and SEC Accepted should be treated as a sample-specific validation of the feed timestamp's acceptance-time semantics, not as proof of first-public availability.
 
 For each accession, the reconciliation records:
 - SEC filing-detail Accepted time converted from America/New_York to UTC;
@@ -49,12 +49,12 @@ For each accession, the reconciliation records:
 - source URL and reconciliation run;
 - timing anomalies, if any.
 
-The initial bootstrap's acceptance reconciliation is pending the next corrected live run. No conclusion about Atom updated equaling acceptance is made until those filing-detail comparisons are available.
+The corrected reconciliation run 43639405055 retrieved the filing-detail pages for all 52 bootstrap accessions: 52/52 acceptance timestamps were recovered, with zero unresolved rows and zero negative timing anomalies. Atom updated equaled SEC Accepted to the exact second for all 52/52 records. This is strong evidence that the Atom updated field mirrors acceptance time in this sample, but it does not prove first-public availability at acceptance. The bootstrap first-seen upper bound occurred 68,509–162,662 seconds after acceptance (median 83,007 seconds), because the first capture was a weekend baseline of older filings; these lags are not a publication-latency estimate and none of the 52 events is a prospective interval observation.
 
 ## Capture design
 
 - Poll two official Latest Filings Atom queries: type=144 and type=144/A.
-- Request up to 100 entries per feed; deduplicate by accession across feeds.
+- Request 100 entries per feed; the first live response returned 50 in the 144 feed and five in the 144/A feed. The conservative observed full-window threshold is set to 50 until further samples confirm the endpoint's maximum; deduplicate by accession across feeds.
 - Store one immutable first-seen row per accession. A Form 144/A is a separate filing version, not a second proposed sale.
 - Record Atom updated exactly as supplied, but do not assume it is the acceptance time.
 - Record the feed archive-path CIK separately from XML issuer CIK and filer CIK. Candidate membership is determined only from the parsed XML issuer CIK.
@@ -91,7 +91,7 @@ Acceptance-time enrichment is stored separately in acceptance_reconciliation.csv
 ## Known limitations
 
 1. Hourly GitHub Actions polling creates a coarse upper-bound interval; it cannot validate a 1–3 minute latency distribution or certify exact first-public availability.
-2. GitHub scheduled workflows can be delayed. A full 50-entry response with the prior latest accession missing is flagged as a possible coverage gap.
+2. GitHub scheduled workflows can be delayed. A full 50-entry response with the prior latest accession missing is flagged as a possible coverage gap. The second bootstrap poll found the prior latest accession in both feeds and reported no gap.
 3. The RSS feed is a current feed, not a historical archive. The bootstrap has no lower bound and is not a prospective interval observation.
 4. The 290-CIK candidate set is not a historical security master. Issuer matches are diagnostic only.
 5. XML or filing-detail retrieval failures remain unresolved and are not silently converted into valid observations.
