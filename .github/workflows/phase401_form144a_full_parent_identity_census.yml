@@ -43,8 +43,7 @@ jobs:
           python-version: "3.11"
       - name: Compile and test research dependencies
         run: |
-          python -m py_compile research/phase50_form144_global_index_pilot.py
-          python -m py_compile research/phase65_form144_event_field_coverage_audit.py
+          python -m py_compile research/phase401_form144a_full_parent_identity_census.py
           python -m unittest -v research.test_phase401_form144a_full_parent_identity_census
       - name: Resolve every 144-A parent link in the 14-quarter census
         run: python -u -m research.phase401_form144a_full_parent_identity_census --workers 5
