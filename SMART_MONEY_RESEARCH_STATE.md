@@ -1,3 +1,11 @@
+## Phase 397 — Form 144 PIT clock and event-payload integrity (2026-11-14)
+
+- Offline audit of Phase 67 run 41828179718 / artifact 13334881835 (ZIP SHA-256 939d5564b14ce0f41df23a2c9ab681977cfde141cd0ea2b3c1213b1c5bfaf613; issuer_event_raw.csv SHA-256 fd20e338bd3624e7c1e85c39ab911f9fd5d1d78e8a20ed185e42db299a868b20). The 21,634-row panel contains 21,438 Form 144 originals and 196 144/A amendments.
+- 168/21,634 notice_date values differ from SEC filing_date (141 earlier, 27 later); notice_date is rejected as a PIT clock. The Phase 67 CSV contains no accepted timestamp. SEC guidance supports a conservative next-regular-session-after-filing-date daily clock for Form 144/144-A, including filings submitted 5:30–10 p.m. ET; no intraday or same-day use is authorized because exact first public receipt is not recorded.
+- Found 291 multi-candidate ticker rows (290 Z/ZG, one AMT/ASTS filer-versus-issuer case), 188 multi-tranche events, two zero/invalid proposed-unit rows, three zero/invalid proposed-value rows, seven zero/invalid shares-outstanding rows, and one 144/A parent reference not found in the 14-quarter census. Use tranche-level security-class mapping and explicit validity masks.
+- Form 144 is treated only as a selective proposed insider-supply/order hypothesis, not a confirmed execution or “smart money” label. Historical F80 membership, security-class/ticker mapping, delisted/predecessor coverage and full amendment lineage remain blocking gates. No returns, alpha, OOS, bootstrap, LOO or holdout test; no purchase or SEC crawl; F80/production unchanged.
+- Reproducible offline audit script, 3 unit tests and aggregate summary are in the Phase 397 report. See research/PHASE397_FORM144_PIT_CLOCK_AND_EVENT_INTEGRITY_2026-11-14.md.
+
 # Current Smart Money Research State — 2026-11-14
 
 ## Phase 396 — CFTC TFF cadence implementation recheck (2026-11-14)
