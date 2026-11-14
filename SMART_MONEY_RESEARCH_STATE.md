@@ -366,3 +366,26 @@ This section supersedes any older “in progress” status above where later com
 - No Smart Money signal admitted; no new economic/OOS test; holdout untouched.
 - No capital, exposure, universe, parameter or production change.
 - No vendor purchase or contact.
+
+
+## 2026-11-14 — Phase 401 full Form 144/A identity census (in progress)
+
+- Frozen the exact 290 candidate CIKs observed in Phase 67 master-index accession pairs from artifact 13334881835 (artifact SHA-256 939d5564b14ce0f41df23a2c9ab681977cfde141cd0ea2b3c1213b1c5bfaf613). This is a current-CIK diagnostic set, not a historical F80 security master.
+- Phase 401 expands the amendment audit from the 196 candidate-panel 144/A rows to all 609 144/A accessions in the 14-quarter Phase 67 census (56,167 accessions). It resolves each explicit previousAccessionNumber and tests both candidate-boundary directions: parent outside/child inside, and parent inside/child outside. It preserves filer CIK and issuer CIK separately, records raw-document hashes, and does not infer that a CIK change is automatically a correction.
+- Live hosted scan: run 43621827885, branch phase401-form144a-full-parent-identity-census. Offline regression passed; live SEC parent-link census is still running. No result or signal is admitted until its artifact and quality gates are reviewed.
+- Existing Form 144 → Form 4 conversion work was found on the unmerged draft research branches behind PRs #29 and #30. It is a 2026Q3 descriptive linkage sample, not an alpha test: 1,451 notices / 1,460 tranches; 570 one-to-one links (39.3% of eligible notices); 521 exact date-and-share matches; 481/521 class-family agreements. The separate selection audit matched 570/1,665 eligible Form 4 sale blocks (34.2%). The global placebo audit reported 12/13 tests significant after Holm correction, but these test whether document linkage is non-random, not whether the event predicts returns. Phase 275's issuer-CIK × filing-date unit remains descriptive; owner independence is unproven. Do not duplicate this matching exercise or promote it as a Smart Money signal. PRs #29/#30 remain draft/unmerged.
+- Form 144 remains a proposed-sale/placement-order notice, not proof of execution. The proposed-supply hypothesis still needs full identity/PIT coverage, actual execution interpretation, and a separately preregistered return test versus frozen LTM/F80.
+
+## 2026-11-14 — CFTC historical publication-time feasibility correction
+
+- Official CFTC Historical Viewable states that archive dates are report dates, not release dates. The About COT page says Futures Only reports are generally released Friday at 3:30 p.m. ET, but the agency's historical release-date list is available only for the latest 13 months. The public release schedule is tentative and holiday-adjusted.
+- Historical release timing is not safely reconstructed as report-date + 3 days. CFTC's 2025 shutdown special announcement shows the 2025-09-30 report originally scheduled for 2025-10-03 was not published until 2025-11-19, with other reports released in catch-up order. A naive report-date clock would introduce material lookahead for that period.
+- Therefore the Phase 384 prospective first-receipt ledger is not merely conservative; it is required for reproducible PIT beyond the CFTC's 13-month release-date history. Historical backfill stays ineligible. Phase 387 remains weekly until the TFF dataset itself demonstrates the announced semiweekly schedule.
+- Official sources: CFTC Historical Viewable (https://www.cftc.gov/MarketReports/CommitmentsofTraders/HistoricalViewable/index.htm); About the COT Reports (https://www.cftc.gov/MarketReports/CommitmentsofTraders/AbouttheCOTReports/cot_about.html); Release Schedule (https://www.cftc.gov/MarketReports/CommitmentsofTraders/ReleaseSchedule/index.htm); Historical Special Announcements (https://www.cftc.gov/MarketReports/CommitmentsofTraders/HistoricalSpecialAnnouncements/index.htm); CFTC release 9316-26 (https://www.cftc.gov/PressRoom/PressReleases/9316-26).
+
+## Strategy controls after Phase 401 preflight
+
+- F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+- No Smart Money signal admitted; no new return/OOS/alpha test; holdout untouched.
+- No capital, exposure, universe, parameter or production change.
+- No vendor purchase, trial, account or contact.
