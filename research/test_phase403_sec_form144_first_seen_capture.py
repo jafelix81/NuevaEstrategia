@@ -85,6 +85,36 @@ class Phase403Tests(unittest.TestCase):
         self.assertFalse(p403.detect_possible_gap(entries[:99], "9999999999-26-000001"))
         self.assertFalse(p403.detect_possible_gap(entries, entries[0]["accession"]))
 
+
+    def test_acceptance_timestamp_from_filing_detail_html(self):
+        raw = b"<html><div>Filing Date 2026-11-13</div><div>Accepted 2026-11-13 16:24:50</div></html>"
+        accepted_et, accepted_utc, filing_date = p403.parse_acceptance_html(raw)
+        self.assertEqual(accepted_et, "2026-11-13 16:24:50")
+        self.assertEqual(accepted_utc, "2026-11-13T21:24:50Z")
+        self.assertEqual(filing_date, "2026-11-13")
+
+    def test_acceptance_index_reconciliation_is_separate_and_non_signal(self):
+        event = {
+            "accession": "0000123456-24-000001",
+            "feed_path_cik": "0009999999",
+            "form": "144",
+            "feed_updated_utc": "2026-11-13T21:24:50Z",
+            "first_seen_at_utc": "2026-11-14T20:45:08Z",
+        }
+        html = b"<html><div>Filing Date 2026-11-13</div><div>Accepted 2026-11-13 16:24:50</div></html>"
+        with patch.object(p403.p401, "fetch_bytes", return_value=html):
+            row = p403.fetch_acceptance_from_index(event, "123")
+        self.assertEqual(row["acceptance_utc"], "2026-11-13T21:24:50Z")
+        self.assertEqual(row["feed_updated_minus_acceptance_seconds"], 0)
+        self.assertFalse(row["signal_eligible"])
+        self.assertFalse(row["public_availability_certified"])
+
+    def test_observed_feed_window_cap_is_50(self):
+        self.assertEqual(p403.MAX_FEED_ENTRIES, 50)
+        entries = [{"accession": f"0000000000-26-{i:06d}"} for i in range(50)]
+        self.assertTrue(p403.detect_possible_gap(entries, "9999999999-26-000001"))
+        self.assertFalse(p403.detect_possible_gap(entries[:49], "9999999999-26-000001"))
+
     def test_interval_lower_bound_is_suppressed_after_gap(self):
         prior = "2026-11-14T18:00:00Z"
         self.assertEqual(
