@@ -390,3 +390,19 @@ This section supersedes any older “in progress” status above where later com
 - No Smart Money signal admitted; no new return/OOS/alpha test; holdout untouched.
 - No capital, exposure, universe, parameter or production change.
 - No vendor purchase, trial, account or contact.
+
+
+## Phase 401 — final corrected full-market Form 144/A parent-identity census (2026-11-14)
+
+- PR [#78](https://github.com/jafelix81/NuevaEstrategia/pull/78) merged to main as `4005a1f77a10f8e497cbd31a4b2ee4530df69e2c`.
+- Final run [43626453375](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43626453375) completed successfully: offline-regression 13/13 tests and live-census SUCCESS. Artifact 14126667342; ZIP SHA-256 `6ce994213e507d6c0637162c520b003bb7e2a239b922f2a13cc24aaadd5d011c`.
+- Correct frozen baselines: 125,977 Phase 67 window accessions, 21,648 candidate-index accessions, 196 candidate 144/A events, and 1,446 all-market 144/A children. 1,442/1,446 parent links resolved; four retained as unresolved.
+- Among 1,442 resolved pairs: 49 issuer CIK changes (24 with explicit correction remarks), 96 issuer-name changes, 108 seller-name changes and 767 tranche-payload changes. Candidate-boundary transitions: three parent-noncandidate → child-candidate and one parent-candidate → child-noncandidate.
+- The artifact was downloaded and inspected; no returns, alpha, OOS, bootstrap, LOO or holdout test was run. No signal admitted; F80 and production unchanged.
+
+## Phase 402 — targeted Form 144 parent recovery and acceptance-time audit (2026-11-14)
+
+- Scope frozen to the four candidate-boundary pairs and four unresolved parent links from Phase 401; no repeated full census and no duplicate Form 144 → Form 4 linkage study.
+- The Phase 401 artifact SHA-256 was verified and the exact eight input rows were materialized in `research/PHASE402_FROZEN_INPUT_PAIRS_2026-11-14.json`. The two initial Phase 402 live attempts (runs 43631231048 and 43631278092) passed offline tests but failed before SEC retrieval because the cross-run artifact API returned HTTP 401 to GITHUB_TOKEN. Workflow corrected to consume the pinned manifest; no SEC request or artifact was produced by those failed attempts.
+- Phase 402 will search seven relevant quarterly master indexes, recover parent/child XMLs, and retrieve filing-detail Accepted / ACCEPTANCE-DATETIME values. Acceptance time remains a version-ordering field, not first-public receipt; no intraday use or economic test is authorized.
+- Historical F80 identity, first-public-receipt and security-class gates remain closed. F80_TOP20_PARTIAL50_BASELINE_C20 frozen; holdout untouched.

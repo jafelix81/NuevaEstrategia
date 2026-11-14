@@ -1,6 +1,6 @@
 # Phase 402 — Form 144 parent recovery and acceptance-time audit
 
-**Status:** targeted live audit queued by branch push; research-only. No forward returns or signals.
+**Status:** targeted live audit ready; research-only. The eight-pair manifest is extracted from Phase 401 artifact 14126667342 after verifying its SHA-256. Two initial Phase 402 live attempts passed offline regressions but stopped before any SEC request because the cross-run artifact API returned HTTP 401 to the workflow token. The workflow now uses the pinned, compact manifest committed in the repository; no cross-run artifact download is required. No forward returns or signals.
 
 ## Purpose
 
@@ -15,7 +15,7 @@ This phase does not repeat the broad census or the existing Form 144 → Form 4 
 - ZIP SHA-256: \`6ce994213e507d6c0637162c520b003bb7e2a239b922f2a13cc24aaadd5d011c\`
 - Input rows: four \`parent_noncandidate_to_child_candidate\` / \`parent_candidate_to_child_noncandidate\` transitions and four \`parent_xml_unresolved\` links.
 
-The artifact is downloaded by the workflow, SHA-256 verified before extraction, and never modified.
+The artifact was downloaded and SHA-256 verified during this run. Its eight target rows are materialized as `research/PHASE402_FROZEN_INPUT_PAIRS_2026-11-14.json`, retaining the source run, artifact ID and digest. This avoids a cross-run artifact API permission dependency while preserving the exact frozen inputs.
 
 ## Scope
 

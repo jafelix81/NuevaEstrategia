@@ -1,6 +1,6 @@
 # Phase 401 — Full-market SEC Form 144/A parent-identity census
 
-**Status:** full SEC retrieval completed; the first run exposed incorrect Phase 67 baseline constants. The validation logic is being corrected and rerun. Research-only; no return calculations.
+**Status:** completed and merged via PR #78. Corrected live run 43626453375 passed both offline regression (13 tests) and the full SEC census. Artifact 14126667342 (SHA-256 `6ce994213e507d6c0637162c520b003bb7e2a239b922f2a13cc24aaadd5d011c`). Research-only; no return calculations.
 
 ## Scope correction
 

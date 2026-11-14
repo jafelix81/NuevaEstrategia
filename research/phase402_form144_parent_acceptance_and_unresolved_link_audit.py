@@ -177,61 +177,31 @@ def write_csv(path, rows):
         writer.writeheader()
         writer.writerows(rows)
 
-def build_pairs(artifact_dir):
-    pairs_file = artifact_dir / "all_amendment_parent_pairs.csv"
-    unresolved_file = artifact_dir / "unresolved_parent_links.csv"
-    if not pairs_file.exists() or not unresolved_file.exists():
-        raise FileNotFoundError("Phase 401 artifact is missing required pair CSVs")
-    boundary = []
-    for row in read_csv(pairs_file):
-        if row.get("candidate_membership_transition") in (
-            "parent_noncandidate_to_child_candidate",
-            "parent_candidate_to_child_noncandidate",
-        ):
-            boundary.append({
-                "pair_id": "boundary:" + row["child_accession"],
-                "pair_type": "candidate_boundary",
-                "transition": row.get("candidate_membership_transition"),
-                "child_accession": norm_acc(row.get("child_accession")),
-                "parent_accession": norm_acc(row.get("parent_accession")),
-                "child_filing_date_expected": row.get("child_filing_date"),
-                "parent_filing_date_expected": row.get("parent_filing_date"),
-                "child_xml_url": row.get("child_xml_url"),
-                "parent_xml_url": row.get("parent_xml_url"),
-                "child_issuer_cik_expected": row.get("child_issuer_cik"),
-                "parent_issuer_cik_expected": row.get("parent_issuer_cik"),
-                "remarks_explicit_identity_correction": row.get("remarks_explicit_identity_correction"),
-            })
-    unresolved = []
-    for row in read_csv(unresolved_file):
-        if row.get("status") != "parent_xml_unresolved":
-            continue
-        unresolved.append({
-            "pair_id": "unresolved:" + row["child_accession"],
-            "pair_type": "phase401_unresolved",
-            "transition": "not_preclassified",
-            "child_accession": norm_acc(row.get("child_accession")),
-            "parent_accession": norm_acc(row.get("parent_accession")),
-            "child_filing_date_expected": None,
-            "parent_filing_date_expected": None,
-            "child_xml_url": None,
-            "parent_xml_url": None,
-            "child_issuer_cik_expected": None,
-            "parent_issuer_cik_expected": None,
-            "remarks_explicit_identity_correction": None,
-        })
+def build_pairs(manifest):
+    if manifest.get("source_run_id") != PHASE401_RUN_ID:
+        raise ValueError("Phase 401 source run mismatch")
+    if manifest.get("source_artifact_id") != PHASE401_ARTIFACT_ID:
+        raise ValueError("Phase 401 source artifact mismatch")
+    if manifest.get("source_artifact_sha256") != PHASE401_ARTIFACT_SHA256:
+        raise ValueError("Phase 401 source artifact digest mismatch")
+    pairs = manifest.get("pairs") or []
+    boundary = [x for x in pairs if x.get("pair_type") == "candidate_boundary"]
+    unresolved = [x for x in pairs if x.get("pair_type") == "phase401_unresolved"]
     if len(boundary) != EXPECTED_BOUNDARY_PAIRS or len(unresolved) != EXPECTED_UNRESOLVED_PAIRS:
         raise ValueError(f"Expected 4 boundary and 4 unresolved pairs; got {len(boundary)} and {len(unresolved)}")
-    return boundary + unresolved
+    return pairs
 
-def audit(artifact_dir, output_dir):
-    artifact_dir = Path(artifact_dir)
+def audit(manifest_path, output_dir):
+    manifest_path = Path(manifest_path)
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
-    phase401_summary = json.loads((artifact_dir / "summary.json").read_text(encoding="utf-8"))
-    if phase401_summary.get("phase") != 401 or phase401_summary.get("index_census", {}).get("all_market_144a_children") != 1446:
-        raise ValueError("Phase 401 artifact does not match the frozen full-census result")
-    pairs = build_pairs(artifact_dir)
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    phase401_summary = manifest.get("phase401_summary", {})
+    if phase401_summary.get("phase") != 401 or phase401_summary.get("all_market_144a_children") != 1446:
+        raise ValueError("Phase 401 frozen manifest does not match the full-census result")
+    if phase401_summary.get("resolved_parent_links") != 1442 or phase401_summary.get("unresolved_parent_links") != 4:
+        raise ValueError("Phase 401 parent-link counts do not match the frozen result")
+    pairs = build_pairs(manifest)
     index, quarter_counts = load_target_indexes()
     documents, pair_rows = [], []
 
@@ -387,10 +357,10 @@ def audit(artifact_dir, output_dir):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--artifact-dir", type=Path, required=True)
+    parser.add_argument("--manifest", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, default=Path("phase402_form144_parent_acceptance_audit"))
     args = parser.parse_args()
-    summary = audit(args.artifact_dir, args.output_dir)
+    summary = audit(args.manifest, args.output_dir)
     if summary["scope"]["pairs_audited"] != 8:
         raise SystemExit("Phase 402 did not audit the frozen eight-pair scope")
 

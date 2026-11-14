@@ -1,0 +1,132 @@
+{
+  "source_run_id": 43626453375,
+  "source_artifact_id": 14126667342,
+  "source_artifact_sha256": "6ce994213e507d6c0637162c520b003bb7e2a239b922f2a13cc24aaadd5d011c",
+  "phase401_summary": {
+    "phase": 401,
+    "all_market_144a_children": 1446,
+    "resolved_parent_links": 1442,
+    "unresolved_parent_links": 4,
+    "candidate_boundary_transitions": {
+      "candidate_stable": 193,
+      "noncandidate_stable_or_unresolved": 1200,
+      "noncandidate_to_noncandidate_cik_change": 45,
+      "parent_candidate_to_child_noncandidate": 1,
+      "parent_noncandidate_to_child_candidate": 3
+    }
+  },
+  "pairs": [
+    {
+      "pair_id": "boundary:0001766264-23-000004",
+      "pair_type": "candidate_boundary",
+      "transition": "parent_noncandidate_to_child_candidate",
+      "child_accession": "0001766264-23-000004",
+      "parent_accession": "0001766264-23-000002",
+      "child_filing_date_expected": "2023-04-14",
+      "parent_filing_date_expected": "2023-04-10",
+      "child_xml_url": "https://www.sec.gov/Archives/edgar/data/72971/000176626423000004/primary_doc.xml",
+      "parent_xml_url": "https://www.sec.gov/Archives/edgar/data/740906/000176626423000002/primary_doc.xml",
+      "child_issuer_cik_expected": "0000072971",
+      "parent_issuer_cik_expected": "0000740906",
+      "remarks_explicit_identity_correction": "False"
+    },
+    {
+      "pair_id": "boundary:0001318751-23-000003",
+      "pair_type": "candidate_boundary",
+      "transition": "parent_noncandidate_to_child_candidate",
+      "child_accession": "0001318751-23-000003",
+      "parent_accession": "0001318751-23-000002",
+      "child_filing_date_expected": "2023-05-17",
+      "parent_filing_date_expected": "2023-05-17",
+      "child_xml_url": "https://www.sec.gov/Archives/edgar/data/40704/000131875123000003/primary_doc.xml",
+      "parent_xml_url": "https://www.sec.gov/Archives/edgar/data/1318751/000131875123000002/primary_doc.xml",
+      "child_issuer_cik_expected": "0000040704",
+      "parent_issuer_cik_expected": "0001635007",
+      "remarks_explicit_identity_correction": "False"
+    },
+    {
+      "pair_id": "boundary:0001959173-23-003500",
+      "pair_type": "candidate_boundary",
+      "transition": "parent_noncandidate_to_child_candidate",
+      "child_accession": "0001959173-23-003500",
+      "parent_accession": "0001959173-23-003484",
+      "child_filing_date_expected": "2023-08-24",
+      "parent_filing_date_expected": "2023-08-24",
+      "child_xml_url": "https://www.sec.gov/Archives/edgar/data/1701605/000195917323003500/primary_doc.xml",
+      "parent_xml_url": "https://www.sec.gov/Archives/edgar/data/808362/000195917323003484/primary_doc.xml",
+      "child_issuer_cik_expected": "0001701605",
+      "parent_issuer_cik_expected": "0000808362",
+      "remarks_explicit_identity_correction": "True"
+    },
+    {
+      "pair_id": "boundary:0001959173-25-007544",
+      "pair_type": "candidate_boundary",
+      "transition": "parent_candidate_to_child_noncandidate",
+      "child_accession": "0001959173-25-007544",
+      "parent_accession": "0001959173-25-007533",
+      "child_filing_date_expected": "2025-12-05",
+      "parent_filing_date_expected": "2025-12-05",
+      "child_xml_url": "https://www.sec.gov/Archives/edgar/data/1603923/000195917325007544/primary_doc.xml",
+      "parent_xml_url": "https://www.sec.gov/Archives/edgar/data/97210/000195917325007533/primary_doc.xml",
+      "child_issuer_cik_expected": "0001603923",
+      "parent_issuer_cik_expected": "0000097210",
+      "remarks_explicit_identity_correction": "True"
+    },
+    {
+      "pair_id": "unresolved:0001213900-23-042097",
+      "pair_type": "phase401_unresolved",
+      "transition": "not_preclassified",
+      "child_accession": "0001213900-23-042097",
+      "parent_accession": "0001213900-23-013351",
+      "child_filing_date_expected": null,
+      "parent_filing_date_expected": null,
+      "child_xml_url": null,
+      "parent_xml_url": null,
+      "child_issuer_cik_expected": null,
+      "parent_issuer_cik_expected": null,
+      "remarks_explicit_identity_correction": null
+    },
+    {
+      "pair_id": "unresolved:0001976408-23-000167",
+      "pair_type": "phase401_unresolved",
+      "transition": "not_preclassified",
+      "child_accession": "0001976408-23-000167",
+      "parent_accession": "0001976408-23-000153",
+      "child_filing_date_expected": null,
+      "parent_filing_date_expected": null,
+      "child_xml_url": null,
+      "parent_xml_url": null,
+      "child_issuer_cik_expected": null,
+      "parent_issuer_cik_expected": null,
+      "remarks_explicit_identity_correction": null
+    },
+    {
+      "pair_id": "unresolved:0001000275-24-000022",
+      "pair_type": "phase401_unresolved",
+      "transition": "not_preclassified",
+      "child_accession": "0001000275-24-000022",
+      "parent_accession": "0001000275-24-000021",
+      "child_filing_date_expected": null,
+      "parent_filing_date_expected": null,
+      "child_xml_url": null,
+      "parent_xml_url": null,
+      "child_issuer_cik_expected": null,
+      "parent_issuer_cik_expected": null,
+      "remarks_explicit_identity_correction": null
+    },
+    {
+      "pair_id": "unresolved:0001580808-24-000063",
+      "pair_type": "phase401_unresolved",
+      "transition": "not_preclassified",
+      "child_accession": "0001580808-24-000063",
+      "parent_accession": "0001570462-23-000002",
+      "child_filing_date_expected": null,
+      "parent_filing_date_expected": null,
+      "child_xml_url": null,
+      "parent_xml_url": null,
+      "child_issuer_cik_expected": null,
+      "parent_issuer_cik_expected": null,
+      "remarks_explicit_identity_correction": null
+    }
+  ]
+}
