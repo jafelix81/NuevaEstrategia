@@ -8,6 +8,8 @@ from research.phase402_form144_parent_acceptance_and_unresolved_link_audit impor
     build_pairs,
     extract_edgar_xml_blocks,
     norm_acc,
+    find_submission_in_payload,
+    parse_api_acceptance,
     parse_acceptance_html,
     parse_daily_master_index,
     parse_target_index,
@@ -36,6 +38,21 @@ class Phase402Tests(unittest.TestCase):
         self.assertEqual(row["filing_date"], "2023-12-05")
         self.assertEqual(row["filename"], "edgar/data/1927719/000197640823000153/0001976408-23-000153.txt")
         self.assertEqual(row["company_name"], "Freightos Ltd")
+
+    def test_submission_api_recent_lookup_and_utc_conversion(self):
+        payload = {"filings": {"recent": {
+            "accessionNumber": ["0001000275-24-000021"],
+            "filingDate": ["2024-03-11"],
+            "form": ["144"],
+            "acceptanceDateTime": ["2024-03-11T21:32:12.000Z"],
+            "primaryDocument": ["primary_doc.xml"],
+            "primaryDocDescription": ["Form 144"],
+        }}}
+        hit = find_submission_in_payload(payload, "000100027524000021", "1437795")
+        self.assertTrue(hit["found"])
+        self.assertEqual(hit["form"], "144")
+        self.assertEqual(hit["accepted_et"], "2024-03-11 17:32:12")
+        self.assertEqual(hit["accepted_utc"], "2024-03-11T21:32:12+00:00")
 
     def test_parse_acceptance_from_filing_detail_html(self):
         html = "<td>Accepted</td><td>2025-12-05 12:03:06</td>"

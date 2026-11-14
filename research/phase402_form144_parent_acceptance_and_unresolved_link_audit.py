@@ -123,6 +123,8 @@ def load_target_indexes(target_accessions):
         url = f"https://www.sec.gov/Archives/edgar/full-index/{year}/QTR{qtr}/master.idx"
         raw = p401.fetch_bytes(url, sec=True, timeout=90, retries=5)
         found = parse_target_index(raw, target_accessions)
+        for acc, row in found.items():
+            row["index_quarter"] = token
         by_accession.update(found)
         quarter_counts.append({"quarter": token, "target_accession_hits": len(found),
                                "accessions_found": ";".join(sorted(found)),
@@ -277,6 +279,75 @@ def fetch_filing_detail(accession, doc, index_row=None):
             "filing_date": (index_row or {}).get("filing_date"),
             "source": None, "url": None, "errors": errors}
 
+
+def parse_api_acceptance(value):
+    if not value:
+        return {"accepted_utc": None, "accepted_et": None}
+    dt = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    utc_dt = dt.astimezone(timezone.utc)
+    et_dt = utc_dt.astimezone(ZoneInfo("America/New_York"))
+    return {"accepted_utc": utc_dt.isoformat(),
+            "accepted_et": et_dt.strftime("%Y-%m-%d %H:%M:%S")}
+
+def find_submission_in_payload(payload, accession, cik):
+    accession = norm_acc(accession)
+    recent = (payload.get("filings") or {}).get("recent") or {}
+    accessions = recent.get("accessionNumber") or []
+    for i, value in enumerate(accessions):
+        if norm_acc(value) != accession:
+            continue
+        def at(key):
+            values = recent.get(key) or []
+            return values[i] if i < len(values) else None
+        accepted = parse_api_acceptance(at("acceptanceDateTime"))
+        return {
+            "found": True, "cik": p401.norm_cik(cik), "form": at("form"),
+            "filing_date": normalize_index_date(at("filingDate")),
+            "accepted_et": accepted["accepted_et"], "accepted_utc": accepted["accepted_utc"],
+            "primary_document": at("primaryDocument"),
+            "primary_document_description": at("primaryDocDescription"),
+            "source": "SEC_submissions_API",
+        }
+    return {"found": False, "cik": p401.norm_cik(cik), "source": None}
+
+def fetch_submission_api_metadata(accession, candidate_ciks):
+    accession = norm_acc(accession)
+    errors = []
+    target_year = "20" + accession.split("-")[1]
+    for cik in unique_ciks(candidate_ciks):
+        url = f"https://data.sec.gov/submissions/CIK{cik}.json"
+        try:
+            payload = json.loads(p401.fetch_bytes(url, sec=True, timeout=40, retries=2).decode("utf-8", "replace"))
+            hit = find_submission_in_payload(payload, accession, cik)
+            if hit.get("found"):
+                hit["url"] = url
+                hit["errors"] = errors
+                return hit
+            files = (payload.get("filings") or {}).get("files") or []
+            for item in files:
+                filing_from = str(item.get("filingFrom") or "")
+                filing_to = str(item.get("filingTo") or "")
+                if target_year not in filing_from and target_year not in filing_to:
+                    continue
+                name = item.get("name")
+                if not name:
+                    continue
+                older_url = "https://data.sec.gov/submissions/" + name
+                try:
+                    older = json.loads(p401.fetch_bytes(older_url, sec=True, timeout=40, retries=2).decode("utf-8", "replace"))
+                    hit = find_submission_in_payload(older, accession, cik)
+                    if hit.get("found"):
+                        hit["url"] = older_url
+                        hit["errors"] = errors
+                        return hit
+                except Exception as exc:
+                    errors.append(f"{older_url}:{type(exc).__name__}:{str(exc)[:100]}")
+        except Exception as exc:
+            errors.append(f"{url}:{type(exc).__name__}:{str(exc)[:100]}")
+    return {"found": False, "cik": None, "source": None, "errors": errors}
+
 def read_csv(path):
     with path.open("r", newline="", encoding="utf-8-sig") as handle:
         return list(csv.DictReader(handle))
@@ -316,7 +387,7 @@ def audit(manifest_path, output_dir):
     if phase401_summary.get("resolved_parent_links") != 1442 or phase401_summary.get("unresolved_parent_links") != 4:
         raise ValueError("Phase 401 parent-link counts do not match the frozen result")
     pairs = build_pairs(manifest)
-    target_accessions = {x["parent_accession"] for x in pairs}
+    target_accessions = {x["parent_accession"] for x in pairs} | {x["child_accession"] for x in pairs}
     index, quarter_counts = load_target_indexes(target_accessions)
     daily_index, daily_counts = load_target_daily_indexes(target_accessions)
     documents, pair_rows = [], []
@@ -346,6 +417,28 @@ def audit(manifest_path, output_dir):
 
         child_detail = fetch_filing_detail(child_acc, child_doc if child_doc.get("ok") else {"path_cik": (child_row or {}).get("archive_path_cik")}, child_row) if child_doc.get("ok") or child_row else {}
         parent_detail = fetch_filing_detail(parent_acc, parent_doc if parent_doc.get("ok") else {"path_cik": (parent_row or {}).get("archive_path_cik")}, parent_row) if parent_doc.get("ok") or parent_row else {}
+        child_meta = {}
+        parent_meta = {}
+        if not child_detail.get("accepted_utc"):
+            child_meta = fetch_submission_api_metadata(child_acc, unique_ciks(
+                (child_row or {}).get("master_index_ciks", []),
+                [(child_row or {}).get("archive_path_cik")],
+                [child_parsed.get("issuer_cik") if child_doc.get("ok") else None],
+                [child_parsed.get("filer_cik") if child_doc.get("ok") else None],
+                [child_acc[:10]],
+            ))
+            if child_meta.get("found"):
+                child_detail = {**child_detail, **child_meta}
+        if not parent_detail.get("accepted_utc"):
+            parent_meta = fetch_submission_api_metadata(parent_acc, unique_ciks(
+                (parent_row or {}).get("master_index_ciks", []),
+                [(parent_row or {}).get("archive_path_cik")],
+                [child_parsed.get("issuer_cik") if child_doc.get("ok") else None],
+                [child_parsed.get("filer_cik") if child_doc.get("ok") else None],
+                [parent_acc[:10]],
+            ))
+            if parent_meta.get("found"):
+                parent_detail = {**parent_detail, **parent_meta}
 
         for role, acc, row, doc, detail in (
             ("child", child_acc, child_row, child_doc, child_detail),
@@ -362,7 +455,7 @@ def audit(manifest_path, output_dir):
                 "index_quarter": (row or {}).get("index_quarter"),
                 "daily_index_date": (row or {}).get("index_date"),
                 "filing_date": filing_date,
-                "form": parsed.get("submission_type") or (row or {}).get("form"),
+                "form": parsed.get("submission_type") or (row or {}).get("form") or detail.get("form"),
                 "issuer_cik": parsed.get("issuer_cik"),
                 "issuer_name": parsed.get("issuer_name"),
                 "filer_cik": parsed.get("filer_cik"),
@@ -372,6 +465,9 @@ def audit(manifest_path, output_dir):
                 "accepted_et": detail.get("accepted_et"),
                 "accepted_utc": detail.get("accepted_utc"),
                 "acceptance_source": detail.get("source"),
+                "submission_api_found": bool(detail.get("source") == "SEC_submissions_API"),
+                "submission_api_cik": detail.get("cik") if detail.get("source") == "SEC_submissions_API" else None,
+                "submission_api_primary_document": detail.get("primary_document"),
                 "archive_path_cik": doc.get("path_cik") or (row or {}).get("archive_path_cik"),
                 "daily_index_filename": (row or {}).get("filename"),
                 "daily_index_company_name": (row or {}).get("company_name"),
@@ -398,8 +494,8 @@ def audit(manifest_path, output_dir):
             **pair,
             "child_xml_status": "retrieved" if child_doc.get("ok") else "unresolved",
             "parent_xml_status": "retrieved" if parent_doc.get("ok") else "unresolved",
-            "child_form": child_parsed.get("submission_type") or (child_row or {}).get("form"),
-            "parent_form": parent_parsed.get("submission_type") or (parent_row or {}).get("form"),
+            "child_form": child_parsed.get("submission_type") or (child_row or {}).get("form") or child_detail.get("form"),
+            "parent_form": parent_parsed.get("submission_type") or (parent_row or {}).get("form") or parent_detail.get("form"),
             "child_issuer_cik": child_parsed.get("issuer_cik"),
             "parent_issuer_cik": parent_parsed.get("issuer_cik"),
             "child_issuer_name": child_parsed.get("issuer_name"),
@@ -473,6 +569,7 @@ def audit(manifest_path, output_dir):
             "no_parent_child_filing_date_inversions": not any(x["filing_date_order_ok"] is False for x in pair_rows),
             "no_parent_child_acceptance_order_inversions": not any(x["accepted_order_ok"] is False for x in pair_rows),
             "acceptance_time_coverage_ge_90pct": accepted_docs / len(documents) >= 0.90 if documents else False,
+            "submission_api_used_only_for_missing_acceptance_times": True,
             "first_public_receipt_certified": False,
             "historical_f80_identity_gate": False,
             "economic_test_authorized": False,
