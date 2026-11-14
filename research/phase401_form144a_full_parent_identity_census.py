@@ -19,11 +19,11 @@ MANIFEST=Path(__file__).with_name("PHASE401_FORM144_CANDIDATE_CIK_MANIFEST_2026-
 PHASE400=Path(__file__).with_name("PHASE400_FORM144_EXTERNAL_PARENT_IDENTITY_SUMMARY_2026-11-14.json")
 
 def accession(value):
-    digits=re.sub(r"\\D","",str(value or ""))
+    digits=re.sub(r"\D","",str(value or ""))
     return f"{digits[:10]}-{digits[10:12]}-{digits[12:]}" if len(digits)==18 else None
 
 def quarter(token):
-    m=re.fullmatch(r"(20\\d{2})Q([1-4])",token)
+    m=re.fullmatch(r"(20\d{2})Q([1-4])",token)
     if not m: raise ValueError("Invalid quarter: "+token)
     return int(m.group(1)),int(m.group(2))
 
@@ -152,14 +152,14 @@ def compare(child,parent,child_row,parent_row,candidates,parent_source):
         "curated_parent_fallback":bool(parent.get("curated_phase400_fallback"))}
 
 def write_csv(path,rows):
-    if not rows: path.write_text("\\n",encoding="utf-8"); return
+    if not rows: path.write_text("\n",encoding="utf-8"); return
     fields=list(dict.fromkeys(k for r in rows for k in r))
     with path.open("w",newline="",encoding="utf-8") as f:
         w=csv.DictWriter(f,fieldnames=fields,extrasaction="ignore"); w.writeheader(); w.writerows(rows)
 
 def audit(manifest,workers=5,output=Path("phase401_form144a_full_parent_identity_census")):
     candidates=set(manifest.get("candidate_ciks") or [])
-    if len(candidates)!=EXPECTED_CANDIDATE_CIKS or any(not re.fullmatch(r"\\d{10}",x) for x in candidates):
+    if len(candidates)!=EXPECTED_CANDIDATE_CIKS or any(not re.fullmatch(r"\d{10}",x) for x in candidates):
         raise ValueError("Phase 67 candidate CIK manifest integrity failure")
     index,quarter_counts,duplicates=load_index([x for x in QUARTERS.split(",") if x])
     children=sorted((r for r in index.values() if r.get("form")=="144/A" and r.get("filing_date") and r["filing_date"]>=START_DATE),
@@ -245,7 +245,7 @@ def audit(manifest,workers=5,output=Path("phase401_form144a_full_parent_identity
             "alpha_oos_bootstrap_loo_holdout_used":False,"f80_changed":False},
         "unresolved_status_counts":dict(Counter(x["status"] for x in unresolved))}
     out=Path(output); out.mkdir(parents=True,exist_ok=True)
-    (out/"summary.json").write_text(json.dumps(summary,indent=2,sort_keys=True)+"\\n",encoding="utf-8")
+    (out/"summary.json").write_text(json.dumps(summary,indent=2,sort_keys=True)+"\n",encoding="utf-8")
     write_csv(out/"all_amendment_parent_pairs.csv",pairs); write_csv(out/"unresolved_parent_links.csv",unresolved)
     write_csv(out/"child_xml_errors.csv",child_errors); write_csv(out/"parent_xml_errors.csv",parent_errors)
     write_csv(out/"duplicate_index_rows.csv",duplicates)
