@@ -66,40 +66,32 @@ def accepted_utc(accepted_et):
     dt = datetime.strptime(accepted_et, "%Y-%m-%d %H:%M:%S").replace(tzinfo=ZoneInfo("America/New_York"))
     return dt.astimezone(timezone.utc).isoformat()
 
-def load_target_indexes():
-    by_accession, quarter_counts = {}, []
-    for token in QUARTERS:
-        year, qtr = p401.quarter(token)
-        url = f"https://www.sec.gov/Archives/edgar/full-index/{year}/QTR{qtr}/master.idx"
-        rows = p401.parse_master_index(p401.fetch_bytes(url, sec=True, timeout=90, retries=5))
-        found = 0
-        for row in rows:
-            acc = norm_acc(row.get("accession"))
-            if not acc:
-                continue
-            if acc in by_accession:
-                continue
-            item = dict(row)
-            item["accession"] = acc
-            item["index_quarter"] = token
-            by_accession[acc] = item
-            found += 1
-        quarter_counts.append({"quarter": token, "unique_form144_rows": found})
-    return by_accession, quarter_counts
+def normalize_index_date(value):
+    value = str(value or "").strip()
+    if re.fullmatch(r"\d{8}", value):
+        return datetime.strptime(value, "%Y%m%d").date().isoformat()
+    return value or None
 
-
-def parse_daily_master_index(raw):
+def parse_target_index(raw, target_accessions):
     if isinstance(raw, bytes):
         raw = raw.decode("latin-1", "replace")
-    # Daily EDGAR master indexes label the final column "File Name";
-    # quarterly master.idx uses "Filename". Normalize only the header.
     raw = raw.replace(
         "CIK|Company Name|Form Type|Date Filed|File Name",
         "CIK|Company Name|Form Type|Date Filed|Filename",
     )
-    rows = p401.parse_master_index(raw)
-    by_accession = {row["accession"]: row for row in rows}
-    for line in raw.splitlines():
+    lines = raw.lstrip("\ufeff").splitlines()
+    header = None
+    for i, line in enumerate(lines):
+        if line.strip().lower().startswith("cik|company name|form type|date filed|filename"):
+            header = i
+            break
+    if header is None:
+        raise ValueError("SEC index header not found (daily/quarterly)")
+    target_accessions = {norm_acc(x) for x in target_accessions}
+    found = {}
+    for line in lines[header + 1:]:
+        if not line.strip() or line.startswith("---"):
+            continue
         parts = line.split("|", 4)
         if len(parts) != 5:
             continue
@@ -108,15 +100,37 @@ def parse_daily_master_index(raw):
         if not m:
             continue
         acc = norm_acc(m.group(1))
-        row = by_accession.get(acc)
-        if not row:
+        if acc not in target_accessions:
             continue
-        row["filename"] = filename
-        row["master_index_cik"] = p401.norm_cik(master_cik)
-        row["company_name"] = company
-        if re.fullmatch(r"\d{8}", filed):
-            row["filing_date"] = datetime.strptime(filed, "%Y%m%d").date().isoformat()
-    return rows
+        path_match = re.search(r"/data/(\d+)/", "/" + filename.lstrip("/"), re.I)
+        item = {
+            "accession": acc,
+            "form": raw_form,
+            "filing_date": normalize_index_date(filed),
+            "master_index_ciks": [p401.norm_cik(master_cik)],
+            "master_index_cik": p401.norm_cik(master_cik),
+            "company_name": company,
+            "archive_path_cik": p401.norm_cik(path_match.group(1)) if path_match else None,
+            "filename": filename,
+        }
+        found[acc] = item
+    return found
+
+def load_target_indexes(target_accessions):
+    by_accession, quarter_counts = {}, []
+    for token in QUARTERS:
+        year, qtr = p401.quarter(token)
+        url = f"https://www.sec.gov/Archives/edgar/full-index/{year}/QTR{qtr}/master.idx"
+        raw = p401.fetch_bytes(url, sec=True, timeout=90, retries=5)
+        found = parse_target_index(raw, target_accessions)
+        by_accession.update(found)
+        quarter_counts.append({"quarter": token, "target_accession_hits": len(found),
+                               "accessions_found": ";".join(sorted(found)),
+                               "forms_found": ";".join(sorted({x["form"] for x in found.values()}))})
+    return by_accession, quarter_counts
+
+def parse_daily_master_index(raw, target_accessions):
+    return parse_target_index(raw, target_accessions)
 def load_target_daily_indexes(target_accessions):
     target_accessions = {norm_acc(x) for x in target_accessions}
     by_accession, daily_counts = {}, []
@@ -125,14 +139,10 @@ def load_target_daily_indexes(target_accessions):
         qtr = (dt.month - 1) // 3 + 1
         compact = dt.strftime("%Y%m%d")
         url = f"https://www.sec.gov/Archives/edgar/daily-index/{dt.year}/QTR{qtr}/master.{compact}.idx"
-        rows = parse_daily_master_index(p401.fetch_bytes(url, sec=True, timeout=60, retries=4))
+        rows = parse_daily_master_index(p401.fetch_bytes(url, sec=True, timeout=60, retries=4), target_accessions)
         hits = []
-        for row in rows:
-            acc = norm_acc(row.get("accession"))
-            if acc not in target_accessions:
-                continue
+        for acc, row in rows.items():
             item = dict(row)
-            item["accession"] = acc
             item["index_date"] = day
             item["index_type"] = "daily_master"
             by_accession[acc] = item
@@ -147,8 +157,8 @@ def extract_edgar_xml_blocks(raw):
     else:
         text = str(raw)
     blocks = re.findall(r"<XML>\s*(.*?)\s*</XML>", text, flags=re.I | re.S)
-    out = [block.encode("utf-8", "replace") for block in blocks if "edgarSubmission" in block]
-    if not out and "edgarSubmission" in text:
+    out = [block.encode("utf-8", "replace") for block in blocks if re.search(r"edgarSubmission", block, re.I)]
+    if not out and re.search(r"edgarSubmission", text, re.I):
         out = [text.encode("utf-8", "replace")]
     return out
 
@@ -249,6 +259,20 @@ def fetch_filing_detail(accession, doc, index_row=None):
             errors.append(f"{txt_url}:acceptance_not_found")
         except Exception as exc:
             errors.append(f"{txt_url}:{type(exc).__name__}:{str(exc)[:100]}")
+    filename = (index_row or {}).get("filename")
+    if filename:
+        txt_url = "https://www.sec.gov/Archives/" + filename.lstrip("/")
+        try:
+            raw = p401.fetch_bytes(txt_url, sec=True, timeout=35, retries=2)
+            accepted = parse_acceptance_submission(raw)
+            if accepted:
+                return {"accepted_et": accepted, "accepted_utc": accepted_utc(accepted),
+                        "filing_date": (index_row or {}).get("filing_date"),
+                        "source": "SEC_daily_index_complete_submission_header",
+                        "url": txt_url, "errors": errors}
+            errors.append(f"{txt_url}:acceptance_not_found")
+        except Exception as exc:
+            errors.append(f"{txt_url}:{type(exc).__name__}:{str(exc)[:100]}")
     return {"accepted_et": None, "accepted_utc": None,
             "filing_date": (index_row or {}).get("filing_date"),
             "source": None, "url": None, "errors": errors}
@@ -292,8 +316,9 @@ def audit(manifest_path, output_dir):
     if phase401_summary.get("resolved_parent_links") != 1442 or phase401_summary.get("unresolved_parent_links") != 4:
         raise ValueError("Phase 401 parent-link counts do not match the frozen result")
     pairs = build_pairs(manifest)
-    index, quarter_counts = load_target_indexes()
-    daily_index, daily_counts = load_target_daily_indexes({x["parent_accession"] for x in pairs})
+    target_accessions = {x["parent_accession"] for x in pairs}
+    index, quarter_counts = load_target_indexes(target_accessions)
+    daily_index, daily_counts = load_target_daily_indexes(target_accessions)
     documents, pair_rows = [], []
 
     for pair in pairs:
@@ -337,7 +362,7 @@ def audit(manifest_path, output_dir):
                 "index_quarter": (row or {}).get("index_quarter"),
                 "daily_index_date": (row or {}).get("index_date"),
                 "filing_date": filing_date,
-                "form": parsed.get("submission_type"),
+                "form": parsed.get("submission_type") or (row or {}).get("form"),
                 "issuer_cik": parsed.get("issuer_cik"),
                 "issuer_name": parsed.get("issuer_name"),
                 "filer_cik": parsed.get("filer_cik"),
@@ -373,8 +398,8 @@ def audit(manifest_path, output_dir):
             **pair,
             "child_xml_status": "retrieved" if child_doc.get("ok") else "unresolved",
             "parent_xml_status": "retrieved" if parent_doc.get("ok") else "unresolved",
-            "child_form": child_parsed.get("submission_type"),
-            "parent_form": parent_parsed.get("submission_type"),
+            "child_form": child_parsed.get("submission_type") or (child_row or {}).get("form"),
+            "parent_form": parent_parsed.get("submission_type") or (parent_row or {}).get("form"),
             "child_issuer_cik": child_parsed.get("issuer_cik"),
             "parent_issuer_cik": parent_parsed.get("issuer_cik"),
             "child_issuer_name": child_parsed.get("issuer_name"),
@@ -441,6 +466,9 @@ def audit(manifest_path, output_dir):
             "four_phase401_unresolved_pairs_audited": sum(x["pair_type"] == "phase401_unresolved" for x in pair_rows) == 4,
             "all_child_documents_retrieved": all(x["child_xml_status"] == "retrieved" for x in pair_rows),
             "all_parent_documents_retrieved": all(x["parent_xml_status"] == "retrieved" for x in pair_rows),
+            "all_parent_accessions_indexed_as_144_or_144a": all(
+                (x.get("parent_form") or "").upper() in ("144", "144/A") for x in pair_rows
+            ),
             "all_child_previous_accessions_match": all(x["child_previous_accession_matches"] for x in pair_rows),
             "no_parent_child_filing_date_inversions": not any(x["filing_date_order_ok"] is False for x in pair_rows),
             "no_parent_child_acceptance_order_inversions": not any(x["accepted_order_ok"] is False for x in pair_rows),

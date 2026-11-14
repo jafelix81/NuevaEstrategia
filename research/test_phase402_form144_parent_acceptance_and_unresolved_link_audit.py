@@ -10,17 +10,26 @@ from research.phase402_form144_parent_acceptance_and_unresolved_link_audit impor
     norm_acc,
     parse_acceptance_html,
     parse_daily_master_index,
+    parse_target_index,
     parse_acceptance_submission,
     path_cik_from_url,
     unique_ciks,
 )
 
 class Phase402Tests(unittest.TestCase):
+    def test_generic_target_index_keeps_non_144_form(self):
+        raw = ("Description: Daily Master Index\n"
+               "CIK|Company Name|Form Type|Date Filed|File Name\n"
+               "1927719|Freightos Ltd|4|20231205|edgar/data/1927719/000197640823000153/0001976408-23-000153.txt\n")
+        rows = parse_target_index(raw, {"0001976408-23-000153"})
+        self.assertEqual(rows["0001976408-23-000153"]["form"], "4")
+        self.assertEqual(rows["0001976408-23-000153"]["filing_date"], "2023-12-05")
+
     def test_daily_master_index_file_name_header(self):
         raw = ("Description: Daily Master Index\n"
                "CIK|Company Name|Form Type|Date Filed|File Name\n"
                "1927719|Freightos Ltd|144|2023-12-05|edgar/data/1927719/000197640823000153/0001976408-23-000153.txt\n")
-        rows = parse_daily_master_index(raw)
+        rows = parse_daily_master_index(raw, {"0001976408-23-000153"})
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0]["accession"], "0001976408-23-000153")
         self.assertEqual(rows[0]["archive_path_cik"], "0001927719")
