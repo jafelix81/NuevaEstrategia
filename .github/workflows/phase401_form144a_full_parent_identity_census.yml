@@ -1,0 +1,58 @@
+name: Phase 401 - Full Form 144-A parent identity census
+on:
+  push:
+    branches: [phase401-form144a-full-parent-identity-census]
+    paths:
+      - "research/phase401_form144a_full_parent_identity_census.py"
+      - "research/test_phase401_form144a_full_parent_identity_census.py"
+      - "research/PHASE401_FORM144_CANDIDATE_CIK_MANIFEST_2026-11-14.json"
+      - ".github/workflows/phase401_form144a_full_parent_identity_census.yml"
+  pull_request:
+    paths:
+      - "research/phase401_form144a_full_parent_identity_census.py"
+      - "research/test_phase401_form144a_full_parent_identity_census.py"
+      - "research/PHASE401_FORM144_CANDIDATE_CIK_MANIFEST_2026-11-14.json"
+      - ".github/workflows/phase401_form144a_full_parent_identity_census.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: phase401-form144a-full-parent-census-${{ github.event_name }}
+  cancel-in-progress: false
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile and test
+        run: |
+          python -m py_compile research/phase401_form144a_full_parent_identity_census.py
+          python -m unittest -v research.test_phase401_form144a_full_parent_identity_census
+  live-census:
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs: offline-regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile and test research dependencies
+        run: |
+          python -m py_compile research/phase50_form144_global_index_pilot.py
+          python -m py_compile research/phase65_form144_event_field_coverage_audit.py
+          python -m unittest -v research.test_phase401_form144a_full_parent_identity_census
+      - name: Resolve every 144-A parent link in the 14-quarter census
+        run: python -u -m research.phase401_form144a_full_parent_identity_census --workers 5
+      - name: Upload full-census outputs and unresolved rows
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase401-form144a-full-parent-identity-census
+          path: phase401_form144a_full_parent_identity_census/
+          retention-days: 90
+          if-no-files-found: warn
