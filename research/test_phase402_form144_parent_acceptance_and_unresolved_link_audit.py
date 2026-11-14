@@ -24,6 +24,9 @@ class Phase402Tests(unittest.TestCase):
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0]["accession"], "0001976408-23-000153")
         self.assertEqual(rows[0]["archive_path_cik"], "0001927719")
+        self.assertEqual(rows[0]["filing_date"], "2023-12-05")
+        self.assertEqual(rows[0]["filename"], "edgar/data/1927719/000197640823000153/0001976408-23-000153.txt")
+        self.assertEqual(rows[0]["company_name"], "Freightos Ltd")
 
     def test_parse_acceptance_from_filing_detail_html(self):
         html = "<td>Accepted</td><td>2025-12-05 12:03:06</td>"

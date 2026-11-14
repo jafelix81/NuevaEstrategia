@@ -13,7 +13,7 @@ PHASE401_RUN_ID = 43626453375
 PHASE401_ARTIFACT_ID = 14126667342
 PHASE401_ARTIFACT_SHA256 = "6ce994213e507d6c0637162c520b003bb7e2a239b922f2a13cc24aaadd5d011c"
 QUARTERS = ("2023Q1", "2023Q2", "2023Q3", "2023Q4", "2024Q1", "2024Q2", "2025Q4")
-DAILY_DATES = ("2023-12-04", "2023-12-05", "2023-12-06", "2024-03-11", "2024-03-12", "2024-03-13")
+DAILY_DATES = ("2023-11-27", "2023-11-28", "2023-11-29", "2023-11-30", "2023-12-01", "2023-12-04", "2023-12-05", "2023-12-06", "2023-12-07", "2023-12-08", "2024-03-11", "2024-03-12", "2024-03-13")
 EXPECTED_BOUNDARY_PAIRS = 4
 EXPECTED_UNRESOLVED_PAIRS = 4
 PHASE67_START = "2023-04-13"
@@ -97,7 +97,26 @@ def parse_daily_master_index(raw):
         "CIK|Company Name|Form Type|Date Filed|File Name",
         "CIK|Company Name|Form Type|Date Filed|Filename",
     )
-    return p401.parse_master_index(raw)
+    rows = p401.parse_master_index(raw)
+    by_accession = {row["accession"]: row for row in rows}
+    for line in raw.splitlines():
+        parts = line.split("|", 4)
+        if len(parts) != 5:
+            continue
+        master_cik, company, raw_form, filed, filename = [x.strip() for x in parts]
+        m = re.search(r"(\d{10}-\d{2}-\d{6})\.txt$", filename, re.I)
+        if not m:
+            continue
+        acc = norm_acc(m.group(1))
+        row = by_accession.get(acc)
+        if not row:
+            continue
+        row["filename"] = filename
+        row["master_index_cik"] = p401.norm_cik(master_cik)
+        row["company_name"] = company
+        if re.fullmatch(r"\d{8}", filed):
+            row["filing_date"] = datetime.strptime(filed, "%Y%m%d").date().isoformat()
+    return rows
 def load_target_daily_indexes(target_accessions):
     target_accessions = {norm_acc(x) for x in target_accessions}
     by_accession, daily_counts = {}, []
@@ -165,10 +184,14 @@ def fetch_xml(accession, index_row=None, direct_url=None, seed_ciks=()):
         except Exception as exc:
             errors.append(f"{url}:{type(exc).__name__}:{str(exc)[:120]}")
 
-    # A filing may have a retained complete-submission text file even when the
-    # separately linked primary_doc.xml is absent or removed.
-    for cik in candidates:
-        txt_url = f"{p401.SEC_ARCHIVES}/{int(cik)}/{acc_path}/{accession}.txt"
+    submission_urls = []
+    filename = (index_row or {}).get("filename")
+    if filename:
+        submission_urls.append("https://www.sec.gov/Archives/" + filename.lstrip("/"))
+    submission_urls.extend(
+        f"{p401.SEC_ARCHIVES}/{int(cik)}/{acc_path}/{accession}.txt" for cik in candidates
+    )
+    for txt_url in dict.fromkeys(submission_urls):
         try:
             raw = p401.fetch_bytes(txt_url, sec=True, timeout=45, retries=3)
             blocks = extract_edgar_xml_blocks(raw)
@@ -179,7 +202,7 @@ def fetch_xml(accession, index_row=None, direct_url=None, seed_ciks=()):
                     return {
                         "ok": True, "parsed": parsed,
                         "tranches": p401.tranche_sig(p401.extract_sale_tranches(root)),
-                        "url": txt_url, "path_cik": p401.norm_cik(cik),
+                        "url": txt_url, "path_cik": path_cik_from_url(txt_url),
                         "sha256": hashlib.sha256(raw).hexdigest(),
                         "source": "complete_submission_text_xml_block", "errors_before_success": errors,
                     }
@@ -201,21 +224,22 @@ def fetch_filing_detail(accession, doc, index_row=None):
     errors = []
     for cik in candidates:
         base = f"{p401.SEC_ARCHIVES}/{int(cik)}/{acc_path}"
-        index_url = f"{base}/{accession}-index.htm"
-        try:
-            raw = p401.fetch_bytes(index_url, sec=True, timeout=35, retries=3)
-            accepted = parse_acceptance_html(raw)
-            filing_date = parse_filing_date_html(raw)
-            if accepted:
-                return {"accepted_et": accepted, "accepted_utc": accepted_utc(accepted),
-                        "filing_date": filing_date, "source": "SEC_filing_detail_index",
-                        "url": index_url, "errors": errors}
-            errors.append(f"{index_url}:accepted_not_found")
-        except Exception as exc:
-            errors.append(f"{index_url}:{type(exc).__name__}:{str(exc)[:100]}")
+        for page_name in (f"{accession}-index.htm", f"{accession}-index.html", f"{accession}-index-headers.html"):
+            index_url = f"{base}/{page_name}"
+            try:
+                raw = p401.fetch_bytes(index_url, sec=True, timeout=35, retries=2)
+                accepted = parse_acceptance_html(raw)
+                filing_date = parse_filing_date_html(raw)
+                if accepted:
+                    return {"accepted_et": accepted, "accepted_utc": accepted_utc(accepted),
+                            "filing_date": filing_date, "source": "SEC_filing_detail_index",
+                            "url": index_url, "errors": errors}
+                errors.append(f"{index_url}:accepted_not_found")
+            except Exception as exc:
+                errors.append(f"{index_url}:{type(exc).__name__}:{str(exc)[:100]}")
         txt_url = f"{base}/{accession}.txt"
         try:
-            raw = p401.fetch_bytes(txt_url, sec=True, timeout=35, retries=3)
+            raw = p401.fetch_bytes(txt_url, sec=True, timeout=35, retries=2)
             accepted = parse_acceptance_submission(raw)
             if accepted:
                 return {"accepted_et": accepted, "accepted_utc": accepted_utc(accepted),
@@ -295,8 +319,8 @@ def audit(manifest_path, output_dir):
         )
         parent_doc = fetch_xml(parent_acc, parent_row, pair.get("parent_xml_url"), parent_seed)
 
-        child_detail = fetch_filing_detail(child_acc, child_doc, child_row) if child_doc.get("ok") else {}
-        parent_detail = fetch_filing_detail(parent_acc, parent_doc, parent_row) if parent_doc.get("ok") else {}
+        child_detail = fetch_filing_detail(child_acc, child_doc if child_doc.get("ok") else {"path_cik": (child_row or {}).get("archive_path_cik")}, child_row) if child_doc.get("ok") or child_row else {}
+        parent_detail = fetch_filing_detail(parent_acc, parent_doc if parent_doc.get("ok") else {"path_cik": (parent_row or {}).get("archive_path_cik")}, parent_row) if parent_doc.get("ok") or parent_row else {}
 
         for role, acc, row, doc, detail in (
             ("child", child_acc, child_row, child_doc, child_detail),
@@ -323,7 +347,9 @@ def audit(manifest_path, output_dir):
                 "accepted_et": detail.get("accepted_et"),
                 "accepted_utc": detail.get("accepted_utc"),
                 "acceptance_source": detail.get("source"),
-                "archive_path_cik": doc.get("path_cik"),
+                "archive_path_cik": doc.get("path_cik") or (row or {}).get("archive_path_cik"),
+                "daily_index_filename": (row or {}).get("filename"),
+                "daily_index_company_name": (row or {}).get("company_name"),
                 "xml_url": doc.get("url"),
                 "xml_source": doc.get("source"),
                 "xml_sha256": doc.get("sha256"),
@@ -363,6 +389,9 @@ def audit(manifest_path, output_dir):
             "parent_index_found": bool(parent_quarter_row),
             "parent_daily_index_found": bool(parent_daily_row),
             "parent_daily_index_date": (parent_daily_row or {}).get("index_date"),
+            "parent_daily_index_filename": (parent_daily_row or {}).get("filename"),
+            "parent_daily_index_company_name": (parent_daily_row or {}).get("company_name"),
+            "parent_daily_index_cik": (parent_daily_row or {}).get("master_index_cik"),
             "child_previous_accession_matches": previous_matches,
             "filing_date_order_ok": None if not child_date or not parent_date else parent_date <= child_date,
             "child_accepted_et": child_detail.get("accepted_et"),
@@ -395,6 +424,13 @@ def audit(manifest_path, output_dir):
         "quarter_index_search": quarter_counts,
         "daily_index_search": daily_counts,
         "daily_index_parent_hits": sum(bool(x.get("parent_daily_index_found")) for x in pair_rows),
+        "daily_index_parent_rows": [
+            {"accession": acc, "index_date": row.get("index_date"), "filing_date": row.get("filing_date"),
+             "form": row.get("form"), "company_name": row.get("company_name"),
+             "master_index_cik": row.get("master_index_cik"), "archive_path_cik": row.get("archive_path_cik"),
+             "filename": row.get("filename")}
+            for acc, row in daily_index.items()
+        ],
         "retrieval": {"documents_retrieved": docs_ok, "documents_expected": len(documents),
                       "parent_documents_retrieved": resolved_parents,
                       "parent_documents_expected": len(pair_rows),
