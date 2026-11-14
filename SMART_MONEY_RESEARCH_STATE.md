@@ -438,3 +438,26 @@ This section supersedes any older “in progress” status above where later com
 - Operational check at 2026-11-14 22:52 UTC: the Phase 403 workflow file is present on default branch `main` with cron `17 * * * *`, but the Actions API showed no schedule-triggered Phase 403 run for the 21:17 or 22:17 UTC slots. The latest persistent state is still `poll_count=2`, last successful poll `2026-11-14T20:48:22Z`, mode `bootstrap`; `feed_observations.csv` contains only its header because Phase 404 deliberately does not fabricate historical per-feed observations. The absence of a run is not a failed poll and does not establish a continuous observation interval. Keep all bootstrap records ineligible; do not bridge the gap unless a later successful poll passes both feed-window checks.
 - GitHub documents that scheduled events can be delayed or dropped under load and only run from the default branch; the workflow is on `main`, but its enabled/disabled state could not be read through the available Actions interface. Continue monitoring. If no scheduled run appears after subsequent slots, a maintainer should verify the workflow is enabled in Actions and use workflow_dispatch for a diagnostic poll; manual mode must remain non-persistent unless explicitly reviewed. Source: https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule.
 - No new SEC signal, return/alpha/OOS/bootstrap/LOO/holdout test, or same-day use is authorized. Historical F80 membership and effective-dated security identity remain unverified. F80, universe, parameters, capital, exposure and production remain unchanged.
+
+## Phase 405 — SEC scheduled-capture reactivation / minute change (2026-11-14)
+
+- PR [#82](https://github.com/jafelix81/NuevaEstrategia/pull/82) merged to main as `2ccff73f646463f7558e487394e1b02ea9cc2ae1`.
+- The Phase 403 workflow had no visible schedule-event run for its first two post-merge slots (21:17 and 22:17 UTC); the latest poll remained the two-poll bootstrap at 20:48:22 UTC. The cron was moved from minute 17 to minute 37 to refresh/reactivate the schedule and remain away from the top of the hour. Existing workflow_dispatch/manual mode and fail-closed interval rules remain unchanged.
+- Validation run [43650633912](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43650633912) succeeded: offline regression 15/15; live-capture correctly skipped for pull_request; no artifact expected. Main now contains cron `37 * * * *`.
+- First expected post-change schedule slot: 2026-11-14 23:37 UTC. Until an actual `schedule` event completes, the capture remains unproven and no prospective interval is admitted. GitHub schedule remains best-effort; verify the next run rather than infer one.
+
+## Phase 406 — Cboe Option Trades / OPRA schema and trade-condition feasibility (2026-11-14)
+
+- PR [#83](https://github.com/jafelix81/NuevaEstrategia/pull/83) merged to main as `268c9ac009abc24551a4987702cab0a2dfc9c3a5`.
+- Cboe Option Trades advertises OPRA-wide U.S. stock/ETF/index option trades from 2012-01, with millisecond Eastern trade timestamps, OPRA sequence numbers, trade conditions, exchange, trade price/size and prevailing NBBO; GTH and RTH are included. Optional trade-time IV/Greeks can default to zero when unavailable/invalid; underlying quotes can also default to zero. The file does not provide a separate NBBO quote-event timestamp or beneficial-owner/capacity identity.
+- OPRA trade-type flags were implemented 2019-11-04. Published LiveVol mapping identifies condition 114 as SLAN (single-leg non-ISO price-improvement auction), 115–118 as other single-leg auction/cross/floor types, 119–133 as multi-leg/stock-option categories, and 40–43 as cancellation-related types. The official Cboe condition workbook must be reconciled before implementation.
+- Economic interpretation is deliberately conservative: SLAN is a retail/wholesaler-auction proxy, not an investor identity. Published evidence finds short-horizon predictability in retail options flow more consistent with intermediary hedging/price pressure than informed trading. Separate auction/retail-like flow from complex package flow; do not label either “smart money.”
+- The Cboe product page exposes a public sample link, but ZIP bytes were not obtained; no sample rows were inspected. Exact cancellation/bust linkage, historical inactive-underlying coverage, first-delivery/correction vintages, commercial rights and price remain open. No vendor contact, trial, purchase or data acquisition.
+- Report: [Phase 406](https://github.com/jafelix81/NuevaEstrategia/blob/main/research/PHASE406_CBOE_OPTION_TRADES_OPRA_SCHEMA_AND_TRADE_CONDITION_AUDIT_2026-11-14.md); structured summary: [JSON](https://github.com/jafelix81/NuevaEstrategia/blob/main/research/PHASE406_CBOE_OPTION_TRADES_OPRA_SCHEMA_SUMMARY_2026-11-14.json).
+
+## Strategy controls after Phases 405–406
+
+- F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+- No Smart Money signal admitted; no new return/alpha/OOS/bootstrap/LOO/holdout test.
+- No universe, parameter, capital, exposure or production change.
+- No vendor purchase, trial, account or contact.
