@@ -1,0 +1,63 @@
+name: Phase 402 - Form 144 parent recovery and acceptance-time audit
+on:
+  push:
+    branches: [phase402-form144-parent-acceptance-unresolved-link-audit]
+    paths:
+      - "research/phase402_form144_parent_acceptance_and_unresolved_link_audit.py"
+      - "research/test_phase402_form144_parent_acceptance_and_unresolved_link_audit.py"
+      - ".github/workflows/phase402_form144_parent_acceptance_and_unresolved_link_audit.yml"
+  pull_request:
+    paths:
+      - "research/phase402_form144_parent_acceptance_and_unresolved_link_audit.py"
+      - "research/test_phase402_form144_parent_acceptance_and_unresolved_link_audit.py"
+      - ".github/workflows/phase402_form144_parent_acceptance_and_unresolved_link_audit.yml"
+      - "research/PHASE402_FORM144_PARENT_ACCEPTANCE_AND_UNRESOLVED_LINK_AUDIT_2026-11-14.md"
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+concurrency:
+  group: phase402-form144-parent-acceptance-audit-\${{ github.event_name }}
+  cancel-in-progress: false
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile and run offline regressions
+        run: |
+          python -m py_compile research/phase401_form144a_full_parent_identity_census.py research/phase402_form144_parent_acceptance_and_unresolved_link_audit.py
+          python -m unittest -v research.test_phase402_form144_parent_acceptance_and_unresolved_link_audit
+  live-audit:
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs: offline-regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      GITHUB_TOKEN: \${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Download and verify immutable Phase 401 artifact
+        run: |
+          curl --retry 8 --retry-all-errors --retry-delay 3 --retry-max-time 180 -fsSL -H "Accept: application/vnd.github+json" -H "Authorization: Bearer $GITHUB_TOKEN" "https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/14126667342/zip" -o phase401_source.zip
+          echo "6ce994213e507d6c0637162c520b003bb7e2a239b922f2a13cc24aaadd5d011c  phase401_source.zip" | sha256sum --check
+          mkdir -p phase401_source
+          unzip -q phase401_source.zip -d phase401_source
+      - name: Recover targeted parents and audit acceptance timestamps
+        run: |
+          python -m py_compile research/phase402_form144_parent_acceptance_and_unresolved_link_audit.py
+          python -u -m research.phase402_form144_parent_acceptance_and_unresolved_link_audit --artifact-dir phase401_source --output-dir phase402_form144_parent_acceptance_audit
+      - name: Upload pair, document, index and summary outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase402-form144-parent-acceptance-audit
+          path: phase402_form144_parent_acceptance_audit/
+          retention-days: 90
+          if-no-files-found: warn
