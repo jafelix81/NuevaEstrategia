@@ -63,3 +63,12 @@ The correction also:
 - stops after a first-partition preflight failure instead of repeating a systemic failure across all 209 weeks.
 
 The corrected workflow is configured to run on changes to its script and tests as well as the workflow file. No second run is launched until this corrected commit triggers. No publication-clock conclusion, return test or alpha result is claimed from the failed attempt.
+
+
+## Second hosted attempt — target-grain filter correction
+
+Run [43536201647](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43536201647) passed compilation and all nine offline tests, and successfully retrieved the first partition's T1 response. It then stopped at the first row because the phase treated every returned T1 summary type as required to belong to the four-type allowlist. The Phase 371/375 implementation intentionally processes the response as a mixed-grain T1 partition and selects `ATS_W_SMBL` only for symbol-level aggregate work.
+
+The second correction now counts observed summary-type labels (including a missing-label bucket), validates the week key on every returned row, ignores non-target summary grains, and calculates the publication clock only from `ATS_W_SMBL`. If the target grain is absent, the failure message reports only aggregate summary-type counts, not symbols or raw records. The full T1 pagination count remains reconciled separately from the target aggregate-row count.
+
+This remains a retrieval/diagnostic correction only. No publication-clock conclusion or return test is claimed until the 209-week census completes.
