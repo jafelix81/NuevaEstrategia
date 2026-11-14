@@ -1,11 +1,13 @@
-name: Phase 398 - Form 144 amendment-lineage regression
+name: Form 144 offline integrity regressions (Phases 398-399)
 on:
   push:
-    branches: [phase398-form144-amendment-lineage-tranche-resolution]
+    branches: [phase398-form144-amendment-lineage-tranche-resolution, phase399-form144-outstanding-field-audit]
     paths:
       - ".github/workflows/phase398_form144_amendment_lineage_audit.yml"
       - "research/phase398_form144_amendment_lineage_audit.py"
       - "research/test_phase398_form144_amendment_lineage_audit.py"
+      - "research/phase399_form144_outstanding_field_audit.py"
+      - "research/test_phase399_form144_outstanding_field_audit.py"
   pull_request:
     paths:
       - ".github/workflows/phase398_form144_amendment_lineage_audit.yml"
@@ -21,8 +23,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Compile and run offline tests
+      - name: Compile and run Phase 398-399 offline tests
         run: |
           python -m py_compile research/phase398_form144_amendment_lineage_audit.py
+          python -m py_compile research/phase399_form144_outstanding_field_audit.py
           cd research
-          python -m unittest -v test_phase398_form144_amendment_lineage_audit.py
+          python -m unittest -v test_phase398_form144_amendment_lineage_audit.py test_phase399_form144_outstanding_field_audit.py

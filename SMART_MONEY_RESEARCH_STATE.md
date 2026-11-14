@@ -301,3 +301,38 @@ F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No forward-return test or produ
 - Main commit `b4bd844b567d4779b474a212c73ef37f7928c30a` changed the Phase 22C 13F audit to manual-dispatch only (unrelated pushes no longer launch it) and disabled the Phase 35 CIK-specific 13D/G crawler after the Phase 96 subject/filer failure.
 - An unrelated main-branch state update had already triggered legacy push-on-any-commit workflows before this guard landed. Phase 22C run 41960053553 was cancelled. Phase 35 run 41960053552 remains reported in progress; guarded replacement run 41960188506 is pending with the audit job disabled. The available GitHub connector does not expose a direct cancel action, so this run may require manual cancellation if it does not clear. No further Phase 35 crawl was intentionally dispatched.
 - Future research-state commits do not match the new workflow path filters and should not trigger these SEC jobs.
+
+
+## 2026-11-14 — current research reconciliation (Phases 392–399)
+
+This section supersedes any older “in progress” status above where later completed runs are recorded.
+
+### Repository and workflow state
+- Main at start of Phase 399: 8350587261b7b84c70b0aea342ef136a9164bca7.
+- Phase 396 PR #73 is merged (merge commit 1f241fc277dbacf073c051af0e0d4b7b6611677c). Phase 397 PR #74 and Phase 398 PR #75 are merged.
+- Phase 398 run 43606247659 completed successfully. Job 132481396570 passed all steps; the run had no artifact because it was an offline regression.
+- No workflow was running when this audit began. The latest 20 repository runs were reviewed before starting Phase 399.
+
+### FINRA / Phase 20C
+- Phase 385 run 43536490386 completed successfully: 209/209 weekly publication dates were retrieved and the conservative first-eligible-session clock was derived. Its date-only artifact is 14100393795 (SHA-256 3630ce815040a2487ebfc86369552f21da3ee1b58e235f169cd0f604cffc3a46).
+- Phase 393 Nasdaq ISO-date retest did not resolve the seven missing target symbols. Three equity controls returned data; all seven target names returned application-level “symbol not exists” responses. Do not repeat this public endpoint fallback.
+- FINRA remains a venue-concentration / market-structure hypothesis, not direct evidence of beneficial institutional ownership. Historical identity and security-master gates remain open; no economic test is authorized.
+
+### CFTC TFF
+- Phase 395 atomic-batch guard is merged; offline regression passed 16/16. Phase 396 rechecked the announced semiweekly transition; TFF remains weekly until the actual dataset proves otherwise.
+- Phase 384 schedule is 22:15 UTC on weekdays (cron 15 22 * * 1-5). Runs 43525140200 and 43524170382 were push events, not scheduled prospective captures.
+- Main contains a 3,035-row historical baseline across ES, NQ, Dow and Russell E-mini. Manifest mode is branch_push_baseline, historical availability is NOT_CERTIFIED, and signal_eligible is false. No prospective first-receipt observation has yet been recorded.
+- Next scheduled polling opportunity after this audit is Monday 2026-11-16 at 22:15 UTC. Keep Phase 387 weekly; do not convert a future semiweekly schedule into equivalent weekly sample size.
+
+### SEC Form 144 — Phases 397–399
+- Phase 397 validated the conservative next-regular-session-after-filing-date PIT rule and identified Notice Date as an unsafe availability clock.
+- Phase 398 audited 21,634 issuer-event rows (21,438 Form 144; 196 Form 144/A), matched 193 amendment parents in the candidate panel, and identified three unmatched parent accessions requiring follow-up. Amendments remain versions, not independent sale events.
+- Phase 399 audited 21,863 sale tranches. Seven have missing/nonpositive outstanding-share values; 99 raw units/outstanding ratios exceed 1%, 13 exceed 10%, and two exceed 100%. Five SEC annual-report cross-checks show no common scale/accuracy rule for the Form 144 noOfUnitsOutstanding field.
+- Decision: kill noOfUnitsOutstanding as a numeric denominator or feature. Retain it only as a raw versioned field. Proposed USD value may later be normalized by strictly lagged PIT dollar ADV, only after independent price/volume and event-time gates pass.
+- Parent accessions still not fully recovered: WFC amendment 0001766264-23-000004 -> parent 0001766264-23-000002; GIS amendment 0001318751-23-000003 -> parent 0001318751-23-000002; BKR amendment 0001959173-23-003500 -> parent 0001959173-23-003484. The BKR secondary parent row indicates issuer CIK 0000808362 while the amendment says 0001701605; original parent SEC XML is still required before identity reconciliation.
+
+### Strategy controls
+- F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+- No Smart Money signal admitted; no new economic/OOS test; holdout untouched.
+- No capital, exposure, universe, or production changes.
+- No data vendor contacted and no data purchased.
