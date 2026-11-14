@@ -461,3 +461,22 @@ This section supersedes any older “in progress” status above where later com
 - No Smart Money signal admitted; no new return/alpha/OOS/bootstrap/LOO/holdout test.
 - No universe, parameter, capital, exposure or production change.
 - No vendor purchase, trial, account or contact.
+
+
+## Phase 407 — Cboe SLIM evidence reconciliation and Option Trades PIT-delivery gate (2026-11-14)
+
+- Phase 407 adds a material literature correction to Phase 406. Amaya, Garcia-Ares, Pearson & Vasquez (2025-04-07), *New Evidence on the Performance of Customer Options Trades* (Cboe-hosted; acknowledges Options Institute data-research grant support), finds that the BPS-style quote rule misclassifies 42.4% of Cboe SLIM trades / 42.6% of volume in its Cboe subset. 42.4% of SLIM trades / 42.6% of volume are closing trades; opening volume is 57.4%. Cboe customer capacity is >98% of SLIM volume, but the paper notes "customer" includes hedge funds, mutual funds and other institutional public customers; it is not a retail or beneficial-owner label.
+- The paper reports average net lifecycle P&L of +$0.34m/day (t=0.29) for Jan 2020–Jun 2023 and +$2.07m/day (t=1.19) for Jan 2020–Jun 2021. Both are statistically insignificant; net P&L excludes commissions. It cannot match individual closing trades to their opening trades and assumes positions opened in the SLIM channel close in that channel. This is not an underlying-equity prediction test and does not establish alpha. Source: https://cdn.cboe.com/resources/education/research_publications/Retail_Profitability.pdf.
+- Correct interpretation: SLAN/SLIM is an execution-mechanism proxy, not beneficial-owner identity. Do not label customer flow as retail/institutional informed flow. Separate estimated option-side direction, capacity, opening/closing and complex/package structure; quote-rule aggressor signing may be materially misclassified. The 2025 paper challenges blanket "retail loses" claims but does not demonstrate predictive equity alpha.
+- Cboe Option Trades historical-start conflict: product page advertises Jan 2012; DataShop FAQ availability table lists Jan 2010. Keep start unresolved until actual date/symbol availability or written clarification. Product page: https://datashop.cboe.com/option-trades ; FAQ: https://datashop.cboe.com/faqs.
+- Cboe FAQ says daily files are T+1 via SFTP, typically 00:05–03:00 ET, but delays can push delivery until after the next market open; files remain on SFTP for 30 days; intraday delivery requires separate contact. Therefore no assumption of next-open availability: capture actual first receipt, archive raw files/hashes and corrections, and if receipt is after 09:30 ET, defer use to the next eligible session. No account, vendor contact, sample purchase or data acquisition.
+- The official condition workbook link was identified (https://datashop.cboe.com/documents/livevol_trade_condition_ids.xlsx) but XLSX bytes were not inspectable; the Option Trades public sample ZIP (https://datashop.cboe.com/download/sample/216) was likewise not inspectable due binary-content handling. No condition map or sample rows are claimed as verified.
+- Existing Phase 351 TBT sample remains only a 3% one-day C1 sample (2025-03-28), with 17.86% blank OPEN_CLOSE, 0.45% incomplete contract identity, 69 unmapped SIDE rows and unresolved session/segment semantics. Its sampling rule is unverified; no population calibration or prevalence estimates. See draft PR #38 / branch phase351-cboe-tbt-public-sample-row-grain-audit.
+- Report: research/PHASE407_CBOE_SLIM_EVIDENCE_AND_OPRA_PIT_DELIVERY_2026-11-14.md; structured summary: research/PHASE407_CBOE_SLIM_EVIDENCE_AND_OPRA_PIT_DELIVERY_SUMMARY_2026-11-14.json.
+
+## Strategy controls after Phase 407
+
+- F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+- No Smart Money signal admitted; no forward-return, alpha, OOS, bootstrap, LOO or holdout test.
+- Holdout remains untouched; no universe, parameter, capital, exposure or production change.
+- No vendor purchase, trial, account or contact.
