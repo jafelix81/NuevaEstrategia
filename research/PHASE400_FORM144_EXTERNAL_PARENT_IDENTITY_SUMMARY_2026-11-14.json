@@ -12,7 +12,11 @@
     "externally_recovered_parent_documents": 3,
     "matched_193_parent_child_pairs_with_issuer_cik_change": 0,
     "matched_193_pairs_with_issuer_name_text_difference": 16,
-    "interpretation": "The three externally recovered parents are outside the 193 matched-pair subset. Their issuer-CIK corrections must not be contradicted by the zero mismatch count in that narrower subset."
+    "interpretation": "The three externally recovered parents are outside the 193 matched-pair subset. Their issuer-CIK corrections must not be contradicted by the zero mismatch count in that narrower subset.",
+    "all_parent_documents_accounted_for": true,
+    "total_parent_child_pairs_with_issuer_cik_change": 3,
+    "share_of_phase67_144a_pairs_with_issuer_cik_change": 0.015306122448979591,
+    "scope_note": "3/196 (1.53%) is the exact count within this curated Phase 67 14-quarter candidate set after accounting for all 196 parent links; it is not an estimate of prevalence across all SEC Form 144/A filings."
   },
   "candidate_panel_selection_rule": "Phase 67 includes a row in issuer_event_raw.csv only when the XML issuerCik belongs to the current candidate CIK set. A parent filed under an incorrect/affiliate issuer CIK can therefore be excluded while a later 144/A with corrected issuer CIK enters the panel.",
   "pairs": [
