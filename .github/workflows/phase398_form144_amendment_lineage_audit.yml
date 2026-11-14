@@ -1,0 +1,28 @@
+name: Phase 398 - Form 144 amendment-lineage regression
+on:
+  push:
+    branches: [phase398-form144-amendment-lineage-tranche-resolution]
+    paths:
+      - ".github/workflows/phase398_form144_amendment_lineage_audit.yml"
+      - "research/phase398_form144_amendment_lineage_audit.py"
+      - "research/test_phase398_form144_amendment_lineage_audit.py"
+  pull_request:
+    paths:
+      - ".github/workflows/phase398_form144_amendment_lineage_audit.yml"
+      - "research/phase398_form144_amendment_lineage_audit.py"
+      - "research/test_phase398_form144_amendment_lineage_audit.py"
+permissions:
+  contents: read
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile and run offline tests
+        run: |
+          python -m py_compile research/phase398_form144_amendment_lineage_audit.py
+          cd research
+          python -m unittest -v test_phase398_form144_amendment_lineage_audit.py
