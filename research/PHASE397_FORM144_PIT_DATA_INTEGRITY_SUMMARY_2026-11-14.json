@@ -1,0 +1,51 @@
+{
+  "phase": 397,
+  "input_file": "issuer_event_raw.csv",
+  "input_sha256": "fd20e338bd3624e7c1e85c39ab911f9fd5d1d78e8a20ed185e42db299a868b20",
+  "row_count": 21634,
+  "duplicate_accessions": 0,
+  "form_counts": {
+    "144": 21438,
+    "144/A": 196
+  },
+  "notice_vs_filing_date_delta_days": {
+    "0": 21466,
+    "1": 9,
+    "2": 1,
+    "3": 17,
+    "-4": 1,
+    "-3": 27,
+    "-2": 2,
+    "-1": 111
+  },
+  "notice_date_mismatch_rows": 168,
+  "notice_date_earlier_than_filing_rows": 141,
+  "notice_date_later_than_filing_rows": 27,
+  "invalid_date_rows": 0,
+  "accepted_timestamp_columns": [],
+  "accepted_timestamp_gate": "NOT_TESTED_NOT_PRESENT_IN_PHASE67_EVENT_CSV",
+  "multi_candidate_ticker_rows": 291,
+  "multi_candidate_ticker_groups": {
+    "AMT;ASTS": 1,
+    "Z;ZG": 290
+  },
+  "z_zg_multi_candidate_rows": 290,
+  "z_zg_security_class_event_groups": {
+    "Common": 7,
+    "Common Class A|Common Class C": 8,
+    "Common Class C": 275
+  },
+  "multi_tranche_events": 188,
+  "zero_or_invalid_units_events": 2,
+  "zero_or_invalid_value_events": 3,
+  "zero_or_invalid_outstanding_events": 7,
+  "form144a_rows": 196,
+  "form144a_parent_reference_in_census": 195,
+  "form144a_parent_reference_not_in_census": 1,
+  "mentions_10b5_1_rows": 1424,
+  "economic_test_authorized": false,
+  "forward_returns_used": false,
+  "f80_changed": false,
+  "production_changed": false,
+  "holdout_used": false
+}
