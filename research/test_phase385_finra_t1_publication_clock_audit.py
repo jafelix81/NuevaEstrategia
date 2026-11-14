@@ -47,6 +47,18 @@ class Phase385Tests(unittest.TestCase):
         self.assertEqual(row["date_level_clock_gate"], "PASS")
         self.assertEqual(row["first_eligible_nyse_session_strictly_after_publication"], "2021-12-07")
 
+
+    def test_mixed_t1_response_counts_all_rows_but_dates_only_symbol_aggregates(self):
+        week = date(2021, 11, 15)
+        pub = expected_initial_publication(week)
+        row = build_clock_record(
+            week, {pub}, 20, 100, 0, {0: 20}, 1,
+            retrieved_row_count=100,
+        )
+        self.assertTrue(row["retrieval_count_match"])
+        self.assertEqual(row["aggregate_rows"], 20)
+        self.assertEqual(row["retrieved_rows"], 100)
+
     def test_multiple_publication_dates_fail_closed(self):
         week = date(2021, 11, 15)
         pub = expected_initial_publication(week)
