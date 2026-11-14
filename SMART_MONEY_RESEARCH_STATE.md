@@ -1,3 +1,29 @@
+# Current Smart Money Research State — 2026-11-14
+
+## Frozen control and promotion status
+- `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen. No production, capital, universe, parameter or exposure changes.
+- No Smart Money signal is admitted. No new alpha/OOS, bootstrap, LOO or holdout test has been run in this research cycle.
+- The legacy holdout remains consumed and unavailable. No CAGR target or fixed portfolio holding-period limit is imposed.
+
+## Active source work
+- **FINRA T1 ATS:** Phase 375 passed the exhaustive 209-week source/grain/revision audit: 10,917,933 rows, 98.633996% revision-stable symbol-week coverage and 96.943175% stable share-volume coverage. This is not yet a PIT or alpha pass. Phase 385 publication-clock census is still running on [43536354917](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43536354917); the 209-week retrieval step is active after compile and offline tests passed. A second push-triggered run [43536490386](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43536490386) is queued behind it under the same concurrency group; no extra retrieval was intentionally started. Do not start another. Even a date-clock pass still requires an effective-dated security master and historical universe membership before any return test.
+- **CFTC TFF:** Phase 384 prospective first-receipt capture is active on `main` after PR #60 merged. The 3,035-row static archive remains diagnostic only and is not PIT-certified. Weekday capture is scheduled for 22:15 UTC. The first scheduled capture has not yet occurred; the next relevant CFTC release is scheduled for 2026-11-16 at 3:30 p.m. ET.
+- **Phase 387 hypothesis:** PR #63 preregisters a prospective ES/NQ Leveraged Money crowding/downside-risk hypothesis, not a directional COT return strategy. The protocol fixes the prior-52 prospective mid-rank percentile, a single 80th-percentile high-crowding indicator, expanding OLS baseline using only fully matured prior outcomes, 20-session drawdown severity, OOS residual effect and paired MAE. Static CFTC backfill cannot supply features or training history. No test has started.
+- **Phase 388 data-lineage correction:** merged to `main` in commit `9a57acb005f6496f707bfc6faf685925553930d4`. Scheduled CFTC event payloads now contain raw source rows, first-receipt metadata, hashes and eligibility flags only; archive-derived features and cadence labels are no longer attached. Hosted regression passed 13/13 tests ([43539923574](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43539923574)). Downstream Phase 387 features must be recomputed from prospectively first-seen eligible events only.
+- **Options:** OptionMetrics TradeFlow remains the leading historical signed-flow candidate, but access, licensing, historical-vintage/PIT and broad-universe gates remain unresolved. Cboe Open-Close EOD sample accounting passed, but one-day C1 sample coverage is not a historical PIT or alpha pass. No vendor contact or purchase.
+- **FINRA Short Flow / Phase 20C:** corrected economic retest remains blocked by seven unresolved original price histories. Do not alter the original universe to force a run.
+- **SEC:** standalone Form 4 and the tested N-PORT share-growth/dose-response hypothesis are killed. 13F remains parked for security-identity/PIT coverage. 13D/G remains in identity/event-normalization feasibility, not alpha-ready.
+
+## Immediate gates
+1. Complete Phase 385 without launching another retrieval; review its date-level publication clock and actual NYSE session mapping.
+2. Verify the first scheduled CFTC capture and preserve its actual first-receipt timestamp.
+3. Accumulate at least 52 valid prospective weekly CFTC observations before computing the Phase 387 crowding reference; no archive substitution.
+4. Require at least 52 fully matured prior prospective outcomes before Phase 387 evaluation, then at least 150 evaluation observations per contract with the preregistered event counts.
+5. Resolve historical security identity and point-in-time universe membership before any FINRA ATS return test.
+6. Keep candidate tests chronological, net of realistic costs, exposure-matched to frozen LTM/F80, and subject to dependence-aware bootstrap/LOO before promotion.
+
+---
+
 # Smart Money Research State
 
 Updated: 2026-11-04
