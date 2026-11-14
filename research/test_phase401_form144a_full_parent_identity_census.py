@@ -1,7 +1,7 @@
 import json
 import unittest
 from pathlib import Path
-from phase401_form144a_full_parent_identity_census import (
+from research.phase401_form144a_full_parent_identity_census import (
     accession, compare, load_phase400_parents, curated_parent, tranche_sig, tranche_payload_changed
 )
 
