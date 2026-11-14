@@ -17,9 +17,9 @@ from research.phase402_form144_parent_acceptance_and_unresolved_link_audit impor
 
 class Phase402Tests(unittest.TestCase):
     def test_daily_master_index_file_name_header(self):
-        raw = ("Description: Daily Master Index\\n"
-               "CIK|Company Name|Form Type|Date Filed|File Name\\n"
-               "1927719|Freightos Ltd|144|2023-12-05|edgar/data/1927719/000197640823000153/0001976408-23-000153.txt\\n")
+        raw = ("Description: Daily Master Index\n"
+               "CIK|Company Name|Form Type|Date Filed|File Name\n"
+               "1927719|Freightos Ltd|144|2023-12-05|edgar/data/1927719/000197640823000153/0001976408-23-000153.txt\n")
         rows = parse_daily_master_index(raw)
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0]["accession"], "0001976408-23-000153")
