@@ -1,32 +1,34 @@
 {
+  "acceptance_reconciled_accession_count": 52,
   "candidate_manifest_cik_count": 290,
   "candidate_manifest_source_artifact_sha256": "939d5564b14ce0f41df23a2c9ab681977cfde141cd0ea2b3c1213b1c5bfaf613",
   "created_utc": "2026-11-14T20:45:08Z",
   "historical_f80_membership_verified": false,
+  "last_acceptance_reconciliation_utc": "2026-11-14T20:48:32Z",
   "last_feed_sha256_by_feed": {
-    "144": "7b951d8394a9aff2eebc189c9decd65d255da32ab13f100f9c17f54d4a05c562",
-    "144A": "af122d5c05d833019b632a90419f907c264cbc882eb8efec1da8b6e70ee7f525"
+    "144": "d788ad5f2fb751bd9d1fcee273a20c27ea0ac3283595d8ebc437d79326370557",
+    "144A": "dc08024a17a0e6ec0d377440d65573a3374ebf4fe3fa93bc5c205c5d0c0ecd62"
   },
   "last_poll_possible_gap_by_feed": {
     "144": false,
     "144A": false
   },
   "last_successful_poll_mode": "bootstrap",
-  "last_successful_poll_run_id": "43639113589",
-  "last_successful_poll_utc": "2026-11-14T20:45:21Z",
+  "last_successful_poll_run_id": "43639405055",
+  "last_successful_poll_utc": "2026-11-14T20:48:22Z",
   "last_successful_poll_utc_by_feed": {
-    "144": "2026-11-14T20:45:08Z",
-    "144A": "2026-11-14T20:45:08Z"
+    "144": "2026-11-14T20:48:21Z",
+    "144A": "2026-11-14T20:48:22Z"
   },
   "latest_accession_by_feed": {
     "144": "0001950047-26-011102",
     "144A": "0001950047-26-011101"
   },
   "phase": 403,
-  "poll_count": 1,
+  "poll_count": 2,
   "poll_count_by_feed": {
-    "144": 1,
-    "144A": 1
+    "144": 2,
+    "144A": 2
   },
   "schema_version": 1,
   "signal_eligible": false,
