@@ -115,7 +115,7 @@ def ticker_map_for_ambiguous_row(row: dict[str, str]) -> list[dict]:
             })
         return out
 
-    if set(candidates) == {"AMT", "ASTS"} and issuer_cik == ASTS_CIK and AMT_CIK in ciks:
+    if set(candidates) == {"AMT", "ASTS"} and issuer_cik == ASTS_CIK and AMT_CIK in ciks and ASTS_CIK in ciks:
         for i, tranche in enumerate(tranches, start=1):
             out.append({
                 "tranche_index": i,
@@ -164,7 +164,7 @@ def audit(path: Path) -> dict:
     cik_mismatches = 0
     chain_depths = Counter()
     cycles = 0
-    exact_payload_unchanged = 0
+    unchanged_across_audited_fields = 0
     z_rows = z_tranches = zg_tranches = generic_zillow_rows = 0
     asts_issuer_rows = 0
     resolution_status = Counter()
@@ -213,7 +213,7 @@ def audit(path: Path) -> dict:
             if is_changed:
                 changed[name] += 1
         if not any(field_equal.values()):
-            exact_payload_unchanged += 1
+            unchanged_across_audited_fields += 1
 
     for row in amendments:
         acc = clean(row.get("accession"))
@@ -261,7 +261,7 @@ def audit(path: Path) -> dict:
         "amendment_parent_status": dict(sorted(parent_status.items())),
         "matched_parent_form_counts": dict(sorted(parent_form.items())),
         "matched_parent_count": matched_parent_count,
-        "amendments_with_exactly_unchanged_tranche_payload": exact_payload_unchanged,
+        "amendments_unchanged_across_audited_fields": unchanged_across_audited_fields,
         "amendment_payload_change_counts": dict(sorted(changed.items())),
         "parent_date_inversions": parent_date_inversions,
         "issuer_or_filer_cik_mismatches": cik_mismatches,
