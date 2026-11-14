@@ -31,4 +31,5 @@ jobs:
       - name: Compile and run CFTC capture regression suite
         run: |
           python -m py_compile research/phase384_cftc_tff_prospective_capture.py research/test_phase384_cftc_tff_prospective_capture.py
-          python -m unittest -v research.test_phase384_cftc_tff_prospective_capture
+          cd research
+          python -m unittest -v test_phase384_cftc_tff_prospective_capture
