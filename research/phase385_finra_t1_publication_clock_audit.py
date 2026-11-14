@@ -183,6 +183,7 @@ def fetch_week(session, week):
     pages = 0
     publication_dates = set()
     update_gap_counts = Counter()
+    summary_type_counts = Counter()
     missing_date_rows = 0
     offset = 0
     while True:
@@ -194,11 +195,13 @@ def fetch_week(session, week):
         pages += 1
         for row in batch:
             summary_type = P371.norm(row.get("summaryTypeCode"))
-            if summary_type not in P371.ATS_TYPES:
-                raise RuntimeError("Unexpected summaryTypeCode in T1 response")
+            summary_type_counts[summary_type or "<MISSING>"] += 1
             row_week = P371.parse_date(row.get("weekStartDate") or row.get("historicalWeek"))
             if row_week != week:
                 raise RuntimeError("Unexpected historicalWeek in filtered response")
+            # The endpoint returns all T1 summary grains for the partition.
+            # Only ATS_W_SMBL rows define the publication clock used here;
+            # other or future summary types are counted but not rejected.
             if summary_type != SUMMARY_TYPE:
                 continue
             aggregate_rows += 1
@@ -219,12 +222,15 @@ def fetch_week(session, week):
             raise RuntimeError("FINRA offset exceeded maximum")
         time.sleep(0.12)
     if aggregate_rows <= 0:
-        raise RuntimeError("No ATS_W_SMBL aggregate rows in complete T1 partition")
-    return build_clock_record(
+        observed = ",".join(f"{k}:{v}" for k, v in sorted(summary_type_counts.items()))
+        raise RuntimeError(f"No ATS_W_SMBL aggregate rows; observed_summary_types={observed}")
+    record = build_clock_record(
         week, publication_dates, aggregate_rows, record_total,
         missing_date_rows, update_gap_counts, pages,
         retrieved_row_count=retrieved_rows,
     )
+    record["summary_type_counts"] = dict(sorted(summary_type_counts.items()))
+    return record
 
 def main():
     parser = argparse.ArgumentParser()
