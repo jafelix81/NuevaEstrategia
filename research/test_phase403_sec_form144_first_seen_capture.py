@@ -80,9 +80,9 @@ class Phase403Tests(unittest.TestCase):
         self.assertEqual(accepted_utc, "2026-11-14T23:30:00Z")
 
     def test_gap_requires_full_feed_and_missing_previous_latest(self):
-        entries = [{"accession": f"0000000000-26-{i:06d}"} for i in range(100)]
+        entries = [{"accession": f"0000000000-26-{i:06d}"} for i in range(50)]
         self.assertTrue(p403.detect_possible_gap(entries, "9999999999-26-000001"))
-        self.assertFalse(p403.detect_possible_gap(entries[:99], "9999999999-26-000001"))
+        self.assertFalse(p403.detect_possible_gap(entries[:49], "9999999999-26-000001"))
         self.assertFalse(p403.detect_possible_gap(entries, entries[0]["accession"]))
 
 
