@@ -26,6 +26,8 @@ The artifact was downloaded and SHA-256 verified during this run. Its eight targ
 
 The targeted quarterly-index lookup covers 2023Q1, 2023Q2, 2023Q3, 2023Q4, 2024Q1, 2024Q2 and 2025Q4. It is not a new all-market census.
 
+The two parent accessions still missing after the first pass are additionally searched in daily master indexes for 2023-12-04/05/06 and 2024-03-11/12/13. The SEC documents that later post-acceptance removals are not reflected in prior daily/feed/oldload indexes, while quarterly indexes are rebuilt; therefore a daily index can preserve evidence of an accession no longer present in the current quarterly master index. This is a targeted recovery test, not an assumption that either parent was deleted. [SEC: Accessing EDGAR Data](https://www.sec.gov/search-filings/edgar-search-assistance/accessing-edgar-data).
+
 ## PIT rules
 
 - \`ACCEPTANCE-DATETIME\` is the SEC acceptance time, not a certified first-public-receipt timestamp.

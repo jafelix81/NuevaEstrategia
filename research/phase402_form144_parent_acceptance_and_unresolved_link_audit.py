@@ -88,6 +88,18 @@ def load_target_indexes():
     return by_accession, quarter_counts
 
 
+def parse_daily_master_index(raw):
+    if isinstance(raw, bytes):
+        raw = raw.decode("latin-1", "replace")
+    # Daily EDGAR master indexes label the final column "File Name";
+    # quarterly master.idx uses "Filename". Normalize only the header.
+    raw = re.sub(
+        r"(?im)^(CIK\\|Company Name\\|Form Type\\|Date Filed\\|)\\s*File\\s*Name\\s*$",
+        r"\\1Filename",
+        raw,
+    )
+    return p401.parse_master_index(raw)
+
 def load_target_daily_indexes(target_accessions):
     target_accessions = {norm_acc(x) for x in target_accessions}
     by_accession, daily_counts = {}, []
@@ -96,7 +108,7 @@ def load_target_daily_indexes(target_accessions):
         qtr = (dt.month - 1) // 3 + 1
         compact = dt.strftime("%Y%m%d")
         url = f"https://www.sec.gov/Archives/edgar/daily-index/{dt.year}/QTR{qtr}/master.{compact}.idx"
-        rows = p401.parse_master_index(p401.fetch_bytes(url, sec=True, timeout=60, retries=4))
+        rows = parse_daily_master_index(p401.fetch_bytes(url, sec=True, timeout=60, retries=4))
         hits = []
         for row in rows:
             acc = norm_acc(row.get("accession"))
