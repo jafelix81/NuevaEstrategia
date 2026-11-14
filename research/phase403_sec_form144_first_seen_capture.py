@@ -56,6 +56,11 @@ RECON_FIELDS = [
     "timing_anomaly", "filing_detail_url", "reconciliation_run_id",
     "reconciled_at_utc", "signal_eligible", "public_availability_certified",
 ]
+FEED_OBSERVATION_FIELDS = [
+    "poll_run_id", "feed_name", "accession", "form", "feed_updated_raw",
+    "feed_updated_utc", "feed_link", "feed_path_cik", "feed_url",
+    "feed_raw_sha256", "feed_response_received_utc",
+]
 
 def now_utc() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
