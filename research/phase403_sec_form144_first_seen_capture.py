@@ -176,7 +176,7 @@ def extract_submission_xml(raw):
 
 def fetch_document_metadata(item, candidate_ciks):
     result = {
-        "submission_acceptance_et": None, "submission_acceptance_utc": None,
+        "submission_acceptance_et": None, "submission_acceptance_utc": None, "submission_type": None,
         "issuer_cik": None, "issuer_name": None, "filer_cik": None,
         "seller_name": None, "previous_accession": None, "remarks": "",
         "xml_status": "unresolved", "xml_source": None, "xml_sha256": None,
@@ -213,6 +213,7 @@ def fetch_document_metadata(item, candidate_ciks):
     try:
         parsed = p401.parse_form144_xml(xml_bytes)
         result.update({
+            "submission_type": parsed.get("submission_type"),
             "issuer_cik": parsed.get("issuer_cik"),
             "issuer_name": parsed.get("issuer_name"),
             "filer_cik": parsed.get("filer_cik"),
