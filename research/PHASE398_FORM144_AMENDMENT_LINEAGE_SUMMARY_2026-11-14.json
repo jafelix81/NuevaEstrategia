@@ -1,0 +1,65 @@
+{
+  "phase": 398,
+  "input_file": "issuer_event_raw.csv",
+  "row_count": 21634,
+  "duplicate_accessions": 0,
+  "form_counts": {
+    "144": 21438,
+    "144/A": 196
+  },
+  "amendment_count": 196,
+  "amendment_parent_status": {
+    "in_14q_census_not_in_candidate_panel": 2,
+    "matched_in_candidate_panel": 193,
+    "outside_census_or_missing": 1
+  },
+  "matched_parent_form_counts": {
+    "144": 188,
+    "144/A": 5
+  },
+  "matched_parent_count": 193,
+  "amendments_unchanged_across_audited_fields": 106,
+  "amendment_payload_change_counts": {
+    "broker_changed": 20,
+    "class_set_changed": 6,
+    "exchange_changed": 12,
+    "outstanding_changed": 19,
+    "sale_date_changed": 18,
+    "tranche_count_changed": 3,
+    "units_changed": 44,
+    "value_changed": 59
+  },
+  "parent_date_inversions": 0,
+  "issuer_or_filer_cik_mismatches": 0,
+  "amendment_chain_depth_counts": {
+    "0": 3,
+    "1": 189,
+    "2": 4
+  },
+  "amendment_chain_cycles": 0,
+  "ambiguous_ticker_rows": 291,
+  "zillow_issuer_rows": 290,
+  "zillow_class_c_tranches_resolved_to_Z": 283,
+  "zillow_class_a_tranches_resolved_to_ZG": 8,
+  "zillow_generic_class_rows_unresolved": 7,
+  "zillow_tranche_class_counts": {
+    "class a": 8,
+    "class c": 283,
+    "common": 7
+  },
+  "asts_issuer_side_rows": 1,
+  "ticker_resolution_status_counts": {
+    "issuer_side_cik_resolution_subject_to_effective_crosswalk": 1,
+    "resolved_by_issuer_class": 291,
+    "unresolved_generic_class": 7
+  },
+  "amendments_are_independent_sale_events": false,
+  "amendments_must_be_versioned_at_own_filing_date": true,
+  "economic_test_authorized": false,
+  "forward_returns_used": false,
+  "f80_changed": false,
+  "production_changed": false,
+  "holdout_used": false,
+  "input_sha256": "fd20e338bd3624e7c1e85c39ab911f9fd5d1d78e8a20ed185e42db299a868b20",
+  "artifact_zip_sha256": "939d5564b14ce0f41df23a2c9ab681977cfde141cd0ea2b3c1213b1c5bfaf613"
+}
