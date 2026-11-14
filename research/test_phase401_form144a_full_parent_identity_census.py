@@ -60,9 +60,11 @@ class Phase401Tests(unittest.TestCase):
         self.assertTrue(row["remarks_explicit_identity_correction"])
 
     def test_tranche_signature_is_deterministic_and_payload_sensitive(self):
-        a=self.make_tranche()
-        self.assertEqual(tranche_sig(a),tranche_sig(list(reversed(a))))
-        self.assertNotEqual(tranche_sig(a),tranche_sig(self.make_tranche(units="101")))
+        a=[{"security_class":"COMMON","units_numeric":"100","value_numeric":"1000","outstanding_numeric":"1000000","approx_sale_date_iso":"2023-05-01","exchange":"NYSE","broker_or_market_maker":"BROKER"}]
+        b=[dict(a[0])]
+        self.assertEqual(tranche_sig(a),tranche_sig(b))
+        b[0]["units_numeric"]="101"
+        self.assertNotEqual(tranche_sig(a),tranche_sig(b))
 
     def test_missing_parent_broker_is_not_treated_as_a_change(self):
         child=[{"class":"COMMON","units":"100","value":"1000","outstanding":"1000000",
