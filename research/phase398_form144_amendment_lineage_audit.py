@@ -29,17 +29,17 @@ AMT_CIK = "0001053507"
 
 
 def clean(value: object) -> str:
-    return re.sub(r"\\s+", " ", str(value or "").strip())
+    return re.sub(r"\s+", " ", str(value or "").strip())
 
 
 def canonical_class(value: object) -> str:
     s = clean(value).casefold()
     s = re.sub(r"[^a-z0-9]+", " ", s)
-    s = re.sub(r"\\s+", " ", s).strip()
-    m = re.search(r"\\bclass\\s+([abc])\\b", s)
+    s = re.sub(r"\s+", " ", s).strip()
+    m = re.search(r"\bclass\s+([abc])\b", s)
     if m:
         return f"class {m.group(1)}"
-    m = re.search(r"\\bcommon\\s+class\\s+([abc])\\b", s)
+    m = re.search(r"\bcommon\s+class\s+([abc])\b", s)
     if m:
         return f"class {m.group(1)}"
     return s
@@ -291,7 +291,7 @@ def main() -> None:
     parser.add_argument("--output", type=Path, default=Path("phase398_summary.json"))
     args = parser.parse_args()
     result = audit(args.input)
-    args.output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\\n", encoding="utf-8")
+    args.output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps(result, indent=2, sort_keys=True))
 
 
