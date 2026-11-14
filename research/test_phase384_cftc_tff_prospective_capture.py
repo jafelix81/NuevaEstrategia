@@ -1,7 +1,7 @@
 import unittest,statistics
 from datetime import date,timedelta
 from decimal import Decimal
-from phase384_cftc_tff_prospective_capture import CATEGORIES,classify,features,digest,check_oi,num
+from phase384_cftc_tff_prospective_capture import CATEGORIES,classify,features,digest,check_oi,num,canonical,build_event_record
 
 def make_row(d,lev,am=0,dealer=None,oi=1000):
  r={"report_date_as_yyyy_mm_dd":d.isoformat()+"T00:00:00.000","cftc_contract_market_code":"13874A",
@@ -33,6 +33,23 @@ class Tests(unittest.TestCase):
   self.assertEqual(classify("manual",None,"new","2026-01-13","2026-01-06"),("new_report",False))
  def test_unchanged_no_event(self):
   self.assertIsNone(classify("schedule","same","same","2026-01-06","2026-01-06"))
+ def test_prospective_event_contains_raw_source_only(self):
+  row=make_row(date(2026,1,13),100,am=40)
+  event=build_event_record(row,"new_report","2026-01-13T22:15:00Z",True,None,digest(row))
+  self.assertEqual(event["source_row"],canonical(row))
+  self.assertNotIn("derived_features",event)
+  self.assertNotIn("observed_cadence_regime",event)
+  self.assertNotIn("weekly_feature_gate",event)
+  self.assertFalse(event["historical_backfill_derived_features_included"])
+  self.assertEqual(event["feature_engineering_policy"],"RECOMPUTE_FROM_PROSPECTIVE_FIRST_SEEN_EVENTS_ONLY")
+  self.assertTrue(event["research_observation_eligible"])
+  self.assertFalse(event["signal_eligible"])
+  self.assertFalse(event["trade_signal_generated"])
+ def test_revision_event_is_never_research_observation_eligible(self):
+  row=make_row(date(2026,1,6),100)
+  event=build_event_record(row,"revision","2026-01-13T22:15:00Z",False,"old",digest(row))
+  self.assertFalse(event["research_observation_eligible"])
+  self.assertFalse(event["signal_eligible"])
  def test_zscore_uses_prior_rows_only(self):
   rows=[make_row(date(2024,1,2)+timedelta(days=7*i),10+2*i) for i in range(54)]
   f,_,_=features(rows); prior=[(10+2*i)/1000 for i in range(1,53)]
