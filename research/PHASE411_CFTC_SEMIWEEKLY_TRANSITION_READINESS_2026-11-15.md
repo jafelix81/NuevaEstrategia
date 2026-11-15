@@ -66,3 +66,6 @@ The regression workflow runs only the existing Phase 384 offline unit suite. It 
 - No return, alpha, OOS, bootstrap, LOO or holdout test was run.
 - No signal admitted; no Phase 387 threshold or feature changed.
 - F80_TOP20_PARTIAL50_BASELINE_C20, universe, parameters, capital, exposure, holdout and production remain unchanged.
+
+
+CI note: .github/workflows/phase411_cftc_semiweekly_transition_regression.yml runs only the offline Phase 384 unit suite on pull requests; it does not call CFTC or execute capture.
