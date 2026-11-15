@@ -8,12 +8,12 @@
 
 Inspected the mainline workflow `.github/workflows/phase403_sec_form144_first_seen_capture.yml` and repository Actions runs.
 
-- Default branch is `main`; the Phase 403 workflow file is present on main.
+- Default branch is `main`; the Phase 403 workflow is present on main.
 - The workflow declares `schedule: 37 * * * *`, `workflow_dispatch`, and a serialized concurrency group `sec-form144-prospective-first-seen`.
 - The latest run visible in the repository-wide recent-run page is [43650633912](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43650633912), created 2026-11-14 22:55:57Z. It is a `pull_request` validation, not a scheduled capture. Its `offline-regression` job passed; `live-capture` was skipped; it uploaded no artifacts.
 - A created-after query beginning 2026-11-14 22:55:00Z returned exactly that PR run and no later run. The same query filtered to `event=schedule` returned zero runs.
 - Therefore no schedule run is evidenced for the :37 slots at 23:37Z, 00:37Z or 01:37Z as of this audit. GitHub may delay or drop scheduled events; this does not prove the workflow is disabled.
-- No run was queued or in progress in the recent-run results inspected. No manual dispatch, branch push, rerun or duplicate capture was started.
+- No run was queued or in progress in the recent-run results inspected. No manual dispatch, rerun, branch push or duplicate capture was started.
 
 ### Persistent SEC state
 
@@ -30,17 +30,23 @@ The available GitHub connection can inspect workflow source and run/job/artifact
 
 ## 2. SEC 13D/G retrieval remains blocked
 
-PR [#37](https://github.com/jafelix81/NuevaEstrategia/pull/37) remains draft. Phase 408's evidence is unchanged: run [43327053770](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43327053770) stopped on HTTP 403 at request 1/44, saved zero parent documents, and showed a project-URL-only User-Agent without a monitored contact email.
+PR [#37 — Phase 350](https://github.com/jafelix81/NuevaEstrategia/pull/37) remains draft.
 
-The required repository Actions secret `SEC_USER_AGENT` must contain a project identifier and monitored contact email. No request was retried. This is separate from the scheduled Form 144 trigger issue.
+- Run [43327053770](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43327053770) passed 10/10 offline tests but SEC Archives returned HTTP 403 on request 1/44.
+- Zero parent documents were saved and zero references were validated.
+- The effective User-Agent shown in the log contains only the project URL and no monitored contact email. No request was retried.
+
+The required repository Actions secret `SEC_USER_AGENT` must contain a project identifier and monitored contact email before the 44 exact-parent requests are resumed. Do not paste the email into chat. This is separate from the scheduled Form 144 trigger issue.
 
 ## 3. CFTC TFF release and capture clock
 
-The official [CFTC 2026 Release Schedule](https://www.cftc.gov/MarketReports/CommitmentsofTraders/ReleaseSchedule/index.htm) lists the next report for **Monday 2026-11-16 at 3:30 p.m. ET**, delayed for the federal holiday. In November standard time this is 20:30 UTC. The report is expected to cover positions as of Tuesday 2026-11-10.
+The official [CFTC 2026 Release Schedule](https://www.cftc.gov/MarketReports/CommitmentsofTraders/ReleaseSchedule/index.htm) lists the next report for **Monday 2026-11-16 at 3:30 p.m. ET (20:30 UTC)**, delayed for a federal holiday. It covers positions as of Tuesday 2026-11-10.
 
-Phase 384's mainline weekday capture remains scheduled for 22:15 UTC (5:15 p.m. ET), 105 minutes after the scheduled release. This is a conservative first-receipt poll, not a guarantee that the API will have updated. If the source is not updated, no row is invented; the actual first scheduled receipt governs.
+Phase 384's mainline weekday capture is scheduled for **22:15 UTC**, 105 minutes after the scheduled release. This is a conservative first-receipt poll, not a guarantee that the API will have updated. If the source is not updated, no row is invented; the actual first scheduled receipt governs.
 
-The committed CFTC state remains the non-eligible branch-push baseline from 2026-11-13 23:03:38Z, ending at report date 2026-11-03 for all four contract codes. No prospective event ledger exists yet. The CFTC's announced twice-weekly transition has no effective date established by the official 2026 schedule reviewed here; retain weekly feature semantics until prospective source observations demonstrate a cadence change.
+The committed CFTC state remains the non-eligible branch-push baseline from 2026-11-13 23:03:38Z, ending at report date 2026-11-03 for all four contract codes. The next weekday cron slot after that Friday baseline is Monday 2026-11-16 at 22:15 UTC; no weekday schedule slot was due over the intervening weekend.
+
+The CFTC's announced twice-weekly transition has no effective date established by the official 2026 release schedule reviewed here; retain weekly feature semantics until prospective source observations demonstrate a cadence change.
 
 ## 4. Strategy and research controls
 
@@ -56,3 +62,23 @@ The committed CFTC state remains the non-eligible branch-push baseline from 2026
 2. Keep SEC 13D/G parent retrieval stopped until `SEC_USER_AGENT` is updated with monitored contact details.
 3. Inspect the first Phase 384 scheduled run after the 2026-11-16 CFTC release; reconcile report date, actual first-receipt UTC, event classification and earliest eligible NYSE session.
 4. Continue FINRA only after the effective-dated security-master and delisting-return gates pass; continue options only after actual sample rows, trade-condition mapping and delivery-vintage semantics are inspected.
+
+## Recheck addendum — 2026-11-15 02:48 UTC
+
+The follow-up audit confirmed the workflow files and inspected the jobs, logs, artifacts and persisted source state directly.
+
+### SEC
+
+- Mainline workflow file is confirmed at `.github/workflows/phase403_sec_form144_first_seen_capture.yml`; it still declares the :37 hourly schedule and serialized concurrency group.
+- Run [43650633912](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43650633912) has two completed jobs: `offline-regression=success`, `live-capture=skipped`; no artifact.
+- Bootstrap run [43639405055](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43639405055) has both jobs successful and artifact [14130779748](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43639405055/artifacts/14130779748). The artifact confirms `mode=bootstrap`, 52 reconciled acceptance timestamps, zero new accessions, zero research-observation-eligible events and `public_availability_certified=false`.
+- Mainline `state.json` is still at poll 2 / bootstrap at 20:48:22Z; `feed_observations.csv` remains header-only. No later scheduled capture is evidenced by persisted state or capture commits. The connector still cannot conclusively enumerate queued/in-progress repository-wide runs or inspect workflow enablement. No duplicate poll was launched.
+
+### CFTC
+
+- Mainline workflow file is confirmed at `.github/workflows/phase384_cftc_tff_prospective_capture.yml`; it declares weekday `15 22 * * 1-5` (22:15 UTC), `workflow_dispatch`, and a serialized concurrency group.
+- Run [43525140200](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43525140200) is a **push/bootstrap** run on the mainline-activation branch, not a scheduled observation. Its job succeeded, all 11 tests passed, and artifact [14084802705](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43525140200/artifacts/14084802705) confirms 3,035 historical rows, no new events, no state overwrite, zero historical signal-eligible rows and `alpha_test_authorized=false`.
+- Mainline CFTC state remains the 2026-11-13 23:03:38Z branch-push baseline, latest report date 2026-11-03 for all four codes. Because the workflow is weekday-only and the next official release is Monday, 2026-11-16, the first relevant scheduled poll is still in the future at 22:15 UTC that day. No early/manual poll was started.
+- The official schedule currently lists Nov 16, Nov 20 and Nov 30 as release dates; the CFTC's Oct 27 announcement is a plan for semiweekly publication by year-end, not proof that the TFF dataset has already changed cadence. The code's atomic-batch guard and weekly-feature suppression remain appropriate until actual prospective report dates establish a new cadence.
+
+The Phase 409 branch remains an audit-only draft; this addendum changes no workflow, data, model, feature, signal or strategy setting.
