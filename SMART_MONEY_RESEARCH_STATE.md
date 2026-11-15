@@ -517,3 +517,6 @@ This section supersedes any older “in progress” status above where later com
 - Phase 384 weekday 22:15 UTC polling already covers possible Wednesday/Friday releases. Its 2–5 day semiweekly detector and weekly-feature suppression are retained. Added a regression for the exact 2,5,2,5-day Monday/Wednesday report-date pattern. No capture workflow or cron change.
 - Phase 387 remains weekly-only until TFF prospective report dates confirm a new cadence and a separate preregistration is approved. No signal, return test, or strategy change.
 - Report: research/PHASE411_CFTC_SEMIWEEKLY_TRANSITION_READINESS_2026-11-15.md.
+
+
+- Full Phase 409 SEC scheduled-trigger and CFTC release-clock audit: `research/PHASE409_SEC_SCHEDULED_TRIGGER_DELIVERY_AUDIT_2026-11-15.md` (consolidated after Phase 411).
