@@ -67,6 +67,16 @@ class Tests(unittest.TestCase):
   self.assertIsNone(f[-1]["leveraged_money_net_oi_4w_change"])
   self.assertIsNone(f[-1]["leveraged_money_net_oi_z52"])
 
+
+ def test_semiweekly_monday_wednesday_2_5_day_pattern_suppresses_weekly_features(self):
+  # CFTC's announced schedule implies Monday/Wednesday report dates, then
+  # a 2-day gap followed by a 5-day weekend gap.
+  ds=[date(2026,1,5),date(2026,1,7),date(2026,1,12),date(2026,1,14),date(2026,1,19)]
+  f,_,_=features([make_row(d,100+10*i) for i,d in enumerate(ds)])
+  self.assertEqual(f[-1]["cadence_regime"],"SEMIWEEKLY")
+  self.assertFalse(f[-1]["weekly_feature_gate"])
+  self.assertIsNone(f[-1]["leveraged_money_net_oi_4w_change"])
+
  def test_atomic_batch_only_latest_new_report_per_contract_is_eligible(self):
   rows=[make_row(date(2026,1,13),100),make_row(date(2026,1,15),120)]
   latest={"13874A":"2026-01-06"}
