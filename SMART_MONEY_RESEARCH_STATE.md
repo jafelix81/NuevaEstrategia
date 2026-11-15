@@ -480,3 +480,13 @@ This section supersedes any older “in progress” status above where later com
 - No Smart Money signal admitted; no forward-return, alpha, OOS, bootstrap, LOO or holdout test.
 - Holdout remains untouched; no universe, parameter, capital, exposure or production change.
 - No vendor purchase, trial, account or contact.
+
+
+## Phase 408 — SEC Form 144 schedule and SEC 13D/G access-gate recheck (2026-11-15)
+
+- Mainline HEAD at audit start was Phase 407 commit `9edbf49727242ec90f39f42e2da89ab599ecf2e4`. PR #84/#83/#82 are merged. Latest directly inspectable Phase 405 validation run 43650633912 passed 15/15 offline tests, but its live-capture job was skipped because it was a pull-request event.
+- The last confirmed live Form 144 poll remains bootstrap run 43639405055 at 2026-11-14 20:48:22Z. Mainline `state.json` remains at poll_count=2 / mode=bootstrap; `events.csv` contains 52 ineligible baseline rows; `feed_observations.csv` contains only its header. Search of capture commit messages finds only the two bootstrap commits. Since the Phase 403 client appends per-feed observations and poll state on every non-manual poll, no successful scheduled poll is evidenced. The GitHub connector cannot list all repository workflow runs, so a queued/in-progress schedule cannot be definitively ruled out; no manual or duplicate capture was started.
+- Phase 350 / PR #37 remains blocked: run 43327053770 passed 10/10 offline tests but SEC Archives returned HTTP 403 on request 1/44. Zero parent documents were saved. The effective `SEC_USER_AGENT` shown in the log contains only the project URL and no monitored contact email. Human action required: set/update repository Actions secret `SEC_USER_AGENT` with a project identifier and monitored contact email before resuming; do not paste the email into chat. Artifact 13991999046 preserves the blocked summary.
+- Cboe Option Trades sample ZIP and official condition workbook remain inaccessible to current binary inspection tools; no sample rows or mapping were newly validated. Phase 351 TBT remains one-day 3% C1 diagnostics only, with 17.86% blank OPEN_CLOSE, 0.45% incomplete contract identity, 69 unmapped SIDE rows and unresolved segment semantics.
+- No new source or signal admitted; no forward returns/alpha/OOS/bootstrap/LOO/holdout test. F80 remains frozen; holdout, universe, capital, exposure and production unchanged. No vendor data acquired.
+- Full audit: `research/PHASE408_SEC_CAPTURE_AND_13DG_ACCESS_GATE_RECHECK_2026-11-15.md`.
