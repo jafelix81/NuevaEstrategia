@@ -490,3 +490,14 @@ This section supersedes any older “in progress” status above where later com
 - Cboe Option Trades sample ZIP and official condition workbook remain inaccessible to current binary inspection tools; no sample rows or mapping were newly validated. Phase 351 TBT remains one-day 3% C1 diagnostics only, with 17.86% blank OPEN_CLOSE, 0.45% incomplete contract identity, 69 unmapped SIDE rows and unresolved segment semantics.
 - No new source or signal admitted; no forward returns/alpha/OOS/bootstrap/LOO/holdout test. F80 remains frozen; holdout, universe, capital, exposure and production unchanged. No vendor data acquired.
 - Full audit: `research/PHASE408_SEC_CAPTURE_AND_13DG_ACCESS_GATE_RECHECK_2026-11-15.md`.
+
+
+## Phase 409 — SEC scheduled-trigger delivery audit and CFTC release-clock recheck (2026-11-15)
+
+- Main HEAD at audit start: `3d450a4d1d27f13663303cbf65f987150571a282` (Phase 408). Phase 403 workflow is present on default branch `main` with valid-looking cron `37 * * * *` and serialized concurrency group.
+- Repository-wide Actions runs after 2026-11-14 22:55:00Z returned only PR validation run 43650633912; an additional `event=schedule` query for the same interval returned zero runs. No schedule run is evidenced for :37 at 23:37Z, 00:37Z or 01:37Z. Latest PR run passed offline regression; live-capture was skipped and no artifact was uploaded. No manual dispatch, rerun, branch push or duplicate poll was started.
+- SEC persistent state remains poll_count=2 / bootstrap at 2026-11-14 20:48:22Z; 52 baseline events remain ineligible; feed_observations.csv remains header-only. Acceptance reconciliation 52/52 is not first-public-receipt. The connector does not expose workflow enable/disable administration; owner should verify Actions → Phase 403 workflow is enabled before any further cron edit.
+- SEC 13D/G PR #37 remains blocked pending repository secret SEC_USER_AGENT with project identifier and monitored contact email; no request retried.
+- Official CFTC 2026 release schedule lists the next report Monday 2026-11-16 at 3:30 p.m. ET (20:30 UTC), holiday-delayed, for positions as of 2026-11-10. Phase 384 weekday capture remains 22:15 UTC, 105 minutes after scheduled release. Existing CFTC state is still the non-eligible branch-push baseline ending 2026-11-03; no prospective event exists. Keep weekly feature semantics until prospectively observed cadence changes. Source: https://www.cftc.gov/MarketReports/CommitmentsofTraders/ReleaseSchedule/index.htm.
+- Report: `research/PHASE409_SEC_SCHEDULED_TRIGGER_DELIVERY_AUDIT_2026-11-15.md`.
+- No signal, forward-return/alpha/OOS/bootstrap/LOO/holdout test, F80, universe, parameter, capital, exposure or production change. No vendor data acquired.
