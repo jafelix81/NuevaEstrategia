@@ -541,3 +541,15 @@ This section supersedes any older “in progress” status above where later com
 
 
 - Full Phase 409 SEC scheduled-trigger and CFTC release-clock audit: `research/PHASE409_SEC_SCHEDULED_TRIGGER_DELIVERY_AUDIT_2026-11-15.md` (consolidated after Phase 411).
+
+
+## Phase 413 — SEC Form 144 schedule-delivery recheck (2026-11-15)
+
+- Main HEAD at audit start: `25fcbf6b5b1e4a44285435bca6f0dc5672bb8b33`. Latest 100 Actions runs, schedule-filtered runs, jobs, logs and artifacts were checked. Zero runs were queued or in progress.
+- The only Phase 403 `schedule` event in the inspected history is run [43670461605](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43670461605), 2026-11-15 03:01:47–03:02:06 UTC, using commit `3d450a4d1d27f13663303cbf65f987150571a282`. The workflow at that commit already contained `cron: "37 * * * *"`; no later schedule event appears through 09:14 UTC. The observed run start is not an exact :37 wall-clock execution. One successful scheduled poll confirms enablement but does not demonstrate reliable hourly delivery. No root cause established; no manual dispatch, duplicate workflow, or speculative cron change.
+- Both jobs succeeded. Artifact [14143174642](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43670461605/artifacts/14143174642) (SHA-256 `a518f07b6bb6b67582d3c578ff0e8656171179df5c67ef169cfe588c1dd04c3a`) reports 55 feed observations, zero new accessions/events, no feed-window gap at that poll, zero eligible observations. State remains poll_count=3; last receipt 2026-11-15 03:02:02 UTC; 52 initial events baseline-only.
+- Phase 384's latest inspected run [43525140200](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43525140200) remains a push/bootstrap, not a scheduled capture; 3,035 historical rows remain ineligible. Next expected weekday capture is 2026-11-16 22:15 UTC after the scheduled 20:30 UTC COT release. Phase 411 run [43681298839](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43681298839) passed 17/17 offline tests and made no CFTC request.
+- Repository currently has 56 open PRs, mostly draft/stacked. PR #60 is the merged mainline CFTC activation; open #59 is a different stacked bootstrap PR. PRs #57 and #61 remain draft on non-main bases; #48 Cboe and #37 SEC 13D/G also remain draft. No PR was merged/rebased.
+- Phase 20C remains blocked at 328/329 histories (AVB, EA, EQR, LPRO, ROKU, WBD, WBS). No provider mixing or universe reduction. OptionMetrics/Cboe/SEC insider candidates remain feasibility-only.
+- No new signal, return/OOS/bootstrap/LOO/holdout test, vendor purchase/contact, credential change, or production change. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen; holdout, universe, capital and exposure unchanged.
+- Full audit: `research/PHASE413_SEC_FORM144_SCHEDULE_DELIVERY_RECHECK_2026-11-15.md`.
