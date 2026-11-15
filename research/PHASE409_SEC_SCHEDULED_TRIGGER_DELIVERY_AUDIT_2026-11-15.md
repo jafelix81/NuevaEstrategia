@@ -82,3 +82,24 @@ The follow-up audit confirmed the workflow files and inspected the jobs, logs, a
 - The official schedule currently lists Nov 16, Nov 20 and Nov 30 as release dates; the CFTC's Oct 27 announcement is a plan for semiweekly publication by year-end, not proof that the TFF dataset has already changed cadence. The code's atomic-batch guard and weekly-feature suppression remain appropriate until actual prospective report dates establish a new cadence.
 
 The Phase 409 branch remains an audit-only draft; this addendum changes no workflow, data, model, feature, signal or strategy setting.
+
+
+## Recheck addendum — first successful SEC scheduled poll (2026-11-15 03:47 UTC)
+
+The earlier Phase 409 conclusion that no scheduled poll had been observed is superseded by the first completed schedule-triggered run:
+
+- Run [43670461605](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43670461605) explicitly reports `EVENT_NAME=schedule`. The live-capture job started at 03:01:58Z and completed successfully; the offline regression and live-capture jobs both concluded SUCCESS. The offline suite passed **15/15**.
+- Artifact [14143174642](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43670461605/artifacts/14143174642) was uploaded successfully (1,188 bytes; SHA-256 `a518f07b6bb6b67582d3c578ff0e8656171179df5c67ef169cfe588c1dd04c3a`).
+- The live-poll summary is `POLL_COMPLETE_NO_NEW_ACCESSIONS`: 50 Form 144 entries and 5 Form 144/A entries observed; **55 per-feed observations appended**; zero new feed entries, zero new accessions, zero new events, zero candidate-issuer matches and zero new XML resolutions.
+- Both feeds retained the previous latest accession; `possible_feed_window_gap=false`. The observation interval is bounded by the previous successful poll (2026-11-14 20:48:21/22Z) and this receipt (2026-11-15 03:02:02Z). This establishes a successful scheduled observation, not a new filing event.
+- Mainline state now records `poll_count=3`, mode `schedule`, run `43670461605`, and last successful receipt `2026-11-15T03:02:02Z`. The 52 initial event rows remain baseline-only; `events_written=0`; no row is public-availability-certified or signal-eligible.
+- The workflow is demonstrably enabled and capable of completing a scheduled run. The previous request for the repository owner to verify workflow enablement is no longer necessary. The nominal cron remains `37 * * * *`; this run began at 03:01:58Z, illustrating that Actions scheduling is not an exact wall-clock service. Do not manually dispatch or duplicate a poll. At audit time, no later capture commit was visible; the connector cannot conclusively enumerate a queued/in-progress later schedule run.
+
+### CFTC recheck
+
+- Phase 384 remains on its weekday `15 22 * * 1-5` schedule. Latest inspected run [43525140200](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43525140200) is still the push/bootstrap run; its successful job and artifact [14084802705](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43525140200/artifacts/14084802705) report 3,035 historical rows, no new events and no alpha authorization.
+- The official CFTC schedule lists the next COT release for **Monday 2026-11-16 at 3:30 p.m. ET (20:30 UTC)**. The existing 22:15 UTC poll is 105 minutes later. See [CFTC release schedule](https://www.cftc.gov/MarketReports/CommitmentsofTraders/ReleaseSchedule/index.htm). Do not infer that the announced semiweekly cadence is already effective for TFF; retain weekly feature semantics until actual prospective releases demonstrate otherwise.
+
+### Strategy disposition
+
+No Form 144 event was newly observed and no return/alpha/OOS/bootstrap/LOO/holdout test was run. The SEC feed clock is now operationally proven for one scheduled poll, but one poll with no new accession does not yet establish a usable event sample or economic signal. Historical F80 membership remains unverified. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen; holdout, universe, parameters, capital, exposure and production are unchanged.
