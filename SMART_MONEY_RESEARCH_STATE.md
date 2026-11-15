@@ -1,3 +1,11 @@
+## Phase 410 — CFTC Bank Participation Report feasibility (2026-11-15)
+
+- Official CFTC audit finds BPR is monthly (positions normally first Tuesday, published first Friday after 3:30 p.m. ET) and the CFTC retains only the latest 25 months. The November 2026 report is dated 2026-11-03 and released 2026-11-06. Current archive index exposes 25 monthly vintages from November 2024 through November 2026.
+- BPR aggregates only U.S. Banks and Non-U.S. Banks in markets with at least five reportable banks; category counts are suppressed when a category has fewer than four. CFTC Form 40 business-purpose classifications are not beneficial-owner identities. Gross-options positions are not delta-adjusted.
+- November 2026 includes E-mini S&P 500, Nasdaq Mini, Russell E-mini and E-mini VIX futures, so a macro-regime cross-check is plausible. It does not provide issuer-level equity coverage. The 25-month / monthly sample is inadequate for a robust historical chronological OOS, bootstrap/LOO and holdout study.
+- Decision: do not admit BPR as standalone alpha or stock-selection source; retain only a possible prospective low-frequency macro cross-check versus TFF/LTM/F80. No BPR capture workflow yet; no data downloaded, no return tests, no signal admission. F80, holdout, universe, capital, exposure and production unchanged. See `research/PHASE410_CFTC_BANK_PARTICIPATION_REPORT_FEASIBILITY_2026-11-15.md`.
+- Official sources: https://www.cftc.gov/MarketReports/BankParticipationReports/ExplanatoryNotes/index.htm ; https://www.cftc.gov/MarketReports/BankParticipationReports/ReleaseSchedule/index.htm ; https://www.cftc.gov/MarketReports/BankParticipation/deanov26f.
+
 ## Phase 404 — SEC Form 144 cross-feed provenance integrity (2026-11-14)
 
 - Audited the Phase 403 bootstrap's 55 feed entries (50 in type=144, five in type=144/A), which yielded 52 unique accessions and three cross-feed overlaps. All 52 unique event rows were captured and XML-resolved, but none retained more than one `feed_names` value: the shared accession set caused the second feed observation to be skipped after the first feed processed the accession. The three overlaps were 0001628280-26-073919, 0001950047-26-011100 and 0001950047-26-011101. This is provenance loss, not missing filing events.
