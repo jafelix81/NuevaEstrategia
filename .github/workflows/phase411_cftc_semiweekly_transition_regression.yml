@@ -1,0 +1,33 @@
+name: Phase 411 CFTC semiweekly transition regression
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/phase411_cftc_semiweekly_transition_regression.yml"
+      - "research/phase384_cftc_tff_prospective_capture.py"
+      - "research/test_phase384_cftc_tff_prospective_capture.py"
+      - "research/PHASE411_CFTC_SEMIWEEKLY_TRANSITION_READINESS_2026-11-15.md"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase411-cftc-semiweekly-transition-regression
+  cancel-in-progress: false
+
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Install import dependency
+        run: pip install requests
+      - name: Compile and run Phase 384 offline regressions
+        run: |
+          python -m py_compile research/phase384_cftc_tff_prospective_capture.py research/test_phase384_cftc_tff_prospective_capture.py
+          cd research
+          python -m unittest -v test_phase384_cftc_tff_prospective_capture.py
