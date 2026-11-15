@@ -1,3 +1,16 @@
+## Current operational status — 2026-11-15 14:06 UTC
+
+- Mainline Phase 418 report committed as `a2e8f9db01f115a11ac361a288e5b013109c305b`; see `research/PHASE418_OPTIONS_SAMPLE_HISTORICAL_DENOMINATOR_AND_COVERAGE_CORRECTION_2026-11-15.md`.
+- Rechecked latest 100 Actions runs (7,658 total reported), 56 open PRs, branch search, relevant jobs/logs/artifacts, and Phases 414–417 research files. Latest 100 runs contain 62 successes, 37 failures and 1 cancellation; zero queued and zero in-progress at 14:06 UTC. No new workflow was started.
+- **Phase 418 — historical options denominator correction:** ORATS 2024-01-03 raw sample (716,822 rows; 5,787 underlyings) had 324/335 current diagnostic tickers in Phase 417. Seven current symbols (ALAB, LOT, RDDT, DJT, GEV, WAY, TEM) did not begin public trading under those symbols until after the sample date. XYZ was not yet the ticker: Block traded as SQ and the retained ORATS coverage CSV has SQ with 599 rows. Corrected descriptive current-symbol reach is therefore 325/328 = 99.09%, not 96.72%; AMTD/HAPN/TELFY remain unresolved. This remains a one-date descriptive reconciliation, not historical F80 membership/optionability/PIT coverage.
+- **Cboe Open-Close:** 2025-03-28 public sample is explicitly 20% of contract rows. Its 288/335 ticker reach is sample reach only, not full-universe coverage. Phase 355 arithmetic PASS remains one C1 sample only. Phase 356 regime matrix is documentation-only: candidate historical volume scaling, OI timing and session breaks are not numerically validated; participant-side scaling, exact first receipt and correction vintages remain unproven. Do not apply transforms or build signals from the matrix alone.
+- **SEC Form 144:** latest scheduled run [43709012759](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43709012759) remains the latest schedule event; both jobs passed. Live receipt 2026-11-15 11:28:22 UTC, 55 feed observations, zero new accessions/events/candidate matches/XML resolutions, no detected feed-window gap, and zero eligible observations. No later schedule event is visible by 14:06 UTC; do not dispatch manually or duplicate polling.
+- **CFTC TFF:** Phase 384 remains on weekday 22:15 UTC schedule; next expected prospective capture Monday 2026-11-16 22:15 UTC after the official 20:30 UTC release. Keep weekly semantics until prospective report-date/first-receipt observations prove a cadence change.
+- **FINRA Phase 20C:** remains blocked at 328/329 valid price histories (AVB, EA, EQR, LPRO, ROKU, WBD, WBS). Massive remains conditional; no subscription or data request.
+- No options source admitted to alpha; no forward-return/OOS/bootstrap/LOO/holdout test. `F80_TOP20_PARTIAL50_BASELINE_C20`, universe, parameters, holdout, capital, exposure and production remain unchanged.
+
+---
+
 ## Current operational status — 2026-11-15 13:25 UTC
 
 - Main HEAD before Phase 417 reconciliation: `46c9cf1362da93c8beab5af802c5d4232542d342`; Phase 417 report commit: `83a63169e0d592dcc3c335edc2522260cd86a1da`.
