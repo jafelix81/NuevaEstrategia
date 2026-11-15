@@ -490,3 +490,13 @@ This section supersedes any older “in progress” status above where later com
 - Cboe Option Trades sample ZIP and official condition workbook remain inaccessible to current binary inspection tools; no sample rows or mapping were newly validated. Phase 351 TBT remains one-day 3% C1 diagnostics only, with 17.86% blank OPEN_CLOSE, 0.45% incomplete contract identity, 69 unmapped SIDE rows and unresolved segment semantics.
 - No new source or signal admitted; no forward returns/alpha/OOS/bootstrap/LOO/holdout test. F80 remains frozen; holdout, universe, capital, exposure and production unchanged. No vendor data acquired.
 - Full audit: `research/PHASE408_SEC_CAPTURE_AND_13DG_ACCESS_GATE_RECHECK_2026-11-15.md`.
+
+
+## Phase 409 recheck — first successful SEC scheduled poll (2026-11-15 03:47 UTC)
+
+- The earlier Phase 409 statement that no scheduled SEC poll had been observed is superseded. Run [43670461605](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43670461605) explicitly has `EVENT_NAME=schedule`; both jobs succeeded and offline regression passed 15/15. Live-capture began 03:01:58Z and completed 03:02:02Z.
+- Artifact [14143174642](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43670461605/artifacts/14143174642), SHA-256 `a518f07b6bb6b67582d3c578ff0e8656171179df5c67ef169cfe588c1dd04c3a`. Poll disposition: `POLL_COMPLETE_NO_NEW_ACCESSIONS`; 50 Form 144 + 5 Form 144/A entries; 55 per-feed observations appended; zero new accessions/events/candidate matches/XML resolutions. Both prior latest accessions remained in their feed windows; no possible feed-window gap.
+- Mainline state: poll_count=3, mode=schedule, run 43670461605, receipt 2026-11-15T03:02:02Z. The 52 initial events remain baseline-only; no event was newly written; no public-availability certification or signal eligibility.
+- This confirms Phase 403 is enabled and has completed a scheduled poll. The earlier human action to verify workflow enablement is no longer required. The cron remains :37; actual job start was 03:01:58Z, so schedule delivery is not an exact wall-clock guarantee. Do not manually duplicate polls; the connector cannot conclusively list queued/in-progress later runs.
+- CFTC Phase 384 remains weekday 22:15 UTC. Latest inspected run 43525140200 is still push/bootstrap, 3,035 historical rows, no new events, no alpha authorization. Official next release: Monday 2026-11-16, 3:30 p.m. ET / 20:30 UTC; see https://www.cftc.gov/MarketReports/CommitmentsofTraders/ReleaseSchedule/index.htm. No TFF cadence change is inferred from the semiweekly announcement.
+- No new source or signal admitted; no return/alpha/OOS/bootstrap/LOO/holdout test. F80 remains frozen; holdout, universe, parameters, capital, exposure and production unchanged.
