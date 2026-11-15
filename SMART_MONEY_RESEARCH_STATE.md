@@ -501,3 +501,11 @@ This section supersedes any older “in progress” status above where later com
 - Official CFTC 2026 release schedule lists the next report Monday 2026-11-16 at 3:30 p.m. ET (20:30 UTC), holiday-delayed, for positions as of 2026-11-10. Phase 384 weekday capture remains 22:15 UTC, 105 minutes after scheduled release. Existing CFTC state is still the non-eligible branch-push baseline ending 2026-11-03; no prospective event exists. Keep weekly feature semantics until prospectively observed cadence changes. Source: https://www.cftc.gov/MarketReports/CommitmentsofTraders/ReleaseSchedule/index.htm.
 - Report: `research/PHASE409_SEC_SCHEDULED_TRIGGER_DELIVERY_AUDIT_2026-11-15.md`.
 - No signal, forward-return/alpha/OOS/bootstrap/LOO/holdout test, F80, universe, parameter, capital, exposure or production change. No vendor data acquired.
+
+
+## 2026-11-15 — CFTC semiweekly transition watch
+
+- CFTC announced on 2026-10-27 a plan for Monday-position/Wednesday-publication and Wednesday-position/Friday-publication COT reports by year-end. The announcement does not establish that TFF Futures Only is already on that cadence.
+- The official 2026 release calendar still shows weekly dates through December, and TFF Futures Only last updated 2026-11-06. Treat semiweekly as planned, not effective.
+- Phase 384's existing weekday 22:15 UTC poll already covers possible Wednesday/Friday releases. Its 2–5 day cadence detector and weekly-feature suppression are appropriate; no cron or feature change. Phase 387 remains weekly-only until actual TFF report dates establish a new regime and a separate preregistration is approved.
+- Sources: https://www.cftc.gov/PressRoom/PressReleases/9316-26 ; https://www.cftc.gov/MarketReports/CommitmentsofTraders/ReleaseSchedule/index.htm ; https://publicreportinghub.cftc.gov/Commitments-of-Traders/TFF-Futures-Only/gpe5-46if .
