@@ -24,7 +24,7 @@
 
 ## 3. Why Massive is the primary candidate
 
-Official Massive documentation says listed US stock bars, trades and quotes begin 2016-09-10? No: the documented archive start is **2003-09-10**. Stocks Advanced exposes all of that history; its pricing page lists 20+ years and $199/month for individual use. The Phase 20C price window (2016-10-24 through 2026-10-24) is therefore inside the documented plan window.
+Official Massive documentation says listed US stock bars, trades and quotes begin on **2003-09-10**. Stocks Advanced exposes all of that history; its pricing page lists 20+ years and $199/month for individual use. The Phase 20C price window (2016-10-24 through 2026-10-24) is therefore inside the documented plan window.
 
 The All Tickers endpoint supports a historical date parameter and active/inactive filtering. Historical date lists include companies that have since delisted, under the symbol/name/exchange then in force. Inactive names can be queried with active=false. This is materially better than a currently-active-only list.
 
