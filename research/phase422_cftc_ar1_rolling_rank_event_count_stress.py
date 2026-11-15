@@ -19,6 +19,7 @@ import numpy as np
 PHIS = (0.0, 0.2, 0.4, 0.6, 0.8)
 PLANS = (
     ("iid_90_reference", 116, 166),
+    ("iid_95_reference", 120, 170),
     ("stress_90", 135, 185),
     ("stress_95", 140, 190),
 )
