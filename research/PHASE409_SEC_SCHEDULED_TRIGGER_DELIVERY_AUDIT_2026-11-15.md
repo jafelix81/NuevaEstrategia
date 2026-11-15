@@ -103,3 +103,14 @@ The earlier Phase 409 conclusion that no scheduled poll had been observed is sup
 ### Strategy disposition
 
 No Form 144 event was newly observed and no return/alpha/OOS/bootstrap/LOO/holdout test was run. The SEC feed clock is now operationally proven for one scheduled poll, but one poll with no new accession does not yet establish a usable event sample or economic signal. Historical F80 membership remains unverified. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen; holdout, universe, parameters, capital, exposure and production are unchanged.
+
+
+## CFTC semiweekly transition watch — official announcement vs effective TFF cadence (2026-11-15)
+
+- CFTC Press Release 9316-26 (2026-10-27) announced a plan to move COT publication from once to twice weekly by the end of 2026: positions from Monday to be published Wednesday, and positions from Wednesday to be published Friday, both at 3:30 p.m. ET, reducing stated latency from three days to two. The release does not specify in its text whether every report family, including TFF Futures Only, will enter the same rollout.
+- As of this audit, the official 2026 COT release calendar still lists the holiday-delayed Monday 2026-11-16 release (positions 2026-11-10), then 2026-11-20 and 2026-11-30; it does not yet list Wednesday releases. The public TFF Futures Only dataset still reports last update 2026-11-06. Therefore the semiweekly cadence is an announced plan, not an observed TFF regime change.
+- Phase 384 already polls weekdays at 22:15 UTC, so it is operationally compatible with Wednesday/Friday publication without a cron change. Its current cadence detector classifies weekly gaps of 6–8 days and semiweekly gaps of 2–5 days; the weekly 4-report / 52-report features are suppressed outside the weekly regime. The atomic batch rule makes only the newest new report per contract in a capture eligible; earlier same-batch catch-up rows remain ineligible.
+- Do not change Phase 387's weekly preregistration, combine weekly and semiweekly histories, or infer an effective date from the press release. Watch the official release calendar and actual TFF report-date sequence. If TFF enters the new regime, freeze the weekly hypothesis and preregister a separate cadence-specific design before using any semiweekly observations.
+- No data were downloaded, no CFTC workflow was duplicated, no returns/alpha/OOS/bootstrap/LOO/holdout tests were run, and no signal or strategy setting changed.
+
+Official references: CFTC Press Release 9316-26 (2026-10-27), https://www.cftc.gov/PressRoom/PressReleases/9316-26 ; COT release schedule, https://www.cftc.gov/MarketReports/CommitmentsofTraders/ReleaseSchedule/index.htm ; TFF Futures Only dataset, https://publicreportinghub.cftc.gov/Commitments-of-Traders/TFF-Futures-Only/gpe5-46if .
