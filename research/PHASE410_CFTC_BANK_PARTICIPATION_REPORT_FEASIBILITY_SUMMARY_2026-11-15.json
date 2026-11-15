@@ -1,0 +1,39 @@
+{
+  "phase": 410,
+  "date": "2026-11-15",
+  "source": "CFTC Bank Participation Report",
+  "decision": "not_admitted_as_standalone_alpha_or_stock_selection_source",
+  "retained_hypothesis": "prospective_low_frequency_macro_regime_cross_check_vs_TFF_and_LTM_F80",
+  "historical_retention_months": 25,
+  "frequency": "monthly",
+  "normal_position_date": "first Tuesday",
+  "normal_publication": "first Friday shortly after 15:30 ET",
+  "november_2026_report_date": "2026-11-03",
+  "november_2026_release_date": "2026-11-06",
+  "bank_categories": [
+    "US Banks",
+    "Non-US Banks"
+  ],
+  "market_threshold_banks": 5,
+  "suppressed_category_count_threshold": 4,
+  "options_basis": "gross_not_delta_adjusted",
+  "equity_index_contracts_in_november_2026": [
+    "CME E-mini S&P 500",
+    "CME Nasdaq Mini",
+    "CME Russell E-mini",
+    "E-mini VIX futures"
+  ],
+  "exact_historical_first_public_receipt_ledger": false,
+  "issuer_level_equity_coverage": false,
+  "historical_oos_authorized": false,
+  "signal_admitted": false,
+  "f80_changed": false,
+  "capture_workflow_created": false,
+  "official_sources": [
+    "https://www.cftc.gov/MarketReports/BankParticipationReports/ExplanatoryNotes/index.htm",
+    "https://www.cftc.gov/MarketReports/BankParticipationReports/ReleaseSchedule/index.htm",
+    "https://www.cftc.gov/MarketReports/BankParticipationReports/index.htm",
+    "https://www.cftc.gov/MarketReports/BankParticipation/deanov26f",
+    "https://publicreportinghub.cftc.gov/Commitments-of-Traders/TFF-Futures-Only/gpe5-46if"
+  ]
+}
