@@ -1,3 +1,16 @@
+## Current operational status — 2026-11-15 16:32 UTC
+
+- Mainline Phase 419 report committed as `3cf7910553a3b6892c45d51147e1568667420fc9`; see `research/PHASE419_CFTC_TFF_PREREGISTERED_EVENT_COUNT_FEASIBILITY_2026-11-15.md`.
+- Rechecked latest 100 Actions runs (7,658 total reported), all 12 schedule-filtered runs, latest SEC/CFTC/Phase 411 jobs, logs and artifacts, 217-file repository tree, 87 research entries, 261 branches across three pages and 56 open PRs. Latest 100 runs: 62 success, 37 failure, 1 cancelled. Explicit queued/in-progress/waiting/requested queries all returned zero. No workflow was started or rerun.
+- **Phase 419 — CFTC Phase 387 event-count feasibility:** under an idealized IID continuous rank reference, the fixed >=0.80 percentile state has probability 11/53 = 20.7547%. The preregistered training gate of >=20 high events has only 0.26% probability at 52 observations, ~90.6% at 122 and ~95.1% at 130. The evaluation gate of >=30 high events has ~62.2% probability at 150 observations, ~90.0% at 175 and ~95.0% at 185. The 40/100 non-high gates are not binding under this reference. An indicative weekly path is about 301 reports (~5.8 years) for 90% event-count planning, including 20-session outcome maturation. This is a sample-count feasibility calculation, not empirical frequency, power analysis or a reason to change the preregistration.
+- **SEC Form 144:** latest scheduled run [43709012759](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43709012759) remains successful. Both jobs passed; offline tests 15/15; live receipt 2026-11-15 11:28:22 UTC; 55 feed observations, zero new accessions/events, no detected feed-window gap; artifact [14159294388](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43709012759/artifacts/14159294388). No later schedule run is visible. Do not manually dispatch or duplicate polling; the first-seen clock remains interval-censored.
+- **CFTC TFF:** Phase 384 remains on weekday 22:15 UTC. Next official release is Monday 2026-11-16 20:30 UTC (report date 2026-11-10); poll expected at 22:15 UTC. Latest run [43525140200](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43525140200) is push/bootstrap, not scheduled: 3,035 historical warm-up rows, zero eligible. Keep Phase 387 weekly-only until actual TFF report dates prove a cadence change.
+- **FINRA Phase 20C:** remains blocked at 328/329 valid price histories; Massive remains conditional only. No subscription or data request.
+- **Options:** ORATS 325/328 (99.09%) remains a one-date descriptive, denominator-corrected sample reach only; Cboe Open-Close 2025-03-28 is a 20% contract sample, not full-universe coverage. No options source or signal admitted.
+- No forward-return, alpha, OOS, bootstrap, LOO or holdout test. `F80_TOP20_PARTIAL50_BASELINE_C20`, universe, parameters, holdout, capital, exposure and production remain unchanged.
+
+---
+
 ## Current operational status — 2026-11-15 14:06 UTC
 
 - Mainline Phase 418 report committed as `a2e8f9db01f115a11ac361a288e5b013109c305b`; see `research/PHASE418_OPTIONS_SAMPLE_HISTORICAL_DENOMINATOR_AND_COVERAGE_CORRECTION_2026-11-15.md`.
