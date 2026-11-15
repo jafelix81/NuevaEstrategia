@@ -508,3 +508,12 @@ This section supersedes any older “in progress” status above where later com
 - This confirms Phase 403 is enabled and has completed a scheduled poll. The earlier human action to verify workflow enablement is no longer required. The cron remains :37; actual job start was 03:01:58Z, so schedule delivery is not an exact wall-clock guarantee. Do not manually duplicate polls; the connector cannot conclusively list queued/in-progress later runs.
 - CFTC Phase 384 remains weekday 22:15 UTC. Latest inspected run 43525140200 is still push/bootstrap, 3,035 historical rows, no new events, no alpha authorization. Official next release: Monday 2026-11-16, 3:30 p.m. ET / 20:30 UTC; see https://www.cftc.gov/MarketReports/CommitmentsofTraders/ReleaseSchedule/index.htm. No TFF cadence change is inferred from the semiweekly announcement.
 - No new source or signal admitted; no return/alpha/OOS/bootstrap/LOO/holdout test. F80 remains frozen; holdout, universe, parameters, capital, exposure and production unchanged.
+
+
+## 2026-11-15 — Phase 411 CFTC semiweekly TFF transition readiness
+
+- CFTC Press Release 9316-26 announced a plan for Monday-position/Wednesday-publication and Wednesday-position/Friday-publication COT releases by year-end. The announcement does not explicitly establish TFF Futures Only scope or an effective date.
+- The official 2026 calendar remains weekly as of 2026-11-15 (next: Nov 16 for positions Nov 10); TFF Futures Only last updated Nov 6. Treat semiweekly as planned, not effective.
+- Phase 384 weekday 22:15 UTC polling already covers possible Wednesday/Friday releases. Its 2–5 day semiweekly detector and weekly-feature suppression are retained. Added a regression for the exact 2,5,2,5-day Monday/Wednesday report-date pattern. No capture workflow or cron change.
+- Phase 387 remains weekly-only until TFF prospective report dates confirm a new cadence and a separate preregistration is approved. No signal, return test, or strategy change.
+- Report: research/PHASE411_CFTC_SEMIWEEKLY_TRANSITION_READINESS_2026-11-15.md.
