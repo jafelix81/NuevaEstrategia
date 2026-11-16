@@ -4,6 +4,20 @@
 **Scope:** Retrieve the 44 exact parent accessions manifested in Phase 349.  
 **Mode:** Public SEC Archives; raw submissions and SHA-256 preserved.
 
+## Phase 440 correction — archive-path CIK resolution
+
+The original Phase 350 implementation incorrectly required the archive-path CIK to equal the first ten accession digits. The accession prefix is the submitting-filer identifier and is not a universal SEC archive-path locator.
+
+The immutable Phase 82 global master-index artifact was matched against all 44 Phase 349 parent accessions:
+- 43/44 parent accessions were present in the Phase 82 index.
+- The expected subject-issuer CIK appeared in the index's `archive_path_ciks` for all 43/43 indexed parents.
+- The accession prefix appeared in `archive_path_ciks` for only 22/43; for 21/43 it was absent.
+- The remaining parent, `0000769993-25-000432`, is outside the Phase 82 index. Its child XML explicitly records that predecessor and issuer CIK `0000723612`; this is a subject-CIK path candidate, not a parent-path validation.
+
+The retrieval code now constructs the archive URL using the child's expected `subject_issuer_cik` as the path candidate, while keeping the URL locator separate from filer/reporting-person identity. The retrieved parent's SEC-HEADER must still match the exact accession, subject CIK, form family and strictly earlier acceptance timestamp. The one outside-index parent remains unconfirmed until its raw parent header is retrieved.
+
+No SEC requests were made during Phase 440. The existing `SEC_USER_AGENT` preflight remains in place; if it is absent or lacks a monitored contact email, the workflow exits before any network request.
+
 ## Retrieval protocol
 
 - Use the exact parent accession and the first ten accession digits only as the SEC archive-path CIK. The SEC documents that those digits identify the submitting entity and may identify a third-party filing agent; they are not issuer identity.

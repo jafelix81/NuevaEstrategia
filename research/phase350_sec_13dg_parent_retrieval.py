@@ -44,14 +44,19 @@ def family_from_form(form):
     return ""
 
 
-def build_archive_url(parent_accession, archive_path_cik):
+def build_archive_url(parent_accession, archive_path_cik_candidate):
+    """Build an EDGAR URL from an independently resolved archive-path candidate.
+
+    The accession prefix is the submitting-filer identifier, not a universal
+    archive-path locator. Phase 440 found 21/43 indexed Phase 349 parents for
+    which that prefix is absent from the SEC master-index archive_path_ciks.
+    The caller supplies the expected subject-issuer CIK as the path candidate;
+    SEC-HEADER subject CIK is still validated after retrieval.
+    """
     accession = normalize_accession(parent_accession)
-    path_cik = normalize_cik(archive_path_cik)
+    path_cik = normalize_cik(archive_path_cik_candidate)
     if not accession or not path_cik:
-        raise ValueError("Invalid parent accession or archive-path CIK")
-    accession_prefix = accession.split("-")[0]
-    if path_cik != accession_prefix:
-        raise ValueError("Archive-path CIK must equal the first ten accession digits; it is not issuer identity")
+        raise ValueError("Invalid parent accession or archive-path candidate CIK")
     path_cik_unpadded = str(int(path_cik))
     accession_no_dashes = digits_only(accession)
     return f"{SEC_BASE}{path_cik_unpadded}/{accession_no_dashes}/{accession}.txt"
@@ -218,11 +223,15 @@ def run(args):
     for index, expected in enumerate(manifest, start=1):
         parent_accession = normalize_accession(expected["explicit_parent_accession"])
         try:
-            url = build_archive_url(parent_accession, expected["parent_archive_path_cik"])
+            path_cik_candidate = normalize_cik(expected.get("subject_issuer_cik"))
+            if not path_cik_candidate:
+                raise ValueError("subject_issuer_cik is required as the archive-path candidate")
+            url = build_archive_url(parent_accession, path_cik_candidate)
         except ValueError as error:
             results.append({
                 "child_accession": expected["child_accession"],
                 "parent_accession": parent_accession,
+                "parent_archive_path_cik_candidate": "",
                 "retrieval_status": "MANIFEST_PATH_ERROR",
                 "http_status": 0,
                 "raw_sha256": "",
@@ -232,7 +241,7 @@ def run(args):
             })
             continue
 
-        print(f"[{index}/44] GET {parent_accession} via archive-path CIK {expected['parent_archive_path_cik']}")
+        print(f"[{index}/44] GET {parent_accession} via subject-CIK archive-path candidate {path_cik_candidate}")
         status, body, error_text, blocked, retryable = request_submission(
             url, user_agent, pause_seconds=1.0 / max(args.requests_per_second, 0.5)
         )
@@ -242,8 +251,10 @@ def run(args):
             "parent_accession": parent_accession,
             "subject_issuer_cik": expected["subject_issuer_cik"],
             "child_filer_cik": expected["child_filer_cik"],
-            "parent_archive_path_cik": expected["parent_archive_path_cik"],
-            "parent_path_cik_role": "ARCHIVE_PATH_ONLY_NOT_ISSUER_IDENTITY",
+            "parent_archive_path_cik_candidate": path_cik_candidate,
+            "parent_accession_prefix_cik": parent_accession.split("-")[0],
+            "parent_path_cik_role": "URL_LOCATOR_ONLY_NOT_FILER_OR_REPORTING_PERSON_IDENTITY",
+            "parent_path_cik_source": "CHILD_SUBJECT_ISSUER_CIK; Phase 440 master-index audit confirms 43/43 indexed parents and leaves one outside-index candidate unconfirmed",
             "form_family_expected": expected["form_family"],
             "child_acceptance_utc": expected["child_acceptance_utc"],
             "url": url,

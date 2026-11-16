@@ -32,12 +32,16 @@ FILED BY:
         self.assertEqual(normalize_accession("0000000002-23-000001"), "0000000002-23-000001")
         self.assertEqual(normalize_accession("bad"), "")
 
-    def test_archive_url_uses_accession_prefix_only_as_path_cik(self):
-        url = build_archive_url("0001011438-23-000658", "0001011438")
+    def test_archive_url_uses_subject_path_when_accession_prefix_differs(self):
+        url = build_archive_url("0001567619-19-013029", "0000883265")
         self.assertEqual(
             url,
-            "https://www.sec.gov/Archives/edgar/data/1011438/000101143823000658/0001011438-23-000658.txt",
+            "https://www.sec.gov/Archives/edgar/data/883265/000156761919013029/0001567619-19-013029.txt",
         )
+
+    def test_missing_archive_path_candidate_is_rejected(self):
+        with self.assertRaises(ValueError):
+            build_archive_url("0001567619-19-013029", "")
 
     def test_form_family(self):
         self.assertEqual(family_from_form("SC 13D/A"), "13D")
