@@ -1,0 +1,51 @@
+{
+  "phase": 443,
+  "audit_time_utc": "2026-11-16T22:31:00Z",
+  "main_head": "8d5118ad75e7f6c01416ddfb1d412978960d6679",
+  "actions": {
+    "total_runs": 7677,
+    "latest_100": {
+      "completed": 99,
+      "in_progress": 1
+    },
+    "in_progress_run_id": 43970444015,
+    "in_progress_workflow": "SEC Form 144 prospective first-seen capture",
+    "cftc_latest_run_id": 43525140200,
+    "cftc_latest_event": "push",
+    "cftc_latest_run_is_prospective": false,
+    "cftc_scheduled_run_2026_11_16_observed_by_audit": false
+  },
+  "official_source": {
+    "report_family": "TFF Futures Only",
+    "latest_report_date": "2026-11-10",
+    "prior_report_date": "2026-11-03",
+    "scheduled_release_local": "2026-11-16 15:30 ET",
+    "next_scheduled_release_dates": [
+      "2026-11-20",
+      "2026-11-30"
+    ],
+    "semiweekly_rollout": "announced as a plan by end-2026; no observed TFF cadence transition"
+  },
+  "pipeline_state": {
+    "last_capture_utc": "2026-11-13T23:03:38Z",
+    "last_capture_mode": "branch_push_baseline",
+    "latest_report_date_by_contract": {
+      "124603": "2026-11-03",
+      "209742": "2026-11-03",
+      "239742": "2026-11-03",
+      "13874A": "2026-11-03"
+    },
+    "historical_rows": 3035,
+    "historical_signal_eligible": false,
+    "nov10_report_persisted": false
+  },
+  "next_expected_poll_utc": "2026-11-17T22:15:00Z",
+  "next_capture_policy": "record actual first_seen_utc; never backdate to report date or scheduled release time",
+  "manual_mode_state_neutral": true,
+  "signal_admitted": false,
+  "alpha_test_authorized": false,
+  "frozen_baseline": "F80_TOP20_PARTIAL50_BASELINE_C20",
+  "frozen_baseline_changed": false,
+  "production_changed": false,
+  "source_data_downloaded": false
+}
