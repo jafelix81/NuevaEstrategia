@@ -57,7 +57,7 @@ class Phase436Item408SemanticsTests(unittest.TestCase):
 
     def test_acceptance_timestamps_are_timezone_aware(self):
         for issuer in self.casebook["issuers"]:
-            self.assertRegex(issuer["accepted_eastern"], r"[+-]\\d{2}:\\d{2}$")
+            self.assertRegex(issuer["accepted_eastern"], r"[+-]\d{2}:\d{2}$")
 
     def test_unknown_direction_is_not_silently_promoted_to_sell(self):
         mutated = copy.deepcopy(self.casebook)
