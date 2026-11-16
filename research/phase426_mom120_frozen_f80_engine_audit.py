@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import json
 import math
+import sys
 import time
 import traceback
 from datetime import datetime, timezone
@@ -28,6 +29,8 @@ import pandas as pd
 import yfinance as yf
 from scipy.stats import spearmanr
 
+REPO_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO_ROOT))
 import Nueva_Estrategia_Fase11_Real1000_LTM_v4 as f11
 
 RUN_ID = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
