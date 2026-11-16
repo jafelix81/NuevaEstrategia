@@ -1,0 +1,25 @@
+name: Phase 433 - Item 408 Inline XBRL parser regression
+
+on:
+  pull_request:
+    paths:
+      - "research/phase433_item408_ixbrl_parser.py"
+      - "research/test_phase433_item408_ixbrl_parser.py"
+      - ".github/workflows/phase433_item408_ixbrl_parser.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile
+        run: python -m py_compile research/phase433_item408_ixbrl_parser.py research/test_phase433_item408_ixbrl_parser.py
+      - name: Run offline tests
+        run: python -m unittest -v research.test_phase433_item408_ixbrl_parser
