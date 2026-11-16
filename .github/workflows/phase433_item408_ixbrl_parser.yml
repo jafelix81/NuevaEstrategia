@@ -1,4 +1,4 @@
-name: Phase 433-436 - Item 408 parser and cross-source semantics regression
+name: Phase 433-437 - Item 408 parser and cross-source semantics regression
 
 on:
   pull_request:
@@ -14,6 +14,7 @@ on:
       - "research/phase436_item408_cross_issuer_semantics.py"
       - "research/test_phase436_item408_cross_issuer_semantics.py"
       - "research/test_phase437_item408_issuer_extension_facts.py"
+      - "research/PHASE437_ITEM408_ISSUER_EXTENSION_FACT_PRESERVATION_2026-11-16.md"
       - "research/PHASE436_ITEM408_CROSS_ISSUER_SEMANTICS_CASEBOOK_2026-11-16.json"
       - "research/PHASE436_ITEM408_CROSS_ISSUER_SEMANTICS_AUDIT_2026-11-16.md"
       - ".github/workflows/phase433_item408_ixbrl_parser.yml"
