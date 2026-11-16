@@ -905,3 +905,22 @@ This section supersedes any older “in progress” status above where later com
 - Post-merge Actions audit: 7,671 total historical runs; latest 100 = 62 success / 37 failure / 1 cancelled; zero active/queued/waiting/requested runs. Latest SEC Form 144 capture remains 43862500790; latest CFTC prospective capture remains 43525140200. No workflow was manually dispatched or duplicated.
 - Repository audit after merge: 269 branches across three pages (100/100/69), 56 open PRs, 66 workflows. PR #97 is closed/merged.
 - Phase 434 remains a one-issuer source-semantic case study only. It does not establish legal noncompliance, universe coverage, alpha or OOS edge. No source admission or production change.
+
+
+## Phase 435 — Compass Item 408 / Form 4 / Form 144 execution reconciliation — 2026-11-16
+
+- Added a second issuer case study: Compass, Inc. (COMP), CIK 0001563190. The 2024-06-30 Form 10-Q (accession 0001563190-24-000141), filed 2024-08-02, disclosed a May 10, 2024 Rule 10b5-1 arrangement for up to 10,500,000 shares by Robert Reffkin and the 2021 Reffkin Remainder Interest Trust, expiring 2025-12-31.
+- The same 10-Q reports 505,199,755 shares outstanding as of 2024-07-29. The plan ceiling equals 2.0784% of that dated share count.
+- The later Form 144 (accession 0001968582-24-000960; filed 2024-11-04) lists nine sales from 2024-08-12 through 2024-09-10: 3,000,000 direct Reffkin shares plus 500,000 trust shares, 3,500,000 total, gross proceeds $17,131,613. This is 33.3333% of the disclosed ceiling and 0.6928% of the dated shares-outstanding figure.
+- First reported sale: 2024-08-12, ten calendar days after the 10-Q filing, with five complete intervening trading sessions (Aug 5–9). Plan adoption preceded public filing by 84 calendar days. The adoption date is not the PIT signal date; use filing date and next-session eligibility.
+- Two selected Form 4 accessions independently corroborate 2.37m shares (67.7143% of the Form 144 total): 0001563190-24-000146 (filed Aug 14; Aug 12–13 transactions) and 0001563190-24-000150 (filed Aug 27; Aug 23–26 transactions). Form 4 rows are cross-checks only and are not double-counted on top of Form 144.
+- The 7.0m difference between the plan ceiling and observed Form 144 sales is not interpreted as active remaining capacity. The sample is one issuer/one plan, not a coverage census or alpha test. Certified first-public-receipt timestamp, multi-issuer coverage, lifecycle/amendment handling, returns, price impact, incremental value vs LTM/F80, OOS, bootstrap, LOO and holdout were not tested.
+- Decision: retain Item 408 as a conditional potential-supply / overhang source; no signal admitted. No production, universe, holdout, capital, exposure or frozen baseline changes.
+- Added casebook, Decimal-based analyzer and 11 offline tests. Extended the existing Phase 433/434 regression workflow rather than creating a new workflow.
+
+### Phase 435 preflight and CI — 2026-11-16 14:00 UTC
+
+- Before changes, latest Actions list: 7,671 total runs; latest 100 = 62 success / 37 failure / 1 cancelled. Latest runs: Phase 434 regression 43873169362 success (22 tests); SEC Form 144 capture 43862500790 success; Phase 433 regression 43860427565 success. No active or queued runs (both status queries returned zero).
+- SEC Form 144 run 43862500790: both jobs succeeded; live capture returned POLL_COMPLETE_NO_NEW_ACCESSIONS, no possible feed-window gap, zero research-observation-eligible rows and zero signal-eligible rows. Artifact 14223876987 SHA-256 verified in its run metadata.
+- CFTC TFF run 43525140200: prospective-capture job succeeded, 11/11 tests passed, but capture output was BASELINE_ALREADY_EXISTS_NO_OVERWRITE and SIGNAL_ELIGIBLE_HISTORICAL_ROWS=0. Artifact 14084802705, SHA-256 c7a652038336f852e3c51792d1bdc96ebc1368176bdafdae0693332fb4224eef. No new eligible observation; next scheduled receipt is still 2026-11-16 22:15 UTC after the 20:30 UTC release, so it was not run early.
+- Inspected all 269 branches across three pages (100/100/69), all 56 open PRs, 66 workflow files, latest 12 Actions runs, and relevant Phase 433/434, SEC Form 144 and CFTC jobs/logs/artifacts. No running workflow was duplicated or manually dispatched.
