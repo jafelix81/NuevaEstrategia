@@ -1,4 +1,4 @@
-name: Phase 433/434 - Item 408 parser and Form 4 reconciliation regression
+name: Phase 433-435 - Item 408 parser and cross-source reconciliation regression
 
 on:
   pull_request:
@@ -8,6 +8,9 @@ on:
       - "research/phase434_item408_form4_temporal_reconciliation.py"
       - "research/test_phase434_item408_form4_temporal_reconciliation.py"
       - "research/PHASE434_ITEM408_FORM4_CASES_2026-11-16.json"
+      - "research/phase435_item408_compass_reconciliation.py"
+      - "research/test_phase435_item408_compass_reconciliation.py"
+      - "research/PHASE435_ITEM408_COMPASS_CASEBOOK_2026-11-16.json"
       - ".github/workflows/phase433_item408_ixbrl_parser.yml"
 
 permissions:
@@ -23,6 +26,6 @@ jobs:
         with:
           python-version: "3.11"
       - name: Compile
-        run: python -m py_compile research/phase433_item408_ixbrl_parser.py research/test_phase433_item408_ixbrl_parser.py research/phase434_item408_form4_temporal_reconciliation.py research/test_phase434_item408_form4_temporal_reconciliation.py
+        run: python -m py_compile research/phase433_item408_ixbrl_parser.py research/test_phase433_item408_ixbrl_parser.py research/phase434_item408_form4_temporal_reconciliation.py research/test_phase434_item408_form4_temporal_reconciliation.py research/phase435_item408_compass_reconciliation.py research/test_phase435_item408_compass_reconciliation.py
       - name: Run offline tests
-        run: python -m unittest -v research.test_phase433_item408_ixbrl_parser research.test_phase434_item408_form4_temporal_reconciliation
+        run: python -m unittest -v research.test_phase433_item408_ixbrl_parser research.test_phase434_item408_form4_temporal_reconciliation research.test_phase435_item408_compass_reconciliation
