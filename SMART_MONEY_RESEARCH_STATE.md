@@ -859,3 +859,13 @@ This section supersedes any older “in progress” status above where later com
 - Latest CFTC TFF run [43525140200](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43525140200): prospective-capture job succeeded; 3,035 warm-up rows; zero signal-eligible rows; no persistent capture changes. Artifact [14084802705](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43525140200/artifacts/14084802705), SHA-256 `c7a652038336f852e3c51792d1bdc96ebc1368176bdafdae0693332fb4224eef`. Next expected first-receipt poll remains 2026-11-16 22:15 UTC after the 20:30 UTC release; not run early.
 - FINRA Phase 20C remains 328/329 valid price histories. Form 4 identity remains 53/96 in the audited legacy sample. SEC 13D/G automated retrieval remains blocked on the monitored-contact SEC_USER_AGENT secret. No provider mixing, universe reduction, retry or purchase.
 - No source/signal admitted; no return/alpha/OOS/LOO/holdout test. F80 and production remain unchanged.
+
+
+## Phase 433 mainline merge verification — 2026-11-16 11:46 UTC
+
+- PR [#96](https://github.com/jafelix81/NuevaEstrategia/pull/96) merged by squash to main at `3a4626830f046e9accd38c2eda09694d8c21d23a`.
+- Hosted PR workflow [43860427565](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43860427565) completed successfully. Its only job, `offline-regression`, passed compilation and all 12/12 Item 408 parser tests. No artifact was configured or expected.
+- Main HEAD verified at the merge commit. Phase 433 report, parser, tests, workflow and updated research state are present on main.
+- Post-merge repository audit: latest 100 Actions runs 62 success / 37 failure / 1 cancelled; 7,669 total historical runs reported; zero active/queued/waiting/requested. Inspected all 268 branches (100/100/68), 56 open PRs and 66 workflow files. No existing workflow was dispatched, rerun or duplicated.
+- Merge verifies only the synthetic parser contract and the corrected public-record interpretation. Raw ServiceNow filing bytes, SHA-256 and real-file parser integration remain pending the declared SEC_USER_AGENT prerequisite. No alpha/OOS/LOO/holdout test, source admission, data purchase or production change.
+- `F80_TOP20_PARTIAL50_BASELINE_C20`, holdout, universe, parameters, capital, exposure and production remain frozen.
