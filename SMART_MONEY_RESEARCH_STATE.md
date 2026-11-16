@@ -719,3 +719,16 @@ This section supersedes any older “in progress” status above where later com
 - **Form 4:** schema/history and accession PIT remain feasible, but previously measured frozen-universe identity coverage (54.6% in 2016 Q1; 65.4% in 2020 Q1; 76.4% in 2024 Q1; 83.3% in 2026 Q3) is still below the stable full-universe gate. **FINRA Phase 20C** remains blocked at 328/329 valid price histories. Obscura Flow Metrics remains conditional; no source admitted.
 - No provider data acquired; no forward-return/alpha/OOS/bootstrap/LOO/holdout test. `F80_TOP20_PARTIAL50_BASELINE_C20`, universe, parameters, holdout, capital, exposure and production unchanged.
 
+## Phase 426 — 2026-11-16: MOM120 exact F80 engine and exposure-matched shadow
+
+- Re-tested the Phase 29 positive MOM120 candidate using the exact Phase 11 v4 frozen engine and its signal calendar, TOP20/PARTIAL50 state machine, position/gross caps and next-open execution. 335/335 tickers loaded; 2,573 cross-sectional snapshots; OOS 2024-01-02 to 2026-11-13; nine OOS 80-session signal refreshes.
+- Raw C20 results favored MOM120, but its average gross exposure was higher (68.52% vs 63.30%), so the raw comparison was not accepted as exposure-controlled.
+- Ran a separate shadow simulation with both rankings normalized at every daily open to the same 59.8667% gross target, fixed from frozen LTM C20 training-period average exposure (2016–2023). Same 10/20/50 bps per-side costs were applied to selection and gross-normalization trades.
+- At C20, matched-exposure MOM120: 2.126x OOS multiple, 1.056 Sharpe, -27.20% max drawdown; frozen LTM: 1.474x, 0.624 Sharpe, -29.39% max drawdown. Average close gross exposure was 59.864% vs 59.853%.
+- Paired MOM120-minus-LTM excess: 5.169 bps/day; HAC lag-80 t=3.79; block-bootstrap 95% CI remained positive for 20/40/80/120/160-session blocks; daily LOO positive 100%; eight of ten rebalance cycles positive and cycle LOO positive for every omission. Cost sensitivity remained positive at 10/20/50 bps per side.
+- MOM120 is highly redundant with LTM (mean cross-sectional Spearman 0.948; TOP20 overlap 15.78/20). It is a momentum reweighting, not a new smart-money source.
+- Decision: PROMISING_HISTORICAL_DIAGNOSTIC_REQUIRES_PROSPECTIVE_CONFIRMATION. This is not a fresh holdout: 2024+ was already examined in Phase 29/30, the 335-name universe is not PIT/survivorship-free, and only nine OOS rebalance refreshes are available. Phase 29 validation was weak.
+- No baseline, holdout, universe, parameters, capital, production or exposure policy was changed. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+- Next: prospective shadow tracking, point-in-time universe reconstruction, and a MOM120 residual/conditional test versus LTM before any promotion.
+- Final Actions run: [43789923762](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43789923762); artifact [14191029663](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43789923762/artifacts/14191029663); report [Phase 426](research/PHASE426_MOM120_FROZEN_F80_EXACT_ENGINE_AND_EXPOSURE_MATCHED_SHADOW_2026-11-16.md).
+
