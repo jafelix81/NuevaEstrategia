@@ -227,6 +227,200 @@ def oos_metrics(daily: pd.DataFrame, trades: pd.DataFrame):
         "oos_transaction_cost_over_average_equity": total_cost / max(avg_equity, 1e-12),
     }
 
+
+def run_policy_gross_target(data, calendar, snapshots, open_maps, close_maps,
+                           factor, cost_bps, target_gross):
+    """Daily-open gross normalization shadow test; same for both signal rankings."""
+    policy_id = f"EXPOSURE_MATCHED_F80_TOP20_PARTIAL50_{factor}_C{int(cost_bps)}"
+    rate = cost_bps / 10000.0
+    signal_dates = [d for d in calendar[f11.DISCOVERY_DATES + f11.EMBARGO::FREQUENCY] if d in snapshots]
+    signal_set = set(signal_dates)
+    positions = {}
+    cash = float(f11.INITIAL_CAPITAL)
+    last_close = {}
+    prev_equity = float(f11.INITIAL_CAPITAL)
+    daily_rows = []
+    trade_rows = []
+    checks = []
+    gap = {"FULL": 1.0, "PARTIAL50": 0.5, "PARTIAL25": 0.25}[REBALANCE]
+    max_entry_weight = 0.0
+    max_close_gross = 0.0
+    max_close_position = 0.0
+    missing_open = 0
+
+    for i, dt in enumerate(calendar):
+        opens = open_maps.get(dt, {})
+        closes = close_maps.get(dt, {})
+        open_marks = dict(last_close)
+        open_marks.update(opens)
+        open_equity = f11.portfolio_value(positions, open_marks, cash)
+        if open_equity <= 0:
+            raise RuntimeError(f"{factor} {cost_bps}: nonpositive open equity at {dt}")
+        prev_dt = calendar[i - 1] if i > 0 else None
+        buy_notional = sell_notional = selection_cost = 0.0
+
+        if prev_dt in signal_set:
+            target, exits = f11.build_target(snapshots[prev_dt], TOP_N, positions)
+            if not opens:
+                raise RuntimeError(f"{factor} {cost_bps}: no open prices on rebalance {dt}")
+            positions, cash, buy_notional, sell_notional, selection_cost = f11.execute_rebalance(
+                positions, cash, target, exits, opens, open_equity,
+                gap, cost_bps, prev_dt, dt, policy_id, trade_rows
+            )
+
+        held_without_open = [t for t in positions if t not in opens]
+        if held_without_open:
+            missing_open += len(held_without_open)
+            raise RuntimeError(f"{factor} {cost_bps}: cannot gross-normalize missing opens {held_without_open[:10]} at {dt}")
+
+        gross_before_scale = sum(sh * opens[t] for t, sh in positions.items())
+        equity_before_scale = cash + gross_before_scale
+        scale_cost = scale_buy = scale_sell = 0.0
+        scale_factor = 1.0
+
+        if gross_before_scale > 1e-12:
+            current_gross = gross_before_scale / equity_before_scale
+            if abs(current_gross - target_gross) > 1e-9:
+                def exposure_at(scale):
+                    cost = abs(scale - 1.0) * gross_before_scale * rate
+                    post_equity = equity_before_scale - cost
+                    if post_equity <= 0:
+                        return float("inf")
+                    return scale * gross_before_scale / post_equity
+
+                if current_gross > target_gross:
+                    lo, hi = 0.0, 1.0
+                else:
+                    lo, hi = 1.0, 2.0
+                    while exposure_at(hi) < target_gross and hi < 64.0:
+                        hi *= 2.0
+                if exposure_at(hi) < target_gross:
+                    raise RuntimeError(f"{factor} {cost_bps}: cannot solve target gross at {dt}")
+                for _ in range(100):
+                    mid = (lo + hi) / 2.0
+                    if exposure_at(mid) < target_gross:
+                        lo = mid
+                    else:
+                        hi = mid
+                scale_factor = (lo + hi) / 2.0
+                scale_notional = abs(scale_factor - 1.0) * gross_before_scale
+                scale_cost = scale_notional * rate
+                cash_new = cash + (1.0 - scale_factor) * gross_before_scale - scale_cost
+                if cash_new < -1e-8:
+                    raise RuntimeError(f"{factor} {cost_bps}: gross scaling creates negative cash {cash_new} at {dt}")
+                for ticker, old_shares in list(positions.items()):
+                    delta = (scale_factor - 1.0) * old_shares
+                    if abs(delta) <= 1e-12:
+                        continue
+                    px = opens[ticker]
+                    notional = abs(delta) * px
+                    cost = notional * rate
+                    side = "BUY_GROSS_SCALE" if delta > 0 else "SELL_GROSS_SCALE"
+                    trade_rows.append({
+                        "PolicyID": policy_id,
+                        "DateSignal": str(pd.Timestamp(prev_dt).date()) if prev_dt is not None else str(pd.Timestamp(dt).date()),
+                        "ExecutionDate": str(pd.Timestamp(dt).date()),
+                        "Ticker": ticker,
+                        "Side": side,
+                        "SharesDelta": delta,
+                        "ExecutionOpen": px,
+                        "Notional": notional,
+                        "Cost": cost,
+                        "CostBpsPerSide": cost_bps,
+                        "SignalType": "DAILY_GROSS_TARGET",
+                    })
+                positions = {t: sh * scale_factor for t, sh in positions.items() if sh * scale_factor > 1e-12}
+                cash = max(0.0, cash_new)
+                if scale_factor > 1.0:
+                    scale_buy = scale_notional
+                else:
+                    scale_sell = scale_notional
+
+        gross_open_value = sum(sh * opens[t] for t, sh in positions.items())
+        post_trade_open_equity = cash + gross_open_value
+        gross_open_weight = gross_open_value / max(post_trade_open_equity, 1e-12)
+        if gross_before_scale > 1e-12 and abs(gross_open_weight - target_gross) > 1e-6:
+            raise RuntimeError(f"{factor} {cost_bps}: target gross mismatch {gross_open_weight} vs {target_gross} at {dt}")
+        entry_weights = [
+            sh * opens[t] / max(post_trade_open_equity, 1e-12)
+            for t, sh in positions.items()
+        ]
+        entry_max = max(entry_weights, default=0.0)
+        max_entry_weight = max(max_entry_weight, entry_max)
+        if entry_max > f11.MAX_POSITION + 1e-6:
+            raise RuntimeError(f"{factor} {cost_bps}: entry position cap exceeded {entry_max} at {dt}")
+        if post_trade_open_equity <= 0 or cash < -1e-8:
+            raise RuntimeError(f"{factor} {cost_bps}: invalid post-trade open equity/cash at {dt}")
+
+        close_marks = dict(last_close)
+        close_marks.update(closes)
+        held_missing = [t for t in positions if t not in closes]
+        close_equity = f11.portfolio_value(positions, close_marks, cash)
+        gross_close_value = sum(sh * close_marks[t] for t, sh in positions.items() if t in close_marks)
+        gross_close_weight = gross_close_value / max(close_equity, 1e-12)
+        close_max_weight = max(
+            (sh * close_marks[t] / max(close_equity, 1e-12) for t, sh in positions.items() if t in close_marks),
+            default=0.0,
+        )
+        max_close_gross = max(max_close_gross, gross_close_weight)
+        max_close_position = max(max_close_position, close_max_weight)
+        if close_equity <= 0 or gross_close_weight > f11.GROSS_CAP + 1e-6:
+            raise RuntimeError(f"{factor} {cost_bps}: close gross/equity invariant failed at {dt}")
+
+        overnight_ret = open_equity / prev_equity - 1.0 if prev_equity > 0 else np.nan
+        execution_ret = post_trade_open_equity / open_equity - 1.0 if open_equity > 0 else np.nan
+        intraday_ret = close_equity / post_trade_open_equity - 1.0 if post_trade_open_equity > 0 else np.nan
+        daily_ret = close_equity / prev_equity - 1.0 if prev_equity > 0 else np.nan
+        decomp_error = abs(
+            (1.0 + overnight_ret) * (1.0 + execution_ret) * (1.0 + intraday_ret) - (1.0 + daily_ret)
+        )
+
+        daily_rows.append({
+            "PolicyID": policy_id,
+            "Date": str(pd.Timestamp(dt).date()),
+            "PreviousCloseEquity": prev_equity,
+            "OpenEquityBeforeTrade": open_equity,
+            "EquityAfterOpenExecution": post_trade_open_equity,
+            "EquityClose": close_equity,
+            "OvernightReturn": overnight_ret,
+            "ExecutionReturn": execution_ret,
+            "IntradayReturn": intraday_ret,
+            "DailyReturn": daily_ret,
+            "ReturnDecompositionError": decomp_error,
+            "Cash": cash,
+            "GrossMarketValue": gross_close_value,
+            "GrossOpenExposure": gross_open_weight,
+            "TargetGrossExposure": target_gross if gross_before_scale > 1e-12 else 0.0,
+            "Positions": len(positions),
+            "BuyNotional": buy_notional + scale_buy,
+            "SellNotional": sell_notional + scale_sell,
+            "TransactionCost": selection_cost + scale_cost,
+            "FreshCloseMissingCount": len(held_missing),
+            "GrossScaleFactor": scale_factor,
+        })
+        checks.append({
+            "Date": str(pd.Timestamp(dt).date()),
+            "AccountingIdentityError": abs(close_equity - (cash + gross_close_value)),
+            "GrossOpenTargetError": abs(gross_open_weight - target_gross) if gross_before_scale > 1e-12 else 0.0,
+            "GrossClose": gross_close_weight,
+            "MaxEntryPositionWeight": entry_max,
+            "MaxClosePositionWeight": close_max_weight,
+            "ReturnDecompositionError": decomp_error,
+            "Cash": cash,
+        })
+        prev_equity = close_equity
+        last_close.update(closes)
+
+    return pd.DataFrame(daily_rows), pd.DataFrame(trade_rows), pd.DataFrame(checks), {
+        "target_gross": target_gross,
+        "max_entry_position_weight": max_entry_weight,
+        "max_close_gross": max_close_gross,
+        "max_close_position_weight": max_close_position,
+        "missing_open_position_days": missing_open,
+        "signal_cycles": len(signal_dates),
+    }
+
+
 def main():
     t0 = time.time()
     tickers = list(dict.fromkeys(str(x).upper().strip() for x in f11.DEFAULT_UNIVERSE))
