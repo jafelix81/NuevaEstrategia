@@ -690,6 +690,8 @@ def main():
             "max_gross_open_target_error": safe_float(gross_open_error.max()),
             "max_gross_close": safe_float(gross_close.max()),
             "max_entry_position_weight": safe_float(pd.to_numeric(checks_df["MaxEntryPositionWeight"], errors="coerce").max()),
+            "max_close_position_weight": safe_float(pd.to_numeric(checks_df["MaxClosePositionWeight"], errors="coerce").max()),
+            "max_fresh_close_missing_count": int(pd.to_numeric(d["FreshCloseMissingCount"], errors="coerce").max()),
             "all_trade_executions_after_signal_or_prior_close": no_lookahead,
             "all_equity_positive": bool((equity > 0).all()),
             "all_cash_nonnegative": bool((d["Cash"] >= -1e-8).all()),
@@ -703,6 +705,8 @@ def main():
         and (matched_invariant_df["max_gross_open_target_error"].fillna(np.inf) <= 1e-6).all()
         and (matched_invariant_df["max_gross_close"].fillna(np.inf) <= f11.GROSS_CAP + 1e-6).all()
         and (matched_invariant_df["max_entry_position_weight"].fillna(np.inf) <= f11.MAX_POSITION + 1e-6).all()
+        and (matched_invariant_df["max_close_position_weight"].fillna(np.inf) <= f11.MAX_POSITION + 1e-6).all()
+        and (matched_invariant_df["max_fresh_close_missing_count"].fillna(np.inf) == 0).all()
         and matched_invariant_df["all_trade_executions_after_signal_or_prior_close"].all()
         and matched_invariant_df["all_equity_positive"].all()
         and matched_invariant_df["all_cash_nonnegative"].all()
@@ -813,7 +817,7 @@ def main():
         "exposure_matched_shadow": {
             "target_gross": target_gross,
             "target_gross_source": "frozen LTM C20 average gross exposure over 2016-2023 training only",
-            "daily_open_gross_normalization": true,
+            "daily_open_gross_normalization": True,
             "costs_applied_to_selection_and_daily_gross_scaling_trades": True,
             "results": matched_results,
             "paired_incremental": exposure_matched_paired,
