@@ -1,4 +1,4 @@
-name: Phase 433-435 - Item 408 parser and cross-source reconciliation regression
+name: Phase 433-436 - Item 408 parser and cross-source semantics regression
 
 on:
   pull_request:
@@ -11,6 +11,10 @@ on:
       - "research/phase435_item408_compass_reconciliation.py"
       - "research/test_phase435_item408_compass_reconciliation.py"
       - "research/PHASE435_ITEM408_COMPASS_CASEBOOK_2026-11-16.json"
+      - "research/phase436_item408_cross_issuer_semantics.py"
+      - "research/test_phase436_item408_cross_issuer_semantics.py"
+      - "research/PHASE436_ITEM408_CROSS_ISSUER_SEMANTICS_CASEBOOK_2026-11-16.json"
+      - "research/PHASE436_ITEM408_CROSS_ISSUER_SEMANTICS_AUDIT_2026-11-16.md"
       - ".github/workflows/phase433_item408_ixbrl_parser.yml"
 
 permissions:
@@ -26,6 +30,6 @@ jobs:
         with:
           python-version: "3.11"
       - name: Compile
-        run: python -m py_compile research/phase433_item408_ixbrl_parser.py research/test_phase433_item408_ixbrl_parser.py research/phase434_item408_form4_temporal_reconciliation.py research/test_phase434_item408_form4_temporal_reconciliation.py research/phase435_item408_compass_reconciliation.py research/test_phase435_item408_compass_reconciliation.py
+        run: python -m py_compile research/phase433_item408_ixbrl_parser.py research/test_phase433_item408_ixbrl_parser.py research/phase434_item408_form4_temporal_reconciliation.py research/test_phase434_item408_form4_temporal_reconciliation.py research/phase435_item408_compass_reconciliation.py research/test_phase435_item408_compass_reconciliation.py research/phase436_item408_cross_issuer_semantics.py research/test_phase436_item408_cross_issuer_semantics.py
       - name: Run offline tests
-        run: python -m unittest -v research.test_phase433_item408_ixbrl_parser research.test_phase434_item408_form4_temporal_reconciliation research.test_phase435_item408_compass_reconciliation
+        run: python -m unittest -v research.test_phase433_item408_ixbrl_parser research.test_phase434_item408_form4_temporal_reconciliation research.test_phase435_item408_compass_reconciliation research.test_phase436_item408_cross_issuer_semantics

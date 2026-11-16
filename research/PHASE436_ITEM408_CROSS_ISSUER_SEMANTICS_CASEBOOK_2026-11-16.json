@@ -1,0 +1,262 @@
+{
+  "schema_version": 1,
+  "audit_type": "purposive six-issuer SEC Item 408 schema/semantics stress sample; not random and not a population coverage estimate",
+  "as_of_date": "2026-11-16",
+  "availability_policy": "SEC filing-index ACCEPTED timestamp is preserved in America/New_York. It is not certified first-public receipt. For daily close-to-close use, the first eligible session is set conservatively to the next regular session after the filing date, even for intraday acceptances.",
+  "issuers": [
+    {
+      "cik": "0001043604",
+      "ticker": "JNPR",
+      "name": "Juniper Networks, Inc.",
+      "accession": "0001043604-24-000066",
+      "form": "10-Q",
+      "period_end": "2024-03-31",
+      "filed_date": "2024-04-26",
+      "accepted_eastern": "2024-04-26T16:32:36-04:00",
+      "first_eligible_session": "2024-04-29",
+      "filing_index_url": "https://www.sec.gov/Archives/edgar/data/1043604/000104360424000066/0001043604-24-000066-index.htm",
+      "structured_fact_url": "https://www.sec.gov/Archives/edgar/data/1043604/000104360424000066/R24.htm",
+      "plans": [
+        {
+          "plan_id": "JNPR_KM_2024",
+          "action": "adopt",
+          "person": "Kenneth Miller",
+          "role": "Chief Financial Officer",
+          "adoption_date": "2024-02-21",
+          "direction": "unknown",
+          "amount_value": "188669",
+          "amount_unit": "shares",
+          "amount_basis": "aggregate_available_tag_plus_narrative",
+          "expiration_date": "2024-09-30",
+          "notes": "The row says 'Up to 188,669 shares' under a column headed shares to be purchased or sold; the inspected disclosure does not resolve direction. Do not default to sell."
+        }
+      ]
+    },
+    {
+      "cik": "0001093557",
+      "ticker": "DXCM",
+      "name": "Dexcom, Inc.",
+      "accession": "0001093557-24-000079",
+      "form": "10-Q",
+      "period_end": "2024-03-31",
+      "filed_date": "2024-04-25",
+      "accepted_eastern": "2024-04-25T17:17:02-04:00",
+      "first_eligible_session": "2024-04-26",
+      "filing_index_url": "https://www.sec.gov/Archives/edgar/data/1093557/000109355724000079/0001093557-24-000079-index.htm",
+      "structured_fact_url": "https://www.sec.gov/Archives/edgar/data/1093557/000109355724000079/R18.htm",
+      "plans": [
+        {
+          "plan_id": "DXCM_FOLETTA_2024",
+          "action": "adopt",
+          "person": "Mark G. Foletta",
+          "role": "Director",
+          "adoption_date": "2024-03-15",
+          "direction": "sell",
+          "amount_value": "6000",
+          "amount_unit": "shares",
+          "amount_basis": "stated_shares_with_global_vesting_and_withholding_caveat",
+          "notes": "Adopted on behalf of a trust for which Foletta serves as trustee; actual shares may depend on net vesting, tax withholding, PSUs, ESPP and limit orders."
+        },
+        {
+          "plan_id": "DXCM_HELLER_2024",
+          "action": "adopt",
+          "person": "Bridgette P. Heller",
+          "role": "Director",
+          "adoption_date": "2024-02-25",
+          "direction": "sell",
+          "amount_value": "3352",
+          "amount_unit": "shares",
+          "amount_basis": "stated_shares_with_global_vesting_and_withholding_caveat",
+          "notes": "Same issuer-level footnote makes actual quantity conditional."
+        },
+        {
+          "plan_id": "DXCM_LEACH_2024",
+          "action": "adopt",
+          "person": "Jacob S. Leach",
+          "role": "Executive Vice President and Chief Operating Officer",
+          "adoption_date": "2024-03-15",
+          "direction": "sell",
+          "amount_value": "102732",
+          "amount_unit": "shares",
+          "amount_basis": "stated_shares_with_global_vesting_and_withholding_caveat",
+          "notes": "Same issuer-level footnote makes actual quantity conditional."
+        }
+      ]
+    },
+    {
+      "cik": "0001494259",
+      "ticker": "CARG",
+      "name": "CarGurus, Inc.",
+      "accession": "0000950170-24-056957",
+      "form": "10-Q",
+      "period_end": "2024-03-31",
+      "filed_date": "2024-05-09",
+      "accepted_eastern": "2024-05-09T16:11:18-04:00",
+      "first_eligible_session": "2024-05-10",
+      "filing_index_url": "https://www.sec.gov/Archives/edgar/data/1494259/000095017024056957/0000950170-24-056957-index.htm",
+      "structured_fact_url": "https://www.sec.gov/Archives/edgar/data/1494259/000095017024056957/R10.htm",
+      "plans": [
+        {
+          "plan_id": "CARG_TREVISAN_2024",
+          "action": "adopt",
+          "person": "Jason Trevisan",
+          "role": "Chief Executive Officer",
+          "adoption_date": "2024-03-08",
+          "direction": "sell",
+          "amount_value": "30000",
+          "amount_unit": "shares",
+          "amount_basis": "stated_shares_to_be_sold",
+          "expiration_date": "2025-05-30",
+          "notes": "Stated as 30,000 shares to be sold."
+        },
+        {
+          "plan_id": "CARG_QUINN_2024",
+          "action": "adopt",
+          "person": "Matthew Quinn",
+          "role": "Chief Technology Officer",
+          "adoption_date": "2024-03-05",
+          "direction": "sell",
+          "amount_value": "50757",
+          "amount_unit": "shares",
+          "amount_basis": "gross_future_award_shares_before_tax_withholding",
+          "expiration_date": "2025-03-03",
+          "notes": "The plan sells 40% of net shares vesting; the disclosed 50,757 is gross shares before tax withholding, not a direct expected sale quantity."
+        },
+        {
+          "plan_id": "CARG_ZAMORA_2024",
+          "action": "adopt",
+          "person": "Javier Zamora",
+          "role": "General Counsel and Corporate Secretary",
+          "adoption_date": "2024-03-04",
+          "direction": "sell",
+          "amount_value": "22808",
+          "amount_unit": "shares",
+          "amount_basis": "gross_future_award_shares_before_tax_withholding",
+          "expiration_date": "2025-03-03",
+          "notes": "The disclosed amount is gross future-award shares before tax withholding."
+        },
+        {
+          "plan_id": "CARG_QUINN_2023",
+          "action": "terminate",
+          "person": "Matthew Quinn",
+          "role": "Chief Technology Officer",
+          "adoption_date": "2023-12-05",
+          "termination_date": "2024-03-04",
+          "direction": "sell",
+          "amount_value": "45000",
+          "amount_unit": "USD",
+          "amount_basis": "dollar_value_of_shares_not_share_count",
+          "notes": "Prior plan terminated on 2024-03-04. It is a lifecycle event, not an additional active plan or a share-count observation."
+        }
+      ]
+    },
+    {
+      "cik": "0000080420",
+      "ticker": "POWL",
+      "name": "Powell Industries, Inc.",
+      "accession": "0000080420-24-000030",
+      "form": "10-Q",
+      "period_end": "2024-03-31",
+      "filed_date": "2024-05-01",
+      "accepted_eastern": "2024-05-01T12:40:02-04:00",
+      "first_eligible_session": "2024-05-02",
+      "filing_index_url": "https://www.sec.gov/Archives/edgar/data/80420/000008042024000030/0000080420-24-000030-index.htm",
+      "structured_fact_url": "https://www.sec.gov/Archives/edgar/data/80420/000008042024000030/R20.htm",
+      "plans": [
+        {
+          "plan_id": "POWL_METCALF_2024",
+          "action": "adopt",
+          "person": "Michael W. Metcalf",
+          "role": "Executive Vice President and Chief Financial Officer",
+          "adoption_date": "2024-02-23",
+          "direction": "sell",
+          "amount_value": "10100",
+          "amount_unit": "shares",
+          "amount_basis": "stated_share_ceiling",
+          "scheduled_start_date": "2024-06-07",
+          "expiration_date": "2025-02-14",
+          "notes": "The filing gives an explicit future transaction-window start date."
+        },
+        {
+          "plan_id": "POWL_COPE_2024",
+          "action": "adopt",
+          "person": "Brett A. Cope",
+          "role": "President and Chief Executive Officer",
+          "adoption_date": "2024-02-26",
+          "direction": "sell",
+          "amount_value": "11000",
+          "amount_unit": "shares",
+          "amount_basis": "stated_share_ceiling",
+          "scheduled_start_date": "2024-06-14",
+          "expiration_date": "2024-12-19",
+          "notes": "The filing gives an explicit future transaction-window start date."
+        }
+      ]
+    },
+    {
+      "cik": "0001306830",
+      "ticker": "CE",
+      "name": "Celanese Corporation",
+      "accession": "0001306830-24-000029",
+      "form": "10-K",
+      "period_end": "2023-12-31",
+      "filed_date": "2024-02-23",
+      "accepted_eastern": "2024-02-23T16:19:23-05:00",
+      "first_eligible_session": "2024-02-26",
+      "filing_index_url": "https://www.sec.gov/Archives/edgar/data/1306830/000130683024000029/0001306830-24-000029-index.htm",
+      "structured_fact_url": "https://www.sec.gov/Archives/edgar/data/1306830/000130683024000029/R34.htm",
+      "plans": [
+        {
+          "plan_id": "CE_RICHARDSON_2023",
+          "action": "adopt",
+          "person": "Scott A. Richardson",
+          "role": "Executive Vice President and Chief Operating Officer",
+          "adoption_date": "2023-12-13",
+          "direction": "buy",
+          "amount_value": "4000",
+          "amount_unit": "shares",
+          "amount_basis": "separate_aggregate_shares_to_be_purchased_column",
+          "scheduled_start_date": "2024-03-14",
+          "expiration_date": "2024-06-28",
+          "notes": "The filing has separate sold and purchased columns; 4,000 appears in the purchased column. This is not sale supply."
+        }
+      ]
+    },
+    {
+      "cik": "0000040704",
+      "ticker": "GIS",
+      "name": "General Mills, Inc.",
+      "accession": "0001193125-24-221344",
+      "form": "10-Q",
+      "period_end": "2024-08-25",
+      "filed_date": "2024-09-18",
+      "accepted_eastern": "2024-09-18T15:35:07-04:00",
+      "first_eligible_session": "2024-09-19",
+      "filing_index_url": "https://www.sec.gov/Archives/edgar/data/40704/000119312524221344/0001193125-24-221344-index.htm",
+      "structured_fact_url": "https://www.sec.gov/Archives/edgar/data/40704/000119312524221344/d874379d10q.htm",
+      "plans": [
+        {
+          "plan_id": "GIS_HARMENING_2024",
+          "action": "adopt",
+          "person": "Jeffrey L. Harmening",
+          "role": "Chairman and Chief Executive Officer",
+          "adoption_date": "2024-07-24",
+          "direction": "exercise_and_sell",
+          "amount_value": "57879",
+          "amount_unit": "shares",
+          "amount_basis": "stock_option_award_exercise_and_sale_ceiling",
+          "expiration_date": "2025-07-30",
+          "notes": "The plan relates to exercise and sale of shares subject to a company-granted stock-option award; it is not equivalent to sale of 57,879 already-owned common shares. Plan terminates after all award shares are exercised and sold or 2025-07-31."
+        }
+      ]
+    }
+  ],
+  "sample_limits": [
+    "Purposive sample of six positive/interesting disclosures, not a random sample or coverage denominator.",
+    "No issuer in this sample was selected by frozen-335 membership; this is schema/semantics feasibility only.",
+    "Filing acceptance is not certified first-public receipt; first eligible sessions are conservative next-session boundaries.",
+    "The current parser's ECD fact list does not include a dedicated direction concept; direction may require narrative/table interpretation.",
+    "Amounts are not additive across USD vs shares, gross-award vs net shares, buy vs sell, exercise-and-sell, or unknown direction.",
+    "No return, price-impact, alpha, incremental LTM/F80, OOS, bootstrap, LOO or holdout test was run."
+  ]
+}
