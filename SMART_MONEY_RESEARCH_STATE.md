@@ -869,3 +869,10 @@ This section supersedes any older “in progress” status above where later com
 - Post-merge repository audit: latest 100 Actions runs 62 success / 37 failure / 1 cancelled; 7,669 total historical runs reported; zero active/queued/waiting/requested. Inspected all 268 branches (100/100/68), 56 open PRs and 66 workflow files. No existing workflow was dispatched, rerun or duplicated.
 - Merge verifies only the synthetic parser contract and the corrected public-record interpretation. Raw ServiceNow filing bytes, SHA-256 and real-file parser integration remain pending the declared SEC_USER_AGENT prerequisite. No alpha/OOS/LOO/holdout test, source admission, data purchase or production change.
 - `F80_TOP20_PARTIAL50_BASELINE_C20`, holdout, universe, parameters, capital, exposure and production remain frozen.
+
+
+### Phase 433 addendum — SEC C&DI 120.29 cooling-off dates (2026-11-16)
+
+- Checked SEC C&DI Question 120.29. The filing date of the relevant 10-Q/10-K does not count as the first business day; if filed Monday, trading may commence Thursday absent holidays. For ServiceNow's Thursday 2023-10-26 10-Q filing, the two following business days were Friday 2023-10-27 and Monday 2023-10-30, so the first potential trading date after that limb expired was Tuesday 2023-10-31.
+- Assuming no later plan modification or other restriction, earliest Rule 10b5-1 cooling-off dates are: Gina Mastantuono 2023-10-31 (later than her 90-day date 2023-10-26); William R. McDermott 2023-11-29 (90-day limb dominates); Paul E. Chamberlain 2023-11-20 (90-day date 2023-11-19 fell on Sunday; next regular session). Conservative Item 408 availability begins no earlier than the 2023-10-26 session: five calendar days before Gina's potential first trade, 34 before McDermott's and 25 before Chamberlain's. This is regulatory timing only, not evidence of execution or plan continuity.
+- Updated report: `research/PHASE433_ITEM408_PARSER_AND_ACCEPTANCE_CLOCK_CORRECTION_2026-11-16.md`. Source: SEC Exchange Act Rules C&DI 120.29, https://www.sec.gov/rules-regulations/staff-guidance/corporation-finance-interpretations/exchange-act-rules.
