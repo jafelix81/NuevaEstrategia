@@ -961,3 +961,19 @@ This section supersedes any older “in progress” status above where later com
 - Post-merge Actions audit: 7,673 total historical runs; latest 100 returned 63 success / 36 failure / 1 cancelled. Explicit in-progress, queued, waiting and requested queries each returned zero.
 - Repository audit after merge: 271 branches across three pages (100/100/71), 56 open PRs, 66 workflow files. PR #99 is closed/merged. No workflow was manually dispatched or duplicated.
 - No stock-return test, signal admission, trading code change, F80 baseline change, universe/holdout change, capital/exposure change or production change.
+
+
+## Phase 437 — Item 408 issuer-specific XBRL extension preservation — 2026-11-16
+
+- Phase 436's CARG cross-issuer sample exposed issuer-specific extension facts not captured by the Phase 433 ECD-only allowlist: `carg_Rule10B51ArrModifiedFlag`, `carg_NonRule10B51ArrModifiedFlag`, `carg_TrdArrExpirationDate`, and CARG-specific IndividualAxis / TradingArrAxis members. SEC rendering confirms these extension concepts and dimensions in CARG's 2024 Q1 Item 408 facts.
+- Updated the Phase 433 parser to retain standard ECD facts and issuer-specific Item 408 extension facts separately, including namespace URI, context, dimensions, period, units, scale, raw value, nil and hidden state. Added standard ECD modified-flag concepts to the allowlist. No direction, active-plan state or execution is inferred from extension fact names.
+- Added 8 synthetic regression tests. The fixture uses actual CARG extension concept names observed in the SEC rendering but is not the original filing bytes. Raw-byte parser validation remains pending the SEC_USER_AGENT integration.
+- Decision: parser robustness improved, but Item 408 remains conditional source research only. No alpha, return, incremental LTM/F80, OOS, bootstrap, LOO or holdout test. No trading/production/baseline/universe/holdout/capital/exposure change.
+- Extended the existing Item 408 regression workflow through Phase 437; no new workflow or live capture created.
+
+### Phase 437 preflight — 2026-11-16 14:45 UTC
+
+- Started from main commit 2203d798dadcd0340c391557ee62d018b2324c97 after Phase 436 merge/state verification.
+- Latest Actions list: 7,673 total historical runs; latest 100 = 63 success / 36 failure / 1 cancelled. In-progress, queued, waiting and requested status queries all returned zero before Phase 437. Latest completed research CI was 43888472039 (49 tests; no artifact).
+- Latest SEC Form 144 capture remains run 43862500790; latest CFTC TFF record remains push/bootstrap run 43525140200. No capture was manually dispatched or duplicated.
+- Repository preflight: 271 branches, 56 open PRs, 66 workflow files. PR #99 is merged. No active workflow was duplicated.
