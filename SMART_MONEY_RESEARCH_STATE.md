@@ -924,3 +924,12 @@ This section supersedes any older “in progress” status above where later com
 - SEC Form 144 run 43862500790: both jobs succeeded; live capture returned POLL_COMPLETE_NO_NEW_ACCESSIONS, no possible feed-window gap, zero research-observation-eligible rows and zero signal-eligible rows. Artifact 14223876987 SHA-256 verified in its run metadata.
 - CFTC TFF run 43525140200: prospective-capture job succeeded, 11/11 tests passed, but capture output was BASELINE_ALREADY_EXISTS_NO_OVERWRITE and SIGNAL_ELIGIBLE_HISTORICAL_ROWS=0. Artifact 14084802705, SHA-256 c7a652038336f852e3c51792d1bdc96ebc1368176bdafdae0693332fb4224eef. No new eligible observation; next scheduled receipt is still 2026-11-16 22:15 UTC after the 20:30 UTC release, so it was not run early.
 - Inspected all 269 branches across three pages (100/100/69), all 56 open PRs, 66 workflow files, latest 12 Actions runs, and relevant Phase 433/434, SEC Form 144 and CFTC jobs/logs/artifacts. No running workflow was duplicated or manually dispatched.
+
+
+### Phase 435 merge verification — 2026-11-16 14:07 UTC
+
+- PR #98 merged by squash at main commit 943b0cb21ff1c70f8657bbd9f52e3bdad32a27ac. Mainline contains the Compass casebook, analyzer, 11 tests, report, extended regression workflow and Phase 435 state entry.
+- Hosted regression run 43882300678 completed successfully: Python compilation passed; all 33 offline tests passed (12 Phase 433 + 10 Phase 434 + 11 Phase 435). No artifact was configured or expected.
+- Post-merge Actions audit: 7,672 total runs; latest 100 = 62 success / 37 failure / 1 cancelled; zero active and zero queued runs. Latest SEC Form 144 capture remains 43862500790; latest CFTC prospective capture remains 43525140200.
+- Repository audit after merge: 270 branches across three pages (100/100/70), 56 open PRs, 66 workflow files. PR #98 is closed/merged.
+- No workflow was manually dispatched or duplicated. No trading code, baseline, universe, holdout, capital, exposure or production configuration changed.
