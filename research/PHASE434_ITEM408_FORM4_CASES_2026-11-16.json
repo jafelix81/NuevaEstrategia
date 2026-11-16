@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "audit_type": "hand-audited SEC cross-source case study; not a population sample",
+  "issuer": {
+    "cik": "0001373715",
+    "ticker": "NOW",
+    "name": "ServiceNow, Inc."
+  },
+  "item408_filing": {
+    "accession": "0001373715-23-000419",
+    "form": "10-Q",
+    "acceptance_datetime_et": "2023-10-25T19:20:50-04:00",
+    "official_filing_date": "2023-10-26",
+    "conservative_pit_availability_date": "2023-10-26",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1373715/000137371523000419/now-20230930.htm"
+  },
+  "rule_reference": {
+    "cooling_off_days_for_directors_and_section16_officers": 90,
+    "maximum_days_after_adoption": 120,
+    "business_days_after_periodic_filing": 2,
+    "cdi_120_29_url": "https://www.sec.gov/rules-regulations/staff-guidance/corporation-finance-interpretations/exchange-act-rules",
+    "sec_statement_url": "https://www.sec.gov/newsroom/speeches-statements/gensler-insider-trading-20221214"
+  },
+  "plans": [
+    {
+      "insider": "Gina Mastantuono",
+      "insider_cik": "0001465391",
+      "role": "Chief Financial Officer",
+      "item408_adoption_date": "2023-07-28",
+      "form4_footnote_adoption_date": "2023-07-28",
+      "item408_expiration_date": "2024-05-24",
+      "item408_plan_description": "317 shares plus 100% of net shares resulting from vesting of 8,019 additional gross shares.",
+      "form4_records": [
+        {
+          "accession": "0001373715-23-000411",
+          "period_of_report": "2023-10-06",
+          "signature_date": "2023-10-10",
+          "aff10b5one": true,
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1373715/000137371523000411/wk-form4_1696971804.xml",
+          "transactions": [
+            {
+              "date": "2023-10-06",
+              "code": "M",
+              "shares": 1528,
+              "price": 0,
+              "plan_footnote": false,
+              "footnote_id": null
+            },
+            {
+              "date": "2023-10-06",
+              "code": "F",
+              "shares": 758,
+              "price": 560.72,
+              "plan_footnote": false,
+              "footnote_id": "F1"
+            },
+            {
+              "date": "2023-10-09",
+              "code": "S",
+              "shares": 193,
+              "price": 554.89,
+              "plan_footnote": true,
+              "footnote_id": "F2"
+            },
+            {
+              "date": "2023-10-09",
+              "code": "S",
+              "shares": 193,
+              "price": 554.89,
+              "plan_footnote": true,
+              "footnote_id": "F2"
+            }
+          ]
+        },
+        {
+          "accession": "0001373715-23-000423",
+          "period_of_report": "2023-11-01",
+          "signature_date": "2023-11-02",
+          "aff10b5one": null,
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1373715/000137371523000423/wk-form4_1698960226.xml",
+          "transactions": [
+            {
+              "date": "2023-11-01",
+              "code": "S",
+              "shares": 922,
+              "price": 581,
+              "plan_footnote": true,
+              "footnote_id": "F1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "insider": "William R. McDermott",
+      "insider_cik": "0001334944",
+      "role": "Chairman and Chief Executive Officer",
+      "item408_adoption_date": "2023-08-31",
+      "form4_footnote_adoption_date": "2023-08-31",
+      "item408_expiration_date": "2025-02-18",
+      "item408_plan_description": "30,489 shares plus 100% of net shares resulting from vesting of 9,986 additional gross shares.",
+      "form4_records": [
+        {
+          "accession": "0001373715-24-000127",
+          "period_of_report": "2024-02-16",
+          "signature_date": null,
+          "aff10b5one": true,
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1373715/000137371524000127/wk-form4_1708562042.xml",
+          "transactions": [
+            {
+              "date": "2024-02-20",
+              "code": "S",
+              "shares": null,
+              "price": null,
+              "plan_footnote": true,
+              "footnote_id": "F2",
+              "quantity_status": "multiple S-coded rows; not aggregated in this audit"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "insider": "Paul E. Chamberlain",
+      "insider_cik": "0001659774",
+      "role": "Director",
+      "item408_adoption_date": "2023-08-21",
+      "form4_footnote_adoption_date": "2023-08-31",
+      "item408_expiration_date": "2024-09-03",
+      "item408_plan_description": "540 shares.",
+      "form4_records": [
+        {
+          "accession": "0001373715-23-000496",
+          "period_of_report": "2023-11-30",
+          "signature_date": "2023-12-01",
+          "aff10b5one": true,
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1373715/000137371523000496/wk-form4_1701466248.xml",
+          "transactions": [
+            {
+              "date": "2023-11-30",
+              "code": "S",
+              "shares": 135,
+              "price": 682,
+              "plan_footnote": true,
+              "footnote_id": "F1"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "interpretation_limits": [
+    "AFF10B5ONE is a filer-reported checkbox at the Form 4 submission level, not an SEC finding that every row is plan-linked or that every affirmative-defense condition was met.",
+    "Only S-coded rows explicitly linked by a plan footnote are counted as plan-linked disposals in this audit. Code S does not establish exchange venue or beneficial-owner identity.",
+    "The sample is a hand-audited three-plan case study for one issuer, not a representative sample or a coverage census.",
+    "A transaction dated before a calculated cooling-off threshold is flagged as an apparent chronology inconsistency only; this is not a legal conclusion."
+  ]
+}
