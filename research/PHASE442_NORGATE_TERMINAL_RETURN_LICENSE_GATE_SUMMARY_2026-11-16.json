@@ -1,0 +1,84 @@
+{
+  "phase": 442,
+  "audit_utc": "2026-11-16T19:17:15Z",
+  "preflight": {
+    "main_head": "21502d5ccd2fb3223a70315e9fa322c3a2154702",
+    "total_actions_runs": 7676,
+    "latest_100": {
+      "success": 62,
+      "failure": 37,
+      "cancelled": 1
+    },
+    "active_or_queued_runs": 0,
+    "branches": 276,
+    "open_pull_requests": 56,
+    "workflows": 67,
+    "latest_run_id": 43918910577,
+    "latest_sec_form144_run_id": 43862500790,
+    "latest_cftc_run_id": 43525140200
+  },
+  "source": "Norgate Data US Stocks Platinum",
+  "disposition": "CONDITIONAL_PRICE_IDENTITY_CROSSCHECK_ONLY",
+  "documented_capabilities": {
+    "daily_history_start_paid_platinum": "1990",
+    "stated_us_listed_delisted_completeness": "late 1992 for included security types",
+    "free_trial_duration": "3 weeks",
+    "free_trial_history_limit": "2 years",
+    "stable_assetid": true,
+    "python_api": "Windows only; NDU installed and running",
+    "explicit_price_adjustments": [
+      "NONE",
+      "CAPITAL",
+      "CAPITALSPECIAL",
+      "TOTALRETURN"
+    ],
+    "daily_historical_index_constituents": true
+  },
+  "critical_limitations": {
+    "prior_symbol_history": false,
+    "cusip_or_isin": false,
+    "delisting_return_or_terminal_recovery_value": false,
+    "record_known_vintages": false,
+    "correction_versioning": false,
+    "announcement_dates_for_index_changes": false,
+    "arbitrary_fixed_335_universe_reconstruction": false
+  },
+  "licensing": {
+    "current_eula_version": "20261107",
+    "personal_noncommercial_use_only": true,
+    "private_cloud_processing_for_personal_use": true,
+    "shared_or_public_data_access_allowed": false,
+    "business_or_client_use_allowed": false,
+    "extracted_data_deletion_after_expiry_required": true
+  },
+  "crsp_comparator": {
+    "daily_active_inactive_us_equities": true,
+    "permanent_ids": [
+      "PERMNO",
+      "PERMCO"
+    ],
+    "delisting_fields": [
+      "DLRET",
+      "DLRETX",
+      "DLPRC",
+      "DLPDT",
+      "DLAMT"
+    ],
+    "preferred_terminal_return_benchmark_if_accessible": true
+  },
+  "phase20c": {
+    "price_fallback_admitted": false,
+    "existing_gate": "328/329",
+    "required_valid_histories": 329,
+    "fixed_335_universe_preserved": true,
+    "historical_universe_selection_rule_recovered": false
+  },
+  "research": {
+    "return_test_run": false,
+    "alpha_admitted": false,
+    "oos_test_run": false,
+    "bootstrap_or_loo_run": false,
+    "holdout_used": false,
+    "f80_baseline_frozen": true
+  }
+}
