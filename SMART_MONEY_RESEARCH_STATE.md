@@ -986,3 +986,12 @@ This section supersedes any older “in progress” status above where later com
 - Post-merge Actions audit: 7,674 total historical runs; latest 100 returned 63 success / 36 failure / 1 cancelled. In-progress, queued, waiting and requested queries each returned zero.
 - Repository audit after merge: 272 branches across three pages (100/100/72), 56 open PRs, 66 workflow files. PR #100 is closed/merged. No workflow was manually dispatched or duplicated.
 - The CARG extension regression remains synthetic; raw SEC filing bytes have not yet been parsed. No alpha, signal admission, trading code, F80 baseline, universe, holdout, capital, exposure or production change.
+
+
+### Phase 437 merge verification — 2026-11-16 14:45 UTC
+
+- PR #100 merged by squash at main commit 12ceb947bd6583424dfefe52a59670f138cfa97f. Mainline contains the issuer-extension preservation change, eight Phase 437 tests, report and extended existing Item 408 workflow.
+- Hosted regression run 43889092341 completed successfully: Python compilation passed and all 57 offline tests passed (12 Phase 433 + 10 Phase 434 + 11 Phase 435 + 16 Phase 436 + 8 Phase 437). No artifact was configured or expected.
+- Post-merge Actions audit: 7,674 total runs; latest 100 returned 63 success / 36 failure / 1 cancelled. In-progress, queued, waiting and requested queries each returned zero.
+- Repository audit after merge: 272 branches across three pages (100/100/72), 56 open PRs, 66 workflow files. PR #100 is closed/merged. No workflow was manually dispatched or duplicated.
+- Raw CARG bytes remain unparsed pending a monitored-contact SEC_USER_AGENT. No alpha, signal admission, trading code, F80 baseline, universe, holdout, capital, exposure or production change.
