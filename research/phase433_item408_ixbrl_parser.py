@@ -34,6 +34,8 @@ ITEM408_CONCEPTS = {
     "TrdArrExpirationDate",
     "TrdArrDuration",
     "TrdArrSecuritiesAggAvailAmt",
+    "Rule10b51ArrModifiedFlag",
+    "NonRule10b51ArrModifiedFlag",
 }
 IX_FACT_TAGS = {"ix:nonnumeric", "ix:nonfraction", "ix:fraction"}
 VOID_TAGS = {
@@ -247,30 +249,36 @@ def extract_item408_facts(
         for node in _walk(root)
         if node.tag == "ix:continuation" and node.attrs.get("id")
     }
-    ecd_prefixes = {"ecd"}
+    namespace_map: dict[str, str] = {}
     for candidate in _walk(root):
         for attr_name, namespace_uri in candidate.attrs.items():
-            if attr_name.startswith("xmlns:") and "/ecd/" in namespace_uri.lower():
-                ecd_prefixes.add(attr_name.split(":", 1)[1])
+            if attr_name.startswith("xmlns:"):
+                namespace_map[attr_name.split(":", 1)[1]] = namespace_uri
+    ecd_prefixes = {
+        prefix for prefix, namespace_uri in namespace_map.items()
+        if "/ecd/" in namespace_uri.lower()
+    }
+    if not ecd_prefixes:
+        ecd_prefixes = {"ecd"}
 
     facts: list[dict[str, Any]] = []
-    for node in _walk(root):
-        if node.tag not in IX_FACT_TAGS:
-            continue
-        qname = node.attrs.get("name", "")
-        prefix, concept = _qname_parts(qname)
-        if prefix not in ecd_prefixes or concept not in ITEM408_CONCEPTS:
-            continue
+    issuer_extension_facts: list[dict[str, Any]] = []
+    extension_pattern = re.compile(
+        r"(?:rule|nonrule)10b5?1|trdarr|tradingarr", re.IGNORECASE
+    )
+
+    def make_fact_record(node: Node, prefix: str, concept: str) -> dict[str, Any]:
         context_ref = node.attrs.get("contextref")
         context = contexts.get(context_ref or "")
         raw_value = _continuation_text(node, continuations)
         nil = node.attrs.get("xsi:nil", "").lower() in {"true", "1"}
         if nil:
             raw_value = ""
-        fact = {
+        return {
             "accession": accession,
             "issuer_cik": str(issuer_cik).zfill(10),
             "taxonomy_prefix": prefix,
+            "taxonomy_namespace": namespace_map.get(prefix),
             "concept": concept,
             "fact_tag": node.tag,
             "context_ref": context_ref,
@@ -287,20 +295,37 @@ def extract_item408_facts(
             "numeric_value": None if nil else _numeric_value(node.tag, raw_value, node.attrs),
             "is_hidden": _is_under_hidden(node),
         }
-        facts.append(fact)
+
+    for node in _walk(root):
+        if node.tag not in IX_FACT_TAGS:
+            continue
+        qname = node.attrs.get("name", "")
+        prefix, concept = _qname_parts(qname)
+        if prefix is None or prefix not in namespace_map:
+            continue
+        if prefix in ecd_prefixes and concept in ITEM408_CONCEPTS:
+            facts.append(make_fact_record(node, prefix, concept))
+        elif prefix not in ecd_prefixes and extension_pattern.search(concept):
+            # Preserve issuer taxonomy facts related to Item 408 lifecycle or
+            # arrangement fields. Their semantics remain issuer-specific.
+            issuer_extension_facts.append(make_fact_record(node, prefix, concept))
 
     return {
         "accession": accession,
         "issuer_cik": str(issuer_cik).zfill(10),
         "context_count": len(contexts),
-        "item408_fact_count": len(facts),
-        "extraction_status": "facts_found" if facts else "no_tagged_item408_facts_unknown",
+        "standard_fact_count": len(facts),
+        "issuer_extension_fact_count": len(issuer_extension_facts),
+        "item408_fact_count": len(facts) + len(issuer_extension_facts),
+        "extraction_status": "facts_found" if facts or issuer_extension_facts else "no_tagged_item408_facts_unknown",
         "facts": facts,
+        "issuer_extension_facts": issuer_extension_facts,
         "limitations": [
             "facts remain at their original context/dimension grain",
             "no aggregation across TradingArrAxis or IndividualAxis",
             "no execution, discretionary-intent, active-plan, or natural-expiry inference",
             "missing facts remain unknown, not false",
+            "issuer extension facts are preserved separately and require issuer-specific semantic review",
         ],
     }
 
