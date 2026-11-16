@@ -1,0 +1,106 @@
+{
+  "phase": 441,
+  "audit_date": "2026-11-16",
+  "decision": "CBOE_1M_CONDITIONAL_NOT_PRIORITY; EOD_FIRST; NASDAQ_10M_LOWER_COST_COMPARATOR",
+  "cboe_one_minute": {
+    "venue_fee_scope": "Cboe Exchange (C1) filing; do not extrapolate to affiliates",
+    "historical_start": "2019-10-07",
+    "subscription_usd_per_month": 12000,
+    "historical_under_4_years_usd_per_requested_month": 4000,
+    "historical_5_or_more_years_usd_per_requested_month": 2500,
+    "expected_delivery_latency_minutes": [
+      2,
+      5
+    ],
+    "snapshot_interval_minutes": 1,
+    "cumulative": true,
+    "later_corrections_possible": true,
+    "trial_months_max": 6,
+    "trial_eligibility": "First-time recipients only; prior subscription or trial disqualifies; eligibility unverified",
+    "derived_external_distribution_usd_per_month": 7500,
+    "full_opra": false
+  },
+  "nasdaq_ten_minute": {
+    "snapshot_interval_minutes": 10,
+    "cumulative": true,
+    "products": {
+      "NOTO": {
+        "history_start": "2011-11",
+        "subscription_usd_per_month": 2000,
+        "historical_usd_per_requested_month": 500
+      },
+      "PHOTO": {
+        "history_start": "2009-01",
+        "subscription_usd_per_month": 3000,
+        "historical_usd_per_requested_month": 1000
+      },
+      "ISE": {
+        "intraday_history_start": "2009-10",
+        "subscription_usd_per_month": 2500,
+        "historical_usd_per_requested_month": 1000
+      },
+      "GEMX": {
+        "history_start": "2013-08",
+        "known_gap": [
+          "2017-03",
+          "2017-12"
+        ],
+        "subscription_usd_per_month": 1500,
+        "historical_usd_per_requested_month": 750
+      }
+    },
+    "venue_specific": true,
+    "full_opra": false
+  },
+  "cost_ratios_cboe_1m_over_nasdaq_10m_single_venue": {
+    "subscription": {
+      "NOTO": 6,
+      "PHOTO": 4,
+      "ISE": 4.8,
+      "GEMX": 8
+    },
+    "historical_under_4_years": {
+      "NOTO": 8,
+      "PHOTO": 4,
+      "ISE": 4,
+      "GEMX": 5.3333333333
+    },
+    "historical_5_or_more_years": {
+      "NOTO": 5,
+      "PHOTO": 2.5,
+      "ISE": 2.5,
+      "GEMX": 3.3333333333
+    }
+  },
+  "pit_gates": {
+    "actual_first_receipt_required": true,
+    "append_only_snapshot_vintages_required": true,
+    "cumulative_snapshots_must_be_differenced": true,
+    "negative_revisions_must_not_be_clipped": true,
+    "historical_pit_admitted": false,
+    "universe_coverage_admitted": false
+  },
+  "legacy_public_artifact_review": {
+    "run_id": 41762583602,
+    "artifact_id": 13291147097,
+    "outer_zip_sha256": "0213a5923d7a8973bb51e834551477a68c0b628b8cf112fd1bbc642f62d673ed",
+    "nested_sample_zip_sha256": "445cd9d658dc06028c286e09d4ac4818bd5884d7da8addd7509f3a0fa4840552",
+    "contains_raw_sample_archive": true,
+    "contains_extracted_sample_rows": true,
+    "rights_review_required": true,
+    "deletion_attempted": false
+  },
+  "human_actions": [
+    "Configure repository secret SEC_USER_AGENT with a project identifier and monitored contact email.",
+    "Confirm whether the legacy public Cboe sample artifact may remain public; remove it if sample-specific terms do not permit redistribution."
+  ],
+  "source_admitted": false,
+  "alpha_admitted": false,
+  "return_test_run": false,
+  "oos_test_run": false,
+  "frozen_baseline": "F80_TOP20_PARTIAL50_BASELINE_C20",
+  "frozen_baseline_changed": false,
+  "universe_changed": false,
+  "holdout_touched": false,
+  "production_changed": false
+}
