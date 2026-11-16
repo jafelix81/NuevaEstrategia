@@ -1,0 +1,84 @@
+{
+  "phase": 440,
+  "audit_time_utc": "2026-11-16T17:33:00Z",
+  "source": "Cboe Open-Close EOD",
+  "disposition": "CONDITIONAL_PARTICIPANT_CAPACITY_SIDE_OPEN_CLOSE_CANDIDATE",
+  "scope": {
+    "venues": [
+      "C1",
+      "BZX",
+      "C2",
+      "EDGX"
+    ],
+    "consolidated_opra": false,
+    "historical_start": {
+      "C1_EOD": "2005-01-03",
+      "BZX_EOD": "2018-01-02",
+      "C2_EOD": "2018-01-02",
+      "EDGX_EOD": "2018-01-02"
+    },
+    "series_grain": true,
+    "frozen_335_coverage_measured": false
+  },
+  "data": {
+    "participant_buckets": [
+      "Firm",
+      "Broker/Dealer",
+      "Market Maker",
+      "Customer",
+      "Professional Customer"
+    ],
+    "dimensions": [
+      "buy_sell",
+      "open_close",
+      "contract_size_bucket_for_customer_and_pro_customer"
+    ],
+    "preliminary_and_final_files": true,
+    "typical_next_morning_delivery_et": "00:30-01:00",
+    "first_receipt_certified": false,
+    "preliminary_oi_source": "OPRA",
+    "final_oi_source": "OCC",
+    "total_industry_volume_and_oi_best_effort_third_party": true,
+    "schema_regimes": [
+      "C1 pre-2011 format",
+      "Professional capacity code W legacy before Oct 2019",
+      "Flex series type F from 2024-10-16"
+    ]
+  },
+  "identity_limits": {
+    "customer_includes_institutional_clients": true,
+    "professional_customer_is_proxy_not_beneficial_owner": true,
+    "beneficial_owner_identified": false,
+    "aggressor_side_identified": false,
+    "all_market_opra_coverage": false
+  },
+  "licensing": {
+    "raw_internal_use_only": true,
+    "external_redistribution_allowed": false,
+    "derived_external_distribution_requires_approval": true,
+    "public_repo_raw_data_storage_allowed": false,
+    "public_repo_derived_panel_storage_allowed_without_license": false,
+    "historical_eod_rate_1_to_4_years_usd_per_month": 600,
+    "historical_eod_rate_5plus_years_usd_per_month": 300,
+    "daily_eod_update_rate_usd_per_month": 600,
+    "historical_eod_trial_up_to_months": 6,
+    "trial_eligibility_verified": false
+  },
+  "sample": {
+    "public_sample_link_present": true,
+    "sample_bytes_obtained": false,
+    "sample_rows_inspected": false,
+    "reason": "ZIP content type unsupported by web fetcher; container outbound DNS unavailable"
+  },
+  "research": {
+    "exact_335_name_coverage": false,
+    "strict_pit_admitted": false,
+    "alpha_authorized": false,
+    "return_test_run": false,
+    "oos_run": false,
+    "bootstrap_loo_run": false,
+    "holdout_used": false,
+    "f80_baseline_changed": false
+  },
+  "next_gate": "Confirm trial/sample eligibility and use a private, license-authorized environment; validate raw bytes, versions, arithmetic, and exact universe coverage before any feature test."
+}
