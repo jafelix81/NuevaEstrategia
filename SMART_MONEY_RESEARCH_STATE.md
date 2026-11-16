@@ -186,3 +186,13 @@ F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No forward-return test or produ
 - Main commit `b4bd844b567d4779b474a212c73ef37f7928c30a` changed the Phase 22C 13F audit to manual-dispatch only (unrelated pushes no longer launch it) and disabled the Phase 35 CIK-specific 13D/G crawler after the Phase 96 subject/filer failure.
 - An unrelated main-branch state update had already triggered legacy push-on-any-commit workflows before this guard landed. Phase 22C run 41960053553 was cancelled. Phase 35 run 41960053552 remains reported in progress; guarded replacement run 41960188506 is pending with the audit job disabled. The available GitHub connector does not expose a direct cancel action, so this run may require manual cancellation if it does not clear. No further Phase 35 crawl was intentionally dispatched.
 - Future research-state commits do not match the new workflow path filters and should not trigger these SEC jobs.
+
+
+## 2026-11-13 — Phase 357 Cboe DataShop metadata and PIT-clock reconciliation
+
+- Rechecked the current Open-Close and Option EOD product pages against the DataShop FAQ. Open-Close interval history conflicts: the product page differentiates C1 10-minute (2011-01-03), C1 1-minute (2019-10-07), and BZX/C2/EDGX 1-minute plus 10-minute (2019-03-01); the FAQ gives generic interval starts of Jan 2011 and Mar 2020. Keep product-page dates as documented claims but quarantine disputed BZX/C2/EDGX interval history before Mar 2020 pending actual file evidence or vendor clarification.
+- Option EOD Summary product page says Jan 2012; FAQ says Jan 2010. Use Jan 2012 as the provisional conservative start; do not claim pre-2012 coverage without actual files or written confirmation.
+- FAQ says daily files are typically delivered next day 00:05–03:00 ET, with possible delay until after market open. A scheduled window is not a first-receipt timestamp. Strict historical PIT remains closed; any prospective archive must record observed UTC receipt and preserve immutable file versions.
+- OCC public OI page states only the past 24 months are available. Phase 354's public batch endpoint was aggregate-only, not contract-level OI; do not repeat it for per-series validation.
+- Decision: daily Open-Close EOD + Option EOD remains a conditional research candidate, not admitted historical PIT or alpha. No historical files, returns, OOS, bootstrap, LOO or holdout tests; no vendor contact/purchase; no production change. F80 remains frozen.
+- See `research/PHASE357_CBOE_PRODUCT_METADATA_PIT_RECONCILIATION_2026-11-13.md`.
