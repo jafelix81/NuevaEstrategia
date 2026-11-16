@@ -1,3 +1,20 @@
+## Operational preflight — 2026-11-16 17:33 UTC
+
+- Mainline state before Phase 440: Phase 439 merged at `43bc72fa2e0f223a850058ef2a18eda516f51fbe`; most recent observed repository commit `fd3b07c5d38e04e55e271ed580cc62423348132e` (16:45 UTC).
+- Latest verified Actions run remains Phase 439 CI [43910774320](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43910774320): job 133451752102 completed successfully, compile passed, 5/5 offline tests passed, no artifact expected. Job steps and decoded log inspected. The 16:45 UTC state audit returned zero active/queued runs; no workflow was dispatched or duplicated in this phase. The next SEC Form 144 :37 slot was 17:37 UTC and was not yet due at audit time.
+- Rechecked 274 branches (three full pages plus empty final cursor), 56 open PRs, and 67 workflow files. No unrelated PR or workflow was modified.
+- **Phase 440:** official Cboe documentation identifies Open-Close EOD as the strongest conditional participant-capacity × buy/sell × open/close source in the current options source set. Historical starts: C1 2005-01-03; BZX/C2/EDGX 2018-01-02. It is four-venue Cboe data, not consolidated OPRA or beneficial-owner identity. EOD spec provides participant buckets and open/close sides, with preliminary OPRA and final OCC OI/industry-volume vintages. Historical first receipt and frozen-335 coverage are not established.
+- **New licensing gate:** Cboe's product page restricts raw files to internal use and prohibits external redistribution; derived external distribution requires additional licensing/approval. The public GitHub repository must not store raw or vendor-derived Open-Close data or public Actions artifacts. A filed 2026 fee schedule lists a trial up to six months of historical EOD data for eligible recipients and historical rates of $600/month for 1–4 years and $300/month for 5+ years; eligibility/current order terms remain unverified. No account, trial, contact, purchase, or data acquisition was initiated.
+- Public sample ZIP bytes could not be retrieved by this environment; no sample rows were inspected. No strict-PIT, return, alpha, OOS, bootstrap, LOO, or holdout test was run. No source admitted and no change to `F80_TOP20_PARTIAL50_BASELINE_C20`, universe, parameters, capital, exposure, or production.
+
+## Phase 440 — Cboe Open-Close EOD participant-flow and license gate
+
+- Report: [PHASE440_CBOE_OPENCLOSE_EOD_PARTICIPANT_PIT_LICENSE_AUDIT_2026-11-16.md](research/PHASE440_CBOE_OPENCLOSE_EOD_PARTICIPANT_PIT_LICENSE_AUDIT_2026-11-16.md).
+- Machine-readable summary: [PHASE440_CBOE_OPENCLOSE_EOD_PIT_LICENSE_SUMMARY_2026-11-16.json](research/PHASE440_CBOE_OPENCLOSE_EOD_PIT_LICENSE_SUMMARY_2026-11-16.json).
+- Decision: retain as the top conditional participant-capacity × side × open/close candidate; no signal admission. The six-month trial or authorized sample must be processed in a private, license-authorized environment, never in this public repository. The next gate is raw-byte/schema validation, preliminary/final version handling, arithmetic reconciliation, and exact historical coverage of the frozen 335-name universe.
+
+---
+
 ## Operational preflight — 2026-11-16 16:45 UTC
 
 - Main HEAD: `43bc72fa2e0f223a850058ef2a18eda516f51fbe` (Phase 439 merged). Latest Actions list: 7,675 total runs; latest Phase 439 CI [43910774320](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43910774320) completed successfully (5/5 offline tests). Explicit in-progress and queued queries both returned zero after completion. Inspected 274 branches (three pages), 56 open PRs and 67 workflow files. No unrelated workflow was dispatched or rerun.
