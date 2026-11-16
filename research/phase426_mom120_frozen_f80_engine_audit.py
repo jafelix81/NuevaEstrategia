@@ -560,6 +560,154 @@ def main():
         }
         z.assign(excess_daily=d).to_csv(OUT / f"paired_excess_C{int(cost)}.csv", index=False)
 
+    # Fully implementable daily-open common-gross shadow test.
+    # Target gross is fixed from the frozen LTM engine's pre-OOS C20 average,
+    # so no OOS information is used to set the common exposure budget.
+    base_train = daily_by_factor_cost["LTM_C20"].copy()
+    base_train["Date"] = pd.to_datetime(base_train["Date"])
+    base_train = base_train[base_train["Date"] < OOS_START]
+    target_gross = float((base_train["GrossMarketValue"] / base_train["EquityClose"]).mean())
+    if not (0.0 < target_gross < f11.GROSS_CAP):
+        raise RuntimeError(f"invalid pre-OOS common gross target: {target_gross}")
+
+    matched_results = {}
+    matched_daily_by_factor_cost = {}
+    matched_trades_by_factor_cost = {}
+    matched_checks_by_factor_cost = {}
+    for factor, snapshots in (("LTM", ltm_snapshots), ("MOM120", mom_snapshots)):
+        for cost in COSTS:
+            key = f"{factor}_C{int(cost)}"
+            md, mt, mc, diag = run_policy_gross_target(
+                data, calendar, snapshots, open_maps, close_maps,
+                factor, cost, target_gross
+            )
+            md["Factor"] = factor
+            md["CostBpsPerSide"] = cost
+            mt["Factor"] = factor
+            mc["Factor"] = factor
+            matched_daily_by_factor_cost[key] = md
+            matched_trades_by_factor_cost[key] = mt
+            matched_checks_by_factor_cost[key] = mc
+            matched_results[key] = {
+                "oos_metrics": oos_metrics(md, mt),
+                "diagnostics": diag,
+            }
+            md.to_csv(OUT / f"{key}_matched_gross_daily.csv", index=False)
+            mt.to_csv(OUT / f"{key}_matched_gross_trades.csv", index=False)
+            mc.to_csv(OUT / f"{key}_matched_gross_checks.csv", index=False)
+
+    exposure_matched_paired = {}
+    schedule_array = np.array([pd.Timestamp(d).to_datetime64() for d in scheduled_dates])
+    cycle_detail_c20 = []
+    for cost in COSTS:
+        key_l = f"LTM_C{int(cost)}"
+        key_m = f"MOM120_C{int(cost)}"
+        a = matched_daily_by_factor_cost[key_l][["Date", "DailyReturn"]].copy()
+        b = matched_daily_by_factor_cost[key_m][["Date", "DailyReturn"]].copy()
+        a["Date"] = pd.to_datetime(a["Date"])
+        b["Date"] = pd.to_datetime(b["Date"])
+        z = a.merge(b, on="Date", suffixes=("_ltm", "_mom"), validate="one_to_one")
+        z = z[z["Date"] >= OOS_START].sort_values("Date").reset_index(drop=True)
+        d = (z["DailyReturn_mom"] - z["DailyReturn_ltm"]).to_numpy(float)
+        hac_se = hac_mean_se(d, max_lag=80)
+        loo = (d.sum() - d) / (len(d) - 1) if len(d) > 1 else np.array([])
+        z["cycle_id"] = [
+            int(np.searchsorted(schedule_array, pd.Timestamp(dt).to_datetime64(), side="left") - 1)
+            for dt in z["Date"]
+        ]
+        cycles = z.groupby("cycle_id").agg(
+            start=("Date", "min"),
+            end=("Date", "max"),
+            days=("Date", "size"),
+            mom120_multiple=("DailyReturn_mom", lambda s: float(np.prod(1.0 + s.to_numpy(float)))),
+            ltm_multiple=("DailyReturn_ltm", lambda s: float(np.prod(1.0 + s.to_numpy(float)))),
+        ).reset_index()
+        cycles["excess_compound"] = cycles["mom120_multiple"] - cycles["ltm_multiple"]
+        cycle_excess = cycles["excess_compound"].to_numpy(float)
+        cycle_loo = (
+            (cycle_excess.sum() - cycle_excess) / (len(cycle_excess) - 1)
+            if len(cycle_excess) > 1 else np.array([])
+        )
+        if int(cost) == 20:
+            cycle_detail_c20 = cycles.to_dict(orient="records")
+        exposure_matched_paired[str(int(cost))] = {
+            "n": int(len(d)),
+            "same_dates": bool(len(a) == len(b) and np.array_equal(a["Date"].to_numpy(), b["Date"].to_numpy())),
+            "common_target_gross_from_pre_oos_ltm_c20": target_gross,
+            "mean_daily_excess_mom120_minus_ltm": float(d.mean()),
+            "hac_lag_80_se": safe_float(hac_se),
+            "hac_lag_80_t": safe_float(d.mean() / hac_se if hac_se and hac_se > 0 else None),
+            "loo_mean_min": safe_float(loo.min()) if len(loo) else None,
+            "loo_mean_max": safe_float(loo.max()) if len(loo) else None,
+            "positive_loo_fraction": safe_float(np.mean(loo > 0)) if len(loo) else None,
+            "positive_excess_day_fraction": float(np.mean(d > 0)),
+            "cycle_count": int(len(cycles)),
+            "positive_cycle_fraction": float(np.mean(cycle_excess > 0)) if len(cycle_excess) else None,
+            "positive_cycle_loo_fraction": safe_float(np.mean(cycle_loo > 0)) if len(cycle_loo) else None,
+            "cycle_loo_mean_min": safe_float(cycle_loo.min()) if len(cycle_loo) else None,
+            "cycle_loo_mean_max": safe_float(cycle_loo.max()) if len(cycle_loo) else None,
+            "cycles": cycle_detail_c20 if int(cost) == 20 else cycles.to_dict(orient="records"),
+            "block_bootstrap": {
+                str(block): circular_block_bootstrap(
+                    d, block, BOOTSTRAP_REPS, seed=426800 + int(cost) * 100 + block
+                )
+                for block in (20, 40, 80, 120, 160)
+            },
+        }
+        z.to_csv(OUT / f"paired_exposure_matched_excess_C{int(cost)}.csv", index=False)
+
+    matched_invariant_rows = []
+    for key, daily in matched_daily_by_factor_cost.items():
+        d = daily.copy()
+        d["Date"] = pd.to_datetime(d["Date"])
+        equity = pd.to_numeric(d["EquityClose"], errors="coerce")
+        prev = pd.to_numeric(d["PreviousCloseEquity"], errors="coerce")
+        expected_return = equity / prev - 1.0
+        return_error = (pd.to_numeric(d["DailyReturn"], errors="coerce") - expected_return).abs()
+        accounting_error = (
+            pd.to_numeric(d["EquityClose"], errors="coerce")
+            - pd.to_numeric(d["Cash"], errors="coerce")
+            - pd.to_numeric(d["GrossMarketValue"], errors="coerce")
+        ).abs()
+        gross_close = pd.to_numeric(d["GrossMarketValue"], errors="coerce") / equity
+        gross_open_error = (
+            pd.to_numeric(d["GrossOpenExposure"], errors="coerce")
+            - pd.to_numeric(d["TargetGrossExposure"], errors="coerce")
+        ).abs()
+        checks_df = matched_checks_by_factor_cost[key]
+        trades = matched_trades_by_factor_cost[key]
+        if not trades.empty:
+            signal_dates = pd.to_datetime(trades["DateSignal"])
+            execution_dates = pd.to_datetime(trades["ExecutionDate"])
+            no_lookahead = bool((execution_dates > signal_dates).all())
+        else:
+            no_lookahead = True
+        matched_invariant_rows.append({
+            "strategy_cost": key,
+            "max_daily_return_reconciliation_error": safe_float(return_error.max()),
+            "max_accounting_identity_error": safe_float(accounting_error.max()),
+            "max_return_decomposition_error": safe_float(pd.to_numeric(d["ReturnDecompositionError"], errors="coerce").max()),
+            "max_gross_open_target_error": safe_float(gross_open_error.max()),
+            "max_gross_close": safe_float(gross_close.max()),
+            "max_entry_position_weight": safe_float(pd.to_numeric(checks_df["MaxEntryPositionWeight"], errors="coerce").max()),
+            "all_trade_executions_after_signal_or_prior_close": no_lookahead,
+            "all_equity_positive": bool((equity > 0).all()),
+            "all_cash_nonnegative": bool((d["Cash"] >= -1e-8).all()),
+        })
+    matched_invariant_df = pd.DataFrame(matched_invariant_rows)
+    matched_invariant_df.to_csv(OUT / "exposure_matched_invariant_audit.csv", index=False)
+    matched_invariants_pass = bool(
+        (matched_invariant_df["max_daily_return_reconciliation_error"].fillna(np.inf) <= 1e-8).all()
+        and (matched_invariant_df["max_accounting_identity_error"].fillna(np.inf) <= 1e-8).all()
+        and (matched_invariant_df["max_return_decomposition_error"].fillna(np.inf) <= 1e-8).all()
+        and (matched_invariant_df["max_gross_open_target_error"].fillna(np.inf) <= 1e-6).all()
+        and (matched_invariant_df["max_gross_close"].fillna(np.inf) <= f11.GROSS_CAP + 1e-6).all()
+        and (matched_invariant_df["max_entry_position_weight"].fillna(np.inf) <= f11.MAX_POSITION + 1e-6).all()
+        and matched_invariant_df["all_trade_executions_after_signal_or_prior_close"].all()
+        and matched_invariant_df["all_equity_positive"].all()
+        and matched_invariant_df["all_cash_nonnegative"].all()
+    )
+
     # Strict invariant audit on all six ledgers.
     invariant_rows = []
     for key, daily in daily_by_factor_cost.items():
@@ -595,13 +743,18 @@ def main():
     invariant_df = pd.DataFrame(invariant_rows)
     invariant_df.to_csv(OUT / "invariant_audit.csv", index=False)
 
-    primary = paired["20"]
-    primary_ci = primary["block_bootstrap"]["20"]
-    primary_no_increment = (
-        primary_ci.get("ci95_low") is not None
-        and primary_ci.get("ci95_high") is not None
-        and primary_ci["ci95_low"] <= 0 <= primary_ci["ci95_high"]
-        and (primary["positive_loo_fraction"] is None or primary["positive_loo_fraction"] < 0.80)
+    primary_matched = exposure_matched_paired["20"]
+    primary_matched_ci = primary_matched["block_bootstrap"]["80"]
+    promising_matched = bool(
+        matched_invariants_pass
+        and primary_matched_ci.get("ci95_low") is not None
+        and primary_matched_ci.get("ci95_low") > 0
+        and (primary_matched["positive_cycle_fraction"] or 0.0) >= 0.70
+        and (primary_matched["positive_cycle_loo_fraction"] or 0.0) >= 0.80
+    )
+    decision = (
+        "PROMISING_HISTORICAL_DIAGNOSTIC_REQUIRES_PROSPECTIVE_CONFIRMATION"
+        if promising_matched else "NO_INCREMENTAL_PROMOTION"
     )
 
     summary = {
@@ -657,6 +810,16 @@ def main():
             "oos_signal_dates": len(overlap_df),
         },
         "paired_incremental": paired,
+        "exposure_matched_shadow": {
+            "target_gross": target_gross,
+            "target_gross_source": "frozen LTM C20 average gross exposure over 2016-2023 training only",
+            "daily_open_gross_normalization": true,
+            "costs_applied_to_selection_and_daily_gross_scaling_trades": True,
+            "results": matched_results,
+            "paired_incremental": exposure_matched_paired,
+            "invariants_pass": matched_invariants_pass,
+        },
+        "exposure_matched_invariants": matched_invariant_rows,
         "invariants": {
             "all_rows_pass": bool(
                 (invariant_df["max_daily_return_reconciliation_error"].fillna(np.inf) <= 1e-8).all()
@@ -676,8 +839,8 @@ def main():
                 for k in results
             )),
         },
-        "decision": "NO_INCREMENTAL_PROMOTION" if primary_no_increment else "REQUIRES_FURTHER_REVIEW",
-        "decision_rule_note": "This is a diagnostic rule only; a CI crossing zero and weak LOO stability do not prove the true effect is exactly zero.",
+        "decision": decision,
+        "decision_rule_note": "A positive exposure-matched historical diagnostic is not a promotion: 2024+ has already been examined, the universe is not PIT, and prospective confirmation remains mandatory.",
         "limitations": [
             "The 2024+ period was already used in Phase 29/30; this is not a fresh untouched holdout.",
             "Yahoo current historical prices and the frozen 335-name universe are not a PIT security-master reconstruction.",
