@@ -155,3 +155,20 @@ F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. No changes to the holdout, univ
 - ServiceNow, Inc. 2023 Q3 Form 10-Q: https://www.sec.gov/Archives/edgar/data/1373715/000137371523000419/now-20230930.htm
 - ServiceNow, Inc. EDGAR SGML header: https://www.sec.gov/Archives/edgar/data/1373715/000137371523000419/0001373715-23-000419-index-headers.html
 - SEC filing detail page (shows accepted time and filing date): https://www.sec.gov/Archives/edgar/data/1373715/000137371523000419/0001373715-23-000419-index.htm
+
+
+## 2.3 Exact Rule 10b5-1 cooling-off calculation for this sample
+
+A further check of SEC C&DI Question 120.29 confirms that the filing date of the relevant 10-Q/10-K does **not** count as the first business day. If the form is filed Monday, the SEC says trading may commence Thursday (absent intervening holidays). For the ServiceNow 10-Q filed Thursday 2023-10-26, the two business days following the filing date are Friday 2023-10-27 and Monday 2023-10-30; the first potential trading date after that limb expires is Tuesday 2023-10-31.
+
+Assuming no later plan modification or other restriction, the sample's earliest dates under the amended Rule 10b5-1 cooling-off formula are therefore:
+
+| Person | 90-day date | Two-business-day-after-10-Q date | First potential trading date |
+|---|---:|---:|---:|
+| Gina Mastantuono | 2023-10-26 | 2023-10-31 | 2023-10-31 |
+| William R. McDermott | 2023-11-29 | 2023-10-31 | 2023-11-29 |
+| Paul E. Chamberlain | 2023-11-19 (Sunday) | 2023-10-31 | 2023-11-20 (next regular session) |
+
+This refines the simple 90-day markers above. Under the conservative next-session PIT rule, the filing information becomes usable no earlier than the 2023-10-26 session. That is five calendar days before Gina's earliest potential trading date, 34 days before McDermott's and 25 days before Chamberlain's next regular session. This is a regulatory timing comparison only: it does not establish that any plan actually traded, that the disclosed capacity was sold, or that the plan was unmodified.
+
+Source added: SEC Exchange Act Rules C&DI 120.29, “Does the filing date count as the first business day?” https://www.sec.gov/rules-regulations/staff-guidance/corporation-finance-interpretations/exchange-act-rules
