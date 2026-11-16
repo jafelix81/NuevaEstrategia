@@ -1,0 +1,72 @@
+{
+  "phase": 439,
+  "source_phase": 346,
+  "source": {
+    "artifact_id": 13985120745,
+    "artifact_zip_sha256": "b526112713cc4942db3c4a9050000e2da4190a17c1fe1f9cc6ded962693b6e9c",
+    "input_file": "phase346_candidate_evidence.csv",
+    "input_sha256": "418c66f70c5ad67e065f59de312a961a0061dae79441ef116c1173424aedeb0b",
+    "candidate_csv_sha256": "418c66f70c5ad67e065f59de312a961a0061dae79441ef116c1173424aedeb0b"
+  },
+  "sample": {
+    "candidate_rows_all": 112,
+    "pit_eligible_rows": 96,
+    "distinct_issuer_ciks": 15,
+    "distinct_issuer_accessions": 42,
+    "distinct_issuer_filing_date_units": 41
+  },
+  "exact_ticker_evidence": {
+    "matched_transaction_rows": 53,
+    "row_weighted_rate": 0.5520833333333334,
+    "matched_issuer_ciks": 4,
+    "issuer_weighted_rate": 0.26666666666666666,
+    "matched_issuer_accessions": 16,
+    "accession_weighted_rate": 0.38095238095238093,
+    "matched_issuer_filing_date_units": 16,
+    "filing_unit_weighted_rate": 0.3902439024390244,
+    "matched_rows_by_issuer": {
+      "749647": {
+        "symbols": [
+          "CLSN"
+        ],
+        "matched_rows": 2,
+        "matched_accessions": 2,
+        "matched_filing_units": 2
+      },
+      "1046356": {
+        "symbols": [
+          "BMHC"
+        ],
+        "matched_rows": 1,
+        "matched_accessions": 1,
+        "matched_filing_units": 1
+      },
+      "1387713": {
+        "symbols": [
+          "NLN"
+        ],
+        "matched_rows": 2,
+        "matched_accessions": 2,
+        "matched_filing_units": 2
+      },
+      "1427352": {
+        "symbols": [
+          "ONTC"
+        ],
+        "matched_rows": 48,
+        "matched_accessions": 11,
+        "matched_filing_units": 11
+      }
+    },
+    "largest_issuer_share_of_matched_rows": 0.9056603773584906
+  },
+  "interpretation": {
+    "53_of_96_is_row_weighted_not_independent_coverage": true,
+    "dominant_issuer": "1427352",
+    "dominant_issuer_symbol": "ONTC",
+    "dominant_issuer_matched_rows": 48,
+    "dominant_issuer_share_of_all_pit_rows": 0.5,
+    "decision": "DO_NOT_USE_ROW_WEIGHTED_53_OF_96_AS_IDENTITY_COVERAGE",
+    "alpha_authorized": false
+  }
+}

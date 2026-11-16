@@ -1,0 +1,27 @@
+name: Phase 439 Form 4 identity unit-coverage audit
+
+on:
+  pull_request:
+    paths:
+      - "research/phase439_form4_identity_unit_coverage_audit.py"
+      - "research/test_phase439_form4_identity_unit_coverage_audit.py"
+      - "research/PHASE439_FORM4_IDENTITY_BRIDGE_UNIT_WEIGHTED_COVERAGE_AUDIT_2026-11-16.md"
+      - "research/PHASE439_FORM4_IDENTITY_BRIDGE_UNIT_COVERAGE_SUMMARY_2026-11-16.json"
+      - ".github/workflows/phase439_form4_identity_unit_coverage_audit.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile
+        run: python -m py_compile research/phase439_form4_identity_unit_coverage_audit.py research/test_phase439_form4_identity_unit_coverage_audit.py
+      - name: Run offline tests
+        run: python -m unittest -v research.test_phase439_form4_identity_unit_coverage_audit
