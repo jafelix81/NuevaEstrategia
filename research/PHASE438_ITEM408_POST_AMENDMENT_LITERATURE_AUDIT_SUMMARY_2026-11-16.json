@@ -1,0 +1,97 @@
+{
+  "phase": 438,
+  "date": "2026-11-16",
+  "source": "SEC Item 408 / Form 4 post-amendment literature and disclosure-lag audit",
+  "disposition": "retain Item 408 as low-priority plan-lifecycle/context source; do not admit standalone directional alpha",
+  "key_evidence": {
+    "kim_kim_rajgopal_2025_working_paper": {
+      "pre_period": "2021Q1-2023Q1",
+      "post_period": "2023Q2-2024Q4",
+      "plan_sales_within_90_days_pre_pct": 31.1,
+      "plan_sales_within_90_days_post_pct": 1.7,
+      "plan_share_of_insider_sales_pre_pct": 52.5,
+      "plan_share_of_insider_sales_post_pct": 50.3,
+      "post_amendment_plan_terminations_n": 311,
+      "termination_to_disclosure_mean_days": 82.4,
+      "termination_to_disclosure_median_days": 83,
+      "termination_to_disclosure_p25_days": 63,
+      "termination_to_disclosure_p75_days": 101,
+      "adoption_to_termination_mean_days": 212.6,
+      "remaining_plan_duration_at_termination_mean_days": 246.2,
+      "abnormal_returns_from_termination_event": {
+        "d30": {
+          "mean_pct": 1.5,
+          "t_stat": 1.52,
+          "significant": false
+        },
+        "d60": {
+          "mean_pct": 4.5,
+          "t_stat": 2.77,
+          "significant": true
+        },
+        "d90": {
+          "mean_pct": 6.8,
+          "t_stat": 2.53,
+          "significant": true
+        },
+        "d180": {
+          "mean_pct": 10.7,
+          "t_stat": 2.5,
+          "significant": true
+        }
+      },
+      "timely_8k_terminations_n": 2,
+      "interpretation": "returns are event-time around termination, not evidence of returns available after later public disclosure"
+    },
+    "ma_2026_journal_abstract": {
+      "doi": "10.1016/j.iref.2026.105650",
+      "sample_period": "2000-2024",
+      "finding": "preplanned-trade predictive content declines after amendments; non-preplanned signal confined to short term",
+      "full_text_access": "paywalled; abstract only reviewed"
+    },
+    "cargurus_crosscheck": {
+      "adoption_date": "2023-12-05",
+      "termination_date": "2024-03-04",
+      "public_filing_date": "2024-05-09",
+      "termination_to_public_disclosure_days": 66
+    }
+  },
+  "repository_preflight": {
+    "main_head": "fa5a2dac98dd0a465788aa92494ac0318ff1025e",
+    "latest_100_runs": {
+      "success": 63,
+      "failure": 36,
+      "cancelled": 1,
+      "total_runs_reported": 7674
+    },
+    "active_or_queued": 0,
+    "branches": 272,
+    "open_prs": 56,
+    "workflows": 66,
+    "latest_research_ci_run": 43889092341,
+    "latest_research_ci_tests_passed": 57,
+    "latest_sec_form144_run": 43862500790,
+    "latest_sec_form144_feed_rows": 55,
+    "latest_sec_form144_new_accessions": 0,
+    "latest_cftc_run": 43525140200,
+    "cftc_historical_warmup_rows": 3035,
+    "cftc_signal_eligible_rows": 0
+  },
+  "admission": {
+    "item408_signal_admitted": false,
+    "form4_alpha_test_authorized": false,
+    "form4_identity_coverage": "53/96",
+    "required_identity_coverage_pct": 95,
+    "return_test_run": false,
+    "f80_changed": false
+  },
+  "sources": [
+    "https://accounting.wharton.upenn.edu/wp-content/uploads/2025/10/KimKimRajgopal.pdf",
+    "https://doi.org/10.1016/j.iref.2026.105650",
+    "https://ideas.repec.org/a/eee/reveco/v110y2026ics105905602600763x.html",
+    "https://doi.org/10.1177/0148558X20964642",
+    "https://www.sec.gov/newsroom/press-releases/2022-222",
+    "https://www.sec.gov/Archives/edgar/data/1494259/000095017024056957/0000950170-24-056957-index.htm",
+    "https://www.sec.gov/Archives/edgar/data/1494259/000095017024056957/R10.htm"
+  ]
+}
