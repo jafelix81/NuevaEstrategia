@@ -1,0 +1,25 @@
+name: Phase 431 - SEC Form 4 AFF10B5ONE semantics regression
+
+on:
+  pull_request:
+    paths:
+      - "research/phase431_form4_10b5_one_flag_audit.py"
+      - "research/test_phase431_form4_10b5_one_flag_audit.py"
+      - ".github/workflows/phase431_form4_10b5_one_flag_audit.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile
+        run: python -m py_compile research/phase431_form4_10b5_one_flag_audit.py research/test_phase431_form4_10b5_one_flag_audit.py
+      - name: Run offline tests
+        run: python -m unittest -v research.test_phase431_form4_10b5_one_flag_audit

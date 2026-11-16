@@ -1,0 +1,79 @@
+{
+  "phase": "431",
+  "date_utc": "2026-11-16",
+  "source": {
+    "run_id": 40606706518,
+    "artifact_id": 12781850078,
+    "artifact_sha256": "203d7b1d2e29c999da318456af72e621cb30ef9a470d8f1610d088f9bebecb66",
+    "bytes": 22886008
+  },
+  "cohorts": {
+    "2012Q1": {
+      "inner_zip_sha256": "0cac6f943813dae94c20ecc8bca63fda692e2b8ac6d02ce2c322ab411f45c357",
+      "form4_and_4a_filings": 63678,
+      "aff10b5one_present": false,
+      "classification": "unknown_not_unchecked"
+    },
+    "2026Q3": {
+      "inner_zip_sha256": "a4e6a681cfcfa43a3d9e4ca9cfec1fd26a59d0a01eac7e9f7b5a0122092c90f3",
+      "form4_and_4a_filings": 34148,
+      "aff10b5one_present": true,
+      "checked": 5035,
+      "unchecked": 29113,
+      "checked_rate": 0.14744640974581236,
+      "raw_values": {
+        "0": 22803,
+        "1": 3798,
+        "false": 6310,
+        "true": 1237
+      },
+      "checked_form4_with_transaction_rows": 4989,
+      "checked_form4_with_multiple_transaction_codes": 1608,
+      "checked_form4_with_P_and_other_codes": 2,
+      "checked_form4_with_S_and_other_codes": 1573,
+      "transaction_code_P": {
+        "rows": 5183,
+        "accessions": 3211,
+        "checked_accessions": 82,
+        "unchecked_accessions": 3129,
+        "checked_parent_rows": 136,
+        "unchecked_parent_rows": 5047
+      },
+      "transaction_code_S": {
+        "rows": 25430,
+        "accessions": 9837,
+        "checked_accessions": 4777,
+        "unchecked_accessions": 5060,
+        "checked_parent_rows": 15516,
+        "unchecked_parent_rows": 9914
+      },
+      "non_form4_rows_excluded": {
+        "P": 1,
+        "S": 11
+      }
+    }
+  },
+  "schema": {
+    "aff10b5one_grain": "SUBMISSION/accession level",
+    "present_in_submission_2026q3": true,
+    "present_in_nonderiv_trans_2026q3": false,
+    "present_in_archive_metadata": true,
+    "present_in_archive_html_readme": true,
+    "checked_raw_values": [
+      "1",
+      "true"
+    ],
+    "unchecked_raw_values": [
+      "0",
+      "false"
+    ]
+  },
+  "decision": {
+    "schema_semantics_gate": "PASS",
+    "signal_admission": "NOT_ADMITTED",
+    "reason": "identity bridge 53/96 (55.21%) below 95% full-universe gate; no row-level 10b5-1 attribution; code P includes private purchases",
+    "alpha_test_run": false,
+    "production_changed": false,
+    "f80_changed": false
+  }
+}
