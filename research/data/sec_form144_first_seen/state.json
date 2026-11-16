@@ -4,33 +4,33 @@
   "candidate_manifest_source_artifact_sha256": "939d5564b14ce0f41df23a2c9ab681977cfde141cd0ea2b3c1213b1c5bfaf613",
   "created_utc": "2026-11-14T20:45:08Z",
   "historical_f80_membership_verified": false,
-  "last_acceptance_reconciliation_utc": "2026-11-16T03:02:04Z",
+  "last_acceptance_reconciliation_utc": "2026-11-16T11:59:27Z",
   "last_feed_observation_row_count": 55,
   "last_feed_observation_rows_appended": 55,
   "last_feed_sha256_by_feed": {
-    "144": "273207f126a38281405bbda00c25fa5d73c561e1d42f29038c58cf5036f6544e",
-    "144A": "bddf63d05bb5f34d8409c4f2b8af5b3ea7f6b9781d8a19f20bcff38f26dc304d"
+    "144": "eb1d4d9e37ab6fab60e16ae52b04590f5a5dc8e86ac0e31aa61ad30046f155a1",
+    "144A": "78d2c73e6a777cab5f0af8c3756b4808f30c7f4175da1cbd46c1bd36403aed64"
   },
   "last_poll_possible_gap_by_feed": {
     "144": false,
     "144A": false
   },
   "last_successful_poll_mode": "schedule",
-  "last_successful_poll_run_id": "43795660996",
-  "last_successful_poll_utc": "2026-11-16T03:02:04Z",
+  "last_successful_poll_run_id": "43862500790",
+  "last_successful_poll_utc": "2026-11-16T11:59:27Z",
   "last_successful_poll_utc_by_feed": {
-    "144": "2026-11-16T03:02:04Z",
-    "144A": "2026-11-16T03:02:04Z"
+    "144": "2026-11-16T11:59:27Z",
+    "144A": "2026-11-16T11:59:27Z"
   },
   "latest_accession_by_feed": {
     "144": "0001950047-26-011102",
     "144A": "0001950047-26-011101"
   },
   "phase": 403,
-  "poll_count": 7,
+  "poll_count": 8,
   "poll_count_by_feed": {
-    "144": 7,
-    "144A": 7
+    "144": 8,
+    "144A": 8
   },
   "schema_version": 1,
   "signal_eligible": false,
