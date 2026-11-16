@@ -32,7 +32,14 @@
       "CAPITALSPECIAL",
       "TOTALRETURN"
     ],
-    "daily_historical_index_constituents": true
+    "daily_historical_index_constituents": true,
+    "paid_platinum_price_usd": {
+      "six_months": 346.5,
+      "twelve_months": 630,
+      "monthly_option": false,
+      "verified_on": "2026-11-16",
+      "source": "https://norgatedata.com/stockmarketpackages.php"
+    }
   },
   "critical_limitations": {
     "prior_symbol_history": false,
