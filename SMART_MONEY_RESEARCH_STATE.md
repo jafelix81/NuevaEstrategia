@@ -952,3 +952,12 @@ This section supersedes any older “in progress” status above where later com
 - SEC Form 144 run 43862500790: both offline-regression and live-capture jobs completed successfully. Live capture receipt 2026-11-16 11:59:27Z; 55 feed observations (50 Form 144 + 5 Form 144/A), zero new accessions/feed entries/events/candidate matches/XML resolutions, zero research-eligible and signal-eligible observations, no possible feed-window gap. Candidate manifest contains 290 CIKs and is explicitly not the historical F80 security master. Public availability is not certified and alpha is not authorized. Artifact 14223876987, SHA-256 a1a806b330723ab6d8487727518b80fe70ea3ed93a9a30a93720a09f904d74aa.
 - CFTC TFF run 43525140200 was a **push/bootstrap**, not a scheduled prospective release capture (EVENT_NAME=push, MODE=push). Its job passed 11/11 tests, retained the pre-existing 3,035-row baseline (BASELINE_ALREADY_EXISTS_NO_OVERWRITE), and reported zero signal-eligible historical rows; no new observation was persisted. Artifact 14084802705, SHA-256 c7a652038336f852e3c51792d1bdc96ebc1368176bdafdae0693332fb4224eef. The next expected scheduled poll remains 2026-11-16 22:15 UTC after the 20:30 UTC release; do not run early.
 - Inspected 270 branches across three pages (100/100/70), all 56 open PRs, 66 workflow files, latest run list, relevant run jobs/logs/artifacts and Phase 435 research files. The new Phase 436 branch increases branch count to 271. PR #98 is merged. No workflow was manually dispatched or duplicated.
+
+
+### Phase 436 merge verification — 2026-11-16 14:42 UTC
+
+- PR #99 merged by squash at main commit c3ff2326f83cf6f41e41ca3e07a96a48e69c759a. Mainline contains the six-issuer Item 408 casebook, analyzer, tests, report, updated existing regression workflow and this state entry.
+- Hosted regression run 43888472039 completed successfully: Python compilation passed and all 49 offline tests passed (12 Phase 433 + 10 Phase 434 + 11 Phase 435 + 16 Phase 436). No artifact was configured or expected.
+- Post-merge Actions audit: 7,673 total historical runs; latest 100 returned 63 success / 36 failure / 1 cancelled. Explicit in-progress, queued, waiting and requested queries each returned zero.
+- Repository audit after merge: 271 branches across three pages (100/100/71), 56 open PRs, 66 workflow files. PR #99 is closed/merged. No workflow was manually dispatched or duplicated.
+- No stock-return test, signal admission, trading code change, F80 baseline change, universe/holdout change, capital/exposure change or production change.
