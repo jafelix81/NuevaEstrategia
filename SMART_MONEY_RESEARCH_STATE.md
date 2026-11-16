@@ -1,3 +1,21 @@
+## Operational preflight — 2026-11-16 19:17 UTC
+
+- Main HEAD at start: `21502d5ccd2fb3223a70315e9fa322c3a2154702` (Phase 441). Latest 100 Actions runs: 62 success / 37 failure / 1 cancelled; total runs 7,676; zero queued or in-progress. Audited 276 branches, 56 open PRs and 67 workflows. No workflow was dispatched, rerun or duplicated.
+- Latest run [43918910577](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43918910577), Phase 350 SEC 13D/G, failed only at the empty `SEC_USER_AGENT` contact-secret gate; SEC retrieval skipped, no artifact. PR #37 remains open pending that secret.
+- Latest SEC Form 144 capture [43862500790](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43862500790) succeeded: 55 feed observations, zero new accessions/events, no feed-window gap; metadata artifact [14223876987](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43862500790/artifacts/14223876987).
+- Latest CFTC TFF run [43525140200](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43525140200) was a push/bootstrap, not a scheduled prospective observation: 3,035 historical warm-up rows, zero signal-eligible historical rows, no persistent change. The 2026-11-16 CFTC release was scheduled for 20:30 UTC; existing capture is scheduled for 22:15 UTC.
+- Phase 442 rechecks Norgate against Phases 390/414. Norgate remains a conditional price/identity cross-check, not a standalone terminal-return source; CRSP remains preferred for delisting outcomes if accessible. Report: [Phase 442](research/PHASE442_NORGATE_TERMINAL_RETURN_PYTHON_API_AND_LICENSE_GATE_RECHECK_2026-11-16.md) · [summary](research/PHASE442_NORGATE_TERMINAL_RETURN_LICENSE_GATE_SUMMARY_2026-11-16.json).
+- No Norgate/CRSP account, trial, purchase, vendor contact, data download or raw-data persistence. No price fallback, signal or alpha admitted; Phase 20C remains blocked at 328/329. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+## Phase 442 — Norgate terminal-return, Python API and license gate recheck
+
+- New finding: Norgate explicitly does not provide delisting returns or terminal recovery values; a final available bar is an approximation, not observed terminal proceeds. It cannot alone supply strict total-economic-return labels through delistings.
+- Confirmed the documented Python assetid API and explicit adjustment/padding controls, but prior ticker history, CUSIP/ISIN and record-known correction vintages remain absent.
+- The current EULA (20261107) permits private cloud processing only for the individual's personal non-commercial use; no shared/public data access, business/client use, or post-expiry retention of extracted content.
+- Decision: keep Norgate as a conditional price/identity cross-check only. Prefer CRSP's PERMNO/PERMCO and delisting-return fields for terminal outcomes if licensed access exists. No return/alpha/OOS test or portfolio change.
+
+---
+
 ## Operational preflight — 2026-11-16 18:39 UTC
 
 - Main HEAD at start: `aee7f4aa0ae1f95563a1f71329936efaa30c783b` (Phase 440). Latest observed Actions run: [43918910577](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43918910577), Phase 350 SEC 13D/G parent retrieval, failed at the secret-validation step because `SEC_USER_AGENT` was empty. Offline tests passed; exact archive retrieval was skipped; no artifact was produced.
