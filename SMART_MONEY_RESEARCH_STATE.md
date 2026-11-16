@@ -896,3 +896,12 @@ This section supersedes any older “in progress” status above where later com
 - Phase 433 Item 408 PR regression run 43860427565 succeeded; 12/12 tests passed, no artifact configured. Latest 100-run sample contained no active run.
 - Inspected latest 100 Actions runs, latest SEC Form 144 and CFTC jobs/logs/artifacts, Phase 433 regression, latest commits, all 268 branches (100/100/68), 56 open PRs and 66 workflows. No running workflow was duplicated or manually dispatched.
 - FINRA Phase 20C remains 328/329 valid price histories; Form 4 legacy identity audit remains 53/96; SEC 13D/G raw retrieval still requires the monitored-contact SEC_USER_AGENT secret. No secret was read or changed.
+
+ 
+## Phase 434 mainline merge verification — 2026-11-16 13:11 UTC
+
+- PR #97 merged by squash at commit ceb2b8e937fa00718902db25dbd5919b7e6efdf6. Mainline contains the Phase 434 report, casebook, analyzer, tests, extended regression workflow and this research-state entry.
+- Hosted regression run 43873169362 completed successfully: compile passed; all 12 Phase 433 parser tests and 10 Phase 434 reconciliation tests passed (22 total). No artifact was configured or expected.
+- Post-merge Actions audit: 7,671 total historical runs; latest 100 = 62 success / 37 failure / 1 cancelled; zero active/queued/waiting/requested runs. Latest SEC Form 144 capture remains 43862500790; latest CFTC prospective capture remains 43525140200. No workflow was manually dispatched or duplicated.
+- Repository audit after merge: 269 branches across three pages (100/100/69), 56 open PRs, 66 workflows. PR #97 is closed/merged.
+- Phase 434 remains a one-issuer source-semantic case study only. It does not establish legal noncompliance, universe coverage, alpha or OOS edge. No source admission or production change.
