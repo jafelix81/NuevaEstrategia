@@ -814,3 +814,12 @@ This section supersedes any older “in progress” status above where later com
 - CFTC TFF latest run [43525140200](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43525140200) remains a push/bootstrap, not a prospective scheduled capture: 11/11 tests, 3,035 historical warm-up rows, zero signal-eligible rows. Next expected first-receipt poll is 2026-11-16 22:15 UTC after the 20:30 UTC CFTC release. No early or duplicate capture.
 - FINRA Phase 20C remains at 328/329 valid price histories. SEC 13D/G still awaits a monitored-contact SEC_USER_AGENT secret. No provider mixing, universe reduction or retry.
 - No new source/signal admitted. No return/alpha/OOS/LOO/holdout test. F80_TOP20_PARTIAL50_BASELINE_C20, holdout, universe, parameters, capital, exposure and production remain unchanged.
+
+
+## Phase 431 mainline merge verification — 2026-11-16 06:22 UTC
+
+- PR #94 merged by squash to main in commit 103dbb3c4e4c6eaeb9ab2a5deb34df1bd2545b55.
+- Final PR regression run [43816138832](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43816138832) succeeded: compile passed and 5/5 offline tests passed. Initial PR run [43816028156](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43816028156) also passed. No artifact was expected from this test-only workflow.
+- Post-merge repository audit: latest 100 runs show 62 success / 37 failure / 1 cancelled (7,668 total historical runs); zero queued/in-progress. Inspected 266 branches and 56 open PRs. Workflow count is 65 after adding the Phase 431 PR-only regression workflow. No scheduled workflow was duplicated or manually dispatched.
+- Phase 431 report, audit script, tests, compact sample summary and SMART_MONEY_RESEARCH_STATE.md are present on main. No return/alpha/OOS/LOO/holdout test, source admission, or production change.
+- F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
