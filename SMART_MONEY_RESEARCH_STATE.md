@@ -1,3 +1,12 @@
+## 2026-11-16 — Phase 439 Form 4 identity denominator correction
+
+- Re-audited immutable Phase 346 artifact [13985120745](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43307873506/artifacts/13985120745). The reported 53/96 exact ticker matches are **transaction-row-weighted**, not independent issuer/security coverage.
+- The 96 PIT-eligible rows represent only 15 distinct issuer CIKs, 42 issuer-accession units and 41 issuer-CIK × filing-date units. Exact ticker evidence covers 4/15 issuers (26.67%), 16/42 accessions (38.10%) and 16/41 filing-date units (39.02%).
+- Concentration: 48/53 matched rows (90.57%) come from ONTC (CIK 1427352), across 11 accessions; ONTC alone is 48/96 (50.00%) of the PIT row sample. The 53/96 (55.21%) figure remains valid only as a row-weighted descriptive rate and must not be called identity coverage.
+- Phase 439 report: [PHASE439_FORM4_IDENTITY_BRIDGE_UNIT_WEIGHTED_COVERAGE_AUDIT_2026-11-16.md](research/PHASE439_FORM4_IDENTITY_BRIDGE_UNIT_WEIGHTED_COVERAGE_AUDIT_2026-11-16.md). Reproducible script/tests and result JSON are stored alongside it. Input candidate CSV SHA-256: `418c66f70c5ad67e065f59de312a961a0061dae79441ef116c1173424aedeb0b`; source artifact ZIP SHA-256: `b526112713cc4942db3c4a9050000e2da4190a17c1fe1f9cc6ded962693b6e9c`.
+- This is a purposive historical sample, not an estimate of coverage across the frozen 335-name universe. It demonstrates that the legacy HTML evidence is highly concentrated and does not establish a broad identity bridge. Keep the 95% admission gate; no Form 4 return/alpha/OOS test is authorized.
+- No source or signal admitted; no changes to `F80_TOP20_PARTIAL50_BASELINE_C20`, universe, parameters, holdout, capital, exposure or production.
+
 ## Phase 429 — ThetaData v3 access, extraction and license reconciliation (2026-11-16)
 
 - Fresh official-doc review extends Phase 391. Options subscription matrix: FREE EOD from 2023-06-01; VALUE 1m from 2020-01-01; STANDARD tick from 2016-01-01; PRO tick from 2012-06-01. The detailed matrix and public pricing pages are inconsistent: retail Options Pro advertises 12 years while the detailed tier table starts 2012-06-01 and the commercial page advertises 14 years. Require written endpoint-by-endpoint history confirmation before any purchase.
