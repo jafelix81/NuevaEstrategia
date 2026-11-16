@@ -46,9 +46,22 @@ BLOCK_LENGTHS = (5, 20, 60)
 EXPECTED_UNIVERSE = 335
 PHASE11_ENGINE_BLOB_SHA = "06dc0ece5dd4a3def6a7e2b603564bfc588c0b27"
 
+def json_safe(value):
+    if isinstance(value, dict):
+        return {str(k): json_safe(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [json_safe(v) for v in value]
+    if isinstance(value, (np.integer,)):
+        return int(value)
+    if isinstance(value, (np.floating, float)):
+        return float(value) if np.isfinite(value) else None
+    if isinstance(value, (pd.Timestamp,)):
+        return value.isoformat()
+    return value
+
 def write_json(path: Path, payload):
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, indent=2, sort_keys=True, default=str, allow_nan=False) + "\n",
+    path.write_text(json.dumps(json_safe(payload), indent=2, sort_keys=True, default=str, allow_nan=False) + "\n",
                     encoding="utf-8")
 
 def safe_float(x):
