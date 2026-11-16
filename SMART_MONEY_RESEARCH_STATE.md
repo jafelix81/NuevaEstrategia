@@ -1,3 +1,24 @@
+## Operational preflight — 2026-11-16 18:39 UTC
+
+- Main HEAD at start: `aee7f4aa0ae1f95563a1f71329936efaa30c783b` (Phase 440). Latest observed Actions run: [43918910577](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43918910577), Phase 350 SEC 13D/G parent retrieval, failed at the secret-validation step because `SEC_USER_AGENT` was empty. Offline tests passed; exact archive retrieval was skipped; no artifact was produced.
+- Explicit in-progress and queued status queries returned zero. No workflow was dispatched, rerun or duplicated.
+- Audited 275 branches across three pages (100/100/75), 56 open PRs and 67 workflow files. Reviewed the Phase 286/287 Nasdaq and Phase 352–357 Cboe source branches before adding this update.
+- Reused the existing Phase 54 public Actions artifact locally for a rights/retention review; no raw or derived sample data was added to this repository. Artifact 13291147097 contains the Cboe sample ZIP and extracted sample rows; its sample-specific public redistribution terms require human confirmation.
+- No source, signal or alpha admitted; no return/OOS/bootstrap/LOO test; `F80_TOP20_PARTIAL50_BASELINE_C20` and all production/portfolio controls remain unchanged.
+
+## Phase 441 — Cboe one-minute versus Nasdaq ten-minute source-selection update — 2026-11-16
+
+- Report: [PHASE441_CBOE_1M_VS_NASDAQ_10M_COST_PIT_SOURCE_SELECTION_AUDIT_2026-11-16.md](research/PHASE441_CBOE_1M_VS_NASDAQ_10M_COST_PIT_SOURCE_SELECTION_AUDIT_2026-11-16.md).
+- Machine-readable fee/PIT matrix: [PHASE441_OPEN_CLOSE_COST_PIT_MATRIX_2026-11-16.json](research/PHASE441_OPEN_CLOSE_COST_PIT_MATRIX_2026-11-16.json).
+- New SEC filing evidence: Cboe 1-minute snapshots are cumulative and expected 2–5 minutes after each one-minute interval; filed C1 fees are $12,000/month, $4,000 per historical month under four years and $2,500 per historical month at five or more years. Eligible first-time recipients may qualify for up to six months of historical trial, subject to confirmation.
+- Nasdaq 10-minute products remain lower-cost single-venue comparators: NOTO $2,000/month, PHOTO $3,000, ISE $2,500 and GEMX $1,500; historical intraday request rates $500/$1,000/$1,000/$750 per requested month, respectively. These are not consolidated OPRA and their histories/coverage are venue-specific.
+- Decision: EOD first for daily research; if intraday timing is justified, sample a Nasdaq 10-minute venue before considering Cboe 1-minute. Cboe 1-minute is conditional, not priority; ten times as many snapshots do not establish ten times the predictive information.
+- Legacy public Actions artifact 13291147097 (run 41762583602) contains the public Cboe sample archive and extracted sample rows. Because the repository is public and product terms restrict raw/derived redistribution, confirm sample-specific rights and remove the artifact if public redistribution is not permitted. No deletion was attempted because the available connector has no artifact-delete action.
+- Human action: configure `SEC_USER_AGENT` with a project identifier and monitored contact email; separately confirm the legacy artifact's sample-specific redistribution rights.
+- No trial, purchase, vendor contact, API key, raw-data upload, return test, alpha/OOS test, or production change. Frozen F80, universe, parameters, holdout, capital and exposure unchanged.
+
+---
+
 ## Operational preflight — 2026-11-16 17:33 UTC
 
 - Mainline state before Phase 440: Phase 439 merged at `43bc72fa2e0f223a850058ef2a18eda516f51fbe`; most recent observed repository commit `fd3b07c5d38e04e55e271ed580cc62423348132e` (16:45 UTC).
