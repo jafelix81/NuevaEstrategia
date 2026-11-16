@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "audit_type": "one-issuer Item 408 / Form 4 / Form 144 event reconciliation; not a population sample",
+  "issuer": {"cik":"0001563190","ticker":"COMP","name":"Compass, Inc."},
+  "item408_filing": {
+    "accession":"0001563190-24-000141",
+    "form":"10-Q",
+    "period_end":"2024-06-30",
+    "filed_date":"2024-08-02",
+    "conservative_first_eligible_session":"2024-08-05",
+    "directory_listing_timestamp_proxy_et":"2024-08-02 16:26:06",
+    "timestamp_proxy_is_not_certified_first_public_receipt":true,
+    "source_url":"https://www.sec.gov/Archives/edgar/data/1563190/000156319024000141/comp-20240630.htm",
+    "structured_xbrl_rendering_url":"https://www.sec.gov/Archives/edgar/data/1563190/000156319024000141/R20.htm"
+  },
+  "plan": {
+    "individuals":["Robert Reffkin","2021 Reffkin Remainder Interest Trust"],
+    "adoption_date":"2024-05-10",
+    "expiration_date":"2025-12-31",
+    "maximum_shares":10500000,
+    "description":"Rule 10b5-1 arrangement for sale of up to 10,500,000 shares at various limit prices.",
+    "source_url":"https://investors.compass.com/sec-filings/all-sec-filings/content/0001563190-24-000141/comp-20240630.htm"
+  },
+  "issuer_share_count": {
+    "shares_outstanding":505199755,
+    "as_of_date":"2024-07-29",
+    "source_url":"https://www.sec.gov/Archives/edgar/data/1563190/000156319024000141/comp-20240630.htm"
+  },
+  "form4_corroboration":[
+    {
+      "accession":"0001563190-24-000146",
+      "filing_date":"2024-08-14",
+      "accepted_time_et":"21:00:33",
+      "period_of_report":"2024-08-12",
+      "source_url":"https://www.sec.gov/Archives/edgar/data/1563190/000156319024000146/xslF345X03/wk-form4_1723683627.xml",
+      "transactions":[
+        {"date":"2024-08-12","seller":"Robert Reffkin","ownership":"direct","code":"S","shares":27664,"plan_footnote":"automatic sales under plan adopted 2024-05-10"},
+        {"date":"2024-08-13","seller":"Robert Reffkin","ownership":"direct","code":"S","shares":972336,"plan_footnote":"automatic sales under plan adopted 2024-05-10"},
+        {"date":"2024-08-12","seller":"2021 Reffkin Remainder Interest Trust","ownership":"indirect","code":"S","shares":500000,"plan_footnote":"automatic sales under plan adopted 2024-05-10"}
+      ]
+    },
+    {
+      "accession":"0001563190-24-000150",
+      "filing_date":"2024-08-27",
+      "accepted_time_et":"21:00:56",
+      "period_of_report":"2024-08-23",
+      "source_url":"https://www.sec.gov/Archives/edgar/data/1563190/000156319024000150/xslF345X03/wk-form4_1724806849.xml",
+      "transactions":[
+        {"date":"2024-08-23","seller":"Robert Reffkin","ownership":"direct","code":"S","shares":814302,"plan_footnote":"automatic sales under plan adopted 2024-05-10"},
+        {"date":"2024-08-26","seller":"Robert Reffkin","ownership":"direct","code":"S","shares":55698,"plan_footnote":"automatic sales under plan adopted 2024-05-10"}
+      ]
+    }
+  ],
+  "form144_reconciliation":{
+    "accession":"0001968582-24-000960",
+    "filing_date":"2024-11-04",
+    "date_of_notice":"2024-11-04",
+    "plan_adoption_date_reported":"2024-05-10",
+    "source_url":"https://investors.compass.com/sec-filings/all-sec-filings/content/0001968582-24-000960/primary_doc.html",
+    "sales":[
+      {"date":"2024-08-12","seller":"Robert Reffkin","shares":27664,"gross_proceeds_usd":115299},
+      {"date":"2024-08-13","seller":"Robert Reffkin","shares":972336,"gross_proceeds_usd":4101367},
+      {"date":"2024-08-19","seller":"Robert Reffkin","shares":164514,"gross_proceeds_usd":806336},
+      {"date":"2024-08-20","seller":"Robert Reffkin","shares":21184,"gross_proceeds_usd":103809},
+      {"date":"2024-08-23","seller":"Robert Reffkin","shares":814302,"gross_proceeds_usd":4000500},
+      {"date":"2024-08-26","seller":"Robert Reffkin","shares":55698,"gross_proceeds_usd":328982},
+      {"date":"2024-09-09","seller":"Robert Reffkin","shares":705083,"gross_proceeds_usd":4177042},
+      {"date":"2024-09-10","seller":"Robert Reffkin","shares":239219,"gross_proceeds_usd":1417193},
+      {"date":"2024-08-12","seller":"2021 Reffkin Remainder Interest Trust","shares":500000,"gross_proceeds_usd":2081085}
+    ]
+  },
+  "post_filing_trading_sessions_through_first_sale":["2024-08-05","2024-08-06","2024-08-07","2024-08-08","2024-08-09","2024-08-12"],
+  "interpretation_limits":[
+    "The 10,500,000-share amount is a disclosed maximum, not an expected or guaranteed sale quantity.",
+    "The Item 408 adoption date is not the public signal date; use the 10-Q filing date and a conservative next-session boundary.",
+    "The 10-Q filing date is known, but the directory modification timestamp is not certified first-public receipt.",
+    "Form 4 and Form 144 records confirm reported transactions after execution; they are not available to a strategy on the transaction date.",
+    "Form 144 is used once as the consolidated sale ledger. Selected Form 4 rows are cross-checks and must not be added a second time.",
+    "The 7,000,000-share difference between the plan ceiling and observed sales is not evidence of an active or remaining executable balance.",
+    "The sample is one issuer and one plan; it is not representative coverage or evidence of alpha.",
+    "No stock-return, price-impact, abnormal-return, alpha, OOS, bootstrap, LOO, or holdout test was run."
+  ]
+}
