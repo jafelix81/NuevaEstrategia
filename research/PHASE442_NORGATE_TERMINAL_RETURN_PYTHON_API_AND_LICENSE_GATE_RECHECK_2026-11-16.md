@@ -23,13 +23,13 @@ Official Norgate documentation and the Python package documentation establish:
 
 - US Stocks **Platinum** includes daily history back to 1990, delisted securities and historical index constituents. The US Listed/Delisted dataset is described as essentially complete from late 1992 for its included security types, subject to stated exclusions.
 - The three-week free trial exposes Platinum-level features, including delisted securities and historical index constituents, but is deliberately limited to **two years of price history**. It cannot validate the complete 2016-10-24 to 2026-10-24 Phase 20C window.
-- The paid Platinum history extent is sufficient in principle for that window, but subscriptions are six or twelve months; the exact current price was not established in this audit. No quote or purchase was requested.
+- The paid Platinum history extent is sufficient in principle for that window. The current official US package page lists **USD 346.50 for six months or USD 630 for twelve months**; subscriptions are fixed-term (no monthly option). The free trial remains three weeks / two years. No quote, account or purchase was requested.
 - The documented Python package supports Windows only and requires Norgate Data Updater to be installed and running. It exposes `assetid(symbol)`, `symbol(assetid)`, `price_timeseries(assetid, ...)`, `index_constituent_timeseries` and `major_exchange_listed_timeseries`.
 - The Python interface supports explicit adjustment choices: unadjusted, capital reconstructions, capital plus special distributions, and total-return adjustment. Date padding can be disabled.
 - Norgate's `assetid` is documented as stable through symbol/name changes, exchange/OTC transitions, delisting and corporate actions. This is materially better than a ticker-only join.
 
 Official documentation:
-- [Norgate US stock packages](https://norgatedata.com/subscribe/)
+- [Norgate US stock packages and current price](https://norgatedata.com/stockmarketpackages.php)
 - [Norgate data FAQ](https://norgatedata.com/data-package-faq.php)
 - [Norgate Python package/API](https://pypi.org/project/norgatedata/)
 
