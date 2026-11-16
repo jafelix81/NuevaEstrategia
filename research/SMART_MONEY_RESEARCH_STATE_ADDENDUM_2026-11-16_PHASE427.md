@@ -23,3 +23,11 @@
 ## Controls
 
 F80_TOP20_PARTIAL50_BASELINE_C20, universe, parameters, holdout, capital, exposure policy and production remain frozen. No data purchased, no provider contacted, no credentials changed, no holdout use, no production workflow dispatched.
+
+
+## Merge verification
+
+- Phase 427 PR [#91](https://github.com/jafelix81/NuevaEstrategia/pull/91) merged successfully by squash at 2026-11-16 02:18:32 UTC.
+- Main commit: `26e500f2c4c006bfde27d0fd3603c37426577260`.
+- Post-merge Actions check: latest 100 runs remain 61 success, 38 failure, 1 cancelled; zero active/queued runs. No new workflow was triggered by the documentation-only merge.
+- The three Phase 427 files are present on main. No changes to trading code, workflow definitions, production, or frozen baseline.
