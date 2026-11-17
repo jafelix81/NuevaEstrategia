@@ -1156,3 +1156,12 @@ This section supersedes any older “in progress” status above where later com
 - FINRA Individual API accounts are documented for personal/non-commercial use; no credential/account/purchase/contact was created or changed.
 - No alpha, return, OOS, bootstrap, LOO or holdout test. No raw data/secret committed. No production capture schedule changed. \`F80_TOP20_PARTIAL50_BASELINE_C20\` remains frozen.
 - Report: [Phase 447](research/PHASE447_FINRA_ASYNC_SHORT_INTEREST_SNAPSHOT_RETRIEVAL_CONTRACT_2026-11-17.md) · [summary](research/PHASE447_FINRA_ASYNC_SHORT_INTEREST_SNAPSHOT_RETRIEVAL_SUMMARY_2026-11-17.json).
+
+
+### Phase 447 OAuth extension / live credential gate (2026-11-17)
+
+- Extended the FINRA async client to obtain short-lived bearer tokens using FINRA's documented FIP OAuth client-credentials flow when FINRA_ACCESS_TOKEN is not provided. It uses FINRA_CLIENT_ID and FINRA_CLIENT_SECRET from the environment; the token is never logged or persisted.
+- Local synthetic tests now pass 14/14; Python compilation passes. The merged offline CI run 44007179732 passed the original 11-test suite.
+- Live one-settlement check 44007662531 failed closed at the credential guard. GitHub Actions showed FINRA_ACCESS_TOKEN, FINRA_CLIENT_ID and FINRA_CLIENT_SECRET all empty. Capture was skipped; zero FIP/FINRA API requests were made.
+- The live workflow is manual workflow_dispatch only, no schedule. Human action: configure FINRA_CLIENT_ID and FINRA_CLIENT_SECRET GitHub Actions secrets (preferred), or a valid FINRA_ACCESS_TOKEN. Then run exactly one settlement-date validation before any 106-date batch.
+- No raw data, token or secret committed. No alpha/OOS test or production integration. F80 remains frozen.
