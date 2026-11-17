@@ -33,7 +33,8 @@ FEEDS = {
 }
 
 EVENT_FIELDS = [
-    "accession", "form", "feed_name", "feed_names", "feed_title", "feed_summary",
+    "accession", "form", "feed_name", "feed_names", "cross_feed_provenance_complete",
+    "capture_poll_status", "feed_title", "feed_summary",
     "feed_link", "feed_updated_raw", "feed_updated_utc", "feed_path_cik",
     "first_seen_at_utc", "first_seen_poll_started_utc",
     "first_seen_interval_lower_bound_utc", "first_seen_interval_upper_bound_utc",
@@ -307,7 +308,8 @@ def append_events(path, rows):
                              for key, value in row.items()})
 
 def build_event(item, metadata, poll_started, response_received, interval_start,
-                interval_status, run_id, mode, manifest):
+                interval_status, run_id, mode, manifest,
+                cross_feed_provenance_complete=True, capture_poll_status="complete"):
     accepted = metadata.get("submission_acceptance_utc")
     feed_delta = seconds_between(item.get("feed_updated_utc"), accepted)
     seen_delta = seconds_between(response_received, accepted)
@@ -317,6 +319,8 @@ def build_event(item, metadata, poll_started, response_received, interval_start,
         "form": metadata.get("submission_type") or item.get("form"),
         "feed_name": item["feed_name"],
         "feed_names": item.get("feed_names", [item["feed_name"]]),
+        "cross_feed_provenance_complete": bool(cross_feed_provenance_complete),
+        "capture_poll_status": capture_poll_status,
         "feed_title": item.get("feed_title"),
         "feed_summary": item.get("feed_summary"),
         "feed_link": item.get("feed_link"),
@@ -357,19 +361,31 @@ def build_event(item, metadata, poll_started, response_received, interval_start,
     }
 
 def fetch_all_feeds():
+    """Fetch each SEC Atom feed independently; preserve successful feeds if another fails."""
     snapshots = {}
+    errors = {}
     for feed_name, url in FEEDS.items():
-        raw = p401.fetch_bytes(url, sec=True, timeout=60, retries=4)
-        received = now_utc()
-        entries = parse_atom_feed(raw, feed_name, url)
-        snapshots[feed_name] = {
-            "url": url, "raw_sha256": hashlib.sha256(raw).hexdigest(),
-            "response_bytes": len(raw), "received_at_utc": received,
-            "entries": entries, "entry_count": len(entries),
-            "oldest_updated_utc": min((x["feed_updated_utc"] for x in entries if x["feed_updated_utc"]), default=None),
-            "newest_updated_utc": max((x["feed_updated_utc"] for x in entries if x["feed_updated_utc"]), default=None),
-        }
-    return snapshots
+        raw = None
+        try:
+            raw = p401.fetch_bytes(url, sec=True, timeout=60, retries=4)
+            received = now_utc()
+            entries = parse_atom_feed(raw, feed_name, url)
+            snapshots[feed_name] = {
+                "url": url, "raw_sha256": hashlib.sha256(raw).hexdigest(),
+                "response_bytes": len(raw), "received_at_utc": received,
+                "entries": entries, "entry_count": len(entries),
+                "oldest_updated_utc": min((x["feed_updated_utc"] for x in entries if x["feed_updated_utc"]), default=None),
+                "newest_updated_utc": max((x["feed_updated_utc"] for x in entries if x["feed_updated_utc"]), default=None),
+            }
+        except Exception as exc:
+            errors[feed_name] = {
+                "url": url,
+                "error_type": type(exc).__name__,
+                "error": str(exc)[:1000],
+                "response_bytes": len(raw) if raw is not None else None,
+                "raw_sha256": hashlib.sha256(raw).hexdigest() if raw is not None else None,
+            }
+    return snapshots, errors
 
 def read_event_rows(path=EVENTS_PATH):
     path = Path(path)
@@ -506,7 +522,37 @@ def run(mode, output_dir, run_id, data_dir=DATA_DIR):
     candidate_ciks, manifest = load_candidate_manifest()
     previous_state = read_json(state_path) or {}
     poll_started = now_utc()
-    snapshots = fetch_all_feeds()
+    snapshots, feed_errors = fetch_all_feeds()
+    poll_status = "complete" if not feed_errors else ("partial" if snapshots else "failed")
+
+    # If both feeds fail, retain an audit artifact and fail the job without advancing state.
+    if not snapshots:
+        poll_completed = now_utc()
+        summary = {
+            "phase": PHASE, "mode": mode, "run_id": str(run_id),
+            "poll_started_utc": poll_started, "poll_completed_utc": poll_completed,
+            "poll_status": "failed", "successful_feeds": [],
+            "failed_feeds": sorted(feed_errors), "feed_errors": feed_errors,
+            "feed_summaries": {}, "cross_feed_provenance_complete": False,
+            "new_event_count": 0, "new_feed_entry_count": 0,
+            "new_cross_feed_overlap_count": None,
+            "feed_observation_rows_observed": 0, "feed_observation_rows_appended": 0,
+            "new_xml_resolved_count": 0, "acceptance_reconciliation_attempts": 0,
+            "acceptance_reconciliations_added": 0, "acceptance_reconciliations_unresolved": 0,
+            "new_candidate_issuer_matches": 0, "candidate_manifest_cik_count": len(candidate_ciks),
+            "candidate_manifest_is_historical_f80_security_master": False,
+            "possible_feed_window_gap": None, "possible_feed_window_gap_complete": False,
+            "research_observation_eligible_count": 0, "signal_eligible_count": 0,
+            "public_availability_certified": False, "acceptance_datetime_is_not_first_public_receipt": True,
+            "first_seen_is_poll_receipt_upper_bound": True, "same_day_intraday_use_authorized": False,
+            "forward_returns_used": False, "alpha_test_authorized": False,
+            "bootstrap_loo_or_holdout_used": False, "f80_changed": False, "production_changed": False,
+            "state_write": False, "events_written": 0, "disposition": "POLL_FAILED_ALL_FEEDS",
+        }
+        write_json(output_dir / "summary.json", summary)
+        print(json.dumps(summary, indent=2, sort_keys=True), flush=True)
+        raise RuntimeError("All SEC Atom feeds failed; audit summary written and prior state preserved.")
+
     source_names_by_accession = feed_names_by_accession(snapshots)
     feed_observation_rows = build_feed_observation_rows(snapshots, run_id)
     existing = read_existing_accessions(events_path)
@@ -552,7 +598,9 @@ def run(mode, output_dir, run_id, data_dir=DATA_DIR):
             metadata = fetch_document_metadata(item, candidate_ciks)
             event = build_event(
                 item, metadata, poll_started, snapshot["received_at_utc"], interval_start,
-                interval_status, run_id, mode, manifest
+                interval_status, run_id, mode, manifest,
+                cross_feed_provenance_complete=not bool(feed_errors),
+                capture_poll_status=poll_status,
             )
             if mode != "manual":
                 new_rows.append(event)
@@ -567,21 +615,37 @@ def run(mode, output_dir, run_id, data_dir=DATA_DIR):
         if entries:
             latest = max(entries, key=lambda x: (x.get("feed_updated_utc") or "", x["accession"]))
             latest_by_feed[feed_name] = latest["accession"]
+        # Only successful feeds advance their own first-seen clock and hash.
         last_poll_by_feed[feed_name] = snapshot["received_at_utc"]
         last_gap_by_feed[feed_name] = current_gap
         hash_by_feed[feed_name] = snapshot["raw_sha256"]
         poll_count_by_feed[feed_name] = int(poll_count_by_feed.get(feed_name, 0)) + 1
 
     poll_completed = now_utc()
+    complete_poll = poll_status == "complete"
+    prior_poll_count = int(previous_state.get("poll_count", 0))
+    prior_partial_count = int(previous_state.get("partial_poll_count", 0))
+    prior_complete_count = int(previous_state.get(
+        "complete_poll_count", max(0, prior_poll_count - prior_partial_count)
+    ))
     state = {
         "schema_version": 1,
         "phase": PHASE,
         "source": "SEC EDGAR Latest Filings Atom feeds filtered to Form 144 and 144/A",
         "created_utc": previous_state.get("created_utc") or poll_started,
-        "last_successful_poll_utc": poll_completed,
-        "last_successful_poll_mode": mode,
-        "last_successful_poll_run_id": str(run_id),
-        "poll_count": int(previous_state.get("poll_count", 0)) + (0 if mode == "manual" else 1),
+        # The global successful-poll clock advances only when both feeds succeed.
+        "last_successful_poll_utc": poll_completed if complete_poll else previous_state.get("last_successful_poll_utc"),
+        "last_successful_poll_mode": mode if complete_poll else previous_state.get("last_successful_poll_mode"),
+        "last_successful_poll_run_id": str(run_id) if complete_poll else previous_state.get("last_successful_poll_run_id"),
+        "poll_count": prior_poll_count + (0 if mode == "manual" else 1),
+        "complete_poll_count": prior_complete_count + (1 if complete_poll and mode != "manual" else 0),
+        "partial_poll_count": prior_partial_count + (1 if poll_status == "partial" and mode != "manual" else 0),
+        "last_poll_attempt_utc": poll_completed,
+        "last_poll_attempt_run_id": str(run_id),
+        "last_poll_status": poll_status,
+        "last_poll_successful_feeds": sorted(snapshots),
+        "last_poll_failed_feeds": sorted(feed_errors),
+        "last_poll_errors": feed_errors,
         "last_successful_poll_utc_by_feed": last_poll_by_feed,
         "latest_accession_by_feed": latest_by_feed,
         "last_poll_possible_gap_by_feed": last_gap_by_feed,
@@ -617,20 +681,28 @@ def run(mode, output_dir, run_id, data_dir=DATA_DIR):
         state["acceptance_reconciled_accession_count"] = len(reconciled)
         write_json(state_path, state)
 
+    observed_new_accessions = {
+        accession for feed_summary in feed_summaries.values()
+        for accession in feed_summary["new_accessions"]
+    }
+    overlap_count = max(
+        0,
+        sum(len(x["new_accessions"]) for x in feed_summaries.values()) - len(observed_new_accessions),
+    )
     summary = {
         "phase": PHASE, "mode": mode, "run_id": str(run_id),
         "poll_started_utc": poll_started, "poll_completed_utc": poll_completed,
+        "poll_status": poll_status,
+        "successful_feeds": sorted(snapshots),
+        "failed_feeds": sorted(feed_errors),
+        "feed_errors": feed_errors,
+        "cross_feed_provenance_complete": not bool(feed_errors),
+        "research_observation_eligibility_scope": "successful_feeds_only" if feed_errors else "all_feeds",
         "feed_summaries": feed_summaries,
-        "new_event_count": len(new_rows) if mode != "manual" else len({
-            accession for summary in feed_summaries.values() for accession in summary["new_accessions"]
-        }),
+        "new_event_count": len(new_rows) if mode != "manual" else len(observed_new_accessions),
         "new_feed_entry_count": sum(len(x["new_accessions"]) for x in feed_summaries.values()),
-        "new_cross_feed_overlap_count": max(
-            0,
-            sum(len(x["new_accessions"]) for x in feed_summaries.values()) - len({
-                accession for summary in feed_summaries.values() for accession in summary["new_accessions"]
-            }),
-        ),
+        # A failed feed makes the observed overlap a lower bound, not a complete count.
+        "new_cross_feed_overlap_count": overlap_count if not feed_errors else None,
         "feed_observation_rows_observed": len(feed_observation_rows),
         "feed_observation_rows_appended": feed_observation_rows_appended,
         "new_xml_resolved_count": xml_resolved,
@@ -642,6 +714,7 @@ def run(mode, output_dir, run_id, data_dir=DATA_DIR):
         "candidate_manifest_cik_count": len(candidate_ciks),
         "candidate_manifest_is_historical_f80_security_master": False,
         "possible_feed_window_gap": any(x["possible_feed_window_gap"] for x in feed_summaries.values()),
+        "possible_feed_window_gap_complete": not bool(feed_errors),
         "research_observation_eligible_count": sum(bool(x.get("research_observation_eligible")) for x in new_rows),
         "signal_eligible_count": 0,
         "public_availability_certified": False,
@@ -655,8 +728,10 @@ def run(mode, output_dir, run_id, data_dir=DATA_DIR):
         "production_changed": False,
         "state_write": mode != "manual",
         "events_written": len(new_rows) if mode != "manual" else 0,
-        "disposition": "APPEND_ONLY_FIRST_SEEN_EVENTS_CAPTURED" if new_rows and mode != "manual" else (
-            "MANUAL_DIAGNOSTIC_NO_STATE_CHANGE" if mode == "manual" else "POLL_COMPLETE_NO_NEW_ACCESSIONS"
+        "disposition": "PARTIAL_FEEDS_CAPTURED_WITH_FAILURES" if feed_errors else (
+            "APPEND_ONLY_FIRST_SEEN_EVENTS_CAPTURED" if new_rows and mode != "manual" else (
+                "MANUAL_DIAGNOSTIC_NO_STATE_CHANGE" if mode == "manual" else "POLL_COMPLETE_NO_NEW_ACCESSIONS"
+            )
         ),
     }
     (output_dir / "summary.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
