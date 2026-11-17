@@ -1,0 +1,45 @@
+{
+  "phase": 451,
+  "audit_time_utc": "2026-11-17T09:30:00Z",
+  "main_head": "fda2bd347fbce0eb3dbdce301f08fe533af3961a",
+  "nport_2024_amendments": {
+    "release": "IC-35538",
+    "status": "final_rule_delayed",
+    "form_nport_effective_date": "2027-11-17",
+    "amendatory_instruction_3_effective_date": "2028-05-18",
+    "compliance_date_large_fund_groups": "2027-11-17",
+    "compliance_date_small_fund_groups": "2028-05-18"
+  },
+  "nport_2026_proposal": {
+    "release": "IC-35962",
+    "file_number": "S7-2026-05",
+    "status_as_of_audit": "proposed_not_final",
+    "proposed_changes": [
+      "additional_15_days_to_file_monthly_reports",
+      "restore_quarterly_publication"
+    ]
+  },
+  "research_disposition": {
+    "current_public_panel_grain": "quarterly",
+    "knowledge_clock": "per_accession_edgar_acceptance_first_public_timestamp",
+    "amendment_vintages": "separate_append_only",
+    "signal_admitted": false,
+    "return_test_run": false,
+    "oos_test_run": false,
+    "holdout_used": false
+  },
+  "operational_preflight": {
+    "actions_total": 7691,
+    "in_progress": 0,
+    "queued": 0,
+    "branches": 285,
+    "open_prs": 56,
+    "workflow_files": 69,
+    "latest_overall_run": 44009082677,
+    "latest_main_push_run": 44007937167,
+    "latest_sec_scheduled_run": 43970444015,
+    "latest_cftc_run": 43525140200
+  },
+  "portfolio_baseline": "F80_TOP20_PARTIAL50_BASELINE_C20",
+  "portfolio_changed": false
+}
