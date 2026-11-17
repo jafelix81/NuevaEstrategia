@@ -1,10 +1,13 @@
 import json
+import os
 import tempfile
 import unittest
 from datetime import datetime, timezone
 from pathlib import Path
+from unittest.mock import patch
 
 from phase447_finra_async_snapshot_client import (
+    FIP_TOKEN_URL,
     MAX_ASYNC_RECORDS,
     PartitionRequired,
     SnapshotContractError,
@@ -12,6 +15,7 @@ from phase447_finra_async_snapshot_client import (
     parse_completed_headers,
     parse_status,
     parse_submission,
+    obtain_access_token,
     retrieve_snapshot,
     validate_records,
 )
@@ -48,10 +52,18 @@ class FakeSession:
         self.records = records
         self.get_calls = []
         self.post_call = None
+        self.fip_call = None
         self.status_count = 0
         self.closed = False
 
     def post(self, url, headers=None, json=None, timeout=None):
+        if url == FIP_TOKEN_URL:
+            self.fip_call = {"url": url, "headers": headers, "timeout": timeout}
+            return FakeResponse(
+                200,
+                {"Content-Type": "application/json"},
+                {"access_token": "synthetic-oauth-token", "expires_in": 43170},
+            )
         self.post_call = {"url": url, "headers": headers, "json": json, "timeout": timeout}
         return FakeResponse(
             202,
@@ -94,6 +106,41 @@ class Phase447Tests(unittest.TestCase):
             {"settlementDate": self.day, "symbolCode": "AAA", "currentShortPositionQuantity": 100},
             {"settlementDate": self.day, "symbolCode": "BBB", "currentShortPositionQuantity": 200},
         ]
+
+    def test_oauth_client_credentials_exchange(self):
+        session = FakeSession(self.records)
+        token, expires = obtain_access_token(session, "client-id", "client-secret")
+        self.assertEqual(token, "synthetic-oauth-token")
+        self.assertEqual(expires, 43170)
+        expected = "Basic " + __import__("base64").b64encode(b"client-id:client-secret").decode()
+        self.assertEqual(session.fip_call["headers"]["Authorization"], expected)
+
+    def test_retrieval_can_use_client_credentials_without_stored_bearer(self):
+        session = FakeSession(self.records)
+        env = {
+            "FINRA_ACCESS_TOKEN": "",
+            "FINRA_CLIENT_ID": "client-id",
+            "FINRA_CLIENT_SECRET": "client-secret",
+        }
+        with patch.dict(os.environ, env):
+            with tempfile.TemporaryDirectory() as tmp:
+                manifest = retrieve_snapshot(
+                    self.day, tmp, session=session, sleep_fn=lambda seconds: None,
+                    clock_fn=lambda: datetime(2026, 11, 16, 12, 0, tzinfo=timezone.utc),
+                )
+        self.assertEqual(manifest["auth_mode"], "oauth_client_credentials")
+        self.assertEqual(manifest["token_expires_in_seconds"], 43170)
+        self.assertIsNotNone(session.fip_call)
+        self.assertIsNotNone(session.post_call)
+
+    def test_missing_credentials_fail_before_any_request(self):
+        session = FakeSession(self.records)
+        env = {"FINRA_ACCESS_TOKEN": "", "FINRA_CLIENT_ID": "", "FINRA_CLIENT_SECRET": ""}
+        with patch.dict(os.environ, env):
+            with self.assertRaises(RuntimeError):
+                retrieve_snapshot(self.day, tempfile.gettempdir(), session=session)
+        self.assertIsNone(session.fip_call)
+        self.assertIsNone(session.post_call)
 
     def test_payload_is_narrow_and_async(self):
         payload = build_async_payload(self.day)

@@ -101,3 +101,16 @@ No live FINRA request was made. The fixtures are synthetic and do not establish 
 - No raw market data, credential, or secret was committed.
 - No production workflow or capture schedule was changed.
 - \`F80_TOP20_PARTIAL50_BASELINE_C20\`, universe, parameters, holdout, capital and exposure remain frozen.
+
+
+## 8. OAuth extension and final credential check (2026-11-17)
+
+The client was extended to support FINRA's documented OAuth 2.0 client-credentials flow. If no bearer token is provided, it POSTs to the FIP token endpoint using Basic Auth over FINRA_CLIENT_ID:FINRA_CLIENT_SECRET, validates access_token and expires_in, then uses the short-lived bearer only for FINRA API and status calls. The token itself is never logged or written to the manifest. FINRA documents this exact flow and recommends regenerating before expiry or caching no longer than 30 minutes.
+
+The final local suite is **14/14 synthetic tests**, including token exchange, client-credential retrieval, and fail-closed behavior when all credentials are absent. Python compilation also passes.
+
+The one-settlement live-validation workflow was corrected to accept either FINRA_ACCESS_TOKEN or both OAuth client secrets. Run [44007662531](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44007662531) failed at the credential guard: all three environment variables were empty. The capture step was skipped; **no FIP or FINRA API request was made**. The live workflow is retained as manual workflow_dispatch only, with no schedule or automatic polling.
+
+**Human action required before live validation:** configure FINRA_CLIENT_ID and FINRA_CLIENT_SECRET as GitHub Actions secrets (preferred), or provide a valid FINRA_ACCESS_TOKEN. Do not put credentials in repository files or workflow YAML. After configuration, dispatch exactly one settlement-date validation, inspect the non-raw manifest, and only then consider the 106-date historical batch.
+
+The offline CI after the original merge, [Run 44007179732](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44007179732), passed compilation and all 11 then-current tests. The OAuth extension is being validated separately by the PR workflow.
