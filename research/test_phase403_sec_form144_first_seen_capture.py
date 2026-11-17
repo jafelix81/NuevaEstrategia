@@ -244,5 +244,157 @@ class Phase403Tests(unittest.TestCase):
             self.assertEqual(len(stored), 1)
             self.assertEqual(stored[0]["feed_name"], "144")
 
+
+    def test_fetch_all_feeds_keeps_success_when_other_feed_times_out(self):
+        def fake_fetch(url, **kwargs):
+            if url == p403.FEEDS["144"]:
+                return SAMPLE_ATOM.encode("utf-8")
+            raise TimeoutError("temporary SEC 144/A timeout")
+
+        with patch.object(p403.p401, "fetch_bytes", side_effect=fake_fetch), \
+             patch.object(p403, "now_utc", return_value="2026-11-16T23:00:00Z"):
+            snapshots, errors = p403.fetch_all_feeds()
+
+        self.assertEqual(set(snapshots), {"144"})
+        self.assertEqual(len(snapshots["144"]["entries"]), 1)
+        self.assertEqual(set(errors), {"144A"})
+        self.assertEqual(errors["144A"]["error_type"], "TimeoutError")
+        self.assertIn("temporary SEC 144/A timeout", errors["144A"]["error"])
+
+    def test_partial_poll_persists_successful_feed_without_advancing_failed_feed_clock(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            previous = {
+                "schema_version": 1,
+                "last_successful_poll_utc": "2026-11-16T22:00:00Z",
+                "last_successful_poll_mode": "schedule",
+                "last_successful_poll_run_id": "previous-run",
+                "poll_count": 10,
+                "last_successful_poll_utc_by_feed": {
+                    "144": "2026-11-16T22:00:00Z",
+                    "144A": "2026-11-16T22:00:00Z",
+                },
+                "latest_accession_by_feed": {
+                    "144": "0000000000-26-000001",
+                    "144A": "0000000000-26-000002",
+                },
+                "last_poll_possible_gap_by_feed": {"144": False, "144A": False},
+                "last_feed_sha256_by_feed": {"144": "old-144", "144A": "old-144a"},
+                "poll_count_by_feed": {"144": 10, "144A": 10},
+            }
+            p403.write_json(Path(tmp) / "state.json", previous)
+            item = p403.parse_atom_feed(SAMPLE_ATOM, "144", p403.FEEDS["144"])[0]
+            snapshots = {
+                "144": {
+                    "url": p403.FEEDS["144"],
+                    "raw_sha256": "new-144-hash",
+                    "response_bytes": len(SAMPLE_ATOM.encode("utf-8")),
+                    "received_at_utc": "2026-11-16T23:00:00Z",
+                    "entries": [item],
+                    "entry_count": 1,
+                    "oldest_updated_utc": item["feed_updated_utc"],
+                    "newest_updated_utc": item["feed_updated_utc"],
+                }
+            }
+            errors = {
+                "144A": {
+                    "url": p403.FEEDS["144A"],
+                    "error_type": "TimeoutError",
+                    "error": "read timed out after retries",
+                    "response_bytes": None,
+                    "raw_sha256": None,
+                }
+            }
+            manifest = {
+                "candidate_ciks": ["0000123456"],
+                "source_artifact_sha256": p403.EXPECTED_SOURCE_ARTIFACT_SHA256,
+            }
+            metadata = {
+                "submission_acceptance_utc": "2026-11-14T23:30:00Z",
+                "submission_acceptance_et": "2026-11-14 18:30:00",
+                "submission_type": "144",
+                "issuer_cik": "0000123456",
+                "issuer_name": "Candidate Corp",
+                "filer_cik": "9999999999",
+                "seller_name": "Jane Seller",
+                "previous_accession": None,
+                "remarks": "",
+                "xml_status": "retrieved",
+                "xml_source": "test",
+                "xml_sha256": "abc",
+                "submission_txt_status": "retrieved",
+                "candidate_issuer_match": True,
+            }
+            with patch.object(p403, "load_candidate_manifest",
+                              return_value=({"0000123456"}, manifest)), \
+                 patch.object(p403, "fetch_all_feeds", return_value=(snapshots, errors)), \
+                 patch.object(p403, "fetch_document_metadata", return_value=metadata), \
+                 patch.object(p403, "fetch_acceptance_from_index", return_value=None), \
+                 patch.object(p403, "now_utc", side_effect=[
+                     "2026-11-16T22:59:00Z",
+                     "2026-11-16T23:00:01Z",
+                     "2026-11-16T23:00:02Z",
+                 ]):
+                summary = p403.run("schedule", Path(tmp) / "out", "partial-run-1", data_dir=tmp)
+
+            state = p403.read_json(Path(tmp) / "state.json")
+            events = p403.read_event_rows(Path(tmp) / "events.csv")
+            with (Path(tmp) / "feed_observations.csv").open("r", encoding="utf-8") as handle:
+                observations = list(__import__("csv").DictReader(handle))
+
+            self.assertEqual(summary["poll_status"], "partial")
+            self.assertEqual(summary["successful_feeds"], ["144"])
+            self.assertEqual(summary["failed_feeds"], ["144A"])
+            self.assertFalse(summary["cross_feed_provenance_complete"])
+            self.assertIsNone(summary["new_cross_feed_overlap_count"])
+            self.assertEqual(len(events), 1)
+            self.assertEqual(events[0]["accession"], "0000123456-24-000001")
+            self.assertEqual(events[0]["capture_poll_status"], "partial")
+            self.assertEqual(events[0]["cross_feed_provenance_complete"], "False")
+            self.assertEqual(events[0]["feed_names"], '["144"]')
+            self.assertEqual(events[0]["research_observation_eligible"], "True")
+            self.assertEqual(len(observations), 1)
+            self.assertEqual(observations[0]["feed_name"], "144")
+            self.assertEqual(state["last_successful_poll_utc"], "2026-11-16T22:00:00Z")
+            self.assertEqual(state["last_successful_poll_run_id"], "previous-run")
+            self.assertEqual(state["last_successful_poll_utc_by_feed"]["144"], "2026-11-16T23:00:00Z")
+            self.assertEqual(state["last_successful_poll_utc_by_feed"]["144A"], "2026-11-16T22:00:00Z")
+            self.assertEqual(state["poll_count"], 11)
+            self.assertEqual(state["complete_poll_count"], 10)
+            self.assertEqual(state["partial_poll_count"], 1)
+            self.assertEqual(state["last_poll_status"], "partial")
+            self.assertEqual(state["last_poll_failed_feeds"], ["144A"])
+            self.assertEqual(state["last_poll_errors"]["144A"]["error_type"], "TimeoutError")
+
+    def test_all_feed_failure_writes_audit_summary_and_preserves_prior_state(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            previous = {
+                "schema_version": 1,
+                "last_successful_poll_utc": "2026-11-16T22:00:00Z",
+                "poll_count": 10,
+                "last_successful_poll_utc_by_feed": {"144": "2026-11-16T22:00:00Z"},
+            }
+            p403.write_json(Path(tmp) / "state.json", previous)
+            manifest = {
+                "candidate_ciks": ["0000123456"],
+                "source_artifact_sha256": p403.EXPECTED_SOURCE_ARTIFACT_SHA256,
+            }
+            errors = {
+                name: {"url": url, "error_type": "TimeoutError", "error": "timeout"}
+                for name, url in p403.FEEDS.items()
+            }
+            with patch.object(p403, "load_candidate_manifest",
+                              return_value=({"0000123456"}, manifest)), \
+                 patch.object(p403, "fetch_all_feeds", return_value=({}, errors)), \
+                 patch.object(p403, "now_utc", return_value="2026-11-16T23:00:00Z"):
+                with self.assertRaisesRegex(RuntimeError, "All SEC Atom feeds failed"):
+                    p403.run("schedule", Path(tmp) / "out", "failed-run-1", data_dir=tmp)
+
+            self.assertEqual(p403.read_json(Path(tmp) / "state.json"), previous)
+            self.assertFalse((Path(tmp) / "events.csv").exists())
+            failed_summary = json.loads((Path(tmp) / "out" / "summary.json").read_text(encoding="utf-8"))
+            self.assertEqual(failed_summary["poll_status"], "failed")
+            self.assertFalse(failed_summary["state_write"])
+            self.assertEqual(failed_summary["disposition"], "POLL_FAILED_ALL_FEEDS")
+
 if __name__ == "__main__":
     unittest.main()
