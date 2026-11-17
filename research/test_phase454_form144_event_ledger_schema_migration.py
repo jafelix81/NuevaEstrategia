@@ -54,12 +54,14 @@ class Phase454MigrationTests(unittest.TestCase):
     def test_migration_is_idempotent(self):
         with tempfile.TemporaryDirectory() as tmp:
             path=Path(tmp)/"events.csv"
-            self.write_csv(path,p403.EVENT_FIELDS,[{"accession":"A"}])
+            self.write_csv(path,LEGACY_FIELDS,[{"accession":"A"}])
             first=migrate_event_ledger(path)
-            second=migrate_event_ledger(path)
             self.assertTrue(first["changed"])
+            after_first=path.read_bytes()
+            second=migrate_event_ledger(path)
             self.assertFalse(second["changed"])
             self.assertEqual(second["reason"],"already_current")
+            self.assertEqual(path.read_bytes(),after_first)
 
     def test_unknown_column_fails_closed_without_mutation(self):
         with tempfile.TemporaryDirectory() as tmp:
