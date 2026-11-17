@@ -676,7 +676,11 @@ def run(mode, output_dir, run_id, data_dir=DATA_DIR):
     new_rows = []
     feed_summaries = {}
     latest_by_feed = dict(previous_state.get("latest_accession_by_feed", {}))
-    last_poll_by_feed = dict(previous_state.get("last_successful_poll_utc_by_feed", {}))
+    # Use the prior poll START as the interval lower bound. A multi-page live
+    # feed can receive new filings while pages are being read; using the last
+    # page receipt would be later than some arrivals and could introduce look-ahead.
+    last_poll_by_feed = dict(previous_state.get("last_successful_poll_started_utc_by_feed", {}))
+    last_receipt_by_feed = dict(previous_state.get("last_successful_poll_utc_by_feed", {}))
     last_gap_by_feed = dict(previous_state.get("last_poll_possible_gap_by_feed", {}))
     hash_by_feed = dict(previous_state.get("last_feed_sha256_by_feed", {}))
     poll_count_by_feed = dict(previous_state.get("poll_count_by_feed", {}))
@@ -700,6 +704,7 @@ def run(mode, output_dir, run_id, data_dir=DATA_DIR):
             "previous_latest_accession_present": snapshot.get("previous_latest_accession_found"),
             "possible_feed_window_gap": current_gap,
             "interval_lower_bound_utc": interval_start,
+            "interval_lower_bound_source": "previous_successful_poll_start_utc",
             "interval_status": interval_status,
             "page_count": snapshot.get("page_count", 1),
             "raw_entry_count": snapshot.get("raw_entry_count", snapshot["entry_count"]),
@@ -737,8 +742,10 @@ def run(mode, output_dir, run_id, data_dir=DATA_DIR):
         if entries:
             latest = max(entries, key=lambda x: (x.get("feed_updated_utc") or "", x["accession"]))
             latest_by_feed[feed_name] = latest["accession"]
-        # Only successful feeds advance their own first-seen clock and hash.
-        last_poll_by_feed[feed_name] = snapshot["received_at_utc"]
+        # Keep both clocks: poll start is the safe next-interval lower bound;
+        # final page receipt is retained for audit and latency measurement.
+        last_poll_by_feed[feed_name] = poll_started
+        last_receipt_by_feed[feed_name] = snapshot["received_at_utc"]
         last_gap_by_feed[feed_name] = current_gap
         hash_by_feed[feed_name] = snapshot["raw_sha256"]
         poll_count_by_feed[feed_name] = int(poll_count_by_feed.get(feed_name, 0)) + 1
@@ -768,7 +775,8 @@ def run(mode, output_dir, run_id, data_dir=DATA_DIR):
         "last_poll_successful_feeds": sorted(snapshots),
         "last_poll_failed_feeds": sorted(feed_errors),
         "last_poll_errors": feed_errors,
-        "last_successful_poll_utc_by_feed": last_poll_by_feed,
+        "last_successful_poll_started_utc_by_feed": last_poll_by_feed,
+        "last_successful_poll_utc_by_feed": last_receipt_by_feed,
         "latest_accession_by_feed": latest_by_feed,
         "last_poll_possible_gap_by_feed": last_gap_by_feed,
         "last_feed_sha256_by_feed": hash_by_feed,
