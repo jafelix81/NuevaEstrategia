@@ -1344,3 +1344,15 @@ This section supersedes any older “in progress” status above where later com
 - Post-merge CI run 44007937167 passed Python compilation and 14/14 synthetic tests.
 - Manual-only live workflow is now on main. It requires FINRA_CLIENT_ID + FINRA_CLIENT_SECRET (preferred) or FINRA_ACCESS_TOKEN. The live credential check confirmed all three were empty; the guard skipped the capture, so no FIP or FINRA request was made.
 - No historical data was downloaded, no alpha/OOS test ran, and no signal or production setting changed. F80 remains frozen.
+
+## Phase 463 — Independent SEC ownership lake audit (2026-11-17)
+
+- Reviewed external MIT implementation \`austin-starks/sec-ownership-disclosures\` (0.4.1) and its parser, tests, date utilities, crosswalk and methodology. Retain only as a conditional secondary parser/crosswalk audit; no external binary snapshot was downloaded or pinned.
+- The parser stores one transaction leg per accession and one filing row per reporting owner. This avoids duplication but supplies no transaction-to-owner link; multi-owner transaction rows remain quarantined.
+- SEC code P means open-market **or private** purchase. P/A without footnote/filing evidence of an open-market execution remains unresolved; the external parser does not publish the FOOTNOTES table in its transaction rows.
+- Its Form 4 \`resolvedTicker\` is based on filer-entered issuer ticker text and first-class parsing, not an effective-dated security-class master. Its 13F helper supports date spans, but the public example passes undated pairs from one N-PORT quarter; historical mapping is not admitted.
+- Quarterly \`availableAt\` is filing-date end-of-day New York: conservative next-session only, not intraday. 13F is a lagged holdings snapshot, not trade flow.
+- Exact snapshot manifest/hash and source commit remain unpinned; GitHub README and Hugging Face card report different snapshot vintages/counts. No source or signal admitted.
+- Phase 463 report: [external SEC ownership lake audit](research/PHASE463_SEC_OWNERSHIP_LAKE_EXTERNAL_SOURCE_AUDIT_2026-11-17.md) · [summary](research/PHASE463_SEC_OWNERSHIP_LAKE_EXTERNAL_SOURCE_SUMMARY_2026-11-17.json).
+- No alpha/OOS/bootstrap/LOO test. \`F80_TOP20_PARTIAL50_BASELINE_C20\` and production remain frozen.
+
