@@ -1,0 +1,70 @@
+{
+  "phase": 460,
+  "audit_date": "2026-11-17",
+  "main_head_at_preflight": "a2d7e7f9c32c1d5e30b479173ba5e71e765f9cd6",
+  "github_preflight": {
+    "total_actions_runs": 7699,
+    "active_or_queued_latest50": 0,
+    "branches": 292,
+    "open_pull_requests": 56,
+    "workflow_files": 73,
+    "latest_run": 44128628627,
+    "latest_run_conclusion": "success",
+    "latest_run_tests": "9/9",
+    "latest_run_artifacts": 0
+  },
+  "operational_gates": {
+    "sec_form144_latest_scheduled_run": 44083941814,
+    "sec_form144_latest_scheduled_conclusion": "failure",
+    "phase454_offline_tests": "24/24",
+    "post_phase454_live_capture_observed": false,
+    "sec_workflow_enabled_state": "not exposed by available read interface",
+    "finra_live_validation_run": 44007662531,
+    "finra_request_made": false,
+    "finra_oauth_credentials": "missing at last live preflight"
+  },
+  "findings": {
+    "phase459_synthetic_owner_reference_path": "not schema-verified; removed from admissible attribution",
+    "schema_v5_5_zip_inspected": false,
+    "schema_v5_5_zip_access_issue": "binary ZIP rejected by web fetch; container network DNS unavailable",
+    "current_x0609_multi_owner_sample": "CIK 0001889867 accession 0000899140-26-000592; two reportingOwner blocks; transaction table separate; no line-owner key observed in retrieved sample",
+    "same_owner_30_row_split": {
+      "issuer_cik": "0001876042",
+      "reporting_owner_cik": "0001539940",
+      "transaction_date": "2026-07-06",
+      "accessions": [
+        "0001876042-26-000217",
+        "0001876042-26-000218"
+      ],
+      "remarks": "first/second of two Forms 4; more than 30 rows; read together as one consolidated filing",
+      "interpretation": "one disclosure event, not two independent insiders; preserve lines and provenance"
+    },
+    "split_reason_codes": [
+      "reporting_person_limit",
+      "transaction_row_limit",
+      "explicit_split_reason_unclassified"
+    ]
+  },
+  "policy": {
+    "single_owner_attribution": "filing_grain_only",
+    "multi_owner_line_attribution": "quarantine_until_xsd_or_exhibit_proof",
+    "generic_owner_reference_tags": "ignored_not_schema_approved",
+    "split_event_detection": "remarks-only candidate classification; no automatic cross-accession merge",
+    "transaction_row_deduplication": "not allowed without line-level evidence"
+  },
+  "research": {
+    "alpha_authorized": false,
+    "forward_return_test_run": false,
+    "oos_test_run": false,
+    "bootstrap_run": false,
+    "loo_run": false,
+    "production_changed": false,
+    "f80_changed": false
+  },
+  "sources": [
+    "https://www.sec.gov/submit-filings/technical-specifications",
+    "https://www.sec.gov/Archives/edgar/data/1889867/000089914026000592/form4.xml",
+    "https://www.sec.gov/Archives/edgar/data/1876042/000187604226000217/wk-form4_1783544406.xml",
+    "https://www.sec.gov/Archives/edgar/data/1876042/000187604226000218/wk-form4_1783544456.xml"
+  ]
+}

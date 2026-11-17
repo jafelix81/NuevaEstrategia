@@ -1,5 +1,10 @@
-"""Conservative owner-to-transaction attribution audit for SEC ownership XML."""
+"""Fail-closed Form 4 owner attribution audit.
 
+A transaction-to-owner foreign key is not admitted unless an exact element is
+verified against the applicable SEC Ownership XSD. The current v5.5 ZIP was
+not available for inspection during Phase 460, so multi-owner lines remain
+quarantined. A sole reporting owner is attributed only at filing grain.
+"""
 from __future__ import annotations
 
 import argparse
@@ -7,14 +12,14 @@ import json
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
-OWNER_REFERENCE_TAGS = {
+TRANSACTION_TAGS = {"nonDerivativeTransaction", "derivativeTransaction"}
+UNVERIFIED_OWNER_REFERENCE_TAGS = {
     "reportingOwnerCik",
     "rptOwnerCik",
     "ownerCik",
     "ownerCikRef",
     "reportingOwnerRef",
 }
-TRANSACTION_TAGS = {"nonDerivativeTransaction", "derivativeTransaction"}
 
 
 def local_name(tag: str) -> str:
@@ -34,6 +39,10 @@ def _text(node: ET.Element) -> str:
 
 def audit_ownership_xml(xml_text: str) -> dict:
     root = ET.fromstring(xml_text)
+    schema_version = next(
+        (_text(node) for node in root if local_name(node.tag) == "schemaVersion"),
+        None,
+    )
 
     owner_ids: list[str] = []
     for node in root.iter():
@@ -51,81 +60,77 @@ def audit_ownership_xml(xml_text: str) -> dict:
     if len(owner_ids) != len(set(owner_ids)):
         raise ValueError("duplicate reporting-owner CIK")
 
-    owner_set = set(owner_ids)
     transaction_nodes = [
         node for node in root.iter() if local_name(node.tag) in TRANSACTION_TAGS
     ]
     assignments = []
-    for index, tx in enumerate(transaction_nodes, start=1):
-        refs = set()
-        for child in tx.iter():
-            if local_name(child.tag) not in OWNER_REFERENCE_TAGS:
-                continue
-            value = _text(child)
-            if not value:
-                value = next(
-                    (
-                        child.attrib[key].strip()
-                        for key in ("ref", "idref", "ownerCik")
-                        if child.attrib.get(key, "").strip()
-                    ),
-                    "",
-                )
-            if value:
-                refs.add(canonical_owner_id(value))
+    unverified_tags_seen: set[str] = set()
+    unverified_reference_count = 0
 
-        if len(refs) == 1 and next(iter(refs)) in owner_set:
-            assigned = next(iter(refs))
-            status = "explicit_unique_owner_reference"
-        elif refs:
-            assigned = None
-            status = "unresolved_or_nonunique_owner_reference"
-        elif len(owner_ids) == 1:
+    for index, tx in enumerate(transaction_nodes, start=1):
+        tags = sorted({
+            local_name(child.tag)
+            for child in tx.iter()
+            if local_name(child.tag) in UNVERIFIED_OWNER_REFERENCE_TAGS
+        })
+        unverified_tags_seen.update(tags)
+        unverified_reference_count += len(tags)
+
+        if len(owner_ids) == 1:
             assigned = owner_ids[0]
-            status = "sole_reporting_owner"
-        else:
+            status = (
+                "sole_reporting_owner_filing_grain"
+                if not tags
+                else "sole_reporting_owner_filing_grain_unverified_token_ignored"
+            )
+        elif len(owner_ids) > 1:
             assigned = None
             status = "multi_owner_line_quarantined"
+        else:
+            assigned = None
+            status = "no_reporting_owner"
 
-        assignments.append(
-            {
-                "transaction_index": index,
-                "transaction_tag": local_name(tx.tag),
-                "owner_cik": assigned,
-                "status": status,
-            }
-        )
+        assignments.append({
+            "transaction_index": index,
+            "transaction_tag": local_name(tx.tag),
+            "owner_cik": assigned,
+            "status": status,
+            "unverified_owner_reference_tags_ignored": tags,
+        })
 
     ambiguous = sum(item["owner_cik"] is None for item in assignments)
-    assigned = len(assignments) - ambiguous
     signatures = sum(
         1 for node in root.iter() if local_name(node.tag) == "ownerSignature"
     )
-
     if not owner_ids:
         disposition = "no_reporting_owner"
     elif not transaction_nodes:
         disposition = "no_transaction_lines"
-    elif ambiguous:
-        disposition = "quarantine_unresolved_owner_attribution"
     elif len(owner_ids) == 1:
-        disposition = "single_owner_filing"
+        disposition = "single_owner_filing_grain_only"
     else:
-        disposition = "explicit_line_owner_mapping"
+        disposition = "quarantine_all_multi_owner_transaction_lines"
 
     return {
+        "schema_version": schema_version,
         "reporting_owner_count": len(owner_ids),
         "reporting_owner_ciks": owner_ids,
         "transaction_line_count": len(transaction_nodes),
-        "uniquely_attributed_line_count": assigned,
+        "uniquely_attributed_line_count": len(assignments) - ambiguous,
         "ambiguous_line_count": ambiguous,
         "owner_signature_count_diagnostic_only": signatures,
-        "owner_breadth_eligible": bool(transaction_nodes) and ambiguous == 0 and bool(owner_ids),
+        "owner_breadth_eligible": bool(transaction_nodes) and len(owner_ids) == 1,
+        "explicit_line_owner_mapping_count": 0,
+        "schema_approved_line_owner_reference_tags": [],
+        "schema_reference_gate": "NOT_VERIFIED_FAIL_CLOSED",
+        "unverified_owner_reference_count": unverified_reference_count,
+        "unverified_owner_reference_tags_seen": sorted(unverified_tags_seen),
         "disposition": disposition,
         "line_assignments": assignments,
         "signature_count_used_for_attribution": False,
         "owner_order_used_for_attribution": False,
         "free_text_footnotes_auto_parsed_for_owner": False,
+        "multi_owner_rows_admitted": False,
     }
 
 
