@@ -1,0 +1,124 @@
+{
+  "phase": 461,
+  "audit_date": "2026-11-17",
+  "main_head_at_preflight": "f7c24f7203fd4fe07be93fe106fa62261d091b31",
+  "github_preflight": {
+    "total_actions_runs": 7703,
+    "in_progress": 0,
+    "queued": 0,
+    "branches": 293,
+    "open_pull_requests": 56,
+    "workflow_files": 74,
+    "latest_phase460_pr_run": 44133573427,
+    "latest_phase460_pr_conclusion": "success",
+    "latest_phase460_tests": "16/16",
+    "latest_phase460_artifacts": 0,
+    "earlier_phase460_failed_run": 44133170761,
+    "corrected_later_runs": [
+      44133517450,
+      44133573367
+    ]
+  },
+  "schema_source": {
+    "official_sec_page": "https://www.sec.gov/submit-filings/technical-specifications",
+    "official_version": "Ownership v5.5",
+    "official_date": "2026-03-18",
+    "mirror_repository": "alexkouzel/sec-api",
+    "mirror_commit": "50ac70b32e987c1dae2b747d499d86e964c1428e",
+    "mirror_readme_checked": "2026-10-23",
+    "official_zip_byte_hash_verified": false,
+    "files": {
+      "ownership4Document.xsd.xml": {
+        "git_blob_sha": "715807c0260af7b321afdc10933e718d68903a8a",
+        "bytes": 8604
+      },
+      "ownership4ADocument.xsd.xml": {
+        "git_blob_sha": "c0b1617bbe11b1b759a51cd2b1a332bf3d809912",
+        "bytes": 8733
+      },
+      "ownershipDocumentCommon.xsd.xml": {
+        "git_blob_sha": "c9f9da0b9cb4799894da50103ef7fb2290e76b7c",
+        "bytes": 49228
+      }
+    }
+  },
+  "schema_findings": {
+    "form4_nonderivative_transaction_elements": [
+      "securityTitle",
+      "transactionDate",
+      "deemedExecutionDate",
+      "transactionCoding",
+      "transactionTimeliness",
+      "transactionAmounts",
+      "postTransactionAmounts",
+      "ownershipNature"
+    ],
+    "form4_derivative_transaction_elements": [
+      "securityTitle",
+      "conversionOrExercisePrice",
+      "transactionDate",
+      "deemedExecutionDate",
+      "transactionCoding",
+      "transactionTimeliness",
+      "transactionAmounts",
+      "exerciseDate",
+      "expirationDate",
+      "underlyingSecurity",
+      "postTransactionAmounts",
+      "ownershipNature"
+    ],
+    "form4a_transaction_structure_matches_form4": true,
+    "reporting_owner_id_elements": [
+      "rptOwnerCik",
+      "rptOwnerCcc",
+      "rptOwnerName"
+    ],
+    "reporting_owner_max_occurs": 10,
+    "owner_signature_max_occurs": 10,
+    "non_derivative_table_max_rows": 30,
+    "derivative_table_max_rows": 30,
+    "transaction_to_owner_reference_elements": [],
+    "xs_any": 0,
+    "xs_anyAttribute": 0,
+    "xs_key": 0,
+    "xs_keyref": 0,
+    "xs_unique": 0,
+    "conclusion": "NO_SCHEMA_DEFINED_TRANSACTION_TO_OWNER_LINK_IN_PINNED_V55_MIRROR"
+  },
+  "policy": {
+    "multi_owner_transaction_line_attribution": "quarantine",
+    "single_owner_attribution": "filing_grain_only",
+    "bulk_only_multi_owner_owner_count_cluster": "killed",
+    "split_event_grouping": "explicit remarks plus exact issuer/owner/date join; retain all lines",
+    "transaction_row_deduplication": "prohibited without line-level evidence",
+    "schema_allowlist": [],
+    "official_archive_identity": "unverified byte-for-byte"
+  },
+  "version_drift": {
+    "draft_version": "5.6",
+    "draft_date": "2026-11-06",
+    "planned_effective_date": "2026-12-07",
+    "disposition": "draft only; re-audit after effective release"
+  },
+  "operational_gates": {
+    "sec_form144_last_scheduled_run": 44083941814,
+    "post_phase454_live_capture_observed": false,
+    "finra_last_live_preflight": 44007662531,
+    "finra_api_request_made": false,
+    "finra_oauth_credentials_missing_at_last_preflight": true
+  },
+  "research": {
+    "alpha_authorized": false,
+    "forward_return_test_run": false,
+    "oos_test_run": false,
+    "bootstrap_run": false,
+    "loo_run": false,
+    "f80_changed": false,
+    "production_changed": false
+  },
+  "sources": [
+    "https://www.sec.gov/submit-filings/technical-specifications",
+    "https://github.com/alexkouzel/sec-api/tree/50ac70b32e987c1dae2b747d499d86e964c1428e/specs/ownership-xml-v5.5",
+    "https://github.com/alexkouzel/sec-api/blob/50ac70b32e987c1dae2b747d499d86e964c1428e/specs/README.md"
+  ]
+}
