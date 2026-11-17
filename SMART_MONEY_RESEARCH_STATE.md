@@ -1,3 +1,17 @@
+## Phase 449 — Post-rearm scheduled-trigger delivery audit (2026-11-17)
+
+- Main HEAD at preflight: `6a03d54164bd048ed1f7fd63919058b490c1f938`; Phase 448 merged at `2148f0de372039007faa19e6a10a0f7c4e09abab`. Actions reports 7,691 total runs; latest 100 = 62 success / 37 failure / 1 cancelled; explicit in-progress, queued, waiting and requested queries all returned zero. Branches 283, open PRs 56, workflow files 69.
+- Latest run [44009082677](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44009082677) is Phase 448 PR CI: 18/18 synthetic offline tests passed; live capture was skipped and no artifact was expected. The partial-feed output in its log is a synthetic fixture, not a live SEC capture. Latest main push CI [44007937167](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44007937167) passed 14/14 Phase 447 synthetic tests.
+- Latest SEC scheduled run remains [43970444015](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43970444015): offline job passed; live capture failed on Form 144/A read timeout after four retries; ledger commit skipped; no artifact. Schedule-filtered run query returns 17 historical events, with 43970444015 still newest.
+- Phase 448 merged at 03:17:15 UTC and changed Phase 403 cron to :47 UTC. Expected slots 03:47 and 04:47 UTC are absent. Main YAML still contains the schedule and concurrency group; no active/queued run exists. The available read-only connector did not expose workflow enabled/disabled metadata, so scheduler suppression vs GitHub delivery delay is unresolved. Do not assert the workflow is disabled and do not keep shifting cron minutes without evidence.
+- Human check: verify in GitHub Actions that **Phase 403 - SEC Form 144 prospective first-seen capture** is enabled; enable once only if the UI shows it disabled. If already enabled, leave the cron unchanged and treat delivery as unresolved. Manual mode is state-neutral and must not be used to fabricate first-seen observations.
+- CFTC Phase 384 cron is now 22:25 UTC weekdays; the next 2026-11-17 slot is not yet due at audit time. Latest known CFTC run remains push/bootstrap [43525140200](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43525140200), with 3,035 warm-up rows and zero prospective observations; artifact [14084802705](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43525140200/artifacts/14084802705).
+- FINRA single-settlement live validation remains blocked by missing `FINRA_CLIENT_ID` / `FINRA_CLIENT_SECRET`; SEC 13D/G remains blocked by missing monitored-contact `SEC_USER_AGENT`. No credentials or data were requested, copied or committed.
+- Report: [Phase 449](research/PHASE449_POST_REARM_SCHEDULE_DELIVERY_AUDIT_2026-11-17.md).
+- No workflow was dispatched or rerun; no raw data, alpha/OOS, bootstrap, LOO or holdout test. `F80_TOP20_PARTIAL50_BASELINE_C20`, universe, parameters, capital, exposure, holdout and production remain frozen.
+
+---
+
 ## Phase 448 — FINRA short-interest five-year history and scheduled-capture re-arm (2026-11-17)
 
 - Main HEAD at preflight: `aee5157cdd41f050efc90272ab9bbaf23b01be19`; Phase 448 PR [#112](https://github.com/jafelix81/NuevaEstrategia/pull/112) merged at 2026-11-17 03:17:15 UTC, commit `2148f0de372039007faa19e6a10a0f7c4e09abab`. Latest main PR CI [44009082677](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44009082677) passed 18/18 Phase 403 offline tests; live capture was skipped on pull_request; no artifact expected.
