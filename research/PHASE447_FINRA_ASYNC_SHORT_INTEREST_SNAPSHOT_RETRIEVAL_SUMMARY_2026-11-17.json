@@ -69,12 +69,25 @@
     "finra_client_secret_configured": false,
     "capture_step": "skipped",
     "api_requests_made": 0,
-    "required_human_action": "Configure FINRA_CLIENT_ID and FINRA_CLIENT_SECRET GitHub Actions secrets, or a valid FINRA_ACCESS_TOKEN."
+    "required_human_action": "Configure FINRA_CLIENT_ID and FINRA_CLIENT_SECRET GitHub Actions secrets, or a valid FINRA_ACCESS_TOKEN.",
+    "workflow": "workflow_dispatch_only"
   },
   "post_merge_ci": {
     "run_id": 44007179732,
     "conclusion": "success",
     "tests_passed": 11,
     "tests_total": 11
+  },
+  "post_merge_oauth_ci": {
+    "run_id": 44007937167,
+    "conclusion": "success",
+    "tests_passed": 14,
+    "tests_total": 14,
+    "commit": "13b028593213108077dc100f0a81fed688ad9a70"
+  },
+  "pull_requests": {
+    "phase447_initial": 110,
+    "phase447_oauth_extension": 111,
+    "oauth_extension_merged": true
   }
 }
