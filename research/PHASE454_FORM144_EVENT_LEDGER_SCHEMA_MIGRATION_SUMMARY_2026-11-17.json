@@ -1,0 +1,34 @@
+{
+  "phase": 454,
+  "audit_time_utc": "2026-11-17T12:38:00Z",
+  "live_run": {
+    "run_id": 44083941814,
+    "event": "schedule",
+    "main_sha": "cfe97c971cceb027a50f924ce9984ba6489492d5",
+    "offline_regression": "success",
+    "live_capture": "failure",
+    "artifact_count": 0,
+    "append_commit": "skipped",
+    "exception": "ValueError: invalid literal for int() with base 10: '2026-11-16T16:55:39-05:00'"
+  },
+  "root_cause": {
+    "current_event_fields_added": ["cross_feed_provenance_complete", "capture_poll_status"],
+    "committed_events_header_has_these_fields": false,
+    "append_writer_migrated_header": false,
+    "new_rows_shifted_by_two_columns": true,
+    "feed_path_cik_received_feed_updated_raw_timestamp": true,
+    "runner_workspace_changes_persisted": false
+  },
+  "fix": {
+    "module": "research/phase454_form144_event_ledger_schema_migration.py",
+    "workflow_migration_before_capture": true,
+    "preserve_historical_fields_by_name": true,
+    "new_fields_blank_for_old_rows": true,
+    "fail_closed_unknown_duplicate_or_extra_columns": true,
+    "atomic_replace": true,
+    "idempotent": true,
+    "live_capture_on_pull_request": false
+  },
+  "signal_authorized": false,
+  "f80_changed": false
+}

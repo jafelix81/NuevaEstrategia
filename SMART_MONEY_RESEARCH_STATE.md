@@ -1,3 +1,13 @@
+## Phase 454 — SEC Form 144 event-ledger schema migration (2026-11-17)
+
+- Real scheduled run [44083941814](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44083941814) reached live capture after the :47 re-arm. Offline tests passed; live capture failed in acceptance reconciliation with `ValueError: invalid literal for int() with base 10: '2026-11-16T16:55:39-05:00'`. No artifact or append commit; runner-workspace changes did not persist.
+- Root cause: Phase 444 added `cross_feed_provenance_complete` and `capture_poll_status` to current `EVENT_FIELDS`, but committed `events.csv` retained the old header. The append routine wrote new-order rows without migrating the header, shifting subsequent values two columns; `feed_path_cik` then contained the raw feed-updated timestamp.
+- Phase 454 adds an idempotent, atomic, fail-closed schema migration before the Phase 403 live capture. Existing values are preserved by column name; new fields remain blank for historical rows. Unknown/duplicate headers and extra row columns stop the migration rather than dropping data. The existing Phase 403 workflow runs the migration tests and includes a migration summary in its artifact.
+- Report: [Phase 454 audit](research/PHASE454_FORM144_EVENT_LEDGER_SCHEMA_MIGRATION_2026-11-17.md) · [summary](research/PHASE454_FORM144_EVENT_LEDGER_SCHEMA_MIGRATION_SUMMARY_2026-11-17.json).
+- No manual replay, no fabricated first-seen time, no signal admission, no forward-return test. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+---
+
 ## Phase 453 — SEC Form 345 as-filed issuer-symbol and security-class crosswalk audit (2026-11-17)
 
 - Main HEAD at preflight: `cfe97c971cceb027a50f924ce9984ba6489492d5` (Phase 452 state update). Re-audited immutable SEC Form 345 artifact [12781850078](https://github.com/jafelix81/NuevaEstrategia/actions/runs/40606706518/artifacts/12781850078), outer SHA-256 `203d7b1d2e29c999da318456af72e621cb30ef9a470d8f1610d088f9bebecb66`; 2012Q1 and 2026Q3 nested ZIP hashes verified.
