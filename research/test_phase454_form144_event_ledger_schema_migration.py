@@ -93,4 +93,42 @@ class Phase454MigrationTests(unittest.TestCase):
             path.write_text("",encoding="utf-8")
             self.assertFalse(migrate_event_ledger(path)["changed"])
 
+
+    def test_committed_first_seen_ledger_replays_migration_without_column_shift(self):
+        source=Path(__file__).resolve().parent/"data"/"sec_form144_first_seen"/"events.csv"
+        self.assertTrue(source.exists(),"committed SEC Form 144 ledger fixture is missing")
+        with source.open("r",newline="",encoding="utf-8-sig") as handle:
+            reader=csv.DictReader(handle)
+            source_fields=reader.fieldnames
+            source_rows=list(reader)
+        self.assertTrue(source_rows,"committed SEC Form 144 ledger fixture is empty")
+        self.assertIn(source_fields,[LEGACY_FIELDS,p403.EVENT_FIELDS])
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path=Path(tmp)/"events.csv"
+            path.write_bytes(source.read_bytes())
+            result=migrate_event_ledger(path)
+            with path.open("r",newline="",encoding="utf-8-sig") as handle:
+                reader=csv.DictReader(handle)
+                self.assertEqual(reader.fieldnames,p403.EVENT_FIELDS)
+                migrated=list(reader)
+
+        self.assertEqual(len(migrated),len(source_rows))
+        if source_fields==LEGACY_FIELDS:
+            self.assertTrue(result["changed"])
+            self.assertEqual(result["reason"],"header_migrated")
+        else:
+            self.assertFalse(result["changed"])
+            self.assertEqual(result["reason"],"already_current")
+
+        for before,after in zip(source_rows,migrated):
+            for field in source_fields:
+                self.assertEqual(after[field],before[field],field)
+            if source_fields==LEGACY_FIELDS:
+                for field in NEW_FIELDS:
+                    self.assertEqual(after[field],"",field)
+            if after.get("capture_mode")=="bootstrap":
+                self.assertNotEqual(after.get("research_observation_eligible","").lower(),"true")
+                self.assertNotEqual(after.get("signal_eligible","").lower(),"true")
+
 if __name__=="__main__": unittest.main()
