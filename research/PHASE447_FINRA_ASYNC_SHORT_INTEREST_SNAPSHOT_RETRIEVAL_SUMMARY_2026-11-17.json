@@ -38,22 +38,43 @@
     "async_min_poll_seconds": 60,
     "max_offset": 500000,
     "result_link_auth_header": "MUST_OMIT",
-    "completion_headers_required": ["Record-Total", "Record-Offset", "Record-Limit"],
+    "completion_headers_required": [
+      "Record-Total",
+      "Record-Offset",
+      "Record-Limit"
+    ],
     "source": "https://developer.finra.org/docs"
   },
   "implementation": {
     "module": "research/phase447_finra_async_snapshot_client.py",
     "tests": "research/test_phase447_finra_async_snapshot_client.py",
-    "local_tests_passed": 11,
-    "local_tests_total": 11,
+    "local_tests_passed": 14,
+    "local_tests_total": 14,
     "py_compile": "passed",
     "live_finra_requests": 0,
     "raw_data_committed": false,
     "signal_eligible": false,
-    "zero_inference_allowed": false
+    "zero_inference_allowed": false,
+    "oauth_client_credentials_supported": true
   },
   "next_gate": "One controlled live async settlement-date request; only then batch the 106 dates if metadata and result reconciliation pass.",
   "f80_frozen": true,
   "production_changed": false,
-  "holdout_used": false
+  "holdout_used": false,
+  "live_validation": {
+    "run_id": 44007662531,
+    "conclusion": "failure_at_credential_guard",
+    "finra_access_token_configured": false,
+    "finra_client_id_configured": false,
+    "finra_client_secret_configured": false,
+    "capture_step": "skipped",
+    "api_requests_made": 0,
+    "required_human_action": "Configure FINRA_CLIENT_ID and FINRA_CLIENT_SECRET GitHub Actions secrets, or a valid FINRA_ACCESS_TOKEN."
+  },
+  "post_merge_ci": {
+    "run_id": 44007179732,
+    "conclusion": "success",
+    "tests_passed": 11,
+    "tests_total": 11
+  }
 }
