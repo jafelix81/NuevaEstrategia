@@ -68,7 +68,7 @@ Files:
 
 ## 5. Offline validation
 
-Local synthetic regression: **10/10 tests passed**, plus Python compilation.
+Local synthetic regression: **11/11 tests passed**, plus Python compilation. The client also restricts result links to HTTPS AWS S3 hosts, rejects an invalid polling interval before submitting any request, and writes private output with restrictive file permissions.
 
 Tests cover:
 - narrow async payload and settlement filter;
