@@ -17,7 +17,7 @@ SHA256 = re.compile(r"^[0-9a-f]{64}$")
 def quarterly_bulk_available_at(filing_date: str) -> datetime:
     """Conservative availability: end of FILING_DATE in New York, converted to UTC."""
     day = date.fromisoformat(filing_date)
-    local_end = datetime.combine(day, time.max, tzinfo=NEW_YORK)
+    local_end = datetime.combine(day, time(23, 59, 59, 999000), tzinfo=NEW_YORK)
     return local_end.astimezone(timezone.utc)
 
 
