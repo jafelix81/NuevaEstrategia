@@ -67,7 +67,11 @@ FINRA remains blocked at the credential guard: the prior live validation found `
 
 Nasdaq NOTO/PHOTO remains a conditional options-flow candidate; no licensed sample, API access or vendor data was obtained. No new source was promoted in this phase.
 
-## 6. Tests and controls
+## 6. Merge and tests
+
+PR [#126](https://github.com/jafelix81/NuevaEstrategia/pull/126) merged to main as `7dc64df34d7b81f1f4012c0f10c233a41f60c0ba`. Latest PR CI [44195015699](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44195015699) passed all 40 offline tests; the live-capture job was skipped as intended.
+
+## 7. Tests and controls
 
 Added six offline regressions for raw-vs-unique Atom counts, offset advancement by raw rows, missing-watermark behavior after an empty page, repeated-page fail-closed behavior, one-page bootstrap, and rejection of legacy receipt timestamps as interval lower bounds. Updated Phase 403 regressions for the 100-entry page ceiling, post-pagination gap semantics, and separate poll-start / page-receipt clocks.
 
