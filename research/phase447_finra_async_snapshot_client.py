@@ -12,6 +12,7 @@ No workflow, artifact upload, alpha test, or production integration is included.
 from __future__ import annotations
 
 import argparse
+import base64
 import hashlib
 import json
 import os
@@ -26,6 +27,7 @@ import requests
 
 BASE_URL = "https://api.finra.org"
 DATASET_URL = BASE_URL + "/data/group/otcMarket/name/consolidatedShortInterest"
+FIP_TOKEN_URL = "https://ews.fip.finra.org/fip/rest/ews/oauth2/access_token?grant_type=client_credentials"
 MAX_ASYNC_RECORDS = 100_000
 MIN_POLL_INTERVAL_SECONDS = 60
 
@@ -102,6 +104,34 @@ def int_header(headers: Mapping[str, Any], name: str, required: bool = True) -> 
 def validate_settlement_date(value: str) -> str:
     parsed = datetime.strptime(value, "%Y-%m-%d")
     return parsed.date().isoformat()
+
+
+def obtain_access_token(
+    session: requests.Session, client_id: str, client_secret: str
+) -> tuple[str, int]:
+    """Exchange FINRA API client credentials for a short-lived OAuth bearer token."""
+    if not client_id or not client_secret:
+        raise RuntimeError("FINRA_CLIENT_ID and FINRA_CLIENT_SECRET are both required")
+    raw = f"{client_id}:{client_secret}".encode("utf-8")
+    basic = base64.b64encode(raw).decode("ascii")
+    response = session.post(
+        FIP_TOKEN_URL,
+        headers={"Authorization": f"Basic {basic}", "Accept": "application/json"},
+        timeout=30,
+    )
+    response.raise_for_status()
+    try:
+        body = response.json()
+    except Exception as exc:
+        raise SnapshotContractError("FINRA FIP token response is not JSON") from exc
+    token = str(body.get("access_token") or "")
+    try:
+        expires_in = int(body.get("expires_in"))
+    except (TypeError, ValueError) as exc:
+        raise SnapshotContractError("FINRA FIP response has invalid expires_in") from exc
+    if not token or expires_in <= 0:
+        raise SnapshotContractError("FINRA FIP response lacks a valid access_token/expires_in")
+    return token, expires_in
 
 
 def build_async_payload(settlement_date: str) -> dict[str, Any]:
@@ -318,8 +348,12 @@ def retrieve_snapshot(
     clock_fn: Callable[[], datetime] = utc_now,
 ) -> dict[str, Any]:
     token = token or os.getenv("FINRA_ACCESS_TOKEN")
-    if not token:
-        raise RuntimeError("FINRA_ACCESS_TOKEN is required; no request was made")
+    client_id = os.getenv("FINRA_CLIENT_ID")
+    client_secret = os.getenv("FINRA_CLIENT_SECRET")
+    if not token and not (client_id and client_secret):
+        raise RuntimeError(
+            "Provide FINRA_ACCESS_TOKEN or both FINRA_CLIENT_ID and FINRA_CLIENT_SECRET; no request was made"
+        )
     day = validate_settlement_date(settlement_date)
     if poll_interval_seconds < MIN_POLL_INTERVAL_SECONDS:
         raise ValueError("FINRA recommends polling async status no more than once per minute")
@@ -328,7 +362,12 @@ def retrieve_snapshot(
     owned_session = session is None
     session = session or requests.Session()
     submitted_at = clock_fn()
+    auth_mode = "provided_bearer_token"
+    token_expires_in = None
     try:
+        if not token:
+            token, token_expires_in = obtain_access_token(session, client_id, client_secret)
+            auth_mode = "oauth_client_credentials"
         auth_headers = {
             "Authorization": f"Bearer {token}",
             "Accept": "application/json",
@@ -370,6 +409,8 @@ def retrieve_snapshot(
         digest = hashlib.sha256(raw_bytes).hexdigest()
         manifest = {
             "source": "FINRA Query API otcMarket/consolidatedShortInterest",
+            "auth_mode": auth_mode,
+            "token_expires_in_seconds": token_expires_in,
             "settlement_date": day,
             "submitted_at_utc": iso_utc(submitted_at),
             "status_checked_at_utc": status_audit["status_checked_at_utc"],
