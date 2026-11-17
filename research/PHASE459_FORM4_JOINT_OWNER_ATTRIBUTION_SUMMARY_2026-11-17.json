@@ -1,0 +1,64 @@
+{
+  "phase": 459,
+  "audit_date": "2026-11-17",
+  "source_scope": "SEC Form 4 current instructions, SEC Ownership XML historical specification v3, current XML specifications index, and two original EDGAR XML filings explicitly describing a same-event split across accessions.",
+  "key_findings": {
+    "joint_group_filing_can_include_separately_owned_securities": true,
+    "multiple_owners_imply_multiple_independent_trades": false,
+    "transaction_to_owner_foreign_key_in_bulk_nonderiv_trans": false,
+    "historical_xml_spec_signature_tied_to_owner": false,
+    "signature_order_or_count_is_valid_owner_assignment_key": false,
+    "same_economic_event_can_be_split_across_multiple_accessions": true,
+    "current_v5_5_zip_unpacked_in_this_audit": false
+  },
+  "phase458_endpoint_cohort_counts": {
+    "2012Q1": {
+      "form4_accessions": 63678,
+      "multi_owner_accessions": 1134,
+      "p_accessions": 4136,
+      "p_multi_owner_accessions": 380,
+      "p_rows": 7180,
+      "p_rows_in_multi_owner_accessions": 1134
+    },
+    "2026Q3": {
+      "form4_accessions": 34148,
+      "multi_owner_accessions": 854,
+      "p_accessions": 3211,
+      "p_multi_owner_accessions": 238,
+      "p_rows": 5183,
+      "p_rows_in_multi_owner_accessions": 694
+    }
+  },
+  "explicit_same_event_split_example": {
+    "issuer_cik": "0001612720",
+    "period_of_report": "2018-06-11",
+    "accessions": [
+      "0001140361-18-028469",
+      "0001140361-18-028465"
+    ],
+    "disposition": "same-event split; do not count accession count as independent trade count"
+  },
+  "signal_disposition": {
+    "killed": [
+      "FORM4_MULTI_OWNER_OWNER_COUNT_CLUSTER"
+    ],
+    "quarantine": [
+      "multi-owner transaction rows without explicit unique owner reference",
+      "unresolved cross-accession same-event candidates"
+    ],
+    "conditional": [
+      "single-owner Form 4 candidates subject to all existing PIT, security, transaction-quality and amendment gates"
+    ],
+    "alpha_authorized": false,
+    "oos_test_run": false,
+    "production_changed": false,
+    "frozen_baseline_changed": false
+  },
+  "sources": [
+    "https://www.sec.gov/files/form4.pdf",
+    "https://www.sec.gov/files/info/edgar/ownershipxmltechspec-v3.pdf",
+    "https://www.sec.gov/submit-filings/technical-specifications",
+    "https://www.sec.gov/Archives/edgar/data/1612720/000114036118028469/form4.xml",
+    "https://www.sec.gov/Archives/edgar/data/1612720/000114036118028465/form4.xml"
+  ]
+}
