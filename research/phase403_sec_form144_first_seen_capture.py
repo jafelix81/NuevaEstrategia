@@ -282,6 +282,15 @@ def interval_policy(previous_poll_utc, previous_poll_had_gap, current_poll_has_g
         return None, "POSSIBLE_FEED_WINDOW_GAP"
     return previous_poll_utc, "BOUNDED_BY_SUCCESSIVE_SUCCESSFUL_POLLS"
 
+def previous_poll_start_by_feed(state):
+    """Only explicit poll-start clocks may bound a future PIT interval.
+
+    Legacy last_successful_poll_utc_by_feed values are page-receipt timestamps
+    and are intentionally not reused as interval lower bounds.
+    """
+    return dict((state or {}).get("last_successful_poll_started_utc_by_feed", {}))
+
+
 def read_json(path):
     path = Path(path)
     return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
@@ -679,7 +688,7 @@ def run(mode, output_dir, run_id, data_dir=DATA_DIR):
     # Use the prior poll START as the interval lower bound. A multi-page live
     # feed can receive new filings while pages are being read; using the last
     # page receipt would be later than some arrivals and could introduce look-ahead.
-    last_poll_by_feed = dict(previous_state.get("last_successful_poll_started_utc_by_feed", {}))
+    last_poll_by_feed = previous_poll_start_by_feed(previous_state)
     last_receipt_by_feed = dict(previous_state.get("last_successful_poll_utc_by_feed", {}))
     last_gap_by_feed = dict(previous_state.get("last_poll_possible_gap_by_feed", {}))
     hash_by_feed = dict(previous_state.get("last_feed_sha256_by_feed", {}))
