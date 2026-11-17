@@ -23,8 +23,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      FINRA_ACCESS_TOKEN: ${{ secrets.FINRA_ACCESS_TOKEN }}}
-      SETTLEMENT_DATE: ${{ github.event.inputs.settlement_date || '2026-09-30' }}}
+      FINRA_ACCESS_TOKEN: ${{ secrets.FINRA_ACCESS_TOKEN }}
+      SETTLEMENT_DATE: ${{ github.event.inputs.settlement_date || '2026-09-30' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
