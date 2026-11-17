@@ -14,12 +14,12 @@ on:
       - "research/PHASE401_FORM144_CANDIDATE_CIK_MANIFEST_2026-11-14.json"
   workflow_dispatch:
   schedule:
-    # Hourly polling at a non-round minute. Moved from :17 to :37 after two expected
+    # Hourly polling at a non-round minute. Moved from :17 to :37, then :47 after two expected
     # post-merge slots produced no schedule run in Actions; changing cron also reactivates
     # a deactivated schedule if GitHub had disabled it. This remains a best-effort clock.
     # Phase 403 observed a 50-entry response despite requesting 100.
     # Acceptance timestamps are enriched from filing-detail pages, not inferred from feed updated.
-    - cron: "37 * * * *"
+    - cron: "47 * * * *"
 
 permissions:
   contents: write
