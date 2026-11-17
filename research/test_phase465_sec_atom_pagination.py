@@ -111,6 +111,17 @@ class Phase465PaginationTests(unittest.TestCase):
         self.assertTrue(snapshots["144"]["possible_feed_window_gap"])
         self.assertFalse(snapshots["144"]["pagination_complete"])
 
+    def test_legacy_receipt_clock_is_not_reused_as_interval_lower_bound(self):
+        legacy_state = {
+            "last_successful_poll_utc_by_feed": {"144": "2026-11-16T22:00:00Z"}
+        }
+        starts = p403.previous_poll_start_by_feed(legacy_state)
+        self.assertEqual(starts, {})
+        self.assertEqual(
+            p403.interval_policy(starts.get("144"), False, False),
+            (None, "INITIAL_BASELINE_NO_LOWER_BOUND"),
+        )
+
     def test_bootstrap_is_one_page_and_never_claims_historical_interval(self):
         page0 = atom([("0000000001-26-000001", "Issuer")])
         calls = []
