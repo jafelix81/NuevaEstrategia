@@ -44,8 +44,8 @@
   "implementation": {
     "module": "research/phase447_finra_async_snapshot_client.py",
     "tests": "research/test_phase447_finra_async_snapshot_client.py",
-    "local_tests_passed": 10,
-    "local_tests_total": 10,
+    "local_tests_passed": 11,
+    "local_tests_total": 11,
     "py_compile": "passed",
     "live_finra_requests": 0,
     "raw_data_committed": false,
