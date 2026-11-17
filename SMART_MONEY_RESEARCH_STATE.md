@@ -1,3 +1,16 @@
+## Phase 444 — SEC Form 144 independent-feed persistence after partial outage (2026-11-17)
+
+- Preflight: main HEAD `283c4056e7f56d4d6cabfa9d3aec3ae5f5ca709c`; latest 100 Actions runs 61 success / 38 failure / 1 cancelled (7,677 total), zero active/queued; 278 branches, 56 open PRs, 67 workflows. No workflow was dispatched or rerun.
+- Latest Phase 403 run [43970444015](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43970444015): offline regression passed; live capture failed on the second feed (144/A) after four 60-second retries. The first configured 144 feed had already returned/parsed, but fail-fast `fetch_all_feeds()` discarded it. Commit step skipped; upload step had no files; no artifact or poll-state update.
+- Phase 444 changes `fetch_all_feeds()` to isolate feed errors and return successful snapshots plus typed errors. Partial polls persist successful-feed observations/events; only successful feeds advance their own clocks. The global successful-poll clock advances only when both feeds succeed. Partial events mark `cross_feed_provenance_complete=false`; cross-feed overlap count is null when incomplete. All-feed failure writes a summary then exits non-zero without state/event mutation.
+- Three offline regressions cover partial fetch, partial persistence and all-feed failure. Existing schedule, timeout/retry policy, candidate manifest, no-intraday and signal-ineligible controls are unchanged.
+- Latest successful SEC Form 144 run remains [43862500790](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43862500790), 55 observations and zero new accessions; artifact [14223876987](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43862500790/artifacts/14223876987).
+- CFTC TFF remains bootstrap-only at [43525140200](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43525140200), last capture 2026-11-13 23:03:38 UTC, report date 2026-11-03; no Nov 16 scheduled run or Nov 10 prospective observation. Next expected poll 2026-11-17 22:15 UTC.
+- Report: [Phase 444](research/PHASE444_SEC_FORM144_INDEPENDENT_FEED_PERSISTENCE_AUDIT_2026-11-17.md) · [summary](research/PHASE444_SEC_FORM144_INDEPENDENT_FEED_PERSISTENCE_SUMMARY_2026-11-17.json).
+- No source data download, signal, alpha/OOS test, holdout use, or production change. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+---
+
 ## Operational preflight — 2026-11-16 19:17 UTC
 
 - Main HEAD at start: `21502d5ccd2fb3223a70315e9fa322c3a2154702` (Phase 441). Latest 100 Actions runs: 62 success / 37 failure / 1 cancelled; total runs 7,676; zero queued or in-progress. Audited 276 branches, 56 open PRs and 67 workflows. No workflow was dispatched, rerun or duplicated.
