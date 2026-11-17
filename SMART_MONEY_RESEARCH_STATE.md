@@ -1100,3 +1100,23 @@ This section supersedes any older “in progress” status above where later com
 - Phase 384 state still ends at the 2026-11-13 23:03:38 UTC branch-push baseline: 3,035 warm-up rows; latest report date 2026-11-03 for all four contracts. The expected Nov 16 22:15 UTC scheduled capture is not present in Actions by 22:31 UTC. Root cause is not established.
 - If the Nov 10 report is first observed by the next scheduled poll (expected Nov 17 22:15 UTC), the pipeline will use that actual first_seen_utc, not backdate to Nov 16 or the report date. It may become a research observation from the next regular equity session; signal_eligible remains false. Manual mode is state-neutral and must not be used to simulate first receipt.
 - No source data downloaded, event fabricated, signal admitted, alpha/OOS/holdout test run, or production change. Keep Phase 387 weekly preregistration and `F80_TOP20_PARTIAL50_BASELINE_C20` frozen.
+
+
+## Phase 445 — FINRA short-interest zero-vs-missing semantics re-audit (2026-11-17)
+
+- Decision: **reopen for data-semantics / effective-coverage reconstruction only; no alpha re-admission**.
+- Phase 37's 98/335 figure was positive-row incidence in the Phase 31 artifact, not necessarily missing-data coverage. FINRA Regulatory Notice 16-32 explicitly says firms need not submit a zero position when a previously reported issue has no short position in the current cycle. A no-row observation may therefore be a structural zero only after the entire settlement snapshot is proven complete, the security is proven active/in-scope on that date, and the effective-dated identity is resolved. Failed/partial snapshots and unresolved/inactive/out-of-scope symbols remain unknown, never zero.
+- Phase 31 artifact facts remain: 9,420 consolidated-SI rows, 98 unique symbols with rows, 84–96 symbols with positive rows per audited settlement, dates 2022-06-15 to 2026-09-30. These counts measure positive-position incidence, not full effective coverage. Phase 31's unstable horizon directions and bootstrap intervals including zero remain non-promotable; this phase did not run a return test.
+- FINRA's January 2023 release notes state five years of history and all-exchange short-interest data from June 2022. FINRA API docs say the consolidated dataset is available by 4:40 p.m. ET on the official publication date. The current calendar remains twice monthly; Nov 13 settlement is due Nov 17 at 6 p.m. ET and publishes Nov 24. SEC marks SR-FINRA-2026-012 withdrawn on Aug 5, 2026; proposed weekly cadence, arranged-financing additions and deleted-symbol final reports are not in force.
+- Preserve `revisionFlag`, `stockSplitFlag`, raw current/previous short quantities, complete-snapshot status, active security identity, official publication clock and prospective first-seen clock. Do not treat FINRA reported short interest as total economic short exposure or direct institutional identity.
+- Required next gate: reconstruct full per-settlement snapshots with explicit states (positive row / structural zero / unknown), then recompute effective 335-name coverage using effective-dated security identity. Only if that gate passes may a new chronological diagnostic be designed against frozen LTM/F80 with identical exposure/costs, bootstrap/LOO and return-chasing controls.
+- Report: [Phase 445](research/PHASE445_FINRA_SHORT_INTEREST_ZERO_VS_MISSING_SEMANTICS_AUDIT_2026-11-17.md) · [machine-readable summary](research/PHASE445_FINRA_SHORT_INTEREST_ZERO_VS_MISSING_SUMMARY_2026-11-17.json).
+
+## Operational preflight — 2026-11-17 01:10 UTC (Phase 445)
+
+- Main HEAD: `a5f4da0609d49b30a5335296f29e298a8ef3e2d6` (Phase 444 CI validation record). Branch enumeration completed across three pages: 279 branches. Open PRs: 56.
+- Latest known Phase 444 CI run `43990197952`: offline validation passed 18/18. Its log includes synthetic fixtures, not live SEC accessions.
+- SEC live run `43970444015`: Form 144/A timed out after retries; no artifact. Phase 444 fixed partial-feed persistence; no post-merge live capture was confirmed at this preflight.
+- CFTC run `43525140200` remains a bootstrap/push capture: 3,035 warm-up records, zero prospective eligible records; artifact `14084802705`, SHA-256 `c7a652038336f852e3c51792d1bdc96ebc1368176bdafdae0693332fb4224eef`. Next scheduled capture was not due.
+- The GitHub connector did not expose a current workflow-run listing endpoint in this session. No manual workflow was dispatched or duplicated; no assertion is made about unqueried live runs.
+- No new data download, alpha/OOS test, signal admission, code/production change, universe/parameter/holdout/capital/exposure change. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
