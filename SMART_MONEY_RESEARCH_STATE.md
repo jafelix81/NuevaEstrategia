@@ -1165,3 +1165,11 @@ This section supersedes any older “in progress” status above where later com
 - Live one-settlement check 44007662531 failed closed at the credential guard. GitHub Actions showed FINRA_ACCESS_TOKEN, FINRA_CLIENT_ID and FINRA_CLIENT_SECRET all empty. Capture was skipped; zero FIP/FINRA API requests were made.
 - The live workflow is manual workflow_dispatch only, no schedule. Human action: configure FINRA_CLIENT_ID and FINRA_CLIENT_SECRET GitHub Actions secrets (preferred), or a valid FINRA_ACCESS_TOKEN. Then run exactly one settlement-date validation before any 106-date batch.
 - No raw data, token or secret committed. No alpha/OOS test or production integration. F80 remains frozen.
+
+
+### Phase 447 final merge / CI (2026-11-17)
+
+- OAuth extension merged: PR #111, commit 13b028593213108077dc100f0a81fed688ad9a70.
+- Post-merge CI run 44007937167 passed Python compilation and 14/14 synthetic tests.
+- Manual-only live workflow is now on main. It requires FINRA_CLIENT_ID + FINRA_CLIENT_SECRET (preferred) or FINRA_ACCESS_TOKEN. The live credential check confirmed all three were empty; the guard skipped the capture, so no FIP or FINRA request was made.
+- No historical data was downloaded, no alpha/OOS test ran, and no signal or production setting changed. F80 remains frozen.
