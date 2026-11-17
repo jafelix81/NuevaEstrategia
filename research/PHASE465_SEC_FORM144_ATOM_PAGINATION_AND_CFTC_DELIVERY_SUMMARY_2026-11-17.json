@@ -122,6 +122,14 @@
     "phase403_existing_regressions_updated": 3,
     "pr_ci_total_tests": 40,
     "pr_ci_conclusion": "success",
-    "run_id": 44194710372
+    "run_id": 44194710372,
+    "latest_successful_run_id": 44195015699,
+    "latest_successful_run_url": "https://github.com/jafelix81/NuevaEstrategia/actions/runs/44195015699"
+  },
+  "pull_request": {
+    "number": 126,
+    "url": "https://github.com/jafelix81/NuevaEstrategia/pull/126",
+    "merged": true,
+    "merge_commit_sha": "7dc64df34d7b81f1f4012c0f10c233a41f60c0ba"
   }
 }
