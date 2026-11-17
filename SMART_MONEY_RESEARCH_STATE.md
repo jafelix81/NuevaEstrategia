@@ -1,3 +1,16 @@
+## Phase 451 — N-PORT current disclosure cadence and rule-status revalidation (2026-11-17)
+
+- Main HEAD at audit: `fda2bd347fbce0eb3dbdce301f08fe533af3961a` (Phase 450). Actions total 7,691; explicit in-progress/queued queries zero; 285 branches, 56 open PRs and 69 workflow files.
+- Latest overall run [44009082677](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44009082677): Phase 448 PR CI, offline 18/18; live capture skipped by design; no artifact. Its partial/failure log payloads are synthetic regression fixtures, not a live SEC poll. Latest main push [44007937167](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44007937167): Phase 447, 14/14 synthetic tests; no artifact.
+- Latest scheduled SEC Form 144 remains [43970444015](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43970444015): Form 144/A read timeout after four retries; no ledger commit or artifact. Phase 444's partial-feed persistence fix remains unvalidated by a post-merge live capture.
+- Latest CFTC run remains bootstrap [43525140200](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43525140200), 3,035 warm-up rows and zero signal-eligible observations; artifact [14084802705](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43525140200/artifacts/14084802705). The next 22:25 UTC slot had not yet occurred at audit time. No workflow was dispatched or duplicated.
+- SEC regulatory revalidation: 2024 Form N-PORT amendments were delayed by final rule IC-35538 to 2027-11-17 (Form N-PORT/instruction 2) and 2028-05-18 (instruction 3); corresponding compliance dates are 2027-11-17 for fund groups >= USD 1bn and 2028-05-18 for smaller groups. The separate February 2026 proposal IC-35962 / S7-2026-05 (additional 15 days to file monthly reports and restore quarterly public publication) is still listed as Proposed, not Final, on the SEC Rulemaking Activity index as of 2026-11-17.
+- Disposition: keep current N-PORT public holdings at quarterly grain; use each accession's EDGAR acceptance/first-public timestamp, preserve amendments as separate vintages, and never backdate positions to report-period end. The 60/64-day lags in the two Phase 313 short-position cases remain case-specific, not a population estimate. No monthly interpolation or proposed-rule implementation.
+- Report: [Phase 451](research/PHASE451_NPORT_CURRENT_DISCLOSURE_CADENCE_AND_RULE_STATUS_REVALIDATION_2026-11-17.md); machine summary: [Phase 451 JSON](research/PHASE451_NPORT_DISCLOSURE_CADENCE_STATUS_SUMMARY_2026-11-17.json).
+- No raw SEC data, signal, return/alpha/OOS/bootstrap/LOO/holdout test or production change. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+---
+
 ## Phase 450 — N-PORT short-position amendment-delta disposition (2026-11-17)
 
 - Main HEAD before this entry: `89182f81bfd6d1275c596c4c75b4de1768f9b55d` (Phase 449). Current preflight: 7,691 Actions runs; latest 100 = 62 success / 37 failure / 1 cancelled; zero in-progress/queued. 285 branches, 56 open PRs, 69 workflow files.
