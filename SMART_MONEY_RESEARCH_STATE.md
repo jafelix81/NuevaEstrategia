@@ -1,3 +1,17 @@
+## Phase 452 — Post-Phase 451 operational and public-artifact audit (2026-11-17)
+
+- Main HEAD at audit: `f5f1bdb6be9d6cf48e20b76e1627b7ffbb61f6ba`; 7,691 Actions runs, latest 100 = 62 success / 37 failure / 1 cancelled; zero in-progress/queued. Branches 285, open PRs 56, workflow files 69.
+- Latest overall run [44009082677](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44009082677): Phase 448 PR CI, 18/18 synthetic tests; live capture skipped; no artifact. Its partial-feed output is a synthetic fixture. Latest main push [44007937167](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44007937167): 14/14 synthetic tests; no artifact.
+- SEC Form 144 schedule query returns 17 events; latest remains [43970444015](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43970444015), 2026-11-16 22:28:47 UTC. Offline 15/15 passed; live capture failed on Form 144/A timeout after four retries; no artifact. Main YAML still has cron `47 * * * *`, but eight expected slots 03:47–10:47 UTC on Nov 17 are absent. Workflow enabled/disabled state is not exposed by the read interface; verify in Actions UI, enable once only if disabled, and do not keep changing cron or use manual mode to fabricate first-seen timestamps.
+- CFTC Phase 384 main YAML remains `25 22 * * 1-5` UTC. At 11:10 UTC Nov 17 the next slot at 22:25 UTC had not occurred. Latest known run remains bootstrap [43525140200](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43525140200), artifact [14084802705](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43525140200/artifacts/14084802705), 3,035 warm-up rows, zero eligible observations. No manual dispatch.
+- FINRA live validation [44007662531](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44007662531) failed before any request because all three credential variables were empty. SEC 13D/G still awaits monitored-contact `SEC_USER_AGENT`.
+- Public Cboe artifact [13291147097](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41762583602/artifacts/13291147097) remains available, 3,963,598 bytes, unexpired until 2027-02-02. Cboe's product page states raw data are internal-use only and may not be redistributed externally; whether the downloadable sample has a specific exception is unresolved. Human review/remove if the exact sample terms do not permit public redistribution. No delete action is available through the connected GitHub interface.
+- Form 4 identity remains below gate (4/15 issuer, 16/42 accession, 16/41 issuer-filing units); raw IV spread/skew remains demoted to borrow-friction controls; Cboe EOD remains conditional only; N-PORT remains delayed quarterly context. No signal or return/OOS test admitted.
+- Report: [Phase 452](research/PHASE452_POST_PHASE451_OPERATIONAL_AND_PUBLIC_ARTIFACT_AUDIT_2026-11-17.md).
+- `F80_TOP20_PARTIAL50_BASELINE_C20`, universe, parameters, capital, exposure, holdout and production remain frozen.
+
+---
+
 ## Phase 451 — N-PORT current disclosure cadence and rule-status revalidation (2026-11-17)
 
 - Main HEAD at audit: `fda2bd347fbce0eb3dbdce301f08fe533af3961a` (Phase 450). Actions total 7,691; explicit in-progress/queued queries zero; 285 branches, 56 open PRs and 69 workflow files.
