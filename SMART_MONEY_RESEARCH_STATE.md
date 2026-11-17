@@ -1,3 +1,15 @@
+## Phase 455 — SEC Form 4 candidate overlap with frozen 335-symbol snapshot (2026-11-17)
+
+- Replayed immutable Phase 342 six-archive artifact [13965917386](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43265704634/artifacts/13965917386), ZIP SHA-256 `16614b404f007b78f47951ef84604660ea6612f0c86f1b2ba5a6fa7b7d52d80c`; all six nested SEC ZIP hashes reconciled.
+- Recovered the exact 335-symbol snapshot from Phase 44 commit `1aa1b91f383ce9cef375a43e775c736a27356a5f`, blob SHA-1 `7edbd62b4fb34a6123276e4ce45cb3c1c62479c7`, SHA-256 `f850655a22a8843dad90e9562b3152b9ca064560586109022b5bfd205a003dda`.
+- Across six sampled quarters: 413 high-precision candidate transaction rows, 262 accessions, 109 issuer CIKs and 224 issuer×filing-date events. Strict exact as-filed ticker matching found 9 rows / 6 accessions / 4 issuer CIKs / 5 issuer-filing events across four snapshot symbols (VRTX, CRSP, NTLA, OPEN); all exact matches were in 2025Q3/2026Q3. No historical membership or security-class identity is established by this static ticker overlap.
+- Two issuer CIKs had multiple as-filed symbols across the sampled periods (TKOI.OB→TKOI; AULT→GPUS), so effective dating remains mandatory. No symbol-to-multiple-CIK collision appeared in this candidate sample.
+- Disposition: descriptive overlap only; continue candidate-specific identity and full quarterly census, but no event study or alpha until historical active-universe and security/class/listing crosswalks pass. Bulk filing date remains date-only, not exact first public receipt; Phase 342 candidate rows are not proof of discretionary exchange execution.
+- Report: [Phase 455](research/PHASE455_FORM4_FROZEN_UNIVERSE_OVERLAP_AUDIT_2026-11-17.md) · [summary](research/PHASE455_FORM4_FROZEN_UNIVERSE_OVERLAP_SUMMARY_2026-11-17.json).
+- No raw SEC rows or archives committed. No forward returns, alpha, OOS, bootstrap, LOO or holdout use. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+---
+
 ## Phase 454 — SEC Form 144 event-ledger schema migration (2026-11-17)
 
 - Real scheduled run [44083941814](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44083941814) reached live capture after the :47 re-arm. Offline tests passed; live capture failed in acceptance reconciliation with `ValueError: invalid literal for int() with base 10: '2026-11-16T16:55:39-05:00'`. No artifact or append commit; runner-workspace changes did not persist.
