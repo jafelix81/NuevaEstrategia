@@ -1,9 +1,6 @@
 name: Phase 447 FINRA Single Settlement Live Validation
 
 on:
-  push:
-    branches:
-      - phase447-finra-single-live-validation
   workflow_dispatch:
     inputs:
       settlement_date:
