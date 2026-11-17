@@ -1,0 +1,60 @@
+name: Phase 455 Form 4 frozen-universe overlap audit
+
+on:
+  pull_request:
+    paths:
+      - "research/phase455_form4_universe_overlap_audit.py"
+      - "research/test_phase455_form4_universe_overlap_audit.py"
+      - "research/PHASE455_FORM4_FROZEN_UNIVERSE_OVERLAP_AUDIT_2026-11-17.md"
+      - "research/PHASE455_FORM4_FROZEN_UNIVERSE_OVERLAP_SUMMARY_2026-11-17.json"
+      - ".github/workflows/phase455_form4_frozen_universe_overlap_audit.yml"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: phase455-form4-frozen-universe-overlap
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Compile and run synthetic regressions
+        run: |
+          python -m py_compile research/phase455_form4_universe_overlap_audit.py research/test_phase455_form4_universe_overlap_audit.py
+          python -m unittest -v research.test_phase455_form4_universe_overlap_audit
+      - name: Retrieve immutable Phase 342 artifact and exact universe snapshot
+        run: |
+          mkdir -p phase455_input phase455_output
+          curl --retry 4 --retry-all-errors --retry-delay 2 -fsSL \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13965917386/zip" \
+            -o phase455_input/phase342-six-archive.zip
+          curl --retry 4 --retry-all-errors --retry-delay 2 -fsSL \
+            "https://raw.githubusercontent.com/jafelix81/NuevaEstrategia/1aa1b91f383ce9cef375a43e775c736a27356a5f/research/phase44_frozen_universe_335_tickers.csv" \
+            -o phase455_input/phase44_frozen_universe_335_tickers.csv
+      - name: Reconcile hashes and audit candidate overlap
+        run: |
+          python -m research.phase455_form4_universe_overlap_audit \
+            --artifact phase455_input/phase342-six-archive.zip \
+            --universe phase455_input/phase44_frozen_universe_335_tickers.csv \
+            --output phase455_output/phase455_result.json
+      - name: Upload aggregate audit only
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase455-form4-frozen-universe-overlap
+          path: phase455_output/phase455_result.json
+          retention-days: 30
+          if-no-files-found: warn

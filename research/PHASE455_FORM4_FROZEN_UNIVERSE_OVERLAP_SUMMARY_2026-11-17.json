@@ -1,0 +1,127 @@
+{
+  "phase": 455,
+  "audit_time_utc": "2026-11-17T12:50:00Z",
+  "source": {
+    "phase342_run_id": 43265704634,
+    "phase342_artifact_id": 13965917386,
+    "phase342_artifact_sha256": "16614b404f007b78f47951ef84604660ea6612f0c86f1b2ba5a6fa7b7d52d80c",
+    "universe_source_commit": "1aa1b91f383ce9cef375a43e775c736a27356a5f",
+    "universe_git_blob_sha1": "7edbd62b4fb34a6123276e4ce45cb3c1c62479c7",
+    "universe_sha256": "f850655a22a8843dad90e9562b3152b9ca064560586109022b5bfd205a003dda",
+    "universe_size": 335,
+    "nested_archive_hashes_verified": 6
+  },
+  "periods": {
+    "2006Q1": {
+      "candidate_rows": 10,
+      "accessions": 8,
+      "issuer_ciks": 7,
+      "issuer_filing_events": 8,
+      "exact_match_rows": 0,
+      "exact_match_accessions": 0,
+      "exact_match_events": 0
+    },
+    "2012Q1": {
+      "candidate_rows": 102,
+      "accessions": 47,
+      "issuer_ciks": 16,
+      "issuer_filing_events": 43,
+      "exact_match_rows": 0,
+      "exact_match_accessions": 0,
+      "exact_match_events": 0
+    },
+    "2023Q1": {
+      "candidate_rows": 59,
+      "accessions": 41,
+      "issuer_ciks": 19,
+      "issuer_filing_events": 32,
+      "exact_match_rows": 0,
+      "exact_match_accessions": 0,
+      "exact_match_events": 0
+    },
+    "2023Q2": {
+      "candidate_rows": 92,
+      "accessions": 63,
+      "issuer_ciks": 27,
+      "issuer_filing_events": 57,
+      "exact_match_rows": 0,
+      "exact_match_accessions": 0,
+      "exact_match_events": 0
+    },
+    "2025Q3": {
+      "candidate_rows": 65,
+      "accessions": 44,
+      "issuer_ciks": 25,
+      "issuer_filing_events": 36,
+      "exact_match_rows": 8,
+      "exact_match_accessions": 5,
+      "exact_match_events": 4
+    },
+    "2026Q3": {
+      "candidate_rows": 85,
+      "accessions": 59,
+      "issuer_ciks": 31,
+      "issuer_filing_events": 48,
+      "exact_match_rows": 1,
+      "exact_match_accessions": 1,
+      "exact_match_events": 1
+    }
+  },
+  "overall": {
+    "candidate_rows": 413,
+    "accessions": 262,
+    "unique_issuer_ciks": 109,
+    "issuer_filing_events": 224,
+    "exact_match_rows": 9,
+    "exact_match_accessions": 6,
+    "exact_match_issuer_ciks": 4,
+    "exact_match_issuer_filing_events": 5,
+    "unique_exact_symbols": 4,
+    "outside_snapshot_rows": 404,
+    "ambiguous_format_rows": 0,
+    "unknown_symbol_rows": 0
+  },
+  "identity_diagnostics": {
+    "issuer_ciks_with_multiple_as_filed_symbols": 2,
+    "raw_symbols_linked_to_multiple_issuer_ciks": 0,
+    "unique_raw_symbols": 111
+  },
+  "exact_match_events": [
+    {
+      "ticker": "VRTX",
+      "filing_date": "2025-08-07",
+      "accessions": 2,
+      "candidate_transaction_rows": 4
+    },
+    {
+      "ticker": "CRSP",
+      "filing_date": "2025-08-08",
+      "accessions": 1,
+      "candidate_transaction_rows": 1
+    },
+    {
+      "ticker": "NTLA",
+      "filing_date": "2025-08-22",
+      "accessions": 1,
+      "candidate_transaction_rows": 1
+    },
+    {
+      "ticker": "OPEN",
+      "filing_date": "2025-08-28",
+      "accessions": 1,
+      "candidate_transaction_rows": 2
+    },
+    {
+      "ticker": "OPEN",
+      "filing_date": "2026-08-14",
+      "accessions": 1,
+      "candidate_transaction_rows": 1
+    }
+  ],
+  "decision": {
+    "disposition": "DESCRIPTIVE_OVERLAP_ONLY; HISTORICAL_MEMBERSHIP_AND_SECURITY_IDENTITY_NOT_ESTABLISHED",
+    "alpha_authorized": false,
+    "signal_admitted": false,
+    "f80_changed": false
+  }
+}
