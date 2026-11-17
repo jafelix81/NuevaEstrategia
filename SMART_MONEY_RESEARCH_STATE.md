@@ -1120,3 +1120,25 @@ This section supersedes any older “in progress” status above where later com
 - CFTC run `43525140200` remains a bootstrap/push capture: 3,035 warm-up records, zero prospective eligible records; artifact `14084802705`, SHA-256 `c7a652038336f852e3c51792d1bdc96ebc1368176bdafdae0693332fb4224eef`. Next scheduled capture was not due.
 - The GitHub connector did not expose a current workflow-run listing endpoint in this session. No manual workflow was dispatched or duplicated; no assertion is made about unqueried live runs.
 - No new data download, alpha/OOS test, signal admission, code/production change, universe/parameter/holdout/capital/exposure change. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+
+## Phase 446 — Phase 31 FINRA short-interest artifact truncation audit (2026-11-17)
+
+- Decision: **Phase 31 short-interest panel is killed as retrieved; FINRA source remains conditional on complete asynchronous re-ingestion.**
+- Downloaded and inspected existing GitHub artifact `12588045711` from run `40164323397` (ZIP SHA-256 `91f7683cf984cb2b00a6bd772608c3243ac9a56717930c6fd2092696e092a266`). No new FINRA API request was made and no raw data was added to the public repo.
+- `si_download_audit.csv`: 106 settlement requests; 102 successes and 4 errors. **All 102 successful requests returned exactly 5,000 rows**, the documented FINRA synchronous API ceiling. The audit saved no `Record-Total`, `Record-Offset`, `Record-Limit`, async request ID or pagination-complete metadata. None of the 102 snapshots is proven complete.
+- `short_interest_features.csv`: 9,420 filtered rows, 102 settlement dates (2022-06-15 to 2026-09-30), 98 unique observed tickers. All 98 begin A–D (34 A, 19 B, 32 C, 13 D); no E–Z. All retained current short quantities are positive. This is strongly consistent with prefix truncation, although raw API response order was not preserved. **98 is only the observed symbol count in a capped subset, not full positive-position incidence and not effective 335-name coverage.** No absent symbol may be zero-filled from this artifact.
+- Four failed settlements: 2024-01-15, 2024-03-29, 2026-10-15 and 2026-10-30. The last is beyond Phase 31's 2026-10-23 OOS end.
+- FINRA API docs state 5,000 synchronous and 100,000 asynchronous record ceilings and document response headers such as Record-Total/Offset/Limit. Next re-ingestion must use async requests (or deterministic partitions), retain request IDs/timestamps/headers, and reconcile each settlement to its source total before any structural-zero inference.
+- Phase 445's zero-vs-missing semantics remain valid in principle, but its structural-zero rule cannot be applied to the Phase 31 artifact because snapshot completeness was never established. Phase 37's kill of the existing Phase 31 panel remains valid and is strengthened; the source itself is conditional on complete retrieval.
+- Local reproducible audit script plus five synthetic tests passed 5/5: [report](research/PHASE446_FINRA_SHORT_INTEREST_ARTIFACT_TRUNCATION_AUDIT_2026-11-17.md) · [summary](research/PHASE446_FINRA_SHORT_INTEREST_ARTIFACT_TRUNCATION_SUMMARY_2026-11-17.json) · [auditor](research/phase446_finra_si_artifact_audit.py) · [tests](research/test_phase446_finra_si_artifact_audit.py).
+- No signal, alpha, OOS test, data download, production workflow, trading code, F80 parameter, universe, holdout, capital or exposure change.
+
+## Operational preflight — 2026-11-17 01:17 UTC (Phase 446)
+
+- Main HEAD before this phase: `e9cb6510492ca5c9b520c897ab366696d1798b53` (Phase 445). Branches: 280; open PRs: 56.
+- Latest known completed research CI: Phase 444 run `43990197952`, 18/18 offline tests passed; synthetic dummy accession only.
+- SEC live run `43970444015`: Form 144/A timeout after retries, no artifact. Phase 444 partial-feed fix is merged; no post-merge live capture was confirmed in this audit.
+- CFTC run `43525140200`: bootstrap only, 3,035 warm-up records, zero prospective eligible records; artifact `14084802705`, SHA-256 `c7a652038336f852e3c51792d1bdc96ebc1368176bdafdae0693332fb4224eef`. Next scheduled capture was not due.
+- Current workflow-run listing is not exposed by the connected GitHub interface in this session. Known run/job/log/artifact records were fetched directly; no manual workflow was dispatched or duplicated.
+- No CI workflow was triggered by the Phase 445 merge commit. Phase 446 is a research audit; local synthetic tests passed 5/5. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
