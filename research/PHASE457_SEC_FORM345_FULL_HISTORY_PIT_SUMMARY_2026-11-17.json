@@ -1,0 +1,130 @@
+{
+  "phase": 457,
+  "date": "2026-11-17",
+  "audit_time_utc": "2026-11-17T14:28:00Z",
+  "repository": "jafelix81/NuevaEstrategia",
+  "main_head": "be05737e7a1e56ac09b84e00754b385baa6048ff",
+  "operational_preflight": {
+    "total_actions_runs": 7696,
+    "active_runs": 0,
+    "queued_runs": 0,
+    "latest_run": 44087732566,
+    "latest_run_conclusion": "success",
+    "latest_run_tests": 6,
+    "latest_run_artifact": 14329718579,
+    "phase454_ci_run": 44086525354,
+    "phase454_ci_offline": "success",
+    "phase454_ci_live_capture": "skipped",
+    "latest_main_sec_schedule_run": 44083941814,
+    "latest_main_sec_schedule_conclusion": "failure",
+    "post_migration_sec_schedule_at_2026_11_17T13_47Z": "not_observed_as_of_14_28Z",
+    "cftc_next_slot_utc": "2026-11-17T22:25:00Z",
+    "branches": 289,
+    "open_prs": 56,
+    "workflow_files": 71
+  },
+  "sec_insider_transactions": {
+    "coverage_start": "2006-01",
+    "coverage_end": "2026-09",
+    "archive_count": 83,
+    "archive_period": "2006Q1-2026Q3",
+    "sum_sec_displayed_compressed_size_mb": 887.43,
+    "publication_frequency": "quarterly",
+    "archive_cutoff_rule": "filings after 17:30 Eastern on last business day of quarter appear in subsequent quarterly posting",
+    "source_forms": [
+      "3",
+      "3/A",
+      "4",
+      "4/A",
+      "5",
+      "5/A"
+    ],
+    "tables": [
+      "SUBMISSION",
+      "REPORTINGOWNER",
+      "NONDERIV_TRANS",
+      "NONDERIV_HOLDING",
+      "DERIV_TRANS",
+      "DERIV_HOLDING",
+      "FOOTNOTES",
+      "OWNER_SIGNATURE"
+    ],
+    "key_fields": {
+      "submission": [
+        "ACCESSION_NUMBER",
+        "FILING_DATE",
+        "PERIOD_OF_REPORT",
+        "DATE_OF_ORIG_SUB",
+        "DOCUMENT_TYPE",
+        "ISSUERCIK",
+        "ISSUERTRADINGSYMBOL"
+      ],
+      "reporting_owner": [
+        "ACCESSION_NUMBER",
+        "RPTOWNERCIK",
+        "RPTOWNER_RELATIONSHIP",
+        "RPTOWNER_TITLE"
+      ],
+      "nonderivative_transaction": [
+        "ACCESSION_NUMBER",
+        "NONDERIV_TRANS_SK",
+        "TRANS_DATE",
+        "TRANS_CODE",
+        "TRANS_SHARES",
+        "TRANS_PRICEPERSHARE",
+        "TRANS_ACQUIRED_DISP_CD",
+        "DIRECT_INDIRECT_OWNERSHIP"
+      ]
+    },
+    "pit_constraints": [
+      "quarterly bulk posting is not first-public-receipt time",
+      "bulk SUBMISSION has filing date but no acceptance time-of-day",
+      "EDGAR ACCEPTANCE-DATETIME exists in complete submission header",
+      "SEC says sec.gov availability is often 1-3 minutes after EDGAR timestamp but is not guaranteed",
+      "prospective first-seen polling is required for a conservative public-availability upper bound"
+    ],
+    "semantic_constraints": [
+      "P means open-market OR private purchase, not confirmed exchange execution",
+      "S means open-market OR private sale",
+      "amendments are disclosure updates, not automatically new economic trades",
+      "AFF10B5ONE was added to 2023-2025 datasets in July 2025; missing earlier flags are unknown, not false"
+    ]
+  },
+  "phase455_sample_context": {
+    "candidate_rows": 413,
+    "accessions": 262,
+    "issuer_ciks": 109,
+    "issuer_filing_events": 224,
+    "exact_universe_overlap_events": 5,
+    "overlap_symbols": [
+      "VRTX",
+      "CRSP",
+      "NTLA",
+      "OPEN"
+    ],
+    "disposition": "sampled descriptive overlap only; not representative and not historical membership"
+  },
+  "next_gates": [
+    "confirm SEC_USER_AGENT with monitored contact",
+    "pilot one 2026Q3 official archive and validate all tables/schema/hash",
+    "if pilot passes, process 83 archives sequentially and publish aggregate-only manifest",
+    "join accession acceptance timestamps and prospective first-seen ledger",
+    "complete effective-dated security-class/listing and historical F80 membership crosswalk",
+    "only then run preregistered event study and incremental OOS against frozen LTM/F80"
+  ],
+  "decisions": {
+    "signal_admitted": false,
+    "full_archive_download_performed": false,
+    "return_test_run": false,
+    "oos_test_run": false,
+    "production_changed": false,
+    "frozen_baseline": "F80_TOP20_PARTIAL50_BASELINE_C20"
+  },
+  "official_sources": [
+    "https://www.sec.gov/data-research/sec-markets-data/insider-transactions-data-sets",
+    "https://www.sec.gov/files/insider_transactions_readme.pdf",
+    "https://www.sec.gov/about/webmaster-frequently-asked-questions",
+    "https://www.sec.gov/submit-filings/filer-support-resources/how-do-i-guides/determine-status-my-filing",
+    "https://www.sec.gov/search-filings/edgar-search-assistance/accessing-edgar-data"
+  ]
+}
