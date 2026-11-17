@@ -19,6 +19,7 @@ class Phase460SplitEventTests(unittest.TestCase):
             "This Form 4 is the second of two Forms 4 being filed by the Reporting Person "
             "relating to transactions that occurred on July 6, 2026. Because there are more "
             "than 30 rows associated with the Reporting Person's transactions on that date, "
+            "and EDGAR will not allow more than 30 rows on a single Form 4, "
             "the two Forms 4 should be read together as one consolidated filing."
         )
         result = classify_split_remarks(remarks)
