@@ -41,7 +41,7 @@ Three offline tests were added:
 2. A partial scheduled poll persists the successful feed, advances only its per-feed clock, leaves the failed feed/global success clock unchanged, marks event cross-feed provenance incomplete, and records partial counters.
 3. An all-feed failure writes an audit summary, raises, and preserves the prior state and event ledger.
 
-The PR's Phase 403 workflow is expected to run only the offline-regression job on pull_request; live capture is excluded from PR events.
+Validation completed: [Actions run 43990197952](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43990197952) passed Python compilation and all 18 offline tests. The `offline-regression` job succeeded; `live-capture` was correctly skipped for the pull_request event. No artifact was expected.
 
 ## 5. Research and production controls
 
