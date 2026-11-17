@@ -1,3 +1,16 @@
+## Phase 448 — FINRA short-interest five-year history and scheduled-capture re-arm (2026-11-17)
+
+- Main HEAD at preflight: `aee5157cdd41f050efc90272ab9bbaf23b01be19`. Actions reports 7,690 total runs; latest 30 inspected and all completed. Latest main run [44007937167](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44007937167) passed Phase 447 compilation and 14/14 synthetic tests. Audited 283 branches and 56 open PRs; 67 workflow files. No active/queued run appeared in the latest-run page.
+- Five Phase 447 live-validation branch-push runs were inspected. One failed at settlement-date parsing; four stopped at the missing credential guard. No FIP/FINRA request was made. The main live-validation workflow is manual-only.
+- Official FINRA About Equity Short Interest page confirms five rolling years in the Equity API; the separate archive page states that archive files back to 2014 are OTC-only. FINRA says corrections expose only the latest data, so the five-year backfill is not a historical as-known vintage. Use it for coverage/warm-up only; prospective first-receipt and revision logging remain mandatory for PIT use.
+- Individual/Public FINRA credentials are intended for individual investors/researchers' own non-commercial use. For firm/client/commercial use, use the appropriate Firm/Organization route and terms. Human action: configure `FINRA_CLIENT_ID` and `FINRA_CLIENT_SECRET` (preferred) or a valid `FINRA_ACCESS_TOKEN` in Actions secrets before one live settlement validation.
+- SEC Form 144: last scheduled run [43970444015](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43970444015) failed on Form 144/A before Phase 444 merge; no artifact. Phase 444 passed 18/18 offline tests, but no post-merge live scheduled run appeared. Existing cron re-armed from :37 to :47 UTC.
+- CFTC TFF: last run [43525140200](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43525140200) remains a branch-push bootstrap (3,035 warm-up rows, zero eligible observations; artifact [14084802705](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43525140200/artifacts/14084802705)). The 2026-11-16 22:15 UTC scheduled slot was absent; existing cron re-armed from 22:15 to 22:25 UTC. Next scheduled opportunity is 2026-11-17 22:25 UTC; any first receipt will use the actual capture timestamp, never the public release time retrospectively.
+- Report: [Phase 448](research/PHASE448_FINRA_SI_FIVE_YEAR_API_CREDENTIAL_AND_SCHEDULE_REARM_AUDIT_2026-11-17.md).
+- No raw data downloaded, no signal or alpha/OOS test admitted, no holdout use, and no production change. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+---
+
 ## Phase 444 — SEC Form 144 independent-feed persistence after partial outage (2026-11-17)
 
 - Preflight: main HEAD `283c4056e7f56d4d6cabfa9d3aec3ae5f5ca709c`; latest 100 Actions runs 61 success / 38 failure / 1 cancelled (7,677 total), zero active/queued; 278 branches, 56 open PRs, 67 workflows. No workflow was dispatched or rerun.
