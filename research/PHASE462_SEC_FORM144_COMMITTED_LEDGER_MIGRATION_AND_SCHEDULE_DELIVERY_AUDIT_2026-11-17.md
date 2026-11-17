@@ -90,3 +90,9 @@ This closes a gap in the earlier synthetic tests: the exact committed main-ledge
 5. Configure FINRA OAuth secrets and run exactly one settlement-date validation before any historical batch.
 
 No source, feature or trading signal was admitted by this phase.
+
+## 8. CI result
+
+- PR run [44160283721](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44160283721) completed successfully.
+- Offline-regression job [134311911943](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44160283721/job/134311911943) ran 25 tests; all passed, including the new committed-ledger replay test.
+- The `live-capture` job was correctly skipped on the pull-request event. No artifacts were produced. This validates the migration against a temporary copy of the committed file, not live SEC availability or persisted main-branch migration.
