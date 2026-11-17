@@ -1,3 +1,16 @@
+## Phase 450 — N-PORT short-position amendment-delta disposition (2026-11-17)
+
+- Main HEAD before this entry: `89182f81bfd6d1275c596c4c75b4de1768f9b55d` (Phase 449). Current preflight: 7,691 Actions runs; latest 100 = 62 success / 37 failure / 1 cancelled; zero in-progress/queued. 285 branches, 56 open PRs, 69 workflow files.
+- New branch evidence reviewed: Phase 311–314 N-PORT chain in open PRs #15–#17. Phase 313 verified 56/56 raw hashes; 53/56 series and class IDs match, 3 missing both, zero mismatches. Its deterministic 56-filing sample is not representative and contains 176 sign-concordant short-equity rows in only two filings (Otter Creek 20; Saba 156). Report-to-filing lags were 64 and 60 calendar days. Only 6/20 ticker-reported rows exactly match the legacy 335 ticker strings; 156 rows have no ticker and remain unknown.
+- Phase 314 run [43160951691](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43160951691) succeeded; 8/8 tests passed; artifact [13917229995](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43160951691/artifacts/13917229995), SHA-256 `ec1a61d1172350778b9da1d4ef0e49f25a6279c1b3b328747992fdccc92ebe2b`. It examined 25 original candidates, found one unique but non-authoritative metadata parent candidate, and compared 20 original vs 20 amendment short rows: 20 unchanged, zero modified/added/removed. Kill amendment-delta-as-flow for this pair; no prevalence inference or return test.
+- Disposition: N-PORT quarterly short-position levels remain low-priority delayed context only; do not reopen Phase 386's killed N-PORT Q/Q share-growth or parked 13F hypotheses. Re-entry requires representative position-level coverage, effective-dated CUSIP/ISIN security identity, authoritative amendment lineage and first-public timestamps. No signal admitted.
+- Latest SEC scheduled run remains [43970444015](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43970444015), pre-Phase-444, with Form 144/A timeout and no artifact; no later scheduled run appears after Phase 448's :47 re-arm. Workflow enabled/disabled state remains unobservable through the read interface. CFTC's next 22:25 UTC weekday slot is not yet due; latest known run remains bootstrap [43525140200](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43525140200), 3,035 warm-up rows, zero eligible rows.
+- FINRA live validation [44007662531](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44007662531) failed at the credential guard with all FINRA credential variables empty; no request was made. SEC 13D/G still needs a monitored-contact `SEC_USER_AGENT`.
+- Report: [Phase 450](research/PHASE450_NPORT_SHORT_POSITION_AMENDMENT_DELTA_DISPOSITION_2026-11-17.md).
+- No raw data, return/alpha/OOS/bootstrap/LOO/holdout test or production change. `F80_TOP20_PARTIAL50_BASELINE_C20`, universe, parameters, capital and exposure remain frozen.
+
+---
+
 ## Phase 449 — Post-rearm scheduled-trigger delivery audit (2026-11-17)
 
 - Main HEAD at preflight: `6a03d54164bd048ed1f7fd63919058b490c1f938`; Phase 448 merged at `2148f0de372039007faa19e6a10a0f7c4e09abab`. Actions reports 7,691 total runs; latest 100 = 62 success / 37 failure / 1 cancelled; explicit in-progress, queued, waiting and requested queries all returned zero. Branches 283, open PRs 56, workflow files 69.
