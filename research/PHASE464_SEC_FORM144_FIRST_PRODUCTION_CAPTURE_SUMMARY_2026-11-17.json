@@ -1,0 +1,139 @@
+{
+  "phase": 464,
+  "audit_time_utc": "2026-11-17T21:49:00Z",
+  "disposition": "MIGRATION_AND_CAPTURE_SUCCEEDED; TYPE_144_GAP_QUARANTINED; FOUR_BOUNDED_144A_AMENDMENT_VERSIONS_ONLY; NO_SIGNAL",
+  "repository": "jafelix81/NuevaEstrategia",
+  "main_head_before_audit": "1992e73625432851ea4f7d98a473204f66ce5a0d",
+  "workflow": {
+    "name": "Phase 403 - SEC Form 144 prospective first-seen capture",
+    "workflow_id": 418623900,
+    "run_id": 44179257367,
+    "run_url": "https://github.com/jafelix81/NuevaEstrategia/actions/runs/44179257367",
+    "event": "schedule",
+    "status": "completed",
+    "conclusion": "success",
+    "created_at_utc": "2026-11-17T21:23:10Z",
+    "run_started_at_utc": "2026-11-17T21:23:10Z",
+    "poll_started_at_utc": "2026-11-17T21:23:27Z",
+    "poll_completed_at_utc": "2026-11-17T21:23:39Z",
+    "configured_cron": "47 * * * *",
+    "schedule_timestamp_cron_mismatch_unresolved": true,
+    "jobs": {
+      "offline_regression": "success",
+      "live_capture": "success"
+    },
+    "bot_commit": "1992e73625432851ea4f7d98a473204f66ce5a0d",
+    "bot_commit_url": "https://github.com/jafelix81/NuevaEstrategia/commit/1992e73625432851ea4f7d98a473204f66ce5a0d"
+  },
+  "migration": {
+    "phase": 454,
+    "changed": true,
+    "reason": "header_migrated",
+    "rows_migrated": 52,
+    "previous_header_fields": 41,
+    "current_header_fields": 43,
+    "fields_added": [
+      "cross_feed_provenance_complete",
+      "capture_poll_status"
+    ],
+    "historical_values_for_new_fields": "blank; no provenance fabricated"
+  },
+  "artifact": {
+    "id": 14371301851,
+    "url": "https://github.com/jafelix81/NuevaEstrategia/actions/runs/44179257367/artifacts/14371301851",
+    "zip_sha256": "e1e1baa44b99eef37cbb2f31494ca6cd00ed2d30f1b663f0eb8591a407db7142"
+  },
+  "committed_ledgers_after_run": {
+    "event_rows": 106,
+    "feed_observation_rows": 388,
+    "acceptance_reconciliation_rows": 106,
+    "new_event_rows_from_run": 54,
+    "new_feed_observation_rows_from_run": 58,
+    "new_acceptance_reconciliations_from_run": 54
+  },
+  "capture": {
+    "xml_resolved": 54,
+    "acceptance_reconciled": 54,
+    "acceptance_unresolved": 0,
+    "atom_updated_equals_sec_accepted_count": 54,
+    "candidate_cik_matches": 14,
+    "research_observation_eligible_raw_rows": 4,
+    "signal_eligible_rows": 0,
+    "public_availability_certified_rows": 0,
+    "historical_f80_membership_verified_rows": 0,
+    "same_day_intraday_authorized_rows": 0,
+    "receipt_upper_minus_acceptance_seconds_min": 98,
+    "receipt_upper_minus_acceptance_seconds_max": 101348,
+    "eligible_144a_receipt_upper_minus_acceptance_seconds_min": 83338,
+    "eligible_144a_receipt_upper_minus_acceptance_seconds_max": 101348
+  },
+  "feeds": {
+    "144": {
+      "entries_returned": 50,
+      "previous_latest_accession": "0001950047-26-011102",
+      "previous_latest_present": false,
+      "possible_feed_window_gap": true,
+      "interval_status": "POSSIBLE_FEED_WINDOW_GAP",
+      "lower_bound": null,
+      "new_event_rows": 50,
+      "candidate_matches": 14,
+      "research_observation_eligible_rows": 0,
+      "decision": "quarantine all new rows until pagination or daily-index completeness is established",
+      "raw_sha256": "aae04b683d400cf4fa3768e8959c82faecd15183af322deff0a095c4cf5ac76a"
+    },
+    "144A": {
+      "entries_returned": 8,
+      "previous_latest_accession": "0001950047-26-011101",
+      "previous_latest_present": true,
+      "possible_feed_window_gap": false,
+      "interval_lower_bound_utc": "2026-11-16T11:59:27Z",
+      "interval_upper_bound_utc": "2026-11-17T21:23:27Z",
+      "new_event_rows": 4,
+      "research_observation_eligible_rows": 4,
+      "candidate_matches": 0,
+      "all_new_rows_are_amendments_with_parent_accession": true,
+      "decision": "retain as bounded filing-version observations; group with parent; not independent sale events",
+      "raw_sha256": "bd1c44201a602080ae5719a6696daadc6c1868065be03e3c517de1f8d0c270a8"
+    }
+  },
+  "bounded_144a_amendments": [
+    {
+      "issuer": "Ceribell, Inc.",
+      "accession": "0001959173-26-008026",
+      "parent_accession": "0001959173-26-008019"
+    },
+    {
+      "issuer": "NRG Energy, Inc.",
+      "accession": "0001974078-26-000419",
+      "parent_accession": "0001974078-26-000418"
+    },
+    {
+      "issuer": "Amplitude, Inc.",
+      "accession": "0001959173-26-008070",
+      "parent_accession": "0001959173-26-008066"
+    },
+    {
+      "issuer": "Universal Electronics Inc.",
+      "accession": "0000921895-26-003196",
+      "parent_accession": "0000921895-26-003017"
+    }
+  ],
+  "research_controls": {
+    "f80_baseline": "F80_TOP20_PARTIAL50_BASELINE_C20",
+    "frozen": true,
+    "alpha_test_run": false,
+    "oos_test_run": false,
+    "bootstrap_or_loo_run": false,
+    "signal_admitted": false,
+    "production_strategy_changed": false,
+    "universe_or_holdout_changed": false
+  },
+  "preflight": {
+    "total_actions_runs": 7718,
+    "latest_100_runs_all_completed": true,
+    "active_or_queued_in_latest_100": 0,
+    "branches": 296,
+    "open_prs": 56,
+    "workflow_files": 76
+  }
+}
