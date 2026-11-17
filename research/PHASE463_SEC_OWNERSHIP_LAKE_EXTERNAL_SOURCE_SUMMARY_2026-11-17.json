@@ -1,0 +1,75 @@
+{
+  "phase": 463,
+  "audit_time_utc": "2026-11-17T20:18:00Z",
+  "main_head_at_preflight": "f2b0f813b14a47e4c042cae3669234192ec0feab",
+  "github_preflight": {
+    "actions_total": 7708,
+    "latest_100": {
+      "success": 66,
+      "failure": 33,
+      "cancelled": 1
+    },
+    "in_progress": 0,
+    "queued": 0,
+    "branches": 295,
+    "open_pull_requests": 56,
+    "workflow_files": 75,
+    "latest_phase462_pr_run": 44160407079,
+    "latest_phase462_pr_conclusion": "success",
+    "latest_phase462_live_capture": "skipped",
+    "latest_phase462_artifacts": 0,
+    "last_sec144_scheduled_run": 44083941814,
+    "next_sec144_slot_utc": "2026-11-17T20:47:00Z",
+    "cftc_slot_utc": "2026-11-17T22:25:00Z"
+  },
+  "official_sec": {
+    "dataset_start": "2006-01",
+    "dataset_end": "2026-09",
+    "quarterly_archives": 83,
+    "latest_archive": "2026Q3",
+    "latest_archive_size_mb": 8.26
+  },
+  "external_dataset": {
+    "repository": "austin-starks/sec-ownership-disclosures",
+    "repository_commit": "aaa6e7a8d8a00d22d221e288d9f2f3e0a6150625",
+    "package_version": "0.4.1",
+    "github_readme_insider_transactions": 10045180,
+    "github_readme_coverage": "2006Q1-2026Q2",
+    "huggingface_card_insider_transactions": 10128966,
+    "huggingface_snapshot_date": "2026-10-27",
+    "exact_snapshot_sha256_pinned": false,
+    "binary_sample_downloaded": false,
+    "use_disposition": "conditional_secondary_parser_crosswalk_audit_only"
+  },
+  "findings": {
+    "transaction_grain": "one accession x transaction leg; not repeated per owner",
+    "owner_grain": "one accession x reporting owner",
+    "multi_owner_line_attribution": "not available in inspected schema/parser",
+    "transaction_code_P": "open market OR private purchase",
+    "footnotes_in_published_transaction_rows": false,
+    "issuer_resolved_ticker": "filer_text_parser_first_symbol_only",
+    "historical_security_master": "not verified",
+    "quarterly_available_at": "end_of_filing_date_America_New_York",
+    "daily_xml_available_at": "acceptance_datetime_plus_60_seconds",
+    "intraday_from_quarterly_bulk": false,
+    "thirteenf_crosswalk": "effective_spans_supported_but_public_example_uses_undated_single_quarter_pairs",
+    "thirteenf_is_trade_flow": false
+  },
+  "research": {
+    "alpha_admitted": false,
+    "forward_return_test": false,
+    "oos_test": false,
+    "bootstrap": false,
+    "loo": false,
+    "source_admitted": false,
+    "f80_changed": false,
+    "production_changed": false
+  },
+  "next_gates": [
+    "Pin exact Hugging Face snapshot manifest and source commit",
+    "Obtain small authorized SEC raw-file samples and reconcile parser grain",
+    "Resolve P/A purchases against original filing XML and footnotes",
+    "Rebuild effective-dated issuer CIK/security-class identity",
+    "Validate 13F CUSIP ticker spans at early, middle and latest vintages"
+  ]
+}
