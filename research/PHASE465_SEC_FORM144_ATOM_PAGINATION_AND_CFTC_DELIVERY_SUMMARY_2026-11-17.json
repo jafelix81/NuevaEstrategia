@@ -78,7 +78,10 @@
       "page raw SHA-256",
       "page receipt upper bound"
     ],
-    "live_verified": false
+    "live_verified": false,
+    "interval_lower_bound_source": "previous_successful_poll_start_utc",
+    "legacy_receipt_clock_fallback": false,
+    "first_post_upgrade_poll_lower_bound": "none; one-poll conservative reset because the prior state has only final-page receipt timestamps"
   },
   "cftc": {
     "dataset_id": "gpe5-46if",
@@ -113,5 +116,12 @@
     "signal_admitted": false,
     "production_changed": false,
     "f80_frozen": true
+  },
+  "tests": {
+    "new_phase465_regressions": 6,
+    "phase403_existing_regressions_updated": 3,
+    "pr_ci_total_tests": 40,
+    "pr_ci_conclusion": "success",
+    "run_id": 44194710372
   }
 }
