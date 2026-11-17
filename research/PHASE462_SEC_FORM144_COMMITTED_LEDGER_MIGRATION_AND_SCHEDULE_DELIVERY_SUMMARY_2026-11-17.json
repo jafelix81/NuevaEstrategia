@@ -1,0 +1,95 @@
+{
+  "phase": 462,
+  "audit_time_utc": "2026-11-17T19:31:00Z",
+  "main_head_at_preflight": "a9b05a794a974b4043b562a5ec625e4e16e78c8f",
+  "github_preflight": {
+    "actions_total": 7706,
+    "latest_100": {
+      "success": 66,
+      "failure": 33,
+      "cancelled": 1
+    },
+    "in_progress": 0,
+    "queued": 0,
+    "branches": 294,
+    "open_pull_requests": 56,
+    "workflow_files": 75,
+    "latest_phase461_pr_run": 44138210614,
+    "latest_phase461_pr_conclusion": "success",
+    "latest_phase461_pr_artifacts": 0,
+    "phase454_pr_run": 44086525354,
+    "phase454_offline_regression": "success",
+    "phase454_live_capture": "skipped"
+  },
+  "committed_ledger": {
+    "path": "research/data/sec_form144_first_seen/events.csv",
+    "git_blob_sha": "f61b43ea8989dd7af709c23650295749b82f87fc",
+    "bytes": 42388,
+    "rows": 52,
+    "header_fields": 41,
+    "current_event_fields": 43,
+    "missing_fields": [
+      "cross_feed_provenance_complete",
+      "capture_poll_status"
+    ],
+    "capture_mode_counts": {
+      "bootstrap": 52
+    },
+    "unique_first_seen_utc": [
+      "2026-11-14T20:45:08Z"
+    ],
+    "research_observation_eligible_true": 0,
+    "signal_eligible_true": 0,
+    "public_availability_certified_true": 0
+  },
+  "sec_form144": {
+    "last_scheduled_run": 44083941814,
+    "last_scheduled_conclusion": "failure",
+    "live_failure": "int(path_cik) received shifted timestamp 2026-11-16T16:55:39-05:00",
+    "post_phase454_scheduled_capture_observed": false,
+    "current_cron_utc": "47 * * * *",
+    "migration_step_precedes_capture": true,
+    "schedule_enabled_state": "not exposed by read interface"
+  },
+  "cftc": {
+    "workflow": "phase384_cftc_tff_prospective_capture.yml",
+    "cron_utc": "25 22 * * 1-5",
+    "last_observed_run": 43525140200,
+    "last_observed_event": "push",
+    "latest_baseline_rows": 3035,
+    "baseline_signal_eligible": false,
+    "next_scheduled_slot_utc": "2026-11-17T22:25:00Z",
+    "scheduled_observation_not_yet_due_at_audit": true
+  },
+  "finra": {
+    "last_live_preflight": 44007662531,
+    "credentials_missing_at_last_run": true,
+    "api_request_made": false
+  },
+  "research": {
+    "phase462_adds_actual_committed_ledger_migration_replay_test": true,
+    "live_source_capture_performed": false,
+    "alpha_admitted": false,
+    "forward_return_test": false,
+    "oos_test": false,
+    "bootstrap": false,
+    "loo": false,
+    "f80_changed": false,
+    "production_changed": false
+  },
+  "next_gates": [
+    "Run the committed-ledger migration replay regression in CI",
+    "Observe one scheduled SEC Form 144 capture and verify migration artifact plus persisted 43-field header",
+    "Inspect the 2026-11-17 22:25 UTC CFTC scheduled capture",
+    "Configure FINRA OAuth secrets and perform one settlement-date validation"
+  ],
+  "ci": {
+    "run_id": 44160283721,
+    "offline_job_id": 134311911943,
+    "offline_tests": 25,
+    "passed": 25,
+    "failed": 0,
+    "live_capture": "skipped",
+    "artifacts": 0
+  }
+}
