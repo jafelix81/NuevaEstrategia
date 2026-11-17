@@ -48,7 +48,7 @@ Phase 465 changes the capture client as follows:
 - Continue through short, non-empty pages until the prior accession watermark is found or an empty page is reached.
 - Cap the poll at 10 pages / 1,000 raw Atom entries per feed.
 - Detect repeated page hashes, request failures and page-ceiling exhaustion; retain the gap and fail closed.
-- Preserve page offset, URL, raw hash and page-receipt time in the existing feed-observation rows. The event's first-seen upper bound is the receipt time of the page where the accession first appeared.
+- Preserve page offset, URL, raw hash and page-receipt time in the existing feed-observation rows. The event's first-seen upper bound is the receipt time of the page where the accession first appeared. The next interval's lower bound now uses the **previous poll start**, not the previous poll's final page receipt: a filing can arrive while a multi-page poll is still running, so using the final receipt could place the lower bound after that filing. The existing ledger has no per-feed poll-start clock; the first post-upgrade poll therefore intentionally has no lower bound, and only a subsequent consecutive clean poll can establish one. The final page receipt remains separately stored for latency/audit.
 - Bootstrap remains one page and does not claim historical coverage.
 
 The exact SEC `type=144` pagination behavior has **not yet been live-verified**. The next scheduled capture is the validation. Until the prior watermark is found, all new Form 144 rows remain quarantined.
@@ -69,7 +69,7 @@ Nasdaq NOTO/PHOTO remains a conditional options-flow candidate; no licensed samp
 
 ## 6. Tests and controls
 
-Added five offline regressions for raw-vs-unique Atom counts, offset advancement by raw rows, missing-watermark behavior after an empty page, repeated-page fail-closed behavior, and one-page bootstrap. Updated Phase 403 regressions for the 100-entry page ceiling and post-pagination gap semantics.
+Added six offline regressions for raw-vs-unique Atom counts, offset advancement by raw rows, missing-watermark behavior after an empty page, repeated-page fail-closed behavior, one-page bootstrap, and rejection of legacy receipt timestamps as interval lower bounds. Updated Phase 403 regressions for the 100-entry page ceiling, post-pagination gap semantics, and separate poll-start / page-receipt clocks.
 
 The PR CI runs the existing Phase 403, Phase 454 and Phase 464 suites plus the new Phase 465 suite. Live capture remains skipped on pull requests.
 
