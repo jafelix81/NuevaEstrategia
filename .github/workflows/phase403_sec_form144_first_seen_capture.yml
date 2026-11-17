@@ -12,13 +12,12 @@ on:
       - "research/test_phase403_sec_form144_first_seen_capture.py"
       - "research/PHASE403_SEC_FORM144_PROSPECTIVE_FIRST_SEEN_CAPTURE_2026-11-14.md"
       - "research/PHASE401_FORM144_CANDIDATE_CIK_MANIFEST_2026-11-14.json"
+      - "research/phase454_form144_event_ledger_schema_migration.py"
+      - "research/test_phase454_form144_event_ledger_schema_migration.py"
+      - "research/PHASE454_FORM144_EVENT_LEDGER_SCHEMA_MIGRATION_2026-11-17.md"
+      - "research/PHASE454_FORM144_EVENT_LEDGER_SCHEMA_MIGRATION_SUMMARY_2026-11-17.json"
   workflow_dispatch:
   schedule:
-    # Hourly polling at a non-round minute. Moved from :17 to :37, then :47 after two expected
-    # post-merge slots produced no schedule run in Actions; changing cron also reactivates
-    # a deactivated schedule if GitHub had disabled it. This remains a best-effort clock.
-    # Phase 403 observed a 50-entry response despite requesting 100.
-    # Acceptance timestamps are enriched from filing-detail pages, not inferred from feed updated.
     - cron: "47 * * * *"
 
 permissions:
@@ -38,8 +37,8 @@ jobs:
           python-version: "3.11"
       - name: Compile and run offline regressions
         run: |
-          python -m py_compile research/phase401_form144a_full_parent_identity_census.py research/phase403_sec_form144_first_seen_capture.py
-          python -m unittest -v research.test_phase403_sec_form144_first_seen_capture
+          python -m py_compile research/phase401_form144a_full_parent_identity_census.py research/phase403_sec_form144_first_seen_capture.py research/phase454_form144_event_ledger_schema_migration.py research/test_phase454_form144_event_ledger_schema_migration.py
+          python -m unittest -v research.test_phase403_sec_form144_first_seen_capture research.test_phase454_form144_event_ledger_schema_migration
 
   live-capture:
     if: github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
@@ -53,8 +52,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Compile capture client
-        run: python -m py_compile research/phase403_sec_form144_first_seen_capture.py
+      - name: Compile capture and migration clients
+        run: python -m py_compile research/phase403_sec_form144_first_seen_capture.py research/phase454_form144_event_ledger_schema_migration.py
+      - name: Migrate append-only event ledger schema
+        run: python -m research.phase454_form144_event_ledger_schema_migration --path research/data/sec_form144_first_seen/events.csv --output phase403_output/schema_migration.json
       - name: Run SEC Latest Filings capture
         env:
           EVENT_NAME: ${{ github.event_name }}
