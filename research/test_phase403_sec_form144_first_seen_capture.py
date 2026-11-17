@@ -274,6 +274,10 @@ class Phase403Tests(unittest.TestCase):
                     "144": "2026-11-16T22:00:00Z",
                     "144A": "2026-11-16T22:00:00Z",
                 },
+                "last_successful_poll_started_utc_by_feed": {
+                    "144": "2026-11-16T21:59:00Z",
+                    "144A": "2026-11-16T21:59:00Z",
+                },
                 "latest_accession_by_feed": {
                     "144": "0000000000-26-000001",
                     "144A": "0000000000-26-000002",
@@ -356,12 +360,15 @@ class Phase403Tests(unittest.TestCase):
             self.assertEqual(events[0]["cross_feed_provenance_complete"], "False")
             self.assertEqual(events[0]["feed_names"], '["144"]')
             self.assertEqual(events[0]["research_observation_eligible"], "True")
+            self.assertEqual(events[0]["first_seen_interval_lower_bound_utc"], "2026-11-16T21:59:00Z")
             self.assertEqual(len(observations), 1)
             self.assertEqual(observations[0]["feed_name"], "144")
             self.assertEqual(state["last_successful_poll_utc"], "2026-11-16T22:00:00Z")
             self.assertEqual(state["last_successful_poll_run_id"], "previous-run")
             self.assertEqual(state["last_successful_poll_utc_by_feed"]["144"], "2026-11-16T23:00:00Z")
             self.assertEqual(state["last_successful_poll_utc_by_feed"]["144A"], "2026-11-16T22:00:00Z")
+            self.assertEqual(state["last_successful_poll_started_utc_by_feed"]["144"], "2026-11-16T22:59:00Z")
+            self.assertEqual(state["last_successful_poll_started_utc_by_feed"]["144A"], "2026-11-16T21:59:00Z")
             self.assertEqual(state["poll_count"], 11)
             self.assertEqual(state["complete_poll_count"], 10)
             self.assertEqual(state["partial_poll_count"], 1)
