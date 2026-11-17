@@ -186,8 +186,8 @@ def parse_status(
     if not result_link:
         raise SnapshotContractError("completed async response has no resultLink")
     parsed_link = urlparse(result_link)
-    if parsed_link.scheme != "https":
-        raise SnapshotContractError("pre-signed resultLink must use HTTPS")
+    if parsed_link.scheme != "https" or not parsed_link.netloc.lower().endswith("amazonaws.com"):
+        raise SnapshotContractError("pre-signed resultLink must be an HTTPS AWS S3 URL")
     expires_raw = body.get("expires")
     if not expires_raw:
         raise SnapshotContractError("completed async response has no expires timestamp")
@@ -321,6 +321,10 @@ def retrieve_snapshot(
     if not token:
         raise RuntimeError("FINRA_ACCESS_TOKEN is required; no request was made")
     day = validate_settlement_date(settlement_date)
+    if poll_interval_seconds < MIN_POLL_INTERVAL_SECONDS:
+        raise ValueError("FINRA recommends polling async status no more than once per minute")
+    if max_wait_seconds <= 0:
+        raise ValueError("max_wait_seconds must be positive")
     owned_session = session is None
     session = session or requests.Session()
     submitted_at = clock_fn()
@@ -355,12 +359,14 @@ def retrieve_snapshot(
             raise SnapshotContractError("resultLink expired before download completed")
         reconciliation = validate_records(records, day, completed)
         output = Path(output_dir)
-        output.mkdir(parents=True, exist_ok=True)
+        output.mkdir(mode=0o700, parents=True, exist_ok=True)
+        os.chmod(output, 0o700)
         request_id = str(submission["request_id"])
         safe_id = "".join(ch for ch in request_id if ch.isalnum() or ch in "-_")
         raw_path = output / f"finra_consolidated_si_{day}_{safe_id}.json"
         manifest_path = output / f"finra_consolidated_si_{day}_{safe_id}.manifest.json"
         raw_path.write_bytes(raw_bytes)
+        os.chmod(raw_path, 0o600)
         digest = hashlib.sha256(raw_bytes).hexdigest()
         manifest = {
             "source": "FINRA Query API otcMarket/consolidatedShortInterest",
@@ -387,6 +393,7 @@ def retrieve_snapshot(
             "signal_eligible": False,
         }
         manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True), encoding="utf-8")
+        os.chmod(manifest_path, 0o600)
         return manifest
     finally:
         if owned_session:
