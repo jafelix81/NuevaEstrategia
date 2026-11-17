@@ -20,6 +20,10 @@ on:
       - "research/PHASE464_SEC_FORM144_FIRST_PRODUCTION_CAPTURE_SUMMARY_2026-11-17.json"
       - "research/phase464_form144_first_production_capture_audit.py"
       - "research/test_phase464_form144_first_production_capture_audit.py"
+      - "research/test_phase465_sec_atom_pagination.py"
+      - "research/PHASE465_SEC_FORM144_ATOM_PAGINATION_AND_CFTC_DELIVERY_AUDIT_2026-11-17.md"
+      - "research/PHASE465_SEC_FORM144_ATOM_PAGINATION_AND_CFTC_DELIVERY_SUMMARY_2026-11-17.json"
+      - "research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-17_PHASE465.md"
       - "research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-17_PHASE464.md"
   workflow_dispatch:
   schedule:
@@ -42,8 +46,8 @@ jobs:
           python-version: "3.11"
       - name: Compile and run offline regressions
         run: |
-          python -m py_compile research/phase401_form144a_full_parent_identity_census.py research/phase403_sec_form144_first_seen_capture.py research/phase454_form144_event_ledger_schema_migration.py research/test_phase454_form144_event_ledger_schema_migration.py research/phase464_form144_first_production_capture_audit.py research/test_phase464_form144_first_production_capture_audit.py
-          python -m unittest -v research.test_phase403_sec_form144_first_seen_capture research.test_phase454_form144_event_ledger_schema_migration research.test_phase464_form144_first_production_capture_audit
+          python -m py_compile research/phase401_form144a_full_parent_identity_census.py research/phase403_sec_form144_first_seen_capture.py research/phase454_form144_event_ledger_schema_migration.py research/test_phase454_form144_event_ledger_schema_migration.py research/phase464_form144_first_production_capture_audit.py research/test_phase464_form144_first_production_capture_audit.py research/test_phase465_sec_atom_pagination.py
+          python -m unittest -v research.test_phase403_sec_form144_first_seen_capture research.test_phase454_form144_event_ledger_schema_migration research.test_phase464_form144_first_production_capture_audit research.test_phase465_sec_atom_pagination
 
   live-capture:
     if: github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'

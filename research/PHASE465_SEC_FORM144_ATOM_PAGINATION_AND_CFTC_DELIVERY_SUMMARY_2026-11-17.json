@@ -1,0 +1,127 @@
+{
+  "phase": 465,
+  "audit_time_utc": "2026-11-17T22:47:00Z",
+  "repository": "jafelix81/NuevaEstrategia",
+  "main_head_preflight": "70112e777fa789aae8880c7be90c371988a054c5",
+  "disposition": "SEC_ATOM_PAGINATION_ADDED_FAIL_CLOSED; CFTC_NOV17_SCHEDULED_CAPTURE_NOT_OBSERVED; NO_SIGNAL",
+  "preflight": {
+    "actions_total_runs": 7719,
+    "latest_100_completed": true,
+    "active_runs": 0,
+    "queued_runs": 0,
+    "branches": 297,
+    "open_prs": 56,
+    "workflow_files": 76,
+    "latest_pr_run": 44184610040,
+    "latest_scheduled_sec_run": 44179257367
+  },
+  "sec_phase464": {
+    "run_id": 44179257367,
+    "artifact_id": 14371301851,
+    "artifact_sha256": "e1e1baa44b99eef37cbb2f31494ca6cd00ed2d30f1b663f0eb8591a407db7142",
+    "migration": {
+      "rows": 52,
+      "old_columns": 41,
+      "new_columns": 43
+    },
+    "capture": {
+      "new_event_rows": 54,
+      "new_feed_observation_rows": 58,
+      "xml_resolved": 54,
+      "acceptance_reconciled": 54,
+      "candidate_cik_matches": 14,
+      "research_observation_eligible_raw_rows": 4,
+      "signal_eligible_rows": 0,
+      "public_availability_certified_rows": 0,
+      "historical_f80_membership_verified_rows": 0,
+      "same_day_intraday_authorized_rows": 0
+    },
+    "feeds": {
+      "144": {
+        "entries": 50,
+        "new_accessions": 50,
+        "previous_latest": "0001950047-26-011102",
+        "previous_latest_present": false,
+        "possible_gap": true,
+        "decision": "quarantine all 50"
+      },
+      "144A": {
+        "entries": 8,
+        "new_accessions": 4,
+        "previous_latest_present": true,
+        "possible_gap": false,
+        "new_rows_are_parent_linked_amendments": true,
+        "decision": "retain as bounded filing-version observations only"
+      }
+    },
+    "committed_ledger": {
+      "event_rows": 106,
+      "feed_observation_rows": 388,
+      "acceptance_reconciliation_rows": 106
+    },
+    "f80_changed": false
+  },
+  "pagination": {
+    "requested_count": 100,
+    "max_pages": 10,
+    "max_raw_entries_per_feed": 1000,
+    "offset_increment": "raw Atom entry count, including duplicate role rows",
+    "stop_on": "prior accession watermark found or empty page",
+    "fail_closed_on": [
+      "repeated page hash",
+      "request failure",
+      "page ceiling reached"
+    ],
+    "per_accession_provenance": [
+      "page offset",
+      "page URL",
+      "page raw SHA-256",
+      "page receipt upper bound"
+    ],
+    "live_verified": false,
+    "interval_lower_bound_source": "previous_successful_poll_start_utc",
+    "legacy_receipt_clock_fallback": false,
+    "first_post_upgrade_poll_lower_bound": "none; one-poll conservative reset because the prior state has only final-page receipt timestamps"
+  },
+  "cftc": {
+    "dataset_id": "gpe5-46if",
+    "official_dataset_updated": "2026-11-16",
+    "report_date": "2026-11-10",
+    "expected_schedule_utc": "2026-11-17T22:25:00Z",
+    "audit_time_utc": "2026-11-17T22:47:00Z",
+    "scheduled_run_observed": false,
+    "last_run_id": 43525140200,
+    "last_run_event": "push",
+    "last_capture_utc": "2026-11-13T23:03:38Z",
+    "warmup_rows": 3035,
+    "latest_report_date_by_code": {
+      "124603": "2026-11-03",
+      "209742": "2026-11-03",
+      "239742": "2026-11-03",
+      "13874A": "2026-11-03"
+    },
+    "prospective_observations": 0,
+    "manual_dispatch_used": false,
+    "workflow_state_visible": false
+  },
+  "finra": {
+    "oauth_secrets_configured": false,
+    "api_requests_this_phase": 0
+  },
+  "research_controls": {
+    "alpha_test": false,
+    "oos_test": false,
+    "bootstrap_or_loo": false,
+    "holdout_used": false,
+    "signal_admitted": false,
+    "production_changed": false,
+    "f80_frozen": true
+  },
+  "tests": {
+    "new_phase465_regressions": 6,
+    "phase403_existing_regressions_updated": 3,
+    "pr_ci_total_tests": 40,
+    "pr_ci_conclusion": "success",
+    "run_id": 44194710372
+  }
+}

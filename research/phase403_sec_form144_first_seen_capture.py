@@ -8,6 +8,7 @@ import hashlib
 import html
 import json
 import re
+import time
 import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 from pathlib import Path
@@ -25,7 +26,9 @@ MANIFEST_PATH = Path("research/PHASE401_FORM144_CANDIDATE_CIK_MANIFEST_2026-11-1
 EXPECTED_MANIFEST_SHA256 = "d20a1e42c7dfe3ef91248aa2aeecd5af7d853b91"
 EXPECTED_CANDIDATE_CIK_COUNT = 290
 EXPECTED_SOURCE_ARTIFACT_SHA256 = "939d5564b14ce0f41df23a2c9ab681977cfde141cd0ea2b3c1213b1c5bfaf613"
-MAX_FEED_ENTRIES = 50  # observed maximum in the first live SEC Atom bootstrap
+MAX_FEED_ENTRIES = 100  # SEC Atom page-size ceiling; actual page length can be smaller
+MAX_FEED_PAGES = 10       # fail closed after at most 1,000 raw Atom entries per feed/poll
+FEED_PAGE_DELAY_SECONDS = 0.25
 
 FEEDS = {
     "144": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&type=144&owner=include&count=100&output=atom",
@@ -266,9 +269,9 @@ def seconds_between(later, earlier):
     return (a - b).total_seconds() if a and b else None
 
 def detect_possible_gap(entries, previous_latest_accession):
+    """A prior watermark absent after pagination means the interval is unbounded."""
     accessions = {x["accession"] for x in entries}
-    return bool(previous_latest_accession and len(entries) >= MAX_FEED_ENTRIES
-                and previous_latest_accession not in accessions)
+    return bool(previous_latest_accession and previous_latest_accession not in accessions)
 
 def interval_policy(previous_poll_utc, previous_poll_had_gap, current_poll_has_gap):
     if not previous_poll_utc:
@@ -278,6 +281,15 @@ def interval_policy(previous_poll_utc, previous_poll_had_gap, current_poll_has_g
     if current_poll_has_gap:
         return None, "POSSIBLE_FEED_WINDOW_GAP"
     return previous_poll_utc, "BOUNDED_BY_SUCCESSIVE_SUCCESSFUL_POLLS"
+
+def previous_poll_start_by_feed(state):
+    """Only explicit poll-start clocks may bound a future PIT interval.
+
+    Legacy last_successful_poll_utc_by_feed values are page-receipt timestamps
+    and are intentionally not reused as interval lower bounds.
+    """
+    return dict((state or {}).get("last_successful_poll_started_utc_by_feed", {}))
+
 
 def read_json(path):
     path = Path(path)
@@ -360,31 +372,142 @@ def build_event(item, metadata, poll_started, response_received, interval_start,
         "first_seen_is_upper_bound_not_exact_receipt": True,
     }
 
-def fetch_all_feeds():
-    """Fetch each SEC Atom feed independently; preserve successful feeds if another fails."""
+def count_atom_entries(raw):
+    """Count raw Atom <entry> nodes before accession deduplication."""
+    if isinstance(raw, bytes):
+        raw = raw.decode("utf-8", "replace")
+    root = ET.fromstring(raw)
+    return sum(1 for node in root.iter() if local_name(node.tag) == "entry")
+
+
+def fetch_all_feeds(previous_latest_by_feed=None, mode="schedule"):
+    """Page each SEC Atom feed until its prior accession watermark is found.
+
+    Offsets advance by raw Atom entry count, not unique accessions: EDGAR can
+    emit multiple role rows for one accession. A short non-empty page is not
+    assumed to be the end because the observed 144 feed returned 50 entries
+    despite count=100. Repeated pages, fetch failures and the page ceiling
+    remain gap/quarantine conditions.
+    """
+    previous_latest_by_feed = previous_latest_by_feed or {}
     snapshots = {}
     errors = {}
-    for feed_name, url in FEEDS.items():
-        raw = None
-        try:
-            raw = p401.fetch_bytes(url, sec=True, timeout=60, retries=4)
-            received = now_utc()
-            entries = parse_atom_feed(raw, feed_name, url)
-            snapshots[feed_name] = {
-                "url": url, "raw_sha256": hashlib.sha256(raw).hexdigest(),
-                "response_bytes": len(raw), "received_at_utc": received,
-                "entries": entries, "entry_count": len(entries),
-                "oldest_updated_utc": min((x["feed_updated_utc"] for x in entries if x["feed_updated_utc"]), default=None),
-                "newest_updated_utc": max((x["feed_updated_utc"] for x in entries if x["feed_updated_utc"]), default=None),
-            }
-        except Exception as exc:
-            errors[feed_name] = {
-                "url": url,
-                "error_type": type(exc).__name__,
-                "error": str(exc)[:1000],
-                "response_bytes": len(raw) if raw is not None else None,
-                "raw_sha256": hashlib.sha256(raw).hexdigest() if raw is not None else None,
-            }
+    for feed_name, base_url in FEEDS.items():
+        prior_latest = previous_latest_by_feed.get(feed_name)
+        max_pages = 1 if mode == "bootstrap" or not prior_latest else MAX_FEED_PAGES
+        offset = 0
+        pages = []
+        combined = {}
+        seen_page_hashes = set()
+        previous_found = False
+        page_error = None
+        stop_reason = "max_pages_reached"
+        total_raw_entries = 0
+
+        for page_index in range(max_pages):
+            page_url = f"{base_url}&start={offset}" if "?" in base_url else f"{base_url}?start={offset}"
+            raw = None
+            try:
+                raw = p401.fetch_bytes(page_url, sec=True, timeout=60, retries=4)
+                received = now_utc()
+                page_sha = hashlib.sha256(raw).hexdigest()
+                if page_sha in seen_page_hashes:
+                    page_error = {
+                        "url": page_url,
+                        "error_type": "RepeatedPageHash",
+                        "error": "SEC Atom pagination returned a previously observed page hash; offset may be ignored.",
+                        "page_offset": offset,
+                    }
+                    stop_reason = "repeated_page_hash"
+                    break
+                seen_page_hashes.add(page_sha)
+                raw_count = count_atom_entries(raw)
+                page_entries = parse_atom_feed(raw, feed_name, page_url)
+                pages.append({
+                    "start": offset,
+                    "raw_entry_count": raw_count,
+                    "unique_accession_count": len(page_entries),
+                    "response_bytes": len(raw),
+                    "received_at_utc": received,
+                    "raw_sha256": page_sha,
+                    "url": page_url,
+                })
+                total_raw_entries += raw_count
+
+                for item in page_entries:
+                    item = dict(item)
+                    item["_feed_page_offset"] = offset
+                    item["_feed_page_url"] = page_url
+                    item["_feed_page_raw_sha256"] = page_sha
+                    item["_feed_page_received_utc"] = received
+                    item["_feed_page_raw_entry_count"] = raw_count
+                    accession = item["accession"]
+                    if prior_latest and accession == prior_latest:
+                        previous_found = True
+                    combined.setdefault(accession, item)
+
+                if previous_found:
+                    stop_reason = "previous_latest_found"
+                    break
+                if raw_count == 0:
+                    stop_reason = "empty_page"
+                    break
+                if page_index + 1 >= max_pages:
+                    stop_reason = "bootstrap_single_page" if not prior_latest else "max_pages_reached"
+                    if prior_latest:
+                        page_error = {
+                            "url": page_url,
+                            "error_type": "PaginationLimitReached",
+                            "error": f"Prior accession watermark not found within {max_pages} pages.",
+                            "page_offset": offset,
+                        }
+                    break
+                # Advance by raw Atom rows, including repeated issuer/reporting roles.
+                offset += raw_count
+                time.sleep(FEED_PAGE_DELAY_SECONDS)
+            except Exception as exc:
+                page_error = {
+                    "url": page_url,
+                    "error_type": type(exc).__name__,
+                    "error": str(exc)[:1000],
+                    "page_offset": offset,
+                    "response_bytes": len(raw) if raw is not None else None,
+                    "raw_sha256": hashlib.sha256(raw).hexdigest() if raw is not None else None,
+                }
+                stop_reason = "page_fetch_error"
+                break
+
+        if page_error:
+            errors[feed_name] = page_error
+        if not pages:
+            continue
+
+        entries = sorted(combined.values(), key=lambda x: (x["feed_updated_utc"], x["accession"]))
+        page_hashes = [page["raw_sha256"] for page in pages]
+        aggregate_sha = hashlib.sha256("|".join(page_hashes).encode("ascii")).hexdigest()
+        pagination_complete = bool(
+            previous_found or stop_reason in ("empty_page", "bootstrap_single_page") or not prior_latest
+        )
+        if page_error:
+            pagination_complete = False
+        snapshots[feed_name] = {
+            "url": base_url,
+            "raw_sha256": aggregate_sha,
+            "response_bytes": sum(page["response_bytes"] for page in pages),
+            "received_at_utc": pages[-1]["received_at_utc"],
+            "entries": entries,
+            "entry_count": len(entries),
+            "raw_entry_count": total_raw_entries,
+            "oldest_updated_utc": min((x["feed_updated_utc"] for x in entries if x["feed_updated_utc"]), default=None),
+            "newest_updated_utc": max((x["feed_updated_utc"] for x in entries if x["feed_updated_utc"]), default=None),
+            "pages": pages,
+            "page_count": len(pages),
+            "pagination_complete": pagination_complete,
+            "pagination_stop_reason": stop_reason,
+            "previous_latest_accession": prior_latest,
+            "previous_latest_accession_found": previous_found if prior_latest else None,
+            "possible_feed_window_gap": bool(prior_latest and not previous_found),
+        }
     return snapshots, errors
 
 def read_event_rows(path=EVENTS_PATH):
@@ -466,7 +589,7 @@ def feed_names_by_accession(snapshots):
 
 
 def build_feed_observation_rows(snapshots, run_id):
-    """Preserve one observation per accession/feed/poll, including overlaps."""
+    """Preserve one observation per accession/feed/poll with page-level provenance."""
     rows = []
     for feed_name, snapshot in snapshots.items():
         for item in snapshot.get("entries", []):
@@ -479,9 +602,9 @@ def build_feed_observation_rows(snapshots, run_id):
                 "feed_updated_utc": item.get("feed_updated_utc"),
                 "feed_link": item.get("feed_link"),
                 "feed_path_cik": item.get("feed_path_cik"),
-                "feed_url": snapshot.get("url"),
-                "feed_raw_sha256": snapshot.get("raw_sha256"),
-                "feed_response_received_utc": snapshot.get("received_at_utc"),
+                "feed_url": item.get("_feed_page_url") or snapshot.get("url"),
+                "feed_raw_sha256": item.get("_feed_page_raw_sha256") or snapshot.get("raw_sha256"),
+                "feed_response_received_utc": item.get("_feed_page_received_utc") or snapshot.get("received_at_utc"),
             })
     return rows
 
@@ -522,7 +645,9 @@ def run(mode, output_dir, run_id, data_dir=DATA_DIR):
     candidate_ciks, manifest = load_candidate_manifest()
     previous_state = read_json(state_path) or {}
     poll_started = now_utc()
-    snapshots, feed_errors = fetch_all_feeds()
+    snapshots, feed_errors = fetch_all_feeds(
+        previous_state.get("latest_accession_by_feed", {}), mode=mode
+    )
     poll_status = "complete" if not feed_errors else ("partial" if snapshots else "failed")
 
     # If both feeds fail, retain an audit artifact and fail the job without advancing state.
@@ -560,7 +685,11 @@ def run(mode, output_dir, run_id, data_dir=DATA_DIR):
     new_rows = []
     feed_summaries = {}
     latest_by_feed = dict(previous_state.get("latest_accession_by_feed", {}))
-    last_poll_by_feed = dict(previous_state.get("last_successful_poll_utc_by_feed", {}))
+    # Use the prior poll START as the interval lower bound. A multi-page live
+    # feed can receive new filings while pages are being read; using the last
+    # page receipt would be later than some arrivals and could introduce look-ahead.
+    last_poll_by_feed = previous_poll_start_by_feed(previous_state)
+    last_receipt_by_feed = dict(previous_state.get("last_successful_poll_utc_by_feed", {}))
     last_gap_by_feed = dict(previous_state.get("last_poll_possible_gap_by_feed", {}))
     hash_by_feed = dict(previous_state.get("last_feed_sha256_by_feed", {}))
     poll_count_by_feed = dict(previous_state.get("poll_count_by_feed", {}))
@@ -570,7 +699,7 @@ def run(mode, output_dir, run_id, data_dir=DATA_DIR):
     for feed_name, snapshot in snapshots.items():
         entries = snapshot["entries"]
         prior_latest = latest_by_feed.get(feed_name)
-        current_gap = detect_possible_gap(entries, prior_latest)
+        current_gap = snapshot.get("possible_feed_window_gap", detect_possible_gap(entries, prior_latest))
         prior_gap = bool(last_gap_by_feed.get(feed_name, False))
         interval_start, interval_status = interval_policy(
             last_poll_by_feed.get(feed_name), prior_gap, current_gap
@@ -581,10 +710,16 @@ def run(mode, output_dir, run_id, data_dir=DATA_DIR):
             "entry_count": snapshot["entry_count"], "oldest_updated_utc": snapshot["oldest_updated_utc"],
             "newest_updated_utc": snapshot["newest_updated_utc"],
             "previous_latest_accession": prior_latest,
-            "previous_latest_accession_present": (prior_latest in {x["accession"] for x in entries}) if prior_latest else None,
+            "previous_latest_accession_present": snapshot.get("previous_latest_accession_found"),
             "possible_feed_window_gap": current_gap,
             "interval_lower_bound_utc": interval_start,
+            "interval_lower_bound_source": "previous_successful_poll_start_utc",
             "interval_status": interval_status,
+            "page_count": snapshot.get("page_count", 1),
+            "raw_entry_count": snapshot.get("raw_entry_count", snapshot["entry_count"]),
+            "pagination_complete": snapshot.get("pagination_complete", True),
+            "pagination_stop_reason": snapshot.get("pagination_stop_reason"),
+            "pages": snapshot.get("pages", []),
             "new_accessions": [],
         }
         for item in entries:
@@ -596,8 +731,9 @@ def run(mode, output_dir, run_id, data_dir=DATA_DIR):
             item = dict(item)
             item["feed_names"] = source_names_by_accession.get(accession, [feed_name])
             metadata = fetch_document_metadata(item, candidate_ciks)
+            item_received = item.get("_feed_page_received_utc") or snapshot["received_at_utc"]
             event = build_event(
-                item, metadata, poll_started, snapshot["received_at_utc"], interval_start,
+                item, metadata, poll_started, item_received, interval_start,
                 interval_status, run_id, mode, manifest,
                 cross_feed_provenance_complete=not bool(feed_errors),
                 capture_poll_status=poll_status,
@@ -615,8 +751,10 @@ def run(mode, output_dir, run_id, data_dir=DATA_DIR):
         if entries:
             latest = max(entries, key=lambda x: (x.get("feed_updated_utc") or "", x["accession"]))
             latest_by_feed[feed_name] = latest["accession"]
-        # Only successful feeds advance their own first-seen clock and hash.
-        last_poll_by_feed[feed_name] = snapshot["received_at_utc"]
+        # Keep both clocks: poll start is the safe next-interval lower bound;
+        # final page receipt is retained for audit and latency measurement.
+        last_poll_by_feed[feed_name] = poll_started
+        last_receipt_by_feed[feed_name] = snapshot["received_at_utc"]
         last_gap_by_feed[feed_name] = current_gap
         hash_by_feed[feed_name] = snapshot["raw_sha256"]
         poll_count_by_feed[feed_name] = int(poll_count_by_feed.get(feed_name, 0)) + 1
@@ -646,7 +784,8 @@ def run(mode, output_dir, run_id, data_dir=DATA_DIR):
         "last_poll_successful_feeds": sorted(snapshots),
         "last_poll_failed_feeds": sorted(feed_errors),
         "last_poll_errors": feed_errors,
-        "last_successful_poll_utc_by_feed": last_poll_by_feed,
+        "last_successful_poll_started_utc_by_feed": last_poll_by_feed,
+        "last_successful_poll_utc_by_feed": last_receipt_by_feed,
         "latest_accession_by_feed": latest_by_feed,
         "last_poll_possible_gap_by_feed": last_gap_by_feed,
         "last_feed_sha256_by_feed": hash_by_feed,

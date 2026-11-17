@@ -79,10 +79,10 @@ class Phase403Tests(unittest.TestCase):
         self.assertEqual(accepted_et, "2026-11-14 18:30:00")
         self.assertEqual(accepted_utc, "2026-11-14T23:30:00Z")
 
-    def test_gap_requires_full_feed_and_missing_previous_latest(self):
+    def test_gap_is_any_missing_previous_latest_after_pagination(self):
         entries = [{"accession": f"0000000000-26-{i:06d}"} for i in range(50)]
         self.assertTrue(p403.detect_possible_gap(entries, "9999999999-26-000001"))
-        self.assertFalse(p403.detect_possible_gap(entries[:49], "9999999999-26-000001"))
+        self.assertTrue(p403.detect_possible_gap(entries[:49], "9999999999-26-000001"))
         self.assertFalse(p403.detect_possible_gap(entries, entries[0]["accession"]))
 
 
@@ -109,11 +109,12 @@ class Phase403Tests(unittest.TestCase):
         self.assertFalse(row["signal_eligible"])
         self.assertFalse(row["public_availability_certified"])
 
-    def test_observed_feed_window_cap_is_50(self):
-        self.assertEqual(p403.MAX_FEED_ENTRIES, 50)
+    def test_sec_atom_page_size_and_fail_closed_page_limit(self):
+        self.assertEqual(p403.MAX_FEED_ENTRIES, 100)
+        self.assertEqual(p403.MAX_FEED_PAGES, 10)
         entries = [{"accession": f"0000000000-26-{i:06d}"} for i in range(50)]
         self.assertTrue(p403.detect_possible_gap(entries, "9999999999-26-000001"))
-        self.assertFalse(p403.detect_possible_gap(entries[:49], "9999999999-26-000001"))
+        self.assertTrue(p403.detect_possible_gap(entries[:49], "9999999999-26-000001"))
 
     def test_interval_lower_bound_is_suppressed_after_gap(self):
         prior = "2026-11-14T18:00:00Z"
@@ -247,7 +248,7 @@ class Phase403Tests(unittest.TestCase):
 
     def test_fetch_all_feeds_keeps_success_when_other_feed_times_out(self):
         def fake_fetch(url, **kwargs):
-            if url == p403.FEEDS["144"]:
+            if url.startswith(p403.FEEDS["144"] + "&start=0"):
                 return SAMPLE_ATOM.encode("utf-8")
             raise TimeoutError("temporary SEC 144/A timeout")
 
@@ -273,6 +274,10 @@ class Phase403Tests(unittest.TestCase):
                     "144": "2026-11-16T22:00:00Z",
                     "144A": "2026-11-16T22:00:00Z",
                 },
+                "last_successful_poll_started_utc_by_feed": {
+                    "144": "2026-11-16T21:59:00Z",
+                    "144A": "2026-11-16T21:59:00Z",
+                },
                 "latest_accession_by_feed": {
                     "144": "0000000000-26-000001",
                     "144A": "0000000000-26-000002",
@@ -293,6 +298,9 @@ class Phase403Tests(unittest.TestCase):
                     "entry_count": 1,
                     "oldest_updated_utc": item["feed_updated_utc"],
                     "newest_updated_utc": item["feed_updated_utc"],
+                    "previous_latest_accession_found": True,
+                    "possible_feed_window_gap": False,
+                    "pagination_complete": True,
                 }
             }
             errors = {
@@ -352,12 +360,15 @@ class Phase403Tests(unittest.TestCase):
             self.assertEqual(events[0]["cross_feed_provenance_complete"], "False")
             self.assertEqual(events[0]["feed_names"], '["144"]')
             self.assertEqual(events[0]["research_observation_eligible"], "True")
+            self.assertEqual(events[0]["first_seen_interval_lower_bound_utc"], "2026-11-16T21:59:00Z")
             self.assertEqual(len(observations), 1)
             self.assertEqual(observations[0]["feed_name"], "144")
             self.assertEqual(state["last_successful_poll_utc"], "2026-11-16T22:00:00Z")
             self.assertEqual(state["last_successful_poll_run_id"], "previous-run")
             self.assertEqual(state["last_successful_poll_utc_by_feed"]["144"], "2026-11-16T23:00:00Z")
             self.assertEqual(state["last_successful_poll_utc_by_feed"]["144A"], "2026-11-16T22:00:00Z")
+            self.assertEqual(state["last_successful_poll_started_utc_by_feed"]["144"], "2026-11-16T22:59:00Z")
+            self.assertEqual(state["last_successful_poll_started_utc_by_feed"]["144A"], "2026-11-16T21:59:00Z")
             self.assertEqual(state["poll_count"], 11)
             self.assertEqual(state["complete_poll_count"], 10)
             self.assertEqual(state["partial_poll_count"], 1)
