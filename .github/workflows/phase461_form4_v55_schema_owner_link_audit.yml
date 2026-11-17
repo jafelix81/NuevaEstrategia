@@ -1,0 +1,44 @@
+name: Phase 461 Form 4 v5.5 schema owner-link audit
+
+on:
+  push:
+    branches: [phase461-form4-v55-schema-owner-link-audit]
+    paths:
+      - ".github/workflows/phase461_form4_v55_schema_owner_link_audit.yml"
+      - "research/phase461_form4_xsd_owner_reference_audit.py"
+      - "research/test_phase461_form4_xsd_owner_reference_audit.py"
+      - "research/PHASE461_FORM4_V55_SCHEMA_OWNER_LINK_AUDIT_2026-11-17.md"
+      - "research/PHASE461_FORM4_V55_SCHEMA_OWNER_LINK_SUMMARY_2026-11-17.json"
+      - "research/phase459_form4_joint_owner_attribution_gate.py"
+      - "research/test_phase459_form4_joint_owner_attribution_gate.py"
+      - "research/phase460_form4_split_event_guard.py"
+      - "research/test_phase460_form4_split_event_guard.py"
+      - "SMART_MONEY_RESEARCH_STATE.md"
+  pull_request:
+    paths:
+      - ".github/workflows/phase461_form4_v55_schema_owner_link_audit.yml"
+      - "research/phase461_form4_xsd_owner_reference_audit.py"
+      - "research/test_phase461_form4_xsd_owner_reference_audit.py"
+      - "research/PHASE461_FORM4_V55_SCHEMA_OWNER_LINK_AUDIT_2026-11-17.md"
+      - "research/PHASE461_FORM4_V55_SCHEMA_OWNER_LINK_SUMMARY_2026-11-17.json"
+      - "research/phase459_form4_joint_owner_attribution_gate.py"
+      - "research/test_phase459_form4_joint_owner_attribution_gate.py"
+      - "research/phase460_form4_split_event_guard.py"
+      - "research/test_phase460_form4_split_event_guard.py"
+      - "SMART_MONEY_RESEARCH_STATE.md"
+
+permissions:
+  contents: read
+
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile and run Form 4 schema and attribution regressions
+        run: |
+          python -m py_compile research/phase461_form4_xsd_owner_reference_audit.py research/test_phase461_form4_xsd_owner_reference_audit.py research/phase459_form4_joint_owner_attribution_gate.py research/phase460_form4_split_event_guard.py
+          python -m unittest -v research.test_phase459_form4_joint_owner_attribution_gate research.test_phase460_form4_split_event_guard research.test_phase461_form4_xsd_owner_reference_audit

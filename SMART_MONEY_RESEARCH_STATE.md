@@ -1,3 +1,16 @@
+## Phase 461 — SEC Ownership v5.5 schema owner-link audit (2026-11-17)
+
+- Main HEAD at preflight: `f7c24f7203fd4fe07be93fe106fa62261d091b31` (Phase 460 merged as PR #121). Actions total 7,703; explicit in-progress and queued queries both returned 0; branches 293; open PRs 56; workflow files 74.
+- Latest Phase 460 PR/companion runs [44133573427](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44133573427) and [44133573367](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44133573367) passed 16/16; push run [44133517450](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44133517450) also passed 16/16. No artifacts. Earlier [44133170761](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44133170761) failed one split-remarks fixture; later corrected runs passed.
+- Inspected pinned reduced-content XSD mirror `alexkouzel/sec-api` commit `50ac70b32e987c1dae2b747d499d86e964c1428e`; blobs: Form 4 `715807c0260af7b321afdc10933e718d68903a8a`, Form 4/A `c0b1617bbe11b1b759a51cd2b1a332bf3d809912`, common `c9f9da0b9cb4799894da50103ef7fb2290e76b7c`. Mirror README states these are reduced-content XSDs from SEC Ownership v5.5; official SEC v5.5 ZIP could not be byte-hash verified in this runtime.
+- Both transaction types (derivative and non-derivative) have no transaction-owner CIK/reference element, no nested owner-reference field, no wildcard and no XSD key/keyref/unique. Form 4/A transaction structure matches Form 4. Root separates up to 10 reportingOwner blocks from transaction tables; each table independently allows up to 30 rows.
+- Disposition: no schema-defined transaction-to-owner link in the pinned v5.5 mirror. Keep the Phase 459 line-owner allowlist empty; quarantine all multi-owner lines. Single-owner forms remain filing-grain only. Bulk-only owner-count clustering remains killed. Do not infer total >30 rows across both tables as a universal split; the XSD cap is 30 per table.
+- SEC draft Ownership v5.6 dated 2026-11-06 is planned for 2026-12-07; re-audit after effective release. SEC Form 144 last scheduled run remains [44083941814](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44083941814), with no post-Phase-454 live capture observed. FINRA preflight [44007662531](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44007662531) stopped before API request due missing OAuth credentials.
+- No raw SEC data, schema ZIP or vendor data committed. No forward-return, alpha, OOS, bootstrap, LOO or holdout test. `F80_TOP20_PARTIAL50_BASELINE_C20` and production remain frozen.
+- Report: [Phase 461](research/PHASE461_FORM4_V55_SCHEMA_OWNER_LINK_AUDIT_2026-11-17.md) · [summary](research/PHASE461_FORM4_V55_SCHEMA_OWNER_LINK_SUMMARY_2026-11-17.json).
+
+---
+
 ## Phase 460 — Form 4 schema-gated attribution and explicit split-event guard (2026-11-17)
 
 - Re-audited latest GitHub state before edits: main HEAD `a2d7e7f9c32c1d5e30b479173ba5e71e765f9cd6`; latest Phase 459 PR CI [44128628627](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44128628627) passed 9/9 offline tests and produced no artifact; 7,699 total Actions runs; no active/queued among latest 50; 292 branches; 56 open PRs; 73 workflow files.
