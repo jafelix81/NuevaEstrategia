@@ -88,3 +88,11 @@ The async API supports up to 100,000 rows per request, with a 60-second minimum 
 - FINRA Equity Short Interest Files: https://www.finra.org/finra-data/browse-catalog/equity-short-interest/files
 - FINRA Developer Center / Query API: https://developer.finra.org/docs
 - FINRA short-interest publication schedule: https://www.finra.org/filing-reporting/regulatory-filing-systems/short-interest
+
+
+## 7. PR merge and CI result
+
+- [PR #112](https://github.com/jafelix81/NuevaEstrategia/pull/112) merged to main at 2026-11-17 03:17:15 UTC; merge commit: `2148f0de372039007faa19e6a10a0f7c4e09abab`.
+- Pull-request Actions run [44009082677](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44009082677) completed successfully: Phase 403 offline regression passed **18/18**; the live-capture job was correctly skipped on pull_request; no artifact was expected.
+- Main branch now contains SEC Form 144 cron `47 * * * *` and CFTC TFF cron `25 22 * * 1-5`. These are schedule re-arms only; no manual capture or backfill was performed.
+- Post-merge Actions total: 7,691 runs. Latest 30 inspected; all completed. Main HEAD is the Phase 448 merge commit above.
