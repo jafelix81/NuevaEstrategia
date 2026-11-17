@@ -82,5 +82,14 @@
     "Observe one scheduled SEC Form 144 capture and verify migration artifact plus persisted 43-field header",
     "Inspect the 2026-11-17 22:25 UTC CFTC scheduled capture",
     "Configure FINRA OAuth secrets and perform one settlement-date validation"
-  ]
+  ],
+  "ci": {
+    "run_id": 44160283721,
+    "offline_job_id": 134311911943,
+    "offline_tests": 25,
+    "passed": 25,
+    "failed": 0,
+    "live_capture": "skipped",
+    "artifacts": 0
+  }
 }
