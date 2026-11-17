@@ -1,3 +1,15 @@
+## Phase 459 — Form 4 joint-owner attribution and duplicate-event gate (2026-11-17)
+
+- Current SEC Form 4 instructions (SEC 1474, 03-26, Instruction 4(b)(v)) permit joint/group filings to include both the same transaction reportable by multiple beneficial owners and securities owned separately by any joint/group filer. Therefore, reporting-owner count is not trade count or independent-buyer count.
+- SEC Ownership XML spec v3 (2010) models repeated reportingOwner blocks separately from nonDerivativeTable/derivativeTable; it says there is no primary owner and signatures are not tied to reporting owners. The current Form 4 instructions remain consistent with joint/group filing. Current XML v5.5 (2026-03-18) is listed by SEC; its ZIP was not unpacked in this phase, so a v5.5 schema-level recheck remains required.
+- Real SEC example: CIK 0001612720, 2018-06-11, accessions 0001140361-18-028469 and 0001140361-18-028465 explicitly identify two Forms 4 split for the same event because of the >10 reporting-person limit. Do not count accession count as independent trade count.
+- Inherited Phase 458 endpoint cohorts: P-coded rows inside multi-owner accessions = 1,134/7,180 (15.794%) in 2012Q1 and 694/5,183 (13.390%) in 2026Q3. These two endpoints are not a full-history prevalence estimate.
+- Killed bulk-only proxy FORM4_MULTI_OWNER_OWNER_COUNT_CLUSTER. Quarantine multi-owner lines unless explicit unique line-to-owner evidence exists; do not use owner order, signature order/count, roles or proximity. Candidate split filings require explicit same-event evidence before deduplication.
+- Added fail-closed XML attribution helper, nine synthetic regressions, machine-readable summary and offline CI. No raw SEC data, vendor data or live SEC request. No forward-return, alpha, OOS, bootstrap, LOO or holdout test. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+- Report: [Phase 459](research/PHASE459_FORM4_JOINT_OWNER_ATTRIBUTION_FEASIBILITY_AUDIT_2026-11-17.md) · [summary](research/PHASE459_FORM4_JOINT_OWNER_ATTRIBUTION_SUMMARY_2026-11-17.json).
+
+---
+
 ## Phase 458 — Form 4 amendment-state, reporting-owner grain and 10b5-1 audit (2026-11-17)
 
 - Replayed immutable Phase 39 artifact [12781850078](https://github.com/jafelix81/NuevaEstrategia/actions/runs/40606706518/artifacts/12781850078), outer SHA-256 203d7b1d2e29c999da318456af72e621cb30ef9a470d8f1610d088f9bebecb66; nested 2012Q1 and 2026Q3 hashes verified.

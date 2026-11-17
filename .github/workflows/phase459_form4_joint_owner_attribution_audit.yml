@@ -1,0 +1,35 @@
+name: Phase 459 Form 4 joint-owner attribution gate
+
+on:
+  push:
+    branches: [phase459-form4-joint-owner-attribution-gate]
+    paths:
+      - ".github/workflows/phase459_form4_joint_owner_attribution_audit.yml"
+      - "research/phase459_form4_joint_owner_attribution_gate.py"
+      - "research/test_phase459_form4_joint_owner_attribution_gate.py"
+      - "research/PHASE459_FORM4_JOINT_OWNER_ATTRIBUTION_FEASIBILITY_AUDIT_2026-11-17.md"
+      - "research/PHASE459_FORM4_JOINT_OWNER_ATTRIBUTION_SUMMARY_2026-11-17.json"
+  pull_request:
+    paths:
+      - ".github/workflows/phase459_form4_joint_owner_attribution_audit.yml"
+      - "research/phase459_form4_joint_owner_attribution_gate.py"
+      - "research/test_phase459_form4_joint_owner_attribution_gate.py"
+      - "research/PHASE459_FORM4_JOINT_OWNER_ATTRIBUTION_FEASIBILITY_AUDIT_2026-11-17.md"
+      - "research/PHASE459_FORM4_JOINT_OWNER_ATTRIBUTION_SUMMARY_2026-11-17.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile and run conservative attribution regressions
+        run: |
+          python -m py_compile research/phase459_form4_joint_owner_attribution_gate.py research/test_phase459_form4_joint_owner_attribution_gate.py
+          python -m unittest -v research.test_phase459_form4_joint_owner_attribution_gate
