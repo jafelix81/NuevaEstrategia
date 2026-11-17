@@ -24,7 +24,7 @@ def sha(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 def blob_sha(data: bytes) -> str:
-    return hashlib.sha1(f"blob {len(data)}\\0".encode()+data).hexdigest()
+    return hashlib.sha1(f"blob {len(data)}\0".encode()+data).hexdigest()
 
 def load_universe(path: Path, enforce_hash: bool=True) -> set[str]:
     raw=path.read_bytes()
@@ -135,7 +135,7 @@ def main():
     p.add_argument("--artifact",type=Path,required=True); p.add_argument("--universe",type=Path,required=True)
     p.add_argument("--output",type=Path); p.add_argument("--allow-noncanonical-hash",action="store_true")
     a=p.parse_args(); result=analyze(a.artifact,a.universe,not a.allow_noncanonical_hash)
-    out=json.dumps(result,indent=2,sort_keys=True)+"\\n"
+    out=json.dumps(result,indent=2,sort_keys=True)+"\n"
     if a.output: a.output.parent.mkdir(parents=True,exist_ok=True); a.output.write_text(out,encoding="utf-8")
     else: print(out,end="")
 if __name__=="__main__": main()
