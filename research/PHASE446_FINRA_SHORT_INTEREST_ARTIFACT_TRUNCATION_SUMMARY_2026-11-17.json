@@ -1,0 +1,98 @@
+{
+  "phase": 446,
+  "audit_date_utc": "2026-11-17T01:17:00Z",
+  "title": "Phase 31 FINRA short-interest artifact truncation audit",
+  "decision": "PHASE31_PANEL_KILLED_AS_RETRIEVED; FINRA_SOURCE_CONDITIONAL_ON_COMPLETE_ASYNC_REINGESTION",
+  "artifact": {
+    "workflow_run_id": 40164323397,
+    "artifact_id": 12588045711,
+    "file_name": "phase31-finra-flow-si-divergence.zip",
+    "size_bytes_approx": 26000000,
+    "sha256": "91f7683cf984cb2b00a6bd772608c3243ac9a56717930c6fd2092696e092a266"
+  },
+  "si_download_audit": {
+    "requested_settlement_dates": 106,
+    "successful_requests": 102,
+    "failed_requests": 4,
+    "successful_rows_per_request": 5000,
+    "synchronous_api_cap": 5000,
+    "all_successful_requests_hit_cap": true,
+    "failed_settlements": [
+      "2024-01-15",
+      "2024-03-29",
+      "2026-10-15",
+      "2026-10-30"
+    ],
+    "metadata_saved": {
+      "record_total": false,
+      "record_offset": false,
+      "record_limit": false,
+      "async_request_id": false,
+      "pagination_complete": false
+    }
+  },
+  "short_interest_features": {
+    "rows": 9420,
+    "settlement_dates": 102,
+    "date_start": "2022-06-15",
+    "date_end": "2026-09-30",
+    "unique_tickers": 98,
+    "ticker_initials": {
+      "A": 34,
+      "B": 19,
+      "C": 32,
+      "D": 13
+    },
+    "ticker_initials_e_to_z": 0,
+    "nonpositive_current_short_quantity_rows": 0,
+    "sha256": "282e260c7fe085123f576d7315f1e38985b7e285572202b3d9cb22c64936066c"
+  },
+  "audit_csv": {
+    "sha256": "477f94be7bc0f9c46df3547b9f470164e09b58a3aff8b9b9e68a953525305dff",
+    "fields": [
+      "settlementDate",
+      "rows",
+      "universeRows",
+      "status",
+      "error"
+    ],
+    "missing_completeness_fields": [
+      "Record-Total",
+      "Record-Offset",
+      "Record-Limit",
+      "async_request_id",
+      "pagination_complete"
+    ]
+  },
+  "interpretation": {
+    "observed_98_symbols": "Observed symbols in a potentially truncated subset; not full positive-position incidence and not effective universe coverage",
+    "alphabetical_prefix": "A-D only is strongly consistent with prefix truncation, but exact server order is not proven because raw response order was not preserved",
+    "complete_snapshots_proven": 0,
+    "structural_zero_inference_allowed": false,
+    "phase37_existing_panel_kill": "remains valid and is strengthened",
+    "phase445_semantic_rule": "remains valid in principle but cannot be applied to the Phase31 artifact"
+  },
+  "api_retrieval_gate": {
+    "synchronous_max_records": 5000,
+    "asynchronous_max_records": 100000,
+    "required": [
+      "Use asynchronous historical dataset requests",
+      "Preserve request ID and request/response timestamps",
+      "Preserve Record-Total, Record-Limit, offsets/partition keys, page counts",
+      "Prove retrieved rows equal source total for every settlement",
+      "Partition deterministically if a request approaches the async ceiling",
+      "Only infer zero after complete snapshot plus effective-dated active/in-scope identity"
+    ]
+  },
+  "local_validation": {
+    "audit_script": "research/phase446_finra_si_artifact_audit.py",
+    "tests": 5,
+    "passed": 5,
+    "test_script": "research/test_phase446_finra_si_artifact_audit.py"
+  },
+  "new_finra_data_downloaded": false,
+  "existing_github_artifact_downloaded_for_inspection": true,
+  "alpha_or_oos_test_run": false,
+  "production_changed": false,
+  "frozen_baseline": "F80_TOP20_PARTIAL50_BASELINE_C20"
+}
