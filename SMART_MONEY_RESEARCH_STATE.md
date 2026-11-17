@@ -6,6 +6,7 @@
 - Two issuer CIKs had multiple as-filed symbols across the sampled periods (TKOI.OB→TKOI; AULT→GPUS), so effective dating remains mandatory. No symbol-to-multiple-CIK collision appeared in this candidate sample.
 - Disposition: descriptive overlap only; continue candidate-specific identity and full quarterly census, but no event study or alpha until historical active-universe and security/class/listing crosswalks pass. Bulk filing date remains date-only, not exact first public receipt; Phase 342 candidate rows are not proof of discretionary exchange execution.
 - Report: [Phase 455](research/PHASE455_FORM4_FROZEN_UNIVERSE_OVERLAP_AUDIT_2026-11-17.md) · [summary](research/PHASE455_FORM4_FROZEN_UNIVERSE_OVERLAP_SUMMARY_2026-11-17.json).
+- PR [#116](https://github.com/jafelix81/NuevaEstrategia/pull/116) merged as `aff4a7d02efed0aa993d30af5bd2dc7cd652a90b`; CI [run 44087732566](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44087732566) passed 6/6 tests, reconciled the artifact-backed audit and uploaded aggregate-only artifact `14329718579`.
 - No raw SEC rows or archives committed. No forward returns, alpha, OOS, bootstrap, LOO or holdout use. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
 
 ---
@@ -16,6 +17,7 @@
 - Root cause: Phase 444 added `cross_feed_provenance_complete` and `capture_poll_status` to current `EVENT_FIELDS`, but committed `events.csv` retained the old header. The append routine wrote new-order rows without migrating the header, shifting subsequent values two columns; `feed_path_cik` then contained the raw feed-updated timestamp.
 - Phase 454 adds an idempotent, atomic, fail-closed schema migration before the Phase 403 live capture. Existing values are preserved by column name; new fields remain blank for historical rows. Unknown/duplicate headers and extra row columns stop the migration rather than dropping data. The existing Phase 403 workflow runs the migration tests and includes a migration summary in its artifact.
 - Report: [Phase 454 audit](research/PHASE454_FORM144_EVENT_LEDGER_SCHEMA_MIGRATION_2026-11-17.md) · [summary](research/PHASE454_FORM144_EVENT_LEDGER_SCHEMA_MIGRATION_SUMMARY_2026-11-17.json).
+- PR [#115](https://github.com/jafelix81/NuevaEstrategia/pull/115) merged as `491d79f4f8d11d8cc76f7e53c9961d6e5040380c`; corrected idempotence fixture and post-fix CI [run 44086525354](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44086525354) passed 24/24 tests. Live capture was correctly skipped on PR CI; next scheduled main capture is the production validation gate.
 - No manual replay, no fabricated first-seen time, no signal admission, no forward-return test. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
 
 ---
