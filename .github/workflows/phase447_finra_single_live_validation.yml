@@ -1,0 +1,56 @@
+name: Phase 447 FINRA Single Settlement Live Validation
+
+on:
+  push:
+    branches:
+      - phase447-finra-single-live-validation
+  workflow_dispatch:
+    inputs:
+      settlement_date:
+        description: One historical FINRA settlement date (YYYY-MM-DD)
+        required: true
+        default: "2026-09-30"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase447-finra-single-settlement-live
+  cancel-in-progress: false
+
+jobs:
+  one-settlement:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      FINRA_ACCESS_TOKEN: ${{ secrets.FINRA_ACCESS_TOKEN }}}
+      SETTLEMENT_DATE: ${{ github.event.inputs.settlement_date || '2026-09-30' }}}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install isolated dependency
+        run: python -m pip install requests
+      - name: Require credential before any request
+        run: |
+          if [ -z "$FINRA_ACCESS_TOKEN" ]; then
+            echo "::error::FINRA_ACCESS_TOKEN is not configured; no FINRA request was made."
+            exit 2
+          fi
+      - name: Capture exactly one settlement-date snapshot
+        run: |
+          python research/phase447_finra_async_snapshot_client.py \
+            --settlement-date "$SETTLEMENT_DATE" \
+            --output-dir "$RUNNER_TEMP/finra_private"
+      - name: Copy manifest only (never raw market data)
+        run: |
+          mkdir -p phase447_manifest
+          cp "$RUNNER_TEMP"/finra_private/*.manifest.json phase447_manifest/
+      - name: Upload non-raw reconciliation manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase447-finra-single-settlement-manifest
+          path: phase447_manifest/*.manifest.json
+          if-no-files-found: error
+          retention-days: 30
