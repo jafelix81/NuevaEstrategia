@@ -114,7 +114,7 @@ class Phase403Tests(unittest.TestCase):
         self.assertEqual(p403.MAX_FEED_PAGES, 10)
         entries = [{"accession": f"0000000000-26-{i:06d}"} for i in range(50)]
         self.assertTrue(p403.detect_possible_gap(entries, "9999999999-26-000001"))
-        self.assertFalse(p403.detect_possible_gap(entries[:49], "9999999999-26-000001"))
+        self.assertTrue(p403.detect_possible_gap(entries[:49], "9999999999-26-000001"))
 
     def test_interval_lower_bound_is_suppressed_after_gap(self):
         prior = "2026-11-14T18:00:00Z"
@@ -248,7 +248,7 @@ class Phase403Tests(unittest.TestCase):
 
     def test_fetch_all_feeds_keeps_success_when_other_feed_times_out(self):
         def fake_fetch(url, **kwargs):
-            if url == p403.FEEDS["144"]:
+            if url.startswith(p403.FEEDS["144"] + "&start=0"):
                 return SAMPLE_ATOM.encode("utf-8")
             raise TimeoutError("temporary SEC 144/A timeout")
 
@@ -294,6 +294,9 @@ class Phase403Tests(unittest.TestCase):
                     "entry_count": 1,
                     "oldest_updated_utc": item["feed_updated_utc"],
                     "newest_updated_utc": item["feed_updated_utc"],
+                    "previous_latest_accession_found": True,
+                    "possible_feed_window_gap": False,
+                    "pagination_complete": True,
                 }
             }
             errors = {
