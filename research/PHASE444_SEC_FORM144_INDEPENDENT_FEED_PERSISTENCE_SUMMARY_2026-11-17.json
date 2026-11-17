@@ -1,0 +1,54 @@
+{
+  "phase": 444,
+  "audit_time_utc": "2026-11-17T00:41:00Z",
+  "main_head_at_preflight": "283c4056e7f56d4d6cabfa9d3aec3ae5f5ca709c",
+  "actions": {
+    "total_runs": 7677,
+    "latest_100": {
+      "success": 61,
+      "failure": 38,
+      "cancelled": 1,
+      "in_progress": 0,
+      "queued": 0
+    },
+    "branches": 278,
+    "open_pull_requests": 56,
+    "workflow_inventory": 67,
+    "latest_run_id": 43970444015,
+    "latest_run_conclusion": "failure",
+    "latest_run_artifacts": [],
+    "latest_successful_sec_form144_run_id": 43862500790,
+    "latest_cftc_run_id": 43525140200,
+    "cftc_latest_event": "push",
+    "cftc_nov16_scheduled_run_observed": false
+  },
+  "failure": {
+    "workflow": "Phase 403 SEC Form 144 prospective first-seen capture",
+    "failed_feed": "144A",
+    "exception": "TimeoutError",
+    "timeout_seconds": 60,
+    "retries": 4,
+    "first_feed_144_completed_before_failure": true,
+    "state_commit_step": "skipped",
+    "summary_artifact": "not produced",
+    "cause": "fail-fast fetch_all_feeds discarded successful feed snapshot when later feed request raised"
+  },
+  "change": {
+    "per_feed_fetch_isolated": true,
+    "partial_success_persisted": true,
+    "failed_feed_clock_unchanged": true,
+    "global_success_clock_advances_only_on_complete_poll": true,
+    "partial_event_cross_feed_provenance_complete": false,
+    "overlap_count_on_partial": null,
+    "all_feed_failure_writes_summary_then_exits_nonzero": true,
+    "polling_schedule_changed": false,
+    "timeout_retry_policy_changed": false
+  },
+  "tests_added": 3,
+  "signal_admitted": false,
+  "alpha_test_authorized": false,
+  "oos_test_run": false,
+  "frozen_baseline": "F80_TOP20_PARTIAL50_BASELINE_C20",
+  "frozen_baseline_changed": false,
+  "production_changed": false
+}
