@@ -1,0 +1,46 @@
+{
+  "phase": 466,
+  "audit_time_utc": "2026-11-17T23:51:29Z",
+  "main_head_before": "43cc8a85d6744722bb6d895322584d5104d3542b",
+  "repository": {
+    "default_branch": "main",
+    "visibility": "public",
+    "archived": false,
+    "branches": 299,
+    "open_prs": 56
+  },
+  "cftc": {
+    "workflow_path": ".github/workflows/phase384_cftc_tff_prospective_capture.yml",
+    "workflow_blob_sha": "40e385004c69e188dc0dcc6e336d0675280cae61",
+    "cron_utc": "25 22 * * 1-5",
+    "activation_pr": 60,
+    "activation_merged_at_utc": "2026-11-14T00:45:00Z",
+    "latest_verified_run_id": 43525140200,
+    "latest_verified_run_type": "branch_push_bootstrap",
+    "historical_warmup_rows": 3035,
+    "prospective_observations": 0,
+    "source_dataset_last_updated": "2026-11-16",
+    "latest_report_date_visible": "2026-11-10",
+    "next_official_release": "2026-11-20T15:30:00-05:00",
+    "scheduled_run_status": "not evidenced; current workflow-run inventory and enablement state unavailable",
+    "historical_availability_certified": false
+  },
+  "sec_form144": {
+    "latest_verified_live_run_id": 44179257367,
+    "latest_verified_live_run_before_phase465_pagination": true,
+    "phase465_pr_ci_run_id": 44195015699,
+    "phase465_tests_passed": 40,
+    "live_capture_skipped_on_pr": true,
+    "post_merge_23_47_poll_status": "not inspectable; no duplicate dispatch"
+  },
+  "current_research_disposition": {
+    "cftc_near_term_alpha_candidate": false,
+    "cftc_weekly_preregistration_requires_minimum_prospective_events_per_contract": 202,
+    "sec_pagination_live_validated": false,
+    "finra_new_request_made": false,
+    "new_signal_admitted": false,
+    "alpha_oos_test_run": false
+  },
+  "frozen_baseline": "F80_TOP20_PARTIAL50_BASELINE_C20",
+  "strategy_changes": false
+}
