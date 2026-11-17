@@ -1,3 +1,17 @@
+## Phase 460 — Form 4 schema-gated attribution and explicit split-event guard (2026-11-17)
+
+- Re-audited latest GitHub state before edits: main HEAD `a2d7e7f9c32c1d5e30b479173ba5e71e765f9cd6`; latest Phase 459 PR CI [44128628627](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44128628627) passed 9/9 offline tests and produced no artifact; 7,699 total Actions runs; no active/queued among latest 50; 292 branches; 56 open PRs; 73 workflow files.
+- Code review found Phase 459's generic transaction tags (`reportingOwnerCik`, `ownerCik`, etc.) were synthetic and not validated against the applicable XSD. Removed that attribution path. The exact Ownership v5.5 ZIP could not be unpacked in this run, so the schema-approved owner-reference allowlist remains empty and the gate is `NOT_VERIFIED_FAIL_CLOSED`.
+- Current 2026 XML sample with schemaVersion X0609 shows multiple reportingOwner blocks and a separate transaction table; no line-owner key was observed in the retrieved sample. This is sample evidence only, not exhaustive schema proof.
+- New same-owner split example: Circle issuer CIK 0001876042 / owner CIK 0001539940 / 2026-07-06, accessions 0001876042-26-000217 and -000218. Both explicitly say first/second of two Forms 4 and that >30 rows require reading them together as one consolidated filing. Count as one disclosure event for owner breadth; preserve transaction lines and provenance, and do not deduplicate rows without line-level evidence.
+- Added explicit split-remarks classifier for >10 reporting-person and >30 transaction-row limits. It flags candidates only; it does not automatically join accessions or deduplicate lines. All multi-owner transaction lines remain quarantined.
+- SEC Form 144 scheduled run [44083941814](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44083941814) is still the last scheduled run and failed before Phase 454 merge. Phase 454 offline CI [44086525354](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44086525354) passed 24/24, but no post-migration live capture is visible in the latest run list. The workflow file contains the :47 hourly cron; enabled state is not exposed by the available read interface.
+- FINRA live preflight [44007662531](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44007662531) stopped before any API request because OAuth credentials were absent.
+- No SEC raw data, schema ZIP or vendor data committed. No forward-return, alpha, OOS, bootstrap, LOO or holdout test. `F80_TOP20_PARTIAL50_BASELINE_C20` and production remain frozen.
+- Report: [Phase 460](research/PHASE460_FORM4_SCHEMA_AND_SPLIT_EVENT_GUARD_2026-11-17.md) · [summary](research/PHASE460_FORM4_SCHEMA_AND_SPLIT_EVENT_SUMMARY_2026-11-17.json).
+
+---
+
 ## Phase 459 — Form 4 joint-owner attribution and duplicate-event gate (2026-11-17)
 
 - Current SEC Form 4 instructions (SEC 1474, 03-26, Instruction 4(b)(v)) permit joint/group filings to include both the same transaction reportable by multiple beneficial owners and securities owned separately by any joint/group filer. Therefore, reporting-owner count is not trade count or independent-buyer count.

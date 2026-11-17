@@ -1,0 +1,40 @@
+name: Phase 460 Form 4 schema and split-event guard
+
+on:
+  push:
+    branches: [phase460-form4-schema-and-split-event-guard]
+    paths:
+      - ".github/workflows/phase460_form4_schema_and_split_event_guard.yml"
+      - "research/phase459_form4_joint_owner_attribution_gate.py"
+      - "research/test_phase459_form4_joint_owner_attribution_gate.py"
+      - "research/phase460_form4_split_event_guard.py"
+      - "research/test_phase460_form4_split_event_guard.py"
+      - "research/PHASE460_FORM4_SCHEMA_AND_SPLIT_EVENT_GUARD_2026-11-17.md"
+      - "research/PHASE460_FORM4_SCHEMA_AND_SPLIT_EVENT_SUMMARY_2026-11-17.json"
+      - "SMART_MONEY_RESEARCH_STATE.md"
+  pull_request:
+    paths:
+      - ".github/workflows/phase460_form4_schema_and_split_event_guard.yml"
+      - "research/phase459_form4_joint_owner_attribution_gate.py"
+      - "research/test_phase459_form4_joint_owner_attribution_gate.py"
+      - "research/phase460_form4_split_event_guard.py"
+      - "research/test_phase460_form4_split_event_guard.py"
+      - "research/PHASE460_FORM4_SCHEMA_AND_SPLIT_EVENT_GUARD_2026-11-17.md"
+      - "research/PHASE460_FORM4_SCHEMA_AND_SPLIT_EVENT_SUMMARY_2026-11-17.json"
+      - "SMART_MONEY_RESEARCH_STATE.md"
+
+permissions:
+  contents: read
+
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile and run conservative Form 4 gates
+        run: |
+          python -m py_compile research/phase459_form4_joint_owner_attribution_gate.py research/test_phase459_form4_joint_owner_attribution_gate.py research/phase460_form4_split_event_guard.py research/test_phase460_form4_split_event_guard.py
+          python -m unittest -v research.test_phase459_form4_joint_owner_attribution_gate research.test_phase460_form4_split_event_guard
