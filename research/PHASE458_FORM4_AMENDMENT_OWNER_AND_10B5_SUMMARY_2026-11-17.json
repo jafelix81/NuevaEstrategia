@@ -1,0 +1,87 @@
+{
+  "phase": 458,
+  "audit_date": "2026-11-17",
+  "source": {
+    "workflow_run_id": 40606706518,
+    "artifact_id": 12781850078,
+    "outer_sha256": "203d7b1d2e29c999da318456af72e621cb30ef9a470d8f1610d088f9bebecb66",
+    "inner_sha256": {
+      "2012Q1": "0cac6f943813dae94c20ecc8bca63fda692e2b8ac6d02ce2c322ab411f45c357",
+      "2026Q3": "a4e6a681cfcfa43a3d9e4ca9cfec1fd26a59d0a01eac7e9f7b5a0122092c90f3"
+    }
+  },
+  "key_findings": {
+    "multi_owner_p_accessions": {
+      "2012Q1": {
+        "n": 380,
+        "denominator": 4136,
+        "pct": 9.187621
+      },
+      "2026Q3": {
+        "n": 238,
+        "denominator": 3211,
+        "pct": 7.412021
+      }
+    },
+    "p_rows_in_multi_owner_accessions": {
+      "2012Q1": {
+        "n": 1134,
+        "denominator": 7180,
+        "pct": 15.793872
+      },
+      "2026Q3": {
+        "n": 694,
+        "denominator": 5183,
+        "pct": 13.389929
+      }
+    },
+    "p_rows_with_disposition_D": {
+      "2012Q1": 57,
+      "2026Q3": 6
+    },
+    "same_quarter_heuristic_amendment_links": {
+      "2012Q1": {
+        "unique": 1046,
+        "ambiguous": 26,
+        "no_in_quarter_candidate": 790
+      },
+      "2026Q3": {
+        "unique": 291,
+        "ambiguous": 3,
+        "no_in_quarter_candidate": 333
+      }
+    },
+    "p_disposition_to_acquisition_corrections": {
+      "2012Q1": 0,
+      "2026Q3": 2
+    },
+    "aff10b5one_p_accessions_2026Q3": {
+      "yes": 82,
+      "no": 3129,
+      "unknown": 0
+    },
+    "aff10b5one_2012Q1": {
+      "field_present": false,
+      "p_accessions_unknown": 4136
+    },
+    "p_rows_transaction_form_type_5": {
+      "2012Q1": 205,
+      "2026Q3": 25
+    }
+  },
+  "verified_amendment": {
+    "original_accession": "0001493152-26-034516",
+    "amendment_accession": "0001493152-26-034654",
+    "issuer": "GDTC",
+    "corrected_rows": 2,
+    "field": "TRANS_ACQUIRED_DISP_CD D -> A",
+    "amendment_acceptance_et": "2026-07-24 21:01:08"
+  },
+  "controls": {
+    "transaction_to_owner_assignment_from_bulk_alone": false,
+    "aff10b5one_is_submission_level": true,
+    "amendment_lineage_authoritative": false,
+    "alpha_authorized": false,
+    "f80_changed": false
+  }
+}

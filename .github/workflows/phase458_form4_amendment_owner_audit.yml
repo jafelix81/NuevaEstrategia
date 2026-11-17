@@ -1,0 +1,55 @@
+name: Phase 458 Form 4 amendment and owner-grain audit
+
+on:
+  pull_request:
+    paths:
+      - "research/phase458_form4_amendment_owner_audit.py"
+      - "research/test_phase458_form4_amendment_owner_audit.py"
+      - "research/PHASE458_FORM4_AMENDMENT_OWNER_AND_10B5_AUDIT_2026-11-17.md"
+      - "research/PHASE458_FORM4_AMENDMENT_OWNER_AND_10B5_SUMMARY_2026-11-17.json"
+      - ".github/workflows/phase458_form4_amendment_owner_audit.yml"
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: phase458-form4-amendment-owner-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Compile and run offline regressions
+        run: |
+          python -m py_compile research/phase458_form4_amendment_owner_audit.py research/test_phase458_form4_amendment_owner_audit.py
+          python -m unittest -v research.test_phase458_form4_amendment_owner_audit
+      - name: Retrieve immutable Phase 39 SEC archive artifact
+        run: |
+          mkdir -p phase458_input phase458_output
+          curl --retry 4 --retry-all-errors --retry-delay 2 -fsSL \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/12781850078/zip" \
+            -o phase458_input/phase39_form345_actual_file_audit.zip
+      - name: Reconcile immutable hashes and audit amendment / owner grain
+        run: |
+          python -m research.phase458_form4_amendment_owner_audit \
+            --artifact phase458_input/phase39_form345_actual_file_audit.zip \
+            --output phase458_output/phase458_result.json
+      - name: Upload aggregate audit only
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase458-form4-amendment-owner-audit
+          path: phase458_output/phase458_result.json
+          retention-days: 30
+          if-no-files-found: warn

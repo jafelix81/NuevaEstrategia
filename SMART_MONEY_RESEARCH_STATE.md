@@ -1,3 +1,16 @@
+## Phase 458 — Form 4 amendment-state, reporting-owner grain and 10b5-1 audit (2026-11-17)
+
+- Replayed immutable Phase 39 artifact [12781850078](https://github.com/jafelix81/NuevaEstrategia/actions/runs/40606706518/artifacts/12781850078), outer SHA-256 203d7b1d2e29c999da318456af72e621cb30ef9a470d8f1610d088f9bebecb66; nested 2012Q1 and 2026Q3 hashes verified.
+- Bulk transaction rows have no reporting-owner CIK. Multi-owner filings contain 9.188%/7.412% of P-coded accessions and 15.794%/13.390% of P-coded rows in 2012Q1/2026Q3 respectively. Bulk-only insider breadth/cluster attribution is therefore not admitted; multi-owner filings require deterministic XML owner-to-line attribution or quarantine.
+- Verified GDTC Form 4 / 4-A pair: original 0001493152-26-034516 reported two P/D rows; amendment 0001493152-26-034654 corrected both to P/A, explicitly “no other changes”. EDGAR acceptance: original 2026-07-24 12:33:42 ET; amendment 2026-07-24 21:01:08 ET. The correction is an amendment-time information update, not a new trade or a backdated purchase.
+- Across the two endpoint archives, P-coded rows with A/D=D: 57 (2012Q1), 6 (2026Q3); same-quarter heuristic amendment matching found 1,046/291 unique pairs, 26/3 ambiguous, 790/333 with no in-quarter candidate. Only two P/D→P/A corrections were found in the 2026Q3 linked sample; the heuristic is not authoritative accession lineage.
+- AFF10B5ONE is submission-level and absent from 2012Q1 (4,136 P accessions unknown, not false). In 2026Q3, 82/3,211 P accessions were flagged yes and 3,129 no. Preserve historical schema absence as unknown.
+- TRANS_FORM_TYPE is transaction-line grain and differs from SUBMISSION.DOCUMENT_TYPE; 205/25 P rows have value 5 in 2012Q1/2026Q3. Do not collapse or drop without separate semantics.
+- Added reproducible auditor, seven offline tests, aggregate JSON and artifact-backed PR workflow. No raw SEC rows committed. No forward-return, alpha, OOS, bootstrap, LOO or holdout test. Form 4 remains conditional; F80_TOP20_PARTIAL50_BASELINE_C20 and all production controls remain frozen.
+- Report: [Phase 458](research/PHASE458_FORM4_AMENDMENT_OWNER_AND_10B5_AUDIT_2026-11-17.md) · [summary](research/PHASE458_FORM4_AMENDMENT_OWNER_AND_10B5_SUMMARY_2026-11-17.json).
+
+---
+
 ## Phase 457 — SEC Form 3/4/5 full-history coverage and PIT-clock audit (2026-11-17)
 
 - SEC's official Insider Transactions Data Sets page currently covers Jan 2006–Sep 2026 and lists 83 quarterly ZIPs (2006Q1–2026Q3); sum of displayed archive sizes is approximately 887.43 MB compressed. Dataset is quarterly/as-filed and includes Forms 3/4/5 plus amendments; bulk archive posting is not the filing's first-public-receipt time.
