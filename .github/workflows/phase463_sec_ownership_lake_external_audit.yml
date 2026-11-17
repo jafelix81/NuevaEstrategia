@@ -1,0 +1,35 @@
+name: Phase 463 SEC ownership lake external-source audit
+
+on:
+  push:
+    branches: [phase463-sec-ownership-lake-independent-audit]
+    paths:
+      - ".github/workflows/phase463_sec_ownership_lake_external_audit.yml"
+      - "research/phase463_sec_ownership_lake_external_audit.py"
+      - "research/test_phase463_sec_ownership_lake_external_audit.py"
+      - "research/PHASE463_SEC_OWNERSHIP_LAKE_EXTERNAL_SOURCE_AUDIT_2026-11-17.md"
+      - "research/PHASE463_SEC_OWNERSHIP_LAKE_EXTERNAL_SOURCE_SUMMARY_2026-11-17.json"
+  pull_request:
+    paths:
+      - ".github/workflows/phase463_sec_ownership_lake_external_audit.yml"
+      - "research/phase463_sec_ownership_lake_external_audit.py"
+      - "research/test_phase463_sec_ownership_lake_external_audit.py"
+      - "research/PHASE463_SEC_OWNERSHIP_LAKE_EXTERNAL_SOURCE_AUDIT_2026-11-17.md"
+      - "research/PHASE463_SEC_OWNERSHIP_LAKE_EXTERNAL_SOURCE_SUMMARY_2026-11-17.json"
+
+permissions:
+  contents: read
+
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile
+        run: python -m py_compile research/phase463_sec_ownership_lake_external_audit.py research/test_phase463_sec_ownership_lake_external_audit.py
+      - name: Run offline gates
+        run: python -m unittest -v research.test_phase463_sec_ownership_lake_external_audit
