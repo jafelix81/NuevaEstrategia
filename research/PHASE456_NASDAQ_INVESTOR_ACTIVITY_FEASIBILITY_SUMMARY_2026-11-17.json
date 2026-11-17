@@ -1,0 +1,157 @@
+{
+  "phase": 456,
+  "date": "2026-11-17",
+  "repository": "jafelix81/NuevaEstrategia",
+  "main_head_preflight": "20544866495c1f9c5d36cd117c1498637489d2e8",
+  "operational_preflight": {
+    "latest_run": 44087732566,
+    "latest_run_conclusion": "success",
+    "latest_run_artifact": 14329718579,
+    "phase454_ci_run": 44086525354,
+    "phase454_ci_conclusion": "success",
+    "latest_main_sec_schedule_run": 44083941814,
+    "latest_main_sec_schedule_conclusion": "failure",
+    "active_runs": 0,
+    "queued_runs": 0,
+    "branches": 288,
+    "open_prs": 56,
+    "workflows": 71,
+    "next_sec_configured_slot_utc": "2026-11-17T13:47:00Z",
+    "next_cftc_configured_slot_utc": "2026-11-17T22:25:00Z"
+  },
+  "sources": [
+    {
+      "id": "nasdaq_trade_outline_noto_photo",
+      "status": "conditional_highest_priority_options_candidate",
+      "history": {
+        "NOTO": "2011-11",
+        "PHOTO": "2009-01"
+      },
+      "frequency": "EOD T+1 and 10-minute intraday, product-specific",
+      "fields": [
+        "participant_origin",
+        "opening_buy",
+        "closing_buy",
+        "opening_sell",
+        "closing_sell",
+        "series_volume",
+        "open_interest where specified"
+      ],
+      "coverage": "Separate Nasdaq options venues; electronic trades only; not consolidated all-OPRA",
+      "blockers": [
+        "license/internal-use terms",
+        "sample bytes",
+        "exact 335-underlying coverage",
+        "first-receipt timestamps",
+        "venue share audit"
+      ]
+    },
+    {
+      "id": "nasdaq_uref_df",
+      "status": "conditional_medium_priority_retail_flow_control",
+      "history": "2016-01",
+      "frequency": "daily",
+      "reporting": "previous trading day by 10:00 UTC Tue-Sat, per vendor documentation",
+      "fields": [
+        "volume_buy",
+        "volume_sell",
+        "vwap_buy",
+        "vwap_sell"
+      ],
+      "coverage": "10,000+ U.S. stocks, ADRs and ETPs; price below USD 1 excluded; small incomplete pre-2021 dates",
+      "blockers": [
+        "335-name overlap",
+        "sample not representative",
+        "historical first receipt",
+        "premium access"
+      ]
+    },
+    {
+      "id": "nasdaq_urefint",
+      "status": "conditional_medium_low_priority_intraday_control",
+      "history": "2016-01",
+      "frequency": "15-minute",
+      "reporting": "<30 minutes after interval per vendor documentation",
+      "blockers": [
+        "documentation schema mismatch",
+        "first-receipt log",
+        "335-name coverage",
+        "premium access"
+      ]
+    },
+    {
+      "id": "nasdaq_options_pulse_nosi",
+      "status": "low_priority_comparator",
+      "history": "2019-01",
+      "frequency": "10-minute sentiment intervals",
+      "fields": [
+        "sntm_score",
+        "intvl_sntm_score",
+        "NDAQ/TC symbol-to-FIGI mapping"
+      ],
+      "limitations": [
+        "derived proprietary score",
+        "not raw OPRA tape",
+        "no verified first receipt",
+        "no verified 335 coverage",
+        "premium access"
+      ],
+      "whitepaper": {
+        "observations": 1548,
+        "sample": "2019-01 to 2025-02",
+        "granger_p_values": {
+          "1_day": 0.7299,
+          "2_day": 0.0001,
+          "3_day": 0.0003
+        },
+        "disposition": "vendor hypothesis only; no independently reproducible OOS/cost/turnover/holdout evidence"
+      }
+    },
+    {
+      "id": "nasdaq_usrfh",
+      "status": "low_priority_retail_crowding_research",
+      "history": "2021-01",
+      "coverage": "460,000+ retail investors as of 2025-05; 9,700+ stocks and 8,600+ options",
+      "limitations": [
+        "volume and price scaled/noised",
+        "holdings monthly before 2024-10-29",
+        "variable reporting lag",
+        "panel representativeness not established",
+        "premium access"
+      ]
+    },
+    {
+      "id": "nasdaq_rtat10",
+      "status": "market_attention_control_only",
+      "history": "2016-01",
+      "coverage": "daily top ten most active retail tickers",
+      "limitation": "activity-selected sample, unsuitable for 335-name cross-sectional coverage"
+    }
+  ],
+  "decisions": {
+    "no_signal_admitted": true,
+    "no_data_purchased_or_downloaded": true,
+    "no_oos_test_run": true,
+    "no_production_change": true,
+    "frozen_baseline": "F80_TOP20_PARTIAL50_BASELINE_C20"
+  },
+  "next_gates": [
+    "Acquire lawful sample/schema for NOTO/PHOTO or keep parked",
+    "Verify 335-name UREF/DF coverage using a representative sample",
+    "Reconcile UREFINT schema across dedicated and combined documentation",
+    "Build prospective first-receipt ledgers before any historical signal test",
+    "Only then test incremental information versus frozen LTM/F80 with identical exposure, costs, block bootstrap and LOO"
+  ],
+  "official_sources": [
+    "https://data.nasdaq.com/databases/UREF",
+    "https://data.nasdaq.com/databases/UREFINT",
+    "https://data.nasdaq.com/databases/NIFI",
+    "https://data.nasdaq.com/databases/USRFH",
+    "https://www.nasdaq.com/products/data/options-pulse",
+    "https://www.nasdaq.com/solutions/data/options-pulse/whitepaper",
+    "https://www.nasdaq.com/products/data/options/trade-outline",
+    "https://data.nasdaq.com/databases/NOTOI",
+    "https://www.nasdaqtrader.com/content/ProductsServices/PriceList/Nasdaq_US_Options_Price_List_2025_2026_2027.pdf",
+    "https://datashop.cboe.com/cboe-options-open-close-volume-summary"
+  ]
+}
