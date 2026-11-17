@@ -1318,14 +1318,14 @@ This section supersedes any older “in progress” status above where later com
 ## Phase 447 — FINRA consolidated short-interest async retrieval contract (2026-11-17)
 
 - Disposition: **ready for one controlled live settlement-date validation; historical re-ingestion and alpha remain unauthorized**.
-- Main HEAD preflight: \`c397e3edef9e8babd947f062b87fd7063963739c\`. Latest Actions run \`43990197952\` was a Phase 444 PR run (18/18 offline tests; live capture skipped). Latest main SEC scheduled run \`43970444015\` failed on Form 144/A timeout after four retries; no state write/artifact. SEC 13D/G run \`43918910577\` passed 11/11 offline tests but stopped because \`SEC_USER_AGENT\` was empty. CFTC \`43525140200\` remains a branch-push/bootstrap (3,035 warm-up rows; zero prospective eligible rows). Branches 281; open PRs 56; workflow files 67. No run was duplicated.
+- Main HEAD preflight: `c397e3edef9e8babd947f062b87fd7063963739c`. Latest Actions run `43990197952` was a Phase 444 PR run (18/18 offline tests; live capture skipped). Latest main SEC scheduled run `43970444015` failed on Form 144/A timeout after four retries; no state write/artifact. SEC 13D/G run `43918910577` passed 11/11 offline tests but stopped because `SEC_USER_AGENT` was empty. CFTC `43525140200` remains a branch-push/bootstrap (3,035 warm-up rows; zero prospective eligible rows). Branches 281; open PRs 56; workflow files 67. No run was duplicated.
 - Phase 446 remains binding: the old Phase 31 short-interest panel is killed as retrieved. 102 successful synchronous requests all returned exactly 5,000 rows; four failed; 9,420 filtered rows/98 observed symbols do not prove complete coverage or structural zeros.
-- Official FINRA docs confirm async POST \`async=true\` -> HTTP 202/Location; poll at most once per minute; HTTP 200 completion provides pre-signed resultLink/expiry and record metadata headers; omit Authorization on the pre-signed result download; async ceiling 100,000 rows, synchronous 5,000, offset ceiling 500,000.
-- Added \`research/phase447_finra_async_snapshot_client.py\` and \`research/test_phase447_finra_async_snapshot_client.py\`. Client uses one settlement-date filter, captures completed headers, reconciles downloaded row count and settlement date, rejects over-limit snapshots, writes raw JSON/hash manifest only to private local output, and never authorizes zero inference or signals. No live FINRA request was made.
+- Official FINRA docs confirm async POST `async=true` -> HTTP 202/Location; poll at most once per minute; HTTP 200 completion provides pre-signed resultLink/expiry and record metadata headers; omit Authorization on the pre-signed result download; async ceiling 100,000 rows, synchronous 5,000, offset ceiling 500,000.
+- Added `research/phase447_finra_async_snapshot_client.py` and `research/test_phase447_finra_async_snapshot_client.py`. Client uses one settlement-date filter, captures completed headers, reconciles downloaded row count and settlement date, rejects over-limit snapshots, writes raw JSON/hash manifest only to private local output, and never authorizes zero inference or signals. No live FINRA request was made.
 - Local synthetic tests: 11/11 passed; Python compilation passed. The client also validates the pre-signed HTTPS AWS S3 host, rejects an invalid poll interval before submission, and writes output with restrictive local permissions. Added an isolated offline CI workflow; no live secret is exposed to the job.
 - Next gate: one controlled live async request for a single historical settlement date. Only if the actual production response matches the contract should the 106 historical dates be re-ingested under FINRA throttling. Effective-dated identity and in-scope membership remain separate gates.
 - FINRA Individual API accounts are documented for personal/non-commercial use; no credential/account/purchase/contact was created or changed.
-- No alpha, return, OOS, bootstrap, LOO or holdout test. No raw data/secret committed. No production capture schedule changed. \`F80_TOP20_PARTIAL50_BASELINE_C20\` remains frozen.
+- No alpha, return, OOS, bootstrap, LOO or holdout test. No raw data/secret committed. No production capture schedule changed. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
 - Report: [Phase 447](research/PHASE447_FINRA_ASYNC_SHORT_INTEREST_SNAPSHOT_RETRIEVAL_CONTRACT_2026-11-17.md) · [summary](research/PHASE447_FINRA_ASYNC_SHORT_INTEREST_SNAPSHOT_RETRIEVAL_SUMMARY_2026-11-17.json).
 
 
@@ -1344,3 +1344,15 @@ This section supersedes any older “in progress” status above where later com
 - Post-merge CI run 44007937167 passed Python compilation and 14/14 synthetic tests.
 - Manual-only live workflow is now on main. It requires FINRA_CLIENT_ID + FINRA_CLIENT_SECRET (preferred) or FINRA_ACCESS_TOKEN. The live credential check confirmed all three were empty; the guard skipped the capture, so no FIP or FINRA request was made.
 - No historical data was downloaded, no alpha/OOS test ran, and no signal or production setting changed. F80 remains frozen.
+
+## Phase 463 — Independent SEC ownership lake audit (2026-11-17)
+
+- Reviewed external MIT implementation `austin-starks/sec-ownership-disclosures` (0.4.1) and its parser, tests, date utilities, crosswalk and methodology. Retain only as a conditional secondary parser/crosswalk audit; no external binary snapshot was downloaded or pinned.
+- The parser stores one transaction leg per accession and one filing row per reporting owner. This avoids duplication but supplies no transaction-to-owner link; multi-owner transaction rows remain quarantined.
+- SEC code P means open-market **or private** purchase. P/A without footnote/filing evidence of an open-market execution remains unresolved; the external parser does not publish the FOOTNOTES table in its transaction rows.
+- Its Form 4 `resolvedTicker` is based on filer-entered issuer ticker text and first-class parsing, not an effective-dated security-class master. Its 13F helper supports date spans, but the public example passes undated pairs from one N-PORT quarter; historical mapping is not admitted.
+- Quarterly `availableAt` is filing-date end-of-day New York: conservative next-session only, not intraday. 13F is a lagged holdings snapshot, not trade flow.
+- Exact snapshot manifest/hash and source commit remain unpinned; GitHub README and Hugging Face card report different snapshot vintages/counts. No source or signal admitted.
+- Phase 463 report: [external SEC ownership lake audit](research/PHASE463_SEC_OWNERSHIP_LAKE_EXTERNAL_SOURCE_AUDIT_2026-11-17.md) · [summary](research/PHASE463_SEC_OWNERSHIP_LAKE_EXTERNAL_SOURCE_SUMMARY_2026-11-17.json).
+- No alpha/OOS/bootstrap/LOO test. `F80_TOP20_PARTIAL50_BASELINE_C20` and production remain frozen.
+
