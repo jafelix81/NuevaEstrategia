@@ -114,3 +114,8 @@ The one-settlement live-validation workflow was corrected to accept either FINRA
 **Human action required before live validation:** configure FINRA_CLIENT_ID and FINRA_CLIENT_SECRET as GitHub Actions secrets (preferred), or provide a valid FINRA_ACCESS_TOKEN. Do not put credentials in repository files or workflow YAML. After configuration, dispatch exactly one settlement-date validation, inspect the non-raw manifest, and only then consider the 106-date historical batch.
 
 The offline CI after the original merge, [Run 44007179732](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44007179732), passed compilation and all 11 then-current tests. The OAuth extension is being validated separately by the PR workflow.
+
+
+## 9. Final merge and CI (2026-11-17)
+
+The OAuth extension was merged in [PR #111](https://github.com/jafelix81/NuevaEstrategia/pull/111), commit 13b028593213108077dc100f0a81fed688ad9a70. Post-merge push CI [Run 44007937167](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44007937167) passed: Python compilation and **14/14 synthetic contract tests**. No live credential was present, so this run performed no FINRA request. The manual-only live workflow is now available on main for use after the required Actions secrets are configured.
