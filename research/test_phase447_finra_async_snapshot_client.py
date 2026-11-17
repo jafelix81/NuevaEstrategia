@@ -72,7 +72,7 @@ class FakeSession:
                 {
                     "requestId": "request-123",
                     "status": "complete",
-                    "resultLink": "https://s3.example.test/presigned?token=embedded",
+                    "resultLink": "https://bucket.s3.amazonaws.com/presigned?token=embedded",
                     "expires": "2026-11-17T00:00:00Z",
                 },
             )
@@ -126,7 +126,7 @@ class Phase447Tests(unittest.TestCase):
         parsed = parse_status(
             200,
             {"requestId": "abc", "status": "complete",
-             "resultLink": "https://s3.example.test/result?sig=x",
+             "resultLink": "https://bucket.s3.amazonaws.com/result?sig=x",
              "expires": "2026-11-17T00:00:00Z"},
             complete_headers(),
             "abc",
@@ -142,7 +142,7 @@ class Phase447Tests(unittest.TestCase):
             parse_status(
                 200,
                 {"requestId": "abc", "status": "complete",
-                 "resultLink": "https://s3.example.test/result?sig=x",
+                 "resultLink": "https://bucket.s3.amazonaws.com/result?sig=x",
                  "expires": "2026-11-15T00:00:00Z"},
                 complete_headers(), "abc",
                 now=datetime(2026, 11, 16, tzinfo=timezone.utc),
@@ -186,7 +186,7 @@ class Phase447Tests(unittest.TestCase):
             self.assertFalse(manifest["zero_inference_allowed"])
             self.assertEqual(manifest["row_count"], 2)
             self.assertTrue(Path(tmp, manifest["raw_file"]).exists())
-            result_call = [x for x in session.get_calls if "s3.example.test" in x["url"]][0]
+            result_call = [x for x in session.get_calls if "s3.amazonaws.com" in x["url"]][0]
             self.assertIsNone(result_call["headers"])
             self.assertEqual(session.post_call["json"]["compareFilters"][0]["fieldValue"], self.day)
 
@@ -196,6 +196,18 @@ class Phase447Tests(unittest.TestCase):
             retrieve_snapshot(
                 self.day, tempfile.gettempdir(), token="x", session=session,
                 poll_interval_seconds=59,
+            )
+        self.assertIsNone(session.post_call)
+
+    def test_result_link_must_be_https_aws_s3(self):
+        with self.assertRaises(SnapshotContractError):
+            parse_status(
+                200,
+                {"requestId": "abc", "status": "complete",
+                 "resultLink": "https://untrusted.example.test/result?sig=x",
+                 "expires": "2026-11-17T00:00:00Z"},
+                complete_headers(), "abc",
+                now=datetime(2026, 11, 16, tzinfo=timezone.utc),
             )
 
 
