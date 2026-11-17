@@ -1,3 +1,15 @@
+## Phase 453 — SEC Form 345 as-filed issuer-symbol and security-class crosswalk audit (2026-11-17)
+
+- Main HEAD at preflight: `cfe97c971cceb027a50f924ce9984ba6489492d5` (Phase 452 state update). Re-audited immutable SEC Form 345 artifact [12781850078](https://github.com/jafelix81/NuevaEstrategia/actions/runs/40606706518/artifacts/12781850078), outer SHA-256 `203d7b1d2e29c999da318456af72e621cb30ef9a470d8f1610d088f9bebecb66`; 2012Q1 and 2026Q3 nested ZIP hashes verified.
+- Both actual quarterly SUBMISSION.tsv archives contain as-filed `ISSUERTRADINGSYMBOL`; the field is issuer/accession-level, not transaction-row/security-level. Form 4/4-A symbol field was nonblank in 63,678/63,678 2012Q1 submissions and 34,148/34,148 2026Q3 submissions, but sentinel values were 492 (0.773%) and 429 (1.256%). Transaction-level SECURITY_TITLE is available separately.
+- Class ambiguity is real: 51 (2012Q1) and 85 (2026Q3) accessions contain multiple common class/series tokens; 48 and 84 respectively have only one issuer-symbol string. The symbol field alone therefore cannot identify every class-specific transaction. Raw collisions, comma lists, exchange prefixes, numeric values and multiple symbols per issuer-quarter are preserved as diagnostics, not silently normalized.
+- Decision: use the bulk dataset's as-filed issuer symbol as the primary issuer-level anchor; retain effective-dated class/listing crosswalk and unresolved-state gates. Phase 439's 53/96 legacy-HTML figure is not a ceiling on bulk-field availability, but neither archive endpoint proves full F80 identity coverage. No return/alpha/OOS test or signal admission.
+- Phase 453 report: [audit](research/PHASE453_FORM4_BULK_ISSUER_SYMBOL_CROSSWALK_AUDIT_2026-11-17.md) · [summary](research/PHASE453_FORM4_BULK_ISSUER_SYMBOL_CROSSWALK_SUMMARY_2026-11-17.json).
+- Operational correction: Actions API branch pagination returned 185 branches (100 + 85; page 3 empty), not 285 in Phase 452. Open PRs 56; workflow files 69. Latest overall run [44009082677](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44009082677) passed 18/18 synthetic tests; latest main push [44007937167](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44007937167) passed 14/14. Zero in-progress/queued. SEC scheduled run remains [43970444015](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43970444015) with 144/A timeout; CFTC's 22:25 UTC slot is still ahead at audit time.
+- No raw data committed; no alpha, forward-return, OOS, bootstrap, LOO or holdout test. `F80_TOP20_PARTIAL50_BASELINE_C20`, universe, parameters, capital, exposure and production remain frozen.
+
+---
+
 ## Phase 452 — Post-Phase 451 operational and public-artifact audit (2026-11-17)
 
 - Main HEAD at audit: `f5f1bdb6be9d6cf48e20b76e1627b7ffbb61f6ba`; 7,691 Actions runs, latest 100 = 62 success / 37 failure / 1 cancelled; zero in-progress/queued. Branches 285, open PRs 56, workflow files 69.

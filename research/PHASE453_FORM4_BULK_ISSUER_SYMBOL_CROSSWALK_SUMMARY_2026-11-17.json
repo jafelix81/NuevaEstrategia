@@ -1,0 +1,72 @@
+{
+  "phase": 453,
+  "audit_time_utc": "2026-11-17T12:32:00Z",
+  "source": {
+    "artifact_id": 12781850078,
+    "workflow_run_id": 40606706518,
+    "outer_zip_sha256": "203d7b1d2e29c999da318456af72e621cb30ef9a470d8f1610d088f9bebecb66",
+    "inner_zip_sha256": {
+      "2012Q1": "0cac6f943813dae94c20ecc8bca63fda692e2b8ac6d02ce2c322ab411f45c357",
+      "2026Q3": "a4e6a681cfcfa43a3d9e4ca9cfec1fd26a59d0a01eac7e9f7b5a0122092c90f3"
+    }
+  },
+  "periods": {
+    "2012Q1": {
+      "form4_and_4a_submissions": 63678,
+      "distinct_issuer_ciks": 4630,
+      "nonderivative_form4_rows": 101473,
+      "distinct_nonderivative_form4_accessions": 50931,
+      "sentinel_filings": 492,
+      "sentinel_filing_pct": 0.772637,
+      "sentinel_nonderivative_rows": 591,
+      "sentinel_nonderivative_row_pct": 0.582421,
+      "comma_delimited_filings": 204,
+      "exchange_prefixed_filings": 246,
+      "numeric_only_filings": 2,
+      "exact_raw_symbol_values_linked_to_multiple_issuer_ciks": 15,
+      "issuers_with_multiple_distinct_non_sentinel_symbol_values_in_quarter": 99,
+      "accessions_with_multiple_common_class_or_series_tokens": 51,
+      "multi_class_accessions_with_single_issuer_symbol_string": 48,
+      "multi_class_accessions_with_comma_delimited_issuer_symbol_string": 3
+    },
+    "2026Q3": {
+      "form4_and_4a_submissions": 34148,
+      "distinct_issuer_ciks": 4260,
+      "nonderivative_form4_rows": 59834,
+      "distinct_nonderivative_form4_accessions": 28955,
+      "sentinel_filings": 429,
+      "sentinel_filing_pct": 1.256296,
+      "sentinel_nonderivative_rows": 474,
+      "sentinel_nonderivative_row_pct": 0.792192,
+      "comma_delimited_filings": 67,
+      "exchange_prefixed_filings": 79,
+      "numeric_only_filings": 18,
+      "exact_raw_symbol_values_linked_to_multiple_issuer_ciks": 6,
+      "issuers_with_multiple_distinct_non_sentinel_symbol_values_in_quarter": 28,
+      "accessions_with_multiple_common_class_or_series_tokens": 85,
+      "multi_class_accessions_with_single_issuer_symbol_string": 84,
+      "multi_class_accessions_with_comma_delimited_issuer_symbol_string": 1
+    }
+  },
+  "disposition": {
+    "direct_as_filed_issuer_symbol_field_confirmed": true,
+    "field_is_security_level": false,
+    "legacy_html_53_of_96_not_a_ceiling": true,
+    "security_identity_gate_passed": false,
+    "alpha_authorized": false,
+    "frozen_baseline_changed": false
+  },
+  "operational": {
+    "main_head_at_preflight": "cfe97c971cceb027a50f924ce9984ba6489492d5",
+    "actions_total_runs": 7691,
+    "in_progress": 0,
+    "queued": 0,
+    "branches_api_count": 185,
+    "open_prs": 56,
+    "workflow_files": 69,
+    "latest_overall_run": 44009082677,
+    "latest_main_push_run": 44007937167,
+    "latest_sec_scheduled_run": 43970444015,
+    "latest_cftc_run": 43525140200
+  }
+}

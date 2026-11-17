@@ -1,0 +1,27 @@
+name: Phase 453 Form 4 bulk issuer-symbol crosswalk audit
+
+on:
+  pull_request:
+    paths:
+      - "research/phase453_form4_bulk_symbol_crosswalk_audit.py"
+      - "research/test_phase453_form4_bulk_symbol_crosswalk_audit.py"
+      - "research/PHASE453_FORM4_BULK_ISSUER_SYMBOL_CROSSWALK_AUDIT_2026-11-17.md"
+      - "research/PHASE453_FORM4_BULK_ISSUER_SYMBOL_CROSSWALK_SUMMARY_2026-11-17.json"
+      - ".github/workflows/phase453_form4_bulk_symbol_crosswalk_audit.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile
+        run: python -m py_compile research/phase453_form4_bulk_symbol_crosswalk_audit.py research/test_phase453_form4_bulk_symbol_crosswalk_audit.py
+      - name: Run offline tests
+        run: python -m unittest -v research.test_phase453_form4_bulk_symbol_crosswalk_audit
