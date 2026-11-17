@@ -1,0 +1,94 @@
+{
+  "phase": 445,
+  "title": "FINRA short-interest zero-vs-missing semantics re-audit",
+  "audit_date_utc": "2026-11-17T01:10:00Z",
+  "decision": "REOPEN_FOR_DATA_SEMANTICS_AND_COVERAGE_RECONSTRUCTION_ONLY",
+  "alpha_status": "NOT_ADMITTED",
+  "prior_phase37_reclassification": {
+    "previous_claim": "98 of 335 symbols represented approximately 29% short-interest coverage",
+    "corrected_interpretation": "98 unique symbols with positive reported-position rows in the Phase 31 artifact; this is not automatically a missing-data rate",
+    "basis": [
+      "FINRA Regulatory Notice 16-32 states firms need not report zero positions for issue symbols with no current-cycle short position",
+      "FINRA consolidated short-interest dataset is an aggregate of reported positions across exchange-listed and OTC equities",
+      "A complete snapshot plus effective-dated eligible security and no row may support a structural zero; failed snapshots and unresolved identities remain unknown"
+    ]
+  },
+  "phase31_observed_artifact": {
+    "rows": 9420,
+    "unique_symbols_with_rows": 98,
+    "per_settlement_positive_row_symbols_range": [
+      84,
+      96
+    ],
+    "frozen_universe_size": 335,
+    "period_start": "2022-06-15",
+    "period_end": "2026-09-30",
+    "note": "Counts describe observed positive-row incidence in the retrieved artifact, not full effective coverage."
+  },
+  "source_feasibility": {
+    "dataset": "FINRA Consolidated Short Interest",
+    "scope": "Aggregate reported short positions across exchange-listed and OTC equity securities",
+    "credentials": [
+      "Public",
+      "Firm",
+      "Organization"
+    ],
+    "historical_depth": "Five years; all-exchange short-interest data from June 2022 per FINRA January 2023 release notes",
+    "availability": "Available via FINRA API by 16:40 America/New_York on official publication date",
+    "current_frequency": "Twice monthly",
+    "next_known_cycle": {
+      "settlement_date": "2026-11-13",
+      "filing_due_et": "2026-11-17T18:00:00-05:00",
+      "publication_date": "2026-11-24"
+    },
+    "withdrawn_proposal": {
+      "filing": "SR-FINRA-2026-012",
+      "withdrawn_date": "2026-08-05",
+      "implication": "Do not assume proposed weekly reporting, arranged-financing additions, or deleted-symbol final reports are in force."
+    }
+  },
+  "required_zero_inference_gates": [
+    "Complete settlement-date snapshot with reconciled pagination and no transport/API errors",
+    "Effective-dated security identity and evidence the security was active/in-scope at settlement",
+    "Market/listing scope validated for the date",
+    "No row for the effective security key in the complete snapshot"
+  ],
+  "required_missing_states": [
+    "Incomplete or failed settlement snapshot",
+    "Unresolved or changed ticker/security identity",
+    "Security inactive or outside documented source scope",
+    "Unknown vintage/revision or corporate-action state"
+  ],
+  "data_quality_controls": [
+    "Preserve revisionFlag and historical vintages",
+    "Preserve stockSplitFlag and normalize share counts across splits",
+    "Do not blindly use changePercent when prior short position is zero or absent",
+    "Treat averageDailyVolumeQuantity as excluding non-media trades",
+    "Do not interpret FINRA reported short interest as total economic short exposure or institutional identity"
+  ],
+  "operational_preflight": {
+    "main_head": "a5f4da0609d49b30a5335296f29e298a8ef3e2d6",
+    "branches": 279,
+    "open_pull_requests": 56,
+    "phase444_ci_run": 43990197952,
+    "phase444_ci_tests_passed": "18/18",
+    "sec_live_capture_run": 43970444015,
+    "sec_live_capture_status": "failed: Form 144/A read timeout after retries; no artifact",
+    "cftc_bootstrap_run": 43525140200,
+    "cftc_warmup_records": 3035,
+    "cftc_prospective_eligible_records": 0,
+    "cftc_artifact_id": 14084802705,
+    "cftc_artifact_sha256": "c7a652038336f852e3c51792d1bdc96ebc1368176bdafdae0693332fb4224eef",
+    "workflow_run_listing_available": false,
+    "no_manual_workflow_dispatch": true
+  },
+  "frozen_baseline": "F80_TOP20_PARTIAL50_BASELINE_C20",
+  "production_changed": false,
+  "universe_changed": false,
+  "parameters_changed": false,
+  "holdout_changed": false,
+  "capital_or_exposure_changed": false,
+  "trading_code_changed": false,
+  "new_data_downloaded": false,
+  "new_alpha_or_oos_test_run": false
+}
