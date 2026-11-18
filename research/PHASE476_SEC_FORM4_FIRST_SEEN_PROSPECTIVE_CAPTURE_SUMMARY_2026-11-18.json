@@ -51,5 +51,10 @@
   "no_bootstrap": true,
   "no_loo": true,
   "frozen_f80": true,
-  "production_changed": false
+  "production_changed": false,
+  "offline_tests": 32,
+  "ci_run": 44291265497,
+  "push_run": 44291256951,
+  "pull_request_live_capture": "skipped_as_designed",
+  "pr_artifacts": []
 }
