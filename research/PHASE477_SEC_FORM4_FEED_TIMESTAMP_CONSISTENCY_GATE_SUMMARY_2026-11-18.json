@@ -1,0 +1,39 @@
+{
+  "phase": 477,
+  "audit_cutoff_utc": "2026-11-18T11:05:00Z",
+  "base_main": "9a80a4a6e2bd411556b4e48fada9dda51dd424c3",
+  "parent_phase": 476,
+  "rule": {
+    "poll_requires": [
+      "scheduled_mode",
+      "prior_accession_watermark",
+      "prior_watermark_found",
+      "previous_successful_poll_end"
+    ],
+    "event_requires": [
+      "feed_updated_timestamp_valid",
+      "feed_updated_strictly_after_previous_successful_poll_end",
+      "feed_updated_no_later_than_local_response_receipt"
+    ],
+    "rejected_statuses": [
+      "FEED_OR_RECEIPT_TIMESTAMP_UNKNOWN",
+      "FEED_TIMESTAMP_NOT_AFTER_PREVIOUS_POLL",
+      "FEED_TIMESTAMP_AFTER_FIRST_SEEN"
+    ],
+    "feed_updated_is_exact_public_availability": false,
+    "first_seen_receipt_is_upper_bound": true
+  },
+  "test_suite": "research/test_phase476_sec_form4_first_seen_capture.py",
+  "offline_test_count": 35,
+  "persistent_market_data_downloaded": false,
+  "raw_sec_filing_downloaded": false,
+  "transaction_rows_stored": false,
+  "research_observation_eligible": false,
+  "signal_eligible": false,
+  "backtest": false,
+  "oos": false,
+  "bootstrap": false,
+  "loo": false,
+  "frozen_f80": true,
+  "production_changed": false
+}
