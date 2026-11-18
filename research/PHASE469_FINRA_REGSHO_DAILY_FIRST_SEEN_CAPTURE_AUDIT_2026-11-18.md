@@ -52,6 +52,9 @@ The file-level manifest can be expanded in memory into per-symbol Phase 468 labe
 
 ## 5. Validation
 
+- The branch push run [44224648899](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44224648899) passed all 20 offline tests; its live-capture job was correctly skipped. Final PR validation [44224662699](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44224662699) also passed all 20 tests; no artifacts were expected.
+- Form 4 compatibility checks [44224662692](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44224662692) and [44224662650](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44224662650) both passed. No workflow remains active or queued.
+
 The offline suite covers fractional volumes, empty-but-valid files, header/trailer validation, duplicate symbols, volume subset constraints, negative/non-finite values, trade-date mismatch, row-width errors, weekend filtering, same-day eligibility, historical bootstrap, manual-mode isolation, revisions, unchanged hashes, and hash-verified per-symbol expansion.
 
 No live FINRA request, raw file persistence, price download, label generation, return test, OOS, bootstrap, LOO or strategy change is part of this PR. The scheduled workflow becomes active only after merge to the default branch and only if enabled in GitHub Actions.

@@ -19,9 +19,14 @@
   "manual_mode_persists_state": false,
   "signal_eligible": false,
   "tests": {
-    "intended": 19,
+    "intended": 20,
     "local_run": false,
-    "github_actions": "pending"
+    "github_actions_run": 44224662699,
+    "github_actions_result": "success",
+    "github_actions_count": 20,
+    "branch_push_run": 44224648899,
+    "pr_run_artifacts": 0,
+    "live_capture": "skipped as designed on pull_request"
   },
   "research_gates": [
     "prospective schedule delivery",
