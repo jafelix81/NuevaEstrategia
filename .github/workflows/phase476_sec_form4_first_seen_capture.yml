@@ -68,3 +68,11 @@ jobs:
           else
             echo "No persistent Form 4 metadata changes."
           fi
+      - name: Upload compact poll summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase476-sec-form4-first-seen
+          path: phase476_output/
+          retention-days: 90
+          if-no-files-found: warn
