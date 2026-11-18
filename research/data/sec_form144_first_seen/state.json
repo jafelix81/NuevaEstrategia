@@ -1,19 +1,19 @@
 {
-  "acceptance_reconciled_accession_count": 196,
+  "acceptance_reconciled_accession_count": 247,
   "candidate_manifest_cik_count": 290,
   "candidate_manifest_source_artifact_sha256": "939d5564b14ce0f41df23a2c9ab681977cfde141cd0ea2b3c1213b1c5bfaf613",
-  "complete_poll_count": 10,
+  "complete_poll_count": 11,
   "created_utc": "2026-11-14T20:45:08Z",
   "historical_f80_membership_verified": false,
-  "last_acceptance_reconciliation_utc": "2026-11-18T03:10:35Z",
-  "last_feed_observation_row_count": 109,
-  "last_feed_observation_rows_appended": 109,
+  "last_acceptance_reconciliation_utc": "2026-11-18T20:56:43Z",
+  "last_feed_observation_row_count": 106,
+  "last_feed_observation_rows_appended": 106,
   "last_feed_sha256_by_feed": {
-    "144": "8421addcfae2c8966a9a77a6e2578ebf14109783ce048ab2c7a67c069a1bf7a0",
-    "144A": "d5666572e5197ba564e4f21725e4dbb7ce023710abcf4bfa545eafa896b9c076"
+    "144": "59cf1e1948487633a40c7c330c3b3dc63702daff1c3c33f1b5cafe2e99a978a0",
+    "144A": "dbd5521e1e5c9d6be914a2576b4bb613e61fa44129c0bbc96518c4231c317fee"
   },
-  "last_poll_attempt_run_id": "44228413864",
-  "last_poll_attempt_utc": "2026-11-18T03:10:13Z",
+  "last_poll_attempt_run_id": "44396134680",
+  "last_poll_attempt_utc": "2026-11-18T20:56:30Z",
   "last_poll_errors": {},
   "last_poll_failed_feeds": [],
   "last_poll_possible_gap_by_feed": {
@@ -26,26 +26,26 @@
     "144A"
   ],
   "last_successful_poll_mode": "schedule",
-  "last_successful_poll_run_id": "44228413864",
+  "last_successful_poll_run_id": "44396134680",
   "last_successful_poll_started_utc_by_feed": {
-    "144": "2026-11-18T03:09:51Z",
-    "144A": "2026-11-18T03:09:51Z"
+    "144": "2026-11-18T20:56:07Z",
+    "144A": "2026-11-18T20:56:07Z"
   },
-  "last_successful_poll_utc": "2026-11-18T03:10:13Z",
+  "last_successful_poll_utc": "2026-11-18T20:56:30Z",
   "last_successful_poll_utc_by_feed": {
-    "144": "2026-11-18T03:09:53Z",
-    "144A": "2026-11-18T03:09:53Z"
+    "144": "2026-11-18T20:56:13Z",
+    "144A": "2026-11-18T20:56:14Z"
   },
   "latest_accession_by_feed": {
-    "144": "0000905148-26-005017",
-    "144A": "0001628280-26-074457"
+    "144": "0001959173-26-008146",
+    "144A": "0001104659-26-129535"
   },
   "partial_poll_count": 0,
   "phase": 403,
-  "poll_count": 10,
+  "poll_count": 11,
   "poll_count_by_feed": {
-    "144": 10,
-    "144A": 10
+    "144": 11,
+    "144A": 11
   },
   "schema_version": 1,
   "signal_eligible": false,
