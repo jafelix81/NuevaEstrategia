@@ -1,0 +1,101 @@
+{
+  "phase": 467,
+  "audit_time_utc": "2026-11-18T00:29:00Z",
+  "repository": "jafelix81/NuevaEstrategia",
+  "main_head": "bc4a2ccecd32962340831eea54563743dadfe6c6",
+  "disposition": "REOPEN_FLOW_ONLY_AS_CONDITIONAL_DATA_CANDIDATE; PHASE31_SAME_CLOSE_LABEL_INVALID_FOR_STRICT_PIT; NO_ALPHA",
+  "actions": {
+    "total_runs": 7728,
+    "latest_100": {
+      "success": 69,
+      "failure": 30,
+      "cancelled": 1,
+      "active_or_queued": 0
+    },
+    "branches": 300,
+    "open_prs": 56,
+    "workflows": 76,
+    "latest_run_id": 44195226738,
+    "latest_run_event": "pull_request"
+  },
+  "sec_form144": {
+    "workflow_cron_utc": "47 * * * *",
+    "latest_scheduled_run_id": 44179257367,
+    "last_poll_start_utc": "2026-11-17T21:23:27Z",
+    "last_poll_end_utc": "2026-11-17T21:23:39Z",
+    "event_rows": 106,
+    "feed_observation_rows": 388,
+    "acceptance_reconciliation_rows": 106,
+    "latest_poll_new_feed_observations": 58,
+    "form144_possible_gap": true,
+    "form144a_possible_gap": false,
+    "phase465_pagination_live_validated": false,
+    "next_scheduled_slot_after_audit": "2026-11-18T00:47:00Z"
+  },
+  "cftc": {
+    "workflow_cron_utc": "25 22 * * 1-5",
+    "latest_run_id": 43525140200,
+    "latest_run_event": "push",
+    "last_capture_utc": "2026-11-13T23:03:38Z",
+    "warmup_rows": 3035,
+    "latest_report_date_by_code": {
+      "124603": "2026-11-03",
+      "209742": "2026-11-03",
+      "239742": "2026-11-03",
+      "13874A": "2026-11-03"
+    },
+    "prospective_observations": 0,
+    "scheduled_run_after_2026_11_17_22_25_utc_observed": false
+  },
+  "phase31_artifact": {
+    "run_id": 40164323397,
+    "artifact_id": 12588045711,
+    "artifact_sha256": "91f7683cf984cb2b00a6bd772608c3243ac9a56717930c6fd2092696e092a266",
+    "artifact_bytes": 26495313,
+    "flow_rows": 362727,
+    "unique_symbols": 334,
+    "configured_universe": 335,
+    "date_start": "2022-06-01",
+    "date_end": "2026-10-23",
+    "xnys_sessions": 1104,
+    "downloaded_xnys_sessions": 1104,
+    "missing_xnys_sessions": 0,
+    "non_session_http_403": 44,
+    "daily_cross_section": {
+      "min": 321,
+      "median": 330,
+      "max": 333
+    },
+    "symbols_with_at_least_1100_observations": 313,
+    "short_ratio": {
+      "min": 0.001404910668805,
+      "median": 0.4946931466996406,
+      "p01": 0.1917064001517153,
+      "p99": 0.7909452225810425,
+      "max": 0.9792587137947962
+    }
+  },
+  "pit_finding": {
+    "source_publication_rule": "within a reasonable amount of time after end of regular trading hours",
+    "phase31_signal_flow_cutoff": "trade_date <= signal_date",
+    "phase31_label_entry": "signal_date close",
+    "issue": "label starts before post-close flow information is available; same-day close-to-close labels are not strict-PIT",
+    "disposition": "historical results diagnostic only; no alpha or feature selection"
+  },
+  "research_controls": {
+    "flow_only_candidate": "conditional_data_feasibility_only",
+    "joint_flow_si": "not_admissible",
+    "signal_admitted": false,
+    "alpha_test": false,
+    "oos_test": false,
+    "bootstrap_or_loo": false,
+    "raw_market_data_committed": false,
+    "credentials_committed": false,
+    "f80_frozen": true,
+    "strategy_changed": false
+  },
+  "human_action": {
+    "required": "Verify Phase 403 SEC Form 144 and Phase 384 CFTC TFF workflows are enabled in GitHub Actions; workflow enabled state is not exposed by the connected read interface.",
+    "no_secret_sharing_required": true
+  }
+}
