@@ -1,0 +1,79 @@
+{
+  "phase": 482,
+  "audit_cutoff_utc": "2026-11-18T15:18:00Z",
+  "main_head_sha": "f0ef405855b0d72a70657bbca37663c3da009fa1",
+  "repository": "jafelix81/NuevaEstrategia",
+  "actions_total": 7844,
+  "latest_100_event_counts": {
+    "pull_request": 56,
+    "push": 41,
+    "schedule": 3
+  },
+  "actions_in_progress": 0,
+  "actions_queued": 0,
+  "schedule_events_total": 22,
+  "branches": 311,
+  "open_pull_requests": 56,
+  "workflow_files": 82,
+  "recursive_tree_entries": 416,
+  "latest_schedule_runs": [
+    {"run_id": 44302697069, "workflow": "phase403_sec_form144_first_seen_capture", "event": "schedule", "conclusion": "failure", "created_at_utc": "2026-11-18T12:18:41Z"},
+    {"run_id": 44232546204, "workflow": "phase384_cftc_tff_prospective_capture", "event": "schedule", "conclusion": "success", "created_at_utc": "2026-11-18T03:44:45Z"},
+    {"run_id": 44228413864, "workflow": "phase403_sec_form144_first_seen_capture", "event": "schedule", "conclusion": "success", "created_at_utc": "2026-11-18T03:09:36Z"}
+  ],
+  "phase403": {
+    "cron_utc": "47 * * * *",
+    "last_success_run_id": 44228413864,
+    "last_success_artifact_id": 14393319006,
+    "latest_schedule_run_id": 44302697069,
+    "latest_schedule_failure": "stale Phase 464 offline snapshot assertions",
+    "live_capture_attempted": false,
+    "post_fix_schedule_slots_missing": ["2026-11-18T13:47:00Z", "2026-11-18T14:47:00Z"],
+    "next_slot_after_cutoff_utc": "2026-11-18T15:47:00Z",
+    "issue": 136
+  },
+  "phase476": {
+    "cron_utc": "17 * * * 1-5",
+    "post_merge_schedule_slots_missing": ["2026-11-18T12:17:00Z", "2026-11-18T13:17:00Z", "2026-11-18T14:17:00Z", "2026-11-18T15:17:00Z"],
+    "scheduled_runs_total": 0,
+    "last_offline_ci_run_id": 44293347434,
+    "last_offline_ci_tests_passed": 37,
+    "live_capture_attempted": false,
+    "issue": 142
+  },
+  "phase469": {
+    "cron_utc": "30 22,23 * * 1-5",
+    "next_slots_utc": ["2026-11-18T22:30:00Z", "2026-11-18T23:30:00Z"],
+    "due_at_audit_cutoff": false
+  },
+  "phase384": {
+    "cron_utc": "25 22 * * 1-5",
+    "next_slot_utc": "2026-11-18T22:25:00Z",
+    "due_at_audit_cutoff": false,
+    "last_run_id": 44232546204,
+    "last_artifact_id": 14395926632,
+    "prospective_report_cycles": 1,
+    "contract_rows_in_cycle": 4,
+    "signal_eligible_rows": 0
+  },
+  "research_dispositions": {
+    "nport_qoq_share_growth": "KILLED_STANDALONE_HYPOTHESIS",
+    "sec_13f": "PARKED_INSUFFICIENT_HISTORICAL_UNIVERSE_COVERAGE",
+    "finra_ats": "VENUE_CONCENTRATION_NOT_BENEFICIAL_OWNER_FLOW",
+    "nosi": "LOW_PRIORITY_OPAQUE_COMPARATOR",
+    "noto_photo": "CONDITIONAL_HIGH_PRIORITY_VENUE_SPECIFIC_OPTIONS_SOURCE",
+    "optionmetrics_tradeflow": "CONDITIONAL_SIGNED_FLOW_SOURCE",
+    "phase20c_delisted_price_histories": 7
+  },
+  "strategy": {
+    "name": "F80_TOP20_PARTIAL50_BASELINE_C20",
+    "frozen": true,
+    "signal_admissions": 0,
+    "backtest_run": false,
+    "oos_run": false,
+    "bootstrap_run": false,
+    "loo_run": false,
+    "production_changed": false
+  },
+  "human_action_required": "Confirm the existing Phase 476 workflow is enabled on main; do not change cron or manually dispatch."
+}
