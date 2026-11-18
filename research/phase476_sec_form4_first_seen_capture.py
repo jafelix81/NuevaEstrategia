@@ -110,7 +110,8 @@ def parse_form(node: ET.Element, title: str) -> str | None:
 
 def filing_date_from_summary(summary: str) -> str:
     decoded = html.unescape(str(summary or ""))
-    match = re.search(r"Filed:\s*(\d{4}-\d{2}-\d{2})", decoded, re.I)
+    plain = re.sub(r"<[^>]*>", " ", decoded)
+    match = re.search(r"Filed:\s*(\d{4}-\d{2}-\d{2})", plain, re.I)
     return match.group(1) if match else ""
 
 
