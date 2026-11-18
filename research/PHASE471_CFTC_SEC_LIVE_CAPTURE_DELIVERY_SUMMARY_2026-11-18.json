@@ -1,0 +1,122 @@
+{
+  "phase": 471,
+  "audit_time_utc": "2026-11-18T04:06:34Z",
+  "repository": "jafelix81/NuevaEstrategia",
+  "main_head_at_preflight": "079399dfaada718d5ba38d2bdceb37ba89f52890",
+  "actions_total": 7767,
+  "active_runs": 0,
+  "queued_runs": 0,
+  "branches": 300,
+  "open_pull_requests": 56,
+  "sec": {
+    "run_id": 44228413864,
+    "event": "schedule",
+    "conclusion": "success",
+    "artifact_id": 14393319006,
+    "artifact_sha256": "dd3cae9e7e224491fa32ffaee34b56f3ab6211f57a3bf0384165d5cda1e96775",
+    "poll_started_utc": "2026-11-18T03:09:51Z",
+    "poll_completed_utc": "2026-11-18T03:10:13Z",
+    "schema_migration": {
+      "changed": false,
+      "reason": "already_current",
+      "rows_migrated": 106
+    },
+    "form144": {
+      "page_count": 2,
+      "raw_entries": 200,
+      "unique_accessions": 100,
+      "previous_latest_accession_present": true,
+      "pagination_complete": true,
+      "pagination_stop_reason": "previous_latest_found",
+      "possible_feed_window_gap": false,
+      "new_accessions": 90,
+      "xml_resolved": 90,
+      "acceptance_reconciliations_added": 90,
+      "acceptance_reconciliations_unresolved": 0
+    },
+    "form144a": {
+      "page_count": 1,
+      "raw_entries": 18,
+      "unique_accessions": 9,
+      "previous_latest_accession_present": true,
+      "pagination_complete": true,
+      "new_accessions": 0
+    },
+    "feed_observation_rows_appended": 109,
+    "event_rows_appended": 90,
+    "candidate_issuer_matches": 18,
+    "candidate_manifest_cik_count": 290,
+    "candidate_manifest_is_historical_f80_security_master": false,
+    "interval_status": "INITIAL_BASELINE_NO_LOWER_BOUND",
+    "research_observation_eligible_count": 0,
+    "signal_eligible_count": 0,
+    "public_availability_certified": false,
+    "alpha_test_authorized": false,
+    "f80_changed": false
+  },
+  "cftc": {
+    "run_id": 44232546204,
+    "event": "schedule",
+    "conclusion": "success",
+    "artifact_id": 14395926632,
+    "artifact_sha256": "e4d9a147e920e3333b1d684a477ac77ef68a1364e9b028c2e3381a34ece795e7",
+    "first_seen_utc": "2026-11-18T03:44:57Z",
+    "report_date": "2026-11-10",
+    "nominal_scheduled_release_utc": "2026-11-16T20:30:00Z",
+    "nominal_release_to_first_receipt_seconds": 112497,
+    "historical_baseline_rows": 3035,
+    "total_rows_after_capture": 3039,
+    "new_report_events": 4,
+    "contract_codes": [
+      "124603",
+      "13874A",
+      "209742",
+      "239742"
+    ],
+    "primary_preregistered_contracts": [
+      "13874A",
+      "209742"
+    ],
+    "primary_contract_observations": 2,
+    "research_observation_eligible": true,
+    "signal_eligible": false,
+    "alpha_test_authorized": false,
+    "trade_signal_generated": false,
+    "historical_backfill_derived_features_attached": false,
+    "preregistered_lm_net_oi_qa_only": {
+      "209742": {
+        "contract": "NASDAQ MINI",
+        "lm_net": 13967,
+        "open_interest": 288717,
+        "lm_net_oi": 0.0483760915
+      },
+      "13874A": {
+        "contract": "E-MINI S&P 500",
+        "lm_net": -303060,
+        "open_interest": 2017687,
+        "lm_net_oi": -0.1502016913
+      }
+    },
+    "prior_52_prospective_observations_available": false,
+    "percentile_or_high_crowding_state_computed": false,
+    "workflow_cron_utc": "25 22 * * 1-5",
+    "scheduled_slot_delay_seconds": 19185
+  },
+  "finra": {
+    "workflow": "phase469_finra_regsho_daily_first_seen_capture.yml",
+    "cron_utc": "30 22,23 * * 1-5",
+    "first_post_merge_scheduled_slot_due_utc": "2026-11-18T22:30:00Z",
+    "live_capture_verified": false
+  },
+  "strategy": {
+    "baseline": "F80_TOP20_PARTIAL50_BASELINE_C20",
+    "frozen": true,
+    "signals_admitted": 0,
+    "backtest_run": false,
+    "oos_run": false,
+    "bootstrap_run": false,
+    "loo_run": false,
+    "production_changed": false
+  },
+  "disposition": "CFTC first prospective sample captured; SEC pagination live-validated with initial-baseline exclusion; FINRA scheduled capture pending."
+}
