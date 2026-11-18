@@ -1,0 +1,54 @@
+{
+  "phase": 474,
+  "audit_cutoff_utc": "2026-11-18T08:03:00Z",
+  "supersedes_phase473_primary_interpretation": true,
+  "phase473_run_id": 44258810704,
+  "phase473_artifact_id": 14408145092,
+  "current_universe": {
+    "configured": 335,
+    "valid": 328,
+    "failed": 7,
+    "failed_symbols": [
+      "AVB",
+      "EA",
+      "EQR",
+      "LPRO",
+      "ROKU",
+      "WBD",
+      "WBS"
+    ]
+  },
+  "prior_phase20c": {
+    "date": "2026-10-24",
+    "valid": 329,
+    "failed": 6,
+    "failed_ticker_names_preserved": false
+  },
+  "corporate_action_adjudication": {
+    "confirmed_inactive_or_renamed": 7,
+    "provider_root_cause_proven": false,
+    "old_to_current_count_change_explained": false,
+    "consistent_with_rokus_post_oct24_delisting": true
+  },
+  "price_reconstruction": {
+    "completed": false,
+    "successor_prices_required": true,
+    "last_trade_dates_reconciled": false,
+    "fractional_cash_in_lieu_reconciled": false,
+    "dividends_and_corporate_actions_reconciled": false
+  },
+  "no_lookahead_and_research_controls": {
+    "ticker_drops": false,
+    "provider_fallback_admitted": false,
+    "raw_prices_retained": false,
+    "terminal_returns_reconstructed": false,
+    "alpha_test_authorized": false,
+    "oos_authorized": false,
+    "bootstrap_authorized": false,
+    "loo_authorized": false,
+    "holdout_changed": false,
+    "f80_changed": false,
+    "production_changed": false
+  },
+  "next_gate": "effective-dated security master plus licensed/authoritative delisted OHLC and corporate-action reconstruction"
+}
