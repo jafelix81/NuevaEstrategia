@@ -142,9 +142,14 @@ def audit(root: Path = ROOT, run_id: str = RUN_ID) -> dict[str, Any]:
         "all_new_rows_intraday_unauthorized": all(
             not _true(row.get("same_day_intraday_use_authorized")) for row in run_events
         ),
+        # These are live append-only ledgers and mutable latest-poll state.
+        # Keep the Phase 464 historical-run metrics above run-scoped; do not
+        # pin global row counts or the current poll state to the 2026-11-17 snapshot.
         "state_poll_status": state.get("last_poll_status"),
         "state_complete_poll_count": state.get("complete_poll_count"),
-        "state_last_poll_run_id": state.get("last_poll_attempt_run_id"),
+        "state_last_poll_attempt_run_id": state.get("last_poll_attempt_run_id"),
+        "state_last_successful_poll_run_id": state.get("last_successful_poll_run_id"),
+        "state_last_successful_poll_utc": state.get("last_successful_poll_utc"),
         "state_gap_by_feed": state.get("last_poll_possible_gap_by_feed"),
     }
 
