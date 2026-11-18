@@ -133,5 +133,24 @@
     "bootstrap": false,
     "loo": false,
     "production_changed": false
+  },
+  "phase474_reclassification": {
+    "interpretation": "inactive_security_corporate_action_history_gap",
+    "failed_symbols": [
+      "AVB",
+      "EA",
+      "EQR",
+      "LPRO",
+      "ROKU",
+      "WBD",
+      "WBS"
+    ],
+    "confirmed_inactive_or_renamed": 7,
+    "provider_history_truncation_mechanism_proven": false,
+    "prior_2026_10_24_failed_ticker_names_preserved": false,
+    "329_to_328_change_consistent_with_rokus_2026_11_06_close_but_unproven": true,
+    "universe_reduction_allowed": false,
+    "fallback_admitted": false,
+    "terminal_returns_reconstructed": false
   }
 }
