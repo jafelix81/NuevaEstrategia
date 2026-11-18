@@ -44,5 +44,45 @@
   "transaction_rows_stored": false,
   "alpha_test_authorized": false,
   "signal_eligible_rows": 0,
-  "baseline_frozen": "F80_TOP20_PARTIAL50_BASELINE_C20"
+  "baseline_frozen": "F80_TOP20_PARTIAL50_BASELINE_C20",
+  "closeout_utc": "2026-11-18T11:18:15Z",
+  "ci": {
+    "initial_attempt": {
+      "run_id": 44293252874,
+      "conclusion": "failure",
+      "reason": "SyntaxError in test context-manager line continuation; fixed in follow-up commit"
+    },
+    "final_phase476_run": {
+      "run_id": 44293347434,
+      "conclusion": "success",
+      "tests_passed": 37,
+      "tests_failed": 0,
+      "live_capture": "skipped",
+      "artifacts": 0
+    },
+    "adjacent_regressions": [
+      {
+        "phase": 460,
+        "run_id": 44293347507,
+        "conclusion": "success"
+      },
+      {
+        "phase": 461,
+        "run_id": 44293347425,
+        "conclusion": "success"
+      }
+    ]
+  },
+  "merge": {
+    "pr": 139,
+    "merged": true,
+    "merged_at_utc": "2026-11-18T11:18:15Z",
+    "main_commit": "1cbecf4d0281dd64881fb575d5d1e672e5314412"
+  },
+  "first_live_capture": {
+    "slot_utc": "2026-11-18T11:17:00Z",
+    "observed_at_closeout": false,
+    "next_slot_utc": "2026-11-18T12:17:00Z",
+    "manual_dispatch_used": false
+  }
 }

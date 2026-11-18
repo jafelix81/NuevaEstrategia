@@ -38,7 +38,7 @@ The Phase 476 suite now adds:
 - an end-to-end baseline → incomplete pagination → successful retry case;
 - stronger assertions that an incomplete poll writes no canonical event row and that a later complete retry can record the same accession as bounded metadata.
 
-The suite is expected to contain 37 tests (35 existing + 2 new). CI results will be reported only after GitHub Actions completes. The test suite remains offline and uses mocked feed responses.
+The suite contains 37 tests (35 existing + 2 new). The final offline run passed 37/37; it uses mocked feed responses. The initial CI attempt failed on a test-fixture syntax error and was corrected before merge.
 
 ## 5. Scope and controls
 
@@ -52,3 +52,12 @@ The suite is expected to contain 37 tests (35 existing + 2 new). CI results will
 ## 6. Next gate
 
 Merge only after the offline CI passes. Then allow the existing 11:17 UTC scheduled run to create the initial baseline; do not manually dispatch a duplicate. The following successful scheduled poll must find the baseline accession watermark before any event can be classified as bounded metadata. Continue to quarantine all source timestamps without an explicit timezone.
+
+
+## 7. CI and merge closeout (2026-11-18 11:18 UTC)
+
+- The first PR CI attempt [44293252874](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44293252874) failed before tests because the newly added test used an incorrectly escaped line continuation. This was a test-fixture syntax error, not a collector runtime failure. The test context manager was corrected and the branch was updated.
+- Final Phase 476 regression [44293347434](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44293347434) passed **37/37 tests**. Its `offline-regression` job succeeded; `live-capture` was skipped; no artifact was produced.
+- Existing adjacent Form 4 regressions also passed: Phase 460 [44293347507](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44293347507) and Phase 461 [44293347425](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44293347425).
+- PR [#139](https://github.com/jafelix81/NuevaEstrategia/pull/139) was merged at 11:18:15 UTC. Main merge commit: `1cbecf4d0281dd64881fb575d5d1e672e5314412`.
+- At closeout, the scheduled-run inventory contained no Phase 476 `schedule` event for the 11:17 UTC slot. This is not yet classified as a delivery failure because scheduled events can be delayed; no manual dispatch was used. The next cron slot after merge is 12:17 UTC. The first live poll remains unverified.
