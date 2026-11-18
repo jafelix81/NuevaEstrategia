@@ -1429,3 +1429,34 @@ This section supersedes any older “in progress” status above where later com
 - New conditional source: Cboe Complex Order Flow EOD has five strategy files (RevCon, box spread, jelly roll, tied outright, tied spread), U.S. options OPRA plus equity CTA/UTP legs, RTH/GTH, and leg-level execution/theoretical price/delta fields. The published spec does not document participant capacity, beneficial owner, aggressor side, NBBO, stable execution ID, historical start date, or product-specific first-receipt SLA. Treat it only as a potential financing/hedging confounder/control, not a directional smart-money signal. History, licensing, price, sample rights and first-receipt PIT remain unproven.
 - No new Cboe sample/data was downloaded or uploaded; no vendor contact, trial, purchase or license acceptance. No forward-return, alpha, OOS, bootstrap, LOO or holdout test. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
 - Report: [Phase 472](research/PHASE472_CBOE_COMPLEX_ORDER_FLOW_AND_SAMPLE_RIGHTS_AUDIT_2026-11-18.md) · [summary](research/PHASE472_CBOE_COMPLEX_ORDER_FLOW_AND_SAMPLE_RIGHTS_SUMMARY_2026-11-18.json).
+---
+
+## Phase 473 — FINRA Phase 20C price-provider response census (2026-11-18)
+
+- Replayed the original Phase 11 universe download for all 335 configured symbols. Current yfinance 1.7.0 coverage: 328/335 satisfy the 220-observation threshold; seven return only 1–2 observations. The seven are AVB, EA, EQR, LPRO, ROKU, WBD and WBS.
+- The provider behavior is not treated as proof that seven otherwise active companies have a Yahoo defect. Phase 474 reconciles these symbols to mergers, delisting or ticker succession. No replacement tickers or prices were inserted.
+- No price-provider fallback, backtest, OOS, bootstrap, LOO or alpha test was run.
+
+## Phase 474 — delisted universe corporate-action reconciliation (2026-11-18)
+
+- Reconciled the seven low-coverage symbols to corporate events: AVB/EQR residential merger and successor identity; EA cash take-private; LPRO cash acquisition; ROKU FOX stock/cash acquisition; WBD cash merger; WBS Santander ADS/cash acquisition.
+- Contractual terms are documented, but final trading dates, terminal prices, dividends, fractional-share cash and successor price histories are not yet reconstructed. The 335-name historical universe remains intact; no symbol is removed or replaced.
+- PR #134 merged; offline corporate-action regression passed 8/8. This is identity/terms work only, not a completed total-return panel.
+
+## Phase 475 — delisted historical price-source feasibility (2026-11-18)
+
+- Ranked Massive Advanced (advertised 20+ year U.S. equity history including delisted securities) as the first candidate for an authorized sample; Sharadar SEP as the second candidate. CRSP remains the preferred academic reference for delisting returns if access/licensing is feasible.
+- Massive Advanced was advertised at USD 199/month; the Developer plan's rolling 10-year window did not reach the exact 2016-10-24 baseline cutoff at the audit date. Sharadar's public material describes long history and inactive securities, but PIT vintage/version availability remains unverified.
+- No account, trial, purchase, download or license acceptance. No provider is approved until a stratified sample covers all seven missing symbols, verifies exact dates/adjustments/corporate actions, and matches a second source. PR #135 merged; 10/10 offline tests passed.
+
+## Phase 476 — SEC Form 4/4-A prospective first-seen metadata capture (2026-11-18)
+
+- Added a separate scheduled collector because Phase 403 captures Form 144/144-A and no Form 4/4-A first-seen workflow existed in the main workflow inventory. PR #137 merged at main commit 13155f11acdc3907c66213d17c0143a3c45e917e; CI [44291410592](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44291410592) passed all 32 offline tests. The live-capture job was skipped on the PR as designed; no SEC poll or artifact was generated.
+- New workflow .github/workflows/phase476_sec_form4_first_seen_capture.yml polls Form 4 and Form 4/A Atom feeds hourly on weekdays at 17:00 UTC, separate from the Phase 403 minute-47 poll. It pages 100 raw rows at a time through the prior accession watermark (maximum 20 pages), stores append-only accession/form/filing-date/URL metadata, local response receipt intervals and page SHA-256 hashes. It does not download filing XML/text or transaction rows.
+- First scheduled run will be an initial baseline. A later successful poll must find the prior watermark to establish a bounded metadata interval. Even bounded events remain research_observation_eligible=false and signal_eligible=false; feed updated is not treated as exact public-availability time, and security identity, F80 membership, owner attribution and transaction semantics remain unverified. Manual runs are diagnostic and do not persist state.
+- Actions preflight after merge: 7,834 total runs; explicit active/queued queries 0/0; 307 branches; 56 open PRs; 82 workflows. No active or queued run was duplicated.
+- SEC Form 144 latest observed scheduled run [44228413864](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44228413864) succeeded, but no later hourly Phase 403 schedule event appeared in the latest 100-run inventory through 09:57 UTC despite the minute-47 cron. Issue [#136](https://github.com/jafelix81/NuevaEstrategia/issues/136) asks for a manual enabled-state/default-branch check; this is a delivery gap, not proof of a disabled workflow.
+- CFTC latest scheduled run [44232546204](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44232546204) succeeded and retained the first four prospective TFF report events (report date 2026-11-10; local first receipt 2026-11-18 03:44:57 UTC). No CFTC signal or return test is authorized.
+- FINRA Phase 469 latest observed run [44228802578](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44228802578) was PR CI, not a scheduled live capture; first post-merge capture remains pending at 22:30/23:30 UTC on Nov 18.
+- Cboe sample artifact [13291147097](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41762583602/artifacts/13291147097) remains publicly accessible pending rights review or deletion; Issue [#132](https://github.com/jafelix81/NuevaEstrategia/issues/132) remains open. No new Cboe data was downloaded or uploaded.
+- No new alpha, backtest, OOS, bootstrap, LOO or holdout test. F80_TOP20_PARTIAL50_BASELINE_C20, the 335-name universe, parameters, capital, exposure, costs and production remain frozen.
