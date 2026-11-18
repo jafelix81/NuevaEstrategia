@@ -1,0 +1,108 @@
+{
+  "phase": 487,
+  "audit_cutoff_utc": "2026-11-18T19:02:21Z",
+  "main_head_preflight": "182f02d933b342ff9ce2f44e6844f53f0d99da4f",
+  "artifacts": {
+    "phase20a_run": 39300615844,
+    "phase20a_artifact": 12211077155,
+    "phase20a_sha256": "a090438e77c2567790e68839b88c19134a644bd6343482460b15d7959dd74cd7",
+    "phase20b_run": 39324762076,
+    "phase20b_artifact": 12222238141,
+    "phase20b_sha256": "e3f72540ce68c5c137e2e3de7393a4d83f7f346de0dba51215aceba3366a151c",
+    "phase20c_run": 40098425254,
+    "phase20c_artifact": 12562171831,
+    "phase20c_sha256": "c15f75340bdedfbb37c82f79bb563a450dd1da11989d09e18bb745d93b7d3a5c"
+  },
+  "phase20a": {
+    "valid_universe": 328,
+    "universe_target": 335,
+    "oos_dates": 6,
+    "panel_rows": 1902,
+    "residual_ic_family_size": 21,
+    "short_exempt_ratio_h10": {
+      "mean_ic": -0.0754986,
+      "ci95": [-0.1250669, -0.0259302],
+      "nominal_p": 0.0112349,
+      "sign_p": 0.03125,
+      "bonferroni_p": 0.2359327,
+      "positive_dates": 0,
+      "n_dates": 6
+    },
+    "short_ratio_z60_h5": {
+      "mean_ic": 0.055303,
+      "ci95": [-0.0230854, 0.1336914],
+      "nominal_p": 0.1294802,
+      "positive_dates": 5,
+      "n_dates": 6
+    },
+    "short_ratio_persist20_h5": {
+      "mean_ic": 0.0453609,
+      "ci95": [-0.015388, 0.1061098],
+      "nominal_p": 0.1130097,
+      "positive_dates": 5,
+      "n_dates": 6
+    },
+    "disposition": "EXPLORATORY_ONLY_NO_FAMILYWISE_SIGNAL"
+  },
+  "phase20b": {
+    "selected_factor": "SHORT_EXEMPT_RATIO",
+    "direction": -1,
+    "train_mean_spearman": -0.0173295,
+    "train_dates": 20,
+    "oos_dates": 6,
+    "replacement_rows": 24,
+    "replacement_scores_zero": 24,
+    "replacement_score_unique_values": 1,
+    "replacement_score_std": 0.0,
+    "replacement_minus_blocked": {
+      "h5": {"mean": 0.0266518, "ci95": [-0.0253879, 0.0786914], "p": 0.2451191, "positive_dates": 4, "n_dates": 6, "bonferroni_p_3_horizons": 0.7353572},
+      "h10": {"mean": 0.013073, "ci95": [-0.0731088, 0.0992547], "p": 0.7126431, "positive_dates": 4, "n_dates": 6, "bonferroni_p_3_horizons": 1.0},
+      "h20": {"mean": 0.0208777, "ci95": [-0.04918, 0.0909355], "p": 0.4545141, "positive_dates": 3, "n_dates": 5, "bonferroni_p_3_horizons": 1.0}
+    },
+    "disposition": "REJECT_CONTINUOUS_RANK_RULE_ZERO_VARIANCE_TIES"
+  },
+  "phase20c": {
+    "valid_universe": 329,
+    "universe_target": 335,
+    "train_signal_dates": 24,
+    "finra_eligible_train_dates": 20,
+    "pseudo_oos_dates": 12,
+    "final_oos_holdout_dates": 6,
+    "walkforward": {
+      "h5": {"mean": 0.0014109, "ci95": [-0.032092, 0.0349138], "p": 0.9278159, "positive_dates": 5, "n_dates": 12},
+      "h10": {"mean": -0.0168649, "ci95": [-0.0645262, 0.0307964], "p": 0.4525176, "positive_dates": 3, "n_dates": 12},
+      "h20": {"mean": -0.0085783, "ci95": [-0.1136236, 0.096467], "p": 0.8606265, "positive_dates": 5, "n_dates": 12}
+    },
+    "previous_run_39335227938_means": {"h5": -0.004969, "h10": -0.013029, "h20": 0.016544},
+    "disposition": "REJECT_ADAPTIVE_RULE_FOR_PROMOTION_UNSTABLE_SMALL_PSEUDO_OOS"
+  },
+  "operational": {
+    "actions_total_runs": 7855,
+    "latest_100": {"success": 74, "failure": 24, "cancelled": 2},
+    "active": 0,
+    "queued": 0,
+    "schedule_events_total": 22,
+    "branches": 315,
+    "open_prs": 56,
+    "workflow_files": 82,
+    "missing_expected_slots_at_cutoff": {
+      "phase476_form4_utc": "2026-11-18T18:17:00Z",
+      "phase403_form144_utc": "2026-11-18T18:47:00Z"
+    },
+    "next_existing_slots_utc": [
+      "2026-11-18T19:17:00Z",
+      "2026-11-18T19:47:00Z",
+      "2026-11-18T22:25:00Z",
+      "2026-11-18T22:30:00Z",
+      "2026-11-18T23:30:00Z"
+    ]
+  },
+  "decision": {
+    "new_signal_admitted": false,
+    "f80_modified": false,
+    "production_changed": false,
+    "phase20b_rule": "KILL_FOR_PROMOTION",
+    "phase20c_rule": "KILL_FOR_PROMOTION",
+    "phase20a_residual_ic": "EXPLORATORY_ONLY"
+  }
+}
