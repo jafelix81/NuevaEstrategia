@@ -7,7 +7,7 @@
     "4",
     "4/A"
   ],
-  "schedule_utc": "10,25,40,55 * * * 1-5",
+  "schedule_utc": "17 * * * 1-5",
   "page_size": 100,
   "max_pages_per_feed": 20,
   "persistent_data": [
