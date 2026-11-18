@@ -41,6 +41,11 @@ jobs:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     needs: offline-regression
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
-      - name: Live job gate placeholder
-        run: echo "Live capture is not enabled in this validation commit."
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile capture client
+        run: python -m py_compile research/phase476_sec_form4_first_seen_capture.py
