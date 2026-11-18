@@ -1,0 +1,82 @@
+{
+  "phase": 479,
+  "audit_cutoff_utc": "2026-11-18T12:29:00Z",
+  "repository": "jafelix81/NuevaEstrategia",
+  "base_main": "793af54daa99e5f132199e1151b3823c0ccf5645",
+  "triggering_run": {
+    "id": 44302697069,
+    "url": "https://github.com/jafelix81/NuevaEstrategia/actions/runs/44302697069",
+    "event": "schedule",
+    "workflow": "Phase 403 - SEC Form 144 prospective first-seen capture",
+    "created_at_utc": "2026-11-18T12:18:41Z",
+    "conclusion": "failure",
+    "jobs": {
+      "offline_regression": "failure",
+      "live_capture": "skipped"
+    },
+    "artifacts": [],
+    "live_capture_attempted": false
+  },
+  "preflight": {
+    "total_actions_runs": 7843,
+    "in_progress": 0,
+    "queued": 0,
+    "default_branch": "main"
+  },
+  "observed_ledger_growth": {
+    "phase464_snapshot": {
+      "event_rows": 106,
+      "feed_observation_rows": 388,
+      "acceptance_reconciliation_rows": 106,
+      "complete_poll_count": 9
+    },
+    "current_state": {
+      "event_rows": 196,
+      "acceptance_reconciliation_rows": 196,
+      "complete_poll_count": 10,
+      "last_successful_poll_run_id": "44228413864",
+      "last_poll_possible_gap_by_feed": {
+        "144": false,
+        "144A": false
+      }
+    },
+    "latest_successful_capture_run_id": "44228413864",
+    "new_event_rows_since_phase464": 90,
+    "new_feed_observation_rows_since_phase464": 109,
+    "new_acceptance_reconciliations_since_phase464": 90
+  },
+  "failed_assertions": [
+    {
+      "field": "event_rows_total",
+      "actual": 196,
+      "expected": 106,
+      "reason": "append-only ledger grew after the Phase 464 snapshot"
+    },
+    {
+      "field": "state_complete_poll_count",
+      "actual": 10,
+      "expected": 9,
+      "reason": "mutable poll state advanced after the Phase 464 snapshot"
+    }
+  ],
+  "repair": {
+    "global_ledger_counts": "monotonic lower bounds, not exact snapshot totals",
+    "run_scoped_phase464_metrics": "remain exact",
+    "state_audit": "separate latest attempt from last successful poll; validate shape and anchor, not fixed run id/gap",
+    "data_mutated": false
+  },
+  "validation": {
+    "offline_ci_pending": true,
+    "live_capture_skipped_on_pr": true
+  },
+  "research_controls": {
+    "f80": "F80_TOP20_PARTIAL50_BASELINE_C20",
+    "frozen": true,
+    "alpha_or_backtest": false,
+    "oos": false,
+    "bootstrap": false,
+    "loo": false,
+    "holdout_untouched": true,
+    "new_signals_admitted": 0
+  }
+}
