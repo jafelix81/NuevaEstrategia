@@ -56,3 +56,15 @@ jobs:
         run: |
           if [ "$EVENT_NAME" = "schedule" ]; then MODE=schedule; else MODE=manual; fi
           python -u -m research.phase476_sec_form4_first_seen_capture --mode "$MODE" --run-id "$RUN_ID" --output phase476_output
+      - name: Commit append-only metadata ledger
+        if: github.event_name == 'schedule'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add research/data/sec_form4_first_seen
+          if ! git diff --cached --quiet; then
+            git commit -m "[skip ci] SEC Form 4 first-seen metadata ${GITHUB_RUN_ID}"
+            git push
+          else
+            echo "No persistent Form 4 metadata changes."
+          fi
