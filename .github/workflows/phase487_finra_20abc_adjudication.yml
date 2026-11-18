@@ -1,0 +1,36 @@
+name: Phase 487 - FINRA Phase 20A/B/C artifact adjudication
+
+on:
+  push:
+    branches: [phase487-finra-20abc-adjudication]
+    paths:
+      - ".github/workflows/phase487_finra_20abc_adjudication.yml"
+      - "research/phase487_finra_walkforward_adjudication.py"
+      - "research/test_phase487_finra_walkforward_adjudication.py"
+      - "research/PHASE487_FINRA_PHASE20A_20B_20C_ADJUDICATION_2026-11-18.md"
+      - "research/PHASE487_FINRA_PHASE20A_20B_20C_ADJUDICATION_SUMMARY_2026-11-18.json"
+  pull_request:
+    paths:
+      - ".github/workflows/phase487_finra_20abc_adjudication.yml"
+      - "research/phase487_finra_walkforward_adjudication.py"
+      - "research/test_phase487_finra_walkforward_adjudication.py"
+      - "research/PHASE487_FINRA_PHASE20A_20B_20C_ADJUDICATION_2026-11-18.md"
+      - "research/PHASE487_FINRA_PHASE20A_20B_20C_ADJUDICATION_SUMMARY_2026-11-18.json"
+
+permissions:
+  contents: read
+
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install analysis dependencies
+        run: pip install numpy pandas scipy
+      - name: Compile and run adjudication tests
+        run: |
+          python -m py_compile research/phase487_finra_walkforward_adjudication.py research/test_phase487_finra_walkforward_adjudication.py
+          python -m unittest -v research.test_phase487_finra_walkforward_adjudication
