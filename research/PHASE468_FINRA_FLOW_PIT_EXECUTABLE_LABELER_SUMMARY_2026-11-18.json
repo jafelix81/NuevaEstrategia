@@ -1,0 +1,64 @@
+{
+  "phase": 468,
+  "audit_time_utc": "2026-11-18T01:13:00Z",
+  "disposition": "STRICT_FIRST_RECEIPT_LABELER_IMPLEMENTED; NO_HISTORICAL_TIMESTAMP_IMPUTATION; NO_ALPHA",
+  "branch": "phase467-finra-regsho-flow-pit-label-audit",
+  "base_main_head": "bc4a2ccecd32962340831eea54563743dadfe6c6",
+  "pr_number": 129,
+  "local_synthetic_tests": 30,
+  "workflow": "push-only branch regression; no schedule; no market-data credentials",
+  "label_contract": {
+    "required_provenance": [
+      "poll_start_utc",
+      "first_seen_utc",
+      "poll_end_utc",
+      "http_status=200",
+      "raw_sha256",
+      "row_count",
+      "schema_version",
+      "observation_kind=first_seen"
+    ],
+    "entry": "first XNYS session open strictly later than first local receipt",
+    "exit": "close of Hth session counting entry session as session 1",
+    "historical_rows_without_first_seen_admitted": false,
+    "signal_date_close_used": false,
+    "allowed_price_bases": [
+      "split_adjusted_ohlc",
+      "total_return_adjusted_ohlc"
+    ]
+  },
+  "tests": {
+    "count": 30,
+    "result": "passed locally",
+    "market_data_downloaded": false
+  },
+  "actions_preflight": {
+    "total_runs": 7730,
+    "in_progress": 0,
+    "queued": 0,
+    "branches": 300,
+    "open_prs": 57,
+    "latest_pr129_runs": [
+      44209207223,
+      44209207126
+    ],
+    "latest_pr129_checks": "success",
+    "artifacts_for_latest_pr129_runs": 0
+  },
+  "scheduled_delivery": {
+    "sec_form144_latest_scheduled_run": 44179257367,
+    "sec_expected_2026_11_18T00_47Z_observed": false,
+    "cftc_latest_verified_run": 43525140200,
+    "cftc_expected_2026_11_17T22_25Z_observed": false,
+    "workflow_enabled_state_exposed": false
+  },
+  "research_controls": {
+    "historical_phase31_labels_diagnostic_only": true,
+    "new_signal_admitted": false,
+    "alpha_test": false,
+    "oos_test": false,
+    "bootstrap_or_loo": false,
+    "strategy_changed": false,
+    "f80_frozen": true
+  }
+}
