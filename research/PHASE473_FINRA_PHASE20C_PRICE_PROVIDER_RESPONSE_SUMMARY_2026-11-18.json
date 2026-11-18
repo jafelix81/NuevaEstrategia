@@ -1,9 +1,9 @@
 {
   "phase": 473,
-  "audit_time_utc": "2026-11-18T07:03:00Z",
+  "audit_time_utc": "2026-11-18T07:16:00Z",
   "base_main_sha": "cdb6f13ab4fab8929c211430f90d86af9dad869b",
-  "operational_preflight": {
-    "actions_total": 7771,
+  "actions": {
+    "total": 7771,
     "latest_100": {
       "success": 79,
       "failure": 15,
@@ -15,86 +15,114 @@
     "open_prs": 56,
     "workflow_files": 78
   },
-  "phase381_reaudit": {
-    "artifact_id": 14073108228,
-    "artifact_sha256": "c88e350c188e513e9ac7995aad859ec1b02040e7a2f9586ce1f063bf7f6537ef",
-    "price_window": "2016-10-24/2026-10-23",
-    "controls": [
-      "AAPL",
-      "MSFT",
-      "NVDA",
-      "SPY"
-    ],
-    "missing_tickers": [
-      "AVB",
-      "EA",
-      "EQR",
-      "LPRO",
-      "ROKU",
-      "WBD",
-      "WBS"
-    ],
+  "phase381_artifact": {
+    "id": 14073108228,
+    "sha256": "c88e350c188e513e9ac7995aad859ec1b02040e7a2f9586ce1f063bf7f6537ef"
+  },
+  "live_probe": {
+    "run_id": 44256975655,
+    "artifact_id": 14405593899,
+    "artifact_sha256": "1ea4cab0e7af7d146a300a5d438fcea2e80919fd934cf8aa46ec32d38c4ba645",
     "yahoo_query1": {
-      "controls_rows_each": 2514,
-      "missing_rows_each": 0,
-      "http_status": 200,
-      "disposition": "VALID_CONTROL_RESPONSE_EMPTY_FOR_MISSING_SYMBOLS"
+      "controls_nonempty": 4,
+      "missing_nonempty": 1,
+      "rokU_rows": 2280,
+      "rokU_adjusted_close_rows": 2280,
+      "rokU_first": "2017-09-28",
+      "rokU_last": "2026-10-23",
+      "missing_empty": [
+        "AVB",
+        "EA",
+        "EQR",
+        "LPRO",
+        "WBD",
+        "WBS"
+      ]
     },
     "yahoo_query2": {
-      "controls_rows_each": 2514,
-      "missing_rows_each": 0,
-      "http_status": 200,
-      "disposition": "VALID_CONTROL_RESPONSE_EMPTY_FOR_MISSING_SYMBOLS"
+      "controls_nonempty": 4,
+      "missing_nonempty": 1,
+      "rokU_rows": 2280,
+      "rokU_adjusted_close_rows": 2280,
+      "rokU_first": "2017-09-28",
+      "rokU_last": "2026-10-23",
+      "missing_empty": [
+        "AVB",
+        "EA",
+        "EQR",
+        "LPRO",
+        "WBD",
+        "WBS"
+      ]
     },
     "stooq": {
-      "controls_rows_each": 0,
-      "missing_rows_each": 0,
-      "http_status_retained": false,
-      "error_class": "ValueError",
+      "http_status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "response_bytes": 796,
+      "controls_nonempty": 0,
+      "missing_nonempty": 0,
       "disposition": "PROVIDER_METHOD_UNVALIDATED"
     },
-    "nasdaq": {
-      "controls_rows_each": 0,
-      "missing_rows_each": 0,
-      "http_status": 200,
-      "tradesTable_rows_each": 0,
-      "disposition": "PROVIDER_METHOD_UNVALIDATED_CONTROLS_EMPTY"
+    "nasdaq_us_slash": {
+      "embedded_r_code": 400,
+      "error_code": 1011,
+      "error_message": "Bad or No parameter fromdate : 10/24/2016",
+      "disposition": "INVALID_DATE_PARAMETER"
+    },
+    "nasdaq_iso": {
+      "controls_nonempty": 3,
+      "missing_nonempty": 0,
+      "controls_with_rows": [
+        "AAPL",
+        "MSFT",
+        "NVDA"
+      ],
+      "rejected_controls": [
+        "SPY"
+      ],
+      "target_error_code": 1001,
+      "target_error_message": "Symbol not exists.",
+      "disposition": "VALIDATED_ON_3_CONTROLS_NO_TARGET_COVERAGE",
+      "date_range_certified": false,
+      "total_records_certified": false
     }
   },
   "phase20c": {
-    "valid_price_histories": 328,
-    "required_histories": 329,
-    "missing_tickers": [
-      "AVB",
-      "EA",
-      "EQR",
-      "LPRO",
-      "ROKU",
-      "WBD",
-      "WBS"
-    ],
-    "provider_fallback_admitted": false,
+    "current_valid": 328,
+    "required": 329,
+    "roku_is_in_frozen_universe": true,
+    "roku_direct_yahoo_candidate_rows": 2280,
+    "exact_yfinance_recheck_required": true,
+    "fallback_admitted": false,
     "universe_changed": false
   },
   "branch_hygiene": {
     "pr57_state": "open_draft",
-    "pr57_base": "phase380-cftc-tff-full-postlaunch-archive-census",
     "pr57_ahead_of_main": 211,
     "pr57_behind_main": 205,
     "phase20c_branch_ahead_of_main": 12,
     "phase20c_branch_behind_main": 314,
     "merge_recommended": false
   },
-  "live_probe": {
-    "status": "PENDING",
-    "raw_price_data_persisted": false,
-    "raw_response_bodies_persisted": false
+  "sec": {
+    "run_id": 44228413864,
+    "events": 90,
+    "feed_rows": 109,
+    "lower_bound_null": true,
+    "research_eligible": 0,
+    "signal_eligible": 0
+  },
+  "cftc": {
+    "run_id": 44232546204,
+    "events": 4,
+    "observed_at_utc": "2026-11-18T03:44:57Z",
+    "signals": 0
   },
   "strategy": {
     "baseline": "F80_TOP20_PARTIAL50_BASELINE_C20",
     "frozen": true,
     "signals_admitted": 0,
-    "forward_return_test": false,
+    "returns_tested": false,
     "oos": false,
     "bootstrap": false,
     "loo": false,
