@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import csv
 import hashlib
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -209,6 +211,127 @@ class Phase476Tests(unittest.TestCase):
     def test_hash_is_sha256_of_exact_page_bytes(self):
         raw = feed(entry("0000000001-26-000024"))
         self.assertEqual(hashlib.sha256(raw).hexdigest(), hashlib.sha256(raw).hexdigest())
+
+
+    def test_run_capture_initial_baseline_persists_no_signal(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            data_dir = root / "data"
+            output_dir = root / "output"
+            raw = feed(entry("0000000001-26-000030"))
+            with patch.object(p, "DATA_DIR", data_dir), \
+                 patch.object(p, "STATE_PATH", data_dir / "state.json"), \
+                 patch.object(p, "EVENTS_PATH", data_dir / "events.csv"), \
+                 patch.object(p, "OBSERVATIONS_PATH", data_dir / "feed_observations.csv"), \
+                 patch.object(p, "FEEDS", {"4": self.url}), \
+                 patch.object(p.p401, "fetch_bytes", return_value=raw):
+                summary = p.run_capture("schedule", "baseline-run", output_dir)
+            self.assertEqual(summary["new_event_rows"], 1)
+            self.assertEqual(summary["bounded_metadata_rows"], 0)
+            self.assertEqual(summary["signal_eligible_rows"], 0)
+            self.assertTrue((data_dir / "state.json").exists())
+            with (data_dir / "events.csv").open(newline="", encoding="utf-8") as handle:
+                rows = list(csv.DictReader(handle))
+            self.assertEqual(len(rows), 1)
+            self.assertEqual(rows[0]["first_seen_interval_status"], "INITIAL_BASELINE_NO_LOWER_BOUND")
+            self.assertEqual(rows[0]["signal_eligible"], "False")
+            self.assertEqual(rows[0]["research_observation_eligible"], "False")
+            self.assertFalse((data_dir / "raw.xml").exists())
+
+    def test_run_capture_second_poll_bounds_metadata_but_never_signal(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            data_dir = root / "data"
+            output_dir = root / "output"
+            prior = "0000000001-26-000031"
+            first = feed(entry(prior))
+            second = feed(entry("0000000001-26-000032"), entry(prior))
+            with patch.object(p, "DATA_DIR", data_dir), \
+                 patch.object(p, "STATE_PATH", data_dir / "state.json"), \
+                 patch.object(p, "EVENTS_PATH", data_dir / "events.csv"), \
+                 patch.object(p, "OBSERVATIONS_PATH", data_dir / "feed_observations.csv"), \
+                 patch.object(p, "FEEDS", {"4": self.url}), \
+                 patch.object(p.p401, "fetch_bytes", side_effect=[first, second]):
+                p.run_capture("schedule", "baseline-run", output_dir)
+                previous_end = json.loads((data_dir / "state.json").read_text())["feeds"]["4"]["last_successful_poll_end_utc"]
+                summary = p.run_capture("schedule", "bounded-run", output_dir)
+            self.assertEqual(summary["new_event_rows"], 1)
+            self.assertEqual(summary["bounded_metadata_rows"], 1)
+            with (data_dir / "events.csv").open(newline="", encoding="utf-8") as handle:
+                rows = list(csv.DictReader(handle))
+            bounded = next(row for row in rows if row["accession"] == "0000000001-26-000032")
+            self.assertEqual(bounded["first_seen_interval_status"], "BOUNDED_METADATA_ONLY")
+            self.assertEqual(bounded["first_seen_interval_lower_bound_utc"], previous_end)
+            self.assertEqual(bounded["event_metadata_interval_bounded"], "True")
+            self.assertEqual(bounded["research_observation_eligible"], "False")
+            self.assertEqual(bounded["signal_eligible"], "False")
+
+    def test_manual_run_does_not_persist_state_or_events(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            data_dir = root / "data"
+            output_dir = root / "output"
+            raw = feed(entry("0000000001-26-000033"))
+            with patch.object(p, "DATA_DIR", data_dir), \
+                 patch.object(p, "STATE_PATH", data_dir / "state.json"), \
+                 patch.object(p, "EVENTS_PATH", data_dir / "events.csv"), \
+                 patch.object(p, "OBSERVATIONS_PATH", data_dir / "feed_observations.csv"), \
+                 patch.object(p, "FEEDS", {"4": self.url}), \
+                 patch.object(p.p401, "fetch_bytes", return_value=raw):
+                summary = p.run_capture("manual", "manual-run", output_dir)
+            self.assertFalse(summary["persistent_write"])
+            self.assertFalse(data_dir.exists())
+            self.assertTrue((output_dir / "poll_summary.json").exists())
+
+    def test_gap_does_not_advance_prior_watermark(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            data_dir = root / "data"
+            output_dir = root / "output"
+            data_dir.mkdir()
+            previous_end = "2026-11-18T10:00:00Z"
+            old_state = {
+                "schema_version": 1,
+                "phase": p.PHASE,
+                "feeds": {"4": {
+                    "latest_accession": "0000000001-25-999999",
+                    "last_successful_poll_end_utc": previous_end,
+                }},
+            }
+            (data_dir / "state.json").write_text(json.dumps(old_state))
+            raw = feed(entry("0000000001-26-000034"))
+            with patch.object(p, "DATA_DIR", data_dir), \
+                 patch.object(p, "STATE_PATH", data_dir / "state.json"), \
+                 patch.object(p, "EVENTS_PATH", data_dir / "events.csv"), \
+                 patch.object(p, "OBSERVATIONS_PATH", data_dir / "feed_observations.csv"), \
+                 patch.object(p, "FEEDS", {"4": self.url}), \
+                 patch.object(p, "MAX_FEED_PAGES", 1), \
+                 patch.object(p.p401, "fetch_bytes", return_value=raw):
+                summary = p.run_capture("schedule", "gap-run", output_dir)
+            state = json.loads((data_dir / "state.json").read_text())
+            self.assertEqual(state["feeds"]["4"]["latest_accession"], "0000000001-25-999999")
+            self.assertEqual(state["feeds"]["4"]["last_successful_poll_end_utc"], previous_end)
+            self.assertEqual(state["feeds"]["4"]["last_poll_status"], "GAP_OR_FETCH_ERROR")
+            self.assertEqual(summary["bounded_metadata_rows"], 0)
+
+    def test_duplicate_accession_is_not_appended_twice(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            data_dir = root / "data"
+            output_dir = root / "output"
+            raw = feed(entry("0000000001-26-000035"))
+            with patch.object(p, "DATA_DIR", data_dir), \
+                 patch.object(p, "STATE_PATH", data_dir / "state.json"), \
+                 patch.object(p, "EVENTS_PATH", data_dir / "events.csv"), \
+                 patch.object(p, "OBSERVATIONS_PATH", data_dir / "feed_observations.csv"), \
+                 patch.object(p, "FEEDS", {"4": self.url}), \
+                 patch.object(p.p401, "fetch_bytes", side_effect=[raw, raw]):
+                p.run_capture("schedule", "baseline-run", output_dir)
+                p.run_capture("schedule", "same-run", output_dir)
+            with (data_dir / "events.csv").open(newline="", encoding="utf-8") as handle:
+                rows = list(csv.DictReader(handle))
+            self.assertEqual(len(rows), 1)
+
 
 
 if __name__ == "__main__":
