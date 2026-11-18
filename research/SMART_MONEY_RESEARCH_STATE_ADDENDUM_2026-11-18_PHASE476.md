@@ -1,0 +1,10 @@
+# Smart Money Research state addendum — Phase 476 (2026-11-18)
+
+- Added a separate prospective SEC Form 4/4-A Atom metadata collector because the existing Phase 403 workflow captures Form 144/144-A only; no scheduled Form 4/4-A first-seen workflow existed in the main workflow directory.
+- Collector design: two feeds (4 and 4/A), 15-minute weekday cadence, 100 raw Atom rows/page, up to 20 pages, prior-accession watermark, raw-response SHA-256, page receipt timestamps, append-only metadata ledgers. No filing XML/text, transaction rows, prices or owner names are stored.
+- A bounded poll is metadata-only and requires a previous successful poll plus finding the prior accession watermark. Initial baseline, manual diagnostics, repeated pages, page-limit exhaustion and fetch errors are not bounded.
+- Even bounded events remain research-ineligible and signal-ineligible: no security identity, historical F80 membership, owner-line attribution, transaction semantics or exact public-availability certification is established. Feed \`updated\` is not substituted for local first-seen receipt.
+- Preflight: main \`5ba900aa6901f6f5e015f3219885fa9f4ffa2c9b\`; Actions total 7,798; latest 100 had no active/queued runs; Phase 475 CI runs 44280678035/44280647505 passed; CFTC scheduled run 44232546204 passed; SEC Form 144 scheduled run 44228413864 passed but no later hourly schedule event appeared through 09:57 UTC. Issue #136 records the manual enabled-state/default-branch check; no disabled state is asserted.
+- FINRA Phase 469 latest observed run 44228802578 was PR CI only, not a scheduled live capture; its first post-merge scheduled slots were still in the future at cutoff.
+- No vendor data, raw SEC filing bytes, credentials, backfill, event study, alpha, OOS, bootstrap, LOO or holdout test. F80, universe, parameters, capital, exposure, costs and production remain frozen.
+- Report: \`PHASE476_SEC_FORM4_FIRST_SEEN_PROSPECTIVE_CAPTURE_AUDIT_2026-11-18.md\`.
