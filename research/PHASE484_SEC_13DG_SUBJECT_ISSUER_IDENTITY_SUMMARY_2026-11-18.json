@@ -1,0 +1,96 @@
+{
+  "phase": 484,
+  "audit_cutoff_utc": "2026-11-18T17:08:00Z",
+  "repository": "jafelix81/NuevaEstrategia",
+  "base_main_sha": "54dacb3a0d24f2ea3b4e2e8351c2303f25a9f42e",
+  "source_artifact": {
+    "workflow_run_id": 41346788365,
+    "artifact_id": 13107210885,
+    "artifact_sha256": "ed92141e1474036291df07c9676129f46a0d304a7a8c21eca425d051f3184236",
+    "csv_member": "phase28d_events.csv",
+    "rows": 20266,
+    "unique_accessions": 20266
+  },
+  "aggregate_identity_audit": {
+    "accession_filer_cik_equals_stored_issuer_cik_rows": 10085,
+    "accession_filer_cik_equals_stored_issuer_cik_pct": 49.76,
+    "accession_filer_cik_differs_from_stored_issuer_cik_rows": 10181,
+    "accession_filer_cik_differs_from_stored_issuer_cik_pct": 50.24,
+    "unique_accession_filer_ciks": 258,
+    "unique_stored_ciks": 303,
+    "review_ticker_cohort": [
+      "BLK",
+      "STT",
+      "MS",
+      "JPM",
+      "GS",
+      "BAC",
+      "BEN",
+      "TFC",
+      "WFC"
+    ],
+    "review_ticker_cohort_rows": 12478,
+    "review_ticker_cohort_rows_pct": 61.57,
+    "review_ticker_cohort_filer_cik_collisions": 9864,
+    "review_ticker_cohort_collision_pct_of_all_collisions": 97.81,
+    "reporting_person_present_rows": 3502,
+    "reporting_person_present_pct": 17.28,
+    "reporting_person_type_present_rows": 10041,
+    "reporting_person_type_present_pct": 49.55,
+    "subject_issuer_identity_verified_rows": 0
+  },
+  "confirmed_reference_cases": [
+    {
+      "accession": "0000895421-24-000126",
+      "stored_ticker": "MS",
+      "stored_issuer_cik": "0000895421",
+      "filing_cik": "0000895421",
+      "subject_issuer_cik": "0001282850",
+      "subject_issuer_name": "FIRST TRUST SENIOR FLOATING RATE INCOME FUND II",
+      "cusip": "33733U108",
+      "filing_date": "2024-02-09",
+      "event_date_as_filed": "2024-12-31",
+      "reporting_persons": [
+        "Morgan Stanley",
+        "Morgan Stanley Smith Barney LLC"
+      ],
+      "official_source": "https://www.sec.gov/Archives/edgar/data/1282850/000089542124000126/FirstTrustSeniorFCT.txt"
+    },
+    {
+      "accession": "0000895421-24-000178",
+      "stored_ticker": "MS",
+      "stored_issuer_cik": "0000895421",
+      "filing_cik": "0000895421",
+      "subject_issuer_cik": "0001793855",
+      "subject_issuer_name": "abrdn Global Infrastructure Income Fund",
+      "cusip": "00326W106",
+      "filing_date": "2024-02-12",
+      "accepted_utc": "2024-02-12T14:50:01Z",
+      "event_date_as_filed": "2024-12-31",
+      "reporting_persons": [
+        "Morgan Stanley",
+        "Morgan Stanley Smith Barney LLC"
+      ],
+      "official_source": "https://www.sec.gov/Archives/edgar/data/1793855/000089542124000178/abrdnGlobalASGI.txt",
+      "official_index": "https://www.sec.gov/Archives/edgar/data/1793855/000089542124000178/0000895421-24-000178-index.html"
+    }
+  ],
+  "date_anomaly_reclassification": {
+    "future_event_date_rows": 2,
+    "parser_error_confirmed": false,
+    "source_document_date_anomaly": true,
+    "disposition": "SOURCE_DOCUMENT_DATE_ANOMALY_UNRESOLVED; retain filing_date as knowledge date; quarantine event_date"
+  },
+  "root_cause": {
+    "submissions_query_cik_is_filer_context_when_querying_filer_submissions": true,
+    "parser_fallback": "issuer = parsed CENTRAL INDEX KEY or queried submissions CIK",
+    "ticker_assignment": "ticker_by_cik[stored issuer_cik]",
+    "conclusion": "fallback can assign reporting-owner/filer CIK and ticker as subject issuer when document does not expose a CENTRAL INDEX KEY field"
+  },
+  "disposition": "PHASE28D_13DG_PANEL_IDENTITY_NOT_VERIFIED; NO_EVENT_OR_RETURN_TEST; REBUILD_REQUIRED",
+  "signal_eligible": false,
+  "forward_returns_used": false,
+  "backtest_oos_bootstrap_loo_run": false,
+  "raw_sec_rows_committed": false,
+  "f80_frozen": true
+}

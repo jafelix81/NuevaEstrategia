@@ -1,0 +1,30 @@
+name: Phase 484 - SEC 13D/G subject issuer identity audit
+
+on:
+  push:
+    branches: [phase484-13dg-subject-issuer-identity-audit]
+    paths:
+      - ".github/workflows/phase484_13dg_subject_issuer_identity_audit.yml"
+      - "research/phase484_13dg_subject_issuer_identity_audit.py"
+      - "research/test_phase484_13dg_subject_issuer_identity_audit.py"
+  pull_request:
+    paths:
+      - ".github/workflows/phase484_13dg_subject_issuer_identity_audit.yml"
+      - "research/phase484_13dg_subject_issuer_identity_audit.py"
+      - "research/test_phase484_13dg_subject_issuer_identity_audit.py"
+
+permissions:
+  contents: read
+
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile and run subject-issuer identity tests
+        run: |
+          python -m py_compile research/phase484_13dg_subject_issuer_identity_audit.py research/test_phase484_13dg_subject_issuer_identity_audit.py
+          python -m unittest -v research.test_phase484_13dg_subject_issuer_identity_audit
