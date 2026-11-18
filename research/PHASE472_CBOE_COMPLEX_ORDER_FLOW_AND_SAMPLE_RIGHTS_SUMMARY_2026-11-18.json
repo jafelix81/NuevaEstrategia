@@ -1,0 +1,95 @@
+{
+  "phase": 472,
+  "audit_time_utc": "2026-11-18T05:57:00Z",
+  "base_main_sha": "395363a92a7a5147bf2138f22bfaf334b85ec4ef",
+  "operational_preflight": {
+    "actions_total": 7769,
+    "latest_100": {
+      "success": 79,
+      "failure": 15,
+      "cancelled": 6,
+      "active": 0,
+      "queued": 0
+    },
+    "branches": 303,
+    "open_prs": 56,
+    "workflows": 78,
+    "no_duplicate_or_manual_runs": true
+  },
+  "sec_form144": {
+    "run_id": 44228413864,
+    "job_ids": {
+      "offline_regression": 134547201593,
+      "live_capture": 134547264687
+    },
+    "conclusion": "success",
+    "artifact_id": 14393319006,
+    "poll_started_utc": "2026-11-18T03:09:51Z",
+    "poll_completed_utc": "2026-11-18T03:10:13Z",
+    "form144_pages": 2,
+    "raw_atom_entries": 200,
+    "new_xml_filings": 90,
+    "acceptance_reconciled": 90,
+    "feed_observation_rows": 109,
+    "previous_watermark_found": true,
+    "possible_feed_window_gap": false,
+    "interval_status": "INITIAL_BASELINE_NO_LOWER_BOUND",
+    "research_eligible": 0,
+    "signal_eligible": 0
+  },
+  "cftc_tff": {
+    "run_id": 44232546204,
+    "job_id": 134560838218,
+    "conclusion": "success",
+    "artifact_id": 14395926632,
+    "new_report_events": 4,
+    "report_date": "2026-11-10",
+    "first_receipt_utc": "2026-11-18T03:44:57Z",
+    "total_rows": 3039,
+    "primary_preregistered_contracts": [
+      "13874A",
+      "209742"
+    ],
+    "signal_eligible": false,
+    "alpha_test_authorized": false
+  },
+  "finra": {
+    "workflow": "Phase 469",
+    "cron": "30 22,23 * * 1-5",
+    "first_post_merge_scheduled_capture": "pending at audit cutoff",
+    "signal_eligible": false
+  },
+  "cboe_open_close": {
+    "public_artifact_id": 13291147097,
+    "issue": 132,
+    "rights_status": "UNRESOLVED",
+    "recommendation": "delete artifact unless sample-specific written redistribution permission is confirmed",
+    "connector_delete_action_available": false
+  },
+  "cboe_complex_order_flow": {
+    "official_product_page": "https://datashop.cboe.com/complex-order-flow",
+    "specification": "https://datashop.cboe.com/documents/Complex_Order_Flow_Specifications_v1.0.pdf",
+    "strategies": [
+      "RevCon",
+      "Box Spread",
+      "Jelly Roll",
+      "Tied Outright",
+      "Tied Spread"
+    ],
+    "coverage": "U.S. listed options OPRA plus equity legs CTA/UTP; RTH and GTH",
+    "history_start": "not documented",
+    "product_specific_first_receipt_sla": "not documented",
+    "participant_capacity_or_beneficial_owner": "not documented",
+    "disposition": "CONDITIONAL_CONTROL_ONLY_HISTORY_AND_LICENSE_UNPROVEN"
+  },
+  "strategy": {
+    "baseline": "F80_TOP20_PARTIAL50_BASELINE_C20",
+    "frozen": true,
+    "new_signals_admitted": 0,
+    "forward_return_test": false,
+    "oos": false,
+    "bootstrap": false,
+    "loo": false,
+    "production_changed": false
+  }
+}
