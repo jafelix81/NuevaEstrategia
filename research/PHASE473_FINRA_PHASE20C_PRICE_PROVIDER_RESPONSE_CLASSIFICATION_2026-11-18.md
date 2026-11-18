@@ -95,3 +95,8 @@ The Nasdaq date parser and \`data.totalRecords\` extraction are now corrected an
 No return, alpha, OOS, bootstrap, LOO or holdout test was performed. No provider fallback, signal or production change is admitted.
 
 \`F80_TOP20_PARTIAL50_BASELINE_C20\` remains frozen: universe, parameters, holding period, capital, exposure, costs, holdout and production are unchanged.
+
+
+## Phase 474 supersession note — 2026-11-18
+
+The initial Phase 473 label of generic provider-history drift is superseded as the primary interpretation of the seven missing names. Phase 474 matched AVB, EA, EQR, LPRO, ROKU, WBD and WBS to issuer/SEC-confirmed merger, acquisition, delisting or ticker-change events. The exact Yahoo/yfinance truncation mechanism remains unproven. The prior 24 October run's six failed ticker names were not preserved, so the 329-to-328 change is consistent with ROKU's subsequent 6 November closing but is not proven ticker by ticker. See [Phase 474 corporate-action reconciliation](PHASE474_PHASE20C_DELISTED_UNIVERSE_CORPORATE_ACTION_RECONCILIATION_2026-11-18.md) and the evidence ledger. The 335-name historical universe must not be reduced; all seven require effective-dated price and terminal corporate-action reconstruction before Phase 20C can be rerun.
