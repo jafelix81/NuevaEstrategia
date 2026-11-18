@@ -15,7 +15,7 @@ from collections import Counter
 from pathlib import Path
 from typing import Iterable, Mapping
 
-ACCESSION_RE = re.compile(r"^(\\d{10})-\\d{2}-\\d{6}$")
+ACCESSION_RE = re.compile(r"^(\d{10})-\d{2}-\d{6}$")
 REVIEW_TICKERS = {"BLK", "STT", "MS", "JPM", "GS", "BAC", "BEN", "TFC", "WFC"}
 
 
@@ -160,7 +160,7 @@ def main() -> None:
     args = parser.parse_args()
     result = audit_csv(args.input)
     Path(args.output).parent.mkdir(parents=True, exist_ok=True)
-    Path(args.output).write_text(json.dumps(result, indent=2, sort_keys=True) + "\\n", encoding="utf-8")
+    Path(args.output).write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps(result, indent=2, sort_keys=True))
 
 
