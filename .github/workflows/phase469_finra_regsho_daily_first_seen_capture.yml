@@ -1,0 +1,81 @@
+name: Phase 469 - FINRA Reg SHO daily first-seen metadata capture
+
+on:
+  push:
+    branches: [phase467-finra-regsho-flow-pit-label-audit]
+    paths:
+      - ".github/workflows/phase469_finra_regsho_daily_first_seen_capture.yml"
+      - "research/phase469_finra_regsho_daily_first_seen_capture.py"
+      - "research/test_phase469_finra_regsho_daily_first_seen_capture.py"
+      - "research/PHASE469_FINRA_REGSHO_DAILY_FIRST_SEEN_CAPTURE_AUDIT_2026-11-18.md"
+      - "research/PHASE469_FINRA_REGSHO_DAILY_FIRST_SEEN_CAPTURE_SUMMARY_2026-11-18.json"
+  pull_request:
+    paths:
+      - ".github/workflows/phase469_finra_regsho_daily_first_seen_capture.yml"
+      - "research/phase469_finra_regsho_daily_first_seen_capture.py"
+      - "research/test_phase469_finra_regsho_daily_first_seen_capture.py"
+      - "research/PHASE469_FINRA_REGSHO_DAILY_FIRST_SEEN_CAPTURE_AUDIT_2026-11-18.md"
+      - "research/PHASE469_FINRA_REGSHO_DAILY_FIRST_SEEN_CAPTURE_SUMMARY_2026-11-18.json"
+  workflow_dispatch:
+  schedule:
+    - cron: "30 22,23 * * 1-5"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: finra-regsho-daily-first-seen
+  cancel-in-progress: false
+
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile and run offline regressions
+        run: |
+          python -m py_compile research/phase469_finra_regsho_daily_first_seen_capture.py research/test_phase469_finra_regsho_daily_first_seen_capture.py
+          python -m unittest -v research.test_phase469_finra_regsho_daily_first_seen_capture
+
+  live-capture:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    needs: offline-regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile capture client
+        run: python -m py_compile research/phase469_finra_regsho_daily_first_seen_capture.py
+      - name: Run FINRA daily file poll
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          if [ "$EVENT_NAME" = "schedule" ]; then MODE=schedule; else MODE=manual; fi
+          python -u -m research.phase469_finra_regsho_daily_first_seen_capture --mode "$MODE" --run-id "$RUN_ID" --output phase469_output
+      - name: Commit append-only metadata ledger
+        if: github.event_name == 'schedule'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add research/data/finra_regsho_daily_first_seen
+          if ! git diff --cached --quiet; then
+            git commit -m "[skip ci] FINRA Reg SHO first-seen metadata ${GITHUB_RUN_ID}"
+            git push
+          else
+            echo "No persistent FINRA metadata changes."
+          fi
+      - name: Upload compact poll summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase469-finra-regsho-first-seen
+          path: phase469_output/
+          retention-days: 90
+          if-no-files-found: warn
