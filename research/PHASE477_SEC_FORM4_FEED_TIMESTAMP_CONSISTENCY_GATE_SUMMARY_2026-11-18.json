@@ -35,5 +35,10 @@
   "bootstrap": false,
   "loo": false,
   "frozen_f80": true,
-  "production_changed": false
+  "production_changed": false,
+  "ci_run": 44292113931,
+  "merged_pr": 138,
+  "merge_commit_sha": "23e4768247c7194b38df8ab0f095bb467fac57c9",
+  "live_capture_job_on_pr": "skipped_as_designed",
+  "live_capture_performed": false
 }
