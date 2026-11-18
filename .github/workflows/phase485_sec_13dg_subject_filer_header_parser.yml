@@ -1,0 +1,30 @@
+name: Phase 485 - SEC 13D/G subject-filer header parser
+
+on:
+  push:
+    branches: [phase485-sec-13dg-subject-filer-header-parser]
+    paths:
+      - ".github/workflows/phase485_sec_13dg_subject_filer_header_parser.yml"
+      - "research/phase485_sec_13dg_subject_filer_header_parser.py"
+      - "research/test_phase485_sec_13dg_subject_filer_header_parser.py"
+  pull_request:
+    paths:
+      - ".github/workflows/phase485_sec_13dg_subject_filer_header_parser.yml"
+      - "research/phase485_sec_13dg_subject_filer_header_parser.py"
+      - "research/test_phase485_sec_13dg_subject_filer_header_parser.py"
+
+permissions:
+  contents: read
+
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile and run SEC index-header identity tests
+        run: |
+          python -m py_compile research/phase485_sec_13dg_subject_filer_header_parser.py research/test_phase485_sec_13dg_subject_filer_header_parser.py
+          python -m unittest -v research.test_phase485_sec_13dg_subject_filer_header_parser
