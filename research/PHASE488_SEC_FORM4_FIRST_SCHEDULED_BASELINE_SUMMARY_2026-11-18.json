@@ -1,0 +1,92 @@
+{
+  "phase": 488,
+  "date_utc": "2026-11-18",
+  "audit_cutoff_utc": "2026-11-18T20:41:00Z",
+  "disposition": "FIRST_SCHEDULED_BASELINE_VERIFIED_NO_RESEARCH_OR_SIGNAL_ADMISSION",
+  "repository": {
+    "full_name": "jafelix81/NuevaEstrategia",
+    "default_branch": "main",
+    "main_head_at_capture": "8f41ace5b6f5ffc795fbdb79fa55ff2d56bfff62",
+    "post_capture_commit": "93c1d7e6ea5c27044e0fb607b9511045a252aa43",
+    "total_actions_runs": 7862,
+    "latest_100": {
+      "success": 72,
+      "failure": 26,
+      "cancelled": 2
+    },
+    "in_progress": 0,
+    "queued": 0,
+    "branches": 316,
+    "open_pull_requests": 56,
+    "open_issues_before_resolution": 4,
+    "workflow_files": 86,
+    "tracked_tree_entries": 447
+  },
+  "run": {
+    "id": 44380395679,
+    "event": "schedule",
+    "branch": "main",
+    "created_at_utc": "2026-11-18T19:25:35Z",
+    "completed_at_utc": "2026-11-18T19:26:15Z",
+    "offline_regression": "success",
+    "offline_tests_passed": 37,
+    "live_capture": "success",
+    "poll_started_at_utc": "2026-11-18T19:26:00Z",
+    "poll_ended_at_utc": "2026-11-18T19:26:08Z"
+  },
+  "feeds": {
+    "4": {
+      "raw_atom_entries": 100,
+      "parsed_accession_entries_before_global_dedup": 20,
+      "canonical_unique_rows": 10,
+      "prior_watermark": null,
+      "poll_success": true,
+      "interval_status": "INITIAL_BASELINE_NO_LOWER_BOUND",
+      "latest_feed_updated_utc": "2026-11-18T19:16:37Z",
+      "page_sha256": "21f4faf38fd8f4e3c626195be13ee65500e9244574010edd67b37fc67e69e658"
+    },
+    "4A": {
+      "raw_atom_entries": 50,
+      "parsed_accession_entries_before_global_dedup": 50,
+      "canonical_unique_rows": 25,
+      "prior_watermark": null,
+      "poll_success": true,
+      "interval_status": "INITIAL_BASELINE_NO_LOWER_BOUND",
+      "latest_feed_updated_utc": "2026-11-18T16:46:44Z",
+      "page_sha256": "f00d453c3ff20fa4e523ced5609f383716f158b017a8c92aba33081ec4f54fc9"
+    }
+  },
+  "canonical_ledger": {
+    "unique_accessions": 35,
+    "form_4": 10,
+    "form_4a": 25,
+    "feed_observation_rows": 2,
+    "bounded_metadata_rows": 0,
+    "research_observation_eligible_rows": 0,
+    "signal_eligible_rows": 0,
+    "public_availability_certified": false,
+    "filing_xml_or_text_downloaded": false,
+    "raw_transaction_rows_stored": false
+  },
+  "artifact": {
+    "id": 14463211992,
+    "name": "phase476-sec-form4-first-seen",
+    "size_bytes": 680,
+    "sha256": "7765d6bd966aa2370b8ba5baff37a0bb3f3ba9445a0e278b3caa8c971532f5e6",
+    "expires_at_utc": "2027-02-16T19:25:36Z",
+    "contents": [
+      "poll_summary.json"
+    ]
+  },
+  "issue_142": "closed_completed",
+  "issue_136": "open_form144_scheduled_delivery_gap",
+  "strategy": {
+    "name": "F80_TOP20_PARTIAL50_BASELINE_C20",
+    "frozen": true,
+    "new_signals_admitted": 0,
+    "backtest_run": false,
+    "oos_run": false,
+    "bootstrap_run": false,
+    "loo_run": false
+  }
+}
