@@ -140,6 +140,16 @@ class Phase476Tests(unittest.TestCase):
             "FEED_TIMESTAMP_AFTER_FIRST_SEEN",
         )
 
+    def test_naive_feed_timestamp_is_rejected_without_assuming_utc(self):
+        self.assertIsNone(p.parse_utc("2026-11-18T10:30:00"))
+        self.assertEqual(
+            p.classify_interval(
+                "schedule", "old", True, "2026-11-18T10:00:00Z",
+                "2026-11-18T10:30:00", "2026-11-18T11:00:00Z",
+            ),
+            "FEED_OR_RECEIPT_TIMESTAMP_UNKNOWN",
+        )
+
     def test_manual_capture_never_becomes_bounded(self):
         self.assertEqual(
             p.classify_poll_interval("manual", "old", True, "2026-11-18T10:00:00Z"),
@@ -354,6 +364,57 @@ class Phase476Tests(unittest.TestCase):
             self.assertEqual(state["feeds"]["4"]["last_successful_poll_end_utc"], previous_end)
             self.assertEqual(state["feeds"]["4"]["last_poll_status"], "GAP_OR_FETCH_ERROR")
             self.assertEqual(summary["bounded_metadata_rows"], 0)
+            self.assertEqual(summary["new_event_rows"], 0)
+            self.assertEqual(summary["incomplete_poll_candidate_rows_suppressed"], 1)
+            self.assertFalse((data_dir / "events.csv").exists())
+
+    def test_incomplete_poll_candidates_can_be_reconciled_on_successful_retry(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            data_dir = root / "data"
+            output_dir = root / "output"
+            prior = "0000000001-25-999999"
+            new_accession = "0000000001-26-000034"
+            baseline = feed(entry(prior, updated="2026-11-18T09:00:00Z"))
+            incomplete = feed(entry(new_accession, updated="2026-11-18T10:30:30Z"))
+            retry = feed(
+                entry(new_accession, updated="2026-11-18T10:30:30Z"),
+                entry(prior, updated="2026-11-18T09:00:00Z"),
+            )
+            with (
+                patch.object(p, "DATA_DIR", data_dir),
+                patch.object(p, "STATE_PATH", data_dir / "state.json"),
+                patch.object(p, "EVENTS_PATH", data_dir / "events.csv"),
+                patch.object(p, "OBSERVATIONS_PATH", data_dir / "feed_observations.csv"),
+                patch.object(p, "FEEDS", {"4": self.url}),
+                patch.object(p, "MAX_FEED_PAGES", 1),
+                patch.object(p.p401, "fetch_bytes", side_effect=[baseline, incomplete, retry]),
+                patch.object(p, "now_utc", side_effect=[
+                    "2026-11-18T10:00:00Z", "2026-11-18T10:00:01Z", "2026-11-18T10:00:02Z",
+                    "2026-11-18T10:30:00Z", "2026-11-18T10:30:01Z", "2026-11-18T10:30:02Z",
+                    "2026-11-18T11:00:00Z", "2026-11-18T11:00:01Z", "2026-11-18T11:00:02Z",
+                ]),
+            ):
+                p.run_capture("schedule", "baseline-run", output_dir)
+                failed = p.run_capture("schedule", "gap-run", output_dir)
+                self.assertEqual(failed["new_event_rows"], 0)
+                self.assertEqual(failed["incomplete_poll_candidate_rows_suppressed"], 1)
+                with (data_dir / "events.csv").open(newline="", encoding="utf-8") as handle:
+                    after_gap = list(csv.DictReader(handle))
+                self.assertEqual([row["accession"] for row in after_gap], [prior])
+
+                recovered = p.run_capture("schedule", "retry-run", output_dir)
+
+            self.assertEqual(recovered["new_event_rows"], 1)
+            self.assertEqual(recovered["bounded_metadata_rows"], 1)
+            with (data_dir / "events.csv").open(newline="", encoding="utf-8") as handle:
+                rows = list(csv.DictReader(handle))
+            self.assertEqual(len(rows), 2)
+            new_row = next(row for row in rows if row["accession"] == new_accession)
+            self.assertEqual(new_row["first_seen_interval_status"], "BOUNDED_METADATA_ONLY")
+            self.assertEqual(new_row["first_seen_interval_lower_bound_utc"], "2026-11-18T10:00:02Z")
+            self.assertEqual(new_row["first_seen_at_utc"], "2026-11-18T11:00:01Z")
+            self.assertEqual(new_row["signal_eligible"], "False")
 
     def test_duplicate_accession_is_not_appended_twice(self):
         with tempfile.TemporaryDirectory() as tmp:

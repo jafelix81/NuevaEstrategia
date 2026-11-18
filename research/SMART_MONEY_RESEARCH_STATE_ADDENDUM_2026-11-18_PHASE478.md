@@ -1,0 +1,9 @@
+# Smart Money Research state addendum — Phase 478 (2026-11-18)
+
+- Pre-live review of Phase 476/477 found two defects before the first scheduled Form 4/4-A poll: timezone-naive Atom `updated` values were silently treated as UTC, and candidates collected before an incomplete watermark/pagination poll were appended to the canonical event ledger, preventing later successful retry reconciliation.
+- Hardened `parse_utc` to reject datetimes without an explicit timezone offset. Naive/missing Atom timestamps now remain `FEED_OR_RECEIPT_TIMESTAMP_UNKNOWN`.
+- Incomplete polls no longer emit canonical event rows. Page observations and candidate/suppressed counts remain available; the last successful watermark and poll-end are not advanced. A subsequent complete retry can evaluate the same accession against the unchanged prior-success interval.
+- Added two offline regressions: explicit timezone requirement and baseline → incomplete poll → successful retry recovery. The existing gap test now asserts that incomplete candidates are not written to `events.csv`.
+- At audit cutoff 2026-11-18 11:13 UTC, Phase 476's next scheduled slot (11:17 UTC) was still in the future; no live SEC Form 4/4-A request or artifact was created. Latest CI [44292113931](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44292113931) passed the prior 35-test suite; live capture was skipped.
+- No filing XML/text, transaction rows, owner attribution, prices, alpha, backtest, OOS, bootstrap, LOO or holdout test. `F80_TOP20_PARTIAL50_BASELINE_C20` and production remain frozen.
+- Report: [Phase 478](research/PHASE478_SEC_FORM4_FAIL_CLOSED_RETRY_INTEGRITY_2026-11-18.md) · [summary](research/PHASE478_SEC_FORM4_FAIL_CLOSED_RETRY_INTEGRITY_SUMMARY_2026-11-18.json).

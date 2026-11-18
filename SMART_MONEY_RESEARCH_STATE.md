@@ -1470,3 +1470,13 @@ This section supersedes any older “in progress” status above where later com
 - Phase 476 first scheduled baseline remains pending at the next weekday minute-17 UTC slot. Phase 403 Form 144 still has a delivery gap; issue #136 requests a manual enabled-state/default-branch check. Cboe sample artifact issue #132 remains unresolved.
 - No event study, backtest, alpha, OOS, bootstrap, LOO or holdout test. F80_TOP20_PARTIAL50_BASELINE_C20 and production remain frozen.
 - Report: [Phase 477](research/PHASE477_SEC_FORM4_FEED_TIMESTAMP_CONSISTENCY_GATE_2026-11-18.md) · [summary](research/PHASE477_SEC_FORM4_FEED_TIMESTAMP_CONSISTENCY_GATE_SUMMARY_2026-11-18.json).
+
+
+## Phase 478 — SEC Form 4/4-A fail-closed timestamp and retry integrity hardening (2026-11-18)
+
+- Corrected two latent Phase 476 collector defects before the first live poll: timezone-naive Atom `updated` values can no longer be silently interpreted as UTC; candidates from incomplete watermark/pagination polls are no longer appended to canonical `events.csv` and cannot poison later successful retries.
+- Incomplete polls retain page-level observations and candidate/suppressed counts, but do not advance the last successful watermark/end or create canonical event rows. A later complete retry can re-evaluate the same accession. Naive/missing timestamps remain quarantined.
+- Added two offline regressions (expected suite 37 tests): naive timestamp rejection and baseline → incomplete poll → successful retry recovery; strengthened the existing gap test.
+- Preflight at 2026-11-18 11:13 UTC: main `b17b5c53d3dcc16d8bed70a64e7a292989988801`; 7,836 Actions runs; active/queued 0/0. Latest Phase 476 CI [44292113931](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44292113931) passed the prior 35 tests; live capture skipped, no artifact. First scheduled Phase 476 slot at 11:17 UTC remained pending. No manual dispatch or duplicate workflow.
+- No live SEC data, filing XML/text, transaction rows, price data, alpha, backtest, OOS, bootstrap, LOO or holdout test. `F80_TOP20_PARTIAL50_BASELINE_C20` and production remain frozen.
+- Report: [Phase 478](research/PHASE478_SEC_FORM4_FAIL_CLOSED_RETRY_INTEGRITY_2026-11-18.md) · [summary](research/PHASE478_SEC_FORM4_FAIL_CLOSED_RETRY_INTEGRITY_SUMMARY_2026-11-18.json).

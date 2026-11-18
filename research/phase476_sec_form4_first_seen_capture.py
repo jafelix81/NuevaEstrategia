@@ -65,8 +65,10 @@ def parse_utc(value: str | None):
         dt = datetime.fromisoformat(str(value).strip().replace("Z", "+00:00"))
     except ValueError:
         return None
-    if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=timezone.utc)
+    # Atom updated must carry an explicit UTC offset.  A naive timestamp
+    # cannot be made PIT-safe by guessing that it means UTC.
+    if dt.tzinfo is None or dt.utcoffset() is None:
+        return None
     return dt.astimezone(timezone.utc)
 
 
@@ -340,47 +342,49 @@ def fetch_feed(
     new_latest = first_page_entries[0]["accession"] if first_page_entries else prior
     latest_updated = first_page_entries[0]["feed_updated_utc"] if first_page_entries else ""
 
+    candidate_event_count = len(combined)
     event_rows = []
-    for item in combined:
-        received = item["_page_received_at_utc"]
-        event_interval_status = classify_interval(
-            mode, prior, watermark_found, previous_end,
-            item["feed_updated_utc"], received,
-        )
-        bounded = event_interval_status == "BOUNDED_METADATA_ONLY"
-        event_rows.append({
-            "accession": item["accession"],
-            "form": item["form"],
-            "feed_name": item["feed_name"],
-            "filing_date": item["filing_date"],
-            "filing_url": item["filing_url"],
-            "feed_path_cik_unverified": item["feed_path_cik_unverified"],
-            "feed_updated_raw": item["feed_updated_raw"],
-            "feed_updated_utc": item["feed_updated_utc"],
-            "first_seen_at_utc": received,
-            "first_seen_poll_started_utc": "",
-            "first_seen_poll_ended_utc": "",
-            "first_seen_interval_lower_bound_utc": previous_end if bounded else "",
-            "first_seen_interval_upper_bound_utc": received,
-            "first_seen_interval_status": event_interval_status,
-            "first_seen_poll_run_id": run_id,
-            "capture_mode": mode,
-            "feed_page_offset": item["_page_offset"],
-            "feed_page_raw_sha256": item["_page_sha256"],
-            "feed_page_received_at_utc": received,
-            "acceptance_datetime_utc": "",
-            "acceptance_clock_status": "NOT_FETCHED_METADATA_ONLY",
-            "security_identity_verified": False,
-            "historical_f80_membership_verified": False,
-            "owner_attribution_verified": False,
-            "transaction_semantics_verified": False,
-            "public_availability_certified": False,
-            "event_metadata_interval_bounded": bounded,
-            "research_observation_eligible": False,
-            "signal_eligible": False,
-            "same_day_intraday_use_authorized": False,
-            "first_seen_is_upper_bound_not_exact_receipt": True,
-        })
+    if poll_success:
+        for item in combined:
+            received = item["_page_received_at_utc"]
+            event_interval_status = classify_interval(
+                mode, prior, watermark_found, previous_end,
+                item["feed_updated_utc"], received,
+            )
+            bounded = event_interval_status == "BOUNDED_METADATA_ONLY"
+            event_rows.append({
+                "accession": item["accession"],
+                "form": item["form"],
+                "feed_name": item["feed_name"],
+                "filing_date": item["filing_date"],
+                "filing_url": item["filing_url"],
+                "feed_path_cik_unverified": item["feed_path_cik_unverified"],
+                "feed_updated_raw": item["feed_updated_raw"],
+                "feed_updated_utc": item["feed_updated_utc"],
+                "first_seen_at_utc": received,
+                "first_seen_poll_started_utc": "",
+                "first_seen_poll_ended_utc": "",
+                "first_seen_interval_lower_bound_utc": previous_end if bounded else "",
+                "first_seen_interval_upper_bound_utc": received,
+                "first_seen_interval_status": event_interval_status,
+                "first_seen_poll_run_id": run_id,
+                "capture_mode": mode,
+                "feed_page_offset": item["_page_offset"],
+                "feed_page_raw_sha256": item["_page_sha256"],
+                "feed_page_received_at_utc": received,
+                "acceptance_datetime_utc": "",
+                "acceptance_clock_status": "NOT_FETCHED_METADATA_ONLY",
+                "security_identity_verified": False,
+                "historical_f80_membership_verified": False,
+                "owner_attribution_verified": False,
+                "transaction_semantics_verified": False,
+                "public_availability_certified": False,
+                "event_metadata_interval_bounded": bounded,
+                "research_observation_eligible": False,
+                "signal_eligible": False,
+                "same_day_intraday_use_authorized": False,
+                "first_seen_is_upper_bound_not_exact_receipt": True,
+            })
 
     return {
         "feed_name": feed_name,
@@ -395,6 +399,8 @@ def fetch_feed(
         "page_error": page_error or {},
         "raw_page_count": len(pages),
         "new_accession_count": len(event_rows),
+        "candidate_accession_count": candidate_event_count,
+        "suppressed_incomplete_poll_candidate_count": candidate_event_count if not poll_success else 0,
         "bounded_metadata_count": sum(1 for row in event_rows if row["event_metadata_interval_bounded"]),
     }
 
@@ -453,7 +459,8 @@ def run_capture(mode: str, run_id: str, output_dir: Path) -> dict:
             key: result[key] for key in (
                 "prior_watermark", "watermark_found", "poll_success", "interval_status",
                 "new_latest_accession", "latest_feed_updated_utc", "raw_page_count",
-                "new_accession_count", "bounded_metadata_count", "page_error",
+                "new_accession_count", "candidate_accession_count",
+                "suppressed_incomplete_poll_candidate_count", "bounded_metadata_count", "page_error",
             )
         }
         observation_rows.extend(result["page_observations"])
@@ -503,6 +510,9 @@ def run_capture(mode: str, run_id: str, output_dir: Path) -> dict:
         "feed_count": len(FEEDS),
         "feeds": feed_summaries,
         "new_event_rows": len(event_rows),
+        "incomplete_poll_candidate_rows_suppressed": sum(
+            result["suppressed_incomplete_poll_candidate_count"] for result in feed_updates.values()
+        ),
         "bounded_metadata_rows": sum(1 for row in event_rows if row["event_metadata_interval_bounded"]),
         "research_observation_eligible_rows": 0,
         "signal_eligible_rows": 0,
