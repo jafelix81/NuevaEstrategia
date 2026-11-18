@@ -1,63 +1,69 @@
 {
   "phase": 473,
-  "audit_time_utc": "2026-11-18T07:19:00Z",
+  "audit_time_utc": "2026-11-18T07:23:00Z",
   "base_main_sha": "cdb6f13ab4fab8929c211430f90d86af9dad869b",
+  "historical_phase20c_run": {
+    "run_id": 40098425254,
+    "created_at": "2026-10-24T13:30:26Z",
+    "yfinance_version": "1.7.0",
+    "downloaded": 335,
+    "valid_universe": 329
+  },
   "phase381_artifact": {
     "id": 14073108228,
     "sha256": "c88e350c188e513e9ac7995aad859ec1b02040e7a2f9586ce1f063bf7f6537ef"
   },
-  "corrected_yahoo_runs": [
+  "yahoo_chart_runs": [
     {
       "run_id": 44256975655,
-      "artifact_id": 14405593899,
       "roku_rows": 2280,
       "roku_first": "2017-09-28",
       "roku_last": "2026-10-23"
     },
     {
       "run_id": 44256978857,
-      "artifact_id": 14406159108,
       "roku_rows": 2280,
       "roku_first": "2017-09-28",
       "roku_last": "2026-10-23"
+    },
+    {
+      "run_id": 44257792682,
+      "roku_rows": 0,
+      "all_seven_missing_rows": 0
     }
   ],
-  "final_run": {
+  "yfinance_1_8_0_run": {
     "run_id": 44257792682,
-    "artifact_id": 14405904263,
-    "artifact_sha256": "9af4c86cbf33df3d193c112b28ccef74c43f1755ecdf60b3ec0c6cb54689f2d2",
-    "offline_tests": 8,
-    "live_probe": "success",
-    "yfinance_version": "1.8.0"
+    "version": "1.8.0",
+    "controls_rows_each": 2512,
+    "missing_rows": {
+      "AVB": 1,
+      "EA": 1,
+      "EQR": 1,
+      "LPRO": 1,
+      "ROKU": 2,
+      "WBD": 1,
+      "WBS": 1
+    }
+  },
+  "yfinance_1_7_0_run": {
+    "run_id": 44258206531,
+    "artifact_id": 14406294665,
+    "artifact_sha256": "1d0ea188a9d5ac0bcdf273a0d539cc6863ec53eb7cf2edde77458feb217a5fb2",
+    "version": "1.7.0",
+    "controls_rows_each": 2512,
+    "missing_rows": {
+      "AVB": 1,
+      "EA": 1,
+      "EQR": 1,
+      "LPRO": 1,
+      "ROKU": 2,
+      "WBD": 1,
+      "WBS": 1
+    },
+    "all_missing_220_gate": false
   },
   "final_provider_results": {
-    "yahoo_query1": {
-      "controls_nonempty": 4,
-      "missing_nonempty": 0,
-      "roku_rows": 0,
-      "disposition": "VALID_CONTROLS_BUT_MISSING_SYMBOL_RESPONSES_EMPTY"
-    },
-    "yahoo_query2": {
-      "controls_nonempty": 4,
-      "missing_nonempty": 0,
-      "roku_rows": 0,
-      "disposition": "VALID_CONTROLS_BUT_MISSING_SYMBOL_RESPONSES_EMPTY"
-    },
-    "yfinance_phase11_10y": {
-      "controls_nonempty": 4,
-      "missing_nonempty": 7,
-      "missing_rows": {
-        "AVB": 1,
-        "EA": 1,
-        "EQR": 1,
-        "LPRO": 1,
-        "ROKU": 2,
-        "WBD": 1,
-        "WBS": 1
-      },
-      "all_missing_usable_ohlc_220": false,
-      "disposition": "VALID_CONTROLS_BUT_NO_MISSING_SYMBOL_PASSES_220"
-    },
     "stooq": {
       "http_status": 200,
       "content_type": "text/html; charset=utf-8",
@@ -93,7 +99,8 @@
       "WBS"
     ],
     "fallback_admitted": false,
-    "universe_changed": false
+    "universe_changed": false,
+    "provider_drift_since_2026_10_24": true
   },
   "branch_hygiene": {
     "pr57_state": "open_draft",
