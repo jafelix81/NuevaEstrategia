@@ -1,0 +1,105 @@
+{
+  "phase": 490,
+  "audit_cutoff_utc": "2026-11-18T22:25:14Z",
+  "disposition": "SUBMISSIONS_JSON_ACCEPTANCEDATETIME_NOT_CANONICAL_PIT; USE_RAW_SGML_OR_INDEX_HEADER; PUBLIC_AVAILABILITY_REMAINS_UNTIMED",
+  "repository": {
+    "full_name": "jafelix81/NuevaEstrategia",
+    "default_branch": "main",
+    "main_head_at_start": "67b08a6e25e7863dda00f4d8fe98b9aa8ffc3ade",
+    "branches": 316,
+    "open_pull_requests": 56,
+    "open_issues": 2,
+    "repository_wide_actions_run_listing_available_through_connector": false,
+    "no_workflow_dispatched_or_duplicated": true
+  },
+  "latest_known_captures": {
+    "form144": {
+      "run_id": 44396134680,
+      "event": "schedule",
+      "poll_start_utc": "2026-11-18T20:56:07Z",
+      "poll_end_utc": "2026-11-18T20:56:30Z",
+      "offline_tests": 40,
+      "jobs": [
+        "offline-regression:success",
+        "live-capture:success"
+      ],
+      "new_unique_accessions": 51,
+      "total_canonical_events": 247,
+      "complete_polls": 11,
+      "signal_eligible": 0,
+      "public_availability_certified": 0,
+      "artifact_id": 14470455938,
+      "artifact_sha256": "a6d47ef938306f3efa4fcff412c3a737995611030b00a3afe498e5e9ee525d07"
+    },
+    "form4": {
+      "run_id": 44380395679,
+      "event": "schedule",
+      "poll_start_utc": "2026-11-18T19:26:00Z",
+      "poll_end_utc": "2026-11-18T19:26:08Z",
+      "offline_tests": 37,
+      "jobs": [
+        "offline-regression:success",
+        "live-capture:success"
+      ],
+      "unique_accessions": 35,
+      "interval_status": "INITIAL_BASELINE_NO_LOWER_BOUND",
+      "bounded_metadata_rows": 0,
+      "research_observation_eligible_rows": 0,
+      "signal_eligible_rows": 0,
+      "persisted_state_last_successful_poll_end_utc": "2026-11-18T19:26:08Z",
+      "later_successful_state_commit_evidenced": false,
+      "run_listing_limitation": "Cannot distinguish absent, delayed, failed or still-running schedule attempt from connector data alone"
+    }
+  },
+  "timestamp_source_policy": {
+    "submissions_json_acceptanceDateTime": "advisory_only_not_canonical",
+    "canonical_acceptance": "raw SGML ACCEPTANCE-DATETIME or accession -index-headers.html",
+    "timezone": "America/New_York",
+    "crosscheck": "filing detail -index.htm Accepted",
+    "public_availability": "not exactly timestamped by SEC; use prospective first-seen receipt upper bound",
+    "historical_execution": "conservative filing-date-only next-XNYS-session boundary; no same-day intraday use",
+    "fixed_offset_correction": "prohibited"
+  },
+  "empirical_external_evidence": {
+    "source": "EdgarTools issue #1501",
+    "opened": "2026-10-08",
+    "discussed_through": "2026-10-28",
+    "findings": [
+      "JSON timestamp differed from SGML/index for sampled filings",
+      "same accession could differ across issuer and reporting-person submissions files",
+      "values changed after file rebuilds",
+      "three observed conventions: true UTC, Eastern wall time labelled Z, one Eastern offset shifted",
+      "maintainer rejected a per-file offset correction"
+    ]
+  },
+  "official_sec_evidence": {
+    "submissions_api": "real-time metadata; historical files linked; bulk ZIP nightly",
+    "acceptance_header": "ACCEPTANCE-DATETIME in complete submission text; Eastern time",
+    "public_release": "SEC states no exact public-availability timestamp; often 1-3 minutes after acceptance but not guaranteed"
+  },
+  "changes": {
+    "code_changed": false,
+    "workflow_changed": false,
+    "raw_sec_documents_downloaded": false,
+    "market_data_downloaded": false,
+    "backtest": false,
+    "event_study": false,
+    "oos": false,
+    "bootstrap": false,
+    "loo": false,
+    "holdout_used": false,
+    "production_changed": false,
+    "new_signals_admitted": 0
+  },
+  "strategy": {
+    "name": "F80_TOP20_PARTIAL50_BASELINE_C20",
+    "frozen": true
+  },
+  "references": {
+    "sec_api": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
+    "sec_faq": "https://www.sec.gov/about/webmaster-frequently-asked-questions",
+    "edgartools_issue": "https://github.com/dgunning/edgartools/issues/1501",
+    "form144_run": "https://github.com/jafelix81/NuevaEstrategia/actions/runs/44396134680",
+    "form4_run": "https://github.com/jafelix81/NuevaEstrategia/actions/runs/44380395679"
+  }
+}
