@@ -1,0 +1,50 @@
+{
+  "phase": 470,
+  "audit_time_utc": "2026-11-18",
+  "disposition": "DELAYED_FIRST_LOCAL_RECEIPT_ALLOWED_ONLY_WITH_PRIOR_SCHEDULED_NOT_AVAILABLE_EVIDENCE; NO_SIGNAL_OR_ALPHA",
+  "main_head": "843dcf2601ab04e0a7901f9b988c99252ed68115",
+  "pr_129_merged": true,
+  "phase469_schedule_utc": [
+    "30 22 * * 1-5",
+    "30 23 * * 1-5"
+  ],
+  "first_post_merge_poll_utc": "2026-11-18T22:30:00Z",
+  "run_evidence": {
+    "phase469_pr_run": 44224662699,
+    "offline_tests_passed": 20,
+    "live_capture": "skipped_as_designed_on_pull_request",
+    "artifacts": 0,
+    "sec403_last_known_run": 44179257367,
+    "sec403_jobs": "offline and live capture succeeded",
+    "sec403_artifact": 14371301851,
+    "cftc384_last_known_run": 43525140200,
+    "cftc384_job": "bootstrap succeeded; not scheduled prospective capture",
+    "cftc384_artifact": 14084802705,
+    "current_global_run_inventory": "not exposed by connected GitHub interface"
+  },
+  "new_policy": {
+    "current_trade_date": "first_seen eligible after 16:00 ET on scheduled poll",
+    "prior_trade_date": "late_first_seen eligible only after an earlier scheduled 403/404 poll for same trade date, prior poll end < current poll start, and prior poll at/after 16:00 ET",
+    "no_prior_poll_evidence": "bootstrap",
+    "manual_polls": "never qualify",
+    "revisions": "never qualify as new first-seen",
+    "signal_eligible": false
+  },
+  "validation": {
+    "phase468_tests_extended": true,
+    "phase469_tests_extended": true,
+    "live_finra_request": false,
+    "price_download": false,
+    "backtest": false,
+    "oos": false,
+    "bootstrap_or_loo": false
+  },
+  "strategy": {
+    "f80_frozen": true,
+    "universe_changed": false,
+    "parameters_changed": false,
+    "capital_or_exposure_changed": false,
+    "holdout_changed": false,
+    "production_changed": false
+  }
+}

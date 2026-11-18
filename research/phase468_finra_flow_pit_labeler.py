@@ -113,7 +113,7 @@ def build_executable_labels(
     Each flow observation must represent the first-seen version of one
     symbol/trade-date row from a raw FINRA daily file. Required provenance:
     poll_start_utc, first_seen_utc, poll_end_utc, HTTP 200, SHA-256, row_count,
-    schema_version, and observation_kind='first_seen'.
+    schema_version, and observation_kind='first_seen' or 'late_first_seen'.
 
     first_seen_utc is the local first-receipt time (a conservative upper bound
     on public availability), not a claim about the exact instant FINRA first
@@ -162,7 +162,8 @@ def build_executable_labels(
             key = (symbol, trade_date)
             if key_counts[key] > 1:
                 raise ValueError("duplicate_first_seen_symbol_trade_date")
-            if raw.get("observation_kind") != "first_seen":
+            observation_kind = raw.get("observation_kind")
+            if observation_kind not in {"first_seen", "late_first_seen"}:
                 raise ValueError("observation_not_first_seen")
             try:
                 status_value = float(raw.get("http_status"))
@@ -228,6 +229,7 @@ def build_executable_labels(
             row: dict[str, Any] = {
                 "symbol": symbol,
                 "trade_date": trade_date.isoformat(),
+                "observation_kind": observation_kind,
                 "poll_start_utc": poll_start.isoformat().replace("+00:00", "Z"),
                 "first_seen_utc": first_seen.isoformat().replace("+00:00", "Z"),
                 "poll_end_utc": poll_end.isoformat().replace("+00:00", "Z"),
@@ -310,6 +312,9 @@ def build_executable_labels(
         "summary": {
             "input_events": len(observations),
             "eligible_events": len(labels),
+            "late_first_seen_events": sum(
+                1 for row in labels if row.get("observation_kind") == "late_first_seen"
+            ),
             "rejected_events": len(rejections),
             "horizon_counts": horizon_counts,
             "entry_convention": "first_session_open_strictly_after_first_seen",

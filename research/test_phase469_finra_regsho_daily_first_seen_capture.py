@@ -140,6 +140,48 @@ class TestPhase469Capture(unittest.TestCase):
             self.assertEqual(event["first_seen_kind"], "first_seen")
             self.assertFalse(summary["raw_market_data_persisted"])
 
+    def test_late_first_seen_requires_prior_scheduled_not_available_and_expands(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            def unavailable(url):
+                return 403, b"", "not available at prior scheduled poll"
+            run_capture(
+                mode="schedule", run_id="late-a", data_dir=root / "data",
+                output_dir=root / "out-a", lookback_days=1,
+                now_fn=self.fixed_now, fetcher=unavailable,
+            )
+            self.now = datetime(2026, 11, 18, 22, 30, tzinfo=timezone.utc)
+            payload = file_bytes(
+                day="20261117",
+                rows=["20261117|ABC|120.5|2.5|300.0|B,Q,N"],
+            )
+            def delayed_fetch(url):
+                if "CNMSshvol20261117.txt" in url:
+                    return 200, payload, ""
+                return 403, b"", "not available"
+            summary = run_capture(
+                mode="schedule", run_id="late-b", data_dir=root / "data",
+                output_dir=root / "out-b", lookback_days=2,
+                now_fn=self.fixed_now, fetcher=delayed_fetch,
+            )
+            self.assertEqual(summary["counts"]["late_first_seen"], 1)
+            self.assertEqual(summary["research_observation_eligible_count"], 1)
+            self.assertEqual(summary["signal_eligible_count"], 0)
+            state = json.loads((root / "data" / "state.json").read_text())
+            self.assertEqual(
+                state["files"]["2026-11-17"]["first_seen_kind"], "late_first_seen"
+            )
+            with (root / "data" / "events.csv").open(newline="") as handle:
+                events = list(csv.DictReader(handle))
+            late_event = next(x for x in events if x["observation_kind"] == "late_first_seen")
+            self.assertEqual(late_event["research_observation_eligible"], "True")
+            self.assertEqual(late_event["signal_eligible"], "False")
+            parsed = parse_finra_file(payload, date(2026, 11, 17))
+            expanded = build_symbol_observations(parsed, late_event)
+            self.assertEqual(len(expanded), 1)
+            self.assertEqual(expanded[0]["observation_kind"], "late_first_seen")
+            self.assertEqual(expanded[0]["first_seen_utc"], late_event["first_seen_utc"])
+
     def test_old_date_first_capture_is_bootstrap_not_eligible(self):
         payload = file_bytes(day="20261116", rows=["20261116|ABC|1|0|2|N"])
         def fetch(url):

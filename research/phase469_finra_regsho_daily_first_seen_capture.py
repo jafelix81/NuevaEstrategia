@@ -154,7 +154,8 @@ def build_symbol_observations(parsed: dict[str, Any], file_event: dict[str, Any]
     """Expand a hash-verified file event in memory for the Phase 468 PIT labeler."""
     if not file_event.get("research_observation_eligible"):
         return []
-    if file_event.get("observation_kind") != "first_seen":
+    observation_kind = file_event.get("observation_kind")
+    if observation_kind not in {"first_seen", "late_first_seen"}:
         return []
     if parsed.get("raw_sha256") != file_event.get("raw_sha256"):
         raise ValueError("raw_file_hash_does_not_match_first_seen_manifest")
@@ -176,7 +177,7 @@ def build_symbol_observations(parsed: dict[str, Any], file_event: dict[str, Any]
             "raw_sha256": parsed["raw_sha256"],
             "row_count": parsed["row_count"],
             "schema_version": parsed["schema_version"],
-            "observation_kind": "first_seen",
+            "observation_kind": observation_kind,
         }
         for row in parsed["rows"]
     ]
@@ -209,6 +210,49 @@ def _load_state(path: Path) -> dict[str, Any]:
     if state.get("version") != 1 or not isinstance(state.get("files"), dict):
         raise ValueError("state_schema_invalid")
     return state
+
+
+def _has_prior_scheduled_not_available(
+    path: Path,
+    trade_date: date,
+    current_poll_start: datetime,
+    current_run_id: str,
+) -> bool:
+    """Return True only when an earlier scheduled poll failed to receive this date.
+
+    This is collector-specific evidence, not a claim that FINRA had not made
+    the file public. It allows a later first receipt to be timestamped honestly
+    and traded only after that later receipt; it never backdates availability.
+    """
+    if not path.exists():
+        return False
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle)
+        required = {"run_id", "mode", "trade_date", "poll_end_utc", "poll_status"}
+        if reader.fieldnames is None or not required.issubset(set(reader.fieldnames)):
+            raise ValueError("prior_poll_ledger_schema_invalid")
+        for row in reader:
+            if row.get("trade_date") != trade_date.isoformat():
+                continue
+            if row.get("mode") != "schedule" or row.get("poll_status") != "not_available":
+                continue
+            if row.get("run_id") == str(current_run_id):
+                continue
+            raw_end = str(row.get("poll_end_utc", "")).strip()
+            try:
+                previous_end = datetime.fromisoformat(raw_end.replace("Z", "+00:00"))
+            except ValueError:
+                raise ValueError("prior_poll_timestamp_invalid") from None
+            if previous_end.tzinfo is None or previous_end.utcoffset() is None:
+                raise ValueError("prior_poll_timestamp_timezone_missing")
+            previous_end = previous_end.astimezone(timezone.utc)
+            current_start = current_poll_start.astimezone(timezone.utc)
+            if previous_end >= current_start:
+                continue
+            previous_ny = previous_end.astimezone(NY)
+            if previous_ny.date() >= trade_date and previous_ny.time() >= time(16, 0):
+                return True
+    return False
 
 
 def _append_csv(path: Path, fields: list[str], rows: list[dict[str, Any]]) -> None:
@@ -272,7 +316,8 @@ def run_capture(
     poll_rows: list[dict[str, Any]] = []
     event_rows: list[dict[str, Any]] = []
     counts = {
-        "http_200": 0, "valid_files": 0, "first_seen": 0, "bootstrap": 0,
+        "http_200": 0, "valid_files": 0, "first_seen": 0,
+        "late_first_seen": 0, "bootstrap": 0,
         "revisions": 0, "unchanged": 0, "not_available": 0,
         "http_errors": 0, "invalid_files": 0, "eligible_first_seen": 0,
     }
@@ -322,12 +367,31 @@ def run_capture(
                 if previous is None:
                     if mode == "manual":
                         observation_kind = "manual_diagnostic"
-                    elif trade_date == ny_now.date() and ny_now.time() >= time(16, 0) and parsed["row_count"] > 0:
+                    elif (
+                        trade_date == ny_now.date()
+                        and ny_now.time() >= time(16, 0)
+                        and parsed["row_count"] > 0
+                    ):
                         observation_kind = "first_seen"
+                        eligible = True
+                    elif (
+                        trade_date < ny_now.date()
+                        and ny_now.time() >= time(16, 0)
+                        and parsed["row_count"] > 0
+                        and _has_prior_scheduled_not_available(
+                            data_dir / "polls.csv", trade_date, poll_start, run_id
+                        )
+                    ):
+                        observation_kind = "late_first_seen"
                         eligible = True
                     else:
                         observation_kind = "bootstrap"
-                    counts["first_seen" if observation_kind in {"first_seen", "manual_diagnostic"} else "bootstrap"] += 1
+                    if observation_kind in {"first_seen", "manual_diagnostic"}:
+                        counts["first_seen"] += 1
+                    elif observation_kind == "late_first_seen":
+                        counts["late_first_seen"] += 1
+                    else:
+                        counts["bootstrap"] += 1
                     event_rows.append({
                         "run_id": run_id, "trade_date": key,
                         "observation_kind": observation_kind,
