@@ -5,6 +5,7 @@ from research.phase473_price_provider_response_audit import (
     MISSING,
     build_summary,
     classify_provider,
+    valid_close_dates,
 )
 
 
@@ -43,6 +44,14 @@ class Phase473Tests(unittest.TestCase):
         result = classify_provider(sample, "stooq")
         self.assertEqual(result["control_nonempty_count"], 0)
         self.assertFalse(result["method_validated_by_controls"])
+
+    def test_yahoo_timestamp_without_close_is_not_a_price_observation(self):
+        dates = valid_close_dates([1792800000, 1792886400], [None, 0])
+        self.assertEqual(dates, [])
+
+    def test_yahoo_counts_only_positive_finite_close_dates(self):
+        dates = valid_close_dates([1792800000, 1792886400, 1792972800], [10.0, None, float("nan")])
+        self.assertEqual(len(dates), 1)
 
     def test_summary_is_metadata_only_and_fallback_remains_false(self):
         rows = records("yahoo", [10, 10, 10, 10], [0] * 7)
