@@ -1,6 +1,6 @@
 {
   "phase": 468,
-  "audit_time_utc": "2026-11-18T01:13:00Z",
+  "audit_time_utc": "2026-11-18T01:21:00Z",
   "disposition": "STRICT_FIRST_RECEIPT_LABELER_IMPLEMENTED; NO_HISTORICAL_TIMESTAMP_IMPUTATION; NO_ALPHA",
   "branch": "phase467-finra-regsho-flow-pit-label-audit",
   "base_main_head": "bc4a2ccecd32962340831eea54563743dadfe6c6",
@@ -30,10 +30,15 @@
   "tests": {
     "count": 30,
     "result": "passed locally",
-    "market_data_downloaded": false
+    "market_data_downloaded": false,
+    "github_actions_run": 44214907592,
+    "github_actions_result": "success",
+    "github_actions_job": "offline-pit-regression",
+    "github_actions_count": 30,
+    "artifacts": 0
   },
   "actions_preflight": {
-    "total_runs": 7730,
+    "total_runs": 7739,
     "in_progress": 0,
     "queued": 0,
     "branches": 300,
@@ -43,7 +48,11 @@
       44209207126
     ],
     "latest_pr129_checks": "success",
-    "artifacts_for_latest_pr129_runs": 0
+    "artifacts_for_latest_pr129_runs": 0,
+    "final_pr_checks": [
+      44214961524,
+      44214961445
+    ]
   },
   "scheduled_delivery": {
     "sec_form144_latest_scheduled_run": 44179257367,
