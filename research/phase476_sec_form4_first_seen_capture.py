@@ -173,7 +173,7 @@ def parse_atom_feed(raw: bytes | str, feed_name: str, feed_url: str) -> list[dic
     return entries
 
 
-def classify_interval(
+def classify_poll_interval(
     mode: str,
     prior_watermark: str | None,
     watermark_found: bool,
@@ -187,6 +187,37 @@ def classify_interval(
         return "GAP_OR_WATERMARK_NOT_FOUND"
     if not previous_successful_poll_end:
         return "NO_PRIOR_SUCCESSFUL_POLL"
+    return "POLL_WATERMARK_BOUNDED"
+
+
+def classify_interval(
+    mode: str,
+    prior_watermark: str | None,
+    watermark_found: bool,
+    previous_successful_poll_end: str | None,
+    feed_updated_utc: str | None = None,
+    first_seen_at_utc: str | None = None,
+) -> str:
+    """Bound an event only if the source feed timestamp falls inside our poll interval.
+
+    Atom updated is not asserted to be the exact public-availability time. It is
+    used only as a consistency guard: stale, missing or future source timestamps
+    cannot be promoted to bounded metadata observations.
+    """
+    poll_status = classify_poll_interval(
+        mode, prior_watermark, watermark_found, previous_successful_poll_end
+    )
+    if poll_status != "POLL_WATERMARK_BOUNDED":
+        return poll_status
+    feed_updated = parse_utc(feed_updated_utc)
+    lower = parse_utc(previous_successful_poll_end)
+    upper = parse_utc(first_seen_at_utc)
+    if feed_updated is None or lower is None or upper is None:
+        return "FEED_OR_RECEIPT_TIMESTAMP_UNKNOWN"
+    if feed_updated <= lower:
+        return "FEED_TIMESTAMP_NOT_AFTER_PREVIOUS_POLL"
+    if feed_updated > upper:
+        return "FEED_TIMESTAMP_AFTER_FIRST_SEEN"
     return "BOUNDED_METADATA_ONLY"
 
 
@@ -305,14 +336,18 @@ def fetch_feed(
     poll_success = bool(
         pages and page_error is None and (not prior or watermark_found)
     )
-    interval_status = classify_interval(mode, prior, watermark_found, previous_end)
+    poll_interval_status = classify_poll_interval(mode, prior, watermark_found, previous_end)
     new_latest = first_page_entries[0]["accession"] if first_page_entries else prior
     latest_updated = first_page_entries[0]["feed_updated_utc"] if first_page_entries else ""
 
     event_rows = []
     for item in combined:
         received = item["_page_received_at_utc"]
-        bounded = interval_status == "BOUNDED_METADATA_ONLY"
+        event_interval_status = classify_interval(
+            mode, prior, watermark_found, previous_end,
+            item["feed_updated_utc"], received,
+        )
+        bounded = event_interval_status == "BOUNDED_METADATA_ONLY"
         event_rows.append({
             "accession": item["accession"],
             "form": item["form"],
@@ -327,7 +362,7 @@ def fetch_feed(
             "first_seen_poll_ended_utc": "",
             "first_seen_interval_lower_bound_utc": previous_end if bounded else "",
             "first_seen_interval_upper_bound_utc": received,
-            "first_seen_interval_status": interval_status,
+            "first_seen_interval_status": event_interval_status,
             "first_seen_poll_run_id": run_id,
             "capture_mode": mode,
             "feed_page_offset": item["_page_offset"],
@@ -352,7 +387,7 @@ def fetch_feed(
         "prior_watermark": prior or "",
         "watermark_found": watermark_found,
         "poll_success": poll_success,
-        "interval_status": interval_status,
+        "interval_status": poll_interval_status,
         "new_latest_accession": new_latest or "",
         "latest_feed_updated_utc": latest_updated,
         "event_rows": event_rows,
