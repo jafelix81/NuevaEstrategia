@@ -6,6 +6,7 @@ from research.phase473_price_provider_response_audit import (
     build_summary,
     classify_provider,
     valid_close_dates,
+    normalize_nasdaq_date,
 )
 
 
@@ -52,6 +53,11 @@ class Phase473Tests(unittest.TestCase):
     def test_yahoo_counts_only_positive_finite_close_dates(self):
         dates = valid_close_dates([1792800000, 1792886400, 1792972800], [10.0, None, float("nan")])
         self.assertEqual(len(dates), 1)
+
+    def test_nasdaq_dates_are_normalized_chronologically(self):
+        self.assertEqual(normalize_nasdaq_date("10/24/2016"), "2016-10-24")
+        self.assertEqual(normalize_nasdaq_date("2026-10-23"), "2026-10-23")
+        self.assertEqual(normalize_nasdaq_date("not-a-date"), None)
 
     def test_summary_is_metadata_only_and_fallback_remains_false(self):
         rows = records("yahoo", [10, 10, 10, 10], [0] * 7)

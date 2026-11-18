@@ -18,6 +18,8 @@ from pathlib import Path
 from typing import Any
 
 import requests
+import pandas as pd
+import yfinance as yf
 
 START = "2016-10-24"
 END_EXCLUSIVE = "2026-10-24"
@@ -62,6 +64,18 @@ def valid_close_dates(timestamps: list[Any], closes: list[Any]) -> list[str]:
             if day:
                 dates.append(day)
     return sorted(set(dates))
+
+
+def normalize_nasdaq_date(value: Any) -> str | None:
+    text = clean_text(value, 32)
+    if not text:
+        return None
+    for fmt in ("%m/%d/%Y", "%Y-%m-%d", "%b %d, %Y"):
+        try:
+            return datetime.strptime(text, fmt).date().isoformat()
+        except ValueError:
+            continue
+    return None
 
 
 def request_session() -> requests.Session:
@@ -244,7 +258,7 @@ def fetch_nasdaq(ticker: str, date_format: str) -> dict[str, Any]:
             "root_keys": sorted(str(k) for k in payload.keys())[:30],
             "data_keys": sorted(str(k) for k in data.keys())[:30],
             "trades_table_keys": sorted(str(k) for k in table.keys())[:30],
-            "total_records": table.get("totalRecords"),
+            "total_records": data.get("totalRecords"),
             "schema_valid": isinstance(rows, list),
         })
         if not isinstance(rows, list):
@@ -255,12 +269,76 @@ def fetch_nasdaq(ticker: str, date_format: str) -> dict[str, Any]:
             if not isinstance(row, dict):
                 continue
             value = row.get("date") or row.get("Date")
-            if value:
-                dates.append(clean_text(value, 32))
-        dates = sorted(set(x for x in dates if x))
+            normalized = normalize_nasdaq_date(value)
+            if normalized:
+                dates.append(normalized)
+        dates = sorted(set(dates))
         out.update({
             "status": "ok" if dates else "empty_rows",
             "rows": len(dates),
+            "first_date": dates[0] if dates else None,
+            "last_date": dates[-1] if dates else None,
+        })
+        return out
+    except Exception as exc:
+        out["status"] = "request_or_parse_error"
+        out["error_class"] = type(exc).__name__
+        return out
+
+
+
+def fetch_yfinance(ticker: str) -> dict[str, Any]:
+    """Mirror the Phase 11 download call; persist only counts and date bounds."""
+    out = base_record(ticker, "yfinance_phase11_10y")
+    try:
+        raw = yf.download(
+            ticker,
+            period="10y",
+            interval="1d",
+            auto_adjust=False,
+            progress=False,
+            threads=False,
+            timeout=TIMEOUT,
+        )
+        if raw is None or raw.empty:
+            out["status"] = "empty"
+            return out
+        frame = raw.copy()
+        if isinstance(frame.columns, pd.MultiIndex):
+            frame.columns = [c[0] if isinstance(c, tuple) else c for c in frame.columns]
+        if "Date" not in frame.columns:
+            frame = frame.reset_index()
+        date_col = "Date" if "Date" in frame.columns else frame.columns[0]
+        frame[date_col] = pd.to_datetime(frame[date_col], errors="coerce")
+        frame = (
+            frame.rename(columns={date_col: "Date"})
+            .sort_values("Date")
+            .drop_duplicates("Date")
+            .reset_index(drop=True)
+        )
+        if not {"Open", "Close"}.issubset(frame.columns):
+            out["status"] = "unexpected_yfinance_schema"
+            out["columns"] = [clean_text(x, 32) for x in frame.columns[:30]]
+            return out
+        open_values = pd.to_numeric(frame["Open"], errors="coerce")
+        close_values = pd.to_numeric(frame["Close"], errors="coerce")
+        close_valid = close_values.notna() & (close_values > 0)
+        ohlc_valid = close_valid & open_values.notna() & (open_values > 0)
+        dates = [
+            pd.Timestamp(x).date().isoformat()
+            for x in frame.loc[ohlc_valid, "Date"].tolist()
+            if pd.notna(x)
+        ]
+        dates = sorted(set(dates))
+        out.update({
+            "status": "ok" if len(dates) else "no_usable_ohlc_rows",
+            "schema_valid": True,
+            "yfinance_version": getattr(yf, "__version__", "unknown"),
+            "rows": int(len(frame)),
+            "close_value_count": int(close_valid.sum()),
+            "open_close_value_count": int(ohlc_valid.sum()),
+            "phase11_row_threshold_passed": bool(len(frame) >= 220),
+            "usable_ohlc_220_threshold_passed": bool(len(dates) >= 220),
             "first_date": dates[0] if dates else None,
             "last_date": dates[-1] if dates else None,
         })
@@ -300,6 +378,7 @@ def build_summary(records: list[dict[str, Any]]) -> dict[str, Any]:
     return {
         "phase": 473,
         "audit_time_utc": datetime.now(timezone.utc).isoformat(),
+        "yfinance_version": getattr(yf, "__version__", "unknown"),
         "price_window_start": START,
         "price_window_end_exclusive": END_EXCLUSIVE,
         "controls": list(CONTROLS),
@@ -329,6 +408,10 @@ def run_probe() -> dict[str, Any]:
                 pool.submit(fetch_nasdaq, ticker, "iso"),
             ])
         records = [future.result() for future in as_completed(tasks)]
+    # Exact Phase 11/yfinance path for the seven missing symbols and four controls.
+    # Serial execution mirrors Phase 11's download_universe behavior.
+    for ticker in TICKERS:
+        records.append(fetch_yfinance(ticker))
     records.sort(key=lambda x: (x["provider"], x["ticker"]))
     return build_summary(records)
 

@@ -30,7 +30,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install requests
-        run: pip install requests
+        run: pip install requests yfinance
       - name: Compile and run offline tests
         run: |
           python -m py_compile research/phase473_price_provider_response_audit.py research/test_phase473_price_provider_response_audit.py
