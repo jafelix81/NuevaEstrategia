@@ -66,8 +66,13 @@
     "data_mutated": false
   },
   "validation": {
-    "offline_ci_pending": true,
-    "live_capture_skipped_on_pr": true
+    "offline_ci_pending": false,
+    "offline_ci_run_id": 44304878119,
+    "offline_ci_url": "https://github.com/jafelix81/NuevaEstrategia/actions/runs/44304878119",
+    "offline_ci_conclusion": "success",
+    "tests_passed": 40,
+    "live_capture_skipped_on_pr": true,
+    "artifacts_created": 0
   },
   "research_controls": {
     "f80": "F80_TOP20_PARTIAL50_BASELINE_C20",
@@ -78,5 +83,17 @@
     "loo": false,
     "holdout_untouched": true,
     "new_signals_admitted": 0
+  },
+  "merge": {
+    "pr": 140,
+    "merged": true,
+    "merged_at_utc": "2026-11-18T12:32:51Z",
+    "main_commit": "829fa7240bae3f7d8d1ef945cd0aefae419dbc62"
+  },
+  "post_merge": {
+    "active_runs": 0,
+    "queued_runs": 0,
+    "phase403_next_configured_cron_minute_utc": 47,
+    "phase476_first_live_capture_observed": false
   }
 }
