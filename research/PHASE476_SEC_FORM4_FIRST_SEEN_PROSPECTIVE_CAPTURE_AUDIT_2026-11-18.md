@@ -67,7 +67,7 @@ This phase only builds a future-research metadata clock. It does not overcome th
 
 ## 5. Validation and operational controls
 
-The offline suite covers accession parsing, Form 4/4-A classification, filing date and CIK extraction, UTC conversion, baseline/gap/manual classification, raw-row pagination offsets, watermark discovery, repeated-page detection, page-limit failure, fetch failure and append-only persistence.
+The 27-test offline suite covers accession parsing, Form 4/4-A classification, filing date and CIK extraction, UTC conversion, baseline/gap/manual classification, raw-row pagination offsets, watermark discovery, repeated-page detection, page-limit failure, fetch failure and append-only persistence.
 
 The workflow runs only offline tests on push/PR. Live capture runs only on the scheduled event or explicit manual dispatch. Manual dispatch is diagnostic and does not persist the ledger. Scheduled runs commit metadata to \`research/data/sec_form4_first_seen\` and upload a compact summary artifact; no raw filing bytes are uploaded.
 
