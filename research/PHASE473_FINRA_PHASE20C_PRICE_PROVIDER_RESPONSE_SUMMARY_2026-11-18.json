@@ -1,98 +1,97 @@
 {
   "phase": 473,
-  "audit_time_utc": "2026-11-18T07:16:00Z",
+  "audit_time_utc": "2026-11-18T07:19:00Z",
   "base_main_sha": "cdb6f13ab4fab8929c211430f90d86af9dad869b",
-  "actions": {
-    "total": 7771,
-    "latest_100": {
-      "success": 79,
-      "failure": 15,
-      "cancelled": 6,
-      "active": 0,
-      "queued": 0
-    },
-    "branches": 304,
-    "open_prs": 56,
-    "workflow_files": 78
-  },
   "phase381_artifact": {
     "id": 14073108228,
     "sha256": "c88e350c188e513e9ac7995aad859ec1b02040e7a2f9586ce1f063bf7f6537ef"
   },
-  "live_probe": {
-    "run_id": 44256975655,
-    "artifact_id": 14405593899,
-    "artifact_sha256": "1ea4cab0e7af7d146a300a5d438fcea2e80919fd934cf8aa46ec32d38c4ba645",
+  "corrected_yahoo_runs": [
+    {
+      "run_id": 44256975655,
+      "artifact_id": 14405593899,
+      "roku_rows": 2280,
+      "roku_first": "2017-09-28",
+      "roku_last": "2026-10-23"
+    },
+    {
+      "run_id": 44256978857,
+      "artifact_id": 14406159108,
+      "roku_rows": 2280,
+      "roku_first": "2017-09-28",
+      "roku_last": "2026-10-23"
+    }
+  ],
+  "final_run": {
+    "run_id": 44257792682,
+    "artifact_id": 14405904263,
+    "artifact_sha256": "9af4c86cbf33df3d193c112b28ccef74c43f1755ecdf60b3ec0c6cb54689f2d2",
+    "offline_tests": 8,
+    "live_probe": "success",
+    "yfinance_version": "1.8.0"
+  },
+  "final_provider_results": {
     "yahoo_query1": {
       "controls_nonempty": 4,
-      "missing_nonempty": 1,
-      "rokU_rows": 2280,
-      "rokU_adjusted_close_rows": 2280,
-      "rokU_first": "2017-09-28",
-      "rokU_last": "2026-10-23",
-      "missing_empty": [
-        "AVB",
-        "EA",
-        "EQR",
-        "LPRO",
-        "WBD",
-        "WBS"
-      ]
+      "missing_nonempty": 0,
+      "roku_rows": 0,
+      "disposition": "VALID_CONTROLS_BUT_MISSING_SYMBOL_RESPONSES_EMPTY"
     },
     "yahoo_query2": {
       "controls_nonempty": 4,
-      "missing_nonempty": 1,
-      "rokU_rows": 2280,
-      "rokU_adjusted_close_rows": 2280,
-      "rokU_first": "2017-09-28",
-      "rokU_last": "2026-10-23",
-      "missing_empty": [
-        "AVB",
-        "EA",
-        "EQR",
-        "LPRO",
-        "WBD",
-        "WBS"
-      ]
+      "missing_nonempty": 0,
+      "roku_rows": 0,
+      "disposition": "VALID_CONTROLS_BUT_MISSING_SYMBOL_RESPONSES_EMPTY"
+    },
+    "yfinance_phase11_10y": {
+      "controls_nonempty": 4,
+      "missing_nonempty": 7,
+      "missing_rows": {
+        "AVB": 1,
+        "EA": 1,
+        "EQR": 1,
+        "LPRO": 1,
+        "ROKU": 2,
+        "WBD": 1,
+        "WBS": 1
+      },
+      "all_missing_usable_ohlc_220": false,
+      "disposition": "VALID_CONTROLS_BUT_NO_MISSING_SYMBOL_PASSES_220"
     },
     "stooq": {
       "http_status": 200,
       "content_type": "text/html; charset=utf-8",
       "response_bytes": 796,
-      "controls_nonempty": 0,
-      "missing_nonempty": 0,
       "disposition": "PROVIDER_METHOD_UNVALIDATED"
     },
     "nasdaq_us_slash": {
       "embedded_r_code": 400,
       "error_code": 1011,
-      "error_message": "Bad or No parameter fromdate : 10/24/2016",
       "disposition": "INVALID_DATE_PARAMETER"
     },
     "nasdaq_iso": {
       "controls_nonempty": 3,
-      "missing_nonempty": 0,
-      "controls_with_rows": [
-        "AAPL",
-        "MSFT",
-        "NVDA"
-      ],
-      "rejected_controls": [
-        "SPY"
-      ],
+      "rows_each": 2496,
+      "first_date": "2016-11-17",
+      "last_date": "2026-10-23",
+      "total_records_each": 2496,
+      "target_nonempty": 0,
       "target_error_code": 1001,
-      "target_error_message": "Symbol not exists.",
-      "disposition": "VALIDATED_ON_3_CONTROLS_NO_TARGET_COVERAGE",
-      "date_range_certified": false,
-      "total_records_certified": false
+      "disposition": "CONTROL_VALIDATED_NO_TARGET_COVERAGE"
     }
   },
   "phase20c": {
     "current_valid": 328,
     "required": 329,
-    "roku_is_in_frozen_universe": true,
-    "roku_direct_yahoo_candidate_rows": 2280,
-    "exact_yfinance_recheck_required": true,
+    "missing_tickers": [
+      "AVB",
+      "EA",
+      "EQR",
+      "LPRO",
+      "ROKU",
+      "WBD",
+      "WBS"
+    ],
     "fallback_admitted": false,
     "universe_changed": false
   },
