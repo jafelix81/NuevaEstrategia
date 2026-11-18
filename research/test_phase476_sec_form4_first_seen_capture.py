@@ -381,18 +381,20 @@ class Phase476Tests(unittest.TestCase):
                 entry(new_accession, updated="2026-11-18T10:30:30Z"),
                 entry(prior, updated="2026-11-18T09:00:00Z"),
             )
-            with patch.object(p, "DATA_DIR", data_dir), \\
-                 patch.object(p, "STATE_PATH", data_dir / "state.json"), \\
-                 patch.object(p, "EVENTS_PATH", data_dir / "events.csv"), \\
-                 patch.object(p, "OBSERVATIONS_PATH", data_dir / "feed_observations.csv"), \\
-                 patch.object(p, "FEEDS", {"4": self.url}), \\
-                 patch.object(p, "MAX_FEED_PAGES", 1), \\
-                 patch.object(p.p401, "fetch_bytes", side_effect=[baseline, incomplete, retry]), \\
-                 patch.object(p, "now_utc", side_effect=[
-                     "2026-11-18T10:00:00Z", "2026-11-18T10:00:01Z", "2026-11-18T10:00:02Z",
-                     "2026-11-18T10:30:00Z", "2026-11-18T10:30:01Z", "2026-11-18T10:30:02Z",
-                     "2026-11-18T11:00:00Z", "2026-11-18T11:00:01Z", "2026-11-18T11:00:02Z",
-                 ]):
+            with (
+                patch.object(p, "DATA_DIR", data_dir),
+                patch.object(p, "STATE_PATH", data_dir / "state.json"),
+                patch.object(p, "EVENTS_PATH", data_dir / "events.csv"),
+                patch.object(p, "OBSERVATIONS_PATH", data_dir / "feed_observations.csv"),
+                patch.object(p, "FEEDS", {"4": self.url}),
+                patch.object(p, "MAX_FEED_PAGES", 1),
+                patch.object(p.p401, "fetch_bytes", side_effect=[baseline, incomplete, retry]),
+                patch.object(p, "now_utc", side_effect=[
+                    "2026-11-18T10:00:00Z", "2026-11-18T10:00:01Z", "2026-11-18T10:00:02Z",
+                    "2026-11-18T10:30:00Z", "2026-11-18T10:30:01Z", "2026-11-18T10:30:02Z",
+                    "2026-11-18T11:00:00Z", "2026-11-18T11:00:01Z", "2026-11-18T11:00:02Z",
+                ]),
+            ):
                 p.run_capture("schedule", "baseline-run", output_dir)
                 failed = p.run_capture("schedule", "gap-run", output_dir)
                 self.assertEqual(failed["new_event_rows"], 0)
