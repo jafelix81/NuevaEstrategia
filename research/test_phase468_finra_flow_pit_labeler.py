@@ -90,6 +90,21 @@ class TestPhase468ExecutableLabels(unittest.TestCase):
         result = self.run_one(event)
         self.assertEqual(result["labels"][0]["entry_date"], "2026-11-18")
 
+    def test_late_first_seen_enters_only_after_actual_receipt_and_records_age(self):
+        event = make_event(
+            trade_date="2026-11-16",
+            poll_start_utc="2026-11-17T22:01:00Z",
+            first_seen_utc="2026-11-17T22:05:00Z",
+            poll_end_utc="2026-11-17T22:10:00Z",
+            observation_kind="late_first_seen",
+        )
+        result = self.run_one(event, horizons=(2,))
+        row = result["labels"][0]
+        self.assertEqual(row["entry_date"], "2026-11-18")
+        self.assertEqual(row["signal_age_sessions"], 2)
+        self.assertEqual(row["observation_kind"], "late_first_seen")
+        self.assertEqual(result["summary"]["late_first_seen_events"], 1)
+
     def test_missing_first_seen_rejected(self):
         result = self.run_one(make_event(first_seen_utc=None))
         self.assertEqual(result["rejections"][0]["reason"], "first_seen_utc_missing")
