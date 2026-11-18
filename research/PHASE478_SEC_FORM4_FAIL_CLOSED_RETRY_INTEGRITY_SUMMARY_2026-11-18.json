@@ -1,0 +1,48 @@
+{
+  "phase": 478,
+  "title": "SEC Form 4/4-A fail-closed timestamp and retry integrity hardening",
+  "audit_cutoff_utc": "2026-11-18T11:13:29Z",
+  "base_main_sha": "b17b5c53d3dcc16d8bed70a64e7a292989988801",
+  "default_branch": "main",
+  "preflight": {
+    "actions_total_runs": 7836,
+    "in_progress": 0,
+    "queued": 0,
+    "latest_run_id": 44292113931,
+    "latest_run_conclusion": "success",
+    "latest_run_jobs": {
+      "offline_regression": "success",
+      "live_capture": "skipped"
+    },
+    "latest_run_artifacts": 0,
+    "first_scheduled_slot_utc": "2026-11-18T11:17:00Z",
+    "live_capture_observed": false
+  },
+  "findings": [
+    {
+      "id": "A",
+      "severity": "high",
+      "description": "parse_utc silently assigned UTC to timezone-naive timestamps, contrary to Phase 477's explicit-timezone rule.",
+      "disposition": "reject naive timestamps"
+    },
+    {
+      "id": "B",
+      "severity": "high",
+      "description": "Rows collected before a failed watermark/pagination check were appended to canonical events.csv and then permanently deduplicated on later successful retries.",
+      "disposition": "suppress canonical event rows from every incomplete poll; retain page observations and retry against last successful watermark"
+    }
+  ],
+  "changes": [
+    "parse_utc returns None unless the parsed datetime has an explicit timezone offset.",
+    "fetch_feed emits canonical event rows only when poll_success is true.",
+    "incomplete poll candidate and suppressed-candidate counts are exposed in feed and poll summaries.",
+    "regression tests cover naive timestamps and incomplete-poll recovery on a later successful retry."
+  ],
+  "test_suite_expected": 37,
+  "live_data_downloaded": false,
+  "filing_xml_downloaded": false,
+  "transaction_rows_stored": false,
+  "alpha_test_authorized": false,
+  "signal_eligible_rows": 0,
+  "baseline_frozen": "F80_TOP20_PARTIAL50_BASELINE_C20"
+}
