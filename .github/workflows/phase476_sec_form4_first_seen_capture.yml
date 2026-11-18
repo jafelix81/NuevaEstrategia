@@ -18,9 +18,12 @@ on:
       - "research/PHASE476_SEC_FORM4_FIRST_SEEN_PROSPECTIVE_CAPTURE_AUDIT_2026-11-18.md"
       - "research/PHASE476_SEC_FORM4_FIRST_SEEN_PROSPECTIVE_CAPTURE_SUMMARY_2026-11-18.json"
       - "research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-18_PHASE476.md"
+  workflow_dispatch:
+  schedule:
+    - cron: "17 * * * 1-5"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   offline-regression:
