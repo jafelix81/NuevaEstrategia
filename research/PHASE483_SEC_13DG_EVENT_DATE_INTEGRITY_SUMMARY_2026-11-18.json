@@ -1,0 +1,68 @@
+{
+  "phase": 483,
+  "audit_cutoff_utc": "2026-11-18T16:36:52Z",
+  "repository": "jafelix81/NuevaEstrategia",
+  "base_main_sha": "185c0f1530acf188c5274b335116f7f37b9c2174",
+  "source_artifact": {
+    "workflow_run_id": 41346788365,
+    "artifact_id": 13107210885,
+    "artifact_sha256": "ed92141e1474036291df07c9676129f46a0d304a7a8c21eca425d051f3184236",
+    "artifact_size_bytes": 603353,
+    "event_csv_member_sha256": "28024919574c15fffd6c9adfa5ea7becf4119f6601bb8ebd13658ef28a9bd8f2",
+    "summary_json_member_sha256": "80662cb5426a5d72fdb6c0a5d3bab8e844248f31ac3aa2ba9c45d19b2630e2fc"
+  },
+  "result": {
+    "rows": 20266,
+    "unique_accessions": 20266,
+    "duplicate_accession_rows": 0,
+    "missing_accession_rows": 0,
+    "event_date_valid_count": 19680,
+    "event_date_missing_count": 586,
+    "event_date_invalid_count": 0,
+    "filing_date_invalid_or_missing_count": 0,
+    "event_date_coverage_pct": 97.11,
+    "event_date_relation_counts": {
+      "BEFORE_FILING": 19539,
+      "SAME_DAY": 139,
+      "AFTER_FILING_UNRESOLVED": 2,
+      "MISSING_EVENT_DATE": 586,
+      "INVALID_EVENT_DATE": 0,
+      "INVALID_OR_MISSING_FILING_DATE": 0
+    },
+    "future_event_rows_by_form": {
+      "SC 13G": 2
+    },
+    "filing_lag_business_days_missing_when_event_date_valid": 2,
+    "form_counts": {
+      "SC 13D": 215,
+      "SC 13D/A": 1209,
+      "SC 13G": 5509,
+      "SC 13G/A": 13333
+    },
+    "amendments": 14542,
+    "amendment_pct": 71.76
+  },
+  "future_event_cases": [
+    {
+      "ticker": "MS",
+      "form": "SC 13G",
+      "filing_date": "2024-02-09",
+      "event_date": "2024-12-31",
+      "accession": "0000895421-24-000126"
+    },
+    {
+      "ticker": "MS",
+      "form": "SC 13G",
+      "filing_date": "2024-02-12",
+      "event_date": "2024-12-31",
+      "accession": "0000895421-24-000178"
+    }
+  ],
+  "disposition": "DATA_QUALITY_CORRECTION_ONLY; FUTURE_EVENT_DATES_QUARANTINED; NO_SIGNAL_OR_ALPHA",
+  "knowledge_date_rule": "filing_date only; event_date never establishes availability",
+  "no_raw_sec_rows_committed": true,
+  "no_sec_requests_made": true,
+  "no_forward_returns_used": true,
+  "no_backtest_oos_bootstrap_loo": true,
+  "f80_frozen": true
+}
