@@ -1,0 +1,145 @@
+{
+  "phase": 475,
+  "audit_cutoff_utc": "2026-11-18T09:52:28Z",
+  "base_main": "66f759045afa073da35e2e947e5f9949b521f5ad",
+  "preflight": {
+    "actions_total": 7795,
+    "in_progress": 0,
+    "queued": 0,
+    "branches": 305,
+    "open_pull_requests": 56,
+    "workflow_files": 80,
+    "phase473_full_universe_run": 44258810704,
+    "phase474_ci_run": 44264686208,
+    "cftc_latest_scheduled_run": 44232546204,
+    "sec_latest_scheduled_run": 44228413864,
+    "finra_latest_run": 44228802578,
+    "finra_latest_run_event": "pull_request",
+    "finra_scheduled_first_receipt_verified": false
+  },
+  "phase20c": {
+    "universe_count": 335,
+    "current_valid_histories": 328,
+    "inactive_missing": [
+      "AVB",
+      "EA",
+      "EQR",
+      "LPRO",
+      "ROKU",
+      "WBD",
+      "WBS"
+    ],
+    "exact_window_start": "2016-10-24",
+    "exact_window_end": "2026-10-24",
+    "terminal_returns_reconstructed": false
+  },
+  "providers": [
+    {
+      "name": "Massive",
+      "rank": 1,
+      "disposition": "conditional_primary_price_panel_candidate",
+      "history_start": "2003-09-10",
+      "delisted_history_claim": true,
+      "exact_window_plan": "Stocks Advanced 20+ years",
+      "developer_plan_10y_exact_window_pass": false,
+      "advanced_monthly_usd": 199,
+      "developer_monthly_usd": 79,
+      "corporate_actions_start": "2008 (stock product statement)",
+      "aggregate_bars_split_adjusted_by_default": true,
+      "raw_bars_available": true,
+      "dividend_adjusted_bars": false,
+      "record_known_security_master": false,
+      "sample_verified": false,
+      "license_scope": "individual personal/non-professional; business use requires separate Business plan"
+    },
+    {
+      "name": "Sharadar SEP",
+      "rank": 2,
+      "disposition": "conditional_second_price_and_action_candidate",
+      "history_start": "1997-12",
+      "tickers_approx": 21000,
+      "active_and_delisted": true,
+      "corporate_actions_start": "1998-01",
+      "reporting_lag": "<1 day",
+      "record_known_vintages": "not established by reviewed public docs",
+      "delisting_return_field": "not established",
+      "sample_verified": false,
+      "license_price_verified": false
+    },
+    {
+      "name": "EOD Historical Data",
+      "rank": 3,
+      "disposition": "secondary_cross_check_only",
+      "personal_plan_monthly_usd": 19.99,
+      "advertised_history": "30+ years",
+      "delisted_history": true,
+      "delisted_completeness_guaranteed": false,
+      "may_end_before_last_trade": true,
+      "historical_versioning": false,
+      "change_timestamps": false,
+      "raw_ohlc_corporate_action_rewrite": false,
+      "sample_verified": false
+    },
+    {
+      "name": "CRSP US Stock Database",
+      "rank": 4,
+      "disposition": "preferred_terminal_return_benchmark_if_accessible",
+      "permanent_ids": [
+        "PERMNO",
+        "PERMCO"
+      ],
+      "delisting_fields": [
+        "DLRET",
+        "DLRETX",
+        "DLPRC",
+        "DLPDT",
+        "DLAMT"
+      ],
+      "active_and_inactive": true,
+      "license_access": "subscription/institution dependent",
+      "record_known_vintages": "not established for every mutable security-master field in reviewed public docs"
+    },
+    {
+      "name": "Norgate",
+      "rank": 5,
+      "disposition": "separate_index_universe_only_not_fixed335_terminal_repair",
+      "stable_assetid": true,
+      "delisted_history": true,
+      "delisting_return_or_terminal_recovery_field": false,
+      "record_known_vintages": false,
+      "license": "personal non-commercial only",
+      "six_month_usd": 346.5,
+      "twelve_month_usd": 630
+    },
+    {
+      "name": "Tiingo",
+      "rank": 6,
+      "disposition": "not_admitted",
+      "delisted_complete_history_contract": "not established"
+    },
+    {
+      "name": "Alpha Vantage",
+      "rank": 7,
+      "disposition": "not_admitted",
+      "historical_listing_status_since": "2010-01-01",
+      "delisted_price_history_contract": "not established"
+    }
+  ],
+  "admission": {
+    "provider_fallback_admitted": false,
+    "raw_price_download_performed": false,
+    "sample_acquired": false,
+    "vendor_contacted": false,
+    "purchase_made": false,
+    "terminal_returns_reconstructed": false,
+    "forward_return_test_run": false,
+    "alpha_test_authorized": false,
+    "oos_test_run": false,
+    "bootstrap_run": false,
+    "loo_run": false,
+    "holdout_used": false,
+    "universe_changed": false,
+    "f80_changed": false,
+    "production_changed": false
+  }
+}
