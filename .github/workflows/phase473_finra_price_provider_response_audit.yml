@@ -30,7 +30,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install requests
-        run: pip install requests yfinance
+        run: pip install requests yfinance==1.7.0
       - name: Compile and run offline tests
         run: |
           python -m py_compile research/phase473_price_provider_response_audit.py research/test_phase473_price_provider_response_audit.py
@@ -47,7 +47,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install requests
-        run: pip install requests yfinance
+        run: pip install requests yfinance==1.7.0
       - name: Run metadata-only provider probe
         run: python -u -m research.phase473_price_provider_response_audit --output phase473_output
       - name: Upload metadata-only result
