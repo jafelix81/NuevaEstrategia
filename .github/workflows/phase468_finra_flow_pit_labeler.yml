@@ -1,0 +1,26 @@
+name: Phase 468 FINRA flow executable-label PIT guard
+
+on:
+  push:
+    branches:
+      - phase467-finra-regsho-flow-pit-label-audit
+    paths:
+      - ".github/workflows/phase468_finra_flow_pit_labeler.yml"
+      - "research/phase468_finra_flow_pit_labeler.py"
+      - "research/test_phase468_finra_flow_pit_labeler.py"
+
+permissions:
+  contents: read
+
+jobs:
+  offline-pit-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile and run executable-label PIT regressions
+        run: |
+          python -m py_compile research/phase468_finra_flow_pit_labeler.py research/test_phase468_finra_flow_pit_labeler.py
+          python -m unittest -v research.test_phase468_finra_flow_pit_labeler

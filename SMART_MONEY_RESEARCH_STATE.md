@@ -1356,3 +1356,38 @@ This section supersedes any older “in progress” status above where later com
 - Phase 463 report: [external SEC ownership lake audit](research/PHASE463_SEC_OWNERSHIP_LAKE_EXTERNAL_SOURCE_AUDIT_2026-11-17.md) · [summary](research/PHASE463_SEC_OWNERSHIP_LAKE_EXTERNAL_SOURCE_SUMMARY_2026-11-17.json).
 - No alpha/OOS/bootstrap/LOO test. `F80_TOP20_PARTIAL50_BASELINE_C20` and production remain frozen.
 
+## Phase 464 — SEC Form 144 first production capture (2026-11-17)
+
+- Phase 454 ledger migration was applied to the real production file: 52 historical rows, 41 to 43 columns; new provenance fields remain blank historically.
+- Scheduled run [44179257367](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44179257367) succeeded. It added 54 event/version rows, 58 feed-observation rows and 54 acceptance reconciliations; 54 XML documents were resolved and acceptance-reconciled.
+- Form 144 returned 50 new entries but did not include the prior accession watermark; all 50 remain quarantined for a possible feed-window gap. Form 144/A yielded four bounded, parent-linked amendment versions; they are not four independent sale events.
+- Zero signal-eligible rows; public availability and historical F80 membership were not certified. The run predates Phase 465 pagination.
+
+## Phase 465 — SEC Atom pagination and CFTC delivery audit (2026-11-17)
+
+- Added fail-closed SEC Atom pagination (up to 10 pages / 1,000 raw entries) and per-page provenance. Pagination has **not** been live-validated.
+- The new PIT interval uses the prior successful poll start as the lower bound. Because the old state stored only final-page receipt times, the first post-upgrade poll has no usable lower bound; one clean poll is a reset, and a subsequent clean poll is required before bounded intervals can be admitted.
+- CFTC TFF dataset `gpe5-46if` was updated 2026-11-16 with report date 2026-11-10, but the expected 2026-11-17 22:25 UTC capture was not observed. Last run remains push/bootstrap 43525140200, 3,035 warm-up rows, zero prospective observations, all four contracts latest report date 2026-11-03.
+- FINRA OAuth secrets were absent; no new FINRA API request was made.
+
+## Phase 466 — CFTC schedule delivery and PIT feasibility (2026-11-17)
+
+- Existing CFTC workflow remains configured for `25 22 * * 1-5` UTC. The connector does not expose its administrative enabled/disabled state; no scheduled run was evidenced. The preregistered weekly sample requirement is 202 prospective observations per contract; historical bootstrap rows do not satisfy it.
+- SEC Form 144 workflow remains configured for `47 * * * *` UTC. The latest verified live capture is still 44179257367, before Phase 465 pagination; post-merge live validation was not inspectable at the Phase 466 cutoff.
+- No source signal, alpha test, or strategy change.
+
+## Phase 467 — FINRA Reg SHO flow-only and Phase 31 PIT label audit (2026-11-18)
+
+- Independently downloaded and inspected existing GitHub artifact 12588045711 from Phase 31 run 40164323397; ZIP SHA-256 `91f7683cf984cb2b00a6bd772608c3243ac9a56717930c6fd2092696e092a266`. The flow panel contains 362,727 rows, 334 symbols, and 1,104/1,104 XNYS sessions from 2022-06-01 to 2026-10-23; daily cross-section is 321–333 (median 330), and 313/334 symbols have at least 1,100 observations. This reopens **flow-only data feasibility** as a conditional candidate, not alpha.
+- Material PIT correction: Phase 31 uses same-day flow rows `Date <= signal_date` but computes forward returns from `close[signal_date]`. FINRA says the daily file is posted after regular trading hours. The label therefore starts before the flow observation is available. Phase 31 return/IC/spread results are diagnostic only and invalid as strict-PIT evidence; do not use for alpha claims or feature selection.
+- FINRA Daily Short Sale Volume is off-exchange FINRA-facility short-marked volume, not consolidated market volume, net short flow, persistent short interest, or institutional identity. FINRA explicitly distinguishes it from short-interest positions. Historical exact first-seen times are not present in the daily files; prospective capture or explicitly lagged sensitivity is required.
+- The joint Phase 31 flow × short-interest panel remains non-admissible: the old SI snapshots were capped/incomplete. No flow-only return test, OOS, bootstrap, LOO, signal admission, or production change was performed.
+- Report: [Phase 467](research/PHASE467_FINRA_REGSHO_FLOW_ONLY_AND_PHASE31_PIT_LABEL_AUDIT_2026-11-18.md) · [summary](research/PHASE467_FINRA_REGSHO_FLOW_ONLY_AND_PHASE31_PIT_LABEL_SUMMARY_2026-11-18.json).
+
+## Operational preflight — 2026-11-18 00:29 UTC (Phase 467)
+
+- Main HEAD before this branch: `bc4a2ccecd32962340831eea54563743dadfe6c6`. Latest 100 Actions runs: 69 success, 30 failure, 1 cancelled; 7,728 total; zero active/queued. Branches 300; open PRs 56; workflows 76.
+- Latest scheduled SEC run 44179257367 was created at 21:23:10 UTC and polled at 21:23:27–21:23:39 UTC. No later scheduled event appears in the latest-100 inventory by 00:29 UTC. The :47 slot at 00:47 UTC was still in the future at audit cutoff.
+- No CFTC scheduled run appears after the 2026-11-13 push/bootstrap; the 2026-11-17 22:25 UTC slot is not evidenced.
+- Human check required: verify existing Phase 403 SEC Form 144 and Phase 384 CFTC TFF workflows are enabled in GitHub Actions. The connected read interface does not expose the enabled/disabled state. Do not create duplicate workflows or change cron values before checking.
+- `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen; no universe, parameter, holding-period, capital, exposure, cost, holdout, or production change.

@@ -1,0 +1,46 @@
+{
+  "phase": 469,
+  "audit_time_utc": "2026-11-18",
+  "disposition": "PROSPECTIVE_FILE_LEVEL_CAPTURE_IMPLEMENTED; RAW_DATA_NOT_COMMITTED; NO_SIGNAL_OR_ALPHA",
+  "branch": "phase467-finra-regsho-flow-pit-label-audit",
+  "base_main_head": "bc4a2ccecd32962340831eea54563743dadfe6c6",
+  "pr_number": 129,
+  "workflow": ".github/workflows/phase469_finra_regsho_daily_first_seen_capture.yml",
+  "schedule_utc": [
+    "30 22 * * 1-5",
+    "30 23 * * 1-5"
+  ],
+  "lookback_calendar_days": 10,
+  "capture_url": "https://cdn.finra.org/equity/regsho/daily/CNMSshvolYYYYMMDD.txt",
+  "raw_market_data_persisted": false,
+  "first_seen_policy": "same New York trade date, scheduled mode, after 16:00 ET, non-empty valid file only",
+  "bootstrap_policy": "older trade dates first seen during initial activation are ineligible",
+  "revision_policy": "append revision; preserve first-seen hash/time; never relabel revision",
+  "manual_mode_persists_state": false,
+  "signal_eligible": false,
+  "tests": {
+    "intended": 20,
+    "local_run": false,
+    "github_actions_run": 44224662699,
+    "github_actions_result": "success",
+    "github_actions_count": 20,
+    "branch_push_run": 44224648899,
+    "pr_run_artifacts": 0,
+    "live_capture": "skipped as designed on pull_request"
+  },
+  "research_gates": [
+    "prospective schedule delivery",
+    "hash-verified raw-file replay",
+    "effective-dated 335-name security master and delisting coverage",
+    "total-return prices and terminal returns",
+    "identical-exposure/cost comparison against frozen LTM/F80",
+    "chronological OOS, bootstrap and event-block LOO"
+  ],
+  "strategy": {
+    "f80_frozen": true,
+    "universe_changed": false,
+    "parameters_changed": false,
+    "capital_or_exposure_changed": false,
+    "production_changed": false
+  }
+}
