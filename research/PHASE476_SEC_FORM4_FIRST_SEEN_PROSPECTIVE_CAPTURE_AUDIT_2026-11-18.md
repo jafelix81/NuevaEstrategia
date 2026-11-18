@@ -31,7 +31,7 @@ The new workflow polls two form-specific Atom feeds:
 - Form 4: \`type=4\`
 - Form 4/A: \`type=4%2FA\`
 
-It polls every 15 minutes on weekdays at UTC minutes 10, 25, 40 and 55. The existing Form 144 poll remains on minute 47; the new schedule is separated from it by at least eight minutes at the closest hourly boundary.
+It polls hourly on weekdays at 17 minutes past the hour. The existing Form 144 poll remains on minute 47; the new Form 4 poll is scheduled at minute 17, leaving a 30-minute separation.
 
 The collector:
 - uses the repository's existing SEC fetch helper and declared User-Agent;
