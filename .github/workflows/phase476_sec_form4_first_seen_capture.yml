@@ -49,3 +49,10 @@ jobs:
           python-version: "3.11"
       - name: Compile capture client
         run: python -m py_compile research/phase476_sec_form4_first_seen_capture.py
+      - name: Capture Form 4 / 4-A first-seen metadata
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          if [ "$EVENT_NAME" = "schedule" ]; then MODE=schedule; else MODE=manual; fi
+          python -u -m research.phase476_sec_form4_first_seen_capture --mode "$MODE" --run-id "$RUN_ID" --output phase476_output
