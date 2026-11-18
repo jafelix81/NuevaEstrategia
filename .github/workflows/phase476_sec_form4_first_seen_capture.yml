@@ -37,3 +37,10 @@ jobs:
         run: |
           python -m py_compile research/phase476_sec_form4_first_seen_capture.py research/test_phase476_sec_form4_first_seen_capture.py
           python -m unittest -v research.test_phase476_sec_form4_first_seen_capture
+  live-capture:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    needs: offline-regression
+    runs-on: ubuntu-latest
+    steps:
+      - name: Live job gate placeholder
+        run: echo "Live capture is not enabled in this validation commit."
