@@ -1,4 +1,5 @@
 import unittest
+from decimal import Decimal
 
 from research.phase474_delisted_universe_corporate_action_audit import (
     EXPECTED_TICKERS,
@@ -22,9 +23,9 @@ class Phase474CorporateActionTests(unittest.TestCase):
         self.assertEqual(validate_ledger(self.ledger), [])
 
     def test_cash_only_terminal_consideration(self):
-        self.assertEqual(terminal_consideration_per_old_share(self.rows["EA"]), "210.0")
-        self.assertEqual(terminal_consideration_per_old_share(self.rows["LPRO"]), "3.15")
-        self.assertEqual(terminal_consideration_per_old_share(self.rows["WBD"]), "31.01666668")
+        self.assertEqual(terminal_consideration_per_old_share(self.rows["EA"]), Decimal("210"))
+        self.assertEqual(terminal_consideration_per_old_share(self.rows["LPRO"]), Decimal("3.15"))
+        self.assertEqual(terminal_consideration_per_old_share(self.rows["WBD"]), Decimal("31.01666668"))
 
     def test_stock_consideration_requires_successor_price(self):
         for ticker in ("AVB", "EQR", "ROKU", "WBS"):
@@ -32,7 +33,7 @@ class Phase474CorporateActionTests(unittest.TestCase):
 
     def test_avb_exchange_ratio(self):
         value = terminal_consideration_per_old_share(self.rows["AVB"], "100")
-        self.assertEqual(value, "279.300")
+        self.assertEqual(value, Decimal("279.3"))
 
     def test_roku_uses_closing_adjusted_terms_not_earlier_announcement(self):
         c = self.rows["ROKU"]["consideration"]
@@ -42,7 +43,7 @@ class Phase474CorporateActionTests(unittest.TestCase):
 
     def test_webster_mixed_consideration(self):
         value = terminal_consideration_per_old_share(self.rows["WBS"], "100")
-        self.assertEqual(value, "254.2300")
+        self.assertEqual(value, Decimal("254.23"))
 
     def test_no_historical_prices_or_signals_are_admitted(self):
         self.assertFalse(self.ledger["adjudication"]["fallback_price_series_admitted"])
