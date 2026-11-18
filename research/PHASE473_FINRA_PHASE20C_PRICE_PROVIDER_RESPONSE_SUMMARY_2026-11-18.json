@@ -1,0 +1,103 @@
+{
+  "phase": 473,
+  "audit_time_utc": "2026-11-18T07:03:00Z",
+  "base_main_sha": "cdb6f13ab4fab8929c211430f90d86af9dad869b",
+  "operational_preflight": {
+    "actions_total": 7771,
+    "latest_100": {
+      "success": 79,
+      "failure": 15,
+      "cancelled": 6,
+      "active": 0,
+      "queued": 0
+    },
+    "branches": 304,
+    "open_prs": 56,
+    "workflow_files": 78
+  },
+  "phase381_reaudit": {
+    "artifact_id": 14073108228,
+    "artifact_sha256": "c88e350c188e513e9ac7995aad859ec1b02040e7a2f9586ce1f063bf7f6537ef",
+    "price_window": "2016-10-24/2026-10-23",
+    "controls": [
+      "AAPL",
+      "MSFT",
+      "NVDA",
+      "SPY"
+    ],
+    "missing_tickers": [
+      "AVB",
+      "EA",
+      "EQR",
+      "LPRO",
+      "ROKU",
+      "WBD",
+      "WBS"
+    ],
+    "yahoo_query1": {
+      "controls_rows_each": 2514,
+      "missing_rows_each": 0,
+      "http_status": 200,
+      "disposition": "VALID_CONTROL_RESPONSE_EMPTY_FOR_MISSING_SYMBOLS"
+    },
+    "yahoo_query2": {
+      "controls_rows_each": 2514,
+      "missing_rows_each": 0,
+      "http_status": 200,
+      "disposition": "VALID_CONTROL_RESPONSE_EMPTY_FOR_MISSING_SYMBOLS"
+    },
+    "stooq": {
+      "controls_rows_each": 0,
+      "missing_rows_each": 0,
+      "http_status_retained": false,
+      "error_class": "ValueError",
+      "disposition": "PROVIDER_METHOD_UNVALIDATED"
+    },
+    "nasdaq": {
+      "controls_rows_each": 0,
+      "missing_rows_each": 0,
+      "http_status": 200,
+      "tradesTable_rows_each": 0,
+      "disposition": "PROVIDER_METHOD_UNVALIDATED_CONTROLS_EMPTY"
+    }
+  },
+  "phase20c": {
+    "valid_price_histories": 328,
+    "required_histories": 329,
+    "missing_tickers": [
+      "AVB",
+      "EA",
+      "EQR",
+      "LPRO",
+      "ROKU",
+      "WBD",
+      "WBS"
+    ],
+    "provider_fallback_admitted": false,
+    "universe_changed": false
+  },
+  "branch_hygiene": {
+    "pr57_state": "open_draft",
+    "pr57_base": "phase380-cftc-tff-full-postlaunch-archive-census",
+    "pr57_ahead_of_main": 211,
+    "pr57_behind_main": 205,
+    "phase20c_branch_ahead_of_main": 12,
+    "phase20c_branch_behind_main": 314,
+    "merge_recommended": false
+  },
+  "live_probe": {
+    "status": "PENDING",
+    "raw_price_data_persisted": false,
+    "raw_response_bodies_persisted": false
+  },
+  "strategy": {
+    "baseline": "F80_TOP20_PARTIAL50_BASELINE_C20",
+    "frozen": true,
+    "signals_admitted": 0,
+    "forward_return_test": false,
+    "oos": false,
+    "bootstrap": false,
+    "loo": false,
+    "production_changed": false
+  }
+}
