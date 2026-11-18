@@ -1,0 +1,10 @@
+## Phase 473 — FINRA Phase 20C provider-response classification (2026-11-18)
+
+- Re-adjudicated Phase 381 artifact 14073108228. Stooq returned HTTP 200 HTML (796 bytes), not CSV. Nasdaq US-slash dates returned embedded rCode 400/error 1011; ISO dates fixed the request for three controls (AAPL/MSFT/NVDA), with 2,496 rows each from 2016-11-17 through 2026-10-23 and totalRecords=2,496. SPY and all seven missing names returned error 1001 \`Symbol not exists.\`.
+- Yahoo query1/query2 twice returned 2,280 valid ROKU rows, but the final run 44257792682 returned zero for ROKU and all other missing names. The transient ROKU result is not reproducible and is not admitted.
+- Historical Phase20C run 40098425254 (2026-10-24) installed yfinance 1.7.0 and logged 329 valid histories out of 335. On 2026-11-18, targeted calls with both yfinance 1.8.0 and pinned 1.7.0 returned only 1–2 rows for each of AVB/EA/EQR/LPRO/ROKU/WBD/WBS; none passed 220 usable OHLC rows. This is provider-history/request-behavior drift since the prior full run, not a version-only regression. The cause remains unknown; no fallback admitted.
+- Final pinned run 44258206531 / artifact 14406294665 succeeded; eight offline tests and the metadata-only live probe succeeded. No OHLCV values or raw response bodies were persisted.
+- Phase 381 PR #57 remains draft on a stale stacked branch (211 ahead/205 behind main); legacy Phase 20C branch is 12 ahead/314 behind. Do not merge either directly.
+- SEC artifact 14393319006 remains an initial baseline with null lower bounds and zero research eligibility; CFTC artifact 14395926632 contains four first-receipt report events, not signals. No subsequent SEC scheduled run was visible after 03:09 UTC through the audit cutoff. FINRA Phase 469 first scheduled capture remains pending.
+- Cboe sample artifact 13291147097 remains public; Issue #132 requires written sample-specific redistribution permission or manual deletion. The connector exposes no artifact-delete operation.
+- No returns/alpha/OOS/bootstrap/LOO/holdout test, source admission or production change. \`F80_TOP20_PARTIAL50_BASELINE_C20\` remains frozen.

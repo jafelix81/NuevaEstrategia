@@ -1,0 +1,60 @@
+name: Phase 473 - FINRA Phase 20C price-provider response classification audit
+
+on:
+  push:
+    branches: [phase473-finra-price-provider-response-audit]
+    paths:
+      - ".github/workflows/phase473_finra_price_provider_response_audit.yml"
+      - "research/phase473_price_provider_response_audit.py"
+      - "research/test_phase473_price_provider_response_audit.py"
+  pull_request:
+    paths:
+      - ".github/workflows/phase473_finra_price_provider_response_audit.yml"
+      - "research/phase473_price_provider_response_audit.py"
+      - "research/test_phase473_price_provider_response_audit.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase473-price-provider-response-audit
+  cancel-in-progress: false
+
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install requests
+        run: pip install requests yfinance==1.7.0
+      - name: Compile and run offline tests
+        run: |
+          python -m py_compile research/phase473_price_provider_response_audit.py research/test_phase473_price_provider_response_audit.py
+          python -m unittest -v research.test_phase473_price_provider_response_audit
+
+  live-provider-probe:
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs: offline-regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install requests
+        run: pip install requests yfinance==1.7.0
+      - name: Run metadata-only provider probe
+        run: python -u -m research.phase473_price_provider_response_audit --output phase473_output
+      - name: Upload metadata-only result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase473-finra-price-provider-response-audit
+          path: phase473_output/summary.json
+          retention-days: 30
+          if-no-files-found: error

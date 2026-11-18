@@ -1,0 +1,37 @@
+name: Phase 474 - delisted universe corporate-action reconciliation
+
+on:
+  push:
+    branches: [phase473-finra-price-provider-response-audit]
+    paths:
+      - ".github/workflows/phase474_delisted_universe_corporate_action_audit.yml"
+      - "research/phase474_delisted_universe_corporate_action_audit.py"
+      - "research/phase474_delisted_universe_corporate_action_ledger.json"
+      - "research/test_phase474_delisted_universe_corporate_action_audit.py"
+  pull_request:
+    paths:
+      - ".github/workflows/phase474_delisted_universe_corporate_action_audit.yml"
+      - "research/phase474_delisted_universe_corporate_action_audit.py"
+      - "research/phase474_delisted_universe_corporate_action_ledger.json"
+      - "research/test_phase474_delisted_universe_corporate_action_audit.py"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase474-delisted-universe-corporate-actions
+  cancel-in-progress: false
+
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile and run corporate-action metadata tests
+        run: |
+          python -m py_compile research/phase474_delisted_universe_corporate_action_audit.py research/test_phase474_delisted_universe_corporate_action_audit.py
+          python -m unittest -v research.test_phase474_delisted_universe_corporate_action_audit
+          python -m research.phase474_delisted_universe_corporate_action_audit

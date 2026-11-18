@@ -1,0 +1,156 @@
+{
+  "phase": 473,
+  "audit_time_utc": "2026-11-18T07:23:00Z",
+  "base_main_sha": "cdb6f13ab4fab8929c211430f90d86af9dad869b",
+  "historical_phase20c_run": {
+    "run_id": 40098425254,
+    "created_at": "2026-10-24T13:30:26Z",
+    "yfinance_version": "1.7.0",
+    "downloaded": 335,
+    "valid_universe": 329
+  },
+  "phase381_artifact": {
+    "id": 14073108228,
+    "sha256": "c88e350c188e513e9ac7995aad859ec1b02040e7a2f9586ce1f063bf7f6537ef"
+  },
+  "yahoo_chart_runs": [
+    {
+      "run_id": 44256975655,
+      "roku_rows": 2280,
+      "roku_first": "2017-09-28",
+      "roku_last": "2026-10-23"
+    },
+    {
+      "run_id": 44256978857,
+      "roku_rows": 2280,
+      "roku_first": "2017-09-28",
+      "roku_last": "2026-10-23"
+    },
+    {
+      "run_id": 44257792682,
+      "roku_rows": 0,
+      "all_seven_missing_rows": 0
+    }
+  ],
+  "yfinance_1_8_0_run": {
+    "run_id": 44257792682,
+    "version": "1.8.0",
+    "controls_rows_each": 2512,
+    "missing_rows": {
+      "AVB": 1,
+      "EA": 1,
+      "EQR": 1,
+      "LPRO": 1,
+      "ROKU": 2,
+      "WBD": 1,
+      "WBS": 1
+    }
+  },
+  "yfinance_1_7_0_run": {
+    "run_id": 44258206531,
+    "artifact_id": 14406294665,
+    "artifact_sha256": "1d0ea188a9d5ac0bcdf273a0d539cc6863ec53eb7cf2edde77458feb217a5fb2",
+    "version": "1.7.0",
+    "controls_rows_each": 2512,
+    "missing_rows": {
+      "AVB": 1,
+      "EA": 1,
+      "EQR": 1,
+      "LPRO": 1,
+      "ROKU": 2,
+      "WBD": 1,
+      "WBS": 1
+    },
+    "all_missing_220_gate": false
+  },
+  "final_provider_results": {
+    "stooq": {
+      "http_status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "response_bytes": 796,
+      "disposition": "PROVIDER_METHOD_UNVALIDATED"
+    },
+    "nasdaq_us_slash": {
+      "embedded_r_code": 400,
+      "error_code": 1011,
+      "disposition": "INVALID_DATE_PARAMETER"
+    },
+    "nasdaq_iso": {
+      "controls_nonempty": 3,
+      "rows_each": 2496,
+      "first_date": "2016-11-17",
+      "last_date": "2026-10-23",
+      "total_records_each": 2496,
+      "target_nonempty": 0,
+      "target_error_code": 1001,
+      "disposition": "CONTROL_VALIDATED_NO_TARGET_COVERAGE"
+    }
+  },
+  "phase20c": {
+    "current_valid": 328,
+    "required": 329,
+    "missing_tickers": [
+      "AVB",
+      "EA",
+      "EQR",
+      "LPRO",
+      "ROKU",
+      "WBD",
+      "WBS"
+    ],
+    "fallback_admitted": false,
+    "universe_changed": false,
+    "provider_drift_since_2026_10_24": true
+  },
+  "branch_hygiene": {
+    "pr57_state": "open_draft",
+    "pr57_ahead_of_main": 211,
+    "pr57_behind_main": 205,
+    "phase20c_branch_ahead_of_main": 12,
+    "phase20c_branch_behind_main": 314,
+    "merge_recommended": false
+  },
+  "sec": {
+    "run_id": 44228413864,
+    "events": 90,
+    "feed_rows": 109,
+    "lower_bound_null": true,
+    "research_eligible": 0,
+    "signal_eligible": 0
+  },
+  "cftc": {
+    "run_id": 44232546204,
+    "events": 4,
+    "observed_at_utc": "2026-11-18T03:44:57Z",
+    "signals": 0
+  },
+  "strategy": {
+    "baseline": "F80_TOP20_PARTIAL50_BASELINE_C20",
+    "frozen": true,
+    "signals_admitted": 0,
+    "returns_tested": false,
+    "oos": false,
+    "bootstrap": false,
+    "loo": false,
+    "production_changed": false
+  },
+  "phase474_reclassification": {
+    "interpretation": "inactive_security_corporate_action_history_gap",
+    "failed_symbols": [
+      "AVB",
+      "EA",
+      "EQR",
+      "LPRO",
+      "ROKU",
+      "WBD",
+      "WBS"
+    ],
+    "confirmed_inactive_or_renamed": 7,
+    "provider_history_truncation_mechanism_proven": false,
+    "prior_2026_10_24_failed_ticker_names_preserved": false,
+    "329_to_328_change_consistent_with_rokus_2026_11_06_close_but_unproven": true,
+    "universe_reduction_allowed": false,
+    "fallback_admitted": false,
+    "terminal_returns_reconstructed": false
+  }
+}
