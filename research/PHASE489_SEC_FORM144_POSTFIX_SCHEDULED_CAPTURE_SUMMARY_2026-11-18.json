@@ -1,0 +1,135 @@
+{
+  "phase": 489,
+  "audit_cutoff_utc": "2026-11-18T21:51:00Z",
+  "disposition": "POST_FIX_SCHEDULED_CAPTURE_SUCCESS_51_BOUNDED_METADATA_OBSERVATIONS_ZERO_SIGNAL_ELIGIBLE",
+  "repository": {
+    "full_name": "jafelix81/NuevaEstrategia",
+    "default_branch": "main",
+    "main_head_before_phase489": "435285a1b60f18d032d861bb2396f4b7c9218ef9",
+    "branches_reviewed": 316,
+    "branch_pages": [
+      100,
+      100,
+      100,
+      16
+    ],
+    "open_pull_requests_at_review": 56,
+    "repository_wide_actions_run_listing_available_through_connector": false
+  },
+  "run": {
+    "id": 44396134680,
+    "event": "schedule",
+    "branch": "main",
+    "poll_started_utc": "2026-11-18T20:56:07Z",
+    "poll_completed_utc": "2026-11-18T20:56:30Z",
+    "offline_regression": "success",
+    "offline_tests_passed": 40,
+    "live_capture": "success"
+  },
+  "feeds": {
+    "144": {
+      "raw_atom_entries": 200,
+      "pages": 2,
+      "previous_watermark_found": true,
+      "previous_watermark_found_on_page": 2,
+      "interval_lower_bound_utc": "2026-11-18T03:09:51Z",
+      "new_unique_accessions": 50,
+      "pagination_complete": true,
+      "possible_feed_window_gap": false
+    },
+    "144A": {
+      "raw_atom_entries": 12,
+      "pages": 1,
+      "previous_watermark_found": true,
+      "interval_lower_bound_utc": "2026-11-18T03:09:51Z",
+      "new_unique_accessions": 1,
+      "pagination_complete": true,
+      "possible_feed_window_gap": false
+    }
+  },
+  "event_ledger": {
+    "new_feed_entries": 52,
+    "cross_feed_overlap_count": 1,
+    "unique_new_events": 51,
+    "form_144": 50,
+    "form_144a": 1,
+    "all_51_feed_updated_after_lower_bound": true,
+    "earliest_new_feed_updated_utc": "2026-11-18T12:00:07Z",
+    "latest_new_feed_updated_utc": "2026-11-18T20:39:56Z",
+    "first_seen_receipt_upper_bound_start_utc": "2026-11-18T20:56:09Z",
+    "first_seen_receipt_upper_bound_end_utc": "2026-11-18T20:56:13Z",
+    "xml_resolved": 51,
+    "canonical_event_rows_total_excluding_header": 247
+  },
+  "acceptance_reconciliation": {
+    "rows_added": 51,
+    "total_reconciled_accessions": 247,
+    "unresolved": 0,
+    "timing_anomalies": 0,
+    "acceptance_equals_atom_updated_rows": 51,
+    "first_seen_minus_acceptance_seconds": {
+      "min": 973,
+      "median": 16407,
+      "max": 32166
+    },
+    "acceptance_is_exact_public_receipt": false
+  },
+  "identity_and_universe": {
+    "candidate_manifest_cik_count": 290,
+    "candidate_issuer_matches": 6,
+    "candidate_manifest_is_historical_f80_security_master": false,
+    "historical_f80_membership_verified": 0,
+    "owner_attribution_verified": 0
+  },
+  "semantic_keyword_audit": {
+    "rows_with_nonempty_remarks": 18,
+    "mentions_10b5_1": 2,
+    "tax_withholding_rsu_vesting_mentions": 11,
+    "superseding_erroneous_filing_mentions": 1,
+    "open_market_acquisition_history_mentions": 1,
+    "buckets_overlap": true,
+    "full_semantic_classification": false,
+    "form144_is_notice_of_proposed_sale_not_execution_confirmation": true
+  },
+  "eligibility": {
+    "bounded_metadata_research_observation_rows": 51,
+    "public_availability_certified": 0,
+    "signal_eligible": 0,
+    "same_day_intraday_use_authorized": false,
+    "forward_returns_used": false,
+    "bootstrap_used": false,
+    "loo_used": false,
+    "holdout_used": false,
+    "alpha_test_authorized": false
+  },
+  "artifact": {
+    "id": 14470455938,
+    "name": "phase403-sec-form144-first-seen",
+    "size_bytes": 2084,
+    "sha256": "a6d47ef938306f3efa4fcff412c3a737995611030b00a3afe498e5e9ee525d07",
+    "files": [
+      "summary.json",
+      "schema_migration.json"
+    ]
+  },
+  "strategy": {
+    "name": "F80_TOP20_PARTIAL50_BASELINE_C20",
+    "frozen": true,
+    "production_changed": false,
+    "new_signals_admitted": 0
+  },
+  "operational": {
+    "issue_136": "close_completed_after_post_fix_scheduled_success",
+    "issue_132": "open_human_cboe_sample_redistribution_rights_question",
+    "phase476_form4_state_still_at_initial_baseline": true,
+    "no_workflow_dispatched_or_duplicated": true
+  },
+  "primary_references": {
+    "run": "https://github.com/jafelix81/NuevaEstrategia/actions/runs/44396134680",
+    "artifact": "https://github.com/jafelix81/NuevaEstrategia/actions/runs/44396134680/artifacts/14470455938",
+    "commit": "https://github.com/jafelix81/NuevaEstrategia/commit/435285a1b60f18d032d861bb2396f4b7c9218ef9",
+    "sec_form144": "https://www.sec.gov/about/forms/form144.pdf",
+    "investor_gov_form144": "https://www.investor.gov/introduction-investing/investing-basics/glossary/form-144",
+    "rule_144": "https://www.govinfo.gov/content/pkg/CFR-2025-title17-vol3/pdf/CFR-2025-title17-vol3-sec230-144.pdf"
+  }
+}
