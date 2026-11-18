@@ -1,0 +1,23 @@
+{
+  "feeds": {
+    "4": {
+      "last_poll_run_id": "44380395679",
+      "last_poll_status": "SUCCESS",
+      "last_successful_poll_end_utc": "2026-11-18T19:26:08Z",
+      "latest_accession": "0001174947-26-000998",
+      "latest_feed_updated_utc": "2026-11-18T19:16:37Z"
+    },
+    "4A": {
+      "last_poll_run_id": "44380395679",
+      "last_poll_status": "SUCCESS",
+      "last_successful_poll_end_utc": "2026-11-18T19:26:08Z",
+      "latest_accession": "0000912282-26-001525",
+      "latest_feed_updated_utc": "2026-11-18T16:46:44Z"
+    }
+  },
+  "last_poll_ended_utc": "2026-11-18T19:26:08Z",
+  "last_poll_run_id": "44380395679",
+  "last_poll_started_utc": "2026-11-18T19:26:00Z",
+  "phase": 476,
+  "schema_version": 1
+}

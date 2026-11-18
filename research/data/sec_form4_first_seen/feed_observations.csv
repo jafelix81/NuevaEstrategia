@@ -1,0 +1,3 @@
+poll_run_id,feed_name,page_offset,raw_entry_count,parsed_accession_count,response_bytes,response_received_at_utc,raw_sha256,feed_url,page_status,error_type,error
+44380395679,4,0,100,20,57330,2026-11-18T19:26:00Z,21f4faf38fd8f4e3c626195be13ee65500e9244574010edd67b37fc67e69e658,https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&type=4&owner=include&count=100&output=atom&start=0,HTTP_OK,,
+44380395679,4A,0,50,50,28458,2026-11-18T19:26:08Z,f00d453c3ff20fa4e523ced5609f383716f158b017a8c92aba33081ec4f54fc9,https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&type=4%2FA&owner=include&count=100&output=atom&start=0,HTTP_OK,,
