@@ -1,0 +1,60 @@
+{
+  "phase": 476,
+  "audit_cutoff_utc": "2026-11-18T10:50:00Z",
+  "base_main": "5ba900aa6901f6f5e015f3219885fa9f4ffa2c9b",
+  "source": "SEC EDGAR Latest Filings Atom feeds",
+  "feeds": [
+    "4",
+    "4/A"
+  ],
+  "schedule_utc": "17 * * * 1-5",
+  "page_size": 100,
+  "max_pages_per_feed": 20,
+  "persistent_data": [
+    "research/data/sec_form4_first_seen/state.json",
+    "research/data/sec_form4_first_seen/events.csv",
+    "research/data/sec_form4_first_seen/feed_observations.csv"
+  ],
+  "stored_data_policy": {
+    "filing_xml_or_text": false,
+    "raw_atom_payload": false,
+    "transaction_rows": false,
+    "prices": false,
+    "row_level_owner_names": false,
+    "response_hashes": true,
+    "accession_and_public_filing_url": true,
+    "first_seen_receipt": true
+  },
+  "eligibility": {
+    "initial_poll": "INITIAL_BASELINE_NO_LOWER_BOUND",
+    "missing_watermark": "GAP_OR_WATERMARK_NOT_FOUND",
+    "manual": "MANUAL_DIAGNOSTIC",
+    "bounded": "BOUNDED_METADATA_ONLY",
+    "research_observation_eligible": false,
+    "signal_eligible": false,
+    "public_availability_certified": false,
+    "same_day_intraday_use_authorized": false
+  },
+  "preflight": {
+    "actions_total": 7798,
+    "latest_phase475_pr_run": 44280678035,
+    "latest_phase475_push_run": 44280647505,
+    "latest_cftc_scheduled_run": 44232546204,
+    "latest_sec_form144_scheduled_run": 44228413864,
+    "latest_finra_phase469_run": 44228802578,
+    "phase403_schedule_gap_issue": 136
+  },
+  "no_backfill": true,
+  "no_raw_filing_download": true,
+  "no_alpha_test": true,
+  "no_oos_test": true,
+  "no_bootstrap": true,
+  "no_loo": true,
+  "frozen_f80": true,
+  "production_changed": false,
+  "offline_tests": 32,
+  "ci_run": 44291265497,
+  "push_run": 44291256951,
+  "pull_request_live_capture": "skipped_as_designed",
+  "pr_artifacts": []
+}
