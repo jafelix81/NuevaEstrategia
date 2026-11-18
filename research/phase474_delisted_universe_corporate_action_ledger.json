@@ -1,0 +1,209 @@
+{
+  "phase": 474,
+  "audit_cutoff_utc": "2026-11-18T08:03:00Z",
+  "purpose": "Re-adjudicate the seven Phase 473 price-history failures against issuer/SEC corporate-action evidence. This is a metadata-only event ledger, not a price or return series.",
+  "phase473_full_universe_census": {
+    "run_id": 44258810704,
+    "artifact_id": 14408145092,
+    "yfinance_version": "1.7.0",
+    "universe_count": 335,
+    "valid_count": 328,
+    "failure_count": 7,
+    "failed_symbols": [
+      "AVB",
+      "EA",
+      "EQR",
+      "LPRO",
+      "ROKU",
+      "WBD",
+      "WBS"
+    ],
+    "failed_symbol_response_rows": {
+      "AVB": 1,
+      "EA": 1,
+      "EQR": 1,
+      "LPRO": 1,
+      "ROKU": 2,
+      "WBD": 1,
+      "WBS": 1
+    },
+    "raw_prices_retained": false
+  },
+  "prior_phase20c_run": {
+    "run_id": 40098425254,
+    "date": "2026-10-24",
+    "valid_count": 329,
+    "failure_count": 6,
+    "failed_ticker_list_preserved": false
+  },
+  "actions": [
+    {
+      "ticker": "AVB",
+      "issuer": "AvalonBay Communities",
+      "status": "merged_into_successor",
+      "closing_date": "2026-08-17",
+      "successor_ticker": "VMRK",
+      "successor_security": "Vivmark Residential common shares",
+      "consideration": {
+        "cash_per_old_share": 0,
+        "successor_shares_per_old_share": 2.793,
+        "successor_share_class": "VMRK common",
+        "fractional_cash_in_lieu": true
+      },
+      "last_trade_date": null,
+      "trading_halt_date": null,
+      "price_reconstruction": "required",
+      "signal_eligible": false,
+      "source_urls": [
+        "https://www.sec.gov/Archives/edgar/data/906107/000114036126033377/ef20080318_8k.htm",
+        "https://www.sec.gov/Archives/edgar/data/906107/000114036126033377/ef20080318_ex99-1.htm"
+      ]
+    },
+    {
+      "ticker": "EA",
+      "issuer": "Electronic Arts",
+      "status": "acquired_private_delisted",
+      "closing_date": "2026-08-04",
+      "successor_ticker": null,
+      "successor_security": "cash consideration",
+      "consideration": {
+        "cash_per_old_share": 210,
+        "successor_shares_per_old_share": 0,
+        "successor_share_class": null,
+        "fractional_cash_in_lieu": false
+      },
+      "last_trade_date": null,
+      "trading_halt_date": null,
+      "price_reconstruction": "required",
+      "signal_eligible": false,
+      "source_urls": [
+        "https://www.ea.com/news/ea-announces-completion-of-acquisition"
+      ]
+    },
+    {
+      "ticker": "EQR",
+      "issuer": "Equity Residential (legal acquirer in merger of equals)",
+      "status": "issuer_name_and_ticker_change",
+      "closing_date": "2026-08-17",
+      "successor_ticker": "VMRK",
+      "successor_security": "same continuing issuer equity; ticker/name change",
+      "consideration": {
+        "cash_per_old_share": 0,
+        "successor_shares_per_old_share": 1,
+        "successor_share_class": "same issuer shares; continuity, not a merger exchange",
+        "fractional_cash_in_lieu": false
+      },
+      "ticker_effective_date": "2026-08-18",
+      "last_trade_date": null,
+      "trading_halt_date": null,
+      "price_reconstruction": "required",
+      "signal_eligible": false,
+      "source_urls": [
+        "https://www.sec.gov/Archives/edgar/data/906107/000114036126033377/ef20080318_8k.htm",
+        "https://www.sec.gov/Archives/edgar/data/906107/000114036126033377/ef20080318_ex99-1.htm"
+      ]
+    },
+    {
+      "ticker": "LPRO",
+      "issuer": "Open Lending Corporation",
+      "status": "acquired_private_delisted",
+      "closing_date": "2026-07-30",
+      "successor_ticker": null,
+      "successor_security": "cash consideration",
+      "consideration": {
+        "cash_per_old_share": 3.15,
+        "successor_shares_per_old_share": 0,
+        "successor_share_class": null,
+        "fractional_cash_in_lieu": false
+      },
+      "last_trade_date": null,
+      "trading_halt_date": null,
+      "price_reconstruction": "required",
+      "signal_eligible": false,
+      "source_urls": [
+        "https://www.sec.gov/Archives/edgar/data/1806201/000119312526325062/d154380d8k.htm",
+        "https://www.sec.gov/Archives/edgar/data/1806201/000119312526326655/d117354d8k.htm"
+      ]
+    },
+    {
+      "ticker": "ROKU",
+      "issuer": "Roku, Inc.",
+      "status": "acquired_by_fox_delisted",
+      "closing_date": "2026-11-06",
+      "successor_ticker": "FOX",
+      "successor_security": "FOX Class A common stock plus cash",
+      "consideration": {
+        "cash_per_old_share": 95.3,
+        "successor_shares_per_old_share": 0.9799,
+        "successor_share_class": "FOX Class A",
+        "fractional_cash_in_lieu": true,
+        "adjustment_note": "Closing 8-K states consideration after adjustment to account for dissenting shares; use 0.9799 shares plus $95.30, not the earlier announced terms."
+      },
+      "last_trade_date": null,
+      "trading_halt_date": "2026-11-09",
+      "price_reconstruction": "required",
+      "signal_eligible": false,
+      "source_urls": [
+        "https://www.sec.gov/Archives/edgar/data/1428439/000119312526451874/d181620d8k.htm"
+      ]
+    },
+    {
+      "ticker": "WBD",
+      "issuer": "Warner Bros. Discovery",
+      "status": "acquired_by_skydance_delisted",
+      "closing_date": "2026-10-06",
+      "successor_ticker": null,
+      "successor_security": "cash consideration",
+      "consideration": {
+        "cash_per_old_share": 31.01666668,
+        "successor_shares_per_old_share": 0,
+        "successor_share_class": null,
+        "fractional_cash_in_lieu": false,
+        "ticking_fee_included": true
+      },
+      "last_trade_date": null,
+      "trading_halt_date": null,
+      "price_reconstruction": "required",
+      "signal_eligible": false,
+      "source_urls": [
+        "https://www.sec.gov/Archives/edgar/data/1437107/000119312526415055/d200872d8k.htm"
+      ]
+    },
+    {
+      "ticker": "WBS",
+      "issuer": "Webster Financial Corporation",
+      "status": "acquired_by_santander_delisted",
+      "closing_date": "2026-08-20",
+      "successor_ticker": "SAN",
+      "successor_security": "Banco Santander ADS plus cash",
+      "consideration": {
+        "cash_per_old_share": 48.75,
+        "successor_shares_per_old_share": 2.0548,
+        "successor_share_class": "Banco Santander ADS",
+        "fractional_cash_in_lieu": true
+      },
+      "last_trade_date": null,
+      "trading_halt_date": "2026-08-20",
+      "price_reconstruction": "required",
+      "signal_eligible": false,
+      "source_urls": [
+        "https://www.sec.gov/Archives/edgar/data/801337/000119312526357758/d919931d8k.htm"
+      ]
+    }
+  ],
+  "adjudication": {
+    "inactive_or_ticker_changed_count": 7,
+    "provider_history_root_cause_fully_proven": false,
+    "phase473_generic_provider_drift_label_superseded": true,
+    "prior_329_to_current_328_count_change_consistent_with_rokus_november_2026_delisting_but_not_proven": true,
+    "reason_prior_failure_ticker_ledger_missing": "The 2026-10-24 Phase 20C artifact preserved 329/335 aggregate coverage but did not preserve its six failed ticker names.",
+    "universe_may_be_reduced": false,
+    "historical_delisted_rows_may_be_dropped": false,
+    "fallback_price_series_admitted": false,
+    "terminal_returns_reconstructed": false,
+    "alpha_test_authorized": false,
+    "oos_authorized": false,
+    "f80_changed": false,
+    "production_changed": false
+  }
+}
