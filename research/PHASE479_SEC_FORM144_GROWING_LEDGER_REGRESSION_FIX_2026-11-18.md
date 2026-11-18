@@ -59,3 +59,12 @@ Issue [#136](https://github.com/jafelix81/NuevaEstrategia/issues/136) is updated
 - No backtest, event study, alpha, OOS, bootstrap, LOO or holdout test.
 - No change to the 335-name universe, `F80_TOP20_PARTIAL50_BASELINE_C20`, parameters, capital, exposure, costs, production or holdout.
 - FINRA, CFTC, Form 4, Cboe and other Smart Money source hypotheses remain independent. No source interpretation or signal is promoted by this operational repair.
+
+
+## 6. CI and merge closeout (2026-11-18 12:33 UTC)
+
+- PR [#140](https://github.com/jafelix81/NuevaEstrategia/pull/140) passed the Phase 403 offline-regression job in [run 44304878119](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44304878119). All **40 tests passed** across Phase 403 capture, Phase 454 migration, Phase 464 production audit and Phase 465 Atom pagination.
+- The PR-triggered live-capture job was skipped as designed; no artifact, SEC request or data-ledger mutation was produced by CI.
+- PR #140 was squash-merged at 2026-11-18 12:32:51 UTC. Main merge commit: `829fa7240bae3f7d8d1ef945cd0aefae419dbc62`.
+- Post-merge preflight: active Actions runs 0; queued runs 0. The next configured Phase 403 schedule slot is the existing minute-47 UTC slot; wait for it rather than manually dispatching. The next Phase 476 minute-17 scheduled capture has not yet appeared in the observed schedule inventory.
+- Issue [#136](https://github.com/jafelix81/NuevaEstrategia/issues/136) was updated. Keep it open until a post-merge scheduled Phase 403 run completes both offline and live jobs and its artifact/ledger are verified.
