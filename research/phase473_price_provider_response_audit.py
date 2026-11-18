@@ -18,8 +18,6 @@ from pathlib import Path
 from typing import Any
 
 import requests
-import pandas as pd
-import yfinance as yf
 
 START = "2016-10-24"
 END_EXCLUSIVE = "2026-10-24"
@@ -76,6 +74,14 @@ def normalize_nasdaq_date(value: Any) -> str | None:
         except ValueError:
             continue
     return None
+
+
+def get_yfinance_version() -> str | None:
+    try:
+        import yfinance as yf
+        return str(getattr(yf, "__version__", "unknown"))
+    except ImportError:
+        return None
 
 
 def request_session() -> requests.Session:
@@ -289,6 +295,8 @@ def fetch_nasdaq(ticker: str, date_format: str) -> dict[str, Any]:
 
 def fetch_yfinance(ticker: str) -> dict[str, Any]:
     """Mirror the Phase 11 download call; persist only counts and date bounds."""
+    import pandas as pd
+    import yfinance as yf
     out = base_record(ticker, "yfinance_phase11_10y")
     try:
         raw = yf.download(
@@ -333,7 +341,7 @@ def fetch_yfinance(ticker: str) -> dict[str, Any]:
         out.update({
             "status": "ok" if len(dates) else "no_usable_ohlc_rows",
             "schema_valid": True,
-            "yfinance_version": getattr(yf, "__version__", "unknown"),
+            "yfinance_version": get_yfinance_version(),
             "rows": int(len(frame)),
             "close_value_count": int(close_valid.sum()),
             "open_close_value_count": int(ohlc_valid.sum()),

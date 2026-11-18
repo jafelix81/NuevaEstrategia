@@ -47,7 +47,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install requests
-        run: pip install requests
+        run: pip install requests yfinance
       - name: Run metadata-only provider probe
         run: python -u -m research.phase473_price_provider_response_audit --output phase473_output
       - name: Upload metadata-only result
