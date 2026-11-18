@@ -9,8 +9,8 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import math
 import re
-import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from io import StringIO
@@ -43,6 +43,25 @@ def date_from_epoch(value: Any) -> str | None:
         return datetime.fromtimestamp(int(value), timezone.utc).date().isoformat()
     except (TypeError, ValueError, OverflowError, OSError):
         return None
+
+
+def positive_finite(value: Any) -> bool:
+    try:
+        number = float(value)
+        return math.isfinite(number) and number > 0
+    except (TypeError, ValueError):
+        return False
+
+
+def valid_close_dates(timestamps: list[Any], closes: list[Any]) -> list[str]:
+    """Return dates with usable closes, never the raw close values."""
+    dates = []
+    for timestamp, close in zip(timestamps, closes):
+        if positive_finite(close):
+            day = date_from_epoch(timestamp)
+            if day:
+                dates.append(day)
+    return sorted(set(dates))
 
 
 def request_session() -> requests.Session:
@@ -100,11 +119,19 @@ def fetch_yahoo(ticker: str, host: str) -> dict[str, Any]:
             return out
         item = result[0]
         timestamps = item.get("timestamp") or []
-        dates = sorted({d for d in (date_from_epoch(x) for x in timestamps) if d})
+        indicators = item.get("indicators") or {}
+        quote = (indicators.get("quote") or [{}])[0]
+        closes = quote.get("close") or []
+        adjusted = (indicators.get("adjclose") or [{}])[0].get("adjclose") or []
+        dates = valid_close_dates(timestamps, closes)
+        valid_adjusted_count = sum(positive_finite(x) for x in adjusted)
         meta = item.get("meta") or {}
         out.update({
-            "status": "ok" if dates else "empty_chart",
-            "schema_valid": True,
+            "status": "ok" if dates else ("empty_chart" if timestamps else "empty_result"),
+            "schema_valid": isinstance(timestamps, list) and isinstance(closes, list),
+            "timestamp_count": len(timestamps),
+            "close_value_count": sum(positive_finite(x) for x in closes),
+            "adjusted_close_value_count": valid_adjusted_count,
             "rows": len(dates),
             "first_date": dates[0] if dates else None,
             "last_date": dates[-1] if dates else None,
@@ -114,7 +141,6 @@ def fetch_yahoo(ticker: str, host: str) -> dict[str, Any]:
             "first_trade_date": date_from_epoch(meta.get("firstTradeDate")),
             "regular_market_time": date_from_epoch(meta.get("regularMarketTime")),
             "price_hint": meta.get("priceHint"),
-            "valid_ranges": [clean_text(x, 20) for x in (meta.get("validRanges") or [])[:20]],
         })
         return out
     except Exception as exc:
@@ -138,6 +164,11 @@ def fetch_stooq(ticker: str) -> dict[str, Any]:
         out["content_type"] = response.headers.get("Content-Type")
         out["response_bytes"] = len(response.content)
         response.raise_for_status()
+        if "text/html" in str(out["content_type"]).lower():
+            title = re.search(r"<title[^>]*>(.*?)</title>", response.text, flags=re.I | re.S)
+            out["html_title"] = clean_text(title.group(1) if title else None, 100)
+            out["status"] = "unexpected_html_response"
+            return out
         reader = csv.reader(StringIO(response.text))
         header = next(reader, [])
         columns = [clean_text(x, 32) for x in header]
@@ -145,7 +176,6 @@ def fetch_stooq(ticker: str) -> dict[str, Any]:
         normalized = {str(x).strip().lower() for x in header}
         if not {"date", "close"}.issubset(normalized):
             out["status"] = "unexpected_csv_schema"
-            out["schema_valid"] = False
             return out
         date_idx = next(i for i, x in enumerate(header) if str(x).strip().lower() == "date")
         close_idx = next(i for i, x in enumerate(header) if str(x).strip().lower() == "close")
@@ -154,8 +184,8 @@ def fetch_stooq(ticker: str) -> dict[str, Any]:
             if len(row) <= max(date_idx, close_idx):
                 continue
             date_value = clean_text(row[date_idx], 16)
-            close_value = clean_text(row[close_idx], 32)
-            if date_value and close_value:
+            close_value = row[close_idx]
+            if date_value and positive_finite(close_value):
                 dates.append(date_value)
         dates = sorted(set(dates))
         out.update({
@@ -172,19 +202,24 @@ def fetch_stooq(ticker: str) -> dict[str, Any]:
         return out
 
 
-def fetch_nasdaq(ticker: str) -> dict[str, Any]:
-    out = base_record(ticker, "nasdaq")
+def fetch_nasdaq(ticker: str, date_format: str) -> dict[str, Any]:
+    provider = f"nasdaq_{date_format}"
+    out = base_record(ticker, provider)
     session = request_session()
     session.headers.update({
         "Origin": "https://www.nasdaq.com",
         "Referer": f"https://www.nasdaq.com/market-activity/stocks/{ticker.lower()}/historical",
     })
     url = f"https://api.nasdaq.com/api/quote/{ticker}/historical"
+    if date_format == "iso":
+        fromdate, todate = START, END_EXCLUSIVE
+    else:
+        fromdate, todate = "10/24/2016", "10/24/2026"
     params = {
         "assetclass": "stocks",
-        "fromdate": "10/24/2016",
+        "fromdate": fromdate,
         "limit": "5000",
-        "todate": "10/24/2026",
+        "todate": todate,
     }
     try:
         response = session.get(url, params=params, timeout=TIMEOUT)
@@ -193,12 +228,19 @@ def fetch_nasdaq(ticker: str) -> dict[str, Any]:
         out["response_bytes"] = len(response.content)
         response.raise_for_status()
         payload = response.json()
+        status_obj = payload.get("status")
+        if isinstance(status_obj, dict):
+            messages = status_obj.get("bCodeMessage") or []
+            first_message = messages[0] if messages and isinstance(messages[0], dict) else {}
+            out["api_r_code"] = status_obj.get("rCode")
+            out["api_error_code"] = first_message.get("code")
+            out["api_error_message"] = clean_text(first_message.get("errorMessage"))
+        else:
+            out["api_r_code"] = clean_text(status_obj, 32)
         data = payload.get("data") or {}
         table = data.get("tradesTable") or {}
         rows = table.get("rows")
         out.update({
-            "api_status": clean_text(payload.get("status")),
-            "api_message": clean_text(payload.get("message")),
             "root_keys": sorted(str(k) for k in payload.keys())[:30],
             "data_keys": sorted(str(k) for k in data.keys())[:30],
             "trades_table_keys": sorted(str(k) for k in table.keys())[:30],
@@ -206,7 +248,7 @@ def fetch_nasdaq(ticker: str) -> dict[str, Any]:
             "schema_valid": isinstance(rows, list),
         })
         if not isinstance(rows, list):
-            out["status"] = "unexpected_json_schema"
+            out["status"] = "api_error_or_unexpected_json_schema"
             return out
         dates = []
         for row in rows:
@@ -283,7 +325,8 @@ def run_probe() -> dict[str, Any]:
                 pool.submit(fetch_yahoo, ticker, "query1.finance.yahoo.com"),
                 pool.submit(fetch_yahoo, ticker, "query2.finance.yahoo.com"),
                 pool.submit(fetch_stooq, ticker),
-                pool.submit(fetch_nasdaq, ticker),
+                pool.submit(fetch_nasdaq, ticker, "us_slash"),
+                pool.submit(fetch_nasdaq, ticker, "iso"),
             ])
         records = [future.result() for future in as_completed(tasks)]
     records.sort(key=lambda x: (x["provider"], x["ticker"]))
