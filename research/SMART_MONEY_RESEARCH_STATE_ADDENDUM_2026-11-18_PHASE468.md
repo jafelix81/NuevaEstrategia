@@ -7,12 +7,12 @@
 - First receipt is treated as a conservative local-knowledge upper bound, not the exact public release instant. Entry is the first supplied XNYS open strictly after receipt; H-session labels exit at the close of the H-th session including entry day.
 - Historical Phase 31 rows without first-receipt timestamps are rejected. Same-day close entry is never used. Missing bars, duplicate observations, revisions, invalid clocks, unsupported price bases and incomplete price paths fail closed.
 - Only adjusted OHLC is accepted. Split-adjusted returns omit cash dividends; a later economic test still requires total-return data, delisting/terminal returns, corporate actions, costs and effective-dated security identity.
-- 30 synthetic tests passed locally. Branch-only CI was added; it performs no market-data access and has no schedule.
+- 30 synthetic tests passed locally and in GitHub Actions run [44214907592](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44214907592). Job `offline-pit-regression` passed; the log confirms 30/30 tests; no artifact was produced. The branch-only workflow performs no market-data access and has no schedule.
 - No FINRA request, price download, label generation on historical data, backtest, OOS, bootstrap, LOO, signal admission or production change.
 
 ## Operational preflight — 2026-11-18 01:13 UTC
 
-- Actions inventory: 7,730 total runs; zero in-progress; zero queued.
+- Actions inventory after CI: 7,739 total runs; zero in-progress; zero queued.
 - Branches: 300 (three pages of 100). Open PRs: 57.
 - PR #129's existing runs [44209207223](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44209207223) and [44209207126](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44209207126) completed successfully. Each ran one offline regression job; neither produced artifacts.
 - SEC Form 144: latest scheduled run remains [44179257367](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44179257367). The expected 2026-11-18 00:47 UTC slot is absent from the scheduled-run inventory through 01:13 UTC. Phase 465 pagination remains not live-validated.
