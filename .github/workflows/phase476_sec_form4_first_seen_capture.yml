@@ -2,7 +2,7 @@ name: Phase 476 - SEC Form 4 first-seen prospective metadata capture
 
 on:
   push:
-    branches: [phase476-sec-form4-first-seen-capture]
+    branches: [phase476-sec-form4-first-seen-capture, phase477-sec-form4-feed-timestamp-consistency-gate]
     paths:
       - ".github/workflows/phase476_sec_form4_first_seen_capture.yml"
       - "research/phase476_sec_form4_first_seen_capture.py"
@@ -10,6 +10,12 @@ on:
       - "research/PHASE476_SEC_FORM4_FIRST_SEEN_PROSPECTIVE_CAPTURE_AUDIT_2026-11-18.md"
       - "research/PHASE476_SEC_FORM4_FIRST_SEEN_PROSPECTIVE_CAPTURE_SUMMARY_2026-11-18.json"
       - "research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-18_PHASE476.md"
+      - "research/PHASE477_SEC_FORM4_FEED_TIMESTAMP_CONSISTENCY_GATE_2026-11-18.md"
+      - "research/PHASE477_SEC_FORM4_FEED_TIMESTAMP_CONSISTENCY_GATE_SUMMARY_2026-11-18.json"
+      - "research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-18_PHASE477.md"
+      - "research/PHASE477_SEC_FORM4_FEED_TIMESTAMP_CONSISTENCY_GATE_2026-11-18.md"
+      - "research/PHASE477_SEC_FORM4_FEED_TIMESTAMP_CONSISTENCY_GATE_SUMMARY_2026-11-18.json"
+      - "research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-18_PHASE477.md"
   pull_request:
     paths:
       - ".github/workflows/phase476_sec_form4_first_seen_capture.yml"
@@ -18,6 +24,9 @@ on:
       - "research/PHASE476_SEC_FORM4_FIRST_SEEN_PROSPECTIVE_CAPTURE_AUDIT_2026-11-18.md"
       - "research/PHASE476_SEC_FORM4_FIRST_SEEN_PROSPECTIVE_CAPTURE_SUMMARY_2026-11-18.json"
       - "research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-18_PHASE476.md"
+      - "research/PHASE477_SEC_FORM4_FEED_TIMESTAMP_CONSISTENCY_GATE_2026-11-18.md"
+      - "research/PHASE477_SEC_FORM4_FEED_TIMESTAMP_CONSISTENCY_GATE_SUMMARY_2026-11-18.json"
+      - "research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-18_PHASE477.md"
   workflow_dispatch:
   schedule:
     - cron: "17 * * * 1-5"

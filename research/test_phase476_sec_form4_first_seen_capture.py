@@ -84,31 +84,65 @@ class Phase476Tests(unittest.TestCase):
 
     def test_initial_baseline_has_no_lower_bound(self):
         self.assertEqual(
-            p.classify_interval("schedule", None, False, None),
+            p.classify_poll_interval("schedule", None, False, None),
             "INITIAL_BASELINE_NO_LOWER_BOUND",
         )
 
     def test_missing_watermark_is_gap(self):
         self.assertEqual(
-            p.classify_interval("schedule", "old", False, "2026-11-18T10:00:00Z"),
+            p.classify_poll_interval("schedule", "old", False, "2026-11-18T10:00:00Z"),
             "GAP_OR_WATERMARK_NOT_FOUND",
         )
 
     def test_missing_prior_success_is_not_bounded(self):
         self.assertEqual(
-            p.classify_interval("schedule", "old", True, None),
+            p.classify_poll_interval("schedule", "old", True, None),
             "NO_PRIOR_SUCCESSFUL_POLL",
         )
 
     def test_bounded_metadata_requires_prior_watermark_and_success(self):
         self.assertEqual(
-            p.classify_interval("schedule", "old", True, "2026-11-18T10:00:00Z"),
+            p.classify_poll_interval("schedule", "old", True, "2026-11-18T10:00:00Z"),
+            "POLL_WATERMARK_BOUNDED",
+        )
+        self.assertEqual(
+            p.classify_interval(
+                "schedule", "old", True, "2026-11-18T10:00:00Z",
+                "2026-11-18T10:30:00Z", "2026-11-18T11:00:00Z",
+            ),
             "BOUNDED_METADATA_ONLY",
+        )
+
+    def test_stale_feed_timestamp_is_not_bounded(self):
+        self.assertEqual(
+            p.classify_interval(
+                "schedule", "old", True, "2026-11-18T10:00:00Z",
+                "2026-11-18T09:59:59Z", "2026-11-18T11:00:00Z",
+            ),
+            "FEED_TIMESTAMP_NOT_AFTER_PREVIOUS_POLL",
+        )
+
+    def test_missing_feed_timestamp_is_not_bounded(self):
+        self.assertEqual(
+            p.classify_interval(
+                "schedule", "old", True, "2026-11-18T10:00:00Z",
+                "", "2026-11-18T11:00:00Z",
+            ),
+            "FEED_OR_RECEIPT_TIMESTAMP_UNKNOWN",
+        )
+
+    def test_future_feed_timestamp_is_not_bounded(self):
+        self.assertEqual(
+            p.classify_interval(
+                "schedule", "old", True, "2026-11-18T10:00:00Z",
+                "2026-11-18T11:00:01Z", "2026-11-18T11:00:00Z",
+            ),
+            "FEED_TIMESTAMP_AFTER_FIRST_SEEN",
         )
 
     def test_manual_capture_never_becomes_bounded(self):
         self.assertEqual(
-            p.classify_interval("manual", "old", True, "2026-11-18T10:00:00Z"),
+            p.classify_poll_interval("manual", "old", True, "2026-11-18T10:00:00Z"),
             "MANUAL_DIAGNOSTIC",
         )
 
@@ -196,7 +230,10 @@ class Phase476Tests(unittest.TestCase):
 
     def test_event_policy_never_authorizes_signal(self):
         # A bounded first-seen interval is metadata only; all identity and semantics gates remain false.
-        status = p.classify_interval("schedule", "old", True, "2026-11-18T10:00:00Z")
+        status = p.classify_interval(
+            "schedule", "old", True, "2026-11-18T10:00:00Z",
+            "2026-11-18T10:30:00Z", "2026-11-18T11:00:00Z",
+        )
         self.assertEqual(status, "BOUNDED_METADATA_ONLY")
         self.assertFalse(status == "SIGNAL_ELIGIBLE")
 
@@ -245,13 +282,17 @@ class Phase476Tests(unittest.TestCase):
             output_dir = root / "output"
             prior = "0000000001-26-000031"
             first = feed(entry(prior))
-            second = feed(entry("0000000001-26-000032"), entry(prior))
+            second = feed(entry("0000000001-26-000032", updated="2026-11-18T10:30:00Z"), entry(prior))
             with patch.object(p, "DATA_DIR", data_dir), \
                  patch.object(p, "STATE_PATH", data_dir / "state.json"), \
                  patch.object(p, "EVENTS_PATH", data_dir / "events.csv"), \
                  patch.object(p, "OBSERVATIONS_PATH", data_dir / "feed_observations.csv"), \
                  patch.object(p, "FEEDS", {"4": self.url}), \
-                 patch.object(p.p401, "fetch_bytes", side_effect=[first, second]):
+                 patch.object(p.p401, "fetch_bytes", side_effect=[first, second]), \
+                 patch.object(p, "now_utc", side_effect=[
+                     "2026-11-18T10:00:00Z", "2026-11-18T10:00:01Z", "2026-11-18T10:00:02Z",
+                     "2026-11-18T11:00:00Z", "2026-11-18T11:00:01Z", "2026-11-18T11:00:02Z",
+                 ]):
                 p.run_capture("schedule", "baseline-run", output_dir)
                 previous_end = json.loads((data_dir / "state.json").read_text())["feeds"]["4"]["last_successful_poll_end_utc"]
                 summary = p.run_capture("schedule", "bounded-run", output_dir)
