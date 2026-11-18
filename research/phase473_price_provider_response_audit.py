@@ -386,7 +386,7 @@ def build_summary(records: list[dict[str, Any]]) -> dict[str, Any]:
     return {
         "phase": 473,
         "audit_time_utc": datetime.now(timezone.utc).isoformat(),
-        "yfinance_version": getattr(yf, "__version__", "unknown"),
+        "yfinance_version": get_yfinance_version(),
         "price_window_start": START,
         "price_window_end_exclusive": END_EXCLUSIVE,
         "controls": list(CONTROLS),
