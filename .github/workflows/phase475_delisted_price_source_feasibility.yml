@@ -1,0 +1,36 @@
+name: Phase 475 - delisted price-source feasibility audit
+
+on:
+  push:
+    branches: [phase475-delisted-price-source-feasibility]
+    paths:
+      - ".github/workflows/phase475_delisted_price_source_feasibility.yml"
+      - "research/phase475_delisted_price_source_feasibility.py"
+      - "research/test_phase475_delisted_price_source_feasibility.py"
+      - "research/PHASE475_DELISTED_PRICE_SOURCE_FEASIBILITY_2026-11-18.md"
+      - "research/PHASE475_DELISTED_PRICE_SOURCE_FEASIBILITY_SUMMARY_2026-11-18.json"
+      - "research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-18_PHASE475.md"
+  pull_request:
+    paths:
+      - ".github/workflows/phase475_delisted_price_source_feasibility.yml"
+      - "research/phase475_delisted_price_source_feasibility.py"
+      - "research/test_phase475_delisted_price_source_feasibility.py"
+      - "research/PHASE475_DELISTED_PRICE_SOURCE_FEASIBILITY_2026-11-18.md"
+      - "research/PHASE475_DELISTED_PRICE_SOURCE_FEASIBILITY_SUMMARY_2026-11-18.json"
+      - "research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-18_PHASE475.md"
+
+permissions:
+  contents: read
+
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile and validate documentation-only source matrix
+        run: |
+          python -m py_compile research/phase475_delisted_price_source_feasibility.py research/test_phase475_delisted_price_source_feasibility.py
+          python -m unittest -v research.test_phase475_delisted_price_source_feasibility
