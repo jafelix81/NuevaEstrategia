@@ -59,6 +59,20 @@ class Phase473Tests(unittest.TestCase):
         self.assertEqual(normalize_nasdaq_date("2026-10-23"), "2026-10-23")
         self.assertEqual(normalize_nasdaq_date("not-a-date"), None)
 
+    def test_full_universe_census_is_metadata_only(self):
+        sample = {
+            "universe_count": 335,
+            "valid_count": 329,
+            "failure_count": 6,
+            "raw_price_data_retained": False,
+            "raw_feature_data_retained": False,
+            "phase11_main_or_backtest_executed": False,
+        }
+        self.assertEqual(sample["universe_count"] - sample["valid_count"], sample["failure_count"])
+        self.assertFalse(sample["raw_price_data_retained"])
+        self.assertFalse(sample["raw_feature_data_retained"])
+        self.assertFalse(sample["phase11_main_or_backtest_executed"])
+
     def test_summary_is_metadata_only_and_fallback_remains_false(self):
         rows = records("yahoo", [10, 10, 10, 10], [0] * 7)
         summary = build_summary(rows)

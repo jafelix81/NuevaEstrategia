@@ -7,6 +7,7 @@ feasibility-only and never authorizes a mixed-provider price panel.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import csv
 import json
 import math
@@ -424,6 +425,74 @@ def run_probe() -> dict[str, Any]:
     return build_summary(records)
 
 
+
+def run_full_phase11_universe_census() -> dict[str, Any]:
+    """Run the repository's exact Phase 11 download_universe() on all 335 names.
+
+    The imported module creates only its normal empty output directory at import.
+    This function calls download_universe() but does not invoke Phase 11 main(),
+    and persists no price/feature rows.
+    """
+    import numpy as np
+    import pandas as pd
+    import Nueva_Estrategia_Fase11_Real1000_LTM_v4 as phase11
+
+    universe = list(phase11.DEFAULT_UNIVERSE)
+    data, failures = phase11.download_universe(universe)
+    ticker_rows = []
+    for ticker, frame in sorted(data.items()):
+        dates = pd.to_datetime(frame["Date"], errors="coerce") if "Date" in frame.columns else pd.Series([], dtype="datetime64[ns]")
+        open_values = pd.to_numeric(frame["Open"], errors="coerce") if "Open" in frame.columns else pd.Series([], dtype="float64")
+        close_values = pd.to_numeric(frame["Close"], errors="coerce") if "Close" in frame.columns else pd.Series([], dtype="float64")
+        usable = open_values.notna() & (open_values > 0) & close_values.notna() & (close_values > 0)
+        valid_dates = dates[usable] if len(dates) == len(usable) else pd.Series([], dtype="datetime64[ns]")
+        valid_dates = valid_dates.dropna().sort_values()
+        ticker_rows.append({
+            "ticker": ticker,
+            "feature_rows": int(len(frame)),
+            "positive_open_close_rows": int(usable.sum()) if len(usable) else 0,
+            "first_valid_ohlc_date": valid_dates.iloc[0].date().isoformat() if len(valid_dates) else None,
+            "last_valid_ohlc_date": valid_dates.iloc[-1].date().isoformat() if len(valid_dates) else None,
+            "passes_phase11_220_row_gate": bool(len(frame) >= 220),
+        })
+    failure_rows = []
+    for item in failures:
+        message = str(item.get("Error", ""))
+        prefix = message.split(":", 1)[0]
+        lower = message.lower()
+        if "empty download" in lower:
+            category = "empty_download"
+        elif "insufficient rows" in lower:
+            category = "insufficient_rows"
+        else:
+            category = "other"
+        failure_rows.append({
+            "ticker": str(item.get("Ticker", "")),
+            "error_class": clean_text(prefix, 80),
+            "error_category": category,
+        })
+    universe_hash = hashlib.sha256("\\n".join(universe).encode("utf-8")).hexdigest()
+    return {
+        "source_file": "Nueva_Estrategia_Fase11_Real1000_LTM_v4.py",
+        "source_file_blob_sha": "06dc0ece5dd4a3def6a7e2b603564bfc588c0b27",
+        "universe_count": len(universe),
+        "universe_sha256_ordered": universe_hash,
+        "period": phase11.PERIOD,
+        "minimum_feature_rows": 220,
+        "yfinance_version": getattr(phase11.yf, "__version__", "unknown"),
+        "pandas_version": pd.__version__,
+        "numpy_version": np.__version__,
+        "valid_count": len(data),
+        "failure_count": len(failure_rows),
+        "valid_tickers": sorted(data.keys()),
+        "failure_tickers": failure_rows,
+        "ticker_metadata": ticker_rows,
+        "raw_price_data_retained": False,
+        "raw_feature_data_retained": False,
+        "phase11_main_or_backtest_executed": False,
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", default="phase473_output")
@@ -431,6 +500,7 @@ def main() -> None:
     outdir = Path(args.output)
     outdir.mkdir(parents=True, exist_ok=True)
     summary = run_probe()
+    summary["phase11_full_universe_census"] = run_full_phase11_universe_census()
     target = outdir / "summary.json"
     target.write_text(json.dumps(summary, indent=2, sort_keys=True), encoding="utf-8")
     print("PHASE473_PROVIDER_RESPONSE_AUDIT=", summary["research_disposition"])
@@ -444,7 +514,9 @@ def main() -> None:
     print("RAW_PRICE_DATA_RETAINED=False")
     print("RAW_RESPONSE_BODIES_RETAINED=False")
     print("FALLBACK_ACCEPTED=False")
-    if summary["raw_price_data_retained"] or summary["raw_provider_response_bodies_retained"] or summary["fallback_accepted"]:
+    census = summary["phase11_full_universe_census"]
+    print("PHASE11_FULL_UNIVERSE=", census["universe_count"], "VALID=", census["valid_count"], "FAILURES=", census["failure_count"], "YFINANCE=", census["yfinance_version"])
+    if summary["raw_price_data_retained"] or summary["raw_provider_response_bodies_retained"] or summary["fallback_accepted"] or census["raw_price_data_retained"] or census["raw_feature_data_retained"] or census["phase11_main_or_backtest_executed"]:
         raise SystemExit("Phase 473 research-only guard violated")
 
 
