@@ -1,0 +1,30 @@
+name: Phase 483 - SEC 13D/G event-date integrity audit
+
+on:
+  push:
+    branches: [phase483-13dg-event-date-integrity-audit]
+    paths:
+      - ".github/workflows/phase483_13dg_event_date_integrity_audit.yml"
+      - "research/phase483_13dg_event_date_integrity_audit.py"
+      - "research/test_phase483_13dg_event_date_integrity_audit.py"
+  pull_request:
+    paths:
+      - ".github/workflows/phase483_13dg_event_date_integrity_audit.yml"
+      - "research/phase483_13dg_event_date_integrity_audit.py"
+      - "research/test_phase483_13dg_event_date_integrity_audit.py"
+
+permissions:
+  contents: read
+
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile and run event-date integrity tests
+        run: |
+          python -m py_compile research/phase483_13dg_event_date_integrity_audit.py research/test_phase483_13dg_event_date_integrity_audit.py
+          python -m unittest -v research.test_phase483_13dg_event_date_integrity_audit
