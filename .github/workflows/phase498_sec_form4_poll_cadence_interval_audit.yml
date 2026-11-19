@@ -1,0 +1,55 @@
+name: Phase 498 - SEC Form 4 poll cadence and interval audit
+
+on:
+  push:
+    branches: [phase498-form4-poll-cadence-interval-audit]
+    paths:
+      - ".github/workflows/phase498_sec_form4_poll_cadence_interval_audit.yml"
+      - "research/phase498_sec_form4_poll_cadence_interval_audit.py"
+      - "research/test_phase498_sec_form4_poll_cadence_interval_audit.py"
+      - "research/data/sec_form4_first_seen/**"
+      - "research/PHASE498_SEC_FORM4_POLL_CADENCE_INTERVAL_AUDIT_2026-11-19.md"
+      - "research/PHASE498_SEC_FORM4_POLL_CADENCE_INTERVAL_AUDIT_SUMMARY_2026-11-19.json"
+  pull_request:
+    paths:
+      - ".github/workflows/phase498_sec_form4_poll_cadence_interval_audit.yml"
+      - "research/phase498_sec_form4_poll_cadence_interval_audit.py"
+      - "research/test_phase498_sec_form4_poll_cadence_interval_audit.py"
+      - "research/data/sec_form4_first_seen/**"
+      - "research/PHASE498_SEC_FORM4_POLL_CADENCE_INTERVAL_AUDIT_2026-11-19.md"
+      - "research/PHASE498_SEC_FORM4_POLL_CADENCE_INTERVAL_AUDIT_SUMMARY_2026-11-19.json"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase498-form4-poll-cadence-interval-audit
+  cancel-in-progress: false
+
+jobs:
+  offline-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile and run offline tests
+        run: |
+          python -m py_compile research/phase498_sec_form4_poll_cadence_interval_audit.py research/test_phase498_sec_form4_poll_cadence_interval_audit.py
+          python -m unittest -v research.test_phase498_sec_form4_poll_cadence_interval_audit
+      - name: Recompute aggregate-only cadence audit
+        run: |
+          python -m research.phase498_sec_form4_poll_cadence_interval_audit \
+            --events research/data/sec_form4_first_seen/events.csv \
+            --feed-observations research/data/sec_form4_first_seen/feed_observations.csv \
+            --state research/data/sec_form4_first_seen/state.json \
+            --workflow .github/workflows/phase476_sec_form4_first_seen_capture.yml \
+            --output phase498_output
+      - name: Upload aggregate-only audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase498-sec-form4-cadence-interval-audit
+          path: phase498_output/summary.json
+          if-no-files-found: error
+          retention-days: 90
