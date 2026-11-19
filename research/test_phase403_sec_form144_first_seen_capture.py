@@ -58,6 +58,59 @@ class Phase403Tests(unittest.TestCase):
         self.assertEqual(rows[0]["form"], "144/A")
         self.assertEqual(rows[0]["accession"], "0000123456-24-000002")
 
+    def test_atom_response_classifier_is_diagnostic_and_does_not_retain_body(self):
+        self.assertEqual(p403.classify_atom_response(None), "NO_RESPONSE")
+        self.assertEqual(p403.classify_atom_response(b""), "EMPTY")
+        self.assertEqual(
+            p403.classify_atom_response(b'<!DOCTYPE html><html><body>Access denied</body></html>'),
+            "HTML",
+        )
+        self.assertEqual(p403.classify_atom_response(SAMPLE_ATOM.encode("utf-8")), "ATOM_XML")
+        self.assertEqual(p403.classify_atom_response(b'{"error":"temporary"}'), "JSON")
+        self.assertEqual(p403.classify_atom_response(b"<root>malformed"), "XML_OR_MARKUP")
+        self.assertEqual(p403.classify_atom_response(b"upstream unavailable"), "OTHER_TEXT")
+
+    def test_fetch_all_feeds_records_response_kind_without_storing_response_body(self):
+        html_error = b"<!DOCTYPE html><html><body>Temporary gateway response"
+
+        def fake_fetch(url, **kwargs):
+            if url.startswith(p403.FEEDS["144"] + "&start=0"):
+                return html_error
+            return SAMPLE_ATOM_144A.encode("utf-8")
+
+        with patch.object(p403.p401, "fetch_bytes", side_effect=fake_fetch), patch.object(
+            p403, "now_utc", return_value="2026-11-19T12:00:00Z"
+        ):
+            snapshots, errors = p403.fetch_all_feeds()
+
+        self.assertEqual(errors["144"]["response_kind"], "HTML")
+        self.assertEqual(errors["144"]["response_bytes"], len(html_error))
+        self.assertNotIn("body", errors["144"])
+        self.assertEqual(snapshots["144A"]["pages"][0]["response_kind"], "ATOM_XML")
+
+    def test_empty_atom_page_is_not_relabelled_as_a_successful_interval(self):
+        empty_atom = (
+            '<?xml version="1.0" encoding="utf-8"?>'
+            '<feed xmlns="http://www.w3.org/2005/Atom"></feed>'
+        ).encode("utf-8")
+
+        def fake_fetch(url, **kwargs):
+            if url.startswith(p403.FEEDS["144"] + "&start=0"):
+                return empty_atom
+            return SAMPLE_ATOM_144A.encode("utf-8")
+
+        with patch.object(p403.p401, "fetch_bytes", side_effect=fake_fetch), patch.object(
+            p403, "now_utc", return_value="2026-11-19T12:00:00Z"
+        ):
+            snapshots, errors = p403.fetch_all_feeds({"144": "0000000000-26-000001"})
+
+        snap = snapshots["144"]
+        self.assertEqual(snap["pages"][0]["response_kind"], "ATOM_XML")
+        self.assertEqual(snap["entry_count"], 0)
+        self.assertTrue(snap["possible_feed_window_gap"])
+        self.assertFalse(snap["previous_latest_accession_found"])
+        self.assertEqual(errors, {})
+
     def test_candidate_identity_uses_xml_issuer_not_archive_path_cik(self):
         raw = (
             "ACCEPTANCE-DATETIME: 20261114183000\n"
