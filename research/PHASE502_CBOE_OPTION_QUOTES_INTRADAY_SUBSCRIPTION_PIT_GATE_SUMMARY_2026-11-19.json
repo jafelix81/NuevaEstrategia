@@ -1,0 +1,84 @@
+{
+  "phase": 502,
+  "date": "2026-11-19",
+  "supplement_to": "PR #157 / Phase 501",
+  "source": "Cboe Option Quotes intraday subscription",
+  "disposition": "CONDITIONAL_PROSPECTIVE_15M_DELAYED_CANDIDATE_NOT_ADMITTED",
+  "documented_delivery": {
+    "intraday_delay_after_snapshot_minutes": 15,
+    "separate_intraday_subscription_filename_pattern": true,
+    "filename_contains_hhmi": true,
+    "timestamp_semantics": "quote_datetime is end-of-interval in US Eastern",
+    "daily_delivery": "overnight or early following day",
+    "real_time_delivery": "separate vendor contact required",
+    "actual_receipt_sla_or_hard_max_delay_verified": false
+  },
+  "fields": {
+    "nbbo_snapshot": true,
+    "interval_ohlc_volume": true,
+    "interval_volume_is_signed": false,
+    "aggressor_side_label": false,
+    "optional_iv_greeks": true,
+    "optional_occ_open_interest": true,
+    "open_interest_semantics": "prior-night OCC EOD OI carried as SOD and static during session",
+    "full_depth_of_book": false,
+    "equity_etf_underlying_bid_ask_default": true
+  },
+  "option_trades": {
+    "standard_subscription": "daily file delivery",
+    "intraday_delivery": "contact sales; terms and cadence unverified",
+    "trade_by_trade_with_contemporaneous_nbbo": true,
+    "trade_iv_greeks_optional": true,
+    "cancellation_field_usable": false,
+    "correction_bust_replacement_policy_resolved": false
+  },
+  "historical_coverage": {
+    "product_page_start": "2012-01",
+    "faq_start": "2010-01",
+    "conflict": true,
+    "conservative_common_start": "2012-01",
+    "historical_first_delivery_vintages": false,
+    "strict_historical_pit_certified": false,
+    "per_symbol_date_coverage_audit": false,
+    "frozen_335_and_delisted_coverage_audit": false
+  },
+  "annual_all_market_storage_estimates_gb": {
+    "1m_calcs": {
+      "compressed": 2300,
+      "uncompressed": 16300
+    },
+    "15m_calcs": {
+      "compressed": 155,
+      "uncompressed": 1100
+    },
+    "60m_calcs": {
+      "compressed": 40,
+      "uncompressed": 285
+    },
+    "335_name_estimate_obtained": false
+  },
+  "structural_controls": {
+    "quote_size_methodology_break": "2026-06-22",
+    "adjusted_contract_deliverable_bridge_required": true,
+    "effective_dated_underlying_identity_required": true,
+    "option_quotes_rth_gth_scope_confirmed": false,
+    "actual_first_receipt_must_drive_actionable_time": true
+  },
+  "licensing": {
+    "vendor_contacted": false,
+    "price_quote_obtained": false,
+    "business_use_rights_confirmed": false,
+    "sample_acquired": false,
+    "purchase_made": false
+  },
+  "research": {
+    "alpha_test": false,
+    "event_study": false,
+    "oos": false,
+    "bootstrap": false,
+    "loo": false,
+    "signals_admitted": 0,
+    "f80_changed": false
+  },
+  "next_gate": "Human-approved vendor price/firm-use terms; exact 335-name/delisted coverage and sample; prospective SFTP receipt-time pilot; written correction and RTH/GTH semantics."
+}
