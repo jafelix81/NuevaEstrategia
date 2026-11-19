@@ -1,0 +1,9 @@
+run_id,mode,trade_date,poll_start_utc,poll_end_utc,http_status,poll_status,error,raw_sha256,response_bytes,row_count,symbol_count,schema_version,observation_kind,research_observation_eligible,signal_eligible,url
+44453548570,schedule,2026-11-18,2026-11-19T03:44:52.012229Z,2026-11-19T03:44:52.347962Z,200,invalid_file,duplicate_symbol,,0,,,,,False,False,https://cdn.finra.org/equity/regsho/daily/CNMSshvol20261118.txt
+44453548570,schedule,2026-11-17,2026-11-19T03:44:52.386417Z,2026-11-19T03:44:52.771900Z,200,invalid_file,duplicate_symbol,,0,,,,,False,False,https://cdn.finra.org/equity/regsho/daily/CNMSshvol20261117.txt
+44453548570,schedule,2026-11-16,2026-11-19T03:44:52.782523Z,2026-11-19T03:44:52.993448Z,200,invalid_file,duplicate_symbol,,0,,,,,False,False,https://cdn.finra.org/equity/regsho/daily/CNMSshvol20261116.txt
+44453548570,schedule,2026-11-13,2026-11-19T03:44:53.004198Z,2026-11-19T03:44:53.221484Z,200,invalid_file,duplicate_symbol,,0,,,,,False,False,https://cdn.finra.org/equity/regsho/daily/CNMSshvol20261113.txt
+44453548570,schedule,2026-11-12,2026-11-19T03:44:53.231968Z,2026-11-19T03:44:53.496284Z,200,invalid_file,duplicate_symbol,,0,,,,,False,False,https://cdn.finra.org/equity/regsho/daily/CNMSshvol20261112.txt
+44453548570,schedule,2026-11-11,2026-11-19T03:44:53.506615Z,2026-11-19T03:44:53.733270Z,200,invalid_file,duplicate_symbol,,0,,,,,False,False,https://cdn.finra.org/equity/regsho/daily/CNMSshvol20261111.txt
+44453548570,schedule,2026-11-10,2026-11-19T03:44:53.744229Z,2026-11-19T03:44:53.959823Z,200,invalid_file,duplicate_symbol,,0,,,,,False,False,https://cdn.finra.org/equity/regsho/daily/CNMSshvol20261110.txt
+44453548570,schedule,2026-11-09,2026-11-19T03:44:53.971398Z,2026-11-19T03:44:54.215132Z,200,invalid_file,duplicate_symbol,,0,,,,,False,False,https://cdn.finra.org/equity/regsho/daily/CNMSshvol20261109.txt
