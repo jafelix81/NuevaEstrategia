@@ -19,3 +19,18 @@
 See:
 - `research/PHASE505_FINRA_CONSOLIDATED_SHORT_INTEREST_PIT_FEASIBILITY_2026-11-19.md`
 - `research/PHASE505_FINRA_CONSOLIDATED_SHORT_INTEREST_PIT_FEASIBILITY_SUMMARY_2026-11-19.json`
+
+## Phase 506 — FINRA short-interest cross-phase reconciliation (2026-11-19)
+
+- Corrected Phase 505 after reviewing existing Phases 445–447 and the original Phase 31 artifact. FINRA Consolidated Short Interest is **not a newly discovered source**. The old Phase 31 panel remains **incomplete and unusable as retrieved**.
+- Phase 446 proves 102/102 successful synchronous settlement pulls returned exactly the 5,000-row cap; four additional requests failed; zero snapshots were proven complete. The 9,420 retained feature rows / 98 observed A–D symbols are not frozen-universe coverage and cannot support zero inference.
+- Phase 445's structural-zero rule remains valid only for a complete settlement snapshot plus effective-dated proof that a security was active/in scope. Phase 446 shows the Phase 31 snapshots do not meet the completeness condition.
+- Phase 447 already contains the asynchronous client and manual-only one-settlement workflow; 14/14 synthetic tests passed. Its only recorded live attempt, run 44007662531, failed at the credential guard and made zero FINRA/FIP requests. No later live validation was found in the latest 100 Actions runs through 44534689780.
+- Required human action: configure an authorized `FINRA_CLIENT_ID` + `FINRA_CLIENT_SECRET` pair or `FINRA_ACCESS_TOKEN` as GitHub Actions secrets, subject to the correct personal/non-commercial versus organization/commercial usage terms. Then use the existing Phase 447 manual workflow for exactly one settlement date. Do not launch the 106-date batch until the live result reconciles exactly to `Record-Total`.
+- Phase 505 remains a calendar/schema/PIT audit only. It does not re-admit Phase 31 or authorize a return test. No data downloaded, no alpha/OOS/bootstrap/LOO, no signal admission, no F80 or production change.
+- Main HEAD at preflight: `cbbaaf886b7aac27b0eb0276e5cf24087a4c73f0`; PR #159 remains draft/open pending this correction and review. No workflows were dispatched or duplicated.
+
+See also:
+- `research/PHASE445_FINRA_SHORT_INTEREST_ZERO_VS_MISSING_SEMANTICS_AUDIT_2026-11-17.md`
+- `research/PHASE446_FINRA_SHORT_INTEREST_ARTIFACT_TRUNCATION_AUDIT_2026-11-17.md`
+- `research/PHASE447_FINRA_ASYNC_SHORT_INTEREST_SNAPSHOT_RETRIEVAL_CONTRACT_2026-11-17.md`
