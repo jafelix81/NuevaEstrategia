@@ -24,6 +24,7 @@ DATA_DIR = Path("research/data/sec_form4_first_seen")
 STATE_PATH = DATA_DIR / "state.json"
 EVENTS_PATH = DATA_DIR / "events.csv"
 OBSERVATIONS_PATH = DATA_DIR / "feed_observations.csv"
+ACCESSION_OBSERVATIONS_PATH = DATA_DIR / "accession_observations.csv"
 
 PAGE_SIZE = 100
 MAX_FEED_PAGES = 20
@@ -52,6 +53,17 @@ OBSERVATION_FIELDS = [
     "poll_run_id", "feed_name", "page_offset", "raw_entry_count",
     "parsed_accession_count", "response_bytes", "response_received_at_utc",
     "raw_sha256", "feed_url", "page_status", "error_type", "error",
+]
+
+ACCESSION_OBSERVATION_FIELDS = [
+    "poll_run_id", "observation_sequence", "feed_name", "accession", "form",
+    "filing_date", "filing_url", "feed_path_cik_unverified",
+    "feed_updated_raw", "feed_updated_utc", "feed_url", "page_offset",
+    "page_raw_sha256", "page_received_at_utc", "is_prior_watermark",
+    "poll_success", "poll_interval_status", "event_interval_status",
+    "is_duplicate_within_feed", "is_duplicate_across_feeds",
+    "is_preexisting_ledger_accession", "canonical_event_emitted",
+    "candidate_suppressed_in_incomplete_poll",
 ]
 
 def now_utc() -> str:
@@ -241,6 +253,7 @@ def fetch_feed(
     offset = 0
     pages: list[dict] = []
     combined: list[dict] = []
+    accession_observations: list[dict] = []
     seen_hashes: set[str] = set()
     first_page_entries: list[dict] = []
     watermark_found = False
@@ -281,14 +294,17 @@ def fetch_feed(
             })
 
             for item in parsed:
-                if prior and item["accession"] == prior:
+                is_watermark = bool(prior and item["accession"] == prior)
+                observed_item = dict(item)
+                observed_item["_page_offset"] = offset
+                observed_item["_page_received_at_utc"] = received
+                observed_item["_page_sha256"] = digest
+                observed_item["_is_prior_watermark"] = is_watermark
+                accession_observations.append(observed_item)
+                if is_watermark:
                     watermark_found = True
                     break
-                item = dict(item)
-                item["_page_offset"] = offset
-                item["_page_received_at_utc"] = received
-                item["_page_sha256"] = digest
-                combined.append(item)
+                combined.append(observed_item)
 
             if not prior:
                 break
@@ -339,6 +355,43 @@ def fetch_feed(
         pages and page_error is None and (not prior or watermark_found)
     )
     poll_interval_status = classify_poll_interval(mode, prior, watermark_found, previous_end)
+    accession_observation_rows = []
+    for occurrence_index, item in enumerate(accession_observations, start=1):
+        is_watermark = bool(item.get("_is_prior_watermark"))
+        if is_watermark:
+            event_interval_status = "PRIOR_WATERMARK_BOUNDARY"
+        elif not poll_success:
+            event_interval_status = "POLL_INCOMPLETE_CANDIDATE_SUPPRESSED"
+        else:
+            event_interval_status = classify_interval(
+                mode, prior, watermark_found, previous_end,
+                item["feed_updated_utc"], item["_page_received_at_utc"],
+            )
+        accession_observation_rows.append({
+            "poll_run_id": run_id,
+            "observation_sequence": occurrence_index,
+            "feed_name": feed_name,
+            "accession": item["accession"],
+            "form": item["form"],
+            "filing_date": item["filing_date"],
+            "filing_url": item["filing_url"],
+            "feed_path_cik_unverified": item["feed_path_cik_unverified"],
+            "feed_updated_raw": item["feed_updated_raw"],
+            "feed_updated_utc": item["feed_updated_utc"],
+            "feed_url": item["feed_url"],
+            "page_offset": item["_page_offset"],
+            "page_raw_sha256": item["_page_sha256"],
+            "page_received_at_utc": item["_page_received_at_utc"],
+            "is_prior_watermark": is_watermark,
+            "poll_success": poll_success,
+            "poll_interval_status": poll_interval_status,
+            "event_interval_status": event_interval_status,
+            "is_duplicate_within_feed": False,
+            "is_duplicate_across_feeds": False,
+            "is_preexisting_ledger_accession": False,
+            "canonical_event_emitted": False,
+            "candidate_suppressed_in_incomplete_poll": (not poll_success and not is_watermark),
+        })
     new_latest = first_page_entries[0]["accession"] if first_page_entries else prior
     latest_updated = first_page_entries[0]["feed_updated_utc"] if first_page_entries else ""
 
@@ -396,6 +449,7 @@ def fetch_feed(
         "latest_feed_updated_utc": latest_updated,
         "event_rows": event_rows,
         "page_observations": pages,
+        "accession_observations": accession_observation_rows,
         "page_error": page_error or {},
         "raw_page_count": len(pages),
         "new_accession_count": len(event_rows),
@@ -447,8 +501,11 @@ def run_capture(mode: str, run_id: str, output_dir: Path) -> dict:
     poll_started = now_utc()
     state = load_state()
     known = existing_accessions()
+    preexisting_accessions = set(known)
     event_rows: list[dict] = []
     observation_rows: list[dict] = []
+    accession_observation_rows: list[dict] = []
+    seen_accessions_this_poll: set[str] = set()
     feed_summaries: dict[str, dict] = {}
     feed_updates: dict[str, dict] = {}
 
@@ -464,6 +521,27 @@ def run_capture(mode: str, run_id: str, output_dir: Path) -> dict:
             )
         }
         observation_rows.extend(result["page_observations"])
+        feed_observation_rows = []
+        seen_within_feed: set[str] = set()
+        for occurrence in result["accession_observations"]:
+            accession = occurrence["accession"]
+            duplicate_within_feed = accession in seen_within_feed
+            duplicate_across_feeds = (
+                not duplicate_within_feed and accession in seen_accessions_this_poll
+            )
+            observation = {
+                **occurrence,
+                "observation_sequence": len(accession_observation_rows) + 1,
+                "is_duplicate_within_feed": duplicate_within_feed,
+                "is_duplicate_across_feeds": duplicate_across_feeds,
+                "is_preexisting_ledger_accession": accession in preexisting_accessions,
+                "canonical_event_emitted": False,
+            }
+            accession_observation_rows.append(observation)
+            feed_observation_rows.append(observation)
+            seen_within_feed.add(accession)
+            seen_accessions_this_poll.add(accession)
+        feed_summaries[feed_name]["accession_observation_count"] = len(feed_observation_rows)
         for row in result["event_rows"]:
             accession = row["accession"]
             if accession in known:
@@ -471,6 +549,15 @@ def run_capture(mode: str, run_id: str, output_dir: Path) -> dict:
             row["first_seen_poll_started_utc"] = poll_started
             event_rows.append(row)
             known.add(accession)
+            for observation in feed_observation_rows:
+                if (
+                    observation["accession"] == accession
+                    and not observation["is_prior_watermark"]
+                    and not observation["canonical_event_emitted"]
+                    and observation["poll_success"]
+                ):
+                    observation["canonical_event_emitted"] = True
+                    break
         feed_updates[feed_name] = result
 
     poll_ended = now_utc()
@@ -480,6 +567,13 @@ def run_capture(mode: str, run_id: str, output_dir: Path) -> dict:
     if mode == "schedule":
         append_csv(EVENTS_PATH, EVENT_FIELDS, event_rows)
         append_csv(OBSERVATIONS_PATH, OBSERVATION_FIELDS, observation_rows)
+        append_csv(ACCESSION_OBSERVATIONS_PATH, ACCESSION_OBSERVATION_FIELDS, accession_observation_rows)
+        if accession_observation_rows and not state.get("accession_observation_ledger_started_utc"):
+            state["accession_observation_ledger_started_utc"] = poll_started
+            state["accession_observation_ledger_started_run_id"] = str(run_id)
+        state["accession_observation_ledger_rows_appended"] = int(
+            state.get("accession_observation_ledger_rows_appended", 0)
+        ) + len(accession_observation_rows)
         for feed_name, result in feed_updates.items():
             if result["poll_success"]:
                 state["feeds"][feed_name] = {
@@ -510,6 +604,23 @@ def run_capture(mode: str, run_id: str, output_dir: Path) -> dict:
         "feed_count": len(FEEDS),
         "feeds": feed_summaries,
         "new_event_rows": len(event_rows),
+        "accession_observation_rows": len(accession_observation_rows),
+        "same_feed_duplicate_occurrences": sum(
+            1 for row in accession_observation_rows if row["is_duplicate_within_feed"]
+        ),
+        "cross_feed_duplicate_occurrences": sum(
+            1 for row in accession_observation_rows if row["is_duplicate_across_feeds"]
+        ),
+        "preexisting_accession_observations": sum(
+            1 for row in accession_observation_rows if row["is_preexisting_ledger_accession"]
+        ),
+        "canonical_event_observation_rows": sum(
+            1 for row in accession_observation_rows if row["canonical_event_emitted"]
+        ),
+        "suppressed_incomplete_poll_accession_observations": sum(
+            1 for row in accession_observation_rows if row["candidate_suppressed_in_incomplete_poll"]
+        ),
+        "accession_observation_ledger_persisted": mode == "schedule",
         "incomplete_poll_candidate_rows_suppressed": sum(
             result["suppressed_incomplete_poll_candidate_count"] for result in feed_updates.values()
         ),
