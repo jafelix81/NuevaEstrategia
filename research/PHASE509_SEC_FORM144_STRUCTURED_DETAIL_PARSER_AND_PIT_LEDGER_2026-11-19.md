@@ -84,3 +84,5 @@ Before any event study:
 No forward returns, event study, backtest, OOS, bootstrap, LOO or holdout test was run. No signal was admitted. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
 
 Parser status vocabulary: parsed (source hash matches), parsed_unverified_hash (legacy event has no original hash), source_hash_mismatch (re-fetched XML differs and is excluded from feature use), and parse_error (XML structure could not be parsed). A fetch failure without XML bytes remains uncompleted and may be retried in a later bounded batch.
+
+The numeric/date normalization has been cross-checked against the Phase 65 field-coverage parser; Decimal strings are retained to avoid float rounding, while unrecognized source formats remain null rather than coerced.
