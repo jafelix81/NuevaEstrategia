@@ -330,8 +330,10 @@ def audit_events(events: list[dict], fetcher) -> dict:
     issuer_symbol_present = 0
     distinct_owner_role_counts = Counter()
 
-    for event in events:
+    for event_index, event in enumerate(events, start=1):
         result = process_event(event, fetcher)
+        if event_index % 50 == 0 or event_index == len(events):
+            print(f\"PHASE496_PROGRESS={event_index}/{len(events)}\", flush=True)
         counters["attempted"] += 1
         for key in ("index_retrieved", "index_acceptance_parsed", "submission_retrieved",
                     "header_acceptance_parsed", "acceptance_match", "filing_date_match", "timing_anomaly"):
