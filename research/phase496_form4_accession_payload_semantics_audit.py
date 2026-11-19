@@ -213,6 +213,10 @@ def load_events(path: Path, expected_count: int = EXPECTED_ACCESSIONS) -> tuple[
             "filing_url", "first_seen_at_utc", "first_seen_interval_lower_bound_utc"
         )):
             raise ValueError("required_temporal_or_url_field_missing")
+        lower = parse_utc(row["first_seen_interval_lower_bound_utc"])
+        upper = parse_utc(row["first_seen_at_utc"])
+        if lower is None or upper is None or lower >= upper:
+            raise ValueError("bounded_interval_clock_invalid")
         parsed = urlparse(row["filing_url"])
         if parsed.scheme != "https" or parsed.netloc != "www.sec.gov" or "/Archives/edgar/data/" not in parsed.path:
             raise ValueError("filing_url_outside_sec_archive")
