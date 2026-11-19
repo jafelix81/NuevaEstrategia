@@ -80,7 +80,7 @@ class TestPhase469Parser(unittest.TestCase):
             parse_finra_file(file_bytes(rows=rows), date(2026, 11, 17))
 
     def test_market_header_is_required(self):
-        raw = b"Date|Symbol|ShortVolume|Short Exempt Volume|TotalVolume\\n20261117|ABC|1|0|2\\n1\\n"
+        raw = b"Date|Symbol|ShortVolume|Short Exempt Volume|TotalVolume\n20261117|ABC|1|0|2\n1\n"
         with self.assertRaisesRegex(ValueError, "required_header_missing:market"):
             parse_finra_file(raw, date(2026, 11, 17))
 
