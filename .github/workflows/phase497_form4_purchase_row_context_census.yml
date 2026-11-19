@@ -1,0 +1,91 @@
+name: Phase 497 - SEC Form 4 P/A transaction-row context census
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [phase497-form4-purchase-row-context-census]
+    paths:
+      - ".github/workflows/phase497_form4_purchase_row_context_census.yml"
+      - "research/phase497_form4_purchase_row_context_census.py"
+      - "research/test_phase497_form4_purchase_row_context_census.py"
+      - "research/phase496_form4_accession_payload_semantics_audit.py"
+      - "research/phase401_form144a_full_parent_identity_census.py"
+  pull_request:
+    paths:
+      - ".github/workflows/phase497_form4_purchase_row_context_census.yml"
+      - "research/phase497_form4_purchase_row_context_census.py"
+      - "research/test_phase497_form4_purchase_row_context_census.py"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase497-form4-purchase-row-context-census
+  cancel-in-progress: false
+
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile and run offline tests
+        run: |
+          python -m py_compile research/phase401_form144a_full_parent_identity_census.py research/phase496_form4_accession_payload_semantics_audit.py research/phase497_form4_purchase_row_context_census.py research/test_phase497_form4_purchase_row_context_census.py
+          python -m unittest -v research.test_phase497_form4_purchase_row_context_census
+
+  live-audit:
+    if: github.ref == 'refs/heads/phase497-form4-purchase-row-context-census' && (github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[run-live]')))
+    needs: offline-regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile source clients
+        run: |
+          python -m py_compile research/phase401_form144a_full_parent_identity_census.py research/phase496_form4_accession_payload_semantics_audit.py research/phase497_form4_purchase_row_context_census.py
+      - name: Re-fetch the immutable 637-accession Form 4 cohort and aggregate P/A row context
+        run: |
+          python -u -m research.phase497_form4_purchase_row_context_census \
+            --events research/data/sec_form4_first_seen/events.csv \
+            --expected-count 637 \
+            --output phase497_output
+      - name: Enforce retrieval, aggregation and no-promotion controls
+        run: |
+          python - <<'PY'
+          import json, sys
+          p=json.load(open("phase497_output/summary.json",encoding="utf-8"))
+          c=p["retrieval"]["counts"]
+          e=p["eligibility"]
+          if c.get("attempted") != 637:
+              sys.exit("Expected exactly 637 immutable source accessions")
+          if c.get("xml_parsed",0) < 574:
+              sys.exit("Fewer than 90% of Form 4 ownership XML payloads parsed")
+          if e["signal_eligible"] != 0 or e["alpha_test_authorized"]:
+              sys.exit("Phase 497 is a context census, not a signal test")
+          if e["raw_payloads_persisted"] or e["transaction_level_rows_persisted"]:
+              sys.exit("Raw or transaction-level persistence is prohibited")
+          s=p["transaction_semantics"]
+          if s["multi_owner_rows_not_attributed_to_individual_owners"] is not True:
+              sys.exit("Multi-owner attribution guard failed")
+          if s["code_p_is_not_proof_of_exchange_execution_or_discretion"] is not True:
+              sys.exit("Code-P semantic guard failed")
+          print("PHASE497_RETRIEVAL_AND_NO_PROMOTION_GATES=PASS")
+          print("XML_PARSED=",c.get("xml_parsed",0))
+          print("P_A_ROWS=",s["p_acquired_transaction_rows"])
+          print("STRUCTURAL_COMPLETENESS_QUEUE_ROWS=",s["structural_completeness_queue_rows"])
+          print("SIGNAL_ELIGIBLE=0")
+          PY
+      - name: Upload aggregate-only audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase497-form4-purchase-row-context-census
+          path: phase497_output/summary.json
+          if-no-files-found: warn
+          retention-days: 90
