@@ -60,7 +60,7 @@ def normalized_bucket(value: str | None, allowed: set[str]) -> str:
 def parse_positive_decimal(value: str | None) -> Decimal | None:
     if value is None or not str(value).strip():
         return None
-    token = re.sub(r"[$,\\s]", "", str(value).strip())
+    token = re.sub(r"[$,\s]", "", str(value).strip())
     try:
         number = Decimal(token)
     except (InvalidOperation, TypeError, ValueError):
@@ -80,16 +80,16 @@ def parse_iso_date(value: str | None) -> date | None:
 
 
 FOOTNOTE_PATTERNS = {
-    "open_market": r"\\bopen[\\s-]?market\\b",
-    "private_purchase_or_placement": r"\\bprivate\\s+(?:purchase|placement|transaction)\\b",
-    "mentions_rule_10b5_1": r"10b5[\\s-]?1",
-    "mentions_401k": r"401\\s*\\(?k\\)?",
-    "tax_or_withholding": r"\\b(?:tax|withhold(?:ing)?)\\b",
-    "trust": r"\\btrust(?:ee|s)?\\b",
-    "gift_or_donation": r"\\b(?:gift|donat(?:ion|ed))\\b",
-    "option_or_cashless": r"\\b(?:option|exercise|cashless)\\b",
-    "compensation_or_vesting": r"\\b(?:compensation|award|vesting|restricted stock|stock unit)\\b",
-    "employee_plan": r"\\b(?:employee stock|employee benefit|purchase plan)\\b",
+    "open_market": r"\bopen[\s-]?market\b",
+    "private_purchase_or_placement": r"\bprivate\s+(?:purchase|placement|transaction)\b",
+    "mentions_rule_10b5_1": r"10b5[\s-]?1",
+    "mentions_401k": r"401\s*\(?k\)?",
+    "tax_or_withholding": r"\b(?:tax|withhold(?:ing)?)\b",
+    "trust": r"\btrust(?:ee|s)?\b",
+    "gift_or_donation": r"\b(?:gift|donat(?:ion|ed))\b",
+    "option_or_cashless": r"\b(?:option|exercise|cashless)\b",
+    "compensation_or_vesting": r"\b(?:compensation|award|vesting|restricted stock|stock unit)\b",
+    "employee_plan": r"\b(?:employee stock|employee benefit|purchase plan)\b",
 }
 
 
