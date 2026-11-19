@@ -1,0 +1,101 @@
+{
+  "phase": 493,
+  "audit_cutoff_utc": "2026-11-19T01:46:00Z",
+  "repository": "jafelix81/NuevaEstrategia",
+  "pre_change_main_sha": "3ae5a3d27659ce0f1b806e3b1076ac4754600444",
+  "merge_commit_sha": "1adc01aeef5e8bf951e40b7e469af2b51aaf948e",
+  "pull_request": 149,
+  "validation": {
+    "run_id": 44439202893,
+    "offline_tests_passed": 39,
+    "offline_tests_total": 39,
+    "live_capture": "skipped",
+    "artifact_created": false
+  },
+  "actions_preflight": {
+    "total_runs": 7865,
+    "latest_100": {
+      "success": 72,
+      "failure": 26,
+      "cancelled": 2
+    },
+    "active_or_queued": 0,
+    "branches": 318,
+    "open_pull_requests_after_phase_pr": 57
+  },
+  "form4_baseline": {
+    "run_id": 44380395679,
+    "feed_occurrences": {
+      "form4": 20,
+      "form4a": 50,
+      "total": 70
+    },
+    "canonical_unique_accessions": 35,
+    "canonical_forms": {
+      "form4": 10,
+      "form4a": 25
+    },
+    "repeated_occurrences": 35,
+    "occurrence_level_provenance_in_legacy_baseline": false,
+    "interval_status": "INITIAL_BASELINE_NO_LOWER_BOUND",
+    "research_eligible_rows": 0,
+    "public_availability_certified_rows": 0,
+    "signal_eligible_rows": 0
+  },
+  "form144": {
+    "run_id": 44396134680,
+    "total_ledger_rows": 247,
+    "interval_status_counts": {
+      "initial_baseline_no_lower_bound": 142,
+      "possible_feed_window_gap": 50,
+      "bounded_by_successful_polls": 55
+    },
+    "latest_capture_rows": 51,
+    "latest_capture_forms": {
+      "form144": 50,
+      "form144a": 1
+    },
+    "latest_capture_candidate_manifest_matches": 6,
+    "verified_historical_f80_membership_rows": 0,
+    "public_availability_certified_rows": 0,
+    "signal_eligible_rows": 0
+  },
+  "cftc_tff": {
+    "latest_capture_run_id": 44232546204,
+    "latest_capture_utc": "2026-11-18T03:44:57Z",
+    "row_hashes": 3039,
+    "latest_report_date": "2026-11-10",
+    "contract_codes": 4,
+    "prospective_weekly_warmup_target": 52,
+    "warmup_met": false,
+    "signal_eligible": false
+  },
+  "finra": {
+    "phase20b_promoted": false,
+    "phase20c_promoted": false,
+    "prospective_regsho_ledger_present": false
+  },
+  "changes": {
+    "added_file": "research/data/sec_form4_first_seen/accession_observations.csv",
+    "append_only": true,
+    "stores_raw_atom_payloads": false,
+    "stores_filing_xml_or_text": false,
+    "stores_transaction_rows": false,
+    "preserves_incomplete_poll_candidates_as_suppressed_observations": true,
+    "legacy_baseline_backfilled": false
+  },
+  "strategy": {
+    "name": "F80_TOP20_PARTIAL50_BASELINE_C20",
+    "frozen": true,
+    "production_changed": false,
+    "new_signals_admitted": 0
+  },
+  "statistical_tests": {
+    "backtest": false,
+    "event_study": false,
+    "oos": false,
+    "bootstrap": false,
+    "loo": false,
+    "holdout": false
+  }
+}
