@@ -1,0 +1,40 @@
+{
+  "phase": 500,
+  "date": "2026-11-19",
+  "baseline_main": "de969d94ed6a665998037f09e976c7e380a93e14",
+  "trigger_run_id": 44521745535,
+  "trigger_run_conclusion": "success",
+  "trigger_poll_status": "partial",
+  "form144": {
+    "response_bytes": 3292,
+    "raw_sha256": "fa047ac3976e3e3d307625487e2545b4e7126efb2e4101890b028e0abc82d207",
+    "error_type": "ParseError",
+    "error": "syntax error: line 1, column 61",
+    "response_body_retained": false,
+    "response_kind_retrospective": "UNCLASSIFIED"
+  },
+  "form144a": {
+    "response_bytes": 29,
+    "raw_entry_count": 0,
+    "previous_watermark_found": false,
+    "possible_feed_window_gap": true
+  },
+  "events_written": 0,
+  "feed_observation_rows_appended": 0,
+  "research_observation_eligible": 0,
+  "signal_eligible": 0,
+  "code_change": "bounded response-kind classification only; no body persistence",
+  "classifications": [
+    "ATOM_XML",
+    "HTML",
+    "JSON",
+    "XML_OR_MARKUP",
+    "OTHER_TEXT",
+    "EMPTY",
+    "NO_RESPONSE"
+  ],
+  "tests_added": 3,
+  "no_alpha_test": true,
+  "f80_changed": false,
+  "decision": "keep Form 144/144-A metadata-only; wait for next scheduled complete bounded poll"
+}
