@@ -96,5 +96,17 @@
     "bootstrap_run": false,
     "loo_run": false,
     "f80_changed": false
-  }
+  },
+  "validation": {
+    "pr_number": 160,
+    "pr_url": "https://github.com/jafelix81/NuevaEstrategia/pull/160",
+    "merged": true,
+    "merge_commit_sha": "50abc5c8b4287cdfc235fbb0191f87d30f2aceaf",
+    "ci_run_id": 44608603027,
+    "offline_regression": "success",
+    "tests_passed": 39,
+    "live_capture": "skipped as designed",
+    "post_merge_main_head": "50abc5c8b4287cdfc235fbb0191f87d30f2aceaf"
+  },
+  "main_after_phase507": "50abc5c8b4287cdfc235fbb0191f87d30f2aceaf"
 }
