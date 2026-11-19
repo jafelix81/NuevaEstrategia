@@ -81,3 +81,5 @@ Before any event study:
 6. Accumulate a sufficiently broad prospective sample before testing proposed supply pressure incrementally against frozen LTM/F80 with identical exposure/costs, chronological validation, issuer clustering, block bootstrap and issuer LOO.
 
 No forward returns, event study, backtest, OOS, bootstrap, LOO or holdout test was run. No signal was admitted. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+Parser status vocabulary: parsed (source hash matches), parsed_unverified_hash (legacy event has no original hash), source_hash_mismatch (re-fetched XML differs and is excluded from feature use), and parse_error (XML structure could not be parsed). A fetch failure without XML bytes remains uncompleted and may be retried in a later bounded batch.
