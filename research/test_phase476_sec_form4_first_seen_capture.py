@@ -298,6 +298,7 @@ class Phase476Tests(unittest.TestCase):
                  patch.object(p, "STATE_PATH", data_dir / "state.json"), \
                  patch.object(p, "EVENTS_PATH", data_dir / "events.csv"), \
                  patch.object(p, "OBSERVATIONS_PATH", data_dir / "feed_observations.csv"), \
+                 patch.object(p, "ACCESSION_OBSERVATIONS_PATH", data_dir / "accession_observations.csv"), \
                  patch.object(p, "FEEDS", {"4": self.url}), \
                  patch.object(p.p401, "fetch_bytes", side_effect=[first, second]), \
                  patch.object(p, "now_utc", side_effect=[
@@ -328,11 +329,14 @@ class Phase476Tests(unittest.TestCase):
                  patch.object(p, "STATE_PATH", data_dir / "state.json"), \
                  patch.object(p, "EVENTS_PATH", data_dir / "events.csv"), \
                  patch.object(p, "OBSERVATIONS_PATH", data_dir / "feed_observations.csv"), \
+                 patch.object(p, "ACCESSION_OBSERVATIONS_PATH", data_dir / "accession_observations.csv"), \
                  patch.object(p, "FEEDS", {"4": self.url}), \
                  patch.object(p.p401, "fetch_bytes", return_value=raw):
                 summary = p.run_capture("manual", "manual-run", output_dir)
             self.assertFalse(summary["persistent_write"])
+            self.assertFalse(summary["accession_observation_ledger_persisted"])
             self.assertFalse(data_dir.exists())
+            self.assertFalse((data_dir / "accession_observations.csv").exists())
             self.assertTrue((output_dir / "poll_summary.json").exists())
 
     def test_gap_does_not_advance_prior_watermark(self):
@@ -356,6 +360,7 @@ class Phase476Tests(unittest.TestCase):
                  patch.object(p, "STATE_PATH", data_dir / "state.json"), \
                  patch.object(p, "EVENTS_PATH", data_dir / "events.csv"), \
                  patch.object(p, "OBSERVATIONS_PATH", data_dir / "feed_observations.csv"), \
+                 patch.object(p, "ACCESSION_OBSERVATIONS_PATH", data_dir / "accession_observations.csv"), \
                  patch.object(p, "FEEDS", {"4": self.url}), \
                  patch.object(p, "MAX_FEED_PAGES", 1), \
                  patch.object(p.p401, "fetch_bytes", return_value=raw):
@@ -368,6 +373,11 @@ class Phase476Tests(unittest.TestCase):
             self.assertEqual(summary["new_event_rows"], 0)
             self.assertEqual(summary["incomplete_poll_candidate_rows_suppressed"], 1)
             self.assertFalse((data_dir / "events.csv").exists())
+            with (data_dir / "accession_observations.csv").open(newline="", encoding="utf-8") as handle:
+                observations = list(csv.DictReader(handle))
+            self.assertEqual(len(observations), 1)
+            self.assertEqual(observations[0]["candidate_suppressed_in_incomplete_poll"], "True")
+            self.assertEqual(observations[0]["canonical_event_emitted"], "False")
 
     def test_incomplete_poll_candidates_can_be_reconciled_on_successful_retry(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -387,6 +397,7 @@ class Phase476Tests(unittest.TestCase):
                 patch.object(p, "STATE_PATH", data_dir / "state.json"),
                 patch.object(p, "EVENTS_PATH", data_dir / "events.csv"),
                 patch.object(p, "OBSERVATIONS_PATH", data_dir / "feed_observations.csv"),
+                patch.object(p, "ACCESSION_OBSERVATIONS_PATH", data_dir / "accession_observations.csv"), \
                 patch.object(p, "FEEDS", {"4": self.url}),
                 patch.object(p, "MAX_FEED_PAGES", 1),
                 patch.object(p.p401, "fetch_bytes", side_effect=[baseline, incomplete, retry]),
@@ -416,6 +427,19 @@ class Phase476Tests(unittest.TestCase):
             self.assertEqual(new_row["first_seen_interval_lower_bound_utc"], "2026-11-18T10:00:02Z")
             self.assertEqual(new_row["first_seen_at_utc"], "2026-11-18T11:00:01Z")
             self.assertEqual(new_row["signal_eligible"], "False")
+            with (data_dir / "accession_observations.csv").open(newline="", encoding="utf-8") as handle:
+                observations = list(csv.DictReader(handle))
+            suppressed = [
+                row for row in observations
+                if row["poll_run_id"] == "gap-run" and row["accession"] == new_accession
+            ]
+            recovered_observation = next(
+                row for row in observations
+                if row["poll_run_id"] == "retry-run" and row["accession"] == new_accession
+            )
+            self.assertEqual(len(suppressed), 1)
+            self.assertEqual(suppressed[0]["candidate_suppressed_in_incomplete_poll"], "True")
+            self.assertEqual(recovered_observation["canonical_event_emitted"], "True")
 
     def test_duplicate_accession_is_not_appended_twice(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -427,6 +451,7 @@ class Phase476Tests(unittest.TestCase):
                  patch.object(p, "STATE_PATH", data_dir / "state.json"), \
                  patch.object(p, "EVENTS_PATH", data_dir / "events.csv"), \
                  patch.object(p, "OBSERVATIONS_PATH", data_dir / "feed_observations.csv"), \
+                 patch.object(p, "ACCESSION_OBSERVATIONS_PATH", data_dir / "accession_observations.csv"), \
                  patch.object(p, "FEEDS", {"4": self.url}), \
                  patch.object(p.p401, "fetch_bytes", side_effect=[raw, raw]):
                 p.run_capture("schedule", "baseline-run", output_dir)
