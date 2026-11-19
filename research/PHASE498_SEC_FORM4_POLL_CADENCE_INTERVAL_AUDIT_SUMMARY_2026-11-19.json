@@ -1,0 +1,82 @@
+{
+  "phase": 498,
+  "audit_cutoff_utc": "2026-11-19T11:15:00Z",
+  "base_main": "95c304d5b07653cbe817912f8b713b30ad8fdbbf",
+  "source": "SEC EDGAR Latest Filings Atom first-seen metadata collector",
+  "schedule_cron_utc": "17 * * * 1-5",
+  "source_hashes": {
+    "events_csv_sha256": "370aa318ae17d3992327b6a99800c0ac83d890b0",
+    "feed_observations_csv_sha256": "21ab247b1799904faf5a1f91887d628c7e1d8640",
+    "state_json_sha256": "be8d0026e9879d8b0149c2436a40bc4f3865b128",
+    "workflow_yaml_sha256": "6303bf89cd02978b5aa9b030ee7019734f761f03"
+  },
+  "observed_polls": [
+    {
+      "run_id": "44380395679",
+      "first_receipt_utc": "2026-11-18T19:26:00Z",
+      "last_receipt_utc": "2026-11-18T19:26:08Z",
+      "feed_observation_rows": 2
+    },
+    {
+      "run_id": "44440313382",
+      "first_receipt_utc": "2026-11-19T01:54:11Z",
+      "last_receipt_utc": "2026-11-19T01:54:40Z",
+      "feed_observation_rows": 20
+    },
+    {
+      "run_id": "44505739718",
+      "first_receipt_utc": "2026-11-19T10:27:04Z",
+      "last_receipt_utc": "2026-11-19T10:27:06Z",
+      "feed_observation_rows": 2
+    }
+  ],
+  "gaps_hours": [
+    6.4675,
+    8.54
+  ],
+  "event_ledger": {
+    "total_rows": 690,
+    "initial_baseline_no_lower_bound": 35,
+    "bounded_metadata_only": 655,
+    "bounded_by_poll_run": {
+      "44440313382": 637,
+      "44505739718": 18
+    },
+    "interval_width_hours": {
+      "min": 6.4675,
+      "p25": 6.468056,
+      "median": 6.47,
+      "p75": 6.471389,
+      "p90": 6.472778,
+      "max": 8.54,
+      "at_most_1_hour": 0,
+      "at_most_2_hours": 0,
+      "over_6_hours": 655
+    }
+  },
+  "conservative_daily_timing": {
+    "rule": "first regular session whose open occurs after collector receipt upper bound",
+    "cohort_637_upper_bound_range_utc": [
+      "2026-11-19T01:54:11Z",
+      "2026-11-19T01:54:34Z"
+    ],
+    "cohort_18_upper_bound_utc": "2026-11-19T10:27:04Z",
+    "first_safe_regular_session_date": "2026-11-19",
+    "intraday_use_authorized": false
+  },
+  "eligibility": {
+    "total_events": 690,
+    "research_observation_eligible": 0,
+    "signal_eligible": 0,
+    "security_identity_verified": false,
+    "historical_f80_membership_verified": false,
+    "alpha_test_authorized": false
+  },
+  "decision": {
+    "disposition": "TIMING_BOUND_ONLY_NO_SIGNAL_PROMOTION",
+    "nominal_hourly_cadence_demonstrated": false,
+    "collector_receipt_is_upper_bound_not_exact_publication": true,
+    "f80_changed": false,
+    "production_changed": false
+  }
+}
