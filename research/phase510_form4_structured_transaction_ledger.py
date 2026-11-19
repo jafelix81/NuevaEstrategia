@@ -286,22 +286,41 @@ def parse_form4_details(raw: bytes | str) -> dict:
     }
 
 
+def parse_utc(value: str | None) -> datetime | None:
+    if not value:
+        return None
+    try:
+        parsed = datetime.fromisoformat(str(value).strip().replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        return None
+    return parsed.astimezone(timezone.utc)
+
+
 def validate_event(event: dict) -> None:
     accession = str(event.get("accession") or "")
     url = str(event.get("filing_url") or "")
     parsed = urlparse(url)
     if not re.fullmatch(r"\d{10}-\d{2}-\d{6}", accession):
         raise ValueError("invalid_accession")
+    if event.get("form") not in {"4", "4/A"}:
+        raise ValueError("unexpected_form")
     if parsed.scheme != "https" or parsed.netloc != "www.sec.gov" or "/Archives/edgar/data/" not in parsed.path:
         raise ValueError("filing_url_outside_sec_archive")
     if accession.replace("-", "") not in parsed.path:
         raise ValueError("accession_not_in_filing_url")
     if event.get("first_seen_interval_status") != "BOUNDED_METADATA_ONLY":
         raise ValueError("event_interval_not_bounded")
-    if not event.get("first_seen_interval_lower_bound_utc") or not event.get("first_seen_at_utc"):
-        raise ValueError("event_interval_clock_missing")
+    if event.get("capture_mode") != "schedule" or not event.get("first_seen_poll_run_id"):
+        raise ValueError("event_not_from_scheduled_capture")
     if str(event.get("first_seen_is_upper_bound_not_exact_receipt", "")).lower() not in {"true", "t", "1"}:
         raise ValueError("first_seen_upper_bound_semantics_missing")
+    lower = parse_utc(event.get("first_seen_interval_lower_bound_utc"))
+    first_seen = parse_utc(event.get("first_seen_at_utc"))
+    upper = parse_utc(event.get("first_seen_interval_upper_bound_utc") or event.get("first_seen_at_utc"))
+    if lower is None or first_seen is None or upper is None or lower >= upper or upper != first_seen:
+        raise ValueError("event_interval_clock_invalid")
 
 
 def fetch_document(event: dict, fetcher=None) -> dict:
