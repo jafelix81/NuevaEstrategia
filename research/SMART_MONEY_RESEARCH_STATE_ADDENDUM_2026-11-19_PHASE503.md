@@ -10,3 +10,5 @@
 - TBT is a C1-only trade-by-trade cross-check (side/open-close/capacity; history from 2019-10-07; T+1). Open-Close provides participant type, buy/sell and open/close for Cboe venues only, with historical convention breaks. Neither is a full OPRA-wide substitute.
 - No sample, purchase, vendor contact, parser, feature, alpha/event study/OOS/bootstrap/LOO or signal admission. F80 unchanged.
 - Next gate: confirm Option Sentiment orderability, current spec, price/firm-use/retention rights, 335-name/delisted coverage, units and preliminary/complete correction lineage; then lawful sample and prospective actual-receipt ledger.
+
+- Integration: PR #157 merged by squash at `190211d58fcd6519abef7acf9c475fef267e6ad0` on 2026-11-19 16:56:23 UTC. Main HEAD after merge: same SHA. PR was documentation-only; no CI workflow was triggered and no production/code changes were included.
