@@ -232,7 +232,7 @@ def fetch_document_metadata(item, candidate_ciks):
         "xml_status": "unresolved", "xml_source": None, "xml_sha256": None,
         "submission_txt_status": "not_attempted", "candidate_issuer_match": None,
         "structured_details": None, "structured_parse_status": "not_attempted",
-        "structured_parse_error": None,
+        "structured_parse_error": None, "xml_retrieved_at_utc": None,
     }
     path_cik = item.get("feed_path_cik")
     accession = item["accession"]
@@ -264,6 +264,7 @@ def fetch_document_metadata(item, candidate_ciks):
             result["structured_parse_status"] = "unresolved_fetch"
             return result
     result["xml_sha256"] = hashlib.sha256(xml_bytes).hexdigest()
+    result["xml_retrieved_at_utc"] = now_utc()
     try:
         result["structured_details"] = p509.parse_form144_details(xml_bytes)
         result["structured_parse_status"] = "parsed"

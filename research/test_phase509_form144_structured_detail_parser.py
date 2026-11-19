@@ -180,5 +180,29 @@ class Phase509Tests(unittest.TestCase):
         self.assertEqual(p509.parse_date("2026-11-19T12:34:56"), "2026-11-19")
 
 
+    def test_detail_ledger_preserves_source_path_and_separate_retrieval_clock(self):
+        parsed = p509.parse_form144_details(XML)
+        event = {
+            "accession": "0000000001-26-000002", "form": "144",
+            "feed_name": "144", "feed_names": '["144"]',
+            "feed_path_cik": "0000654321", "first_seen_at_utc": "2026-11-19T21:00:00Z",
+            "xml_sha256": "abc",
+        }
+        metadata = {
+            "xml_sha256": "abc", "structured_details": parsed,
+            "structured_parse_status": "parsed",
+            "xml_source": "complete_submission_xml_block",
+            "submission_txt_status": "retrieved",
+            "xml_retrieved_at_utc": "2026-11-19T22:27:00Z",
+        }
+        row = p509.build_detail_rows(event, metadata)[0]
+        self.assertEqual(row["feed_name"], "144")
+        self.assertEqual(row["archive_path_cik"], "0000654321")
+        self.assertEqual(row["xml_source"], "complete_submission_xml_block")
+        self.assertEqual(row["submission_txt_status"], "retrieved")
+        self.assertEqual(row["detail_retrieved_at_utc"], "2026-11-19T22:27:00Z")
+        self.assertNotEqual(row["detail_retrieved_at_utc"], row["first_seen_at_utc"])
+
+
 if __name__ == "__main__":
     unittest.main()

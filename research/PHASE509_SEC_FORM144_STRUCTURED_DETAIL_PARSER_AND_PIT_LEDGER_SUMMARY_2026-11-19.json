@@ -55,6 +55,14 @@
       "%m/%d/%y",
       "%Y-%m-%d",
       "%Y-%m-%dT%H:%M:%S"
+    ],
+    "provenance_fields": [
+      "feed_name",
+      "feed_names",
+      "archive_path_cik",
+      "xml_source",
+      "submission_txt_status",
+      "detail_retrieved_at_utc"
     ]
   },
   "temporal_controls": {
@@ -64,7 +72,8 @@
     "notice_date_not_first_seen": true,
     "source_hash_mismatch_not_promoted": true,
     "same_day_intraday_use_authorized": false,
-    "public_availability_certified": false
+    "public_availability_certified": false,
+    "detail_retrieval_timestamp_separate_from_first_seen": true
   },
   "semantic_controls": {
     "outstanding_share_ratio_computed": false,
@@ -73,7 +82,7 @@
     "signal_eligible": false
   },
   "tests": {
-    "new_parser_tests": 10,
+    "new_parser_tests": 11,
     "synthetic_only": true,
     "live_pull_request_capture": false
   },

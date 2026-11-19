@@ -41,7 +41,7 @@ The long-form ledger writes one filing-header row plus zero or more rows for eac
 
 ### Temporal and semantic controls
 
-- The event's original first-seen interval, poll-response upper bound and poll run ID are copied unchanged into each detail row.
+- The event's original first-seen interval, poll-response upper bound and poll run ID are copied unchanged into each detail row. Feed name(s), archive-path CIK, XML source and a separate detail-retrieval timestamp are retained for reconstruction; the retrieval timestamp is never substituted for first-seen time.
 - Filing acceptance, Atom updated, notice date and approximate sale date remain separate clocks.
 - The original event XML hash is compared with the re-fetched XML hash during backfill. A mismatch is recorded as source_hash_mismatch; it is not promoted. Backfill eligibility uses the stored XML hash rather than the older identity-parser status, so hash-bearing legacy rows with a prior identity parse error can still be retried; hash mismatches are counted separately.
 - Numeric parsing uses decimal strings (including parenthetical negatives and currency punctuation), not binary floats. Date parsing accepts the formats audited in the Phase 65 parser, including two-digit-year and timestamp forms; unrecognized values remain missing.
