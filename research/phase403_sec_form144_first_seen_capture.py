@@ -706,7 +706,7 @@ def backfill_missing_structured_details(events_path, details_path, candidate_cik
         row for row in events
         if row.get("accession")
         and row.get("feed_path_cik")
-        and row.get("xml_status") == "retrieved"
+        and row.get("xml_sha256")
         and row.get("accession") not in completed
     ]
     candidates.sort(
@@ -716,6 +716,7 @@ def backfill_missing_structured_details(events_path, details_path, candidate_cik
     attempts = 0
     parsed_count = 0
     parse_error_count = 0
+    hash_mismatch_count = 0
     rows_appended = 0
     unresolved = []
     for event in candidates[:max(0, int(limit))]:
@@ -729,7 +730,9 @@ def backfill_missing_structured_details(events_path, details_path, candidate_cik
             detail_rows = p509.build_detail_rows(event, metadata)
             rows_appended += p509.append_detail_rows(details_path, detail_rows)
             completed.add(event["accession"])
-            if metadata.get("structured_parse_status") == "parsed":
+            if any(row.get("parse_status") == "source_hash_mismatch" for row in detail_rows):
+                hash_mismatch_count += 1
+            elif metadata.get("structured_parse_status") == "parsed":
                 parsed_count += 1
             else:
                 parse_error_count += 1
@@ -744,7 +747,7 @@ def backfill_missing_structured_details(events_path, details_path, candidate_cik
         row for row in events
         if row.get("accession")
         and row.get("feed_path_cik")
-        and row.get("xml_status") == "retrieved"
+        and row.get("xml_sha256")
         and row.get("accession") not in p509.read_completed_accessions(details_path)
     ]
     return {
@@ -752,6 +755,7 @@ def backfill_missing_structured_details(events_path, details_path, candidate_cik
         "attempts": attempts,
         "accessions_parsed": parsed_count,
         "accessions_with_parse_error": parse_error_count,
+        "source_hash_mismatch_count": hash_mismatch_count,
         "detail_rows_appended": rows_appended,
         "unresolved_count": len(unresolved),
         "unresolved_sample": unresolved[:5],
@@ -936,7 +940,7 @@ def run(mode, output_dir, run_id, data_dir=DATA_DIR):
     structured_detail_summary = {
         "parser_version": p509.PARSER_VERSION, "new_accessions_parsed": 0,
         "new_detail_rows_appended": 0, "backfill": {"attempts": 0, "accessions_parsed": 0,
-        "accessions_with_parse_error": 0, "detail_rows_appended": 0, "unresolved_count": 0,
+        "accessions_with_parse_error": 0, "source_hash_mismatch_count": 0, "detail_rows_appended": 0, "unresolved_count": 0,
         "remaining_accessions": 0, "signal_eligible_count": 0},
         "ledger_row_count": p509.count_detail_rows(data_dir / "sale_details.csv"),
         "ledger_accession_count": len(p509.read_completed_accessions(data_dir / "sale_details.csv")),

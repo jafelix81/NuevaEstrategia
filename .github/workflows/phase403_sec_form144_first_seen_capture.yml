@@ -48,7 +48,7 @@ jobs:
           python-version: "3.11"
       - name: Compile and run offline regressions
         run: |
-          python -m py_compile research/phase401_form144a_full_parent_identity_census.py research/phase403_sec_form144_first_seen_capture.py research/phase454_form144_event_ledger_schema_migration.py research/test_phase454_form144_event_ledger_schema_migration.py research/phase464_form144_first_production_capture_audit.py research/test_phase464_form144_first_production_capture_audit.py research/test_phase465_sec_atom_pagination.py
+          python -m py_compile research/phase401_form144a_full_parent_identity_census.py research/phase403_sec_form144_first_seen_capture.py research/phase454_form144_event_ledger_schema_migration.py research/test_phase454_form144_event_ledger_schema_migration.py research/phase464_form144_first_production_capture_audit.py research/test_phase464_form144_first_production_capture_audit.py research/test_phase465_sec_atom_pagination.py research/phase509_form144_structured_detail_parser.py research/test_phase509_form144_structured_detail_parser.py
           python -m unittest -v research.test_phase403_sec_form144_first_seen_capture research.test_phase454_form144_event_ledger_schema_migration research.test_phase464_form144_first_production_capture_audit research.test_phase465_sec_atom_pagination research.test_phase509_form144_structured_detail_parser
 
   live-capture:
@@ -64,7 +64,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Compile capture and migration clients
-        run: python -m py_compile research/phase403_sec_form144_first_seen_capture.py research/phase454_form144_event_ledger_schema_migration.py
+        run: python -m py_compile research/phase403_sec_form144_first_seen_capture.py research/phase454_form144_event_ledger_schema_migration.py research/phase509_form144_structured_detail_parser.py
       - name: Migrate append-only event ledger schema
         run: python -m research.phase454_form144_event_ledger_schema_migration --path research/data/sec_form144_first_seen/events.csv --output phase403_output/schema_migration.json
       - name: Run SEC Latest Filings capture
