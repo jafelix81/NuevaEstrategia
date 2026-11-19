@@ -1,0 +1,93 @@
+{
+  "phase": 497,
+  "audit_time_utc": "2026-11-19T08:25:57Z",
+  "source": {
+    "source_poll_run_id": "44440313382",
+    "phase496_audit_run_id": "44474285899",
+    "phase496_artifact_id": "14506425194",
+    "expected_accessions": 637,
+    "filing_date": "2026-11-18",
+    "event_ledger_sha256": "e4e237a59fdd0ba73e1b0dcb1fcda115887281942dbb20a3ded53f0993be58d3",
+    "first_seen_lower_bound_utc": "2026-11-18T19:26:08Z",
+    "first_seen_upper_bound_min_utc": "2026-11-19T01:54:11Z",
+    "first_seen_upper_bound_max_utc": "2026-11-19T01:54:34Z",
+    "first_seen_is_upper_bound_not_exact_publication": true
+  },
+  "audit": {
+    "run_id": "44487183018",
+    "artifact_id": "14511206505",
+    "artifact_zip_sha256": "91582dc70925e0c3d9571a2eec246404eb6941c602301ac8d16afdf6bf50a8c5",
+    "attempted": 637,
+    "submission_retrieved": 637,
+    "xml_parsed": 637,
+    "xml_error_counts": {},
+    "raw_payloads_persisted": false,
+    "transaction_level_rows_persisted": false
+  },
+  "transaction_semantics": {
+    "scope": "non_derivative_table_i_P_acquired_rows_only",
+    "p_acquired_transaction_rows": 145,
+    "owner_buckets": {
+      "single": 133,
+      "multiple": 12
+    },
+    "directness": {
+      "D": 81,
+      "I": 64
+    },
+    "filing_plan_flags": {
+      "no": 136,
+      "yes": 9
+    },
+    "owner_direct_plan_matrix": {
+      "single|D|no": 81,
+      "single|I|no": 43,
+      "single|I|yes": 9,
+      "multiple|I|no": 12
+    },
+    "positive_numeric_price": 145,
+    "positive_numeric_shares": 145,
+    "transaction_date_vs_filing_date": {
+      "before_filing_date": 122,
+      "same_filing_date": 23
+    },
+    "footnote_reference_counts": {
+      "rows_with_reference": 93,
+      "rows_with_resolved_text": 93,
+      "rows_without_reference": 52,
+      "unresolved_reference_count": 0
+    },
+    "footnote_keyword_diagnostic_counts": {
+      "open_market": 5,
+      "trust": 28,
+      "mentions_rule_10b5_1": 9,
+      "compensation_or_vesting": 2,
+      "employee_plan": 3
+    },
+    "structural_completeness_queue_rows": 81,
+    "structural_completeness_queue_is_not_open_market_or_discretionary_evidence": true,
+    "multi_owner_rows_not_attributed_to_individual_owners": true,
+    "footnote_text_persisted": false
+  },
+  "eligibility": {
+    "historical_f80_membership_verified": false,
+    "public_availability_certified": false,
+    "research_observation_eligible": 0,
+    "signal_eligible": 0,
+    "alpha_test_authorized": false,
+    "forward_returns_used": false,
+    "oos_used": false,
+    "bootstrap_used": false,
+    "loo_used": false,
+    "holdout_used": false,
+    "f80_changed": false,
+    "production_changed": false
+  },
+  "decision": {
+    "disposition": "P_A_ROW_CONTEXT_SCREEN_ONLY_NO_PROMOTION",
+    "next_gate": "effective_dated_security_class_listing_and_historical_f80_membership_reconciliation",
+    "manual_review_queue_is_not_a_signal": true,
+    "phase497_field_name_high_specificity_manual_review_rows_is_overstated": true,
+    "code_p_is_not_proof_of_exchange_execution_or_discretion": true
+  }
+}
