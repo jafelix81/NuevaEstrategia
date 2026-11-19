@@ -3,7 +3,7 @@
 **Audit date:** 2026-11-19 UTC  
 **Branch:** `phase505-finra-consolidated-short-interest-pit-audit`  
 **Base main:** `cbbaaf886b7aac27b0eb0276e5cf24087a4c73f0`  
-**Disposition:** **CONDITIONAL HISTORICAL POSITIONING SOURCE — NOT STRICT-PIT CERTIFIED, NOT ALPHA-ADMITTED.** FINRA's consolidated short-interest dataset is a useful complement to daily Reg SHO short-sale volume, but it is a twice-monthly snapshot with a material publication lag. All-exchange coverage is documented from June 2022; exact current per-symbol coverage, historical vintages, and business-use rights remain unverified.
+**Disposition:** **CONDITIONAL SOURCE ONLY PENDING COMPLETE ASYNC RE-INGESTION; THE EXISTING PHASE 31 PANEL REMAINS UNUSABLE AS RETRIEVED. NOT STRICT-PIT CERTIFIED, NOT ALPHA-ADMITTED.** FINRA's consolidated short-interest dataset is a useful complement to daily Reg SHO short-sale volume, but it is a twice-monthly snapshot with a material publication lag. All-exchange coverage is documented from June 2022; exact current per-symbol coverage, historical vintages, and business-use rights remain unverified.
 
 ## 1. Repository and Actions preflight
 
@@ -167,3 +167,34 @@ No alpha test, event study, backtest, OOS, bootstrap, LOO, or signal admission w
 - FINRA API fees: https://developer.finra.org/fees
 - FINRA API public credential terms/fees: https://developer.finra.org/fees/public
 - FINRA API organization credential fees: https://developer.finra.org/fees/organizations
+
+## 11. Mandatory reconciliation with prior FINRA short-interest work (Phase 506 correction)
+
+This Phase 505 audit must be read together with Phases 37 and 445–447. The source is **not newly discovered**, and Phase 505 does not re-admit the old Phase 31 panel or establish frozen-universe coverage.
+
+### What the earlier work actually established
+
+- **Phase 37:** initially treated the 98 observed symbols in the Phase 31 artifact as roughly 29% of the 335-name universe and killed the joint flow + position panel on apparent coverage. It also correctly recorded that Phase 31's horizon directions were unstable and bootstrap intervals included zero.
+- **Phase 445:** corrected the missing-versus-zero semantics. FINRA does not require a zero-position row when a previously reported issue has no current short position. A missing row can only be inferred as a structural zero after a complete settlement snapshot and effective-dated proof that the security was active and in scope.
+- **Phase 446:** established that the Phase 31 artifact cannot support either coverage or zero inference. It contained 106 requested settlement dates; 102 successful synchronous pulls all returned exactly 5,000 rows (the documented synchronous cap), and four requests failed. The filtered feature file had 9,420 rows and 98 observed symbols, all A–D. **Zero settlement snapshots were proven complete.** The 98 symbols are not a valid 98/335 coverage estimate; E–Z may have been truncated beyond the cap. No missing symbol can be assigned zero from that artifact.
+- **Phase 447:** already implemented the correct asynchronous retrieval client and a manual-only, single-settlement validation workflow. The client passed 14/14 synthetic tests, but synthetic tests do not validate a live FINRA response. The workflow is `.github/workflows/phase447_finra_single_live_validation.yml`; it requires either `FINRA_ACCESS_TOKEN` or both `FINRA_CLIENT_ID` and `FINRA_CLIENT_SECRET` as GitHub Actions secrets.
+- The only recorded live attempt, [Run 44007662531](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44007662531), failed at the credential guard. Its log explicitly says: “Set FINRA_ACCESS_TOKEN or both FINRA_CLIENT_ID and FINRA_CLIENT_SECRET; no FINRA request was made.” The capture step was skipped. No FIP token request or FINRA data request occurred.
+
+### Current reconciliation at 2026-11-19 18:54 UTC
+
+- The latest 100 Actions runs were inspected; 7,894 total runs were reported. The latest run was [44534689780](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44534689780), a Phase 500 offline PR validation. No queued, in-progress, waiting, requested or pending run appeared in that returned set.
+- No later Phase 447 live-validation run or successful FINRA asynchronous snapshot was found in the latest 100 runs.
+- Phase 495 Reg SHO parser validation remains offline-only; the last scheduled live Reg SHO capture [44453548570](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44453548570) predates Phase 495. Its eight HTTP-200 files were rejected by the old duplicate-symbol rule. A post-Phase-495 live capture is still required.
+- Phase 505's twice-monthly calendar/PIT analysis remains useful, but it does not cure the incomplete Phase 31 retrieval or the missing live credential validation.
+
+### Correct disposition
+
+1. **Old Phase 31 short-interest panel: KILLED / INCOMPLETE AS RETRIEVED.** Do not use its 9,420 rows for coverage, zero inference, or return tests.
+2. **FINRA Consolidated Short Interest source: conditional only.** Re-entry requires one successful Phase 447 asynchronous live validation with exact `Record-Total` reconciliation, then a complete historical async re-ingestion. Do not start the 106-date batch before the single-settlement validation passes.
+3. **Credential/usage gate:** before the manual validation, an authorized maintainer must configure `FINRA_CLIENT_ID` and `FINRA_CLIENT_SECRET`, or `FINRA_ACCESS_TOKEN`, as repository Actions secrets. Choose credentials and terms appropriate to the intended personal/non-commercial or organization/commercial use. Never put values in code, logs, PR text or this report.
+4. After complete snapshots exist, classify each security-date as positive row, structural zero, or unknown. Structural zero requires complete snapshot proof plus effective-dated security/listing scope. Preserve revisions and original vintages.
+5. Only after effective-dated identity and the frozen-335 panel pass may a new, preregistered flow + position diagnostic be designed. Phase 31's prior return findings remain non-promotable and must not be repackaged as OOS evidence.
+
+**Human action required before the existing manual live workflow can progress:** configure an authorized FINRA credential in GitHub Actions secrets and confirm the applicable usage tier. No credential values were inspected or changed in this audit.
+
+No FINRA request, historical re-ingestion, alpha test, event study, backtest, OOS, bootstrap, LOO, signal admission, production change, or F80 change was performed in this correction.
