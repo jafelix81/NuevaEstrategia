@@ -11,7 +11,7 @@
 
 The live audit re-fetched and parsed all 637 ownership XML payloads in the immutable Phase 476 cohort. It found 145 non-derivative Table I rows coded P/A. Of those, 81 satisfy a narrow *structural completeness screen*: one reporting owner in the filing, direct ownership, filing-level Rule 10b5-1 box = no, positive numeric price and share fields, and transaction date no later than filing date.
 
-**Important correction to the workflow's output label:** the artifact field is named `high_specificity_manual_review_rows`, but the 81 rows are not high-specificity evidence of discretionary or exchange-traded purchases. The screen does not require an explicit open-market footnote, and SEC code P also includes private purchases. Treat 81 only as a completeness-based manual-review queue, not as an open-market cohort or signal.
+**Naming correction:** the current parser and aggregate output use `structural_completeness_queue_rows`. An earlier draft used the overclaiming label `high_specificity_manual_review_rows`; that name is retired. The 81 rows are not high-specificity evidence of discretionary or exchange-traded purchases. The screen does not require explicit open-market evidence, and SEC code P also includes private purchases. Treat 81 only as a completeness-based review queue, not as an open-market cohort or signal.
 
 ## 1. Retrieval and integrity
 
@@ -62,7 +62,17 @@ The 12 rows in multiple-owner filings remain at filing grain. They are not expan
 - Keyword diagnostics across the 145 P/A rows: `open_market` 5; `trust` 28; Rule 10b5-1 mention 9; compensation/vesting 2; employee-plan wording 3.
 - These keyword counts are non-exclusive, based on referenced footnote text, and are not adjudications of transaction intent or execution venue.
 
-The audit did not produce the cross-tab of footnote language against the 81-row structural screen. In particular, it does **not** establish that all 81 rows have open-market language. A follow-up must compute row-level aggregate intersections and preserve ambiguous/private wording as separate categories before any manual-review priority is assigned.
+### Repeat verification and structural-queue cross-tab
+
+A later repeat run, [44492496082](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44492496082), attempted the same immutable 637-accession cohort. It retrieved and parsed 636/637 ownership XML payloads; one submission was unavailable in that run. The repeat run reproduced the aggregate counts of 145 P/A rows and 81 structural-queue rows, but it is **not** a complete independent replication. The artifact does not identify the failed accession, so targeted recovery is not possible from that artifact alone.
+
+Within the 636 payloads parsed by the repeat run, the structural queue had:
+- 34 rows with a referenced footnote and 47 without a reference;
+- 2 rows with an explicit `open_market` keyword and no private-purchase keyword;
+- 79 rows with neither keyword;
+- no rows classified as private-purchase-only or both by this narrow keyword screen.
+
+This cross-tab is provisional because one of the 637 filings was unavailable in the repeat run. Keyword absence is not evidence of a private purchase, nor does an `open_market` mention independently prove exchange execution. The complete 637/637 run 44487183018 did not emit this cross-tab. Do not promote the provisional 2/81 result into a transaction classification.
 
 ## 4. Interpretation
 
@@ -83,8 +93,8 @@ Accordingly, the 637 current-cohort issuer/symbol pairs and the 81-row structura
 **Decision: P_A_ROW_CONTEXT_SCREEN_ONLY; NO PROMOTION.**
 
 Next work:
-1. Correct the misleading `high_specificity_manual_review_rows` label in a follow-up code change; the current 81 is a structural-completeness queue only.
-2. Add aggregate cross-tabs for explicit open-market, private-purchase, trust, compensation/vesting, plan and unresolved footnote language within the structural screen.
+1. Keep the corrected `structural_completeness_queue_rows` name; do not restore the retired `high_specificity_manual_review_rows` label.
+2. Preserve the repeat-run limitation and add failed-accession identifiers to a future diagnostic artifact before any targeted recovery; the current 636/637 cross-tab remains provisional.
 3. Reconcile the 321 issuer/as-filed-symbol pairs to an effective-dated security-class/listing source and the exact frozen-universe membership by date. The existing Phase 97 ranking remains: Databento PIT Security Master for a possible two-clock reference layer; CRSP for inactive-security/return validation; Norgate for a separate index-defined universe. No vendor is approved or purchased.
 4. Only after identity, historical membership and conservative public-availability gates pass, preregister a discretionary-purchase hypothesis and test incremental information versus frozen LTM/F80, controlling prior returns, momentum, liquidity and volatility, with identical exposure/costs, chronological OOS, block bootstrap and LOO.
 
@@ -92,12 +102,9 @@ No forward returns, event study, backtest, OOS, bootstrap, LOO or holdout was us
 
 ## 7. Validation and reproduction
 
-Run [44487183018](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44487183018) completed:
-- `offline-regression`: success;
-- `live-audit`: success;
-- 637/637 submissions retrieved and XML parsed;
-- no-promotion and no-persistence gates passed;
-- aggregate-only artifact uploaded.
+Run [44487183018](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44487183018) completed with `offline-regression` and `live-audit` successful; 637/637 submissions were retrieved and parsed. Its aggregate-only artifact is [14511206505](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44487183018/artifacts/14511206505).
+
+Repeat run [44492496082](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44492496082) also passed offline and live jobs, but retrieved/parsed 636/637 submissions (one unavailable). It emitted the provisional queue cross-tab above in artifact [14513398607](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44492496082/artifacts/14513398607), ZIP SHA-256 `cb74b4a47ab551737774ccd6e50eb8fcdcbaa101879fed231776e6d1e82d141b`. The no-promotion/no-persistence controls passed; do not describe the repeat run as 637/637.
 
 Reproduction:
 ```bash
@@ -107,3 +114,8 @@ python -m research.phase497_form4_purchase_row_context_census \
   --expected-count 637 \
   --output phase497_output
 ```
+
+
+## 8. Subsequent prospective metadata capture
+
+The later scheduled Phase 476 poll [44505739718](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44505739718) completed at 2026-11-19 10:27:06 UTC and added 18 new canonical Form 4 events to the main append-only ledger. The poll recorded 37 new accession occurrences, 19 within-feed duplicate occurrences, zero cross-feed duplicates, and 18 bounded metadata events. It downloaded no filing XML and admitted zero research observations or signals. These 18 newer events are a separate, unaudited cohort and are not part of the fixed 637-accession Phase 497 sample.
