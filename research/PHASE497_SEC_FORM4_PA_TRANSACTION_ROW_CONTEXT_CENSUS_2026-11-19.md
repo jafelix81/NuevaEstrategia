@@ -119,3 +119,8 @@ python -m research.phase497_form4_purchase_row_context_census \
 ## 8. Subsequent prospective metadata capture
 
 The later scheduled Phase 476 poll [44505739718](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44505739718) completed at 2026-11-19 10:27:06 UTC and added 18 new canonical Form 4 events to the main append-only ledger. The poll recorded 37 new accession occurrences, 19 within-feed duplicate occurrences, zero cross-feed duplicates, and 18 bounded metadata events. It downloaded no filing XML and admitted zero research observations or signals. These 18 newer events are a separate, unaudited cohort and are not part of the fixed 637-accession Phase 497 sample.
+
+
+## 9. Integration
+
+PR [#153](https://github.com/jafelix81/NuevaEstrategia/pull/153) was merged on 2026-11-19 at 10:52:49 UTC after PR CI [44509660064](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44509660064) passed offline regression; the live-audit job was skipped as intended. Squash merge / main HEAD: `2a1e66ab9b65096eaa1f95472716117ef33328bf`. The latest Actions API count at merge was 7,886 total runs; no active/queued run appeared in the latest 20 records.
