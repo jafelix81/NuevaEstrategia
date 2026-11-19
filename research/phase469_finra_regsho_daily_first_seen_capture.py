@@ -35,8 +35,9 @@ REQUIRED_HEADERS = {
     "shortvolume": "short_volume",
     "shortexemptvolume": "short_exempt_volume",
     "totalvolume": "total_volume",
+    "market": "market",
 }
-OPTIONAL_HEADERS = {"market": "market"}
+OPTIONAL_HEADERS: dict[str, str] = {}
 
 
 def _utc_iso(value: datetime) -> str:
@@ -70,7 +71,13 @@ def _decimal(value: str, field: str) -> Decimal:
 
 
 def parse_finra_file(raw: bytes, requested_trade_date: date) -> dict[str, Any]:
-    """Parse one consolidated CNMS daily file; retain raw bytes only in memory."""
+    """Parse the CNMS file at (symbol, reporting-facility) grain.
+
+    FINRA publishes separate facility rows for a security. The file's Market
+    field is a one-letter reporting-facility code, so repeated symbols across
+    different markets are expected. Validate uniqueness at (symbol, market),
+    then aggregate the facility rows to one symbol observation in memory.
+    """
     if not isinstance(raw, bytes) or not raw:
         raise ValueError("file_empty")
     try:
@@ -101,8 +108,12 @@ def parse_finra_file(raw: bytes, requested_trade_date: date) -> dict[str, Any]:
         raise ValueError("trailer_count_missing_or_invalid")
     declared_count = int(trailer[0].strip())
     data_lines = lines[1:-1]
-    rows: list[dict[str, Any]] = []
-    seen_symbols: set[str] = set()
+
+    seen_symbol_markets: set[tuple[str, str]] = set()
+    market_codes: set[str] = set()
+    aggregates: dict[str, dict[str, Any]] = {}
+    facility_row_count = 0
+
     for line_number, line in enumerate(data_lines, start=2):
         cells = line.split("|")
         if cells and cells[-1] == "" and len(cells) == len(header_cells) + 1:
@@ -115,9 +126,15 @@ def parse_finra_file(raw: bytes, requested_trade_date: date) -> dict[str, Any]:
         symbol = cells[positions["symbol"]].strip().upper()
         if not symbol or any(ch.isspace() for ch in symbol):
             raise ValueError("symbol_invalid")
-        if symbol in seen_symbols:
-            raise ValueError("duplicate_symbol")
-        seen_symbols.add(symbol)
+        market = cells[positions["market"]].strip().upper()
+        if len(market) != 1 or not market.isalpha():
+            raise ValueError("market_code_invalid")
+        symbol_market = (symbol, market)
+        if symbol_market in seen_symbol_markets:
+            raise ValueError("duplicate_symbol_market")
+        seen_symbol_markets.add(symbol_market)
+        market_codes.add(market)
+
         short_volume = _decimal(cells[positions["short_volume"]], "short_volume")
         short_exempt = _decimal(cells[positions["short_exempt_volume"]], "short_exempt_volume")
         total_volume = _decimal(cells[positions["total_volume"]], "total_volume")
@@ -125,33 +142,52 @@ def parse_finra_file(raw: bytes, requested_trade_date: date) -> dict[str, Any]:
             raise ValueError("short_exempt_exceeds_short")
         if short_volume > total_volume:
             raise ValueError("short_exceeds_total")
-        market = cells[positions["market"]].strip() if "market" in positions else ""
-        rows.append({
-            "symbol": symbol,
-            "trade_date": trade_date.isoformat(),
-            "short_volume": short_volume,
-            "short_exempt_volume": short_exempt,
-            "total_volume": total_volume,
-            "market": market,
-        })
 
-    if len(rows) != declared_count:
+        aggregate = aggregates.setdefault(
+            symbol,
+            {
+                "short_volume": Decimal("0"),
+                "short_exempt_volume": Decimal("0"),
+                "total_volume": Decimal("0"),
+                "markets": set(),
+            },
+        )
+        aggregate["short_volume"] += short_volume
+        aggregate["short_exempt_volume"] += short_exempt
+        aggregate["total_volume"] += total_volume
+        aggregate["markets"].add(market)
+        facility_row_count += 1
+
+    if facility_row_count != declared_count:
         raise ValueError("trailer_count_mismatch")
+
+    rows = [
+        {
+            "symbol": symbol,
+            "trade_date": requested_trade_date.isoformat(),
+            "short_volume": values["short_volume"],
+            "short_exempt_volume": values["short_exempt_volume"],
+            "total_volume": values["total_volume"],
+            "market": ",".join(sorted(values["markets"])),
+        }
+        for symbol, values in aggregates.items()
+    ]
     header_signature = hashlib.sha256("|".join(normalised).encode("utf-8")).hexdigest()[:16]
     return {
         "trade_date": requested_trade_date.isoformat(),
         "rows": rows,
-        "row_count": len(rows),
-        "symbol_count": len(seen_symbols),
+        "row_count": facility_row_count,
+        "facility_row_count": facility_row_count,
+        "symbol_count": len(rows),
+        "facility_count": len(market_codes),
         "response_bytes": len(raw),
         "raw_sha256": hashlib.sha256(raw).hexdigest(),
         "schema_version": f"CNMSshvol:{header_signature}",
         "header": normalised,
     }
 
-
 def build_symbol_observations(parsed: dict[str, Any], file_event: dict[str, Any]) -> list[dict[str, Any]]:
-    """Expand a hash-verified file event in memory for the Phase 468 PIT labeler."""
+    """Expand a hash-verified file event into one aggregated row per symbol."""
     if not file_event.get("research_observation_eligible"):
         return []
     observation_kind = file_event.get("observation_kind")
@@ -349,6 +385,10 @@ def run_capture(
                 counts["http_errors"] += 1
         else:
             counts["http_200"] += 1
+            # Preserve a reproducible fingerprint even when HTTP 200 contains
+            # a malformed or schema-incompatible payload. Raw bytes are not saved.
+            digest = hashlib.sha256(body).hexdigest()
+            response_bytes = len(body)
             try:
                 parsed = parse_finra_file(body, trade_date)
             except ValueError as exc:

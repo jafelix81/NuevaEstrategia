@@ -18,7 +18,7 @@ HEADER = "Date|Symbol|ShortVolume|Short Exempt Volume|TotalVolume|Market"
 
 def file_bytes(day="20261117", rows=None):
     rows = rows if rows is not None else [
-        f"{day}|ABC|120.5|2.5|300.0|B,Q,N",
+        f"{day}|ABC|120.5|2.5|300.0|B",
         f"{day}|XYZ|0|0|100|N",
     ]
     return (HEADER + "\n" + "\n".join(rows) + f"\n{len(rows)}\n").encode()
@@ -31,7 +31,7 @@ class TestPhase469Parser(unittest.TestCase):
         self.assertEqual(parsed["symbol_count"], 2)
         self.assertEqual(parsed["rows"][0]["symbol"], "ABC")
         self.assertEqual(str(parsed["rows"][0]["short_volume"]), "120.5")
-        self.assertEqual(parsed["rows"][0]["market"], "B,Q,N")
+        self.assertEqual(parsed["rows"][0]["market"], "B")
         self.assertEqual(len(parsed["raw_sha256"]), 64)
 
     def test_empty_but_valid_file_is_not_a_signal(self):
@@ -49,13 +49,40 @@ class TestPhase469Parser(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "trailer_count_mismatch"):
             parse_finra_file(raw, date(2026, 11, 17))
 
-    def test_duplicate_symbol_rejected(self):
+    def test_same_symbol_across_facilities_is_aggregated(self):
+        rows = [
+            "20261117|ABC|120.5|2.5|300.0|N",
+            "20261117|abc|10.25|0.25|40.0|Q",
+            "20261117|XYZ|0|0|100|B",
+        ]
+        parsed = parse_finra_file(file_bytes(rows=rows), date(2026, 11, 17))
+        self.assertEqual(parsed["row_count"], 3)
+        self.assertEqual(parsed["facility_row_count"], 3)
+        self.assertEqual(parsed["symbol_count"], 2)
+        self.assertEqual(parsed["facility_count"], 3)
+        abc = next(row for row in parsed["rows"] if row["symbol"] == "ABC")
+        self.assertEqual(str(abc["short_volume"]), "130.75")
+        self.assertEqual(str(abc["short_exempt_volume"]), "2.75")
+        self.assertEqual(str(abc["total_volume"]), "340.0")
+        self.assertEqual(abc["market"], "N,Q")
+
+    def test_duplicate_symbol_market_rejected(self):
         rows = [
             "20261117|ABC|1|0|2|N",
-            "20261117|abc|1|0|2|Q",
+            "20261117|abc|1|0|2|n",
         ]
-        with self.assertRaisesRegex(ValueError, "duplicate_symbol"):
+        with self.assertRaisesRegex(ValueError, "duplicate_symbol_market"):
             parse_finra_file(file_bytes(rows=rows), date(2026, 11, 17))
+
+    def test_market_code_must_be_one_letter(self):
+        rows = ["20261117|ABC|1|0|2|B,Q,N"]
+        with self.assertRaisesRegex(ValueError, "market_code_invalid"):
+            parse_finra_file(file_bytes(rows=rows), date(2026, 11, 17))
+
+    def test_market_header_is_required(self):
+        raw = b"Date|Symbol|ShortVolume|Short Exempt Volume|TotalVolume\n20261117|ABC|1|0|2\n1\n"
+        with self.assertRaisesRegex(ValueError, "required_header_missing:market"):
+            parse_finra_file(raw, date(2026, 11, 17))
 
     def test_short_exempt_must_be_subset_of_short(self):
         with self.assertRaisesRegex(ValueError, "short_exempt_exceeds_short"):
@@ -153,7 +180,7 @@ class TestPhase469Capture(unittest.TestCase):
             self.now = datetime(2026, 11, 18, 22, 30, tzinfo=timezone.utc)
             payload = file_bytes(
                 day="20261117",
-                rows=["20261117|ABC|120.5|2.5|300.0|B,Q,N"],
+                rows=["20261117|ABC|120.5|2.5|300.0|B"],
             )
             def delayed_fetch(url):
                 if "CNMSshvol20261117.txt" in url:
@@ -181,6 +208,29 @@ class TestPhase469Capture(unittest.TestCase):
             self.assertEqual(len(expanded), 1)
             self.assertEqual(expanded[0]["observation_kind"], "late_first_seen")
             self.assertEqual(expanded[0]["first_seen_utc"], late_event["first_seen_utc"])
+
+    def test_invalid_http_200_records_hash_and_size_without_advancing_state(self):
+        bad_payload = file_bytes(rows=[
+            "20261117|ABC|1|0|2|N",
+            "20261117|ABC|1|0|2|N",
+        ])
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            summary = run_capture(
+                mode="schedule", run_id="invalid-200", data_dir=root / "data",
+                output_dir=root / "out", lookback_days=1,
+                now_fn=self.fixed_now,
+                fetcher=self.fetch_current_only(bad_payload),
+            )
+            self.assertEqual(summary["counts"]["invalid_files"], 1)
+            with (root / "data" / "polls.csv").open(newline="") as handle:
+                poll = next(csv.DictReader(handle))
+            self.assertEqual(poll["poll_status"], "invalid_file")
+            self.assertEqual(poll["error"], "duplicate_symbol_market")
+            self.assertEqual(poll["raw_sha256"], hashlib.sha256(bad_payload).hexdigest())
+            self.assertEqual(int(poll["response_bytes"]), len(bad_payload))
+            state = json.loads((root / "data" / "state.json").read_text())
+            self.assertEqual(state["files"], {})
 
     def test_old_date_first_capture_is_bootstrap_not_eligible(self):
         payload = file_bytes(day="20261116", rows=["20261116|ABC|1|0|2|N"])
@@ -223,7 +273,7 @@ class TestPhase469Capture(unittest.TestCase):
             original = json.loads((root / "data" / "state.json").read_text())["files"]["2026-11-17"]["first_seen_utc"]
             self.now = datetime(2026, 11, 17, 23, 30, tzinfo=timezone.utc)
             revised = file_bytes(rows=[
-                "20261117|ABC|121.5|2.5|301.0|B,Q,N",
+                "20261117|ABC|121.5|2.5|301.0|B",
                 "20261117|XYZ|0|0|100|N",
             ])
             summary = run_capture(
