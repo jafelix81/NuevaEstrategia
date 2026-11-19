@@ -743,12 +743,13 @@ def backfill_missing_structured_details(events_path, details_path, candidate_cik
                 "submission_txt_status": metadata.get("submission_txt_status"),
                 "xml_status": metadata.get("xml_status"),
             })
+    completed_after = p509.read_completed_accessions(details_path)
     remaining = [
         row for row in events
         if row.get("accession")
         and row.get("feed_path_cik")
         and row.get("xml_sha256")
-        and row.get("accession") not in p509.read_completed_accessions(details_path)
+        and row.get("accession") not in completed_after
     ]
     return {
         "limit": max(0, int(limit)),
