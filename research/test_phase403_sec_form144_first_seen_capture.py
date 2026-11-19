@@ -438,6 +438,7 @@ class Phase403Tests(unittest.TestCase):
             self.assertEqual(summary["poll_status"], "partial")
             self.assertEqual(summary["structured_detail_summary"]["new_accessions_parsed"], 1)
             self.assertEqual(summary["structured_detail_summary"]["backfill"]["attempts"], 0)
+            self.assertEqual(summary["structured_detail_summary"]["backfill"]["source_hash_mismatch_count"], 0)
             self.assertEqual(summary["successful_feeds"], ["144"])
             self.assertEqual(summary["failed_feeds"], ["144A"])
             self.assertFalse(summary["cross_feed_provenance_complete"])
