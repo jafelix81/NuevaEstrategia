@@ -124,6 +124,8 @@ class Phase403Tests(unittest.TestCase):
         self.assertTrue(metadata["candidate_issuer_match"])
         self.assertEqual(metadata["submission_type"], "144")
         self.assertEqual(metadata["xml_status"], "retrieved")
+        self.assertEqual(metadata["structured_parse_status"], "parsed")
+        self.assertEqual(metadata["structured_details"]["submission_type"], "144")
 
     def test_acceptance_timestamp_is_parsed_as_eastern_then_utc(self):
         accepted_et, accepted_utc = p403.parse_acceptance_submission(
