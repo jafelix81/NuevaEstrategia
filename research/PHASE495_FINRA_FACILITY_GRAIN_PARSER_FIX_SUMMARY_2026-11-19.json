@@ -1,0 +1,101 @@
+{
+  "phase": 495,
+  "audit_cutoff_utc": "2026-11-19T04:14:00Z",
+  "disposition": "FINRA_FACILITY_GRAIN_PARSER_CORRECTED; CI_56_OF_56; NO_SIGNAL_OR_ALPHA",
+  "repository": "jafelix81/NuevaEstrategia",
+  "main_before": "1068f7a28b06d3799c1c8549764ac61b3b7c928f",
+  "pr_number": 151,
+  "pr_url": "https://github.com/jafelix81/NuevaEstrategia/pull/151",
+  "merged": true,
+  "merge_commit": "8aa9ef6ce2ab23e4dda9317524db79a31bfc44a9",
+  "ci_run_id": 44456658463,
+  "ci_result": "success",
+  "tests_passed": 56,
+  "live_capture_on_pr": "skipped_as_designed",
+  "finra_first_scheduled_run": {
+    "run_id": 44453548570,
+    "artifact_id": 14495893727,
+    "artifact_sha256": "c2a1de282eafa2a46de7c1da575d53436cdfc464d721113d23cb241b51fda3e7",
+    "artifact_bytes": 565,
+    "requested_dates": [
+      "2026-11-18",
+      "2026-11-17",
+      "2026-11-16",
+      "2026-11-13",
+      "2026-11-12",
+      "2026-11-11",
+      "2026-11-10",
+      "2026-11-09"
+    ],
+    "http_200": 8,
+    "invalid_files": 8,
+    "invalid_reason": "duplicate_symbol",
+    "valid_files": 0,
+    "research_observation_eligible": 0,
+    "signal_eligible": 0,
+    "state_files_advanced": 0,
+    "raw_sha256_recorded_for_invalid_200": false,
+    "raw_market_data_persisted": false
+  },
+  "parser_correction": {
+    "raw_key": [
+      "trade_date",
+      "symbol",
+      "market"
+    ],
+    "market_required": true,
+    "market_format": "one alphabetic character",
+    "aggregate_to_symbol_in_memory": true,
+    "facility_row_count_preserved": true,
+    "duplicate_symbol_market_rejected": true,
+    "invalid_http_200_hash_and_bytes_recorded": true,
+    "raw_market_data_persisted": false
+  },
+  "cftc_run": {
+    "run_id": 44453066854,
+    "artifact_id": 14497030662,
+    "artifact_sha256": "b77d6c6ee87386a96592a1afaca62e42ceb8464297988d49c803d615bab0867a",
+    "total_rows": 3039,
+    "rows_by_contract_code": {
+      "124603": 852,
+      "209742": 852,
+      "239742": 483,
+      "13874A": 852
+    },
+    "latest_report_date": "2026-11-10",
+    "new_reports_or_revisions": 0,
+    "pit_signal_eligible_rows": 0,
+    "alpha_test_authorized": false
+  },
+  "sec_form4_run": {
+    "run_id": 44440313382,
+    "new_unique_accessions": 637,
+    "feed_observations": 1311,
+    "signal_eligible": 0
+  },
+  "sec_form144_run": {
+    "run_id": 44447184058,
+    "new_accessions": 103,
+    "xml_resolved": 103,
+    "acceptance_reconciled": 103,
+    "signal_eligible": 0
+  },
+  "issue_150": {
+    "closed": true,
+    "state_reason": "completed",
+    "reason": "all four scheduled delivery paths produced post-gap scheduled runs"
+  },
+  "research": {
+    "backtest": false,
+    "event_study": false,
+    "oos": false,
+    "bootstrap": false,
+    "loo": false,
+    "new_signals": 0
+  },
+  "strategy": {
+    "name": "F80_TOP20_PARTIAL50_BASELINE_C20",
+    "frozen": true,
+    "production_changed": false
+  }
+}
