@@ -41,7 +41,7 @@ jobs:
         run: python -m pip install numpy pandas scipy
       - name: Download immutable Phase 29 and Phase 30 artifacts
         env:
-          GH_TOKEN: \${{ github.token }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p phase499_input phase499_output
           curl --fail --silent --show-error --location \
