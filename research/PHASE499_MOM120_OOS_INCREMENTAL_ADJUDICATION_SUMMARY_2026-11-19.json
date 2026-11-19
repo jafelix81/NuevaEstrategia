@@ -1,0 +1,89 @@
+{
+  "phase": 499,
+  "status": "COMPLETED_ARTIFACT_ONLY_ADJUDICATION",
+  "phase29": {
+    "run_id": 40105752275,
+    "artifact_id": 12565060248,
+    "sha256": "85480d28d6d24c8a167c67baee5b3c28c2915e0a3bc3b2eb2f13b490d4167d77",
+    "universe_configured": 335,
+    "prices_loaded": 335,
+    "mom120_h20": {
+      "discovery_dates": 54,
+      "validation_dates": 36,
+      "validation_passed": true,
+      "validation_mean_d10_d1": 0.0012197534846736515,
+      "validation_mean_partial_ic": -0.0005418962705708457
+    },
+    "mom120_h60": {
+      "discovery_dates": 54,
+      "validation_dates": 36,
+      "validation_passed": true,
+      "validation_mean_d10_d1": 0.040893284406519764,
+      "validation_mean_partial_ic": 0.02953294235458823
+    }
+  },
+  "phase30": {
+    "run_id": 40149358003,
+    "artifact_id": 12581524526,
+    "sha256": "b57190f1d979bde7bb38cff0c6fa0e294cbfed029c5bc702ab62574bb459bc48",
+    "universe_configured": 335,
+    "prices_loaded": 335,
+    "signal_dates_total": 32,
+    "oos_start": "2024-01-02",
+    "oos_end": "2026-10-23",
+    "oos_daily_observations": 706,
+    "oos_trade_rebalance_dates": 8,
+    "rebalance_sessions": 80,
+    "top_n": 20,
+    "partial": 0.5,
+    "gross_cap": 1.0
+  },
+  "incremental_oos": {
+    "cost_10_bps": {
+      "mean_excess_daily_bps": 0.7049448643,
+      "block20_ci95_bps": [-3.5515, 4.8504],
+      "block80_ci95_bps": [-3.5248, 5.2058],
+      "block160_ci95_bps": [-3.3111, 4.8582],
+      "relative_final_multiple_difference_pct": 4.3016,
+      "loo_positive_fraction": 1.0
+    },
+    "cost_20_bps": {
+      "mean_excess_daily_bps": 0.7100601090,
+      "block20_ci95_bps": [-3.5485, 4.8494],
+      "block80_ci95_bps": [-3.5264, 5.2223],
+      "block160_ci95_bps": [-3.3090, 4.8594],
+      "relative_final_multiple_difference_pct": 4.3432,
+      "loo_positive_fraction": 1.0,
+      "sign_test_p_two_sided": 0.2142,
+      "naive_paired_t_p_two_sided": 0.7503
+    },
+    "cost_50_bps": {
+      "mean_excess_daily_bps": 0.7252419737,
+      "block20_ci95_bps": [-3.5381, 4.8895],
+      "block80_ci95_bps": [-3.5277, 5.2591],
+      "block160_ci95_bps": [-3.3114, 4.8734],
+      "relative_final_multiple_difference_pct": 4.4672,
+      "loo_positive_fraction": 1.0
+    }
+  },
+  "decision": {
+    "mom120_standalone_replacement": "REJECT_FOR_PROMOTION_NO_SIGNIFICANT_INCREMENTAL_EDGE",
+    "general_momentum_hypothesis": "NOT_KILLED",
+    "signal_admitted": false,
+    "production_change_authorized": false
+  },
+  "limitations": [
+    "Static 335-name universe; no effective-dated historical constituent panel.",
+    "Yahoo Finance history lacks the required PIT security-master and delisted-security coverage for strict OOS.",
+    "706 daily OOS observations contain only eight observed OOS trade/rebalance dates.",
+    "Fixed bps costs do not model name-specific spread, market impact, borrow or capacity."
+  ],
+  "frozen_controls": {
+    "f80_top20_partial50_baseline_c20_changed": false,
+    "universe_changed": false,
+    "parameters_changed": false,
+    "exposure_or_costs_changed": false,
+    "holdout_changed": false,
+    "production_changed": false
+  }
+}
