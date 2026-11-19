@@ -1,0 +1,94 @@
+{
+  "phase": 503,
+  "date": "2026-11-19",
+  "source": "Cboe Option Sentiment",
+  "spec_version": "v1.4 0525",
+  "disposition": "CONDITIONAL_HIGH_PRIORITY_DAILY_OPTIONS_CANDIDATE_NOT_ADMITTED",
+  "historical_coverage": {
+    "faq_start": "2012-01",
+    "dedicated_product_page_verified": false,
+    "orderability_confirmed": false,
+    "per_symbol_date_audit": false,
+    "frozen_335_coverage": false,
+    "delisted_underlying_coverage": false
+  },
+  "delivery": {
+    "preliminary": "same trade date after market close, targeted 8-9pm ET",
+    "complete": "next day, targeted 5-6am ET",
+    "historical_first_delivery_vintages": false,
+    "strict_historical_pit_certified": false,
+    "prospective_receipt_ledger_required": true
+  },
+  "data_shape": {
+    "granularity": "daily underlying-level aggregate",
+    "fields": 80,
+    "raw_trade_rows": false,
+    "option_contract_level_strike_expiry": false,
+    "trade_timestamps": false
+  },
+  "features": {
+    "directional_flow": [
+      "net_option_delta",
+      "call_premium_bought",
+      "call_premium_sold",
+      "put_premium_bought",
+      "put_premium_sold",
+      "calls_bought",
+      "puts_bought",
+      "calls_sold",
+      "puts_sold",
+      "directional_pct"
+    ],
+    "volatility": [
+      "iv30",
+      "iv90",
+      "hv20",
+      "norm_25d_skew_30",
+      "vega_total"
+    ],
+    "positioning": [
+      "oi_calls",
+      "oi_puts",
+      "otm_call_oi",
+      "otm_put_oi"
+    ],
+    "participant_composition": [
+      "cust_volume",
+      "firm_volume",
+      "mkt_mkr_volume"
+    ],
+    "size_tenor_buckets": true,
+    "implied_borrow": true
+  },
+  "semantics": {
+    "direction_method": "midpoint-based; above midpoint buy, below midpoint sell; spread, late and tied trades excluded from net delta",
+    "directional_pct_units": "percentage points, not fraction",
+    "participant_fields": "OCC clearing participant category volumes; no participant-by-side cross-tab",
+    "cancelled_trades": "backed out from totals",
+    "oi_timing": "specific product requires confirmation; general Cboe FAQ says previous-night OCC EOD OI at SOD, static intraday",
+    "vendor_20d_averages": "lookback inclusion cutoff unspecified; recompute prior-only"
+  },
+  "alternatives": {
+    "option_trades_quotes": "OPRA-wide raw prints plus interval quotes; Jan 2012 product page / Jan 2010 FAQ conflict",
+    "tbt": "C1-only trade-by-trade side/open-close/capacity; start 2019-10-07; T+1",
+    "open_close": "Cboe exchanges only; participant type, buy/sell and open/close; historical convention breaks"
+  },
+  "licensing": {
+    "price_quote": false,
+    "firm_use_rights": false,
+    "redistribution_terms": false,
+    "sample_acquired": false,
+    "vendor_contacted": false,
+    "purchase_made": false
+  },
+  "research": {
+    "alpha_test": false,
+    "event_study": false,
+    "oos": false,
+    "bootstrap": false,
+    "loo": false,
+    "signals_admitted": 0,
+    "f80_changed": false
+  },
+  "next_gate": "Confirm current product orderability, current specification, firm-use/retention terms, exact 335-name/delisted coverage, field semantics and preliminary/complete correction lineage; then lawful sample and prospective receipt-time pilot."
+}
