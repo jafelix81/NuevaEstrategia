@@ -372,6 +372,7 @@ class Phase476Tests(unittest.TestCase):
             self.assertEqual(summary["bounded_metadata_rows"], 0)
             self.assertEqual(summary["new_event_rows"], 0)
             self.assertEqual(summary["incomplete_poll_candidate_rows_suppressed"], 1)
+            self.assertEqual(summary["incomplete_poll_candidate_occurrences_suppressed"], 1)
             self.assertFalse((data_dir / "events.csv").exists())
             with (data_dir / "accession_observations.csv").open(newline="", encoding="utf-8") as handle:
                 observations = list(csv.DictReader(handle))
