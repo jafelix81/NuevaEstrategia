@@ -1,3 +1,4 @@
+import csv
 import json
 import tempfile
 import unittest
@@ -5,6 +6,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from research import phase403_sec_form144_first_seen_capture as p403
+from research import phase509_form144_structured_detail_parser as p509
 
 
 SAMPLE_144 = """<?xml version="1.0" encoding="UTF-8"?>
@@ -124,6 +126,14 @@ class Phase403Tests(unittest.TestCase):
         self.assertTrue(metadata["candidate_issuer_match"])
         self.assertEqual(metadata["submission_type"], "144")
         self.assertEqual(metadata["xml_status"], "retrieved")
+        self.assertEqual(metadata["structured_parse_status"], "parsed")
+        self.assertEqual(metadata["structured_details"]["submission_type"], "144")
+        self.assertIn("sale_tranches", metadata["structured_details"])
+        self.assertTrue(metadata["xml_retrieved_at_utc"])
+        self.assertEqual(metadata["xml_source"], "complete_submission_xml_block")
+        self.assertEqual(metadata["submission_txt_status"], "retrieved")
+        self.assertNotEqual(metadata["xml_retrieved_at_utc"], metadata["submission_acceptance_utc"])
+        self.assertEqual(len(metadata["xml_sha256"]), 64)
 
     def test_acceptance_timestamp_is_parsed_as_eastern_then_utc(self):
         accepted_et, accepted_utc = p403.parse_acceptance_submission(
@@ -411,6 +421,9 @@ class Phase403Tests(unittest.TestCase):
                 "xml_sha256": "abc",
                 "submission_txt_status": "retrieved",
                 "candidate_issuer_match": True,
+                "structured_details": p509.parse_form144_details(SAMPLE_144),
+                "structured_parse_status": "parsed",
+                "structured_parse_error": None,
             }
             with patch.object(p403, "load_candidate_manifest",
                               return_value=({"0000123456"}, manifest)), \
@@ -430,6 +443,9 @@ class Phase403Tests(unittest.TestCase):
                 observations = list(__import__("csv").DictReader(handle))
 
             self.assertEqual(summary["poll_status"], "partial")
+            self.assertEqual(summary["structured_detail_summary"]["new_accessions_parsed"], 1)
+            self.assertEqual(summary["structured_detail_summary"]["backfill"]["attempts"], 0)
+            self.assertEqual(summary["structured_detail_summary"]["backfill"]["source_hash_mismatch_count"], 0)
             self.assertEqual(summary["successful_feeds"], ["144"])
             self.assertEqual(summary["failed_feeds"], ["144A"])
             self.assertFalse(summary["cross_feed_provenance_complete"])
@@ -486,6 +502,75 @@ class Phase403Tests(unittest.TestCase):
             self.assertEqual(failed_summary["poll_status"], "failed")
             self.assertFalse(failed_summary["state_write"])
             self.assertEqual(failed_summary["disposition"], "POLL_FAILED_ALL_FEEDS")
+
+
+    def test_structured_backfill_is_newest_first_hash_checked_and_bounded(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            events_path = Path(tmp) / "events.csv"
+            details_path = Path(tmp) / "sale_details.csv"
+            older = {field: "" for field in p403.EVENT_FIELDS}
+            older.update({
+                "accession": "0000123456-26-000001", "form": "144",
+                "feed_path_cik": "0000123456", "xml_status": "parse_error:legacy",
+                "xml_sha256": "old-hash", "first_seen_at_utc": "2026-11-18T20:00:00Z",
+                "issuer_cik": "0000654321", "issuer_name": "Example Corp",
+            })
+            newer = dict(older)
+            newer.update({
+                "accession": "0000123456-26-000002", "xml_sha256": "new-hash",
+                "first_seen_at_utc": "2026-11-19T20:00:00Z",
+            })
+            p403.append_events(events_path, [older, newer])
+            parsed = p509.parse_form144_details(
+                "<edgarSubmission><submissionType>144</submissionType>"
+                "<issuerInfo><issuerCik>0000654321</issuerCik><issuerName>Example Corp</issuerName></issuerInfo>"
+                "</edgarSubmission>"
+            )
+            seen = []
+
+            def fake_fetch(item, candidate_ciks):
+                seen.append(item["accession"])
+                return {
+                    "xml_sha256": "new-hash",
+                    "structured_details": parsed,
+                    "structured_parse_status": "parsed",
+                    "structured_parse_error": None,
+                }
+
+            with patch.object(p403, "fetch_document_metadata", side_effect=fake_fetch):
+                summary = p403.backfill_missing_structured_details(
+                    events_path, details_path, {"0000654321"}, "test-run", limit=1
+                )
+
+            self.assertEqual(seen, ["0000123456-26-000002"])
+            self.assertEqual(summary["attempts"], 1)
+            self.assertEqual(summary["limit"], 1)
+            # The caller cannot expand this per-run request budget through the event payload.
+            self.assertEqual(summary["accessions_parsed"], 1)
+            self.assertEqual(summary["remaining_accessions"], 1)
+            self.assertEqual(p509.read_completed_accessions(details_path), {"0000123456-26-000002"})
+            def fake_mismatch(item, candidate_ciks):
+                return {
+                    "xml_sha256": "different-hash",
+                    "structured_details": parsed,
+                    "structured_parse_status": "parsed",
+                    "structured_parse_error": None,
+                }
+
+            with patch.object(p403, "fetch_document_metadata", side_effect=fake_mismatch):
+                mismatch_summary = p403.backfill_missing_structured_details(
+                    events_path, details_path, {"0000654321"}, "mismatch-run", limit=1
+                )
+            self.assertEqual(mismatch_summary["source_hash_mismatch_count"], 1)
+            self.assertEqual(mismatch_summary["accessions_parsed"], 0)
+            self.assertEqual(mismatch_summary["remaining_accessions"], 0)
+            with details_path.open("r", newline="", encoding="utf-8") as handle:
+                stored = list(csv.DictReader(handle))
+            older_rows = [row for row in stored if row["accession"] == "0000123456-26-000001"]
+            self.assertTrue(older_rows)
+            self.assertTrue(all(row["parse_status"] == "source_hash_mismatch" for row in older_rows))
+            self.assertEqual(p509.read_completed_accessions(details_path), {"0000123456-26-000001", "0000123456-26-000002"})
+
 
 if __name__ == "__main__":
     unittest.main()

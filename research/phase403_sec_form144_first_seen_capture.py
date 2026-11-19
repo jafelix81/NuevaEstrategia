@@ -15,6 +15,7 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from research import phase401_form144a_full_parent_identity_census as p401
+from research import phase509_form144_structured_detail_parser as p509
 
 PHASE = 403
 DATA_DIR = Path("research/data/sec_form144_first_seen")
@@ -22,6 +23,8 @@ STATE_PATH = DATA_DIR / "state.json"
 EVENTS_PATH = DATA_DIR / "events.csv"
 RECONCILIATION_PATH = DATA_DIR / "acceptance_reconciliation.csv"
 FEED_OBSERVATIONS_PATH = DATA_DIR / "feed_observations.csv"
+STRUCTURED_DETAILS_PATH = DATA_DIR / "sale_details.csv"
+STRUCTURED_BACKFILL_LIMIT = 10
 MANIFEST_PATH = Path("research/PHASE401_FORM144_CANDIDATE_CIK_MANIFEST_2026-11-14.json")
 EXPECTED_MANIFEST_SHA256 = "d20a1e42c7dfe3ef91248aa2aeecd5af7d853b91"
 EXPECTED_CANDIDATE_CIK_COUNT = 290
@@ -228,6 +231,8 @@ def fetch_document_metadata(item, candidate_ciks):
         "seller_name": None, "previous_accession": None, "remarks": "",
         "xml_status": "unresolved", "xml_source": None, "xml_sha256": None,
         "submission_txt_status": "not_attempted", "candidate_issuer_match": None,
+        "structured_details": None, "structured_parse_status": "not_attempted",
+        "structured_parse_error": None, "xml_retrieved_at_utc": None,
     }
     path_cik = item.get("feed_path_cik")
     accession = item["accession"]
@@ -256,7 +261,16 @@ def fetch_document_metadata(item, candidate_ciks):
             result["xml_source"] = "primary_doc.xml"
         except Exception as exc:
             result["xml_status"] = f"unresolved:{type(exc).__name__}:{str(exc)[:100]}"
+            result["structured_parse_status"] = "unresolved_fetch"
             return result
+    result["xml_sha256"] = hashlib.sha256(xml_bytes).hexdigest()
+    result["xml_retrieved_at_utc"] = now_utc()
+    try:
+        result["structured_details"] = p509.parse_form144_details(xml_bytes)
+        result["structured_parse_status"] = "parsed"
+    except Exception as exc:
+        result["structured_parse_status"] = "parse_error"
+        result["structured_parse_error"] = f"{type(exc).__name__}:{str(exc)[:160]}"
     try:
         parsed = p401.parse_form144_xml(xml_bytes)
         result.update({
@@ -677,6 +691,83 @@ def append_feed_observations(path, rows):
         writer.writerows(pending)
     return len(pending)
 
+
+
+def backfill_missing_structured_details(events_path, details_path, candidate_ciks, run_id,
+                                        limit=STRUCTURED_BACKFILL_LIMIT):
+    """Re-fetch a bounded batch of already captured filings missing structured detail rows.
+
+    New events are parsed from the same XML retrieval used by the first-seen
+    collector. Historical backfill is newest-first, append-only, hash-checked,
+    and capped to limit SEC requests per scheduled run.
+    """
+    events = read_event_rows(events_path)
+    completed = p509.read_completed_accessions(details_path)
+    candidates = [
+        row for row in events
+        if row.get("accession")
+        and row.get("feed_path_cik")
+        and row.get("xml_sha256")
+        and row.get("accession") not in completed
+    ]
+    candidates.sort(
+        key=lambda row: (row.get("first_seen_at_utc") or "", row.get("accession") or ""),
+        reverse=True,
+    )
+    attempts = 0
+    parsed_count = 0
+    parse_error_count = 0
+    hash_mismatch_count = 0
+    rows_appended = 0
+    unresolved = []
+    for event in candidates[:max(0, int(limit))]:
+        item = {
+            "accession": event.get("accession"),
+            "feed_path_cik": event.get("feed_path_cik"),
+        }
+        attempts += 1
+        metadata = fetch_document_metadata(item, candidate_ciks)
+        if metadata.get("xml_sha256") and metadata.get("structured_parse_status") in ("parsed", "parse_error"):
+            detail_rows = p509.build_detail_rows(event, metadata)
+            rows_appended += p509.append_detail_rows(details_path, detail_rows)
+            completed.add(event["accession"])
+            if any(row.get("parse_status") == "source_hash_mismatch" for row in detail_rows):
+                hash_mismatch_count += 1
+            elif metadata.get("structured_parse_status") == "parsed":
+                parsed_count += 1
+            else:
+                parse_error_count += 1
+        else:
+            unresolved.append({
+                "accession": event.get("accession"),
+                "structured_parse_status": metadata.get("structured_parse_status"),
+                "submission_txt_status": metadata.get("submission_txt_status"),
+                "xml_status": metadata.get("xml_status"),
+            })
+    completed_after = p509.read_completed_accessions(details_path)
+    remaining = [
+        row for row in events
+        if row.get("accession")
+        and row.get("feed_path_cik")
+        and row.get("xml_sha256")
+        and row.get("accession") not in completed_after
+    ]
+    return {
+        "limit": max(0, int(limit)),
+        "attempts": attempts,
+        "accessions_parsed": parsed_count,
+        "accessions_with_parse_error": parse_error_count,
+        "source_hash_mismatch_count": hash_mismatch_count,
+        "detail_rows_appended": rows_appended,
+        "unresolved_count": len(unresolved),
+        "unresolved_sample": unresolved[:5],
+        "remaining_accessions": len(remaining),
+        "newest_first": True,
+        "source_hash_mismatch_rows_are_not_feature_eligible": True,
+        "signal_eligible_count": 0,
+    }
+
+
 def run(mode, output_dir, run_id, data_dir=DATA_DIR):
     if mode not in ("bootstrap", "schedule", "manual"):
         raise ValueError("mode must be bootstrap, schedule or manual")
@@ -705,7 +796,11 @@ def run(mode, output_dir, run_id, data_dir=DATA_DIR):
             "new_event_count": 0, "new_feed_entry_count": 0,
             "new_cross_feed_overlap_count": None,
             "feed_observation_rows_observed": 0, "feed_observation_rows_appended": 0,
-            "new_xml_resolved_count": 0, "acceptance_reconciliation_attempts": 0,
+            "new_xml_resolved_count": 0, "structured_detail_summary": {"parser_version": p509.PARSER_VERSION,
+            "new_accessions_parsed": 0, "new_accessions_with_parse_error": 0, "new_source_hash_mismatch_count": 0, "new_detail_rows_appended": 0, "backfill": {"attempts": 0,
+            "accessions_parsed": 0, "accessions_with_parse_error": 0, "detail_rows_appended": 0,
+            "unresolved_count": 0, "remaining_accessions": 0, "signal_eligible_count": 0},
+            "signal_eligible_count": 0}, "acceptance_reconciliation_attempts": 0,
             "acceptance_reconciliations_added": 0, "acceptance_reconciliations_unresolved": 0,
             "new_candidate_issuer_matches": 0, "candidate_manifest_cik_count": len(candidate_ciks),
             "candidate_manifest_is_historical_f80_security_master": False,
@@ -726,6 +821,7 @@ def run(mode, output_dir, run_id, data_dir=DATA_DIR):
     existing = read_existing_accessions(events_path)
     existing_at_poll_start = set(existing)
     new_rows = []
+    new_structured_rows = []
     feed_summaries = {}
     latest_by_feed = dict(previous_state.get("latest_accession_by_feed", {}))
     # Use the prior poll START as the interval lower bound. A multi-page live
@@ -781,6 +877,8 @@ def run(mode, output_dir, run_id, data_dir=DATA_DIR):
                 cross_feed_provenance_complete=not bool(feed_errors),
                 capture_poll_status=poll_status,
             )
+            if metadata.get("xml_sha256") and metadata.get("structured_parse_status") in ("parsed", "parse_error"):
+                new_structured_rows.extend(p509.build_detail_rows(event, metadata))
             if mode != "manual":
                 new_rows.append(event)
             else:
@@ -841,11 +939,42 @@ def run(mode, output_dir, run_id, data_dir=DATA_DIR):
     acceptance_reconciliations = []
     acceptance_attempts = 0
     feed_observation_rows_appended = 0
+    structured_detail_summary = {
+        "parser_version": p509.PARSER_VERSION, "new_accessions_parsed": 0,
+        "new_accessions_with_parse_error": 0, "new_source_hash_mismatch_count": 0,
+        "new_detail_rows_appended": 0, "backfill": {"attempts": 0, "accessions_parsed": 0,
+        "accessions_with_parse_error": 0, "source_hash_mismatch_count": 0, "detail_rows_appended": 0, "unresolved_count": 0,
+        "remaining_accessions": 0, "signal_eligible_count": 0},
+        "ledger_row_count": p509.count_detail_rows(data_dir / "sale_details.csv"),
+        "ledger_accession_count": len(p509.read_completed_accessions(data_dir / "sale_details.csv")),
+        "signal_eligible_count": 0,
+    }
     if mode != "manual":
         append_events(events_path, new_rows)
+        new_detail_rows_appended = p509.append_detail_rows(data_dir / "sale_details.csv", new_structured_rows)
+        backfill_summary = backfill_missing_structured_details(
+            events_path, data_dir / "sale_details.csv", candidate_ciks, run_id,
+            limit=STRUCTURED_BACKFILL_LIMIT,
+        )
+        structured_detail_summary = {
+            "parser_version": p509.PARSER_VERSION,
+            "new_accessions_parsed": len({row["accession"] for row in new_structured_rows if row.get("detail_section") == "filing_header" and row.get("parse_status") in ("parsed", "parsed_unverified_hash")}),
+            "new_accessions_with_parse_error": len({row["accession"] for row in new_structured_rows if row.get("detail_section") == "filing_header" and row.get("parse_status") == "parse_error"}),
+            "new_source_hash_mismatch_count": len({row["accession"] for row in new_structured_rows if row.get("detail_section") == "filing_header" and row.get("parse_status") == "source_hash_mismatch"}),
+            "new_detail_rows_appended": new_detail_rows_appended,
+            "backfill": backfill_summary,
+            "ledger_row_count": p509.count_detail_rows(data_dir / "sale_details.csv"),
+            "ledger_accession_count": len(p509.read_completed_accessions(data_dir / "sale_details.csv")),
+            "signal_eligible_count": 0,
+        }
         feed_observation_rows_appended = append_feed_observations(
             data_dir / "feed_observations.csv", feed_observation_rows
         )
+        state["structured_detail_parser_version"] = p509.PARSER_VERSION
+        state["structured_detail_last_run_id"] = str(run_id)
+        state["structured_detail_ledger_row_count"] = structured_detail_summary["ledger_row_count"]
+        state["structured_detail_ledger_accession_count"] = structured_detail_summary["ledger_accession_count"]
+        state["structured_detail_backfill_remaining_accessions"] = structured_detail_summary["backfill"]["remaining_accessions"]
         state["last_feed_observation_row_count"] = len(feed_observation_rows)
         state["last_feed_observation_rows_appended"] = feed_observation_rows_appended
         reconciled = read_reconciled_accessions(data_dir / "acceptance_reconciliation.csv")
@@ -892,6 +1021,7 @@ def run(mode, output_dir, run_id, data_dir=DATA_DIR):
         "acceptance_reconciliations_added": len(acceptance_reconciliations),
         "acceptance_reconciliations_unresolved": max(0, acceptance_attempts - len(acceptance_reconciliations)),
         "acceptance_reconciliation_source": "SEC filing-detail index page; separate append-only enrichment table",
+        "structured_detail_summary": structured_detail_summary,
         "new_candidate_issuer_matches": candidate_matches,
         "candidate_manifest_cik_count": len(candidate_ciks),
         "candidate_manifest_is_historical_f80_security_master": False,

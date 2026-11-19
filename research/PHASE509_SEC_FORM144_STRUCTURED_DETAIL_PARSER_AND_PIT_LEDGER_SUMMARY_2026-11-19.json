@@ -1,0 +1,104 @@
+{
+  "phase": 509,
+  "date": "2026-11-19",
+  "base_main_sha": "b93034c249f7c5679429e4e192b307b211a379df",
+  "scope": "SEC Form 144 structured detail parsing and append-only prospective ledger",
+  "historical_precedent": {
+    "phase67_artifact_id": 13334881835,
+    "events": 21634,
+    "quarters": 14,
+    "period": "2023Q2-2026Q3",
+    "rerun": false
+  },
+  "latest_capture": {
+    "run_id": 44614323236,
+    "conclusion": "success",
+    "form144_new_events": 28,
+    "form144a_new_events": 0,
+    "acceptance_reconciliations_added": 28,
+    "acceptance_reconciliations_unresolved": 0,
+    "prospective_event_rows_after_capture": 378
+  },
+  "new_event_census": {
+    "events": 28,
+    "unique_issuer_ciks": 24,
+    "repeat_issuers": {
+      "Hyliion Holdings Corp.": 4,
+      "Amdocs Limited": 2
+    },
+    "nonempty_remarks": 9,
+    "remarks_lexical_categories": {
+      "tax_obligation_or_withholding": 5,
+      "trust_account_or_managing_member": 3,
+      "filing_agent": 1
+    }
+  },
+  "parser": {
+    "version": "phase509-v1",
+    "sections": [
+      "filing_header",
+      "securities_information",
+      "securities_to_be_sold",
+      "securities_sold_in_past_3_months"
+    ],
+    "raw_and_parsed_values_preserved": true,
+    "multirow_sections_preserved": true,
+    "full_xml_persisted": false,
+    "source_hash_comparison": true,
+    "backfill_limit_per_scheduled_run": 10,
+    "backfill_order": "newest_first",
+    "backfill_includes_hash_bearing_identity_parse_error_rows": true,
+    "source_hash_mismatch_count_reported_separately": true,
+    "numeric_parser": "Decimal string; supports parenthetical negative and currency punctuation",
+    "date_formats": [
+      "%m/%d/%Y",
+      "%m/%d/%y",
+      "%Y-%m-%d",
+      "%Y-%m-%dT%H:%M:%S"
+    ],
+    "provenance_fields": [
+      "feed_name",
+      "feed_names",
+      "archive_path_cik",
+      "xml_source",
+      "submission_txt_status",
+      "detail_retrieved_at_utc"
+    ]
+  },
+  "temporal_controls": {
+    "first_seen_clock_copied_from_original_event": true,
+    "acceptance_not_first_public_receipt": true,
+    "approx_sale_date_not_execution_proof": true,
+    "notice_date_not_first_seen": true,
+    "source_hash_mismatch_not_promoted": true,
+    "same_day_intraday_use_authorized": false,
+    "public_availability_certified": false,
+    "detail_retrieval_timestamp_separate_from_first_seen": true
+  },
+  "semantic_controls": {
+    "outstanding_share_ratio_computed": false,
+    "mentions_10b5_1_is_lexical_only": true,
+    "144a_counted_as_independent_event": false,
+    "signal_eligible": false
+  },
+  "tests": {
+    "new_parser_tests": 12,
+    "synthetic_only": true,
+    "live_pull_request_capture": false
+  },
+  "research": {
+    "forward_returns_used": false,
+    "event_study_run": false,
+    "backtest_run": false,
+    "oos_run": false,
+    "bootstrap_run": false,
+    "loo_run": false,
+    "holdout_used": false,
+    "new_signals_admitted": 0
+  },
+  "strategy": {
+    "baseline": "F80_TOP20_PARTIAL50_BASELINE_C20",
+    "changed": false
+  },
+  "next_step": "Merge only after offline CI passes; let the existing hourly Phase 403 capture backfill at most 10 missing structured event records per run."
+}
