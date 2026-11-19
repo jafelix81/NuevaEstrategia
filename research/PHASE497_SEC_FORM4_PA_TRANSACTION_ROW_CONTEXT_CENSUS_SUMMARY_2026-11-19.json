@@ -89,5 +89,44 @@
     "manual_review_queue_is_not_a_signal": true,
     "phase497_field_name_high_specificity_manual_review_rows_is_overstated": true,
     "code_p_is_not_proof_of_exchange_execution_or_discretion": true
-  }
+  },
+  "verification_run": {
+    "run_id": "44492496082",
+    "artifact_id": "14513398607",
+    "artifact_zip_sha256": "cb74b4a47ab551737774ccd6e50eb8fcdcbaa101879fed231776e6d1e82d141b",
+    "attempted": 637,
+    "submission_retrieved": 636,
+    "xml_parsed": 636,
+    "submission_unavailable": 1,
+    "p_acquired_rows": 145,
+    "structural_completeness_queue_rows": 81,
+    "structural_queue_footnote_reference_counts": {
+      "with_reference": 34,
+      "without_reference": 47
+    },
+    "structural_queue_open_market_private_keyword_intersection": {
+      "open_market_mention_only": 2,
+      "neither_keyword_mentioned": 79
+    },
+    "failed_accession_identified_in_artifact": false,
+    "cross_tab_is_complete_cohort": false,
+    "signal_eligible": 0,
+    "alpha_test_authorized": false
+  },
+  "subsequent_capture": {
+    "run_id": "44505739718",
+    "artifact_id": "14519048458",
+    "poll_started_utc": "2026-11-19T10:27:04Z",
+    "poll_ended_utc": "2026-11-19T10:27:06Z",
+    "accession_observation_rows": 39,
+    "new_accession_occurrences": 37,
+    "new_canonical_event_rows": 18,
+    "bounded_metadata_rows": 18,
+    "same_feed_duplicate_occurrences": 19,
+    "cross_feed_duplicate_occurrences": 0,
+    "filing_payloads_downloaded": false,
+    "research_observation_eligible_rows": 0,
+    "signal_eligible_rows": 0
+  },
+  "field_name_corrected_in_code": true
 }
