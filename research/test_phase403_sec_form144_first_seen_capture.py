@@ -71,7 +71,7 @@ class Phase403Tests(unittest.TestCase):
         self.assertEqual(p403.classify_atom_response(b"upstream unavailable"), "OTHER_TEXT")
 
     def test_fetch_all_feeds_records_response_kind_without_storing_response_body(self):
-        html_error = b"<!DOCTYPE html><html><body>Temporary gateway response</body></html>"
+        html_error = b"<!DOCTYPE html><html><body>Temporary gateway response"
 
         def fake_fetch(url, **kwargs):
             if url.startswith(p403.FEEDS["144"] + "&start=0"):
