@@ -385,6 +385,34 @@ def build_event(item, metadata, poll_started, response_received, interval_start,
         "first_seen_is_upper_bound_not_exact_receipt": True,
     }
 
+def classify_atom_response(raw):
+    """Classify a feed response without persisting or exposing its body.
+
+    The classifier is diagnostic only. It never turns a malformed/empty
+    response into a successful poll and does not infer why the provider
+    returned the payload.
+    """
+    if raw is None:
+        return "NO_RESPONSE"
+    if isinstance(raw, str):
+        sample = raw[:512].lstrip("\\ufeff\\x00\\t\\r\\n ")
+    else:
+        if not raw:
+            return "EMPTY"
+        sample = raw[:512].decode("utf-8", "replace").lstrip("\\ufeff\\x00\\t\\r\\n ")
+    if not sample:
+        return "EMPTY"
+    if re.search(r"<\\s*(?:!doctype\\s+html|html\\b)", sample, flags=re.I):
+        return "HTML"
+    if re.search(r"<\\s*feed\\b", sample, flags=re.I):
+        return "ATOM_XML"
+    if sample.startswith(("{", "[")):
+        return "JSON"
+    if sample.startswith("<") or re.search(r"<\\?xml\\b", sample, flags=re.I):
+        return "XML_OR_MARKUP"
+    return "OTHER_TEXT"
+
+
 def count_atom_entries(raw):
     """Count raw Atom <entry> nodes before accession deduplication."""
     if isinstance(raw, bytes):
@@ -441,6 +469,7 @@ def fetch_all_feeds(previous_latest_by_feed=None, mode="schedule"):
                     "raw_entry_count": raw_count,
                     "unique_accession_count": len(page_entries),
                     "response_bytes": len(raw),
+                    "response_kind": classify_atom_response(raw),
                     "received_at_utc": received,
                     "raw_sha256": page_sha,
                     "url": page_url,
@@ -485,6 +514,7 @@ def fetch_all_feeds(previous_latest_by_feed=None, mode="schedule"):
                     "error": str(exc)[:1000],
                     "page_offset": offset,
                     "response_bytes": len(raw) if raw is not None else None,
+                    "response_kind": classify_atom_response(raw),
                     "raw_sha256": hashlib.sha256(raw).hexdigest() if raw is not None else None,
                 }
                 stop_reason = "page_fetch_error"
