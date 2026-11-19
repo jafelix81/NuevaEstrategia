@@ -131,6 +131,7 @@ class Phase403Tests(unittest.TestCase):
         self.assertEqual(metadata["xml_source"], "complete_submission_xml_block")
         self.assertEqual(metadata["submission_txt_status"], "retrieved")
         self.assertNotEqual(metadata["xml_retrieved_at_utc"], metadata["submission_acceptance_utc"])
+        self.assertEqual(len(metadata["xml_sha256"]), 64)
 
     def test_acceptance_timestamp_is_parsed_as_eastern_then_utc(self):
         accepted_et, accepted_utc = p403.parse_acceptance_submission(
