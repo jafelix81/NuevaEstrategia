@@ -797,7 +797,7 @@ def run(mode, output_dir, run_id, data_dir=DATA_DIR):
             "new_cross_feed_overlap_count": None,
             "feed_observation_rows_observed": 0, "feed_observation_rows_appended": 0,
             "new_xml_resolved_count": 0, "structured_detail_summary": {"parser_version": p509.PARSER_VERSION,
-            "new_accessions_parsed": 0, "new_detail_rows_appended": 0, "backfill": {"attempts": 0,
+            "new_accessions_parsed": 0, "new_accessions_with_parse_error": 0, "new_source_hash_mismatch_count": 0, "new_detail_rows_appended": 0, "backfill": {"attempts": 0,
             "accessions_parsed": 0, "accessions_with_parse_error": 0, "detail_rows_appended": 0,
             "unresolved_count": 0, "remaining_accessions": 0, "signal_eligible_count": 0},
             "signal_eligible_count": 0}, "acceptance_reconciliation_attempts": 0,
@@ -941,6 +941,7 @@ def run(mode, output_dir, run_id, data_dir=DATA_DIR):
     feed_observation_rows_appended = 0
     structured_detail_summary = {
         "parser_version": p509.PARSER_VERSION, "new_accessions_parsed": 0,
+        "new_accessions_with_parse_error": 0, "new_source_hash_mismatch_count": 0,
         "new_detail_rows_appended": 0, "backfill": {"attempts": 0, "accessions_parsed": 0,
         "accessions_with_parse_error": 0, "source_hash_mismatch_count": 0, "detail_rows_appended": 0, "unresolved_count": 0,
         "remaining_accessions": 0, "signal_eligible_count": 0},
@@ -957,7 +958,9 @@ def run(mode, output_dir, run_id, data_dir=DATA_DIR):
         )
         structured_detail_summary = {
             "parser_version": p509.PARSER_VERSION,
-            "new_accessions_parsed": len({row["accession"] for row in new_structured_rows if row.get("detail_section") == "filing_header"}),
+            "new_accessions_parsed": len({row["accession"] for row in new_structured_rows if row.get("detail_section") == "filing_header" and row.get("parse_status") in ("parsed", "parsed_unverified_hash")}),
+            "new_accessions_with_parse_error": len({row["accession"] for row in new_structured_rows if row.get("detail_section") == "filing_header" and row.get("parse_status") == "parse_error"}),
+            "new_source_hash_mismatch_count": len({row["accession"] for row in new_structured_rows if row.get("detail_section") == "filing_header" and row.get("parse_status") == "source_hash_mismatch"}),
             "new_detail_rows_appended": new_detail_rows_appended,
             "backfill": backfill_summary,
             "ledger_row_count": p509.count_detail_rows(data_dir / "sale_details.csv"),

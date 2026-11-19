@@ -82,7 +82,7 @@
     "signal_eligible": false
   },
   "tests": {
-    "new_parser_tests": 11,
+    "new_parser_tests": 12,
     "synthetic_only": true,
     "live_pull_request_capture": false
   },
