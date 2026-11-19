@@ -454,7 +454,8 @@ def fetch_feed(
         "raw_page_count": len(pages),
         "candidate_accession_occurrence_count": candidate_event_count,
         "candidate_accession_count": len({row["accession"] for row in combined}),
-        "suppressed_incomplete_poll_candidate_count": candidate_event_count if not poll_success else 0,
+        "suppressed_incomplete_poll_candidate_count": len({row["accession"] for row in combined}) if not poll_success else 0,
+        "suppressed_incomplete_poll_candidate_occurrence_count": candidate_event_count if not poll_success else 0,
         "bounded_metadata_count": sum(1 for row in event_rows if row["event_metadata_interval_bounded"]),
     }
 
@@ -517,7 +518,8 @@ def run_capture(mode: str, run_id: str, output_dir: Path) -> dict:
                 "prior_watermark", "watermark_found", "poll_success", "interval_status",
                 "new_latest_accession", "latest_feed_updated_utc", "raw_page_count",
                 "candidate_accession_count", "candidate_accession_occurrence_count",
-                "suppressed_incomplete_poll_candidate_count", "bounded_metadata_count", "page_error",
+                "suppressed_incomplete_poll_candidate_count", "suppressed_incomplete_poll_candidate_occurrence_count",
+                "bounded_metadata_count", "page_error",
             )
         }
         feed_summaries[feed_name]["new_accession_count"] = 0
@@ -634,6 +636,9 @@ def run_capture(mode: str, run_id: str, output_dir: Path) -> dict:
         "accession_observation_ledger_persisted": mode == "schedule",
         "incomplete_poll_candidate_rows_suppressed": sum(
             result["suppressed_incomplete_poll_candidate_count"] for result in feed_updates.values()
+        ),
+        "incomplete_poll_candidate_occurrences_suppressed": sum(
+            result["suppressed_incomplete_poll_candidate_occurrence_count"] for result in feed_updates.values()
         ),
         "bounded_metadata_rows": sum(1 for row in event_rows if row["event_metadata_interval_bounded"]),
         "research_observation_eligible_rows": 0,
