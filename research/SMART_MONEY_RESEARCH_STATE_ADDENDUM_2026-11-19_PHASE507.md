@@ -14,3 +14,5 @@
 See:
 - `research/PHASE507_SEC_FORM4_CANONICAL_ACCESSION_COUNT_AUDIT_2026-11-19.md`
 - `research/PHASE507_SEC_FORM4_CANONICAL_ACCESSION_COUNT_AUDIT_SUMMARY_2026-11-19.json`
+
+- **Phase 507 integration:** PR [#160](https://github.com/jafelix81/NuevaEstrategia/pull/160) merged successfully. CI run [44608603027](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44608603027) passed all 39 offline regressions; the live-capture job was skipped as designed for a pull request. Merge commit and main HEAD at merge: `50abc5c8b4287cdfc235fbb0191f87d30f2aceaf`. No workflow remained active at the post-merge check.
