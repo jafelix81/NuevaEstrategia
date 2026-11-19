@@ -1,6 +1,7 @@
 name: Phase 497 - SEC Form 4 P/A transaction-row context census
 
 on:
+  workflow_dispatch:
   push:
     branches: [phase497-form4-purchase-row-context-census]
     paths:
@@ -36,7 +37,7 @@ jobs:
           python -m unittest -v research.test_phase497_form4_purchase_row_context_census
 
   live-audit:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/phase497-form4-purchase-row-context-census'
+    if: github.ref == 'refs/heads/phase497-form4-purchase-row-context-census' && (github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[run-live]')))
     needs: offline-regression
     runs-on: ubuntu-latest
     timeout-minutes: 90
