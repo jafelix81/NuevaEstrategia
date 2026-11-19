@@ -19,7 +19,8 @@
     ],
     "owner_attribution": "filing_grain_only_single_owner; multi-owner rows quarantined",
     "amendment_policy": "Form 4/A is an information arrival, not automatically a new economic trade",
-    "p_code_policy": "Preserve P/A without asserting confirmed exchange execution"
+    "p_code_policy": "Preserve P/A without asserting confirmed exchange execution",
+    "strict_event_clock_validation": true
   },
   "controls": {
     "research_observation_eligible": false,
@@ -34,7 +35,7 @@
     "production_changed": false
   },
   "validation": {
-    "synthetic_tests": 9,
+    "synthetic_tests": 10,
     "live_validation": "PENDING_FIRST_POST_MERGE_SCHEDULED_PHASE476_RUN"
   },
   "prior_evidence": {
