@@ -77,7 +77,7 @@ jobs:
           print("PHASE497_RETRIEVAL_AND_NO_PROMOTION_GATES=PASS")
           print("XML_PARSED=",c.get("xml_parsed",0))
           print("P_A_ROWS=",s["p_acquired_transaction_rows"])
-          print("MANUAL_REVIEW_ROWS=",s["high_specificity_manual_review_rows"])
+          print("STRUCTURAL_COMPLETENESS_QUEUE_ROWS=",s["structural_completeness_queue_rows"])
           print("SIGNAL_ELIGIBLE=0")
           PY
       - name: Upload aggregate-only audit
