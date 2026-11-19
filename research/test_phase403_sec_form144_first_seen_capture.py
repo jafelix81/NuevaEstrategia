@@ -565,6 +565,7 @@ class Phase403Tests(unittest.TestCase):
             older_rows = [row for row in stored if row["accession"] == "0000123456-26-000001"]
             self.assertTrue(older_rows)
             self.assertTrue(all(row["parse_status"] == "source_hash_mismatch" for row in older_rows))
+            self.assertEqual(p509.read_completed_accessions(details_path), {"0000123456-26-000001", "0000123456-26-000002"})
 
 
 if __name__ == "__main__":
