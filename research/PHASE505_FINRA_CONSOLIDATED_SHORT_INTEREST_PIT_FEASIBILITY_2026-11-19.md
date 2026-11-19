@@ -20,7 +20,7 @@
 
 No workflow was dispatched, rerun, cancelled, or duplicated. The existing CFTC and FINRA schedule windows later on 2026-11-19 were not yet due at this audit.
 
-## 2. New source: FINRA Consolidated Short Interest
+## 2. Existing source under re-evaluation: FINRA Consolidated Short Interest
 
 Official dataset:
 - FINRA Developer Center: https://developer.finra.org/docs
@@ -139,7 +139,7 @@ No API credential was created, no paid credential was activated, no purchase was
 
 ## 9. Decision and next gates
 
-**Promote to conditional historical positioning research; do not admit as a signal.**
+**Do not re-admit the Phase 31 panel. Keep this source conditional only on successful Phase 447 asynchronous retrieval, complete-snapshot proof, effective-dated identity, licensing, and PIT gates.**
 
 Required next gates:
 1. Confirm the appropriate API credential and usage rights for the intended research/business context without incurring a paid subscription automatically.
