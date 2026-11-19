@@ -7,6 +7,8 @@ on:
       - ".github/workflows/phase476_sec_form4_first_seen_capture.yml"
       - "research/phase476_sec_form4_first_seen_capture.py"
       - "research/test_phase476_sec_form4_first_seen_capture.py"
+      - "research/phase510_form4_structured_transaction_ledger.py"
+      - "research/test_phase510_form4_structured_transaction_ledger.py"
       - "research/PHASE476_SEC_FORM4_FIRST_SEEN_PROSPECTIVE_CAPTURE_AUDIT_2026-11-18.md"
       - "research/PHASE476_SEC_FORM4_FIRST_SEEN_PROSPECTIVE_CAPTURE_SUMMARY_2026-11-18.json"
       - "research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-18_PHASE476.md"
@@ -21,6 +23,8 @@ on:
       - ".github/workflows/phase476_sec_form4_first_seen_capture.yml"
       - "research/phase476_sec_form4_first_seen_capture.py"
       - "research/test_phase476_sec_form4_first_seen_capture.py"
+      - "research/phase510_form4_structured_transaction_ledger.py"
+      - "research/test_phase510_form4_structured_transaction_ledger.py"
       - "research/PHASE476_SEC_FORM4_FIRST_SEEN_PROSPECTIVE_CAPTURE_AUDIT_2026-11-18.md"
       - "research/PHASE476_SEC_FORM4_FIRST_SEEN_PROSPECTIVE_CAPTURE_SUMMARY_2026-11-18.json"
       - "research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-18_PHASE476.md"
@@ -47,8 +51,8 @@ jobs:
           python-version: "3.11"
       - name: Compile and run offline regressions
         run: |
-          python -m py_compile research/phase476_sec_form4_first_seen_capture.py research/test_phase476_sec_form4_first_seen_capture.py
-          python -m unittest -v research.test_phase476_sec_form4_first_seen_capture
+          python -m py_compile research/phase476_sec_form4_first_seen_capture.py research/test_phase476_sec_form4_first_seen_capture.py research/phase510_form4_structured_transaction_ledger.py research/test_phase510_form4_structured_transaction_ledger.py
+          python -m unittest -v research.test_phase476_sec_form4_first_seen_capture research.test_phase510_form4_structured_transaction_ledger
   live-capture:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     needs: offline-regression
@@ -68,6 +72,9 @@ jobs:
         run: |
           if [ "$EVENT_NAME" = "schedule" ]; then MODE=schedule; else MODE=manual; fi
           python -u -m research.phase476_sec_form4_first_seen_capture --mode "$MODE" --run-id "$RUN_ID" --output phase476_output
+      - name: Backfill bounded Form 4 structured transaction details
+        if: github.event_name == 'schedule'
+        run: python -u -m research.phase510_form4_structured_transaction_ledger --mode schedule --limit 10 --output phase510_output
       - name: Commit append-only metadata ledger
         if: github.event_name == 'schedule'
         run: |
@@ -85,6 +92,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: phase476-sec-form4-first-seen
-          path: phase476_output/
+          path: |
+            phase476_output/
+            phase510_output/
           retention-days: 90
           if-no-files-found: warn
