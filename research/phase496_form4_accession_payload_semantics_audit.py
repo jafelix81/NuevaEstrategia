@@ -312,6 +312,8 @@ def audit_events(events: list[dict], fetcher) -> dict:
     transaction_counts = Counter()
     issuer_symbols = defaultdict(set)
     symbol_issuers = defaultdict(set)
+    issuer_ciks_seen = set()
+    all_symbols_seen = set()
     payload_parts = []
     timing_values = []
     feed_delta_values = []
@@ -366,10 +368,12 @@ def audit_events(events: list[dict], fetcher) -> dict:
         symbol = parsed.get("issuer_symbol")
         if issuer_cik:
             issuer_cik_resolved += 1
+            issuer_ciks_seen.add(issuer_cik)
             if symbol:
                 issuer_symbols[issuer_cik].add(symbol)
         if symbol:
             issuer_symbol_present += 1
+            all_symbols_seen.add(symbol)
             if issuer_cik:
                 symbol_issuers[symbol].add(issuer_cik)
 
@@ -385,8 +389,8 @@ def audit_events(events: list[dict], fetcher) -> dict:
                 pa_multi_class_filings += 1
 
     payload_manifest = "\n".join(sorted(payload_parts)).encode("utf-8")
-    unique_issuers = set(issuer_symbols)
-    unique_symbols = set(symbol_issuers)
+    unique_issuers = issuer_ciks_seen
+    unique_symbols = all_symbols_seen
     issuer_multi_symbol = sum(len(v) > 1 for v in issuer_symbols.values())
     symbol_multi_issuer = sum(len(v) > 1 for v in symbol_issuers.values())
 
