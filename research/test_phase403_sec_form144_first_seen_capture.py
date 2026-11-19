@@ -414,6 +414,9 @@ class Phase403Tests(unittest.TestCase):
                 "xml_sha256": "abc",
                 "submission_txt_status": "retrieved",
                 "candidate_issuer_match": True,
+                "structured_details": p509.parse_form144_details(SAMPLE_144),
+                "structured_parse_status": "parsed",
+                "structured_parse_error": None,
             }
             with patch.object(p403, "load_candidate_manifest",
                               return_value=({"0000123456"}, manifest)), \
@@ -433,6 +436,8 @@ class Phase403Tests(unittest.TestCase):
                 observations = list(__import__("csv").DictReader(handle))
 
             self.assertEqual(summary["poll_status"], "partial")
+            self.assertEqual(summary["structured_detail_summary"]["new_accessions_parsed"], 1)
+            self.assertEqual(summary["structured_detail_summary"]["backfill"]["attempts"], 0)
             self.assertEqual(summary["successful_feeds"], ["144"])
             self.assertEqual(summary["failed_feeds"], ["144A"])
             self.assertFalse(summary["cross_feed_provenance_complete"])
