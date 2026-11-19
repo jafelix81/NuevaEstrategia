@@ -1,0 +1,164 @@
+{
+  "phase": 504,
+  "date": "2026-11-19",
+  "baseline_main": "9bb95604c1fb4ebe433dbccf1932c29918fcb731",
+  "sources": {
+    "volatility_surfaces": {
+      "current_product_page_verified": true,
+      "purchase_modes": [
+        "historical",
+        "subscription"
+      ],
+      "advertised_history_start": "2011-08",
+      "delivery": "daily end-of-day zip; four CSVs per trading day",
+      "snapshots_et": [
+        "09:40",
+        "15:45",
+        "16:00",
+        "16:15_indices_only"
+      ],
+      "surface_types": [
+        "expiration_specific_delta_relative",
+        "expiration_specific_price_relative",
+        "constant_maturity_delta_relative",
+        "constant_maturity_price_relative"
+      ],
+      "delta_grid_percent": [
+        5,
+        10,
+        15,
+        20,
+        25,
+        30,
+        40,
+        50,
+        60,
+        70,
+        75,
+        80,
+        85,
+        90,
+        95
+      ],
+      "price_relative_grid_percent": [
+        50,
+        60,
+        70,
+        75,
+        80,
+        85,
+        90,
+        95,
+        100,
+        105,
+        110,
+        115,
+        120,
+        125,
+        130,
+        140,
+        150
+      ],
+      "interpolated_from_listed_options_mid_vol_surface": true,
+      "confidence_fields": true,
+      "confidence_below_0_5_suspicious": true,
+      "negative_confidence_codes": [
+        "-1",
+        "-2",
+        "-5",
+        "-6"
+      ],
+      "per_symbol_date_coverage_audit": false,
+      "frozen_335_coverage_audit": false,
+      "delisted_underlying_coverage_audit": false,
+      "sample_bytes_acquired": false,
+      "historical_first_delivery_vintages": false,
+      "strict_historical_pit_certified": false,
+      "price_quote": false,
+      "business_use_rights": false,
+      "disposition": "CONDITIONAL_HISTORICAL_IV_SURFACE_AND_RISK_STATE_CANDIDATE_NOT_ADMITTED"
+    },
+    "complex_order_flow": {
+      "current_product_page_verified": true,
+      "delivery": "daily subscription; five zipped CSVs",
+      "strategies": [
+        "reversal_conversion",
+        "box_spread",
+        "jelly_roll",
+        "tied_outright",
+        "tied_spread"
+      ],
+      "market_coverage": [
+        "OPRA_options",
+        "CTA_UTP_equity_legs"
+      ],
+      "sessions": [
+        "RTH",
+        "GTH"
+      ],
+      "execution_timestamps": true,
+      "historical_start_published": false,
+      "historical_purchase_option_published": false,
+      "archive_availability_confirmed": false,
+      "price_quote": false,
+      "business_use_rights": false,
+      "disposition": "PROSPECTIVE_ONLY_AUXILIARY_CANDIDATE_PENDING_BACKFILL_CONFIRMATION"
+    },
+    "option_sentiment": {
+      "faq_historical_start": "2012-01",
+      "specification": "v1.4 0525",
+      "documented_fields": 80,
+      "dedicated_url_redirects_to_home": true,
+      "listed_in_current_options_catalog_pages_1_to_3": false,
+      "current_orderability_verified": false,
+      "sample_bytes_acquired": false,
+      "disposition": "LEGACY_UNLISTED_ORDERABILITY_UNCONFIRMED"
+    }
+  },
+  "updated_source_ranking": [
+    "IvyDB TradeFlow remains primary conditional all-venue signed-flow candidate per draft PR #48; PIT/version/sample/licensing gates remain open.",
+    "Cboe Volatility Surfaces is a new conditional historical IV/skew/term-structure and risk-state candidate; no participant or trade-flow identity.",
+    "Cboe Option Trades plus Quotes remain independent OPRA-wide reconstruction/validation candidates with PIT, correction, identity and coverage gates.",
+    "Cboe Open-Close and TBT remain complementary venue-limited sources.",
+    "Complex Order Flow is prospective-only pending confirmation of historical backfill.",
+    "Option Sentiment is downgraded to legacy/unlisted pending explicit orderability confirmation."
+  ],
+  "preregistered_hypotheses": [
+    "09:40-to-15:45 same-day surface repricing predicts subsequent realized volatility, downside tail risk or returns after actual file receipt.",
+    "Price-relative OTM wing asymmetry predicts forward downside/volatility; delta-relative 25-delta skew requires vendor confirmation of signed delta/put-call mapping.",
+    "Constant-maturity term-structure slope/curvature predicts forward realized volatility or drawdown.",
+    "Confidence fields act as quality/missingness controls; extrapolated/flat-lined points are quarantined.",
+    "Incremental information beyond LTM/F80 is tested after controlling for same-day return, momentum, realized volatility, liquidity, sector/market moves and event windows.",
+    "Complex Order Flow, if historical backfill exists, may help distinguish hedged/financing structures from directional option activity; no direction assumed."
+  ],
+  "actions_preflight": {
+    "total_runs": 7894,
+    "latest_runs_reviewed": 50,
+    "active_or_queued_at_final_recheck": 0,
+    "open_pull_requests": 56,
+    "phase157_merged": true,
+    "phase157_merge_commit": "190211d58fcd6519abef7acf9c475fef267e6ad0",
+    "main_head": "9bb95604c1fb4ebe433dbccf1932c29918fcb731",
+    "latest_phase500_pr_run": 44534689780,
+    "phase500_offline_tests": 46,
+    "phase500_live_capture": "skipped",
+    "latest_form144_run": 44521745535,
+    "latest_form144_disposition": "partial; 0 events written; Form 144 ParseError; 144/A empty with possible feed-window gap",
+    "latest_form4_run": 44505739718,
+    "latest_finra_run": 44453548570,
+    "finra_run_predates_phase495": true,
+    "latest_cftc_run": 44453066854,
+    "cftc_rows": 3039,
+    "cftc_new_reports_or_revisions": 0
+  },
+  "research": {
+    "alpha_test": false,
+    "event_study": false,
+    "oos": false,
+    "bootstrap": false,
+    "loo": false,
+    "signals_admitted": 0,
+    "f80_changed": false
+  },
+  "next_gate": "Confirm Volatility Surfaces price/business-use rights, sample schema, 335-name/delisted coverage, field semantics and actual receipt/correction policy. Confirm whether Complex Order Flow has historical backfill. Confirm Option Sentiment current orderability before further work."
+}
