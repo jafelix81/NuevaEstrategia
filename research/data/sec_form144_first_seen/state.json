@@ -1,61 +1,51 @@
 {
-  "acceptance_reconciled_accession_count": 350,
+  "acceptance_reconciled_accession_count": 378,
   "candidate_manifest_cik_count": 290,
   "candidate_manifest_source_artifact_sha256": "939d5564b14ce0f41df23a2c9ab681977cfde141cd0ea2b3c1213b1c5bfaf613",
-  "complete_poll_count": 12,
+  "complete_poll_count": 13,
   "created_utc": "2026-11-14T20:45:08Z",
   "historical_f80_membership_verified": false,
-  "last_acceptance_reconciliation_utc": "2026-11-19T12:14:15Z",
-  "last_feed_observation_row_count": 0,
-  "last_feed_observation_rows_appended": 0,
+  "last_acceptance_reconciliation_utc": "2026-11-19T21:00:43Z",
+  "last_feed_observation_row_count": 52,
+  "last_feed_observation_rows_appended": 52,
   "last_feed_sha256_by_feed": {
-    "144": "ade7d0b0158a3ca61358d2f6ecdb39150279f0c3af25d2a70789ecec518376e7",
-    "144A": "8a6dbdf224daf8f1fb201b9eb3e38d2780a17290bbfc71d2149637dcf5189ff5"
+    "144": "33d6cbecbe47e1feb8dc4b81fde58d13a9b506a4a3f52287c9d8d6168b84a2df",
+    "144A": "95c3253f9a08f852b0946baa8cc11d30e71bb9d1e6ab06e953ee992be99baa37"
   },
-  "last_poll_attempt_run_id": "44521745535",
-  "last_poll_attempt_utc": "2026-11-19T12:14:15Z",
-  "last_poll_errors": {
-    "144": {
-      "error": "syntax error: line 1, column 61",
-      "error_type": "ParseError",
-      "page_offset": 0,
-      "raw_sha256": "fa047ac3976e3e3d307625487e2545b4e7126efb2e4101890b028e0abc82d207",
-      "response_bytes": 3292,
-      "url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&type=144&owner=include&count=100&output=atom&start=0"
-    }
-  },
-  "last_poll_failed_feeds": [
-    "144"
-  ],
+  "last_poll_attempt_run_id": "44614323236",
+  "last_poll_attempt_utc": "2026-11-19T21:00:36Z",
+  "last_poll_errors": {},
+  "last_poll_failed_feeds": [],
   "last_poll_possible_gap_by_feed": {
     "144": false,
-    "144A": true
+    "144A": false
   },
-  "last_poll_status": "partial",
+  "last_poll_status": "complete",
   "last_poll_successful_feeds": [
+    "144",
     "144A"
   ],
   "last_successful_poll_mode": "schedule",
-  "last_successful_poll_run_id": "44447184058",
+  "last_successful_poll_run_id": "44614323236",
   "last_successful_poll_started_utc_by_feed": {
-    "144": "2026-11-19T02:50:33Z",
-    "144A": "2026-11-19T12:12:48Z"
+    "144": "2026-11-19T21:00:26Z",
+    "144A": "2026-11-19T21:00:26Z"
   },
-  "last_successful_poll_utc": "2026-11-19T02:51:04Z",
+  "last_successful_poll_utc": "2026-11-19T21:00:36Z",
   "last_successful_poll_utc_by_feed": {
-    "144": "2026-11-19T02:50:39Z",
-    "144A": "2026-11-19T12:14:15Z"
+    "144": "2026-11-19T21:00:26Z",
+    "144A": "2026-11-19T21:00:30Z"
   },
   "latest_accession_by_feed": {
-    "144": "0001628280-26-074926",
+    "144": "0001974078-26-000422",
     "144A": "0001104659-26-129535"
   },
   "partial_poll_count": 1,
   "phase": 403,
-  "poll_count": 13,
+  "poll_count": 14,
   "poll_count_by_feed": {
-    "144": 12,
-    "144A": 13
+    "144": 13,
+    "144A": 14
   },
   "schema_version": 1,
   "signal_eligible": false,
