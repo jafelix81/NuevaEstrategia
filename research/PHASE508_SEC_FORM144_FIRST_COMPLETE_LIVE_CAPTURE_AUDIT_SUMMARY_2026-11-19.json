@@ -1,0 +1,74 @@
+{
+  "phase": 508,
+  "date": "2026-11-19",
+  "run_id": 44614323236,
+  "run_url": "https://github.com/jafelix81/NuevaEstrategia/actions/runs/44614323236",
+  "run_status": "completed",
+  "conclusion": "success",
+  "offline_tests": 46,
+  "live_capture": "success",
+  "artifact": {
+    "id": 14573957396,
+    "name": "phase403-sec-form144-first-seen",
+    "size_bytes": 1949,
+    "sha256": "6f509e16b60015940d95465be64b9d4ed9ede52d6d93e6019e35202becd00d74",
+    "files": [
+      "schema_migration.json",
+      "summary.json"
+    ]
+  },
+  "feeds": {
+    "144": {
+      "raw_entries": 100,
+      "unique_accessions": 50,
+      "new_accessions": 28,
+      "interval_status": "BOUNDED_BY_SUCCESSIVE_SUCCESSFUL_POLLS",
+      "lower_bound_utc": "2026-11-19T02:50:33Z",
+      "upper_bound_utc": "2026-11-19T21:00:26Z",
+      "xml_retrieved": 28,
+      "acceptance_reconciliations_added": 28,
+      "acceptance_reconciliations_unresolved": 0,
+      "candidate_manifest_matches": 3
+    },
+    "144A": {
+      "raw_entries": 4,
+      "unique_accessions": 2,
+      "new_accessions": 0,
+      "interval_status": "PREVIOUS_POLL_GAP_INTERVAL_UNBOUNDED",
+      "new_events": 0
+    }
+  },
+  "totals": {
+    "feed_observation_rows_appended": 52,
+    "new_events": 28,
+    "research_observation_eligible": 28,
+    "signal_eligible": 0,
+    "public_availability_certified": false,
+    "historical_f80_membership_verified": false,
+    "same_day_intraday_use_authorized": false
+  },
+  "candidate_issuer_matches": [
+    "Walmart Inc.",
+    "Target Corp.",
+    "Snowflake Inc."
+  ],
+  "candidate_manifest": {
+    "cik_count": 290,
+    "is_historical_f80_security_master": false
+  },
+  "controls": {
+    "first_seen_is_poll_receipt_upper_bound": true,
+    "acceptance_datetime_is_not_first_public_receipt": true,
+    "full_filing_xml_persisted": false,
+    "forward_returns_used": false,
+    "alpha_test_authorized": false,
+    "bootstrap_loo_or_holdout_used": false,
+    "f80_changed": false,
+    "production_changed": false
+  },
+  "repository": {
+    "pre_capture_main": "eabdd0ffabbb9bff87190851a69de2f44a0543fa",
+    "post_capture_main": "c1f6f7f3f4959c539f188d53cc3ac0c0a669367e"
+  },
+  "next_gate": "Form 144 normalized security-level proposed-sale parser and stratified semantic audit; prospective PIT accumulation before any alpha test."
+}
