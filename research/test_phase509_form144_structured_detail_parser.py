@@ -204,5 +204,17 @@ class Phase509Tests(unittest.TestCase):
         self.assertNotEqual(row["detail_retrieved_at_utc"], row["first_seen_at_utc"])
 
 
+    def test_namespace_prefixes_are_normalized_by_local_name(self):
+        xml = """<sec:edgarSubmission xmlns:sec="urn:sec">
+        <sec:submissionType>144</sec:submissionType>
+        <sec:issuerInfo><sec:issuerCik>0000000001</sec:issuerCik>
+        <sec:issuerName>Namespaced Corp</sec:issuerName></sec:issuerInfo>
+        </sec:edgarSubmission>"""
+        parsed = p509.parse_form144_details(xml)
+        self.assertEqual(parsed["submission_type"], "144")
+        self.assertEqual(parsed["issuer_cik"], "0000000001")
+        self.assertEqual(parsed["issuer_name"], "Namespaced Corp")
+
+
 if __name__ == "__main__":
     unittest.main()
