@@ -1,0 +1,127 @@
+{
+  "phase": 505,
+  "audit_date": "2026-11-19",
+  "source": "FINRA Consolidated Short Interest",
+  "dataset_group": "otcMarket",
+  "dataset_name": "consolidatedShortInterest",
+  "disposition": "CONDITIONAL_HISTORICAL_POSITIONING_SOURCE_NOT_STRICT_PIT_CERTIFIED_NOT_ALPHA_ADMITTED",
+  "main_head_at_preflight": "cbbaaf886b7aac27b0eb0276e5cf24087a4c73f0",
+  "actions_preflight": {
+    "total_runs": 7894,
+    "latest_runs_inspected": 100,
+    "active_or_queued_runs": 0,
+    "open_prs": 56,
+    "latest_merged_pr": 158,
+    "latest_merged_at_utc": "2026-11-19T17:51:55Z"
+  },
+  "reporting": {
+    "frequency": "twice_monthly",
+    "settlement_to_publication_business_days": 7,
+    "api_publication_availability_et": "16:40",
+    "firm_submission_deadline": "18:00 ET on second business day after settlement",
+    "example": {
+      "settlement_date": "2026-11-13",
+      "firm_due_date": "2026-11-17",
+      "publication_date": "2026-11-24"
+    }
+  },
+  "historical_coverage": {
+    "launch_date": "2023-01-24",
+    "launch_backfill_claim_years": 5,
+    "all_exchange_coverage_from": "2022-06",
+    "exact_current_earliest_date_verified": false,
+    "exact_335_name_coverage_verified": false,
+    "delisted_and_historical_share_class_coverage_verified": false,
+    "pre_2022_06_all_exchange_coverage": "not_certified"
+  },
+  "pit": {
+    "settlement_date_is_measurement_date_not_public_availability": true,
+    "official_publication_calendar_available": true,
+    "historical_first_publication_vintages_certified": false,
+    "historical_revisions_reconstructable": false,
+    "actual_first_receipt_ledger_required": true,
+    "decision_timestamp_rule": "actual validated receipt; first regular-session open strictly after receipt",
+    "strict_historical_pit_certified": false
+  },
+  "schema_fields": [
+    "settlementDate",
+    "accountingYearMonthNumber",
+    "symbolCode",
+    "issueName",
+    "issuerServicesGroupExchangeCode",
+    "marketClassCode",
+    "currentShortPositionQuantity",
+    "previousShortPositionQuantity",
+    "changePreviousNumber",
+    "changePercent",
+    "averageDailyVolumeQuantity",
+    "daysToCoverQuantity",
+    "stockSplitFlag",
+    "revisionFlag"
+  ],
+  "important_semantics": {
+    "revisionFlag": "R indicates prior-cycle short position was revised",
+    "stockSplitFlag": "S indicates a split during current short-interest cycle",
+    "changePercent": "based on previous unadjusted position; 100 when previous absent or zero",
+    "float_or_shares_outstanding_field": false,
+    "beneficial_owner_identity": false,
+    "directional_or_hedged_classification": false,
+    "daily_regsho_volume_equivalent": false
+  },
+  "rulemaking": {
+    "file_number": "SR-FINRA-2026-012",
+    "proposed_weekly_reporting": true,
+    "proposed_arranged_financing_coverage": true,
+    "proposed_final_deleted_symbol_reporting": true,
+    "status": "WITHDRAWN",
+    "withdrawn_date": "2026-08-05",
+    "operative_frequency_remains": "twice_monthly"
+  },
+  "access": {
+    "public_credential_monthly_fee_usd": 0,
+    "public_credential_monthly_data_limit_gb": 10,
+    "individual_user_commercial_use": "not_intended",
+    "organization_credential_monthly_fee_usd": 1650,
+    "credential_created": false,
+    "paid_subscription_activated": false,
+    "data_purchased": false
+  },
+  "complementary_regsho": {
+    "latest_live_run": "44453548570",
+    "files_http_200": 8,
+    "valid_files": 0,
+    "invalid_files": 8,
+    "failure_reason": "old parser duplicate_symbol rule; run predates Phase 495",
+    "phase495_offline_validation_run": "44456658463",
+    "phase495_offline_success": true,
+    "phase495_live_capture": "skipped",
+    "post_phase495_live_validation_pending": true
+  },
+  "preregistered_hypotheses": [
+    "outstanding_short_position_change",
+    "short_interest_days_to_cover_crowding",
+    "daily_regsho_flow_to_next_short_interest_change",
+    "position_persistence_vs_acceleration",
+    "crowding_and_squeeze_risk_interaction",
+    "revision_frequency_and_magnitude"
+  ],
+  "controls": {
+    "no_lookahead_required": true,
+    "distinguish_daily_short_sale_volume_from_open_short_interest": true,
+    "use_effective_dated_security_identity": true,
+    "include_delisted_and_historical_share_classes": true,
+    "compare_incremental_information_vs_frozen_ltm_f80": true,
+    "identical_exposure_and_costs_required": true,
+    "chronological_oos_bootstrap_loo_and_multiplicity_controls_required": true
+  },
+  "alpha_test_authorized": false,
+  "backtest_run": false,
+  "event_study_run": false,
+  "oos_run": false,
+  "bootstrap_run": false,
+  "loo_run": false,
+  "signal_eligible_count": 0,
+  "f80_changed": false,
+  "next_publication_date": "2026-11-24",
+  "human_action_required_now": false
+}
