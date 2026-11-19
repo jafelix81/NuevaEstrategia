@@ -19,6 +19,7 @@ The new phase510_form4_structured_transaction_ledger.py processes only existing 
 - Retrieves the complete submission TXT and extracts the ownership XML; falls back to primary_doc.xml.
 - Stores one filing-header row plus separate non-derivative and derivative transaction rows.
 - Preserves accession, form, feed provenance, first-seen lower/upper bounds, first-seen run, acceptance clock, XML retrieval time, hashes and parser version.
+- Independently rejects non-scheduled events, naive timestamps, reversed intervals and inconsistent upper-bound/receipt clocks.
 - Stores transaction code, acquired/disposed code, raw and normalized numeric fields, security title, dates, direct/indirect flag, post-transaction holdings, derivative terms, footnote references, keyword flags and footnote hashes.
 - Does not persist raw XML or full footnote text.
 - Does not attach reporting-owner CIK to transaction rows. Single-owner records remain filing-grain only; multi-owner rows are explicitly quarantined because the applicable schema does not provide a transaction-to-owner key.
