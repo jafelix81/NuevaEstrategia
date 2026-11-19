@@ -78,8 +78,9 @@ class Phase403Tests(unittest.TestCase):
                 return html_error
             return SAMPLE_ATOM_144A.encode("utf-8")
 
-        with patch.object(p403.p401, "fetch_bytes", side_effect=fake_fetch), \\
-             patch.object(p403, "now_utc", return_value="2026-11-19T12:00:00Z"):
+        with patch.object(p403.p401, "fetch_bytes", side_effect=fake_fetch), patch.object(
+            p403, "now_utc", return_value="2026-11-19T12:00:00Z"
+        ):
             snapshots, errors = p403.fetch_all_feeds()
 
         self.assertEqual(errors["144"]["response_kind"], "HTML")
@@ -98,8 +99,9 @@ class Phase403Tests(unittest.TestCase):
                 return empty_atom
             return SAMPLE_ATOM_144A.encode("utf-8")
 
-        with patch.object(p403.p401, "fetch_bytes", side_effect=fake_fetch), \\
-             patch.object(p403, "now_utc", return_value="2026-11-19T12:00:00Z"):
+        with patch.object(p403.p401, "fetch_bytes", side_effect=fake_fetch), patch.object(
+            p403, "now_utc", return_value="2026-11-19T12:00:00Z"
+        ):
             snapshots, errors = p403.fetch_all_feeds({"144": "0000000000-26-000001"})
 
         snap = snapshots["144"]
