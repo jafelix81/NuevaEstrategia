@@ -8,5 +8,5 @@
 - **Form 144:** 247 ledger rows; 55 bounded metadata observations, 50 possible-gap quarantines, 142 baseline rows; 0 signal-eligible.
 - **CFTC:** 3,039 row hashes, latest report date 2026-11-10 across four contracts; 52-week prospective warm-up not met.
 - **FINRA:** Phase 20B/20C not promoted; no prospective Reg SHO ledger.
-- **Operational:** no scheduled run appears after the 2026-11-18 20:55 UTC Form 144 capture in the current inventory. Form 4/144/CFTC/FINRA cron declarations remain unchanged; administrative workflow-enabled state is not exposed by the read interface. No manual dispatch or schedule change.
+- **Operational:** no scheduled run appears after the 2026-11-18 20:55 UTC Form 144 capture in the current inventory. Form 4/144/CFTC/FINRA cron declarations remain unchanged; administrative workflow-enabled state is not exposed by the read interface. [Issue #150](https://github.com/jafelix81/NuevaEstrategia/issues/150) requests a human verification of repository/workflow Actions enablement. No manual dispatch or schedule change.
 - **Strategy:** `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen. No backtest, event study, OOS, bootstrap, LOO or holdout test; no new signals admitted.
