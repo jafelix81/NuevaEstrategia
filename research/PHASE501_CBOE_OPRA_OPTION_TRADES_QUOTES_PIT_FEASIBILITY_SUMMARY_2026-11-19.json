@@ -1,0 +1,75 @@
+{
+  "phase": 501,
+  "date": "2026-11-19",
+  "baseline_main": "408a8fdfaeac81408760b90b2c0ecff2c34ae7b2",
+  "source": "Cboe Option Trades + Option Quotes",
+  "disposition": "CONDITIONAL_CANDIDATE_NOT_ADMITTED",
+  "historical_coverage": {
+    "option_trades_product_page_start": "2012-01",
+    "option_quotes_product_page_start": "2012-01",
+    "datashop_faq_start": "2010-01",
+    "conflict": true,
+    "conservative_start": "2012-01",
+    "per_symbol_coverage_audit": false,
+    "frozen_335_coverage_audit": false,
+    "delisted_underlying_coverage_audit": false
+  },
+  "scope": {
+    "option_trades": "OPRA-wide trade-by-trade prints with trade price/size, exchange, trade condition and contemporaneous NBBO; optional trade IV/Greeks",
+    "option_quotes": "1-minute/custom interval NBBO, OHLC/volume, optional IV/Greeks and OCC start-of-day open interest",
+    "underlyings": ["US-listed stocks", "ETFs", "indices"],
+    "exclusions": ["futures options", "non-US markets"]
+  },
+  "pit": {
+    "daily_delivery": "following day via SFTP",
+    "typical_delivery_window_et": "00:05-03:00",
+    "delay_can_extend_after_next_session_open": true,
+    "historical_first_delivery_vintages_available": false,
+    "hard_maximum_delivery_delay_documented": false,
+    "historical_pit_certified": false,
+    "provisional_historical_lag": "first regular session after following delivery day (nominally T+2 open), not a certified PIT guarantee",
+    "prospective_receipt_ledger_required": true
+  },
+  "open_interest": {
+    "field_semantics": "prior night's OCC end-of-day OI, carried as start-of-day OI and static through the trading day",
+    "not_intraday": true,
+    "not_end_of_day": true
+  },
+  "quality_gates": {
+    "trade_condition_mapping_required": true,
+    "exchange_id_mapping_required": true,
+    "cancellation_field_usable": false,
+    "cancellation_field_reason": "canceled_trade_condition_id is legacy and always zero",
+    "correction_bust_policy_resolved": false,
+    "rth_gth_separation_required": true,
+    "zero_iv_greeks_as_missing": true,
+    "zero_underlying_bid_ask_as_missing": true,
+    "adjusted_contract_deliverable_mapping_required": true,
+    "quote_size_methodology_break": "2026-06-22"
+  },
+  "licensing": {
+    "price_quote_obtained": false,
+    "business_use_rights_confirmed": false,
+    "sample_bytes_acquired": false,
+    "vendor_contacted": false,
+    "purchase_made": false
+  },
+  "research": {
+    "feature_families_preregistered_in_report": [
+      "signed premium and contract volume",
+      "delta- and vega-weighted flow",
+      "call/put and tenor flow",
+      "IV skew and term structure",
+      "volume/SOD-OI and subsequent SOD-OI change",
+      "rolling flow shocks and persistence"
+    ],
+    "alpha_test": false,
+    "event_study": false,
+    "oos": false,
+    "bootstrap": false,
+    "loo": false,
+    "signals_admitted": 0,
+    "f80_changed": false
+  },
+  "next_gate": "Confirm price/business-use terms, correction/vintage policy, then run a lawful schema and frozen-universe/delisted coverage sample before any historical feature construction."
+}
