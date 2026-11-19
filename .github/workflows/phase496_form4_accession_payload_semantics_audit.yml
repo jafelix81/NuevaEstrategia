@@ -1,0 +1,87 @@
+name: Phase 496 - SEC Form 4 accession payload and transaction semantics audit
+
+on:
+  push:
+    branches: [phase496-form4-accession-payload-semantics-audit]
+    paths:
+      - ".github/workflows/phase496_form4_accession_payload_semantics_audit.yml"
+      - "research/phase496_form4_accession_payload_semantics_audit.py"
+      - "research/test_phase496_form4_accession_payload_semantics_audit.py"
+  pull_request:
+    paths:
+      - ".github/workflows/phase496_form4_accession_payload_semantics_audit.yml"
+      - "research/phase496_form4_accession_payload_semantics_audit.py"
+      - "research/test_phase496_form4_accession_payload_semantics_audit.py"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase496-form4-accession-payload-semantics-audit
+  cancel-in-progress: false
+
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile and run offline tests
+        run: |
+          python -m py_compile research/phase496_form4_accession_payload_semantics_audit.py research/test_phase496_form4_accession_payload_semantics_audit.py
+          python -m unittest -v research.test_phase496_form4_accession_payload_semantics_audit
+
+  live-audit:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/phase496-form4-accession-payload-semantics-audit'
+    needs: offline-regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile source clients
+        run: |
+          python -m py_compile research/phase401_form144a_full_parent_identity_census.py research/phase403_sec_form144_first_seen_capture.py research/phase496_form4_accession_payload_semantics_audit.py
+      - name: Resolve 637 bounded Form 4 accessions to SGML headers and ownership XML
+        run: |
+          python -u -m research.phase496_form4_accession_payload_semantics_audit \
+            --events research/data/sec_form4_first_seen/events.csv \
+            --expected-count 637 \
+            --output phase496_output
+      - name: Enforce retrieval and no-promotion controls
+        run: |
+          python - <<'PY'
+          import json, sys
+          p=json.load(open("phase496_output/summary.json",encoding="utf-8"))
+          c=p["retrieval"]["counts"]
+          e=p["eligibility"]
+          if c.get("attempted") != 637:
+              sys.exit("Expected exactly 637 bounded source accessions")
+          if c.get("header_acceptance_parsed",0) < 574:
+              sys.exit("Fewer than 90% of SGML acceptance headers resolved")
+          if c.get("index_acceptance_parsed",0) < 574:
+              sys.exit("Fewer than 90% of independent SEC index clocks resolved")
+          if p["transaction_semantics"]["xml_parsed_accessions"] < 574:
+              sys.exit("Fewer than 90% of Form 4 ownership XML payloads parsed")
+          if e["signal_eligible"] != 0 or e["alpha_test_authorized"]:
+              sys.exit("Phase 496 must remain a non-signal feasibility audit")
+          if e["raw_payloads_persisted"] or e["transaction_level_rows_persisted"]:
+              sys.exit("Raw or transaction-level payload persistence is prohibited")
+          print("PHASE496_RETRIEVAL_AND_NO_PROMOTION_GATES=PASS")
+          print("HEADER_ACCEPTANCE=",c.get("header_acceptance_parsed",0))
+          print("INDEX_ACCEPTANCE=",c.get("index_acceptance_parsed",0))
+          print("XML_PARSED=",p["transaction_semantics"]["xml_parsed_accessions"])
+          print("SIGNAL_ELIGIBLE=0")
+          PY
+      - name: Upload aggregate-only audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase496-sec-form4-payload-audit
+          path: phase496_output/summary.json
+          if-no-files-found: warn
+          retention-days: 90
