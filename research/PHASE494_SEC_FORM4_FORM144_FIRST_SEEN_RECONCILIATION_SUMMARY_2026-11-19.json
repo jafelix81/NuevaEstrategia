@@ -1,0 +1,158 @@
+{
+  "phase": 494,
+  "audit_cutoff_utc": "2026-11-19T02:53:16Z",
+  "pre_documentation_main_head": "08842880f79079e102ed999bba5a7dca9dc01c69",
+  "repository": {
+    "default_branch": "main",
+    "branches_enumerated": 318,
+    "open_pull_requests": 57
+  },
+  "inspected_runs": [
+    {
+      "run_id": 44440313382,
+      "source": "SEC Form 4/4-A",
+      "started_utc": "2026-11-19T01:54:11Z",
+      "completed_utc": "2026-11-19T01:54:40Z",
+      "jobs": {
+        "offline_regression": "success",
+        "live_capture": "success"
+      },
+      "artifact_id": 14489573760,
+      "artifact_size_bytes": 787,
+      "artifact_sha256": "f5c852e00f28f86371eca477cc8b5e7e06bb9d589165e1866a043212462a277a",
+      "capture_commit": "4e68c0d516d9cd1839cdead7041f797b3e27ac9a"
+    },
+    {
+      "run_id": 44447184058,
+      "source": "SEC Form 144/144-A",
+      "started_utc": "2026-11-19T02:50:33Z",
+      "completed_utc": "2026-11-19T02:51:04Z",
+      "jobs": {
+        "offline_regression": "success",
+        "live_capture": "success"
+      },
+      "artifact_id": 14493572408,
+      "artifact_size_bytes": 2359,
+      "artifact_sha256": "bc2a34e61ae6d30103ab890494216bb494d4a11c500ce6f28a9753a60f28fe29",
+      "capture_commit": "08842880f79079e102ed999bba5a7dca9dc01c69"
+    },
+    {
+      "run_id": 44439202893,
+      "source": "Phase 493 PR regression",
+      "jobs": {
+        "offline_regression": "success",
+        "live_capture": "skipped"
+      }
+    }
+  ],
+  "sec_form4": {
+    "run_id": 44440313382,
+    "poll_started_utc": "2026-11-19T01:54:11Z",
+    "poll_completed_utc": "2026-11-19T01:54:40Z",
+    "accession_observation_rows_appended": 1311,
+    "feed4_accession_occurrences": 1310,
+    "feed4a_accession_occurrences": 1,
+    "feed4a_new_accessions": 0,
+    "bounded_feed4_occurrences": 1309,
+    "within_feed_repeated_occurrences": 672,
+    "cross_feed_repeated_occurrences": 0,
+    "new_unique_accessions": 637,
+    "new_canonical_event_rows": 637,
+    "canonical_event_ledger_rows_total": 672,
+    "new_event_forms": {
+      "4": 637,
+      "4/A": 0
+    },
+    "feed_updated_utc_range": [
+      "2026-11-18T19:28:13Z",
+      "2026-11-19T01:51:01Z"
+    ],
+    "prior_successful_poll_end_utc": "2026-11-18T19:26:08Z",
+    "distinct_path_cik_multiplicity_distribution": {
+      "2": 619,
+      "3": 10,
+      "4": 4,
+      "5": 2,
+      "6": 1,
+      "9": 1
+    },
+    "all_new_accessions_have_multiple_path_ciks": true,
+    "research_observation_eligible": 0,
+    "signal_eligible": 0,
+    "public_availability_certified": 0,
+    "filing_xml_or_submission_text_downloaded": false,
+    "transaction_rows_stored": false,
+    "first_seen_is_receipt_upper_bound": true
+  },
+  "sec_form144": {
+    "run_id": 44447184058,
+    "poll_started_utc": "2026-11-19T02:50:33Z",
+    "poll_completed_utc": "2026-11-19T02:51:04Z",
+    "new_unique_accessions": 103,
+    "new_forms": {
+      "144": 103,
+      "144/A": 0
+    },
+    "xml_resolved": 103,
+    "acceptance_reconciled": 103,
+    "acceptance_unresolved": 0,
+    "both_feed_watermarks_found": true,
+    "pagination_complete": true,
+    "possible_feed_window_gap": false,
+    "total_ledger_accessions": 350,
+    "complete_poll_count": 12,
+    "unique_issuer_ciks": 82,
+    "unique_sellers": 102,
+    "nonempty_remarks": 24,
+    "candidate_manifest_matches": 16,
+    "candidate_manifest_size": 290,
+    "candidate_manifest_is_historical_f80_security_master": false,
+    "feed_updated_minus_acceptance_seconds": {
+      "min": 0,
+      "median": 0,
+      "max": 0
+    },
+    "first_seen_upper_minus_acceptance_seconds": {
+      "min": 5401,
+      "median": 18983,
+      "max": 20990
+    },
+    "research_observation_eligible": 103,
+    "signal_eligible": 0,
+    "public_availability_certified": 0,
+    "historical_f80_membership_verified": 0,
+    "same_day_intraday_use_authorized": false
+  },
+  "schedule_status": {
+    "sec_form4": "subsequent scheduled delivery observed",
+    "sec_form144": "subsequent scheduled delivery observed",
+    "cftc_tff": {
+      "last_recorded_run_id": 44232546204,
+      "last_recorded_utc": "2026-11-18T03:44:57Z",
+      "next_existing_slot_utc": "2026-11-19T22:25:00Z",
+      "due_at_audit_cutoff": false
+    },
+    "finra_reg_sho": {
+      "prospective_ledger_present": false,
+      "next_existing_slots_utc": [
+        "2026-11-19T22:30:00Z",
+        "2026-11-19T23:30:00Z"
+      ],
+      "due_at_audit_cutoff": false
+    },
+    "manual_dispatches": 0,
+    "cron_changes": 0,
+    "issue_150_remains_open": true
+  },
+  "research_disposition": {
+    "backtest_run": false,
+    "event_study_run": false,
+    "oos_run": false,
+    "bootstrap_run": false,
+    "loo_run": false,
+    "new_signals_admitted": 0,
+    "frozen_baseline": "F80_TOP20_PARTIAL50_BASELINE_C20",
+    "baseline_modified": false,
+    "production_modified": false
+  }
+}
