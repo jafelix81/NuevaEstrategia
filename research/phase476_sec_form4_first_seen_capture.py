@@ -452,8 +452,8 @@ def fetch_feed(
         "accession_observations": accession_observation_rows,
         "page_error": page_error or {},
         "raw_page_count": len(pages),
-        "new_accession_count": len(event_rows),
-        "candidate_accession_count": candidate_event_count,
+        "candidate_accession_occurrence_count": candidate_event_count,
+        "candidate_accession_count": len({row["accession"] for row in combined}),
         "suppressed_incomplete_poll_candidate_count": candidate_event_count if not poll_success else 0,
         "bounded_metadata_count": sum(1 for row in event_rows if row["event_metadata_interval_bounded"]),
     }
@@ -516,10 +516,11 @@ def run_capture(mode: str, run_id: str, output_dir: Path) -> dict:
             key: result[key] for key in (
                 "prior_watermark", "watermark_found", "poll_success", "interval_status",
                 "new_latest_accession", "latest_feed_updated_utc", "raw_page_count",
-                "new_accession_count", "candidate_accession_count",
+                "candidate_accession_count", "candidate_accession_occurrence_count",
                 "suppressed_incomplete_poll_candidate_count", "bounded_metadata_count", "page_error",
             )
         }
+        feed_summaries[feed_name]["new_accession_count"] = 0
         observation_rows.extend(result["page_observations"])
         feed_observation_rows = []
         seen_within_feed: set[str] = set()
@@ -542,6 +543,7 @@ def run_capture(mode: str, run_id: str, output_dir: Path) -> dict:
             seen_within_feed.add(accession)
             seen_accessions_this_poll.add(accession)
         feed_summaries[feed_name]["accession_observation_count"] = len(feed_observation_rows)
+        canonical_new_count = 0
         for row in result["event_rows"]:
             accession = row["accession"]
             if accession in known:
@@ -549,6 +551,7 @@ def run_capture(mode: str, run_id: str, output_dir: Path) -> dict:
             row["first_seen_poll_started_utc"] = poll_started
             event_rows.append(row)
             known.add(accession)
+            canonical_new_count += 1
             for observation in feed_observation_rows:
                 if (
                     observation["accession"] == accession
@@ -558,6 +561,7 @@ def run_capture(mode: str, run_id: str, output_dir: Path) -> dict:
                 ):
                     observation["canonical_event_emitted"] = True
                     break
+        feed_summaries[feed_name]["new_accession_count"] = canonical_new_count
         feed_updates[feed_name] = result
 
     poll_ended = now_utc()
@@ -604,6 +608,13 @@ def run_capture(mode: str, run_id: str, output_dir: Path) -> dict:
         "feed_count": len(FEEDS),
         "feeds": feed_summaries,
         "new_event_rows": len(event_rows),
+        "new_accession_count": len(event_rows),
+        "candidate_accession_occurrence_count": sum(
+            1 for row in accession_observation_rows if not row["is_prior_watermark"]
+        ),
+        "unique_candidate_accession_count": len({
+            row["accession"] for row in accession_observation_rows if not row["is_prior_watermark"]
+        }),
         "accession_observation_rows": len(accession_observation_rows),
         "same_feed_duplicate_occurrences": sum(
             1 for row in accession_observation_rows if row["is_duplicate_within_feed"]
