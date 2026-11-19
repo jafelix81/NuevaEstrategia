@@ -125,7 +125,10 @@ def parse_form4_purchase_context(raw: bytes, filing_date: str) -> dict:
     date_relation = Counter()
     footnote_counts = Counter()
     footnote_flags = Counter()
-    review_screen = 0
+    structural_queue = 0
+    queue_footnote_refs = Counter()
+    queue_footnote_flags = Counter()
+    queue_open_market_private = Counter()
     pa_rows = 0
 
     for row in rows:
@@ -178,13 +181,15 @@ def parse_form4_purchase_context(raw: bytes, filing_date: str) -> dict:
         footnote_counts["rows_with_resolved_text" if referenced_texts else "rows_without_resolved_text"] += 1
         footnote_counts["unresolved_reference_count"] += len(unresolved)
         combined_footnote_text = " ".join(referenced_texts)
+        matched_footnote_flags = set()
         for flag, pattern in FOOTNOTE_PATTERNS.items():
             if re.search(pattern, combined_footnote_text, flags=re.IGNORECASE):
                 footnote_flags[flag] += 1
+                matched_footnote_flags.add(flag)
 
-        # This is a narrow manual-review queue only. It is NOT proof of exchange execution,
-        # discretion, or informed trading; code P also includes private purchases.
-        if (
+        # Completeness-only queue. It does not establish an exchange execution,
+        # discretionary intent, or informed trading; code P also includes private purchases.
+        in_structural_queue = (
             owner_count == 1
             and ownership_code == "D"
             and aff == "no"
@@ -193,8 +198,19 @@ def parse_form4_purchase_context(raw: bytes, filing_date: str) -> dict:
             and transaction_day is not None
             and filing_day is not None
             and transaction_day <= filing_day
-        ):
-            review_screen += 1
+        )
+        if in_structural_queue:
+            structural_queue += 1
+            queue_footnote_refs["with_reference" if referenced_ids else "without_reference"] += 1
+            queue_footnote_flags.update(matched_footnote_flags)
+            has_open = "open_market" in matched_footnote_flags
+            has_private = "private_purchase_or_placement" in matched_footnote_flags
+            queue_open_market_private[
+                "both" if has_open and has_private else
+                "open_market_mention_only" if has_open else
+                "private_purchase_mention_only" if has_private else
+                "neither_keyword_mentioned"
+            ] += 1
 
     return {
         "owner_count_bucket": owner_bucket,
@@ -210,7 +226,10 @@ def parse_form4_purchase_context(raw: bytes, filing_date: str) -> dict:
         "transaction_date_vs_filing_date": dict(date_relation),
         "footnote_reference_counts": dict(footnote_counts),
         "footnote_keyword_diagnostic_counts": dict(footnote_flags),
-        "high_specificity_manual_review_rows": review_screen,
+        "structural_completeness_queue_rows": structural_queue,
+        "structural_queue_footnote_reference_counts": dict(queue_footnote_refs),
+        "structural_queue_footnote_keyword_counts": dict(queue_footnote_flags),
+        "structural_queue_open_market_private_keyword_intersection": dict(queue_open_market_private),
     }
 
 
@@ -231,7 +250,10 @@ def audit_events(events: list[dict], fetcher, event_ledger_sha256: str) -> dict:
     footnote_flags = Counter()
     payload_manifest_parts = []
     p_a_total = 0
-    manual_review_total = 0
+    structural_queue_total = 0
+    queue_footnote_refs_total = Counter()
+    queue_footnote_flags_total = Counter()
+    queue_open_market_private_total = Counter()
     filing_dates = Counter()
 
     for index, event in enumerate(events, start=1):
@@ -265,7 +287,10 @@ def audit_events(events: list[dict], fetcher, event_ledger_sha256: str) -> dict:
                     filing_owner_buckets[parsed["owner_count_bucket"]] += 1
                     filing_plan_flags[parsed["aff10b5one_filing_flag"]] += 1
                     p_a_total += parsed["p_acquired_rows"]
-                    manual_review_total += parsed["high_specificity_manual_review_rows"]
+                    structural_queue_total += parsed["structural_completeness_queue_rows"]
+                    queue_footnote_refs_total.update(parsed["structural_queue_footnote_reference_counts"])
+                    queue_footnote_flags_total.update(parsed["structural_queue_footnote_keyword_counts"])
+                    queue_open_market_private_total.update(parsed["structural_queue_open_market_private_keyword_intersection"])
                     for source, target in (
                         (parsed["p_acquired_rows_by_directness"], p_a_directness),
                         (parsed["p_acquired_rows_by_owner_bucket"], p_a_owner_buckets),
@@ -321,7 +346,10 @@ def audit_events(events: list[dict], fetcher, event_ledger_sha256: str) -> dict:
             "transaction_date_vs_filing_date": dict(date_relations),
             "footnote_reference_counts": dict(footnote_counts),
             "footnote_keyword_diagnostic_counts": dict(footnote_flags),
-            "high_specificity_manual_review_rows": manual_review_total,
+            "structural_completeness_queue_rows": structural_queue_total,
+            "structural_queue_footnote_reference_counts": dict(queue_footnote_refs_total),
+            "structural_queue_footnote_keyword_counts": dict(queue_footnote_flags_total),
+            "structural_queue_open_market_private_keyword_intersection": dict(queue_open_market_private_total),
             "multi_owner_rows_not_attributed_to_individual_owners": True,
             "footnote_text_persisted": False,
             "transaction_level_rows_persisted": False,
@@ -373,7 +401,7 @@ def main() -> None:
         "attempted": result["retrieval"]["counts"].get("attempted", 0),
         "xml_parsed": result["retrieval"]["counts"].get("xml_parsed", 0),
         "p_acquired_rows": result["transaction_semantics"]["p_acquired_transaction_rows"],
-        "manual_review_rows": result["transaction_semantics"]["high_specificity_manual_review_rows"],
+        "structural_completeness_queue_rows": result["transaction_semantics"]["structural_completeness_queue_rows"],
         "signal_eligible": 0,
         "output": str(output_path),
     }, sort_keys=True))
