@@ -4,7 +4,7 @@
   "source": "FINRA Consolidated Short Interest",
   "dataset_group": "otcMarket",
   "dataset_name": "consolidatedShortInterest",
-  "disposition": "CONDITIONAL_HISTORICAL_POSITIONING_SOURCE_NOT_STRICT_PIT_CERTIFIED_NOT_ALPHA_ADMITTED",
+  "disposition": "CONDITIONAL_SOURCE_ONLY_PENDING_COMPLETE_ASYNC_REINGESTION; PHASE31_PANEL_INCOMPLETE_AS_RETRIEVED; NOT_STRICT_PIT_CERTIFIED; NOT_ALPHA_ADMITTED",
   "main_head_at_preflight": "cbbaaf886b7aac27b0eb0276e5cf24087a4c73f0",
   "actions_preflight": {
     "total_runs": 7894,
@@ -123,5 +123,76 @@
   "signal_eligible_count": 0,
   "f80_changed": false,
   "next_publication_date": "2026-11-24",
-  "human_action_required_now": false
+  "human_action_required_now": true,
+  "prior_phase_reconciliation": {
+    "phase37": {
+      "original_interpretation": "98 observed symbols treated as apparent 29% coverage; joint flow+position panel killed",
+      "return_evidence": "horizon directions unstable; bootstrap intervals included zero"
+    },
+    "phase445": {
+      "correction": "missing rows may be structural zeros only after complete snapshot and effective-dated proof that security was active and in scope"
+    },
+    "phase446": {
+      "requested_settlement_dates": 106,
+      "successful_sync_requests": 102,
+      "successful_requests_at_5000_record_cap": 102,
+      "failed_requests": 4,
+      "filtered_feature_rows": 9420,
+      "observed_symbols": 98,
+      "observed_symbol_prefixes": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "complete_snapshots_proven": 0,
+      "coverage_or_zero_inference_from_phase31_artifact": "PROHIBITED"
+    },
+    "phase447": {
+      "async_client": "research/phase447_finra_async_snapshot_client.py",
+      "manual_workflow": ".github/workflows/phase447_finra_single_live_validation.yml",
+      "synthetic_tests_passed": 14,
+      "synthetic_tests_total": 14,
+      "live_validation_run": "44007662531",
+      "live_validation_conclusion": "FAILED_AT_CREDENTIAL_GUARD",
+      "api_requests_made": 0,
+      "required_secret_names": [
+        "FINRA_CLIENT_ID",
+        "FINRA_CLIENT_SECRET"
+      ],
+      "alternative_secret": [
+        "FINRA_ACCESS_TOKEN"
+      ],
+      "historical_batch_authorized": false
+    }
+  },
+  "phase506_preflight": {
+    "checked_at_utc": "2026-11-19T18:54:00Z",
+    "actions_total_runs": 7894,
+    "latest_run_id": "44534689780",
+    "latest_run_created_at_utc": "2026-11-19T13:33:49Z",
+    "latest_100_active_or_queued_runs": 0,
+    "latest_100_post_phase447_live_validation_found": false,
+    "main_head": "cbbaaf886b7aac27b0eb0276e5cf24087a4c73f0",
+    "pr_159_state": "open_draft",
+    "post_phase495_live_regsho_capture_found": false
+  },
+  "human_action": {
+    "action": "Configure an authorized FINRA credential as GitHub Actions secrets before dispatching the existing manual Phase 447 single-settlement workflow.",
+    "secrets": [
+      "FINRA_CLIENT_ID",
+      "FINRA_CLIENT_SECRET"
+    ],
+    "alternative": [
+      "FINRA_ACCESS_TOKEN"
+    ],
+    "note": "Select credentials and terms appropriate to intended personal/non-commercial or organization/commercial use. Never disclose secret values."
+  },
+  "reentry_gates": [
+    "Run exactly one Phase 447 async settlement-date validation after credentials and usage rights are confirmed.",
+    "Require completed async status, Record-Total/Limit/Offset metadata, exact downloaded row-count reconciliation, settlement-date consistency, and SHA-256 manifest.",
+    "Only after the single-settlement gate passes may the 106 historical settlements be re-ingested asynchronously.",
+    "Prove snapshot completeness and effective-dated security scope before inferring structural zeros or calculating frozen-335 coverage.",
+    "Only then consider a new preregistered flow+position diagnostic; no reuse of Phase 31 as alpha evidence."
+  ]
 }
