@@ -395,20 +395,20 @@ def classify_atom_response(raw):
     if raw is None:
         return "NO_RESPONSE"
     if isinstance(raw, str):
-        sample = raw[:512].lstrip("\\ufeff\\x00\\t\\r\\n ")
+        sample = raw[:512].lstrip("\ufeff\x00\t\r\n ")
     else:
         if not raw:
             return "EMPTY"
-        sample = raw[:512].decode("utf-8", "replace").lstrip("\\ufeff\\x00\\t\\r\\n ")
+        sample = raw[:512].decode("utf-8", "replace").lstrip("\ufeff\x00\t\r\n ")
     if not sample:
         return "EMPTY"
-    if re.search(r"<\\s*(?:!doctype\\s+html|html\\b)", sample, flags=re.I):
+    if re.search(r"<\s*(?:!doctype\s+html|html\b)", sample, flags=re.I):
         return "HTML"
-    if re.search(r"<\\s*feed\\b", sample, flags=re.I):
+    if re.search(r"<\s*feed\b", sample, flags=re.I):
         return "ATOM_XML"
     if sample.startswith(("{", "[")):
         return "JSON"
-    if sample.startswith("<") or re.search(r"<\\?xml\\b", sample, flags=re.I):
+    if sample.startswith("<") or re.search(r"<\?xml\b", sample, flags=re.I):
         return "XML_OR_MARKUP"
     return "OTHER_TEXT"
 
