@@ -33,3 +33,9 @@
 - Latest Actions page reports 7,884 runs; no active or queued run was present in the first 100 latest-run records.
 - The Phase 497 branch is 10 commits ahead and 1 behind main; its changes are additive research/workflow files and do not modify the append-only main ledger.
 - The Phase 497 workflow now runs live SEC retrieval only on explicit `workflow_dispatch` or a push commit message containing `[run-live]`; documentation/PR updates will not automatically refetch the 637 documents.
+
+
+## Merge completion
+- PR [#153](https://github.com/jafelix81/NuevaEstrategia/pull/153) merged 2026-11-19 10:52:49 UTC after offline regression passed in run [44509660064](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44509660064); live-audit was skipped by design.
+- Squash merge and main HEAD: `2a1e66ab9b65096eaa1f95472716117ef33328bf`.
+- Actions total count at merge: 7,886; no active/queued runs in the latest 20 records.
