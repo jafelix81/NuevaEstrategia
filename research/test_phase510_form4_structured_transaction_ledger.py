@@ -89,6 +89,7 @@ def event(accession="0000123456-26-000001", form="4", status="BOUNDED_METADATA_O
         "first_seen_interval_upper_bound_utc": "2026-11-19T10:27:00Z",
         "first_seen_interval_status": status,
         "first_seen_poll_run_id": "12345",
+        "capture_mode": "schedule",
         "first_seen_poll_started_utc": "2026-11-19T10:26:55Z",
         "first_seen_poll_ended_utc": "2026-11-19T10:27:01Z",
         "first_seen_is_upper_bound_not_exact_receipt": "True",
@@ -162,6 +163,17 @@ class Phase510Tests(unittest.TestCase):
         row = parsed["transaction_rows"][0]
         self.assertIsNone(row["transaction_date"])
         self.assertIsNone(row["shares_numeric"])
+
+    def test_reversed_or_naive_first_seen_interval_fails_closed(self):
+        bad = event()
+        bad["first_seen_interval_lower_bound_utc"] = "2026-11-19T11:00:00Z"
+        with self.assertRaisesRegex(ValueError, "clock_invalid"):
+            p.validate_event(bad)
+        bad = event()
+        bad["first_seen_at_utc"] = "2026-11-19T10:27:00"
+        bad["first_seen_interval_upper_bound_utc"] = "2026-11-19T10:27:00"
+        with self.assertRaisesRegex(ValueError, "clock_invalid"):
+            p.validate_event(bad)
 
     def test_wrong_root_fails_closed(self):
         with self.assertRaisesRegex(ValueError, "root"):
