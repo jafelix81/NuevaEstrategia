@@ -171,7 +171,7 @@ class Phase476Tests(unittest.TestCase):
         result = p.fetch_feed("4", self.url, {}, "schedule", "run-1")
         self.assertTrue(result["poll_success"])
         self.assertEqual(result["interval_status"], "INITIAL_BASELINE_NO_LOWER_BOUND")
-        self.assertEqual(result["new_accession_count"], 2)
+        self.assertEqual(result["candidate_accession_count"], 2)
         self.assertEqual(fetch.call_count, 1)
 
     @patch.object(p, "MAX_FEED_PAGES", 2)
@@ -190,7 +190,7 @@ class Phase476Tests(unittest.TestCase):
         )
         self.assertTrue(result["watermark_found"])
         self.assertTrue(result["poll_success"])
-        self.assertEqual(result["new_accession_count"], 100)
+        self.assertEqual(result["candidate_accession_count"], 100)
         self.assertEqual(fetch.call_count, 2)
         self.assertIn("start=100", fetch.call_args_list[1].args[0])
 
@@ -372,6 +372,7 @@ class Phase476Tests(unittest.TestCase):
             self.assertEqual(summary["bounded_metadata_rows"], 0)
             self.assertEqual(summary["new_event_rows"], 0)
             self.assertEqual(summary["incomplete_poll_candidate_rows_suppressed"], 1)
+            self.assertEqual(summary["incomplete_poll_candidate_occurrences_suppressed"], 1)
             self.assertFalse((data_dir / "events.csv").exists())
             with (data_dir / "accession_observations.csv").open(newline="", encoding="utf-8") as handle:
                 observations = list(csv.DictReader(handle))
@@ -477,7 +478,8 @@ class Phase476Tests(unittest.TestCase):
             "schedule", "run-duplicate-boundary",
         )
         self.assertTrue(result["poll_success"])
-        self.assertEqual(result["new_accession_count"], 2)
+        self.assertEqual(result["candidate_accession_count"], 1)
+        self.assertEqual(result["candidate_accession_occurrence_count"], 2)
         self.assertEqual(len(result["accession_observations"]), 3)
         self.assertEqual(
             [row["accession"] for row in result["accession_observations"]],
@@ -518,6 +520,15 @@ class Phase476Tests(unittest.TestCase):
                 summary = p.run_capture("schedule", "duplicate-provenance-run", output_dir)
 
             self.assertEqual(summary["new_event_rows"], 3)
+            self.assertEqual(summary["new_accession_count"], 3)
+            self.assertEqual(summary["candidate_accession_occurrence_count"], 5)
+            self.assertEqual(summary["unique_candidate_accession_count"], 3)
+            self.assertEqual(summary["feeds"]["4"]["candidate_accession_count"], 2)
+            self.assertEqual(summary["feeds"]["4"]["candidate_accession_occurrence_count"], 3)
+            self.assertEqual(summary["feeds"]["4"]["new_accession_count"], 2)
+            self.assertEqual(summary["feeds"]["4A"]["candidate_accession_count"], 2)
+            self.assertEqual(summary["feeds"]["4A"]["candidate_accession_occurrence_count"], 2)
+            self.assertEqual(summary["feeds"]["4A"]["new_accession_count"], 1)
             self.assertEqual(summary["accession_observation_rows"], 5)
             self.assertEqual(summary["same_feed_duplicate_occurrences"], 1)
             self.assertEqual(summary["cross_feed_duplicate_occurrences"], 1)

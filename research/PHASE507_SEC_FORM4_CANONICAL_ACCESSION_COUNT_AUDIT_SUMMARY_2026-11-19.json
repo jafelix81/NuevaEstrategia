@@ -1,0 +1,100 @@
+{
+  "phase": 507,
+  "date": "2026-11-19",
+  "source_run_id": 44598981676,
+  "source_run_url": "https://github.com/jafelix81/NuevaEstrategia/actions/runs/44598981676",
+  "artifact_id": 14566842676,
+  "main_before": "2e0848589e05385c2b4cb4f759970493d9f1a5a2",
+  "audit_cutoff_utc": "2026-11-19T20:21:00Z",
+  "workflow": {
+    "name": "Phase 476 - SEC Form 4 first-seen prospective metadata capture",
+    "path": ".github/workflows/phase476_sec_form4_first_seen_capture.yml",
+    "cron": "17 * * * 1-5",
+    "run_started_utc": "2026-11-19T19:30:17Z",
+    "run_completed_utc": "2026-11-19T19:31:25Z",
+    "offline_regression": "success",
+    "live_capture": "success",
+    "nominal_slot_utc": "2026-11-19T19:17:00Z",
+    "lateness_seconds": 797
+  },
+  "capture": {
+    "accession_observation_rows": 184,
+    "prior_watermark_rows": 2,
+    "candidate_occurrences": 182,
+    "same_feed_duplicate_occurrences": 91,
+    "cross_feed_duplicate_occurrences": 3,
+    "unique_candidate_accessions": 88,
+    "canonical_new_event_rows": 88,
+    "forms": {
+      "4": 85,
+      "4/A": 3
+    },
+    "filing_date": "2026-11-19",
+    "feed_updated_min_utc": "2026-11-19T11:02:47Z",
+    "feed_updated_max_utc": "2026-11-19T19:28:52Z",
+    "first_seen_lower_bound_utc": "2026-11-19T10:27:06Z",
+    "first_seen_upper_min_utc": "2026-11-19T19:30:35Z",
+    "first_seen_upper_max_utc": "2026-11-19T19:31:19Z",
+    "interval_width_min_minutes": 543.4833,
+    "interval_width_max_minutes": 544.2167,
+    "conservative_first_safe_regular_session": "2026-11-20"
+  },
+  "feeds": {
+    "4": {
+      "accession_observations": 177,
+      "prior_watermarks": 1,
+      "candidate_occurrences": 176,
+      "same_feed_duplicates": 88,
+      "cross_feed_duplicates": 0,
+      "unique_candidates": 88,
+      "canonical_new_accessions": 88
+    },
+    "4A": {
+      "accession_observations": 7,
+      "prior_watermarks": 1,
+      "candidate_occurrences": 6,
+      "same_feed_duplicates": 3,
+      "cross_feed_duplicates": 3,
+      "unique_candidates": 3,
+      "canonical_new_accessions": 0
+    }
+  },
+  "page_watermark_behavior": {
+    "form4_page_parser_count_sum": 184,
+    "form4_post_watermark_parsed_entries_discarded": 7,
+    "form4a_page_parser_count": 44,
+    "form4a_post_watermark_parsed_entries_discarded": 37,
+    "discarded_after_prior_watermark_total": 44
+  },
+  "eligibility": {
+    "public_availability_certified": 0,
+    "security_identity_verified": 0,
+    "historical_f80_membership_verified": 0,
+    "owner_attribution_verified": 0,
+    "transaction_semantics_verified": 0,
+    "research_observation_eligible": 0,
+    "signal_eligible": 0,
+    "acceptance_timestamps_fetched": 0,
+    "filing_xml_or_text_downloaded": false,
+    "raw_transaction_rows_persisted": false
+  },
+  "metric_correction": {
+    "old_per_feed_new_accession_count_semantics": "candidate occurrence count before deduplication",
+    "new_candidate_accession_occurrence_count": "raw occurrences before deduplication",
+    "new_candidate_accession_count": "distinct accessions within feed",
+    "new_accession_count": "canonical new accessions emitted after ledger and cross-feed deduplication"
+  },
+  "tests": {
+    "existing_test_count": 39,
+    "additional_assertions": "per-feed unique/occurrence/canonical counts; global unique/occurrence counts; fail-closed unique and occurrence suppression"
+  },
+  "decisions": {
+    "new_signals_admitted": 0,
+    "backtests_run": 0,
+    "event_studies_run": 0,
+    "oos_run": false,
+    "bootstrap_run": false,
+    "loo_run": false,
+    "f80_changed": false
+  }
+}
