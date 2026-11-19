@@ -6,7 +6,7 @@ on:
     paths:
       - ".github/workflows/phase496_form4_accession_payload_semantics_audit.yml"
       - "research/phase496_form4_accession_payload_semantics_audit.py"
-      - "research/test_phase496_form4_accession_payload_semantics_audit.py.py"
+      - "research/test_phase496_form4_accession_payload_semantics_audit.py"
       - "research/phase403_sec_form144_first_seen_capture.py"
       - "research/test_phase403_sec_form144_first_seen_capture.py"
   pull_request:
@@ -32,7 +32,7 @@ jobs:
           python-version: "3.11"
       - name: Compile and run offline tests
         run: |
-          python -m py_compile research/phase403_sec_form144_first_seen_capture.py research/test_phase403_sec_form144_first_seen_capture.py research/phase496_form4_accession_payload_semantics_audit.py research/test_phase496_form4_accession_payload_semantics_audit
+          python -m py_compile research/phase403_sec_form144_first_seen_capture.py research/test_phase403_sec_form144_first_seen_capture.py research/phase496_form4_accession_payload_semantics_audit.py research/test_phase496_form4_accession_payload_semantics_audit.py
           python -m unittest -v research.test_phase403_sec_form144_first_seen_capture research.test_phase496_form4_accession_payload_semantics_audit
 
   live-audit:
