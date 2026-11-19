@@ -1,0 +1,108 @@
+{
+  "phase": 496,
+  "audit_date_utc": "2026-11-19",
+  "source_run_id": 44440313382,
+  "audit_run_id": 44474285899,
+  "artifact_id": 14506425194,
+  "artifact_sha256": "1db6e8e9e48db719a91988d314b49e748d54f766ceca2804b5c2d37d6aaf1829",
+  "source_event_ledger_sha256": "e4e237a59fdd0ba73e1b0dcb1fcda115887281942dbb20a3ded53f0993be58d3",
+  "payload_manifest_sha256": "d6a4b7420618f681c2517bb1ba91a3768b47ee87a5f872c9874fa64512162704",
+  "retrieval": {
+    "attempted": 637,
+    "index_retrieved": 637,
+    "index_acceptance_parsed": 637,
+    "submission_retrieved": 637,
+    "header_acceptance_parsed": 637,
+    "acceptance_match": 637,
+    "filing_date_match": 637,
+    "xml_parsed": 637,
+    "feed_updated_minus_acceptance_seconds": {
+      "n": 637,
+      "median": 0,
+      "p10": 0,
+      "p90": 0
+    },
+    "first_seen_upper_minus_acceptance_seconds": {
+      "n": 637,
+      "min": 190,
+      "median": 14983,
+      "p90": 17550,
+      "max": 23181,
+      "negative_anomalies": 0
+    }
+  },
+  "source_interval": {
+    "lower_bound_utc": "2026-11-18T19:26:08Z",
+    "first_seen_upper_min_utc": "2026-11-19T01:54:11Z",
+    "first_seen_upper_max_utc": "2026-11-19T01:54:34Z",
+    "status": "BOUNDED_METADATA_ONLY"
+  },
+  "identity": {
+    "issuer_cik_resolved_accessions": 637,
+    "issuer_symbol_present_accessions": 637,
+    "distinct_issuer_ciks": 321,
+    "distinct_as_filed_symbols": 321,
+    "issuer_ciks_with_multiple_symbols_in_sample": 0,
+    "symbols_linked_to_multiple_issuer_ciks": 0,
+    "owner_count_buckets": {
+      "single": 619,
+      "multiple": 18
+    },
+    "owner_role_flag_counts": {
+      "isDirector": 318,
+      "isOfficer": 399,
+      "isTenPercentOwner": 79,
+      "isOther": 24
+    }
+  },
+  "transaction_semantics": {
+    "table": "non-derivative Table I",
+    "transaction_code_acquired_disposed_counts": {
+      "A/A": 131,
+      "C/A": 17,
+      "D/D": 3,
+      "F/D": 166,
+      "G/A": 10,
+      "G/D": 25,
+      "I/A": 1,
+      "I/D": 1,
+      "J/A": 6,
+      "J/D": 18,
+      "M/A": 163,
+      "P/A": 145,
+      "S/D": 594
+    },
+    "p_acquired_rows_by_owner_count": {
+      "single_owner": 133,
+      "multiple_owner": 12,
+      "zero_owner": 0
+    },
+    "aff10b5one_filing_flags": {
+      "yes": 109,
+      "no": 528,
+      "unknown": 0
+    },
+    "p_is_not_confirmed_open_market": true,
+    "multi_owner_rows_not_individually_attributed": true
+  },
+  "eligibility": {
+    "historical_f80_membership_verified": false,
+    "public_availability_certified": false,
+    "research_observation_eligible": 0,
+    "signal_eligible": 0,
+    "alpha_test_authorized": false,
+    "forward_returns_used": false,
+    "oos_used": false,
+    "bootstrap_used": false,
+    "loo_used": false,
+    "holdout_used": false,
+    "raw_payloads_persisted": false,
+    "transaction_level_rows_persisted": false,
+    "f80_changed": false,
+    "production_changed": false
+  },
+  "decision": {
+    "disposition": "PAYLOAD_AND_ACCEPTANCE_FEASIBILITY_ONLY",
+    "next_gate": "effective_dated_security_class_listing_and_historical_f80_membership_reconciliation"
+  }
+}
