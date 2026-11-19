@@ -6,7 +6,7 @@ on:
     paths:
       - ".github/workflows/phase496_form4_accession_payload_semantics_audit.yml"
       - "research/phase496_form4_accession_payload_semantics_audit.py"
-      - "research/test_phase496_form4_accession_payload_semantics_audit.py"
+      - "research/test_phase496_form4_accession_payload_semantics_audit.py.py"
       - "research/phase403_sec_form144_first_seen_capture.py"
       - "research/test_phase403_sec_form144_first_seen_capture.py"
   pull_request:
