@@ -545,6 +545,26 @@ class Phase403Tests(unittest.TestCase):
             self.assertEqual(summary["accessions_parsed"], 1)
             self.assertEqual(summary["remaining_accessions"], 1)
             self.assertEqual(p509.read_completed_accessions(details_path), {"0000123456-26-000002"})
+            def fake_mismatch(item, candidate_ciks):
+                return {
+                    "xml_sha256": "different-hash",
+                    "structured_details": parsed,
+                    "structured_parse_status": "parsed",
+                    "structured_parse_error": None,
+                }
+
+            with patch.object(p403, "fetch_document_metadata", side_effect=fake_mismatch):
+                mismatch_summary = p403.backfill_missing_structured_details(
+                    events_path, details_path, {"0000654321"}, "mismatch-run", limit=1
+                )
+            self.assertEqual(mismatch_summary["source_hash_mismatch_count"], 1)
+            self.assertEqual(mismatch_summary["accessions_parsed"], 0)
+            self.assertEqual(mismatch_summary["remaining_accessions"], 0)
+            with details_path.open("r", newline="", encoding="utf-8") as handle:
+                stored = list(csv.DictReader(handle))
+            older_rows = [row for row in stored if row["accession"] == "0000123456-26-000001"]
+            self.assertTrue(older_rows)
+            self.assertTrue(all(row["parse_status"] == "source_hash_mismatch" for row in older_rows))
 
 
 if __name__ == "__main__":
