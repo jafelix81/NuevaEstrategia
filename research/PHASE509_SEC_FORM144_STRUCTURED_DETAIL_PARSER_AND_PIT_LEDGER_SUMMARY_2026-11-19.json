@@ -46,7 +46,9 @@
     "full_xml_persisted": false,
     "source_hash_comparison": true,
     "backfill_limit_per_scheduled_run": 10,
-    "backfill_order": "newest_first"
+    "backfill_order": "newest_first",
+    "backfill_includes_hash_bearing_identity_parse_error_rows": true,
+    "source_hash_mismatch_count_reported_separately": true
   },
   "temporal_controls": {
     "first_seen_clock_copied_from_original_event": true,
