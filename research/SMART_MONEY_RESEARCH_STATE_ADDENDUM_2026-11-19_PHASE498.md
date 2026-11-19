@@ -24,3 +24,10 @@
 
 ## Frozen controls
 `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen. No universe, parameters, holding period, capital, exposure, costs, holdout or production changes. No new signal admitted.
+
+
+## Integration completion
+- PR [#154](https://github.com/jafelix81/NuevaEstrategia/pull/154) merged at 2026-11-19 11:22:52 UTC; squash merge / main HEAD: `880f8faeff03f1505ffead155babf74dd94c0bda`.
+- Push CI [44514184045](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44514184045) and PR CI [44514246907](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44514246907) both passed 9/9 offline tests and recomputed the aggregate-only cadence audit. Artifact [14523893664](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44514184045/artifacts/14523893664), SHA-256 `1f6eb049aec749caf7e0a2c0267db1ee8c9e180e444dd270f90d5b5cf9371b67`.
+- Post-cutoff operational check at 11:22 UTC did not yet show a schedule-triggered Phase 476 run for the 11:17 UTC slot. Treat it as delayed/not yet visible, not proof that the workflow is disabled. No duplicate poll was started.
+- Actions total count at this check: 7888; no active or queued run in the latest 30 records.
