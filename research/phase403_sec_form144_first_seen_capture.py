@@ -171,12 +171,25 @@ def load_candidate_manifest(path=MANIFEST_PATH):
     return set(ciks), manifest
 
 def parse_acceptance_submission(raw):
+    """Parse EDGAR's native SGML element and the legacy colon-delimited form.
+
+    SEC complete-submission headers normally encode the clock as
+    <ACCEPTANCE-DATETIME>YYYYMMDDhhmmss (without a closing tag). Older
+    fixtures and some normalized payloads use ACCEPTANCE-DATETIME: value.
+    Conflicting distinct clocks fail closed rather than selecting one.
+    """
     if isinstance(raw, bytes):
         raw = raw.decode("latin-1", "replace")
-    match = re.search(r"ACCEPTANCE-DATETIME\s*:\s*(\d{14})", str(raw), re.I)
-    if not match:
+    text = str(raw)
+    matches = re.findall(
+        r"(?:<\s*ACCEPTANCE-DATETIME\s*>\s*|ACCEPTANCE-DATETIME\s*:\s*)(\d{14})(?!\d)",
+        text,
+        flags=re.I,
+    )
+    unique = sorted(set(matches))
+    if len(unique) != 1:
         return None, None
-    accepted_et = datetime.strptime(match.group(1), "%Y%m%d%H%M%S").strftime("%Y-%m-%d %H:%M:%S")
+    accepted_et = datetime.strptime(unique[0], "%Y%m%d%H%M%S").strftime("%Y-%m-%d %H:%M:%S")
     dt = datetime.strptime(accepted_et, "%Y-%m-%d %H:%M:%S").replace(tzinfo=ZoneInfo("America/New_York"))
     accepted_utc = dt.astimezone(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
     return accepted_et, accepted_utc

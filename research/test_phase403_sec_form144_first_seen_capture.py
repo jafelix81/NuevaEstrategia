@@ -79,6 +79,33 @@ class Phase403Tests(unittest.TestCase):
         self.assertEqual(accepted_et, "2026-11-14 18:30:00")
         self.assertEqual(accepted_utc, "2026-11-14T23:30:00Z")
 
+    def test_acceptance_timestamp_parses_native_edgar_sgml_element(self):
+        raw = (
+            b"<SEC-HEADER>\n"
+            b"<ACCEPTANCE-DATETIME>20261114183000\n"
+            b"ACCESSION NUMBER: 0000123456-26-000001\n"
+        )
+        accepted_et, accepted_utc = p403.parse_acceptance_submission(raw)
+        self.assertEqual(accepted_et, "2026-11-14 18:30:00")
+        self.assertEqual(accepted_utc, "2026-11-14T23:30:00Z")
+
+    def test_acceptance_timestamp_conflict_fails_closed(self):
+        raw = (
+            "ACCEPTANCE-DATETIME: 20261114183000\n"
+            "<ACCEPTANCE-DATETIME>20261114183100\n"
+        )
+        self.assertEqual(p403.parse_acceptance_submission(raw), (None, None))
+
+    def test_duplicate_identical_acceptance_encodings_are_unambiguous(self):
+        raw = (
+            "ACCEPTANCE-DATETIME: 20261114183000\n"
+            "<ACCEPTANCE-DATETIME>20261114183000\n"
+        )
+        self.assertEqual(
+            p403.parse_acceptance_submission(raw),
+            ("2026-11-14 18:30:00", "2026-11-14T23:30:00Z"),
+        )
+
     def test_gap_is_any_missing_previous_latest_after_pagination(self):
         entries = [{"accession": f"0000000000-26-{i:06d}"} for i in range(50)]
         self.assertTrue(p403.detect_possible_gap(entries, "9999999999-26-000001"))
