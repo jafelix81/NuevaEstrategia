@@ -47,7 +47,7 @@ DETAIL_FIELDS = [
 
 
 def local_name(tag: object) -> str:
-    return str(tag).rsplit("}", 1)[-1].lower()
+    return str(tag).rsplit("}", 1)[-1].split(":", 1)[-1].lower()
 
 
 def descendants(root: ET.Element, wanted: str) -> list[ET.Element]:
@@ -76,13 +76,19 @@ def parse_number(value: object) -> str | None:
     raw = str(value).strip()
     if not raw:
         return None
-    cleaned = re.sub(r"[$,\s]", "", raw)
+    negative = raw.startswith("(") and raw.endswith(")")
+    cleaned = raw.strip("()")
+    cleaned = re.sub(r"[^0-9.+\\-]", "", cleaned)
+    if not cleaned or cleaned in (".", "+", "-", "+.", "-."):
+        return None
     try:
         number = Decimal(cleaned)
     except (InvalidOperation, ValueError):
         return None
     if not number.is_finite():
         return None
+    if negative:
+        number = -number
     if number == number.to_integral_value():
         return str(int(number))
     return format(number.normalize(), "f")
@@ -92,7 +98,7 @@ def parse_date(value: object) -> str | None:
     raw = str(value or "").strip()
     if not raw:
         return None
-    for fmt in ("%m/%d/%Y", "%Y-%m-%d"):
+    for fmt in ("%m/%d/%Y", "%m/%d/%y", "%Y-%m-%d", "%Y-%m-%dT%H:%M:%S"):
         try:
             return datetime.strptime(raw, fmt).date().isoformat()
         except ValueError:
@@ -117,7 +123,6 @@ def extract_sale_tranches(root: ET.Element) -> list[dict]:
     """securitiesInformation rows are proposed sales, not completed sales."""
     result = []
     for index, node in enumerate(descendants(root, "securitiesInformation"), start=1):
-        broker_node = next(iter(descendants(node, "brokerOrMarketmakerDetails")), None)
         units = first_text(node, "noOfUnitsSold")
         value = first_text(node, "aggregateMarketValue")
         outstanding = first_text(node, "noOfUnitsOutstanding")
@@ -125,7 +130,7 @@ def extract_sale_tranches(root: ET.Element) -> list[dict]:
         result.append({
             "detail_index": index,
             "security_class": first_text(node, "securitiesClassTitle"),
-            "broker_or_market_maker": first_text(broker_node, "name"),
+            "broker_or_market_maker": first_text(node, "name"),
             "proposed_units_raw": units,
             "proposed_units_numeric": parse_number(units),
             "aggregate_market_value_raw": value,

@@ -170,5 +170,15 @@ class Phase509Tests(unittest.TestCase):
         self.assertTrue(all(row["signal_eligible"] is False for row in rows))
 
 
+    def test_parse_number_handles_parenthetical_negative_currency_and_invalid_values(self):
+        self.assertEqual(p509.parse_number("($1,234.50)"), "-1234.5")
+        self.assertEqual(p509.parse_number("USD 1,000"), "1000")
+        self.assertIsNone(p509.parse_number("N/A"))
+
+    def test_parse_date_supports_two_digit_year_and_timestamp(self):
+        self.assertEqual(p509.parse_date("11/19/26"), "2026-11-19")
+        self.assertEqual(p509.parse_date("2026-11-19T12:34:56"), "2026-11-19")
+
+
 if __name__ == "__main__":
     unittest.main()

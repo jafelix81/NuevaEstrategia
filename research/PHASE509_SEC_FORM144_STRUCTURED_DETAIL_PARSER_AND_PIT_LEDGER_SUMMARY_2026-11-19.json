@@ -48,7 +48,14 @@
     "backfill_limit_per_scheduled_run": 10,
     "backfill_order": "newest_first",
     "backfill_includes_hash_bearing_identity_parse_error_rows": true,
-    "source_hash_mismatch_count_reported_separately": true
+    "source_hash_mismatch_count_reported_separately": true,
+    "numeric_parser": "Decimal string; supports parenthetical negative and currency punctuation",
+    "date_formats": [
+      "%m/%d/%Y",
+      "%m/%d/%y",
+      "%Y-%m-%d",
+      "%Y-%m-%dT%H:%M:%S"
+    ]
   },
   "temporal_controls": {
     "first_seen_clock_copied_from_original_event": true,
@@ -66,7 +73,7 @@
     "signal_eligible": false
   },
   "tests": {
-    "new_parser_tests": 8,
+    "new_parser_tests": 10,
     "synthetic_only": true,
     "live_pull_request_capture": false
   },

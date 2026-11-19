@@ -44,6 +44,7 @@ The long-form ledger writes one filing-header row plus zero or more rows for eac
 - The event's original first-seen interval, poll-response upper bound and poll run ID are copied unchanged into each detail row.
 - Filing acceptance, Atom updated, notice date and approximate sale date remain separate clocks.
 - The original event XML hash is compared with the re-fetched XML hash during backfill. A mismatch is recorded as source_hash_mismatch; it is not promoted. Backfill eligibility uses the stored XML hash rather than the older identity-parser status, so hash-bearing legacy rows with a prior identity parse error can still be retried; hash mismatches are counted separately.
+- Numeric parsing uses decimal strings (including parenthetical negatives and currency punctuation), not binary floats. Date parsing accepts the formats audited in the Phase 65 parser, including two-digit-year and timestamp forms; unrecognized values remain missing.
 - The backfill is capped at 10 previously captured events per hourly Phase 403 run, newest-first. New filings are parsed from the same XML retrieval already used by the collector, avoiding a duplicate request for those new events.
 - Full filing XML is not persisted. Only normalized fields, source hashes, parser version and the original event clocks are retained.
 - units_outstanding remains a raw reported field. No shares-outstanding ratio is computed because unit/scale semantics were previously not established.
