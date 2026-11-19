@@ -543,6 +543,7 @@ class Phase403Tests(unittest.TestCase):
 
             self.assertEqual(seen, ["0000123456-26-000002"])
             self.assertEqual(summary["attempts"], 1)
+            self.assertEqual(summary["limit"], 1)
             self.assertEqual(summary["accessions_parsed"], 1)
             self.assertEqual(summary["remaining_accessions"], 1)
             self.assertEqual(p509.read_completed_accessions(details_path), {"0000123456-26-000002"})
