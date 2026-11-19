@@ -1,0 +1,76 @@
+name: Phase 499 - MOM120 incremental OOS adjudication
+
+on:
+  push:
+    branches: [phase499-mom120-oos-incremental-adjudication]
+    paths:
+      - ".github/workflows/phase499_mom120_oos_adjudication.yml"
+      - "research/phase499_mom120_oos_adjudication.py"
+      - "research/test_phase499_mom120_oos_adjudication.py"
+      - "research/PHASE499_MOM120_OOS_INCREMENTAL_ADJUDICATION_2026-11-19.md"
+      - "research/PHASE499_MOM120_OOS_INCREMENTAL_ADJUDICATION_SUMMARY_2026-11-19.json"
+      - "research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-19_PHASE499.md"
+  pull_request:
+    paths:
+      - ".github/workflows/phase499_mom120_oos_adjudication.yml"
+      - "research/phase499_mom120_oos_adjudication.py"
+      - "research/test_phase499_mom120_oos_adjudication.py"
+      - "research/PHASE499_MOM120_OOS_INCREMENTAL_ADJUDICATION_2026-11-19.md"
+      - "research/PHASE499_MOM120_OOS_INCREMENTAL_ADJUDICATION_SUMMARY_2026-11-19.json"
+      - "research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-19_PHASE499.md"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: phase499-mom120-oos-adjudication
+  cancel-in-progress: false
+
+jobs:
+  artifact-adjudication:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install pinned audit dependencies
+        run: python -m pip install numpy pandas scipy
+      - name: Download immutable Phase 29 and Phase 30 artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p phase499_input phase499_output
+          curl --fail --silent --show-error --location \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/12565060248/zip \
+            -o phase499_input/phase29.zip
+          curl --fail --silent --show-error --location \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/12581524526/zip \
+            -o phase499_input/phase30.zip
+          echo "85480d28d6d24c8a167c67baee5b3c28c2915e0a3bc3b2eb2f13b490d4167d77  phase499_input/phase29.zip" | sha256sum --check
+          echo "b57190f1d979bde7bb38cff0c6fa0e294cbfed029c5bc702ab62574bb459bc48  phase499_input/phase30.zip" | sha256sum --check
+      - name: Compile and run offline tests
+        run: |
+          python -m py_compile research/phase499_mom120_oos_adjudication.py research/test_phase499_mom120_oos_adjudication.py
+          python -m unittest -v research.test_phase499_mom120_oos_adjudication
+      - name: Recompute artifact-only OOS adjudication
+        run: |
+          python -m research.phase499_mom120_oos_adjudication \
+            --phase29-zip phase499_input/phase29.zip \
+            --phase30-zip phase499_input/phase30.zip \
+            --output phase499_output/summary.json
+      - name: Upload aggregate-only summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase499-mom120-oos-adjudication
+          path: phase499_output/summary.json
+          if-no-files-found: warn
+          retention-days: 90
