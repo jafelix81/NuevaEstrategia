@@ -1,0 +1,98 @@
+{
+  "phase": 492,
+  "audit_cutoff_utc": "2026-11-19T00:41:50Z",
+  "repository": "jafelix81/NuevaEstrategia",
+  "main_preflight": "2f8b184b8af2f0927e0eca8b5401851a69c9b1e5",
+  "actions": {
+    "total_runs": 7863,
+    "latest_100": {
+      "success": 72,
+      "failure": 26,
+      "cancelled": 2,
+      "active": 0,
+      "queued": 0
+    },
+    "latest_run_id": 44396134680,
+    "scheduled_runs_observed": [
+      44396134680,
+      44380395679,
+      44302697069,
+      44232546204
+    ]
+  },
+  "repository_inventory": {
+    "branches": 317,
+    "open_pull_requests": 56
+  },
+  "missing_scheduled_windows": {
+    "sec_form4_utc": [
+      "2026-11-18T20:17:00Z",
+      "2026-11-18T21:17:00Z",
+      "2026-11-18T22:17:00Z",
+      "2026-11-18T23:17:00Z",
+      "2026-11-19T00:17:00Z"
+    ],
+    "sec_form144_utc": [
+      "2026-11-18T21:47:00Z",
+      "2026-11-18T22:47:00Z",
+      "2026-11-18T23:47:00Z"
+    ],
+    "cftc_tff_utc": [
+      "2026-11-18T22:25:00Z"
+    ],
+    "finra_regsho_utc": [
+      "2026-11-18T22:30:00Z",
+      "2026-11-18T23:30:00Z"
+    ]
+  },
+  "verified_sources": {
+    "sec_form144": {
+      "run_id": 44396134680,
+      "artifact_id": 14470455938,
+      "complete_polls": 11,
+      "canonical_event_rows": 247,
+      "new_bounded_metadata_observations": 51,
+      "signal_eligible": 0
+    },
+    "sec_form4": {
+      "run_id": 44380395679,
+      "artifact_id": 14463211992,
+      "unique_accessions": 35,
+      "bounded_intervals": 0,
+      "signal_eligible": 0
+    },
+    "cftc_tff": {
+      "run_id": 44232546204,
+      "artifact_id": 14395926632,
+      "last_capture_utc": "2026-11-18T03:44:57Z",
+      "latest_report_date": "2026-11-10",
+      "historical_warmup_rows": 3035,
+      "signal_eligible": false
+    },
+    "finra_regsho": {
+      "workflow_phase": 469,
+      "first_seen_ledger_present": false,
+      "scheduled_run_observed": false,
+      "raw_files_persisted": false
+    }
+  },
+  "phase29": {
+    "pr": 1,
+    "state": "open_draft",
+    "last_run_id": 40105752275,
+    "decision": "MOM120_BASELINE_RECONFIRMATION_NOT_INCREMENTAL",
+    "rerun_same_selection": false
+  },
+  "controls": {
+    "manual_dispatch": false,
+    "duplicate_workflow": false,
+    "new_market_data": false,
+    "new_backtest": false,
+    "new_oos": false,
+    "new_bootstrap": false,
+    "new_loo": false,
+    "f80_changed": false,
+    "new_signal_admitted": false
+  },
+  "decision": "OPERATIONAL_DELIVERY_GAP_RECHECK_NO_ALPHA_RESULT"
+}
