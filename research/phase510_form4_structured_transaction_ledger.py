@@ -179,6 +179,15 @@ def classify_footnotes(ids: list[str], footnotes: dict[str, str]) -> tuple[dict,
     return flags, hashes, len(ids) - len(texts)
 
 
+def normalize_accession(value: str | None) -> str | None:
+    if not value:
+        return None
+    digits = re.sub(r"\D", "", str(value))
+    if len(digits) != 18:
+        return None
+    return f"{digits[:10]}-{digits[10:12]}-{digits[12:]}"
+
+
 def parse_form4_details(raw: bytes | str) -> dict:
     if isinstance(raw, bytes):
         raw = raw.decode("utf-8", "replace")
@@ -204,7 +213,7 @@ def parse_form4_details(raw: bytes | str) -> dict:
 
     aff_flag = p496.normalize_flag(p496.first_descendant_text(root, "aff10b5One"))
     previous_accession_raw = p496.first_descendant_text(root, "previousAccessionNumber")
-    previous_accession = p401.accession(previous_accession_raw) if previous_accession_raw else None
+    previous_accession = normalize_accession(previous_accession_raw) if previous_accession_raw else None
     footnotes = footnote_map(root)
 
     nonderivative_table = direct_child(root, "nonDerivativeTable")
