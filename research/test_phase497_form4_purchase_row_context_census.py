@@ -49,7 +49,7 @@ class Phase497PurchaseContextTests(unittest.TestCase):
         self.assertEqual(result["p_acquired_rows_by_directness"], {"D": 1})
         self.assertEqual(result["p_acquired_rows_by_owner_bucket"], {"single": 1})
         self.assertEqual(result["p_acquired_rows_by_plan_flag"], {"no": 1})
-        self.assertEqual(result["high_specificity_manual_review_rows"], 1)
+        self.assertEqual(result["structural_completeness_queue_rows"], 1)
         self.assertEqual(result["footnote_keyword_diagnostic_counts"]["open_market"], 1)
 
     def test_indirect_private_purchase_is_not_manual_review_screen(self):
@@ -61,7 +61,7 @@ class Phase497PurchaseContextTests(unittest.TestCase):
         )
         result = parse_form4_purchase_context(raw, "2026-11-18")
         self.assertEqual(result["p_acquired_rows_by_directness"], {"I": 1})
-        self.assertEqual(result["high_specificity_manual_review_rows"], 0)
+        self.assertEqual(result["structural_completeness_queue_rows"], 0)
         self.assertEqual(result["footnote_keyword_diagnostic_counts"]["private_purchase_or_placement"], 1)
         self.assertEqual(result["footnote_keyword_diagnostic_counts"]["trust"], 1)
 
@@ -69,7 +69,7 @@ class Phase497PurchaseContextTests(unittest.TestCase):
         raw = form4(purchase(), owners=2, plan="0")
         result = parse_form4_purchase_context(raw, "2026-11-18")
         self.assertEqual(result["p_acquired_rows_by_owner_bucket"], {"multiple": 1})
-        self.assertEqual(result["high_specificity_manual_review_rows"], 0)
+        self.assertEqual(result["structural_completeness_queue_rows"], 0)
 
     def test_missing_price_shares_and_date_are_not_screened(self):
         raw = form4(purchase(price=None, shares=None, tx_date=None, direct=None), owners=1, plan="0")
@@ -78,7 +78,7 @@ class Phase497PurchaseContextTests(unittest.TestCase):
         self.assertEqual(result["price_field_counts"]["missing"], 1)
         self.assertEqual(result["shares_field_counts"]["missing"], 1)
         self.assertEqual(result["transaction_date_field_counts"]["missing_or_invalid"], 1)
-        self.assertEqual(result["high_specificity_manual_review_rows"], 0)
+        self.assertEqual(result["structural_completeness_queue_rows"], 0)
 
     def test_disposition_and_derivative_rows_are_outside_table_i_scope(self):
         table_i = purchase(code="P", acquired="D")
@@ -90,7 +90,7 @@ class Phase497PurchaseContextTests(unittest.TestCase):
         raw = form4(purchase(tx_date="2026-11-19"), owners=1, plan="0")
         result = parse_form4_purchase_context(raw, "2026-11-18")
         self.assertEqual(result["transaction_date_vs_filing_date"], {"after_filing_date": 1})
-        self.assertEqual(result["high_specificity_manual_review_rows"], 0)
+        self.assertEqual(result["structural_completeness_queue_rows"], 0)
 
     def test_unresolved_footnote_reference_is_counted_not_guessed(self):
         raw = form4(purchase(footnote_id="MISSING"), owners=1, plan="0")
@@ -102,7 +102,7 @@ class Phase497PurchaseContextTests(unittest.TestCase):
         raw = form4(purchase(), owners=1, plan="unexpected")
         result = parse_form4_purchase_context(raw, "2026-11-18")
         self.assertEqual(result["p_acquired_rows_by_plan_flag"], {"unknown": 1})
-        self.assertEqual(result["high_specificity_manual_review_rows"], 0)
+        self.assertEqual(result["structural_completeness_queue_rows"], 0)
 
     def test_private_and_open_market_footnote_flags_can_coexist(self):
         raw = form4(
