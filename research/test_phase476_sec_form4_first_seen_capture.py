@@ -270,6 +270,7 @@ class Phase476Tests(unittest.TestCase):
                  patch.object(p, "STATE_PATH", data_dir / "state.json"), \
                  patch.object(p, "EVENTS_PATH", data_dir / "events.csv"), \
                  patch.object(p, "OBSERVATIONS_PATH", data_dir / "feed_observations.csv"), \
+                 patch.object(p, "ACCESSION_OBSERVATIONS_PATH", data_dir / "accession_observations.csv"), \
                  patch.object(p, "FEEDS", {"4": self.url}), \
                  patch.object(p.p401, "fetch_bytes", return_value=raw):
                 summary = p.run_capture("schedule", "baseline-run", output_dir)
@@ -433,6 +434,91 @@ class Phase476Tests(unittest.TestCase):
             with (data_dir / "events.csv").open(newline="", encoding="utf-8") as handle:
                 rows = list(csv.DictReader(handle))
             self.assertEqual(len(rows), 1)
+
+
+    @patch.object(p.p401, "fetch_bytes")
+    def test_fetch_feed_records_duplicate_occurrences_and_prior_watermark(self, fetch):
+        prior = "0000000001-26-000099"
+        repeated = "0000000001-26-000100"
+        raw = feed(
+            entry(repeated, "4", updated="2026-11-18T10:30:00Z"),
+            entry(repeated, "4", updated="2026-11-18T10:30:00Z"),
+            entry(prior, "4", updated="2026-11-18T09:00:00Z"),
+        )
+        fetch.return_value = raw
+        result = p.fetch_feed(
+            "4", self.url,
+            {"latest_accession": prior, "last_successful_poll_end_utc": "2026-11-18T10:00:00Z"},
+            "schedule", "run-duplicate-boundary",
+        )
+        self.assertTrue(result["poll_success"])
+        self.assertEqual(result["new_accession_count"], 2)
+        self.assertEqual(len(result["accession_observations"]), 3)
+        self.assertEqual(
+            [row["accession"] for row in result["accession_observations"]],
+            [repeated, repeated, prior],
+        )
+        self.assertEqual(
+            [row["event_interval_status"] for row in result["accession_observations"]],
+            ["BOUNDED_METADATA_ONLY", "BOUNDED_METADATA_ONLY", "PRIOR_WATERMARK_BOUNDARY"],
+        )
+        self.assertTrue(result["accession_observations"][-1]["is_prior_watermark"])
+
+    def test_run_capture_accession_observation_ledger_preserves_same_and_cross_feed_duplicates(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            data_dir = root / "data"
+            output_dir = root / "output"
+            url4 = p.FEEDS["4"]
+            url4a = p.FEEDS["4A"]
+            accession_a = "0000000001-26-000041"
+            accession_b = "0000000001-26-000042"
+            accession_c = "0000000001-26-000043"
+            feed4 = feed(
+                entry(accession_a, "4"),
+                entry(accession_b, "4/A"),
+                entry(accession_a, "4"),
+            )
+            feed4a = feed(
+                entry(accession_b, "4/A"),
+                entry(accession_c, "4/A"),
+            )
+            with patch.object(p, "DATA_DIR", data_dir), \
+                 patch.object(p, "STATE_PATH", data_dir / "state.json"), \
+                 patch.object(p, "EVENTS_PATH", data_dir / "events.csv"), \
+                 patch.object(p, "OBSERVATIONS_PATH", data_dir / "feed_observations.csv"), \
+                 patch.object(p, "ACCESSION_OBSERVATIONS_PATH", data_dir / "accession_observations.csv"), \
+                 patch.object(p, "FEEDS", {"4": url4, "4A": url4a}), \
+                 patch.object(p.p401, "fetch_bytes", side_effect=[feed4, feed4a]):
+                summary = p.run_capture("schedule", "duplicate-provenance-run", output_dir)
+
+            self.assertEqual(summary["new_event_rows"], 3)
+            self.assertEqual(summary["accession_observation_rows"], 5)
+            self.assertEqual(summary["same_feed_duplicate_occurrences"], 1)
+            self.assertEqual(summary["cross_feed_duplicate_occurrences"], 1)
+            self.assertEqual(summary["canonical_event_observation_rows"], 3)
+            with (data_dir / "events.csv").open(newline="", encoding="utf-8") as handle:
+                events = list(csv.DictReader(handle))
+            self.assertEqual(len(events), 3)
+            with (data_dir / "accession_observations.csv").open(newline="", encoding="utf-8") as handle:
+                observations = list(csv.DictReader(handle))
+            self.assertEqual(len(observations), 5)
+            same_feed_duplicate = next(
+                row for row in observations
+                if row["accession"] == accession_a and row["is_duplicate_within_feed"] == "True"
+            )
+            cross_feed_duplicate = next(
+                row for row in observations
+                if row["accession"] == accession_b and row["is_duplicate_across_feeds"] == "True"
+            )
+            self.assertEqual(same_feed_duplicate["canonical_event_emitted"], "False")
+            self.assertEqual(cross_feed_duplicate["canonical_event_emitted"], "False")
+            self.assertEqual(
+                sum(row["canonical_event_emitted"] == "True" for row in observations),
+                3,
+            )
+            self.assertTrue(all(row["signal_eligible"] == "False" for row in events))
+
 
 
 
