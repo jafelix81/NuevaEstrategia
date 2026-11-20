@@ -200,6 +200,7 @@ class Phase510Tests(unittest.TestCase):
             old_rows = [dict(row) for row in current_rows]
             for row in old_rows:
                 row["parser_version"] = "phase510-v0"
+                row["detail_row_key"] = "old-" + row["detail_row_key"]
             self.assertEqual(p.append_detail_rows(path, old_rows), len(old_rows))
             self.assertNotIn(event()["accession"], p.read_completed_accessions(path))
             self.assertEqual(p.append_detail_rows(path, current_rows), len(current_rows))
