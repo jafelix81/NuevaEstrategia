@@ -8,10 +8,11 @@
 - Latest FINRA Reg SHO run: [44453548570](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44453548570), successful transport, zero eligible first-seen events; it does not establish a post-Phase-495 parser validation.
 - Latest CFTC TFF run: [44453066854](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44453066854).
 - Actions API inventory: 7,912 total; latest 100 inspected; no active/queued runs. No scheduled Phase 403 or Phase 476 run after the Phase 509 merge was visible at the cutoff. Treat this as a schedule-delivery gap, not proof that workflows are disabled. No manual dispatch, rerun or duplicate poll was started.
-- Open PR count: 57. PR #159 remains draft for FINRA Short Interest credentials. PR #1 remains draft and its MOM120 replacement hypothesis is not promoted under Phases 480/499. The first 330 branch names were inspected; the Phase 509 branch is present and no conflicting Phase 510 branch existed before creation.
+- Open PR count at preflight: 57; Phase 510 PR #163 was then created. PR #159 remains draft for FINRA Short Interest credentials. PR #1 remains draft and its MOM120 replacement hypothesis is not promoted under Phases 480/499. The first 330 branch names were inspected; the Phase 509 branch is present and no conflicting Phase 510 branch existed before creation.
 
 ## Phase 510 changes
-- Added phase510_form4_structured_transaction_ledger.py and synthetic regression tests.
+- Added phase510_form4_structured_transaction_ledger.py and 11 synthetic regression tests; combined Phase 476 + Phase 510 CI passed 50/50 in [run 44642337001](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44642337001).
+- PR #163 is open and mergeable; live-capture was skipped by design. The parser-version-aware reprocessing test and strict timestamp validation pass.
 - Integrated the detail backfill into the existing Phase 476 scheduled job. No new cron or second SEC poller.
 - Newest-first backfill, max 10 accession documents per scheduled run, only when the source event has a bounded metadata interval.
 - Separate filing-header, non-derivative and derivative rows; preserves first-seen interval and a separate XML retrieval clock.
