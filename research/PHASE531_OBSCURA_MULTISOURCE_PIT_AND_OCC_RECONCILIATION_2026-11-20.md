@@ -88,15 +88,24 @@ Feasibility gaps:
 
 Interpretation: potentially useful equity order-flow/microstructure data, not options flow and not institutional identity. Large-print buckets must not be labelled institutional without independent evidence. The key hypothesis is whether signed flow adds information beyond LTM/F80 after controlling for momentum, turnover, volatility and return-chasing.
 
-### 3.2 SEC MIDAS per-security metrics
+### 3.2 SEC MIDAS per-security metrics — official catalog correction (Phase 532)
 
 Public schema page: https://obscura.trade/datasets/sec-midas-security-metrics/
 
-The vendor describes daily per-security SEC MIDAS metrics (20 columns) covering market-structure ranks, lit/hidden volume and order/trade measures. The SEC's own [Market Structure Data Downloads](https://www.sec.gov/data-research/market-structure-data) lists individual-security datasets through June 2026; the Data.gov catalog reports a 2012-01-01 to 2026-06-30 period and 58 resources. The specific Data.gov `Metrics by Individual Security` metadata page is stale (dataset last updated 2017-10-30) despite listing a 2026 Q2 resource, so its catalog-level modified date cannot establish per-file release timing. Obscura says six quarters are absent at source (2014 Q2, all four quarters of 2016, and 2019 Q4); that missing-quarter claim has not been independently reconciled to the archive files.
+A fresh check of the SEC's own [Metrics by Individual Security download index](https://www.sec.gov/data-research/sec-markets-data/marketstructuredata-security) materially corrects the vendor-gap interpretation above:
 
-PIT limitation: Obscura's general `available_date` definition is not, by itself, evidence of the first public release day of each SEC quarterly file. The Data.gov metadata's `modified` timestamp is 2024-10-31 even though the resource list includes 2026 Q2, so that metadata field cannot be used as a per-file publication timestamp. The SEC page reports a June 2026 update but does not provide per-quarter release dates in the reviewed page.
+- The current SEC page states coverage from January 2012 through **September 2026** and more than 4,800 securities.
+- It lists **59 quarterly ZIP distributions**, continuously from 2012 Q1 through 2026 Q3.
+- All six quarters described by Obscura as missing — 2014 Q2, 2016 Q1–Q4 and 2019 Q4 — are explicitly listed on the SEC page. The SEC also has a dedicated static-file page for 2014 Q2: https://www.sec.gov/file/individualsecurity2014q2updated.
+- The SEC index was last reviewed/updated September 30, 2026. The earlier Data.gov catalog inventory had 58 resources only through 2026 Q2; it is one quarter behind the current SEC index and must not be used to infer source-level gaps.
 
-Decision: promising market-structure feature set, but PIT release dates, missing-quarter details, exact 335-universe overlap, ticker continuity and delisted-security coverage must be verified before a backtest. Treat as a liquidity/market-structure feature, not smart-money identity.
+**Correction:** the six-quarter gap is not supported as an absence from the official SEC source. It should be reclassified as a possible **Obscura ingestion/coverage gap**, pending a vendor sample or written coverage manifest. The current SEC page demonstrates that the quarterly distributions are listed; this audit did not download or verify the ZIP contents themselves.
+
+The official page exposes only a page-level review date, not the first-publication timestamp for each quarterly ZIP. A quarter label, page review date, current listing, file-system mtime or Data.gov dataset-level modified date is not a historical knowledge timestamp.
+
+PIT limitation therefore remains: per-quarter first-publication dates are **NOT PROVEN**. Exact 335-name universe overlap, historical ticker continuity, delisted coverage and file-level integrity also remain unmeasured. The SEC page's more than 4,800-security headline is not proof of coverage for the frozen 335-name universe.
+
+Decision: the public SEC MIDAS source passes the **catalog-level history and listed-quarter continuity** gate through 2026 Q3. It does not yet pass the file-integrity, frozen-universe, historical-identity or PIT release-time gates. Keep it as a public candidate; no alpha test is authorized until those gates are resolved. Treat hidden/odd-lot/trade-to-order measures as market-structure variables, not institutional identity.
 
 ### 3.3 FINRA datasets in the catalog
 
@@ -157,3 +166,8 @@ For MIDAS, first test whether hidden/odd-lot/trade-size/liquidity measures predi
 - No production changes.
 
 This phase ends at data feasibility. It does not establish alpha.
+
+
+## Phase 532 correction record
+
+The current SEC download index supersedes the earlier vendor-derived statement that six quarters were absent at source. See [Phase 532](PHASE532_SEC_MIDAS_OFFICIAL_QUARTERLY_CATALOG_RECONCILIATION_2026-11-20.md) and its [machine-readable summary](PHASE532_SEC_MIDAS_OFFICIAL_QUARTERLY_CATALOG_RECONCILIATION_SUMMARY_2026-11-20.json). The correction changes source-coverage classification only; it does not resolve PIT release timing or authorize an alpha test.
