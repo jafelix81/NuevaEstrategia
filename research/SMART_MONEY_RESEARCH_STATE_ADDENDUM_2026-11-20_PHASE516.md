@@ -9,3 +9,11 @@
 - First-seen intervals are upper bounds, not exact publication timestamps: 70 filings in run 44662324343 have a 5.6531-hour interval; ten filings in run 44614323236 have an 18.1647-hour interval. Public availability certified = 0; signal eligible = 0.
 - Added a reproducible audit script and tests. Phase 403 PR CI now runs the audit against the committed ledger; the PR job remains offline-only and does not execute a live capture.
 - No returns, event study, backtest, OOS, bootstrap, LOO or holdout test. No signal admitted. `F80_TOP20_PARTIAL50_BASELINE_C20` and production remain frozen.
+
+## Validation and integration
+
+- PR [#169](https://github.com/jafelix81/NuevaEstrategia/pull/169) merged successfully; merge commit `c23bdd734f3cef1c8ead0d974c081a0093e1b067`.
+- CI [Run 44680495072](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44680495072): 64/64 combined offline tests passed, including all five Phase 516 tests. The live-capture job was skipped for the PR as intended.
+- The actual committed Form 144 ledger audit ran in CI and returned `DESCRIPTIVE_LEDGER_QUALITY_PASS_WITH_SEMANTIC_REVIEW_QUEUE`.
+- No live poll was manually dispatched. Phase 469 FINRA remains pending the next existing scheduled run after the Phase 515 merge.
+- Main HEAD after integration: `c23bdd734f3cef1c8ead0d974c081a0093e1b067`.
