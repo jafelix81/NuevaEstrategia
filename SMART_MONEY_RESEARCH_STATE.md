@@ -1482,3 +1482,16 @@ This section supersedes any older “in progress” status above where later com
 - Report: [Phase 478](research/PHASE478_SEC_FORM4_FAIL_CLOSED_RETRY_INTEGRITY_2026-11-18.md) · [summary](research/PHASE478_SEC_FORM4_FAIL_CLOSED_RETRY_INTEGRITY_SUMMARY_2026-11-18.json).
 
 - Phase 478 closeout (2026-11-18 11:18 UTC): final Phase 476 offline CI [44293347434](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44293347434) passed 37/37 tests after correcting an initial test-fixture syntax error; adjacent Phase 460/461 checks [44293347507](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44293347507) and [44293347425](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44293347425) passed. Live capture skipped, no artifacts. PR #139 merged at `1cbecf4d0281dd64881fb575d5d1e672e5314412`. The 11:17 UTC first schedule slot was not yet visible in the schedule inventory at closeout; next slot after merge is 12:17 UTC. No manual dispatch.
+
+---
+
+## Phase 520 — Databento security master PIT identity feasibility update (2026-11-20)
+
+- Current official documentation advertises 21 years of PIT security-master history (2005-01-01 to present), 860,000+ securities and 215 venues; the feed guide says weekly updates and listing-level records. Reference API `security_master.get_range` supports `ts_effective` and `ts_record`, up to 2,000 symbols per request, and exposes listing/security/issuer IDs, listing/delisting dates, CIK, CUSIP/US code, ISIN and FIGI.
+- The exact 335 Phase 21C research snapshot fits one documented request, but its exact coverage has not been tested. The snapshot is not a historical active-universe membership table; date-appropriate listed/active status remains mandatory.
+- Strong candidate for the effective-dated identity bridge for FINRA T1, SEC FTD and SEC ownership data. `ts_record` is only a candidate record-known clock: public docs do not define it as exact first public availability or quantify upstream lag; weekly update frequency must be measured and confirmed.
+- Identity limits: documented continuity across name/ticker changes, mergers and demergers; no continuity for spin-offs or securities permanently delisted without relisting. Security master does not provide terminal delisting returns. Retain the independent CRSP/price-source gate.
+- Pricing is internally inconsistent on the product page (Standard: $0.50/additional symbol/month; FAQ Starter: $1.75); obtain a written quote. New-user $125 credits are advertised. Internal use is permitted; external redistribution is prohibited. Do not put raw licensed rows in public artifacts.
+- No account, trial, purchase, API key, API request or raw download. Next gate is an authorized one-shot 335-symbol pilot with aggregate-only output after `DATABENTO_API_KEY` and terms are confirmed. No alpha/OOS/returns test; F80 baseline remains frozen.
+- Report: [Phase 520](research/PHASE520_DATABENTO_SECURITY_MASTER_PIT_IDENTITY_FEASIBILITY_2026-11-20.md) · [summary](research/PHASE520_DATABENTO_SECURITY_MASTER_PIT_IDENTITY_FEASIBILITY_SUMMARY_2026-11-20.json).
+- Official sources: https://databento.com/security-master · https://databento.com/docs/api-reference-data/security-master?lang=python · https://databento.com/docs/datasets/security-master · https://indexes.morningstar.com/research-data-products/crsp-us-stock-databases.
