@@ -199,8 +199,9 @@ class Phase377Tests(unittest.TestCase):
             for report_date in ("2026-10-20", "2026-10-27", "2026-11-03"):
                 row_id += 1
                 rows.append(make_row(report_date, code, row_id=str(row_id)))
-        row_id += 1
-        rows.append(make_row("2026-11-03", "239742", row_id=str(row_id)))
+        for report_date in ("2026-10-20", "2026-11-03"):
+            row_id += 1
+            rows.append(make_row(report_date, "239742", row_id=str(row_id)))
         result = build_summary(
             rows, FIELDS, count_before=len(rows), count_after=len(rows),
             metadata_updated_before=123, metadata_updated_after=123,
