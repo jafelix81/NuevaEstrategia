@@ -50,6 +50,14 @@ class Phase525CrosswalkTests(unittest.TestCase):
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0]["form144_event_role"], "PRIOR_SALE_HISTORY")
 
+    def test_one_form4_transaction_cannot_be_reused_for_two_form144_rows(self):
+        f144, f4, owners = fixtures()
+        f144.append(dict(f144[0], accession="144-B"))
+        rows, summary = build_crosswalk(f144, f4, owners)
+        self.assertEqual(summary["ambiguous_transaction_reuse_quarantined"], 1)
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["form144_event_role"], "PRIOR_SALE_HISTORY")
+
     def test_no_owner_sidecar_cannot_create_a_match(self):
         f144, f4, _ = fixtures()
         rows, summary = build_crosswalk(f144, f4, [])
