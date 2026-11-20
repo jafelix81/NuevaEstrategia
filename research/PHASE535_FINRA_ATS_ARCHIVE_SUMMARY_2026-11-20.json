@@ -1,0 +1,64 @@
+{
+  "phase": 535,
+  "date": "2026-11-20",
+  "source": "FINRA ATS Transparency historical download archive",
+  "status": "LIVE_GET_ONLY_AUDIT_PENDING",
+  "workflow": "Phase 535 - FINRA ATS archive access and schema audit",
+  "branch": "phase535-finra-ats-archive-access-audit",
+  "main_base_sha": "5d70c9307f5c9cfa1831c8d2755f444f25c72208",
+  "key_findings": [
+    "Official FINRA guide documents weekly security-by-ATS reports, downloadable archive index, machine-download table tblTrading, and data fields including Shares_Last_Updated and Trades_Last_Updated.",
+    "First ATS weekly reports covered 2014-05-12 to 2014-05-16; potential history start predates weeklySummaryHistoric API.",
+    "T1 reports have a nominal two-week delay; T2 and OTC reports a four-week delay; Phase100 API sample observed 21/35 calendar-day initial publication lags.",
+    "2015 FINRA rule filing removed the 2014 ATS data fees and made ATS data public at no charge effective 2015-07-13; user certification/terms still apply.",
+    "blocksSummary is ATS/MPID/month aggregate and has no security identifier; stock-selection block hypotheses killed."
+  ],
+  "phase100_api_sample": {
+    "partitions": 10,
+    "rows": 968139,
+    "record_total_reconciled": true,
+    "initial_published_date_nonnull_pct": 100,
+    "observed_publication_lag_days": {
+      "T1": 21,
+      "T2": 35
+    },
+    "legacy_f80_union_coverage_pct_range": [
+      94.63,
+      99.1
+    ],
+    "legacy_f80_role": "diagnostic_only_not_representative",
+    "rows_updated_after_initial_publish": 1882,
+    "missing_symbol_rows": 2,
+    "conflicting_duplicate_groups": 2,
+    "data_gate": "FAIL_OR_PARTIAL",
+    "pit_vintage_status": "CONDITIONAL_CURRENT_VALUE_REVISION_HISTORY_NOT_PROVEN",
+    "alpha_test_authorized": false
+  },
+  "blocks_summary": {
+    "partitions": 123,
+    "min_month": "2016-06-01",
+    "max_month": "2026-08-01",
+    "security_identifier_present": false,
+    "stock_alpha_status": "KILLED",
+    "market_regime_status": "PARKED"
+  },
+  "pit": {
+    "archive_has_initial_publication_date": false,
+    "archive_has_row_update_dates": true,
+    "status": "NOT_ESTABLISHED",
+    "rule": "No backdating final revised snapshots to report week; reconcile update dates with API initialPublishedDate/lastUpdateDate and first-seen captures."
+  },
+  "f80": {
+    "name": "F80_TOP20_PARTIAL50_BASELINE_C20",
+    "frozen": true,
+    "new_signals_admitted": 0,
+    "new_oos_results": 0,
+    "changes": 0
+  },
+  "official_sources": [
+    "https://www.finra.org/sites/default/files/ATS-transparency-data-website-user-guide-version3.pdf",
+    "https://www.finra.org/sites/default/files/rule_filing_file/SR-FINRA-2015-023.pdf",
+    "https://developer.finra.org/docs/api-explorer/query_api-equity-weekly_summary",
+    "https://developer.finra.org/catalog"
+  ]
+}
