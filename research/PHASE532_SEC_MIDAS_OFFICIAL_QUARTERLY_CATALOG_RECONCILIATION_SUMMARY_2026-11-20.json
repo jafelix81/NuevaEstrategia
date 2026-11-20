@@ -1,0 +1,56 @@
+{
+  "phase": 532,
+  "date": "2026-11-20",
+  "status": "COMPLETE_OFFICIAL_CATALOG_RECONCILIATION_ONLY",
+  "repo_preflight": {
+    "default_branch": "main",
+    "main_head": "49bf4c2a6529fa1eb4b64e7a1f22a147952071f9",
+    "latest_overall_runs": [
+      44784058203,
+      44784057531
+    ],
+    "latest_overall_runs_event": "pull_request",
+    "latest_overall_runs_conclusion": "success",
+    "offline_tests": [
+      16,
+      21
+    ],
+    "latest_100_runs_in_progress": 0,
+    "latest_100_runs_queued": 0,
+    "schedule_event_count": 38,
+    "latest_form4_schedule_run": 44716430351,
+    "latest_form144_schedule_run": 44720422923,
+    "form4_reporting_owners_file_present_on_main": false,
+    "workflow_admin_enabled_state_accessible": false,
+    "manual_dispatch_or_rerun": false
+  },
+  "sec_midas": {
+    "official_index": "https://www.sec.gov/data-research/sec-markets-data/marketstructuredata-security",
+    "coverage_start": "2012-01",
+    "coverage_end": "2026-09",
+    "page_last_reviewed": "2026-09-30",
+    "securities_claimed": ">4800",
+    "quarterly_zip_count": 59,
+    "quarter_sequence": "2012Q1-2026Q3 continuous",
+    "vendor_flagged_missing_quarters": [
+      "2014Q2",
+      "2016Q1",
+      "2016Q2",
+      "2016Q3",
+      "2016Q4",
+      "2019Q4"
+    ],
+    "all_vendor_flagged_quarters_listed_on_sec_index": true,
+    "interpretation": "POSSIBLE_VENDOR_INGESTION_GAPS_NOT_OFFICIAL_SOURCE_GAPS",
+    "direct_2014q2_page": "https://www.sec.gov/file/individualsecurity2014q2updated",
+    "actual_zip_payloads_downloaded": false,
+    "zip_integrity_verified": false,
+    "per_quarter_publication_timestamps_verified": false,
+    "frozen_335_universe_coverage_verified": false,
+    "historical_security_identity_verified": false,
+    "decision": "PUBLIC_CATALOG_HISTORY_PASS_PIT_AND_FILE_LEVEL_GATES_PENDING"
+  },
+  "alpha_test_performed": false,
+  "new_signals_admitted": 0,
+  "f80_changed": false
+}
