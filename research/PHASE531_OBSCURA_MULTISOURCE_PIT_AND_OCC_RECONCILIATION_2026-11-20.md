@@ -18,6 +18,7 @@ The latest 100 Actions runs, the schedule-filtered run inventory, explicit in-pr
 - At 17:23 UTC, the 16:47 Form 144 and 17:17 Form 4 slots had passed without a corresponding scheduled run. The 17:47 Form 144 slot was still in the future.
 - The Form 4 workflow on main contains the Phase 525 reporting-owner and crosswalk steps, but the latest live Form 4 run predates Phase 525. The file `research/data/sec_form4_first_seen/reporting_owners.csv` is still absent.
 - The Form 4 run log reports 33 new accession metadata rows, 37 structured transaction rows, 1,213 bounded accessions remaining, and zero research-/signal-eligible rows. The Form 144 run reports 52 feed rows, no new accession, 64 detail rows appended from its bounded backfill, and 358 accessions remaining.
+- After PR #189 was opened, the two triggered offline checks completed successfully: [44783867533](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44783867533) (Phase 460) and [44783866875](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44783866875) (Phase 461). Both had zero artifacts and were not live captures.
 - The latest successful PR checks [44764768726](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44764768726) and [44764768625](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44764768625) are Phase 529 pull-request checks, not live SEC captures.
 - Issue [#185](https://github.com/jafelix81/NuevaEstrategia/issues/185) was updated with this evidence. No manual dispatch, rerun or duplicate poll was made. The repository connector does not expose the administrative enabled/disabled state of each workflow, so that state remains unverified.
 
@@ -73,17 +74,17 @@ Public schema page: https://obscura.trade/datasets/flow-metrics/
 
 Published description:
 - One daily row per symbol/session.
-- 126 columns in the catalog page (the homepage describes approximately 119 derived factors).
+- The dataset-specific page lists 126 columns and approximately 119 derived factors; the homepage worked example says 127 fields. This field-count discrepancy must be resolved against the actual schema before integration.
 - Aggressor-side classification using quote rule with tick-rule fallback.
 - Taker buy/sell volume and counts, order-size composition, price/tick distributions, volatility, impact/slippage, run structure and order-flow imbalance.
 - Refresh cadence advertised as every six hours.
-- Current documentation defines `available_date = date(event_time)`, i.e. the session date.
+- PIT documentation conflicts: the dataset-specific page defines `available_date = date(event_time)` (session date) and says a prior +1-day rule was corrected; the homepage worked example still shows `date(event_time) + 1 calendar day` and describes next-day availability. Treat the formula as unresolved until the vendor confirms the current schema/migration.
 
 Feasibility gaps:
 - Exact earliest history date and date-by-date coverage of the frozen 335-symbol universe are not stated on the public page.
 - Raw source/venue coverage, trade-condition filters, quote staleness/locked-crossed handling, corrections/cancels, odd-lot handling, and the exact aggressor-classification implementation need a technical data dictionary.
 - No independent validation of the vendor's factors or historical revision policy has been performed.
-- A date-only `available_date` does not provide an intraday publication time. Since the factor is a full-session daily aggregate, it must not be used for a same-day closing execution. Until a timestamped availability SLA is evidenced, use the next regular session as the earliest eligible session; for a close-based execution policy, test next-session close, not same-day close.
+- A date-only `available_date` does not provide an intraday publication time. Since the factor is a full-session daily aggregate, it must not be used for a same-day closing execution. Until the conflicting formula and a timestamped availability SLA are evidenced, use the next regular session as the earliest eligible session; for a close-based execution policy, test next-session close, not same-day close.
 
 Interpretation: potentially useful equity order-flow/microstructure data, not options flow and not institutional identity. Large-print buckets must not be labelled institutional without independent evidence. The key hypothesis is whether signed flow adds information beyond LTM/F80 after controlling for momentum, turnover, volatility and return-chasing.
 
@@ -91,7 +92,7 @@ Interpretation: potentially useful equity order-flow/microstructure data, not op
 
 Public schema page: https://obscura.trade/datasets/sec-midas-security-metrics/
 
-The vendor describes daily per-security SEC MIDAS metrics (20 columns) covering market-structure ranks, lit/hidden volume and order/trade measures. The SEC's own [Market Structure Data Downloads](https://www.sec.gov/data-research/market-structure-data) lists individual-security datasets through June 2026; the Data.gov catalog reports a 2012-01-01 to 2026-06-30 period and 58 resources. Obscura says six quarters are absent at source (2014 Q2, all four quarters of 2016, and 2019 Q4); that missing-quarter claim has not been independently reconciled to the archive files.
+The vendor describes daily per-security SEC MIDAS metrics (20 columns) covering market-structure ranks, lit/hidden volume and order/trade measures. The SEC's own [Market Structure Data Downloads](https://www.sec.gov/data-research/market-structure-data) lists individual-security datasets through June 2026; the Data.gov catalog reports a 2012-01-01 to 2026-06-30 period and 58 resources. The specific Data.gov `Metrics by Individual Security` metadata page is stale (dataset last updated 2017-10-30) despite listing a 2026 Q2 resource, so its catalog-level modified date cannot establish per-file release timing. Obscura says six quarters are absent at source (2014 Q2, all four quarters of 2016, and 2019 Q4); that missing-quarter claim has not been independently reconciled to the archive files.
 
 PIT limitation: Obscura's general `available_date` definition is not, by itself, evidence of the first public release day of each SEC quarterly file. The Data.gov metadata's `modified` timestamp is 2024-10-31 even though the resource list includes 2026 Q2, so that metadata field cannot be used as a per-file publication timestamp. The SEC page reports a June 2026 update but does not provide per-quarter release dates in the reviewed page.
 
