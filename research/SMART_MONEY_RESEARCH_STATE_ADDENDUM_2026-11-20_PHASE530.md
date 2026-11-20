@@ -10,3 +10,5 @@
 - ThetaData remains a close conditional alternative (Phase 528) with longer advertised history but unresolved derivative-work, expungement, bulk and non-display conditions. Massive ranks first for a filtered daily-analytics feasibility pilot, not for alpha.
 - Preregistered hypotheses only: IV/skew/term-structure risk state; quote-conditioned signed trade pressure; OI as non-directional confirmation; implied-versus-realized volatility risk premium. No data, backtest, OOS, bootstrap, LOO or holdout test occurred.
 - No signal admitted. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen. No account, API key, purchase, vendor contact, sample or workflow changes.
+
+- Follow-up at 2026-11-20 16:20 UTC: the 16:17 UTC Form 4 scheduled slot still had no run; schedule inventory remained at 38 events, latest Form 4 44716430351 and Form 144 44720422923. Updated existing Issue #185 with this evidence. No manual dispatch/rerun was made; the 16:47 UTC Form 144 slot was still in the future.
