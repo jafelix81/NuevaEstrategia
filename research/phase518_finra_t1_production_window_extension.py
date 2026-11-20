@@ -714,7 +714,7 @@ def autocorrelation(rows, lag):
     return {"n_pairs": len(pairs), "correlation": round(corr, 6) if corr is not None else None}
 
 
-def build_sample_diagnostics(rows):
+def build_sample_diagnostics(rows, as_of_date):
     nyse = mcal.get_calendar("NYSE")
     start = date.fromisoformat(rows[0]["first_eligible_nyse_session"])
     end = date.fromisoformat(rows[-1]["first_eligible_nyse_session"]) + timedelta(days=180)
@@ -725,10 +725,12 @@ def build_sample_diagnostics(rows):
         if entry not in sessions:
             raise RuntimeError(f"Entry date is not an NYSE session: {entry}")
         pos = bisect_left(sessions, entry)
-        if pos + 19 >= len(sessions):
-            row["outcome_maturity_date_20s"] = None
-        else:
-            row["outcome_maturity_date_20s"] = sessions[pos + 19].isoformat()
+        for horizon in (5, 10, 20):
+            maturity_key = f"outcome_maturity_date_{horizon}s"
+            if pos + horizon - 1 >= len(sessions):
+                row[maturity_key] = None
+            else:
+                row[maturity_key] = sessions[pos + horizon - 1].isoformat()
 
     strict_count = sensitivity_count = strict_high = sensitivity_high = 0
     for i, row in enumerate(rows):
@@ -751,6 +753,8 @@ def build_sample_diagnostics(rows):
             and float(x["share_coverage_pct"]) >= COVERAGE_FLOOR
             and x.get("hhi_mean") is not None
             and x.get("date_level_clock_valid", True)
+            and x.get("symbol_bridge_gate", "PASS") == "PASS"
+            and int(x.get("revision_stable_concentration_symbols", 1) or 0) > 0
         ]
         if not current_ok:
             continue
@@ -767,27 +771,47 @@ def build_sample_diagnostics(rows):
             if rank >= HIGH_RANK:
                 strict_high += 1
 
-    valid = [
-        row for row in rows
-        if row.get("rank_hhi_48of52") is not None
-        and row.get("outcome_maturity_date_20s") is not None
-    ]
-    evaluation_start = None
-    training_count_at_start = 0
-    for j, current in enumerate(valid):
-        current_entry = parse_date(current["first_eligible_nyse_session"])
-        matured_prior = [
-            prior for prior in valid[:j]
-            if parse_date(prior["outcome_maturity_date_20s"]) < current_entry
+    horizon_plans = {}
+    for horizon in (5, 10, 20):
+        maturity_key = f"outcome_maturity_date_{horizon}s"
+        valid = [
+            row for row in rows
+            if row.get("rank_hhi_48of52") is not None
+            and row.get(maturity_key) is not None
+            and parse_date(row[maturity_key]) <= as_of_date
         ]
-        if len(matured_prior) >= MIN_TRAIN:
-            evaluation_start = j
-            training_count_at_start = len(matured_prior)
-            break
-    evaluation = valid[evaluation_start:] if evaluation_start is not None else []
-    high = sum(float(row["rank_hhi_48of52"]) >= HIGH_RANK for row in evaluation)
-    nonhigh = len(evaluation) - high
+        evaluation_start = None
+        training_count_at_start = 0
+        for j, current in enumerate(valid):
+            current_entry = parse_date(current["first_eligible_nyse_session"])
+            matured_prior = [
+                prior for prior in valid[:j]
+                if parse_date(prior[maturity_key]) < current_entry
+            ]
+            if len(matured_prior) >= MIN_TRAIN:
+                evaluation_start = j
+                training_count_at_start = len(matured_prior)
+                break
+        evaluation = valid[evaluation_start:] if evaluation_start is not None else []
+        high = sum(float(row["rank_hhi_48of52"]) >= HIGH_RANK for row in evaluation)
+        nonhigh = len(evaluation) - high
+        horizon_plans[str(horizon)] = {
+            "outcome_horizon_sessions": horizon,
+            "matured_feature_observations": len(valid),
+            "minimum_mature_training_observations": MIN_TRAIN,
+            "evaluation_observations": len(evaluation),
+            "evaluation_high": high,
+            "evaluation_nonhigh": nonhigh,
+            "evaluation_start_week": evaluation[0]["week_start_date"] if evaluation else None,
+            "training_mature_count_at_start": training_count_at_start,
+            "minimum_evaluation_observations": MIN_EVAL,
+            "minimum_high": MIN_HIGH,
+            "minimum_nonhigh": MIN_NONHIGH,
+            "sample_gate_pass": len(evaluation) >= MIN_EVAL and high >= MIN_HIGH and nonhigh >= MIN_NONHIGH,
+            "warning": "Sample feasibility only. No returns, labels, model fitting, alpha, OOS, bootstrap or LOO were run.",
+        }
     return {
+        "as_of_date_utc": as_of_date.isoformat(),
         "coverage_floor_pct": COVERAGE_FLOOR,
         "rolling_reference_weeks": LOOKBACK,
         "strict_52_of_52": {
@@ -801,19 +825,7 @@ def build_sample_diagnostics(rows):
             "nonhigh": sensitivity_count - sensitivity_high,
             "warning": "48/52 and the 80th-percentile cut are feasibility sensitivities only, not a preregistered or admitted signal definition",
         },
-        "chronological_sample_plan": {
-            "minimum_mature_training_observations": MIN_TRAIN,
-            "evaluation_observations": len(evaluation),
-            "evaluation_high": high,
-            "evaluation_nonhigh": nonhigh,
-            "evaluation_start_week": evaluation[0]["week_start_date"] if evaluation else None,
-            "training_mature_count_at_start": training_count_at_start,
-            "minimum_evaluation_observations": MIN_EVAL,
-            "minimum_high": MIN_HIGH,
-            "minimum_nonhigh": MIN_NONHIGH,
-            "sample_gate_pass": len(evaluation) >= MIN_EVAL and high >= MIN_HIGH and nonhigh >= MIN_NONHIGH,
-            "warning": "Sample feasibility only. No returns, labels, model fitting, alpha, OOS, bootstrap or LOO were run.",
-        },
+        "chronological_sample_plan_by_horizon": horizon_plans,
         "hhi_autocorrelation": {
             "lag1": autocorrelation(rows, 1),
             "lag4": autocorrelation(rows, 4),
