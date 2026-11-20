@@ -86,12 +86,17 @@ Therefore:
 | Security identity | Surface rows key by underlying symbol; no effective-dated CUSIP/FIGI crosswalk in this product | Fail closed |
 | Historical first-delivery vintages | Not documented | Fail closed for strict historical PIT |
 | Corrections/replacements | No complete product-specific vintage policy verified | Fail closed pending vendor confirmation |
-| Current price / internal business-use rights | Purchase flow includes an Internal Usage selector, but no price/terms quote was obtained | Human/vendor authorization required |
+| Current price / internal business-use rights | No price quote; standard DataShop license reviewed | Human/legal authorization required |
+| Use in creating an investment strategy or indicator | Standard DataShop License Agreement prohibits this unless a separate written and executed agreement expressly permits it | **Blocked pending written carve-out** |
 | Sample | Product page exposes a sample link; the web retrieval interface rejected the ZIP content type, so no sample bytes/schema execution were obtained | Not sample-validated |
 
 No purchase, vendor contact, sample-byte acquisition, credential creation or automated collector was attempted. Do not infer that an advertised history start equals complete symbol coverage or that a public sample grants commercial-use rights.
 
-Before any purchase, obtain written confirmation of internal business/research use, storage/retention of raw and derived data, permitted model use, and any redistribution restrictions. No cost is assumed in this audit.
+### Critical standard-license restriction
+
+The currently published [Cboe LiveVol DataShop License Agreement](https://datashop.cboe.com/documents/Cboe_LiveVol_DataShop_License_Agreement.pdf) contains a material restriction in Section I.1(e)(viii): unless explicitly provided for in a separate written and executed agreement with Cboe and/or its affiliates, the subscriber may not use the Data (or related methodology) in connection with creating any index, indicator, benchmark, investment strategy or similar value, whether as an input or otherwise. This directly affects the proposed quantitative-strategy research; ordinary internal-use selection on the purchase page must not be assumed to override that clause.
+
+**Legal-use disposition: blocked under the published standard terms.** Before any sample/order/subscription or strategy research, obtain a separate written and executed agreement that expressly authorizes the intended investment-strategy/indicator research and model-development use, and confirm data-supplier permissions, internal users, raw/derived retention, and any distribution restrictions. No such carve-out has been requested or obtained. No price is assumed.
 
 ## 6. Research role and preregistered hypotheses
 
@@ -112,7 +117,7 @@ All rolling baselines must use prior observations only. Distinguish repricing th
 1. Obtain a lawful sample or small authorized order covering old/new dates, liquid and less-liquid F80 names, and inactive/acquired cases where available; preserve the vendor's excluded-symbol/date list.
 2. Reconcile symbol/date coverage against the effective-dated F80 universe and a separate historical security master; unknown identity remains unknown.
 3. Validate all four CSV schemas, timestamps, confidence codes, missing/zero semantics, duplicate keys and corporate-action/adjusted-contract behavior.
-4. Obtain written internal-use/license terms and a price quote before any order or subscription.
+4. Obtain a separate written and executed agreement expressly carving out investment-strategy/indicator/model-development use from Section I.1(e)(viii), plus applicable data-supplier permissions, internal-use/retention terms and a price quote, before any sample/order or subscription.
 5. Start a prospective first-receipt ledger before treating subscription files as tradable.
 6. Only after those gates pass, compare a small preregistered set of surface features against frozen LTM/F80 with identical universe, exposure, turnover and costs; use chronological discovery/validation/OOS, block bootstrap, LOO, multiple-testing control and the untouched holdout.
 
