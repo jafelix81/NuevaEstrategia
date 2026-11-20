@@ -451,7 +451,7 @@ def build_detail_rows(event: dict, metadata: dict, parsed: dict | None, parse_er
         for transaction in parsed["transaction_rows"]:
             payload = {"detail_type": "transaction_row", **common, **transaction}
             payload["detail_row_key"] = hashlib.sha256(
-                f"{accession}|{transaction['table_type']}|{transaction['row_index']}|{transaction['transaction_fingerprint']}".encode("utf-8")
+                f"{accession}|{PARSER_VERSION}|{transaction['table_type']}|{transaction['row_index']}|{transaction['transaction_fingerprint']}".encode("utf-8")
             ).hexdigest()
             rows.append(payload)
 
@@ -485,6 +485,7 @@ def read_completed_accessions(path: Path) -> set[str]:
             for row in reader
             if row.get("detail_type") == "filing_header"
             and row.get("parse_status") in {"parsed", "parse_error"}
+            and row.get("parser_version") == PARSER_VERSION
             and row.get("accession")
         }
 
