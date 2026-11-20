@@ -510,6 +510,9 @@ def audit_current_inventory(session):
             "publication_lag_days": part["publication_lag_days"],
             "date_level_clock_valid": part["date_level_clock_valid"],
             "first_eligible_nyse_session": entry.isoformat() if entry else None,
+            "top1_share_mean": part["top1_share_mean"],
+            "top3_share_mean": part["top3_share_mean"],
+            "participant_count_mean": part["participant_count_mean"],
             "symbol_bridge_gate": part["symbol_bridge_gate"],
             "aggregate_symbols": part["aggregate_symbols"],
             "firm_symbols": part["firm_symbols"],
@@ -611,8 +614,10 @@ def fetch_current(session, after_week, historical):
         rows, total, pages = fetch_week(session, week)
         part = analyze_week(rows, week, total, pages)
         old = historical_map[week]
+        entry = next_nyse_session(pub, sessions) if pub and part["date_level_clock_valid"] else None
         checks = {
             "publication_date": part["initial_published_date"] == old["initial_published_date"],
+            "first_eligible_session": entry is not None and entry.isoformat() == old["first_eligible_nyse_session"],
             "share_coverage": (
                 old.get("share_coverage_pct") is not None
                 and part.get("share_coverage_pct") is not None
@@ -668,6 +673,7 @@ def fetch_current(session, after_week, historical):
         "inventory_total_t1_weeks": len(all_weeks),
         "inventory_first_t1_week": all_weeks[0],
         "inventory_last_t1_week": all_weeks[-1],
+        "historical_overlap_week_count": sum(week <= after_week for week in all_weeks),
         "incremental_weeks_count": len(output),
         "incremental_first_week": output[0]["week_start_date"],
         "incremental_last_week": output[-1]["week_start_date"],
@@ -924,7 +930,7 @@ def main():
             "signal_admitted": False,
         }, indent=2), flush=True)
         return
-    current_result = fetch_current(session)
+    current_result = fetch_current(session, after_week=historical[-1]["week_start_date"], historical=historical)
     combined, reconciliation = combine_history(historical, current_result["weeks"])
     if not reconciliation["inventory"]["consecutive"]:
         raise RuntimeError(
@@ -934,7 +940,7 @@ def main():
     if reconciliation["overlap_conflicts"]:
         raise RuntimeError(f"Historic/production overlap conflicts: {reconciliation['overlap_conflicts']}")
 
-    diagnostics = build_sample_diagnostics(combined)
+    diagnostics = build_sample_diagnostics(combined, datetime.now(timezone.utc).date())
     summary = {
         "phase": 518,
         "audit_timestamp_utc": datetime.now(timezone.utc).isoformat(),
@@ -951,17 +957,27 @@ def main():
             "dataset": DATASET,
             "status": current_result["metadata_status"],
             "partition_fields": current_result["partition_fields"],
-            "weeks_retrieved": len(current_result["weeks"]),
-            "first_week": current_result["weeks"][0]["week_start_date"] if current_result["weeks"] else None,
-            "last_week": current_result["weeks"][-1]["week_start_date"] if current_result["weeks"] else None,
-            "all_pages_reconciled": all(row["retrieval_count_match"] for row in current_result["weeks"]),
-            "all_date_level_clocks_valid": all(row["date_level_clock_valid"] for row in current_result["weeks"]),
-            "all_symbol_bridges_pass": all(row["symbol_bridge_gate"] == "PASS" for row in current_result["weeks"]),
+            "observed_t1_inventory_weeks": current_result["inventory_total_t1_weeks"],
+            "observed_t1_first_week": current_result["inventory_first_t1_week"],
+            "observed_t1_last_week": current_result["inventory_last_t1_week"],
+            "historical_overlap_week_count": current_result["historical_overlap_week_count"],
+            "incremental_weeks_retrieved": current_result["incremental_weeks_count"],
+            "first_incremental_week": current_result["incremental_first_week"],
+            "last_incremental_week": current_result["incremental_last_week"],
+            "all_pages_reconciled": current_result["all_incremental_pages_reconciled"],
+            "all_date_level_clocks_valid": current_result["all_incremental_date_level_clocks_valid"],
+            "all_symbol_bridges_pass": current_result["all_incremental_symbol_bridges_pass"],
+            "overlap_sample_validation": current_result["overlap_validation"],
+            "documentation_discrepancy": "The official page describes weeklySummary as rolling 12 months, while the live partition API returned 256 T1 weeks; sample queries from 2021 and 2024 returned valid records. The historical endpoint remains the frozen PIT source for dates through the historical cutoff.",
         },
-        "combined_history": reconciliation,
+        "combined_history": {
+            **reconciliation,
+            "overlap_sample_validation": current_result["overlap_validation"],
+        },
         "sample_diagnostics": diagnostics,
         "interpretation": {
             "proxy": "equal-weighted cross-sectional concentration of FINRA ATS reporting participants by symbol-week",
+            "economic_interpretation": "Market-structure/reporting-participant concentration; not a direct smart-money or beneficial-owner measure",
             "not": [
                 "beneficial-owner identity",
                 "institutional ownership",
@@ -992,7 +1008,8 @@ def main():
         "share_coverage_pct", "symbol_coverage_pct", "hhi_mean", "hhi_median", "hhi_p90",
         "top1_share_mean", "top1_share_median", "top3_share_mean",
         "participant_count_mean", "stable_unique_participant_keys",
-        "rank_hhi_52of52", "rank_hhi_48of52", "outcome_maturity_date_20s",
+        "rank_hhi_52of52", "rank_hhi_48of52",
+        "outcome_maturity_date_5s", "outcome_maturity_date_10s", "outcome_maturity_date_20s",
     ]
     with open(output_dir / "combined_weekly.csv", "w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=columns, extrasaction="ignore")
@@ -1007,10 +1024,7 @@ def main():
         "consecutive": reconciliation["inventory"]["consecutive"],
         "strict_52of52_valid": diagnostics["strict_52_of_52"]["valid_observations"],
         "sensitivity_48of52_valid": diagnostics["exploratory_48_of_52_sensitivity"]["valid_observations"],
-        "evaluation_observations": diagnostics["chronological_sample_plan"]["evaluation_observations"],
-        "evaluation_high": diagnostics["chronological_sample_plan"]["evaluation_high"],
-        "evaluation_nonhigh": diagnostics["chronological_sample_plan"]["evaluation_nonhigh"],
-        "sample_gate_pass": diagnostics["chronological_sample_plan"]["sample_gate_pass"],
+        "sample_plans_by_horizon": diagnostics["chronological_sample_plan_by_horizon"],
         "signal_admitted": False,
     }, indent=2), flush=True)
 
