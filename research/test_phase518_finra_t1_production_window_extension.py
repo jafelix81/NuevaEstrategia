@@ -3,6 +3,7 @@ from datetime import date
 
 from research.phase518_finra_t1_production_window_extension import (
     analyze_week,
+    first_eligible_session_for_part,
     next_nyse_session,
     parse_partitions,
     parse_int,
@@ -100,6 +101,34 @@ class Phase518Tests(unittest.TestCase):
             next_nyse_session(date(2026, 1, 26), sessions),
             date(2026, 1, 27),
         )
+
+    def test_overlap_first_session_uses_each_part_publication_date(self):
+        sessions = [
+            date(2021, 12, 28),
+            date(2024, 6, 11),
+            date(2026, 11, 17),
+        ]
+        old_overlap = {
+            "initial_published_date": "2021-12-27",
+            "date_level_clock_valid": True,
+        }
+        recent_overlap = {
+            "initial_published_date": "2024-06-10",
+            "date_level_clock_valid": True,
+        }
+        invalid_overlap = {
+            "initial_published_date": "2024-06-10",
+            "date_level_clock_valid": False,
+        }
+        self.assertEqual(
+            first_eligible_session_for_part(old_overlap, sessions),
+            date(2021, 12, 28),
+        )
+        self.assertEqual(
+            first_eligible_session_for_part(recent_overlap, sessions),
+            date(2024, 6, 11),
+        )
+        self.assertIsNone(first_eligible_session_for_part(invalid_overlap, sessions))
 
 
 if __name__ == "__main__":
