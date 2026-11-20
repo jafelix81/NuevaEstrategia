@@ -1,3 +1,21 @@
+# Current Smart Money Research Snapshot — 2026-11-20 (Phase 529)
+
+- `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen. No new signal, return/alpha test, OOS, bootstrap, LOO, holdout or production change has been admitted.
+- **SEC Form 4/Form 144 operational blocker:** latest scheduled runs remain Form 4 [44716430351](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44716430351) at 10:06:51 UTC and Form 144 [44720422923](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44720422923) at 10:34:45 UTC, both before Phase 525 merge. No later schedule run appears in the latest schedule-filtered census. Main includes Phase 525 owner-enrichment/crosswalk code, but `reporting_owners.csv` remains absent. Issue [#185](https://github.com/jafelix81/NuevaEstrategia/issues/185) records the missed schedule slots; human verification of workflow enablement is required. Do not dispatch duplicate polls.
+- SEC Form 4/Form 144 remain descriptive-only until a post-Phase-525 scheduled capture writes the owner sidecar and crosswalk. First-seen polling clocks remain interval-censored; do not backdate to nominal cron slots.
+- SEC 13D/G parent retrieval [PR #37](https://github.com/jafelix81/NuevaEstrategia/pull/37) remains blocked by the monitored-contact `SEC_USER_AGENT` Actions secret. No retry until the repository owner configures it.
+- FINRA Reg SHO post-Phase-515 live validation remains pending. FINRA Consolidated Short Interest [PR #159](https://github.com/jafelix81/NuevaEstrategia/pull/159) needs authorized credentials and terms before a one-settlement validation.
+- FINRA T1 aggregate weekly HHI is killed for insufficient chronological sample; the symbol-week panel is deferred pending historical identity and survivorship-aware returns.
+- CFTC TFF remains prospective only; latest [44668300202](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44668300202) retained 3,039 rows with no new report/revision. Retrospective archive `Updated` timestamps remain ineligible as PIT.
+- SEC 13F broad-universe ownership change remains parked for effective-dated identity/coverage. The specified N-PORT share-growth signal remains killed.
+- Options research: ThetaData is a conditional trade/quote/OI/IV candidate only; written internal-research, non-display/OPRA, derived-work retention, historical-vintage, inactive-universe coverage and bulk-cost gates remain unresolved. Cboe DataShop strategy research requires a separate executed license carve-out. No vendor data were acquired.
+- Latest research audit: [Phase 529](research/PHASE529_SEC_SCHEDULED_CAPTURE_GAP_AND_SMART_MONEY_OPERATIONAL_PREFLIGHT_2026-11-20.md). Phase 528 remains draft [PR #186](https://github.com/jafelix81/NuevaEstrategia/pull/186).
+- No universe, parameters, exposure, costs, capital, holdout or production changes. No new backtest, event study, OOS, bootstrap or LOO test.
+
+---
+
+## Historical research log
+
 # Current Smart Money Research State — 2026-11-20 (Phases 518, 521 and 522)
 
 ## Current disposition
