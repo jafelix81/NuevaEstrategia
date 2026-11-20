@@ -1,0 +1,61 @@
+name: Phase 521 FINRA T1 historical symbol-domain filter probe
+
+on:
+  push:
+    branches:
+      - phase521-finra-t1-symbol-domain-filter-probe
+    paths:
+      - research/phase521_finra_t1_symbol_domain_filter_probe.py
+      - research/test_phase521_finra_t1_symbol_domain_filter_probe.py
+      - .github/workflows/phase521_finra_t1_symbol_domain_filter_probe.yml
+  pull_request:
+    paths:
+      - research/phase521_finra_t1_symbol_domain_filter_probe.py
+      - research/test_phase521_finra_t1_symbol_domain_filter_probe.py
+      - .github/workflows/phase521_finra_t1_symbol_domain_filter_probe.yml
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: phase521-finra-t1-symbol-domain-filter-probe
+  cancel-in-progress: false
+
+jobs:
+  offline-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: python -m pip install --upgrade requests
+      - name: Run offline regression tests
+        run: python -m unittest research.test_phase521_finra_t1_symbol_domain_filter_probe -v
+
+  live-probe:
+    if: github.event_name != 'pull_request'
+    needs: offline-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: python -m pip install --upgrade requests
+      - name: Probe historical FINRA symbol-domain filtering
+        env:
+          FINRA_API_TOKEN: ${{ secrets.FINRA_API_TOKEN }}
+        run: python research/phase521_finra_t1_symbol_domain_filter_probe.py --output phase521_output
+      - name: Upload aggregate-only probe artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase521-finra-t1-symbol-domain-filter-probe
+          path: phase521_output/
+          if-no-files-found: warn
+          retention-days: 90

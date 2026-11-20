@@ -1,0 +1,28 @@
+{
+  "phase": 521,
+  "audit_timestamp_utc": "2026-11-20T09:31:35.395385Z",
+  "run_id": 44711398973,
+  "artifact_id": 14617172938,
+  "dataset": "otcmarket/weeklySummaryHistoric",
+  "week": "2024-05-20",
+  "requested_symbol_count": 10,
+  "requested_symbol_manifest_sha256": "5065868f0a7654b4a2941245a87d3aa07c9b8cca8282fb6d15baf3d656149265",
+  "http_status": 400,
+  "probe_status": "DOMAIN_FILTER_REJECTED_BY_HISTORICAL_ENDPOINT",
+  "domain_filter_supported": false,
+  "rows_returned": 0,
+  "research_observation_eligible_count": 0,
+  "signal_eligible_count": 0,
+  "next_gate": "test issueSymbolIdentifier EQUAL compareFilter with the same 10-symbol manifest, one request per symbol, one historical week",
+  "authorization": {
+    "returns": false,
+    "alpha": false,
+    "oos": false,
+    "bootstrap": false,
+    "loo": false,
+    "holdout": false,
+    "signal_admitted": false,
+    "f80_changed": false,
+    "production_changed": false
+  }
+}

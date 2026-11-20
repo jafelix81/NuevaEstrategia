@@ -1,3 +1,25 @@
+# Current Smart Money Research State — 2026-11-20 (Phases 518 and 521)
+
+## Current disposition
+
+- **F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.** No new signal, return/alpha test, OOS, bootstrap, LOO, holdout or production change has been admitted in Phases 518–522.
+- **FINRA T1 aggregate weekly HHI path: killed for insufficient chronological sample.** Phase 518 validated 259 consecutive weekly observations (2021-11-15 to 2026-10-26), 50 new production weeks and both overlap clocks, but evaluation samples for the 5/10/20-session maturity diagnostics were only 137/136/132 versus the predeclared minimum of 150; high counts were 26/26/24 versus 30. No thresholds were relaxed.
+- **FINRA T1 symbol-week panel: deferred, not yet killed.** Phase 375 counted 432,804 revision-stable symbol-week groups, but its artifact retained only weekly aggregates. Phase 521 showed that `weeklySummaryHistoric` rejects `domainFilters`. A follow-on one-request `issueSymbolIdentifier = EQUAL` probe in PR #177 also returned HTTP 400; FINRA's official docs state that the historic dataset permits only one time partition filter plus optional `tierIdentifier`, with no other filterable fields. A symbol panel would require a one-time full-partition extraction and in-memory filtering. Defer that work until PIT identity, historical active-universe and survivorship-aware return sources are resolved.
+- **FINRA Reg SHO:** Phase 515 parser fix passed 59/59 offline tests, but the latest live run [44669121290](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44669121290) predates the merge and still had 8/8 invalid files. Post-merge live validation remains pending.
+- **SEC Form 4:** latest scheduled run [44656159115](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44656159115) captured 457 new accessions; ten-document structured backfill appended 22 detail rows, 1,190 remain. Public-availability/identity/owner-attribution gates keep signal eligibility at zero.
+- **SEC Form 144:** latest scheduled run [44662324343](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44662324343) captured 70 events and appended 542 structured detail rows; ledger total 80 accessions / 596 rows, 368 remain. Proposed sales, prior sales, 10b5-1 adoption and termination semantics are not execution evidence; signal eligibility remains zero.
+- **CFTC TFF:** latest prospective capture [44668300202](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44668300202) contains 3,039 rows (852 each for Dow, E-mini S&P and Nasdaq Mini; 483 Russell) and no new report/revision. Historical `Updated` is not a defensible PIT availability clock.
+- **Options research remains the higher-priority conditional Smart Money line:** Phase 373 ranks OptionMetrics IvyDB TradeFlow as the primary all-U.S.-options signed-flow candidate, Cboe Option Trades as independent OPRA trade/NBBO validation, and Cboe Open-Close EOD as complementary capacity × side × open/close data. All remain blocked by licensing, historical-vintage/first-receipt PIT and coverage gates. No vendor purchase, trial or contact was made.
+- **Databento Security Master** is the strongest documented historical identity candidate, but no subscription/API key/sample was acquired. Pre-2026-12-10 production `listing_status` is not historical PIT; use the preview gateway for any authorized pre-cutover pilot and preserve both `ts_effective` and `ts_record`.
+
+## Latest phase records
+
+- Phase 518: [final disposition](research/PHASE518_FINRA_T1_PRODUCTION_WINDOW_EXTENSION_FINAL_DISPOSITION_2026-11-20.md) · [summary](research/PHASE518_FINRA_T1_PRODUCTION_WINDOW_EXTENSION_SUMMARY_2026-11-20.json) · [PR #175](https://github.com/jafelix81/NuevaEstrategia/pull/175).
+- Phase 521: [domain-filter probe](research/PHASE521_FINRA_HISTORICAL_SYMBOL_DOMAIN_FILTER_PROBE_2026-11-20.md) · [summary](research/PHASE521_FINRA_HISTORICAL_SYMBOL_DOMAIN_FILTER_PROBE_SUMMARY_2026-11-20.json) · [PR #176](https://github.com/jafelix81/NuevaEstrategia/pull/176).
+- Phase 522 follow-on: [PR #177](https://github.com/jafelix81/NuevaEstrategia/pull/177) tests the historical symbol-equality filter; its report is in that stacked PR.
+
+---
+
 ## Phase 461 — SEC Ownership v5.5 schema owner-link audit (2026-11-17)
 
 - Main HEAD at preflight: `f7c24f7203fd4fe07be93fe106fa62261d091b31` (Phase 460 merged as PR #121). Actions total 7,703; explicit in-progress and queued queries both returned 0; branches 293; open PRs 56; workflow files 74.
