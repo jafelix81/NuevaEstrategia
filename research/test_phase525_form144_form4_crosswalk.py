@@ -26,6 +26,13 @@ class Phase525CrosswalkTests(unittest.TestCase):
         self.assertEqual(proposed["economic_context_class"], "EXERCISE_OR_TAX_CONTEXT_MENTIONED")
         self.assertFalse(proposed["signal_eligible"])
 
+    def test_form144a_is_not_counted_as_a_new_proposed_sale(self):
+        f144, f4, owners = fixtures()
+        f144[0]["form"] = "144/A"
+        rows, summary = build_crosswalk(f144, f4, owners)
+        self.assertEqual(summary["matched_proposed_sales"], 0)
+        self.assertEqual(summary["matched_prior_sales"], 1)
+
     def test_multi_owner_filing_is_quarantined(self):
         f144, f4, owners = fixtures("2", "MULTI_OWNER_FILING_GRAIN_ONLY_NO_LINE_LINK")
         rows, summary = build_crosswalk(f144, f4, owners)
