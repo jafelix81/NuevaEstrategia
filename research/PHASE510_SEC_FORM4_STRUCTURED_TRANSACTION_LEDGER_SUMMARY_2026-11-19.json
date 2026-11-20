@@ -20,7 +20,8 @@
     "owner_attribution": "filing_grain_only_single_owner; multi-owner rows quarantined",
     "amendment_policy": "Form 4/A is an information arrival, not automatically a new economic trade",
     "p_code_policy": "Preserve P/A without asserting confirmed exchange execution",
-    "strict_event_clock_validation": true
+    "strict_event_clock_validation": true,
+    "parser_version_aware_append": true
   },
   "controls": {
     "research_observation_eligible": false,
@@ -35,8 +36,12 @@
     "production_changed": false
   },
   "validation": {
-    "synthetic_tests": 10,
-    "live_validation": "PENDING_FIRST_POST_MERGE_SCHEDULED_PHASE476_RUN"
+    "synthetic_tests": 11,
+    "live_validation": "PENDING_FIRST_POST_MERGE_SCHEDULED_PHASE476_RUN",
+    "ci_tests_total": 50,
+    "ci_run_id": 44642337001,
+    "ci_conclusion": "success",
+    "live_capture": "skipped_by_design_in_pull_request"
   },
   "prior_evidence": {
     "phase497_accessions_retrieved": 637,
