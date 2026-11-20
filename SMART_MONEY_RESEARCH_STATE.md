@@ -1495,3 +1495,9 @@ This section supersedes any older “in progress” status above where later com
 - No account, trial, purchase, API key, API request or raw download. Next gate is an authorized one-shot 335-symbol pilot with aggregate-only output after `DATABENTO_API_KEY` and terms are confirmed. No alpha/OOS/returns test; F80 baseline remains frozen.
 - Report: [Phase 520](research/PHASE520_DATABENTO_SECURITY_MASTER_PIT_IDENTITY_FEASIBILITY_2026-11-20.md) · [summary](research/PHASE520_DATABENTO_SECURITY_MASTER_PIT_IDENTITY_FEASIBILITY_SUMMARY_2026-11-20.json).
 - Official sources: https://databento.com/security-master · https://databento.com/docs/api-reference-data/security-master?lang=python · https://databento.com/docs/datasets/security-master · https://indexes.morningstar.com/research-data-products/crsp-us-stock-databases.
+ 
+### Phase 520 vendor update — Databento Reference API migration (2026-11-20)
+
+- Databento's 2026-11-10 announcement says production `listing_status` currently repeats the latest status across historical rows; it is not safe for historical as-of status before the 2026-12-10 cutover. The preview gateway `hist-preview.databento.com` has corrected period-specific status now. Pilot on preview, version the gateway, and compare production after Dec 10.
+- `nasdaq_symbol` formatting for some NYSE class/suffix securities changes; use stable identifiers/CUSIP/FIGI for joins. Product-page coverage counts also differ (860,000+ headline versus 310,000+ listed/delisted body count); clarify with vendor.
+- Source: https://databento.com/blog/reference-api-changes-2026-11.
