@@ -410,6 +410,13 @@ def next_nyse_session(publication_date, session_dates):
         raise RuntimeError("NYSE calendar does not extend beyond publication date")
     return session_dates[position]
 
+def first_eligible_session(part, session_dates):
+    """Return the first NYSE session strictly after this row's own publication date."""
+    publication_date = parse_date(part.get("initial_published_date"))
+    if publication_date is None or not part.get("date_level_clock_valid"):
+        return None
+    return next_nyse_session(publication_date, session_dates)
+
 
 def load_historical(summary_path, clock_summary_path, clock_csv_path):
     summary = json.loads(Path(summary_path).read_text(encoding="utf-8"))
@@ -594,10 +601,9 @@ def fetch_current(session, after_week, historical):
         part = analyze_week(rows, week, total, pages)
         if not part["retrieval_count_match"]:
             raise RuntimeError(f"Current T1 Record-Total mismatch: {week}")
-        pub = parse_date(part["initial_published_date"])
-        if not part["date_level_clock_valid"] or pub is None:
+        entry = first_eligible_session(part, sessions)
+        if entry is None:
             raise RuntimeError(f"Current T1 week has no single schedule-consistent publication date: {week}")
-        entry = next_nyse_session(pub, sessions)
         part["first_eligible_nyse_session"] = entry.isoformat()
         part["source_window"] = "weeklySummary"
         output.append(part)
@@ -614,7 +620,7 @@ def fetch_current(session, after_week, historical):
         rows, total, pages = fetch_week(session, week)
         part = analyze_week(rows, week, total, pages)
         old = historical_map[week]
-        entry = next_nyse_session(pub, sessions) if pub and part["date_level_clock_valid"] else None
+        entry = first_eligible_session(part, sessions)
         checks = {
             "publication_date": part["initial_published_date"] == old["initial_published_date"],
             "first_eligible_session": entry is not None and entry.isoformat() == old["first_eligible_nyse_session"],
