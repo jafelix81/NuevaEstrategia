@@ -3,7 +3,7 @@
   "date": "2026-11-20",
   "main_head_preflight": "88edc94d6a960668361142774f964108d8ae399d",
   "source": "Cboe DataShop Volatility Surfaces",
-  "disposition": "CONDITIONAL_HISTORICAL_IV_AND_RISK_STATE_CANDIDATE_NOT_STRICT_PIT_OR_ALPHA_ADMITTED",
+  "disposition": "CONDITIONAL_VOLATILITY_RISK_STATE_CANDIDATE; STRATEGY_USE_BLOCKED_PENDING_SEPARATE_WRITTEN_EXECUTED_CARVEOUT; NOT_STRICT_PIT_OR_ALPHA_ADMITTED",
   "advertised_history_start": "2011-08",
   "product_page_currently_orderable": true,
   "snapshots_et": [
@@ -57,7 +57,12 @@
     "purchase_made": false,
     "sample_link_visible": true,
     "sample_bytes_obtained": false,
-    "sample_retrieval_note": "Web retrieval rejected the ZIP content type; no bytes were inspected."
+    "sample_retrieval_note": "Web retrieval rejected the ZIP content type; no bytes were inspected.",
+    "standard_license_agreement_reviewed": true,
+    "standard_license_strategy_use_restriction": "Section I.1(e)(viii) prohibits using Data or related methodology to create an index, indicator, benchmark, investment strategy or similar value unless expressly permitted by a separate written and executed agreement with Cboe and/or affiliates.",
+    "separate_written_strategy_use_carveout_obtained": false,
+    "strategy_research_authorized": false,
+    "internal_usage_selector_override_verified": false
   },
   "research_role": "volatility_surface_and_risk_state; not participant identity or signed smart-money flow",
   "hypotheses": [
