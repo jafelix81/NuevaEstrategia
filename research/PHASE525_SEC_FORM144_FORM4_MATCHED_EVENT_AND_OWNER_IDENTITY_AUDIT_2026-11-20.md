@@ -24,7 +24,7 @@ The Form 4 live run had already completed before this phase began. No manual cap
 
 ## Cross-source audit of committed data
 
-The current detail sample contains 90 Form 144 proposed-sale rows across 71 issuer CIKs and 39 Form 4 transaction rows across 16 issuer CIKs. Only one issuer CIK overlaps in the two structured samples (Atea Pharmaceuticals, CIK 0001593899). Within that issuer there were 14 issuer-level row comparisons, eight same-date pairs and two exact proposed-sale matches on date and share quantity. These counts are descriptive of the bounded, newest-first parser samples, not population coverage.
+The current detail sample contains 90 proposed-sale rows (89 original Form 144 and one Form 144/A amendment row) and 288 prior-sale-history rows (283 original Form 144 and five Form 144/A rows), across 71 issuer CIKs. The crosswalk excludes all eight Form 144/A detail rows until amendment chains are reconciled, leaving 89 proposed-sale and 283 prior-sale rows considered. The Form 4 sample contains 39 transaction rows across 16 issuer CIKs. Only one issuer CIK overlaps in the two structured samples (Atea Pharmaceuticals, CIK 0001593899). Within the original Form 144 sample there were 14 issuer-level row comparisons, eight same-date pairs and two exact proposed-sale matches on date and share quantity. These counts are descriptive of the bounded, newest-first parser samples, not population coverage.
 
 ### Proposed-sale matches
 

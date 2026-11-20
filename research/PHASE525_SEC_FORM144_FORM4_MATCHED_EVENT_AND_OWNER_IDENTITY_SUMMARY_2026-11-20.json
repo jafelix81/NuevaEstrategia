@@ -58,7 +58,14 @@
     "form144a_detail_rows_excluded_from_new_sale_matching": 8,
     "ambiguous_candidate_quarantine": true,
     "transaction_row_reuse_quarantine": true,
-    "security_class_matching": "exact canonical token match after removing generic STOCK/SHARES suffixes"
+    "security_class_matching": "exact canonical token match after removing generic STOCK/SHARES suffixes",
+    "form144_proposed_rows_original_144": 89,
+    "form144_proposed_rows_amendment_144a_excluded": 1,
+    "form144_prior_sale_rows_original_144": 283,
+    "form144_prior_sale_rows_amendment_144a_excluded": 5,
+    "form144a_detail_rows_excluded_from_crosswalk": 8,
+    "form144_proposed_sale_rows_considered": 89,
+    "form144_prior_sale_rows_considered": 283
   },
   "matched_events": [
     {
