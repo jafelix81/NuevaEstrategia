@@ -1,0 +1,167 @@
+{
+  "phase": 526,
+  "audit_date": "2026-11-20",
+  "disposition": "KILL_NPORT_QOQ_AGGREGATE_SHARE_BALANCE_GROWTH_AS_STANDALONE_ALPHA_CANDIDATE",
+  "main_head_at_preflight": "9195e1c63497e04670dc6af3e9535afa05f7b881",
+  "actions_preflight": {
+    "latest_100_inspected": true,
+    "active_or_queued_runs": 0,
+    "open_prs": 63
+  },
+  "latest_sec_runs": {
+    "form4": {
+      "id": 44716430351,
+      "created_at_utc": "2026-11-20T10:06:51Z",
+      "conclusion": "success",
+      "new_accessions": 33,
+      "structured_backfill_accessions": 10,
+      "detail_rows_appended": 37,
+      "transaction_rows": 27,
+      "parse_errors": 0,
+      "remaining_bounded_accessions": 1213,
+      "pre_phase525_merge": true
+    },
+    "form144": {
+      "id": 44720422923,
+      "created_at_utc": "2026-11-20T10:34:45Z",
+      "conclusion": "success",
+      "new_accessions": 0,
+      "feed_observation_rows": 52,
+      "structured_backfill_accessions": 10,
+      "detail_rows_appended": 64,
+      "parse_errors": 0,
+      "remaining_structured_accessions": 358,
+      "pre_phase525_merge": true
+    }
+  },
+  "current_ledgers": {
+    "form144": {
+      "event_accessions": 448,
+      "structured_accessions": 90,
+      "detail_rows": 660,
+      "xml_hash_match_rows": 660,
+      "xml_hash_mismatch_rows": 0
+    },
+    "form4": {
+      "event_accessions": 1268,
+      "structured_accessions": 20,
+      "detail_rows": 59,
+      "transaction_rows": 39,
+      "single_owner_filings": 18,
+      "multi_owner_filings_quarantined": 2
+    }
+  },
+  "phase525_post_merge_validation": {
+    "reporting_owners_csv_present": false,
+    "reason": "Latest Form 4 scheduled run predates PRs #180-#182 merge; workflow now includes owner backfill and crosswalk steps.",
+    "next_gate": "Wait for the next existing scheduled Form 4 run; no manual dispatch."
+  },
+  "nport_27n2": {
+    "run_id": 39496676182,
+    "artifact_id": 12299225396,
+    "formation_periods": [
+      "2020Q4",
+      "2021Q4",
+      "2022Q4",
+      "2023Q4",
+      "2024Q4",
+      "2025Q4"
+    ],
+    "ranked_names": [
+      253,
+      266,
+      289,
+      293,
+      292,
+      300
+    ],
+    "raw_63_session_long_minus_short": [
+      -0.10651913610840061,
+      -0.06306269760493347,
+      0.12855478694026798,
+      0.05835760672018246,
+      -0.03820520520692613,
+      -0.017422766724354943
+    ],
+    "signal_only_period": "2026Q3",
+    "raw_returns_source": "yfinance",
+    "missing_return_symbols_observed": [
+      "AVB",
+      "SPWR",
+      "LPRO",
+      "WBD"
+    ],
+    "transaction_costs_included": false,
+    "prior_return_controls_included": false,
+    "matched_f80_exposure": false
+  },
+  "nport_27o": {
+    "run_id": 39503800069,
+    "artifact_id": 12303188100,
+    "spearman_ic": [
+      -0.11986748089392964,
+      -0.07679676645193886,
+      0.016087823201062428,
+      -0.029223317333073432,
+      -0.10760818129239182,
+      -0.10062651774425278
+    ],
+    "top_minus_bottom": [
+      -0.11767030438925219,
+      -0.05561347061299139,
+      0.12028529141954537,
+      0.06123463456565139,
+      -0.04779217589911388,
+      -0.017422773133661015
+    ],
+    "positive_ic_periods": 1,
+    "positive_spread_periods": 2,
+    "missing_return_symbols_observed": [
+      "EQR",
+      "AVB",
+      "WBS",
+      "EA",
+      "LPRO",
+      "SPWR",
+      "WBD"
+    ]
+  },
+  "nport_disposition": {
+    "standalone_share_growth_hypothesis": "KILLED",
+    "nport_descriptive_holdings_source": "CONDITIONAL_NOT_KILLED",
+    "reasons": [
+      "directional_instability",
+      "non_monotonic_dose_response",
+      "incomplete_survivorship_aware_returns",
+      "conditional_historical_identity",
+      "no_prior_return_controls",
+      "no_cost_matched_f80_test",
+      "only_six_completed_periods"
+    ]
+  },
+  "finra_short_interest": {
+    "pr": 159,
+    "state": "draft_open",
+    "next_publication_date": "2026-11-24",
+    "settlement_date": "2026-11-13",
+    "credential_setup_verified": false,
+    "required_secret_names": [
+      "FINRA_CLIENT_ID",
+      "FINRA_CLIENT_SECRET"
+    ],
+    "alternative_secret": [
+      "FINRA_ACCESS_TOKEN"
+    ],
+    "historical_batch_authorized": false
+  },
+  "controls": {
+    "signals_admitted": 0,
+    "backtest_run": false,
+    "event_study_run": false,
+    "oos_run": false,
+    "bootstrap_run": false,
+    "loo_run": false,
+    "f80_changed": false,
+    "production_changed": false
+  }
+}
