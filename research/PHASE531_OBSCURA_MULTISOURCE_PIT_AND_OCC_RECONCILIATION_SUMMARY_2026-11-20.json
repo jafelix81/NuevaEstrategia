@@ -75,7 +75,7 @@
       "decision": "CONDITIONAL_PILOT_ONLY_AFTER_VENDOR_CLARIFICATION"
     },
     "sec_midas_security_metrics": {
-      "source_period": "2012Q1_TO_2026Q2",
+      "source_period": "2012Q1_TO_2026Q3",
       "vendor_claimed_missing_quarters": [
         "2014Q2",
         "2016Q1",
@@ -86,8 +86,13 @@
       ],
       "per_quarter_publication_dates_verified": false,
       "universe_335_coverage_verified": false,
-      "decision": "CONDITIONAL_PIT_AND_COVERAGE_AUDIT",
-      "data_gov_metadata_stale": true
+      "decision": "PUBLIC_SOURCE_CATALOG_CONTINUITY_PASS_PIT_AND_FILE_AUDIT_PENDING",
+      "data_gov_metadata_stale": true,
+      "official_sec_quarterly_zip_count": 59,
+      "official_sec_page_last_reviewed": "2026-09-30",
+      "vendor_claimed_missing_quarters_present_in_official_sec_index": true,
+      "missing_quarter_interpretation": "POSSIBLE_VENDOR_INGESTION_GAPS_NOT_OFFICIAL_SOURCE_GAPS",
+      "actual_zip_integrity_verified": false
     },
     "finra_short_volume": {
       "same_day_file_after_regular_hours": true,
@@ -105,5 +110,24 @@
   "alpha_test_performed": false,
   "new_signals_admitted": 0,
   "f80_changed": false,
-  "human_blocker": "SEC scheduled workflows have missed subsequent slots; verify Phase 476 and Phase 403 are enabled in GitHub Actions."
+  "human_blocker": "SEC scheduled workflows have missed subsequent slots; verify Phase 476 and Phase 403 are enabled in GitHub Actions.",
+  "phase532_correction": {
+    "official_sec_page": "https://www.sec.gov/data-research/sec-markets-data/marketstructuredata-security",
+    "official_sec_page_last_reviewed": "2026-09-30",
+    "official_coverage": "2012-01 through 2026-09",
+    "quarterly_zip_count": 59,
+    "all_vendor_flagged_quarters_listed": true,
+    "vendor_flagged_quarters": [
+      "2014Q2",
+      "2016Q1",
+      "2016Q2",
+      "2016Q3",
+      "2016Q4",
+      "2019Q4"
+    ],
+    "direct_2014q2_file_page": "https://www.sec.gov/file/individualsecurity2014q2updated",
+    "pit_release_dates_verified": false,
+    "actual_zip_integrity_verified": false,
+    "universe_335_coverage_verified": false
+  }
 }
