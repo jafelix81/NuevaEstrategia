@@ -1,0 +1,103 @@
+{
+  "phase": 533,
+  "date": "2026-11-20",
+  "disposition": "POST_PHASE525_SCHEDULED_LIVE_CAPTURE_OPERATIONALLY_VALIDATED_NO_ALPHA",
+  "repository": "jafelix81/NuevaEstrategia",
+  "preflight": {
+    "default_branch": "main",
+    "latest_main_before_captures": "4e18bb55d675e44aa3bf98b41e1522720f639b69",
+    "latest_main_after_captures": "c7080c0461885a92b7240597a711cebec3356814",
+    "actions_total_runs": 7980,
+    "latest_100_active_or_queued": 0,
+    "manual_dispatch": false,
+    "duplicate_poll": false
+  },
+  "form4": {
+    "run_id": 44794670480,
+    "event": "schedule",
+    "conclusion": "success",
+    "jobs": {
+      "offline_regression": "success",
+      "live_capture": "success"
+    },
+    "new_accessions": 91,
+    "canonical_event_observations": 91,
+    "accession_observation_rows": 186,
+    "structured_accessions_parsed": 10,
+    "structured_detail_rows_appended": 27,
+    "structured_parse_errors": 0,
+    "structured_accessions_remaining": 1294,
+    "owner_accessions_parsed": 10,
+    "owner_rows_appended": 14,
+    "single_owner_accessions": 9,
+    "multi_owner_accessions": 1,
+    "owner_parse_errors": 0,
+    "owner_accessions_pending": 20,
+    "reporting_owners_csv_created": true,
+    "crosswalk_rows": 0,
+    "form4_sale_disposition_rows": 20,
+    "form144_proposed_sale_rows_considered": 89,
+    "form144_prior_sale_rows_considered": 283,
+    "form144_amendment_rows_excluded": 8,
+    "matched_form4_accessions": 0,
+    "signal_eligible_rows": 0,
+    "public_availability_certified": false,
+    "alpha_test_authorized": false,
+    "artifact_id": 14658766152,
+    "artifact_size_bytes": 2807,
+    "artifact_sha256": "5bf866d1cfb19f59f9d5bda903ddc50e3f78d836229b1b9fcb5fea144f2a4f96",
+    "previously_manual_atea_form4_accessions_present_in_transaction_details": true,
+    "those_atea_accessions_present_in_owner_sidecar": false
+  },
+  "form144": {
+    "run_id": 44796839433,
+    "event": "schedule",
+    "conclusion": "success",
+    "jobs": {
+      "offline_regression": "success",
+      "live_capture": "success"
+    },
+    "new_event_rows": 21,
+    "feed_observation_rows_appended": 53,
+    "acceptance_reconciliations_added": 21,
+    "acceptance_reconciliations_unresolved": 0,
+    "successful_feeds": [
+      "144",
+      "144A"
+    ],
+    "failed_feeds": [],
+    "possible_feed_window_gap": false,
+    "structured_accessions_parsed": 10,
+    "structured_detail_rows_appended": 110,
+    "structured_parse_errors": 0,
+    "source_hash_mismatches": 0,
+    "ledger_accessions": 121,
+    "ledger_rows": 906,
+    "structured_accessions_remaining": 348,
+    "research_observation_eligible_count": 21,
+    "public_availability_certified": false,
+    "same_day_intraday_use_authorized": false,
+    "signal_eligible_count": 0,
+    "artifact_id": 14658079177,
+    "artifact_size_bytes": 2085,
+    "artifact_sha256": "e9a260c8216ddf1152d3316cf63d01e281142131037351624a6b6b280e4297c1"
+  },
+  "issue_185": {
+    "disposition": "completed_operational_blocker_resolved"
+  },
+  "strategy": {
+    "baseline": "F80_TOP20_PARTIAL50_BASELINE_C20",
+    "frozen": true,
+    "new_signals": 0,
+    "new_alpha_tests": 0,
+    "new_oos_tests": 0,
+    "bootstrap_loo_holdout_changed": false,
+    "production_changed": false
+  },
+  "next_checks": [
+    "Continue scheduled Form 4 owner-enrichment backfill; do not dispatch duplicate polls.",
+    "Check whether Atea Form 4 accessions 0001193125-26-469037 and 0001193125-26-469038 enter reporting_owners.csv.",
+    "Rebuild the descriptive crosswalk after each scheduled owner backfill; do not relax match keys.",
+    "Keep SEC data signal-ineligible until public availability, historical F80 membership, owner attribution and transaction semantics are verified."
+  ]
+}
