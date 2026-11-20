@@ -35,12 +35,12 @@
     },
     "open_interest": {
       "date_semantics": "trading session represented",
-      "availability": "new data each morning for prior session",
+      "availability": "new data each morning for prior session; exact historical delivery/first receipt not certified",
       "subscriber_first_receipt_certified": false
     },
     "greeks_iv": {
       "snapshot_et": "15:45 standard session; 12:45 early close",
-      "availability": "daily; provider schedule says prior-day files updated about 11:00 ET",
+      "availability": "daily EOD analytics; exact historical delivery/first receipt not certified",
       "subscriber_first_receipt_certified": false
     },
     "flat_files": {
