@@ -1,0 +1,173 @@
+{
+  "phase": 523,
+  "audit_timestamp_utc": "2026-11-20T10:38:00Z",
+  "base_main": "d513c94e92edf955d0ee0c242d3f43f9949f3048",
+  "preflight": {
+    "actions_total": 7959,
+    "latest_runs_returned": 100,
+    "active": 0,
+    "queued": 0,
+    "branches": 346,
+    "open_pull_requests": 61,
+    "duplicate_workflows_started": 0
+  },
+  "sec_form4": {
+    "latest_run_id": "44716430351",
+    "run_conclusion": "success",
+    "artifact_id": 14619333577,
+    "event_ledger_accessions": 1268,
+    "new_accessions": 33,
+    "new_event_rows": 33,
+    "bounded_metadata_new_accessions": 33,
+    "research_observation_eligible_new": 0,
+    "signal_eligible_new": 0,
+    "structured_detail_accessions": 20,
+    "structured_detail_rows": 59,
+    "transaction_rows": 39,
+    "latest_backfill_accessions": 10,
+    "latest_backfill_rows": 37,
+    "latest_backfill_transaction_rows": 27,
+    "latest_backfill_parse_errors": 0,
+    "latest_batch_transaction_codes": {
+      "P": 7,
+      "M": 4,
+      "S": 12,
+      "A": 4
+    },
+    "latest_batch_multi_owner_quarantined": 2,
+    "latest_batch_single_owner_filing_grain": 35,
+    "new_metadata_accessions_not_yet_parsed": 23,
+    "remaining_bounded_accessions": 1213,
+    "cumulative_transaction_codes": {
+      "P": 10,
+      "M": 6,
+      "F": 1,
+      "A": 9,
+      "S": 13
+    },
+    "acquired_disposed": {
+      "A": 22,
+      "D": 17
+    },
+    "zero_price_rows": 9,
+    "source_hash_comparable_rows": 0,
+    "hash_mismatch_rows": 0,
+    "all_signal_ineligible": true,
+    "public_availability_certified": false
+  },
+  "sec_form144": {
+    "latest_run_id": "44720422923",
+    "run_conclusion": "success",
+    "artifact_id": 14621821685,
+    "latest_poll_new_accessions": 0,
+    "feed_observation_rows_appended": 52,
+    "feeds_watermark_bounded": true,
+    "possible_feed_window_gap": false,
+    "event_ledger_accessions": 448,
+    "structured_detail_accessions": 90,
+    "structured_detail_rows": 660,
+    "latest_backfill_accessions": 10,
+    "latest_backfill_rows": 64,
+    "latest_backfill_parse_errors": 0,
+    "remaining_accessions": 358,
+    "detail_sections": {
+      "filing_header": 90,
+      "securities_information": 90,
+      "securities_to_be_sold": 192,
+      "securities_sold_in_past_3_months": 288
+    },
+    "parsed_rows": 660,
+    "source_xml_hash_matches": 660,
+    "source_xml_hash_mismatches": 0,
+    "detail_research_observation_eligible_rows": 660,
+    "public_availability_certified": false,
+    "signal_eligible_rows": 0,
+    "rule_10b5_1": {
+      "formal_adoption_date_accessions": 34,
+      "remarks_mentions": 6,
+      "formal_only": 32,
+      "remarks_only": 4,
+      "both": 2,
+      "median_days_before_notice": 181,
+      "min_days_before_notice": 72,
+      "max_days_before_notice": 528,
+      "latest_backfill_with_formal_date": 7,
+      "latest_backfill_accessions": 10
+    },
+    "proposed_sale_units_outstanding_pct": {
+      "n": 90,
+      "median": 0.007474126468063862,
+      "p75": 0.050978211803036355,
+      "max": 0.3864265719029178
+    },
+    "approximate_sale_date_relation": {
+      "same_as_notice": 86,
+      "before_notice": 4,
+      "after_notice": 0
+    },
+    "pre_notice_anomalies": [
+      {
+        "accession": "0001493152-26-053320",
+        "issuer": "Verano Holdings Corp.",
+        "form": "144/A",
+        "classification": "amendment; plan termination; past sales explicitly described"
+      },
+      {
+        "accession": "0001974078-26-000422",
+        "issuer": "Clean Energy Fuels Corp.",
+        "classification": "unresolved date precedes notice"
+      },
+      {
+        "accession": "0001972649-26-000002",
+        "issuer": "Eagle Bancorp Montana, Inc.",
+        "classification": "unresolved date precedes notice"
+      },
+      {
+        "accession": "0001959173-26-008160",
+        "issuer": "Griffon Corp.",
+        "classification": "unresolved date precedes notice"
+      }
+    ]
+  },
+  "finra_regsho": {
+    "latest_run_id": "44669121290",
+    "pre_phase515_merge": true,
+    "http_200": 8,
+    "invalid_files": 8,
+    "valid_files": 0,
+    "post_merge_live_validation_pending": true,
+    "next_existing_schedule_utc": "22:30/23:30 weekdays"
+  },
+  "cftc": {
+    "latest_run_id": "44668300202",
+    "total_rows": 3039,
+    "new_reports_or_revisions": 0,
+    "signal_eligible_historical_rows": 0
+  },
+  "finra_t1": {
+    "latest_run_id": "44701029373",
+    "combined_weeks": 259,
+    "strict_52of52_valid": 19,
+    "evaluation_observations_by_horizon": {
+      "5": 137,
+      "10": 136,
+      "20": 132
+    },
+    "minimum_evaluation_observations": 150,
+    "signal_admitted": false
+  },
+  "research_decision": "Continue SEC bounded collection/backfill; manually review three Form 144 date anomalies; wait for existing FINRA Reg SHO schedule; keep CFTC prospective-only; FINRA T1 aggregate HHI signal rejected for sample insufficiency.",
+  "controls": {
+    "forward_returns_used": false,
+    "event_study": false,
+    "backtest": false,
+    "alpha_test": false,
+    "oos": false,
+    "bootstrap": false,
+    "loo": false,
+    "holdout": false,
+    "new_signals": 0,
+    "f80_changed": false,
+    "production_changed": false
+  }
+}
