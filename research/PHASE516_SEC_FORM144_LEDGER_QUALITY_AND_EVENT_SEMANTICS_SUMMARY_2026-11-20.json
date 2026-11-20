@@ -97,5 +97,15 @@
   "sources": [
     "https://www.sec.gov/files/form144.pdf",
     "https://www.sec.gov/files/corpfin/exchange-act-rules-042525-120-1.pdf"
-  ]
+  ],
+  "validation": {
+    "pr": 169,
+    "ci_run": 44680495072,
+    "offline_tests_passed": 64,
+    "offline_tests_total": 64,
+    "live_capture_job": "skipped_as_expected_for_pull_request",
+    "merged": true,
+    "merge_commit": "c23bdd734f3cef1c8ead0d974c081a0093e1b067",
+    "main_head_after_merge": "c23bdd734f3cef1c8ead0d974c081a0093e1b067"
+  }
 }
