@@ -163,9 +163,8 @@ def build_crosswalk(form144_rows: list[dict], form4_rows: list[dict], owner_rows
         and row.get("acquired_disposed_code") == "D"
     ]
     output = []
-    used = set()
     ambiguous_events = 0
-    reused_transactions_prevented = 0
+    candidate_pairs = []
     for sale in sales:
         candidates = []
         for tx in transactions:
@@ -184,19 +183,25 @@ def build_crosswalk(form144_rows: list[dict], form4_rows: list[dict], owner_rows
             candidates.append((tx, owner))
         if len(candidates) > 1:
             ambiguous_events += 1
-            continue
-        if not candidates:
-            continue
-        tx, owner = candidates[0]
-        transaction_key = tx.get("detail_row_key") or "|".join((
+        elif len(candidates) == 1:
+            candidate_pairs.append((sale, candidates[0][0], candidates[0][1]))
+
+    def transaction_key(tx: dict) -> str:
+        return tx.get("detail_row_key") or "|".join((
             tx.get("accession", ""), tx.get("table_type", ""),
             tx.get("row_index", ""), tx.get("transaction_date", ""),
             tx.get("shares_numeric", ""),
         ))
-        if transaction_key in used:
-            reused_transactions_prevented += 1
+
+    reuse_counts = {}
+    for _, tx, _ in candidate_pairs:
+        key = transaction_key(tx)
+        reuse_counts[key] = reuse_counts.get(key, 0) + 1
+    ambiguous_reuse_keys = {key for key, count in reuse_counts.items() if count > 1}
+
+    for sale, tx, owner in candidate_pairs:
+        if transaction_key(tx) in ambiguous_reuse_keys:
             continue
-        used.add(transaction_key)
         price = decimal_value(tx.get("price_per_share_numeric"))
         gross = sale["quantity"] * price if price is not None else None
         difference = sale["reported_value"] - gross if sale["reported_value"] is not None and gross is not None else None
@@ -244,7 +249,7 @@ def build_crosswalk(form144_rows: list[dict], form4_rows: list[dict], owner_rows
         "matched_prior_sales": sum(1 for x in output if x["form144_event_role"] == "PRIOR_SALE_HISTORY"),
         "matched_form4_accessions": len({row["form4_accession"] for row in output}),
         "ambiguous_form144_events_quarantined": ambiguous_events,
-        "duplicate_transaction_reuse_prevented": reused_transactions_prevented,
+        "ambiguous_transaction_reuse_quarantined": len(ambiguous_reuse_keys),
         "form4_accessions_without_single_owner_identity": sum(
             1 for tx in transactions if tx.get("accession") not in owner_index
         ),
