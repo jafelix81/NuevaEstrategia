@@ -1,0 +1,105 @@
+{
+  "phase": 527,
+  "date": "2026-11-20",
+  "main_head_preflight": "88edc94d6a960668361142774f964108d8ae399d",
+  "source": "Cboe DataShop Volatility Surfaces",
+  "disposition": "CONDITIONAL_VOLATILITY_RISK_STATE_CANDIDATE; STRATEGY_USE_BLOCKED_PENDING_SEPARATE_WRITTEN_EXECUTED_CARVEOUT; NOT_STRICT_PIT_OR_ALPHA_ADMITTED",
+  "advertised_history_start": "2011-08",
+  "product_page_currently_orderable": true,
+  "snapshots_et": [
+    "09:40",
+    "15:45",
+    "16:00",
+    "16:15_indices_only"
+  ],
+  "files_per_day": 4,
+  "schema_version": "1.0",
+  "schema_date": "2025-04",
+  "key_fields": [
+    "underlying_symbol",
+    "expiry_or_maturity",
+    "calculation_timestamp",
+    "underlying_price",
+    "implied_volatility_nodes",
+    "strike_nodes",
+    "weighted_confidence_nodes"
+  ],
+  "confidence_controls": {
+    "valid_range": [
+      0,
+      1
+    ],
+    "below_0_5": "suspicious",
+    "negative_codes": {
+      "-1": "higher_skew_unavailable_lower_skew_extrapolation",
+      "-2": "lower_skew_unavailable_higher_skew_extrapolation",
+      "-5": "flat_line_left",
+      "-6": "flat_line_right"
+    }
+  },
+  "pit": {
+    "general_datashop_daily_delivery": "T+1 typically 00:05-03:00 ET; may be delayed until after next session opens",
+    "product_specific_hard_sla_verified": false,
+    "actual_first_receipt_required": true,
+    "historical_first_delivery_vintages_verified": false,
+    "strict_historical_pit_admitted": false
+  },
+  "coverage": {
+    "f80_335_name_matrix_verified": false,
+    "inactive_delisted_coverage_verified": false,
+    "effective_dated_security_crosswalk_verified": false,
+    "product_page_warns_symbol_date_exclusions": true
+  },
+  "licensing": {
+    "current_price_quote_obtained": false,
+    "internal_business_use_terms_confirmed": false,
+    "vendor_contacted": false,
+    "purchase_made": false,
+    "sample_link_visible": true,
+    "sample_bytes_obtained": false,
+    "sample_retrieval_note": "Web retrieval rejected the ZIP content type; no bytes were inspected.",
+    "standard_license_agreement_reviewed": true,
+    "standard_license_strategy_use_restriction": "Section I.1(e)(viii) prohibits using Data or related methodology to create an index, indicator, benchmark, investment strategy or similar value unless expressly permitted by a separate written and executed agreement with Cboe and/or affiliates.",
+    "separate_written_strategy_use_carveout_obtained": false,
+    "strategy_research_authorized": false,
+    "internal_usage_selector_override_verified": false
+  },
+  "research_role": "volatility_surface_and_risk_state; not participant identity or signed smart-money flow",
+  "hypotheses": [
+    "constant_maturity_atm_iv_level_and_term_structure",
+    "price_relative_wing_asymmetry",
+    "09:40_to_15:45_or_16:00_surface_repricing",
+    "confidence_aware_surface_quality",
+    "incremental_forward_realized_volatility_and_drawdown_information"
+  ],
+  "controls": [
+    "prior_only_features",
+    "actual_first_receipt_clock",
+    "effective_dated_identity",
+    "same_day_return_and_momentum_controls",
+    "identical_universe_exposure_turnover_and_costs_vs_F80",
+    "chronological_OOS",
+    "block_bootstrap",
+    "LOO",
+    "multiple_testing_control",
+    "untouched_holdout"
+  ],
+  "signal_admitted": false,
+  "backtest_run": false,
+  "event_study_run": false,
+  "oos_run": false,
+  "bootstrap_run": false,
+  "loo_run": false,
+  "baseline_changed": false,
+  "baseline": "F80_TOP20_PARTIAL50_BASELINE_C20",
+  "operational_preflight": {
+    "latest_100_actions_runs_inspected": true,
+    "total_actions_runs": 7964,
+    "active_or_queued_runs": 0,
+    "main_head": "88edc94d6a960668361142774f964108d8ae399d",
+    "latest_actions_run_id": 44728717197,
+    "latest_actions_run_type": "successful PR check, not live capture",
+    "post_phase525_scheduled_form4_crosswalk_validation_pending": true,
+    "finra_regsho_post_phase515_live_validation_pending": true
+  }
+}
