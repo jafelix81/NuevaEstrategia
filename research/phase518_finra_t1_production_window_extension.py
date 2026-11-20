@@ -545,12 +545,12 @@ def fetch_current(session):
     if fields != EXPECTED_FIELDS:
         raise RuntimeError(f"Current weeklySummary partition schema changed: {fields}")
     if metadata.get("status") not in (None, "Active"):
-        raise RuntimeError(f"Current weeklySummary status is not Active: {metadata.get(chr(115)+chr(116)+chr(97)+chr(116)+chr(117)+chr(115))}")
+        raise RuntimeError(f"Current weeklySummary status is not Active: {metadata.get('status')}")
     partitions = request_json(session, PARTITIONS_URL)
     raw, unique = parse_partitions(partitions, fields)
     weeks = sorted({week for week, tier in unique if tier == TIER})
-    if len(weeks) < 40 or len(weeks) > 54:
-        raise RuntimeError(f"Unexpected current 12-month T1 partition count: {len(weeks)}")
+    if len(weeks) < 40 or len(weeks) > 300:
+        raise RuntimeError(f"Unexpected current T1 partition count: {len(weeks)}")
     parsed = [date.fromisoformat(week) for week in weeks]
     if any(day.weekday() != 0 for day in parsed):
         raise RuntimeError("Current T1 week anchor is not Monday")
