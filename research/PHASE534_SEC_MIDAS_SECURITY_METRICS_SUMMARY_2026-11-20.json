@@ -1,0 +1,79 @@
+{
+  "phase": 534,
+  "date": "2026-11-20",
+  "source": "SEC MIDAS Metrics by Individual Security",
+  "official_url": "https://www.sec.gov/data-research/sec-markets-data/marketstructuredata-security",
+  "period_start": "2012-01-01",
+  "period_end": "2026-09-30",
+  "quarterly_archives": 59,
+  "securities_claimed_min": 4800,
+  "columns": 18,
+  "listed_archive_size_mb_min": 11.45,
+  "listed_archive_size_mb_max": 24.42,
+  "listed_archive_size_mb_sum_approx": 982.96,
+  "sample_zip_downloaded": false,
+  "point_in_time_status": "UNVERIFIED_QUARTERLY_RELEASE_CLOCK",
+  "historical_daily_rows_are_daily_available": false,
+  "f80_335_coverage": "UNVERIFIED",
+  "permanent_security_identifier_in_public_column_list": false,
+  "crsp_universe_refresh_lag": "3-4 weeks after prior month end",
+  "semantics": {
+    "hidden_volume": "on-exchange executions against hidden/undisplayed resting orders",
+    "hidden_volume_is_dark_pool": false,
+    "off_exchange_in_public_per_security_metrics": false,
+    "opening_closing_auctions_included": false,
+    "off_hours_included": false,
+    "hidden_denominator": "TradeVolForHidden; only exchanges where hidden execution can be determined",
+    "cancel_to_trade": "count ratio; not exact cancellation probability or spoofing measure"
+  },
+  "structural_breaks": [
+    {
+      "date": "2014-01-01",
+      "reason": "first full month odd-lot trades reported to SIP; hidden identification/reconciliation context changes"
+    },
+    {
+      "date": "2017-05-01",
+      "reason": "NYSE Ultra to NYSE Integrated Feed; hidden-trade indicator and NYSE/Amex metric inclusion change"
+    },
+    {
+      "date": "2025-11-03",
+      "reason": "new four-tier price-based round-lot definition; odd-lot metrics change"
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "name": "hidden_liquidity_risk_state",
+      "target": "future realized volatility, liquidity deterioration and downside tail risk",
+      "directional_smart_money_claim": false
+    },
+    {
+      "id": "H2",
+      "name": "order_interaction_liquidity_state",
+      "target": "future liquidity and price impact",
+      "directional_smart_money_claim": false
+    },
+    {
+      "id": "H3",
+      "name": "odd_lot_microstructure_regime",
+      "target": "market microstructure and volatility regime",
+      "directional_smart_money_claim": false
+    }
+  ],
+  "disposition": "CONDITIONAL_PUBLIC_MARKET_MICROSTRUCTURE_RISK_FEATURE",
+  "backtest_authorized": false,
+  "alpha_test_run": false,
+  "oos_run": false,
+  "bootstrap_loo_run": false,
+  "signals_admitted": 0,
+  "f80_baseline": "F80_TOP20_PARTIAL50_BASELINE_C20",
+  "f80_status": "FROZEN_UNCHANGED",
+  "production_changed": false,
+  "sources": [
+    "https://www.sec.gov/data-research/sec-markets-data/marketstructuredata-security",
+    "https://www.sec.gov/featured-topics/market-structure-analytics/market-activity-report-methodology",
+    "https://www.sec.gov/securities-topics/market-structure-analytics/midas-feedback",
+    "https://www.sec.gov/about/hidden-volume-ratios",
+    "https://www.sec.gov/securities-topics/market-structure-analytics/midas-market-information-data-analytics-system"
+  ]
+}
