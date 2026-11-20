@@ -1,4 +1,4 @@
-# Current Smart Money Research State — 2026-11-20 (Phases 518 and 521)
+# Current Smart Money Research State — 2026-11-20 (Phases 518, 521 and 522)
 
 ## Current disposition
 
@@ -16,7 +16,7 @@
 
 - Phase 518: [final disposition](research/PHASE518_FINRA_T1_PRODUCTION_WINDOW_EXTENSION_FINAL_DISPOSITION_2026-11-20.md) · [summary](research/PHASE518_FINRA_T1_PRODUCTION_WINDOW_EXTENSION_SUMMARY_2026-11-20.json) · [PR #175](https://github.com/jafelix81/NuevaEstrategia/pull/175).
 - Phase 521: [domain-filter probe](research/PHASE521_FINRA_HISTORICAL_SYMBOL_DOMAIN_FILTER_PROBE_2026-11-20.md) · [summary](research/PHASE521_FINRA_HISTORICAL_SYMBOL_DOMAIN_FILTER_PROBE_SUMMARY_2026-11-20.json) · [PR #176](https://github.com/jafelix81/NuevaEstrategia/pull/176).
-- Phase 522 follow-on: [PR #177](https://github.com/jafelix81/NuevaEstrategia/pull/177) tests the historical symbol-equality filter; its report is in that stacked PR.
+- Phase 522: [symbol-equality filter probe](research/PHASE522_FINRA_HISTORICAL_SYMBOL_EQUALITY_FILTER_PROBE_2026-11-20.md) · [summary](research/PHASE522_FINRA_HISTORICAL_SYMBOL_EQUALITY_FILTER_PROBE_SUMMARY_2026-11-20.json) · [PR #177](https://github.com/jafelix81/NuevaEstrategia/pull/177).
 
 ---
 
