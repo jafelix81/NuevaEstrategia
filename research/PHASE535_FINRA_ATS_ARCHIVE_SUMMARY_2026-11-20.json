@@ -73,5 +73,47 @@
     "new_signals_admitted": 0,
     "new_oos_results": 0,
     "changes": 0
-  }
+  },
+  "query_api_alternative": {
+    "datasets": {
+      "weeklySummary": "rolling 12 months",
+      "weeklySummaryHistoric": "rolling 4 years; older-than-one-year data are static"
+    },
+    "history_validated_by_prior_phases": {
+      "combined_weeks": 259,
+      "first_week": "2021-11-15",
+      "last_week": "2026-10-26",
+      "phase100_sample_partitions": 10,
+      "phase100_sample_rows": 968139,
+      "phase518_incremental_weeks": 50,
+      "phase518_incremental_rows": 3497002,
+      "record_total_reconciled": true,
+      "publication_clock_passed_incremental_weeks": 50
+    },
+    "phase100_quality_gates": {
+      "initial_published_date_nonnull_symbol_aggregate_pct": 100,
+      "observed_publication_lag_days": {
+        "T1": 21,
+        "T2": 35
+      },
+      "rows_updated_after_initial_publication": 1882,
+      "missing_symbol_rows": 2,
+      "conflicting_duplicate_key_groups": 2
+    },
+    "historical_filter_constraints": {
+      "domain_filter_symbol_probe": "HTTP_400_PHASE521",
+      "symbol_equality_filter_probe": "HTTP_400_PHASE522",
+      "targeted_335_symbol_query_supported": false
+    },
+    "pit_status": "CONDITIONAL_CURRENT_PANEL_REVISION_VINTAGE_AND_IDENTITY_GATES_OPEN",
+    "terms": {
+      "equity_specific_use": "non-commercial personal or professional use",
+      "public_credential_for_individuals": true,
+      "derivative_resultant_data_permitted_subject_to_attribution_and_noncommercial_redistribution_conditions": true,
+      "api_only_access_required": true,
+      "scraping_or_non_api_bulk_copy_prohibited": true
+    },
+    "decision": "retain_recent_query_api_panel; do_not_repeat_full_extraction_until_effective_dated_identity_historical_active_universe_and_survivorship_aware_returns_are_resolved"
+  },
+  "final_disposition": "ARCHIVE_ENDPOINT_HTTP_530; QUERY_API_RECENT_PANEL_RETAINED; NO_SIGNAL_OR_ALPHA_TEST"
 }
