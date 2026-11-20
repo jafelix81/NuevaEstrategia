@@ -52,15 +52,13 @@ def normalize_name(value: str | None) -> tuple[str, ...]:
 
 
 def security_matches(left: str | None, right: str | None) -> bool:
-    a = " ".join(re.findall(r"[A-Z0-9]+", str(left or "").upper()))
-    b = " ".join(re.findall(r"[A-Z0-9]+", str(right or "").upper()))
-    if not a or not b:
-        return False
-    if a == b:
-        return True
-    return ("COMMON" in a and "COMMON" in b) or (
-        "AMERICAN DEPOSITARY SHARES" in a and "AMERICAN DEPOSITARY SHARES" in b
-    )
+    def canonical(value: str | None) -> tuple[str, ...]:
+        tokens = re.findall(r"[A-Z0-9]+", str(value or "").upper())
+        while tokens and tokens[-1] in {"STOCK", "SHARES"}:
+            tokens.pop()
+        return tuple(tokens)
+    a, b = canonical(left), canonical(right)
+    return bool(a and b and a == b)
 
 
 def load_single_owner_index(owner_rows: list[dict]) -> tuple[dict, set[str]]:
@@ -115,7 +113,7 @@ def economic_context(flags: dict) -> str:
 def form144_events(rows: list[dict]) -> list[dict]:
     result = []
     for row in rows:
-        if row.get("parse_status") != "parsed":
+        if row.get("parse_status") != "parsed" or row.get("form") == "144/A":
             continue
         section = row.get("detail_section")
         if section == "securities_information":
@@ -187,10 +185,12 @@ def build_crosswalk(form144_rows: list[dict], form4_rows: list[dict], owner_rows
             candidate_pairs.append((sale, candidates[0][0], candidates[0][1]))
 
     def transaction_key(tx: dict) -> str:
-        return tx.get("detail_row_key") or "|".join((
+        return "|".join((
             tx.get("accession", ""), tx.get("table_type", ""),
             tx.get("row_index", ""), tx.get("transaction_date", ""),
-            tx.get("shares_numeric", ""),
+            tx.get("transaction_code", ""), tx.get("shares_numeric", ""),
+            tx.get("price_per_share_numeric", ""), tx.get("acquired_disposed_code", ""),
+            tx.get("security_title", ""),
         ))
 
     reuse_counts = {}
@@ -239,8 +239,11 @@ def build_crosswalk(form144_rows: list[dict], form4_rows: list[dict], owner_rows
 
     summary = {
         "phase": PHASE,
-        "form144_proposed_sale_rows": sum(1 for x in sales if x["role"] == "PROPOSED_SALE"),
-        "form144_prior_sale_rows": sum(1 for x in sales if x["role"] == "PRIOR_SALE_HISTORY"),
+        "form144_proposed_sale_rows": sum(1 for x in form144_rows if x.get("detail_section") == "securities_information" and x.get("parse_status") == "parsed"),
+        "form144_prior_sale_rows": sum(1 for x in form144_rows if x.get("detail_section") == "securities_sold_in_past_3_months" and x.get("parse_status") == "parsed"),
+        "form144_amendment_detail_rows_excluded": sum(1 for x in form144_rows if x.get("form") == "144/A"),
+        "form144_proposed_sale_rows_considered": sum(1 for x in sales if x["role"] == "PROPOSED_SALE"),
+        "form144_prior_sale_rows_considered": sum(1 for x in sales if x["role"] == "PRIOR_SALE_HISTORY"),
         "form4_sale_disposition_rows": len(transactions),
         "owner_sidecar_accessions": len(owner_index) + len(multi_owner),
         "single_owner_accessions_with_identity": len(owner_index),
