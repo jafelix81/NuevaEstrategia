@@ -15,7 +15,7 @@ Official source: [SEC Metrics by Individual Security](https://www.sec.gov/data-r
 - Observation period shown by the SEC: January 2012–September 2026.
 - 59 quarterly ZIP files are listed, from 2012 Q1 through 2026 Q3, with no missing quarter in the current SEC listing.
 - SEC describes coverage of more than 4,800 securities.
-- The page lists 18 columns: `Ticker`, `Date`, `Security`, `McapRank`, `TurnRank`, `VolatilityRank`, `PriceRank`, `Cancels`, `Trades`, `LitTrades`, `OddLots`, `Hidden`, `TradesForHidden`, `OrderVol`, `TradeVol`, `LitVol`, `OddLotVol`, `HiddenVol`, and `TradeVolForHidden`.
+- The page lists 19 columns: `Ticker`, `Date`, `Security`, `McapRank`, `TurnRank`, `VolatilityRank`, `PriceRank`, `Cancels`, `Trades`, `LitTrades`, `OddLots`, `Hidden`, `TradesForHidden`, `OrderVol`, `TradeVol`, `LitVol`, `OddLotVol`, `HiddenVol`, and `TradeVolForHidden`.
 - Listed quarterly archive sizes range from 11.45 MB (2012 Q1) to 24.42 MB (2026 Q3). Summing the rounded sizes displayed by the SEC gives approximately 982.96 MB compressed for all 59 files.
 - The separate *Metrics by Individual Security and Exchange* product is much larger: its 2026 Q2 archive is 189.97 MB versus 22.65 MB for the non-exchange-partitioned 2026 Q2 archive. Start with the smaller per-security panel; do not acquire the exchange-partitioned history unless a specific hypothesis requires exchange decomposition.
 
