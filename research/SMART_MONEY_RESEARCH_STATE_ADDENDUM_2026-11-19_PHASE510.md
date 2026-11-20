@@ -12,7 +12,7 @@
 
 ## Phase 510 changes
 - Added phase510_form4_structured_transaction_ledger.py and 11 synthetic regression tests; combined Phase 476 + Phase 510 CI passed 50/50 in [run 44642337001](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44642337001).
-- PR #163 is open and mergeable; live-capture was skipped by design. The parser-version-aware reprocessing test and strict timestamp validation pass.
+- PR #163 was merged by squash commit a4272aa3d7998c23003d02293a6186c79e1ece12. Live-capture was skipped by design in PR CI; the parser-version-aware reprocessing test and strict timestamp validation pass.
 - Integrated the detail backfill into the existing Phase 476 scheduled job. No new cron or second SEC poller.
 - Newest-first backfill, max 10 accession documents per scheduled run, only when the source event has a bounded metadata interval.
 - Separate filing-header, non-derivative and derivative rows; preserves first-seen interval and a separate XML retrieval clock.
@@ -32,3 +32,9 @@
 - No forward-return/event study/backtest/OOS/bootstrap/LOO/holdout test in Phase 510.
 - No new signal admitted.
 - F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen: universe, parameters, holding period, capital, exposure, costs, holdout and production unchanged.
+
+## Post-merge status
+- Main HEAD at merge: a4272aa3d7998c23003d02293a6186c79e1ece12.
+- PR #163 merged; 50/50 offline tests passed in run 44642337001.
+- No active Actions runs at post-merge check. No post-merge scheduled Phase 476 live capture was visible yet; transaction_details.csv is therefore not live-validated or populated by this phase.
+- The existing Phase 476 cron remains unchanged at 17 minutes past each hour on weekdays; no manual dispatch or duplicate poll was initiated.
