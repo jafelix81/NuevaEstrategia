@@ -59,7 +59,7 @@ A separate prior Phase 524 case remains useful: Clean Energy Fuels (CLNE) Form 4
 
 1. \`phase525_form4_reporting_owner_identity.py\` parses the public Form 4 XML reportingOwner blocks into an append-only \`reporting_owners.csv\` sidecar. It stores owner CIK/name, relationship flags, filing-level remarks, remarks hash and separate first-seen/acceptance clocks. It does not store owner addresses.
 2. Single-owner filings are explicitly labelled \`SINGLE_REPORTING_OWNER_FILING_GRAIN_ONLY\`. Multi-owner filings retain their owner identities but remain \`MULTI_OWNER_FILING_GRAIN_ONLY_NO_LINE_LINK\`; no owner order, signature order or proximity is used to assign a transaction line.
-3. \`phase525_form144_form4_crosswalk.py\` matches only on issuer CIK, Form 144 filer/owner CIK, normalized owner name, transaction date, exact shares, security class, and Form 4 S / D disposition. It separately labels proposed-sale and prior-sale-history matches. Price/gross-value differences are retained as diagnostics, not used as a loose match key.
+3. \`phase525_form144_form4_crosswalk.py\` matches only on issuer CIK, Form 144 filer/owner CIK, normalized owner name, transaction date, exact shares, security class, and Form 4 S / D disposition. It separately labels proposed-sale and prior-sale-history matches. Form 144/A rows are excluded from new-sale matching until the amendment chain is reconciled. Price/gross-value differences are retained as diagnostics, not used as a loose match key. Ambiguous one-to-many candidates and any transaction row reused by multiple Form 144 events are quarantined.
 4. The Form 4 workflow runs a bounded ten-filing owner-identity enrichment after its existing structured-detail backfill, then emits a descriptive crosswalk artifact. It persists only the owner sidecar; crosswalk output is an artifact, not a mutable research ledger.
 5. The owner enrichment selects the oldest still-unenriched, bounded, already-parsed filings first so new hourly backfill does not starve the existing 20-filing backlog.
 
@@ -69,7 +69,7 @@ A separate prior Phase 524 case remains useful: Clean Energy Fuels (CLNE) Form 4
 - Form 4's current schema does not link transaction lines to owners in multi-owner filings. Those filings remain quarantined.
 - EDGAR acceptance and poll first-seen bounds are separate clocks; neither is treated as exact public receipt without evidence.
 - Form 144 \`approx_sale_date\` is used only to reconcile against a Form 4 transaction date, never as the event-availability timestamp.
-- Form 144 prior sales and proposed sales are distinct event roles. A Form 144/A amendment or plan termination is not automatically a new forward sale.
+- Form 144 prior sales and proposed sales are distinct event roles. Form 144/A detail rows are excluded from new-sale matching until the amendment chain is reconciled; a plan termination is not a new forward sale.
 - Remarks flags are filing-level text cues. They do not establish motive for each transaction line.
 - No raw XML is committed. The sidecar retains XML hashes and source provenance.
 
