@@ -1,0 +1,11 @@
+# Smart Money Research state addendum — Phase 519 (2026-11-20)
+
+- Main HEAD at preflight: `2f50cd7d92ca08b2d0c27aaa0baff6e4debf3a19`.
+- Latest 100 Actions runs, jobs, artifacts, branches, open PRs and research files were reviewed before this audit. Phase 518 FINRA T1 live audit [Run 44698665308](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44698665308) was already in progress (offline tests passed); no duplicate dispatch was made.
+- New source candidate: OCC Volume Query / Volume by Account Type. Official schema exposes underlying/options symbol, C/F/M account type, call/put, exchange, activity date and contract date. OCC's pages state a 24-month history window and provide daily/weekly/monthly query routes.
+- Important semantic limitation: C/F/M are clearing-account categories, not beneficial-owner identities; Volume Query does not expose buyer/seller aggressor side or opening/closing. Treat as account-type participation mix / options market structure, not “smart money” directional flow.
+- Daily Open Interest has a public report/download route, but exact first-public time, full current series-level schema and correction/vintage policy were not established.
+- **Access gate:** OCC Website Terms (updated 2025-02-05) prohibit automated systems, including robots/spiders/offline readers, and prohibit commercial exploitation of Website Data. OCC separately publishes Data Subscriber Terms and third-party data restrictions. No automated request, scrape, sample download or backfill was attempted. A suitable written license/permission is required before a collector can be built.
+- PIT, F80 335-name coverage, historical security/series identity, corrections and first-receipt clocks remain unverified. 24 months may support a limited pilot if licensed, but not automatically robust OOS; overlapping horizons require block-aware inference.
+- Disposition: conditional candidate only; no collector, no signal, no backtest/OOS/bootstrap/LOO. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+- Report: [Phase 519](research/PHASE519_OCC_ACCOUNT_TYPE_OPTIONS_VOLUME_AND_OPEN_INTEREST_FEASIBILITY_2026-11-20.md) · [summary](research/PHASE519_OCC_ACCOUNT_TYPE_OPTIONS_VOLUME_AND_OPEN_INTEREST_SUMMARY_2026-11-20.json).
