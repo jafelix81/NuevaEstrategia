@@ -260,7 +260,7 @@ def analyze_week(rows, week, record_total, pages):
         week_date = parse_date(row.get("weekStartDate"))
         pub_date = parse_date(row.get("initialPublishedDate"))
         update_date = parse_date(row.get("lastUpdateDate"))
-        if week_date is None or pub_date is None or update_date is None:
+        if week_date is None or week_date.isoformat() != week or pub_date is None or update_date is None:
             missing_invalid_dates += 1
         else:
             week_publication_dates.add(pub_date)
@@ -281,7 +281,7 @@ def analyze_week(rows, week, record_total, pages):
             week_date = parse_date(row.get("weekStartDate"))
             pub_date = parse_date(row.get("initialPublishedDate"))
             update_date = parse_date(row.get("lastUpdateDate"))
-            if week_date is None or pub_date is None or update_date is None:
+            if week_date is None or week_date.isoformat() != week or pub_date is None or update_date is None:
                 dates_valid = revision_stable = schedule_ok = False
                 continue
             publication_dates.add(pub_date)
@@ -416,6 +416,8 @@ def load_historical(summary_path, clock_summary_path, clock_csv_path):
     clock_summary = json.loads(Path(clock_summary_path).read_text(encoding="utf-8"))
     if summary.get("phase") != 375 or not summary.get("all_partitions_complete"):
         raise RuntimeError("Phase 375 artifact is not a complete historical baseline")
+    if not summary.get("inventory", {}).get("consecutive"):
+        raise RuntimeError("Phase 375 historical week inventory is not consecutive")
     if not summary.get("all_symbol_bridges_pass") or not summary.get("all_stable_concentration_gates_pass"):
         raise RuntimeError("Phase 375 aggregate bridge/concentration gate did not pass")
     if summary.get("raw_rows_retained") or summary.get("raw_identifiers_retained"):
@@ -473,9 +475,11 @@ def fetch_current(session):
     fields = tuple(metadata.get("partitionFields") or ())
     if fields != EXPECTED_FIELDS:
         raise RuntimeError(f"Current weeklySummary partition schema changed: {fields}")
+    if metadata.get("status") not in (None, "Active"):
+        raise RuntimeError(f"Current weeklySummary status is not Active: {metadata.get(chr(115)+chr(116)+chr(97)+chr(116)+chr(117)+chr(115))}")
     partitions = request_json(session, PARTITIONS_URL)
     raw, unique = parse_partitions(partitions, fields)
-    weeks = sorted({row["weekStartDate"] for row in unique if row["tierIdentifier"] == TIER})
+    weeks = sorted({week for week, tier in unique if tier == TIER})
     if len(weeks) < 40 or len(weeks) > 54:
         raise RuntimeError(f"Unexpected current 12-month T1 partition count: {len(weeks)}")
     parsed = [date.fromisoformat(week) for week in weeks]
