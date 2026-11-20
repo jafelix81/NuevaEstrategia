@@ -1,0 +1,110 @@
+{
+  "phase": 515,
+  "date": "2026-11-20",
+  "disposition": "FINRA_CNMS_MARKET_LIST_SCHEMA_REPAIR_OFFLINE_PENDING_LIVE_VALIDATION",
+  "main_head_before": "1fa5e7c427caba657c74b4e4268f57e47cc82b00",
+  "preflight": {
+    "latest_actions_runs_inspected": 100,
+    "active_runs": 0,
+    "queued_runs": 0,
+    "manual_dispatches": 0,
+    "manual_reruns": 0
+  },
+  "latest_runs": {
+    "finra_regsho": {
+      "run_id": 44669121290,
+      "workflow": "Phase 469 - FINRA Reg SHO daily first-seen metadata capture",
+      "offline_regression": "success",
+      "offline_tests_passed": 56,
+      "live_capture": "success",
+      "requested_trade_dates": [
+        "2026-11-19",
+        "2026-11-18",
+        "2026-11-17",
+        "2026-11-16",
+        "2026-11-13",
+        "2026-11-12",
+        "2026-11-11",
+        "2026-11-10"
+      ],
+      "http_200": 8,
+      "valid_files": 0,
+      "invalid_files": 8,
+      "invalid_reason": "market_code_invalid",
+      "first_seen": 0,
+      "eligible_first_seen": 0,
+      "research_observation_eligible_count": 0,
+      "signal_eligible_count": 0,
+      "raw_market_data_persisted": false,
+      "all_invalid_response_hashes_retained": true
+    },
+    "cftc_tff": {
+      "run_id": 44668300202,
+      "total_rows": 3039,
+      "new_reports_or_revisions": 0,
+      "signal_eligible_historical_rows": 0,
+      "alpha_test_authorized": false
+    },
+    "sec_form144": {
+      "run_id": 44662324343,
+      "feeds_successful": [
+        "144",
+        "144A"
+      ],
+      "pagination_complete": true,
+      "feed_observation_rows_appended": 103,
+      "new_xml_blocks_resolved": 70,
+      "new_accessions_parsed": 70,
+      "new_detail_rows_appended": 542,
+      "bounded_backfill_attempts": 10,
+      "backfill_accessions_parsed": 10,
+      "backfill_detail_rows_appended": 54,
+      "ledger_accessions": 80,
+      "ledger_rows": 596,
+      "issuer_ciks": 61,
+      "hash_matches": 596,
+      "hash_mismatches": 0,
+      "remaining_backfill_accessions": 368,
+      "signal_eligible_rows": 0
+    },
+    "sec_form4": {
+      "run_id": 44656159115,
+      "new_form4_accessions": 457,
+      "new_form4a_accessions": 0,
+      "bounded_backfill_attempts": 10,
+      "structured_accessions_parsed": 10,
+      "detail_rows_appended": 22,
+      "parse_errors": 0,
+      "remaining_backfill_accessions": 1190,
+      "source_hash_comparable_rows": 0,
+      "public_availability_certified_rows": 0,
+      "signal_eligible_rows": 0
+    }
+  },
+  "parser_repair": {
+    "consolidated_market_field_example": "B,Q,N",
+    "consolidated_rows_are_security_grain": true,
+    "consolidated_volumes_are_not_resummed": true,
+    "legacy_single_code_facility_rows_still_supported": true,
+    "duplicate_composite_symbol_rejected": true,
+    "market_code_list_tokens_must_be_single_letters": true,
+    "new_offline_tests": 4,
+    "expected_combined_phase469_test_count": 59,
+    "live_validation_pending": true
+  },
+  "pit": {
+    "previous_invalid_dates_retroactively_eligible": false,
+    "invalid_file_is_not_equivalent_to_not_available": true,
+    "older_first_valid_observations_without_prior_not_available_are_bootstrap_only": true
+  },
+  "controls": {
+    "no_backtest": true,
+    "no_event_study": true,
+    "no_oos": true,
+    "no_bootstrap": true,
+    "no_loo": true,
+    "no_signal_admitted": true,
+    "f80_frozen": true,
+    "production_unchanged": true
+  }
+}
