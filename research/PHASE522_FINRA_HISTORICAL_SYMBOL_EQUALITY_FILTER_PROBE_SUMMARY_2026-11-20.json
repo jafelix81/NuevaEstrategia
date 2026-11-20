@@ -1,0 +1,28 @@
+{
+  "phase": 522,
+  "audit_timestamp_utc": "2026-11-20T09:34:28.758435Z",
+  "final_run_id": 44711825847,
+  "artifact_id": 14616309604,
+  "dataset": "otcmarket/weeklySummaryHistoric",
+  "week": "2024-05-20",
+  "requested_symbol_count": 10,
+  "queries_attempted": 1,
+  "queries_succeeded": 0,
+  "queries_rejected": 1,
+  "http_status": 400,
+  "rows_returned_total": 0,
+  "disposition": "HISTORICAL_SYMBOL_EQUALITY_FILTER_UNSUPPORTED",
+  "official_constraint": "weeklySummaryHistoric supports one time partition filter and tierIdentifier; no other fields can be filtered",
+  "next_step": "Do not retry symbol filters; only consider one-time full-partition extraction after identity and price gates pass",
+  "authorization": {
+    "returns": false,
+    "alpha": false,
+    "oos": false,
+    "bootstrap": false,
+    "loo": false,
+    "holdout": false,
+    "signal_admitted": false,
+    "f80_changed": false,
+    "production_changed": false
+  }
+}
