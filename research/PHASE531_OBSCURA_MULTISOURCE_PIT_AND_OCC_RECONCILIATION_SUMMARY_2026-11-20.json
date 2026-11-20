@@ -16,7 +16,21 @@
     ],
     "form4_reporting_owners_file_present": false,
     "issue_185_updated": true,
-    "manual_dispatch_performed": false
+    "manual_dispatch_performed": false,
+    "post_pr_offline_checks": [
+      {
+        "run_id": 44783867533,
+        "workflow": "Phase 460",
+        "conclusion": "success",
+        "artifacts": 0
+      },
+      {
+        "run_id": 44783866875,
+        "workflow": "Phase 461",
+        "conclusion": "success",
+        "artifacts": 0
+      }
+    ]
   },
   "occ": {
     "daily_open_interest": {
@@ -47,15 +61,18 @@
   "obscura": {
     "catalog_size": 125,
     "flow_metrics": {
-      "daily": true,
-      "columns": 127,
+      "dataset_page_columns": 126,
+      "homepage_example_fields": 127,
       "described_factors": 119,
       "aggressor_method": "QUOTE_RULE_WITH_TICK_RULE_FALLBACK",
-      "available_date": "SESSION_DATE_ONLY",
+      "dataset_page_available_date_claim": "SESSION_DATE",
+      "homepage_available_date_claim": "NEXT_CALENDAR_DAY",
+      "available_date_semantics_verified": false,
+      "documentation_conflict": true,
       "exact_history_start_verified": false,
       "universe_335_coverage_verified": false,
       "source_methodology_independently_verified": false,
-      "decision": "CONDITIONAL_PILOT_CANDIDATE"
+      "decision": "CONDITIONAL_PILOT_ONLY_AFTER_VENDOR_CLARIFICATION"
     },
     "sec_midas_security_metrics": {
       "source_period": "2012Q1_TO_2026Q2",
@@ -69,7 +86,8 @@
       ],
       "per_quarter_publication_dates_verified": false,
       "universe_335_coverage_verified": false,
-      "decision": "CONDITIONAL_PIT_AND_COVERAGE_AUDIT"
+      "decision": "CONDITIONAL_PIT_AND_COVERAGE_AUDIT",
+      "data_gov_metadata_stale": true
     },
     "finra_short_volume": {
       "same_day_file_after_regular_hours": true,
