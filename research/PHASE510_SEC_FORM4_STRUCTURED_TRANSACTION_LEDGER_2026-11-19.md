@@ -31,7 +31,7 @@ A fetch failure remains pending for a later bounded retry. A successfully retrie
 
 ## 3. Validation
 
-The synthetic regression suite covers non-derivative/derivative separation, multi-owner quarantine, P-code semantics, amendment treatment, Decimal/date parsing, missing-value behavior, independent first-seen and retrieval clocks, idempotent append, bounded-only selection, backfill limit and manual-mode no-write behavior.
+The 11 Phase 510 synthetic regression tests cover non-derivative/derivative separation, multi-owner quarantine, P-code semantics, amendment treatment, Decimal/date parsing, missing-value behavior, independent first-seen and retrieval clocks, strict rejection of naive/reversed intervals, parser-version-aware reprocessing, idempotent append, bounded-only selection, backfill limit and manual-mode no-write behavior. Combined with Phase 476, CI run 44642337001 passed 50 tests.
 
 PR CI is offline-only. The first scheduled Phase 476 run after merge is the live integration gate. It must demonstrate actual XML retrieval, parse success, append-only behavior and artifact summary before the ledger can be described as live-validated.
 
