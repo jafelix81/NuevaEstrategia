@@ -23,7 +23,7 @@ Public SEC Form 4 for Andrew J. Littlefair / Clean Energy Fuels Corp.:
 - Price: $1.8391 per share.
 - Gross proceeds: approximately $183,910.
 - Direct shares held after: 1,882,832.
-- SEC acceptance: 2026-11-12 21:02:10 UTC (16:02:10 ET).
+- Form 4 filing date: 2026-11-12 (issuer-hosted filing page; exact public acceptance time was not independently verified from the primary document).
 - SEC XML: [Form 4 primary XML](https://www.sec.gov/Archives/edgar/data/1400209/000140020926000018/form4-11122026_091106.xml).
 
 ### Form 144 — notice with matching fields
@@ -40,7 +40,7 @@ Clean Energy Fuels Form 144:
 - “Securities Sold During the Past 3 Months”: Nothing to Report.
 - Issuer-hosted primary document: [Form 144, Nov. 19, 2026](https://investors.cleanenergyfuels.com/sec-filings/all-sec-filings/content/0001974078-26-000422/primary_doc.html).
 
-The Form 144's date, quantity and seller match the Form 4 transaction. The Form 4 was accepted seven calendar days before the Form 144; the transaction date was nine calendar days before the Form 144. The Form 144's “Nothing to Report” flag also appears inconsistent with the matching Form 4 sale in the preceding three months.
+The Form 144's date, quantity and seller match the Form 4 transaction. The Form 4 filing date was seven calendar days before the Form 144; the transaction date was nine calendar days before the Form 144. The Form 144's “Nothing to Report” flag also appears inconsistent with the matching Form 4 sale in the preceding three months.
 
 The Form 144 was first observed by our collector at 2026-11-19 21:00:26 UTC. Its bounded first-seen interval is 2026-11-19 02:50:33–21:00:26 UTC; this is a conservative receipt bound, not the exact public dissemination time. The EDGAR acceptance timestamp is recorded separately.
 
