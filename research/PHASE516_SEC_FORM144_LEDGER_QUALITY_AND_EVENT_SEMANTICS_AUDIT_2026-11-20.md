@@ -109,3 +109,11 @@ No backtest, event study, OOS, bootstrap, LOO, or holdout test was run in this p
 - New Smart Money signals admitted: 0.
 - `F80_TOP20_PARTIAL50_BASELINE_C20`: frozen.
 - Universe, parameters, exposure, costs, holding-period rules, holdout, and production: unchanged.
+
+## 8. Validation and integration
+
+- PR [#169](https://github.com/jafelix81/NuevaEstrategia/pull/169) merged successfully by squash.
+- CI [Run 44680495072](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44680495072) passed: 64/64 combined offline tests, including all five Phase 516 tests; the live-capture job was skipped as intended for a pull request.
+- The actual committed-ledger audit ran in CI and returned `DESCRIPTIVE_LEDGER_QUALITY_PASS_WITH_SEMANTIC_REVIEW_QUEUE` with 80 filing headers, 596 detail rows, 27 formal plan dates, three past-notice-date cases, zero public-availability certifications and zero signal-eligible filings.
+- Merge commit: `c23bdd734f3cef1c8ead0d974c081a0093e1b067`.
+- No live SEC poll was dispatched or duplicated. The next existing scheduled Phase 469 FINRA run remains the validation gate for the Phase 515 CNMS parser repair.
