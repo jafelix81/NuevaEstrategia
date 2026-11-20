@@ -54,7 +54,11 @@
     "same_date_pairs": 8,
     "exact_proposed_sale_matches": 2,
     "exact_prior_sale_matches": 1,
-    "signal_eligible_matches": 0
+    "signal_eligible_matches": 0,
+    "form144a_detail_rows_excluded_from_new_sale_matching": 8,
+    "ambiguous_candidate_quarantine": true,
+    "transaction_row_reuse_quarantine": true,
+    "security_class_matching": "exact canonical token match after removing generic STOCK/SHARES suffixes"
   },
   "matched_events": [
     {
@@ -108,7 +112,9 @@
     "single_owner_filing_grain_only": true,
     "multi_owner_line_link_authorized": false,
     "remarks_captured_at_filing_grain": true,
-    "signal_eligible": false
+    "signal_eligible": false,
+    "multiple_owner_rows_preserved_at_filing_grain": true,
+    "single_owner_only_crosswalk": true
   },
   "controls": {
     "public_availability_certified": false,
