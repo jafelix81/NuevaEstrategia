@@ -1,0 +1,85 @@
+# Phase 377 — CFTC TFF full coverage and contract-key audit
+
+**Status:** implementation and deterministic unit tests added; hosted full-dataset retrieval pending.  
+**Parent:** Phase 376 CFTC TFF source-feasibility audit.  
+**Scope:** source/data-feasibility only; no feature or return test.
+
+## Why this phase is necessary
+
+Phase 376 identified four candidate equity-index contract codes in the public TFF Futures Only dataset, but those code anchors were not yet validated across the complete history. The CFTC explicitly states that its dataset has no primary key, and that markets can disappear from a report when the reportable-trader threshold is not met. Therefore a code/name crosswalk, candidate-key audit and explicit missing-week accounting are prerequisites.
+
+The audit also separates the E-mini S&P 500 series (13874A) from the S&P 500 Consolidated series (13874+). These are distinct report rows and must not be added together. CFTC historical files show both labels/codes in the same TFF report.
+
+## Method
+
+1. Read the Socrata dataset metadata before and after retrieval.
+2. Query the official row count before and after.
+3. Retrieve the complete TFF Futures Only resource in one snapshot (current dataset is approximately 47.3k rows, below the 50,000-row request ceiling used here).
+4. Require exact row-count reconciliation and an unchanged metadata update stamp.
+5. Audit schema fields, ID duplicates (diagnostic only), candidate natural-key duplicates, weekly coverage/gaps, code/name/exchange variants, category-position missingness and open-interest arithmetic.
+6. Discover related equity-index rows by contract name rather than assuming the four candidate codes exhaust the universe.
+7. Retain only an anonymized summary; no raw rows or IDs are persisted.
+
+## Candidate series
+
+- 13874A — E-MINI S&P 500
+- 209742 — NASDAQ-100 STOCK INDEX (MINI)
+- 239742 — RUSSELL 2000 STOCK INDEX (MINI)
+- 124603 — DOW JONES INDUSTRIAL AVG - x $5
+- 13874+ — S&P 500 Consolidated; separately reported and non-additive with the E-mini line.
+
+These are candidates to validate, not assumed immutable mappings. Any code/name changes, duplicate report-date/code keys, missing weeks or threshold-driven disappearances remain visible in the result.
+
+## PIT and interpretation controls
+
+- Tuesday is the position date, not the knowledge date.
+- The usual CFTC release is Friday 3:30 p.m. Eastern, with holiday and exceptional backlog delays.
+- CFTC says actual historical release dates are only available for the latest 13 months and that historical data is not updated after publication.
+- The 2025 catch-up schedule must use the actual catch-up dates, not original scheduled Fridays.
+- Older release dates can only be labelled schedule proxies until independently verified; they cannot be called strict historical PIT.
+- TFF categories are self-reported business-purpose classifications, not beneficial-owner identities or verified informed traders.
+- Missing contract-weeks are not zero and must never be forward-filled.
+
+## Competing hypotheses reserved for later
+
+1. Leveraged Money positioning adds information beyond prior index returns, volatility and the frozen QQQ Risk ON/OFF state.
+2. Apparent positioning information is return-chasing and disappears after controlling for prior returns.
+3. Extreme positioning predicts crowding/downside risk rather than directional alpha.
+4. TFF adds no incremental information and should be archived as redundant.
+
+No hypothesis is tested in this phase. If data gates pass, freeze one primary E-mini S&P 500 feature and a small horizon grid before exploratory chronological tests. Compare against frozen LTM/F80 at identical exposure and costs. Do not use the legacy consumed holdout.
+
+## Execution
+
+- Local/hosted tests are defined in `test_phase377_cftc_tff_full_coverage_audit.py`.
+- Hosted result and anonymized artifact link will be added after the branch workflow completes.
+- Phase 375 FINRA T1 ATS 209-week retrieval remains a separate active workflow; this CFTC audit does not duplicate or modify it.
+
+## Controls
+
+No raw data retention, forward returns, alpha, OOS, bootstrap, LOO or holdout use. No vendor purchase/contact. No change to `F80_TOP20_PARTIAL50_BASELINE_C20`, production, universe, capital, parameters or exposure.
+
+
+## Phase 378 correction — holiday-shifted weekly report slots (2026-11-19)
+
+The hosted Phase 377 run [43497266092](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43497266092) retrieved 47,322 rows across 90 fields, reconciled the before/after row counts and metadata stamp, and found 1,065 distinct report dates. For the three primary index contracts (13874A, 209742, 124603), the original summary showed 100.0% `coverage_pct` but also 14 missing Tuesday anchors, 14 non-Tuesday dates and an 8-day maximum date gap. This was an internal metric inconsistency: the original helper anchored an exact 7-day date grid at the first observed report date, even though the CFTC historical report calendar contains holiday-shifted report dates.
+
+Phase 378 replaces exact-Tuesday anchoring with ISO-week slots, reports shifted dates separately, detects duplicate report dates within a week, and calculates longest/latest contiguous weekly runs. This changes only the **report-date coverage diagnostic**. It does not turn report dates into publication dates or resolve historical PIT.
+
+The full CFTC historical viewable archive explicitly says its dates are report dates, not release dates, and displays holiday-shifted report dates such as 2006-07-03, 2007-01-03, 2007-12-24, 2008-01-02, 2008-12-22, 2023-07-03 and 2025-11-10. Official reference: https://www.cftc.gov/MarketReports/CommitmentsofTraders/HistoricalViewable/index.htm.
+
+The corrected hosted full-snapshot rerun is pending. Russell 2000 (239742) remains a separate incomplete-history candidate: 601 rows versus 1,065 weekly slots in the original full-span diagnostic (56.431925%), with a 3,255-day maximum gap. Phase 378 adds contiguous-run diagnostics before deciding whether any later subperiod could be considered.
+
+No feature, forward return, alpha, OOS, bootstrap, LOO or holdout test is authorized. No release-date inference, signal admission, production change or F80 change.
+
+
+### Hosted Phase 378 rerun — PASS (2026-11-20 UTC)
+
+- Run: [44648241623](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44648241623); artifact: [14589078987](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44648241623/artifacts/14589078987).
+- 19/19 deterministic tests passed; full public snapshot: 47,420 rows, 90 fields; before/after row count and metadata timestamp reconciled; snapshot stable during retrieval.
+- Primary contracts 13874A, 209742 and 124603: 1,066 report dates each, 1,066/1,066 ISO weeks (100%), zero missing ISO weeks, zero duplicate ISO-week slots, 14 shifted non-Tuesday report dates each, longest contiguous run 1,066 weeks from 2006-06-12 through 2026-11-09. The maximum raw date gap remains 8 days, but the maximum ISO-week gap is 1.
+- Russell 2000 239742: 602 report dates; 56.472795% full-span weekly coverage; 464 missing ISO weeks; maximum gap 3,255 days. Its latest and longest contiguous run is 483 weeks from 2017-08-14 through 2026-11-09. Treat it as a separate 2017-08-14+ subperiod candidate, not as a continuous 2006–2026 series.
+- All four candidate codes present; natural keys `(report_date, contract_code)` unique; no duplicate ISO-week slots; primary-index weekly-completeness gate passed.
+- The earlier run [44648144217](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44648144217) failed only one newly added synthetic fixture (Russell fixture contained a single date and therefore no internal gap). The fixture was corrected; the subsequent hosted run above passed. No source retrieval occurred in the failed run.
+
+This corrects the Phase 377 date-grid metric. It does **not** establish historical publication-time PIT, and does not authorize an alpha test.
