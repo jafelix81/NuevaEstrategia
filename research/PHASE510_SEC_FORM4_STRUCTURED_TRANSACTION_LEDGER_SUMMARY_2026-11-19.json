@@ -1,0 +1,57 @@
+{
+  "phase": 510,
+  "status": "IMPLEMENTED_PENDING_POST_MERGE_LIVE_VALIDATION",
+  "repository": "jafelix81/NuevaEstrategia",
+  "preflight_main": "44b2560cd931b52c474cd05f939fe440ae484f0d",
+  "source": "existing SEC Form 4/4-A first-seen event ledger from Phase 476",
+  "design": {
+    "existing_schedule_reused": true,
+    "new_workflow_or_cron": false,
+    "max_accessions_per_scheduled_run": 10,
+    "order": "newest_first",
+    "eligible_input_status": "BOUNDED_METADATA_ONLY",
+    "raw_xml_persisted": false,
+    "footnote_text_persisted": false,
+    "row_grain": [
+      "filing_header",
+      "non_derivative_transaction",
+      "derivative_transaction"
+    ],
+    "owner_attribution": "filing_grain_only_single_owner; multi-owner rows quarantined",
+    "amendment_policy": "Form 4/A is an information arrival, not automatically a new economic trade",
+    "p_code_policy": "Preserve P/A without asserting confirmed exchange execution",
+    "strict_event_clock_validation": true,
+    "parser_version_aware_append": true
+  },
+  "controls": {
+    "research_observation_eligible": false,
+    "signal_eligible": false,
+    "public_availability_certified": false,
+    "same_day_intraday_use_authorized": false,
+    "security_identity_verified": false,
+    "historical_f80_membership_verified": false,
+    "owner_attribution_verified": false,
+    "transaction_semantics_verified": false,
+    "f80_changed": false,
+    "production_changed": false
+  },
+  "validation": {
+    "synthetic_tests": 11,
+    "live_validation": "PENDING_FIRST_POST_MERGE_SCHEDULED_PHASE476_RUN",
+    "ci_tests_total": 50,
+    "ci_run_id": 44642337001,
+    "ci_conclusion": "success",
+    "live_capture": "skipped_by_design_in_pull_request"
+  },
+  "prior_evidence": {
+    "phase497_accessions_retrieved": 637,
+    "phase497_nonderivative_p_a_rows": 145,
+    "phase497_structural_completeness_queue": 81,
+    "phase497_repeat_retrieval": 636,
+    "phase497_repeat_explicit_open_market_keyword_rows_in_queue": 2,
+    "phase498_bounded_events": 655,
+    "phase498_interval_width_hours_min": 6.4675,
+    "phase498_interval_width_hours_max": 8.54
+  },
+  "decision": "INFRASTRUCTURE_ONLY_NO_SIGNAL_ADMITTED"
+}
