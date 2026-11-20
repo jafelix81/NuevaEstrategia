@@ -1,0 +1,119 @@
+{
+  "phase": 535,
+  "date": "2026-11-20",
+  "source": "FINRA ATS Transparency historical download archive",
+  "status": "HTTP_BLOCKED_OR_UNAVAILABLE",
+  "run_id": 44824072120,
+  "run_url": "https://github.com/jafelix81/NuevaEstrategia/actions/runs/44824072120",
+  "artifact_id": 14672703365,
+  "artifact_url": "https://github.com/jafelix81/NuevaEstrategia/actions/runs/44824072120/artifacts/14672703365",
+  "audit": {
+    "http_status": 530,
+    "content_type": "text/html; charset=UTF-8",
+    "response_bytes": 8177,
+    "table_found": false,
+    "report_rows": 0,
+    "sample_downloads": 0,
+    "raw_data_saved": false,
+    "certification_accepted": false,
+    "login_or_form_submission": false
+  },
+  "offline_tests": {
+    "passed": 5,
+    "failed": 0
+  },
+  "technical_note": "First attempt failed because requests was not installed in the test job; dependency was added and the corrected GET-only audit passed.",
+  "historical_potential": {
+    "first_reporting_week": "2014-05-12",
+    "first_website_publication": "2014-06-02",
+    "current_archive_range_verified": false
+  },
+  "phase100_api_sample": {
+    "partitions": 10,
+    "rows": 968139,
+    "record_total_reconciled": true,
+    "initial_published_date_nonnull_pct": 100,
+    "observed_publication_lag_days": {
+      "T1": 21,
+      "T2": 35
+    },
+    "legacy_f80_union_coverage_pct_range": [
+      94.63,
+      99.1
+    ],
+    "legacy_f80_role": "diagnostic_only_not_representative",
+    "rows_updated_after_initial_publish": 1882,
+    "missing_symbol_rows": 2,
+    "conflicting_duplicate_groups": 2,
+    "data_gate": "FAIL_OR_PARTIAL",
+    "pit_vintage_status": "CONDITIONAL_CURRENT_VALUE_REVISION_HISTORY_NOT_PROVEN",
+    "alpha_test_authorized": false
+  },
+  "blocks_summary": {
+    "partitions": 123,
+    "min_month": "2016-06-01",
+    "max_month": "2026-08-01",
+    "security_identifier_present": false,
+    "stock_alpha_status": "KILLED",
+    "market_regime_status": "PARKED"
+  },
+  "licensing": {
+    "old_2014_fee_schedule_removed": true,
+    "public_no_charge_effective": "2015-07-13",
+    "certification_and_terms_still_apply": true
+  },
+  "pit": {
+    "archive_has_initial_publication_date": false,
+    "archive_has_row_update_dates": true,
+    "status": "NOT_ESTABLISHED"
+  },
+  "f80": {
+    "name": "F80_TOP20_PARTIAL50_BASELINE_C20",
+    "frozen": true,
+    "new_signals_admitted": 0,
+    "new_oos_results": 0,
+    "changes": 0
+  },
+  "query_api_alternative": {
+    "datasets": {
+      "weeklySummary": "rolling 12 months",
+      "weeklySummaryHistoric": "rolling 4 years; older-than-one-year data are static"
+    },
+    "history_validated_by_prior_phases": {
+      "combined_weeks": 259,
+      "first_week": "2021-11-15",
+      "last_week": "2026-10-26",
+      "phase100_sample_partitions": 10,
+      "phase100_sample_rows": 968139,
+      "phase518_incremental_weeks": 50,
+      "phase518_incremental_rows": 3497002,
+      "record_total_reconciled": true,
+      "publication_clock_passed_incremental_weeks": 50
+    },
+    "phase100_quality_gates": {
+      "initial_published_date_nonnull_symbol_aggregate_pct": 100,
+      "observed_publication_lag_days": {
+        "T1": 21,
+        "T2": 35
+      },
+      "rows_updated_after_initial_publication": 1882,
+      "missing_symbol_rows": 2,
+      "conflicting_duplicate_key_groups": 2
+    },
+    "historical_filter_constraints": {
+      "domain_filter_symbol_probe": "HTTP_400_PHASE521",
+      "symbol_equality_filter_probe": "HTTP_400_PHASE522",
+      "targeted_335_symbol_query_supported": false
+    },
+    "pit_status": "CONDITIONAL_CURRENT_PANEL_REVISION_VINTAGE_AND_IDENTITY_GATES_OPEN",
+    "terms": {
+      "equity_specific_use": "non-commercial personal or professional use",
+      "public_credential_for_individuals": true,
+      "derivative_resultant_data_permitted_subject_to_attribution_and_noncommercial_redistribution_conditions": true,
+      "api_only_access_required": true,
+      "scraping_or_non_api_bulk_copy_prohibited": true
+    },
+    "decision": "retain_recent_query_api_panel; do_not_repeat_full_extraction_until_effective_dated_identity_historical_active_universe_and_survivorship_aware_returns_are_resolved"
+  },
+  "final_disposition": "ARCHIVE_ENDPOINT_HTTP_530; QUERY_API_RECENT_PANEL_RETAINED; NO_SIGNAL_OR_ALPHA_TEST"
+}

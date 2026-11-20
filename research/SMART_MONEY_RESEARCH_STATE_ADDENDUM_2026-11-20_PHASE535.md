@@ -1,0 +1,12 @@
+# Smart Money Research — Phase 535 addendum
+
+- FINRA ATS Transparency's separate downloadable archive may extend weekly security-by-ATS history to 2014, earlier than the Query API's rolling historic endpoint. The official 2015 guide documents `tblTrading` machine download and per-row shares/trades update dates.
+- The old 2014 $12k/$18k ATS data fee schedule was removed by SR-FINRA-2015-023; FINRA made the ATS data public at no charge effective July 13, 2015. Do not treat the old fees as current. The website's user certification/terms remain binding; Phase 535 does not accept them.
+- `blocksSummary` is market-wide by ATS/MPID/month and has no ticker field; stock-selection hypotheses are killed.
+- Phase 100 API sample: 968,139 rows / 10 partitions; 100% initialPublishedDate on symbol aggregates; observed 21/35-day publication lags; 1,882 later updates; two missing-symbol rows and two LND duplicate-key groups; strict data/integrity and PIT-vintage gates remain open.
+- Live GET-only archive audit returned HTTP 530 from GitHub Actions; no table or report data were accessible, and no certification was accepted. Corrected workflow passed 5/5 offline tests; artifact 14672703365. No raw data stored, no alpha test, no signal admitted. F80 remains frozen.
+
+- **Query API alternative:** the archive HTTP 530 does not block FINRA's separate Query API. `weeklySummary` is rolling 12 months and `weeklySummaryHistoric` rolling four years; Phase 518 already validated 259 consecutive weeks (2021-11-15–2026-10-26), including 50 new weeks / 3,497,002 rows and all 50 publication clocks. This does not extend history to 2014.
+- **No targeted historical symbol filter:** Phase 521 `domainFilters` and Phase 522 symbol equality filters both returned HTTP 400. A symbol-week panel requires full partitions; do not repeat the extraction until PIT identity, historical active universe and survivorship-aware returns are solved.
+- **Terms:** FINRA Equity Specific Terms permit individual Public credentials for non-commercial personal/professional use and allow derivative/Resultant Data subject to attribution and redistribution conditions. General API terms require FINRA-issued credentials/API access and prohibit scraping, non-API bulk copying and security bypass. No new credential or terms acceptance occurred in Phase 535; no raw rows or participant identifiers belong in the public repository.
+- **Decision:** keep the recent Query API panel conditional; stop automated retries of the blocked machine archive. No signal, alpha test or F80 change.
