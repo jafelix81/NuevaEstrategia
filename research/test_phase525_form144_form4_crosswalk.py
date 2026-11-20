@@ -42,6 +42,14 @@ class Phase525CrosswalkTests(unittest.TestCase):
         rows, _ = build_crosswalk(f144, f4, owners)
         self.assertEqual(rows, [])
 
+    def test_ambiguous_transaction_candidates_are_quarantined(self):
+        f144, f4, owners = fixtures()
+        f4.append(dict(f4[0]))
+        rows, summary = build_crosswalk(f144, f4, owners)
+        self.assertEqual(summary["ambiguous_form144_events_quarantined"], 1)
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["form144_event_role"], "PRIOR_SALE_HISTORY")
+
     def test_no_owner_sidecar_cannot_create_a_match(self):
         f144, f4, _ = fixtures()
         rows, summary = build_crosswalk(f144, f4, [])
