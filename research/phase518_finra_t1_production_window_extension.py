@@ -470,6 +470,75 @@ def load_historical(summary_path, clock_summary_path, clock_csv_path):
     return output
 
 
+
+def audit_current_inventory(session):
+    metadata = request_json(session, META_URL)
+    fields = tuple(metadata.get("partitionFields") or ())
+    if fields != EXPECTED_FIELDS:
+        raise RuntimeError(f"Current weeklySummary partition schema changed: {fields}")
+    partitions = request_json(session, PARTITIONS_URL)
+    raw, unique = parse_partitions(partitions, fields)
+    tier_counts = Counter(tier for _, tier in unique)
+    weeks = sorted({week for week, tier in unique if tier == TIER})
+    if not weeks:
+        raise RuntimeError("Current weeklySummary partition inventory contains no T1 weeks")
+    sample_weeks = {weeks[0], weeks[len(weeks)//2], weeks[-1]}
+    boundary = "2025-11-17"
+    if boundary in weeks:
+        sample_weeks.add(boundary)
+    nyse = mcal.get_calendar("NYSE")
+    parsed_samples = [date.fromisoformat(week) for week in sample_weeks]
+    schedule = nyse.schedule(
+        start_date=(min(parsed_samples)-timedelta(days=10)).isoformat(),
+        end_date=(max(parsed_samples)+timedelta(days=120)).isoformat(),
+    )
+    sessions = sorted(ts.date() for ts in schedule.index)
+    samples = []
+    for week in sorted(sample_weeks):
+        rows, total, pages = fetch_week(session, week)
+        part = analyze_week(rows, week, total, pages)
+        pub = parse_date(part["initial_published_date"])
+        entry = next_nyse_session(pub, sessions) if pub and part["date_level_clock_valid"] else None
+        samples.append({
+            "week_start_date": week,
+            "rows": total,
+            "pages": pages,
+            "publication_date": pub.isoformat() if pub else None,
+            "publication_lag_days": part["publication_lag_days"],
+            "date_level_clock_valid": part["date_level_clock_valid"],
+            "first_eligible_nyse_session": entry.isoformat() if entry else None,
+            "symbol_bridge_gate": part["symbol_bridge_gate"],
+            "aggregate_symbols": part["aggregate_symbols"],
+            "firm_symbols": part["firm_symbols"],
+            "revision_stable_symbols": part["revision_stable_symbols"],
+            "revised_symbols": part["revised_symbols"],
+            "revision_stable_concentration_symbols": part["revision_stable_concentration_symbols"],
+            "share_coverage_pct": part["share_coverage_pct"],
+            "hhi_mean": part["hhi_mean"],
+        })
+        print(
+            f"INVENTORY_SAMPLE|WEEK={week}|ROWS={total}|PUB={pub}|"
+            f"LAG={part['publication_lag_days']}|BRIDGE={part['symbol_bridge_gate']}|"
+            f"SHARE_COVERAGE={part['share_coverage_pct']}",
+            flush=True,
+        )
+        del rows
+    return {
+        "metadata_status": metadata.get("status"),
+        "partition_fields": list(fields),
+        "partition_payload_keys": sorted(partitions.keys()) if isinstance(partitions, dict) else [],
+        "raw_partition_records": len(raw),
+        "unique_partition_pairs": len(unique),
+        "tier_counts": dict(tier_counts),
+        "t1_week_count": len(weeks),
+        "first_t1_week": weeks[0],
+        "last_t1_week": weeks[-1],
+        "sample_weeks": samples,
+        "raw_rows_retained": False,
+        "raw_identifiers_retained": False,
+    }
+
+
 def fetch_current(session):
     metadata = request_json(session, META_URL)
     fields = tuple(metadata.get("partitionFields") or ())
@@ -703,6 +772,7 @@ def main():
     parser.add_argument("--historical-clock-summary", required=True)
     parser.add_argument("--historical-clock-csv", required=True)
     parser.add_argument("--output", default="phase518_output")
+    parser.add_argument("--inventory-only", action="store_true")
     args = parser.parse_args()
     output_dir = Path(args.output)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -720,6 +790,41 @@ def main():
     token = os.getenv("FINRA_API_TOKEN", "").strip()
     if token:
         session.headers["Authorization"] = f"Bearer {token}"
+    if args.inventory_only:
+        inventory = audit_current_inventory(session)
+        summary = {
+            "phase": 518,
+            "mode": "CURRENT_WEEKLYSUMMARY_PARTITION_AND_SAMPLE_AUDIT",
+            "audit_timestamp_utc": datetime.now(timezone.utc).isoformat(),
+            "historical_artifacts_validated": True,
+            "current_inventory": inventory,
+            "interpretation": "The official FINRA documentation describes weeklySummary as a rolling 12-month production dataset. This audit independently checks the live partition inventory and samples boundary/middle weeks before assuming its effective history.",
+            "authorization": {
+                "data_feasibility_only": True,
+                "historical_signal_test_authorized": False,
+                "return_or_alpha_test_authorized": False,
+                "forward_returns_used": False,
+                "oos_used": False,
+                "bootstrap_used": False,
+                "loo_used": False,
+                "holdout_used": False,
+                "signal_admitted": False,
+                "f80_changed": False,
+                "production_changed": False,
+            },
+        }
+        (output_dir / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
+        print(json.dumps({
+            "phase": 518,
+            "mode": summary["mode"],
+            "status": inventory["metadata_status"],
+            "t1_week_count": inventory["t1_week_count"],
+            "first_t1_week": inventory["first_t1_week"],
+            "last_t1_week": inventory["last_t1_week"],
+            "sample_weeks": inventory["sample_weeks"],
+            "signal_admitted": False,
+        }, indent=2), flush=True)
+        return
     current_result = fetch_current(session)
     combined, reconciliation = combine_history(historical, current_result["weeks"])
     if not reconciliation["inventory"]["consecutive"]:
