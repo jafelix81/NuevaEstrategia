@@ -2,18 +2,18 @@
   "acceptance_reconciled_accession_count": 448,
   "candidate_manifest_cik_count": 290,
   "candidate_manifest_source_artifact_sha256": "939d5564b14ce0f41df23a2c9ab681977cfde141cd0ea2b3c1213b1c5bfaf613",
-  "complete_poll_count": 14,
+  "complete_poll_count": 15,
   "created_utc": "2026-11-14T20:45:08Z",
   "historical_f80_membership_verified": false,
-  "last_acceptance_reconciliation_utc": "2026-11-20T02:40:11Z",
-  "last_feed_observation_row_count": 103,
-  "last_feed_observation_rows_appended": 103,
+  "last_acceptance_reconciliation_utc": "2026-11-20T10:35:03Z",
+  "last_feed_observation_row_count": 52,
+  "last_feed_observation_rows_appended": 52,
   "last_feed_sha256_by_feed": {
-    "144": "aac8cf786e955ba1db1640b215848968a6af1d1ca68317d41d6b9867ee038555",
-    "144A": "5ee93889fd8ffa238e065b2033440239752b139f67f88fa8cac3438dbc2b24a1"
+    "144": "4dbb65838664da6b260c669086e32d1b9fd9c4371315b421fee6d9e29bfea579",
+    "144A": "4c3ecd9d84d616a08629b3fdf6a2cc0fb38c0fe7aff124b53caccc819320aa59"
   },
-  "last_poll_attempt_run_id": "44662324343",
-  "last_poll_attempt_utc": "2026-11-20T02:39:54Z",
+  "last_poll_attempt_run_id": "44720422923",
+  "last_poll_attempt_utc": "2026-11-20T10:35:01Z",
   "last_poll_errors": {},
   "last_poll_failed_feeds": [],
   "last_poll_possible_gap_by_feed": {
@@ -26,15 +26,15 @@
     "144A"
   ],
   "last_successful_poll_mode": "schedule",
-  "last_successful_poll_run_id": "44662324343",
+  "last_successful_poll_run_id": "44720422923",
   "last_successful_poll_started_utc_by_feed": {
-    "144": "2026-11-20T02:39:24Z",
-    "144A": "2026-11-20T02:39:24Z"
+    "144": "2026-11-20T10:35:01Z",
+    "144A": "2026-11-20T10:35:01Z"
   },
-  "last_successful_poll_utc": "2026-11-20T02:39:54Z",
+  "last_successful_poll_utc": "2026-11-20T10:35:01Z",
   "last_successful_poll_utc_by_feed": {
-    "144": "2026-11-20T02:39:37Z",
-    "144A": "2026-11-20T02:39:37Z"
+    "144": "2026-11-20T10:35:01Z",
+    "144A": "2026-11-20T10:35:01Z"
   },
   "latest_accession_by_feed": {
     "144": "0001213900-26-122362",
@@ -42,17 +42,17 @@
   },
   "partial_poll_count": 1,
   "phase": 403,
-  "poll_count": 15,
+  "poll_count": 16,
   "poll_count_by_feed": {
-    "144": 14,
-    "144A": 15
+    "144": 15,
+    "144A": 16
   },
   "schema_version": 1,
   "signal_eligible": false,
   "source": "SEC EDGAR Latest Filings Atom feeds filtered to Form 144 and 144/A",
-  "structured_detail_backfill_remaining_accessions": 368,
-  "structured_detail_last_run_id": "44662324343",
-  "structured_detail_ledger_accession_count": 80,
-  "structured_detail_ledger_row_count": 596,
+  "structured_detail_backfill_remaining_accessions": 358,
+  "structured_detail_last_run_id": "44720422923",
+  "structured_detail_ledger_accession_count": 90,
+  "structured_detail_ledger_row_count": 660,
   "structured_detail_parser_version": "phase509-v1"
 }
