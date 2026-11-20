@@ -1,3 +1,16 @@
+# Current Smart Money Research Snapshot — 2026-11-20 (Phase 534)
+
+- `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen. No new signal, alpha/forward-return test, OOS, bootstrap, LOO, holdout or production change has been admitted.
+- **SEC MIDAS:** Phase 534 confirms the official *Metrics by Individual Security* catalog lists 59 quarterly ZIPs (2012 Q1–2026 Q3), >4,800 securities, and 19 daily per-security fields. The public `HiddenVol` field measures on-exchange executions against hidden resting orders; it is not dark-pool/off-exchange volume. The dataset is retained only as a conditional liquidity / market-structure risk hypothesis.
+- **MIDAS gates:** quarterly first-publication timestamps, historical F80-335 coverage, permanent/effective-dated security identity, and sample schema/units remain unverified. Daily row dates are not daily availability timestamps. No sample ZIP was parsed; no backtest or signal is authorized. Preserve breaks at 2014-01, 2017-05-01 and 2025-11-03.
+- **SEC live capture:** latest natural Form 4 [44794670480](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44794670480) and Form 144 [44796839433](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44796839433) succeeded after Phase 525. `reporting_owners.csv` now exists. The bounded owner queue places Atea Form 4 accessions `0001193125-26-469038` and `0001193125-26-469037` at positions 2 and 3 in the next ten-accession batch. The previous zero-row crosswalk is not a failed match test; allow the next natural Form 4 schedule to run without manual dispatch.
+- **Actions snapshot:** 7,984 total runs; no queued/in-progress runs in the latest 100-run response. The next Form 4 cron slot at 20:17 UTC was not yet visible at the 20:26 UTC snapshot. Main HEAD at preflight: `8c1eb319efd31f355f8a07738410f0dbd0e67983`.
+- **FINRA Reg SHO:** latest live run [44669121290](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44669121290) predates Phase 515 and returned 8 HTTP-200 files, 8 invalid, 0 valid. Post-fix live validation remains pending.
+- Options feasibility drafts #186 (ThetaData), #188 (Massive) and #171 (OCC) remain conditional; no vendor data acquired.
+- Phase 534 report: [report](research/PHASE534_SEC_MIDAS_SECURITY_METRICS_SEMANTICS_AND_PIT_AUDIT_2026-11-20.md) · [summary](research/PHASE534_SEC_MIDAS_SECURITY_METRICS_SUMMARY_2026-11-20.json).
+
+---
+
 # Current Smart Money Research Snapshot — 2026-11-20 (Phase 533)
 
 - `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen. No new signal, alpha/forward-return test, OOS, bootstrap, LOO, holdout or production change has been admitted.
