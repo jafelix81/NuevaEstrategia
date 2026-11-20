@@ -1,3 +1,19 @@
+# Current Smart Money Research Snapshot — 2026-11-20 (Phase 535)
+
+- **FINRA ATS Transparency archive:** newly identified public weekly security-by-ATS source with a possible 2014 start. The official 2015 guide documents the `tblTrading` machine-download index, downloadable historical reports by year, per-security/ATS rows, and per-row `Shares_Last_Updated` / `Trades_Last_Updated` fields. Phase 535 runs a GET-only live audit; it does not accept certification or terms. Result pending.
+- **Licensing correction:** the 2014 ATS fee schedule was removed by SR-FINRA-2015-023; FINRA made ATS data publicly available at no charge effective 2015-07-13. Do not repeat the old $12k/$18k fees as current. The current site's certification/terms still apply.
+- **PIT:** archive files do not document an explicit `initialPublishedDate` field. The nominal two-/four-week delay is not an exact timestamp. Reconcile per-row update dates against API `initialPublishedDate` / `lastUpdateDate` and first-seen capture before any signal use.
+- **FINRA `blocksSummary`:** Phase 36's live schema has 123 monthly partitions (2016-06 through 2026-08) but no security identifier. Stock-level block hypotheses are killed; market-regime-only use is parked.
+- **FINRA weekly API Phase 100:** 10 sample partitions / 968,139 rows; Record-Total reconciled; 100% `initialPublishedDate` coverage on symbol aggregates; observed publication lags 21 days T1 / 35 days T2; 1,882 later updates; two missing-symbol rows and two LND duplicate-key groups. Strict integrity and PIT-vintage gates remain open. No alpha test.
+- **SEC MIDAS:** Phase 534 merged. 59 quarterly per-security ZIPs (2012 Q1–2026 Q3); `HiddenVol` is on-exchange hidden-resting-order volume, not dark-pool volume. Publication timestamps and historical F80 coverage remain unverified.
+- **SEC live capture:** latest post-Phase-525 runs remain Form 4 [44794670480](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44794670480) and Form 144 [44796839433](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44796839433). The Atea owner-backfill queue remains pending its next natural Form 4 run; do not dispatch manually.
+- **FINRA Reg SHO:** latest live capture [44669121290](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44669121290) returned 8 HTTP-200 files, 8 invalid and 0 valid. The post-Phase-515 live validation remains pending.
+- `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen. No new signal, OOS result, backtest, bootstrap/LOO, exposure, cost, holdout or production change.
+
+Phase 535 report: [archive/PIT reconciliation](research/PHASE535_FINRA_ATS_ARCHIVE_ACCESS_AND_PIT_RECONCILIATION_2026-11-20.md) · [summary](research/PHASE535_FINRA_ATS_ARCHIVE_SUMMARY_2026-11-20.json) · [addendum](research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-20_PHASE535.md).
+
+---
+
 # Current Smart Money Research Snapshot — 2026-11-20 (Phase 534)
 
 - `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen. No new signal, alpha/forward-return test, OOS, bootstrap, LOO, holdout or production change has been admitted.
