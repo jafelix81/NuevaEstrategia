@@ -28,6 +28,8 @@ The Phase 380 artifact ZIP was downloaded and hashed during this audit:
 - Among retrieved pages: one report-heading mismatch and two Updated dates earlier than the report date.
 - **843 pages pass Phase 380's weak page-level rule.**
 
+A separate full-dataset coverage audit completed on 2026-11-20 (run [44648241623](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44648241623), artifact [14589078987](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44648241623/artifacts/14589078987)) reports 47,420 rows, 90 fields, and 1,066 distinct report dates through 2026-11-10. This does not contradict the Phase 380 archive census: that earlier census ended at 2026-11-03 and contained 1,065 report dates, so the one-date difference is the newer weekly report, not a missing historical week. The newer dataset coverage result does not repair the archive Updated-date PIT failure.
+
 A second test compared those 843 dates against the CFTC's stated normal Friday release convention and its official historical announcements. Six pages have Updated dates earlier than the normal/known publication date:
 
 | TFF report date | Archive Updated | Expected/known publication date | Conflict |
