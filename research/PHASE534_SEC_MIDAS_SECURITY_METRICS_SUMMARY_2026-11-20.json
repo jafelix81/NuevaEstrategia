@@ -7,7 +7,7 @@
   "period_end": "2026-09-30",
   "quarterly_archives": 59,
   "securities_claimed_min": 4800,
-  "columns": 18,
+  "columns": 19,
   "listed_archive_size_mb_min": 11.45,
   "listed_archive_size_mb_max": 24.42,
   "listed_archive_size_mb_sum_approx": 982.96,
