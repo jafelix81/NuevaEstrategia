@@ -67,7 +67,7 @@ The new one-shot GitHub Actions workflow performs GET-only inspection of the off
 - Keeps only metadata, hashes, row counts, symbol/MPID coverage diagnostics and schema checks; it does not persist raw FINRA files or rows.
 - Does not use the F80 335 overlap as a broad-market coverage gate.
 
-Live result: **pending at report creation**. See the Phase 535 workflow artifact after completion.
+Live result: **HTTP 530 — blocked/unavailable from GitHub Actions**. The endpoint returned an 8,177-byte HTML response with text/html; no tblTrading index or report links were exposed. The script did not attempt a browser challenge, submit certification, or retry through another identity. No report file was downloaded. The completed run is [44824072120](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44824072120), with metadata-only artifact [14672703365](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44824072120/artifacts/14672703365). Offline tests passed 5/5. An initial run failed only because the workflow omitted the requests dependency; it was added and the corrected run passed.
 
 ## 6. PIT rules
 
@@ -98,7 +98,7 @@ The data measure reported ATS activity, not aggressor direction, beneficial owne
 
 ## 8. Current disposition
 
-- FINRA ATS archive: **conditional candidate; live access/schema audit pending**.
+- FINRA ATS archive: **conditional candidate; automated archive access blocked by HTTP 530**. A user-authorized download or a FINRA-approved alternate delivery path is required to verify the 2014+ archive.
 - FINRA \`weeklySummaryHistoric\`: **recent historical source validated for feasibility, but strict row-integrity/PIT-vintage gates remain open**.
 - FINRA \`blocksSummary\`: **killed for stock selection; market-regime-only parking lot**.
 - FINRA daily short-volume stock-selection implementation: killed in Phase 100; final holdout remains unused.
