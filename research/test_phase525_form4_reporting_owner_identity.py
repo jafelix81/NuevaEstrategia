@@ -6,7 +6,7 @@ from pathlib import Path
 from research import phase525_form4_reporting_owner_identity as p
 
 XML = b"""<ownershipDocument>
-<issuer><issuerCik><value>00001593899</value></issuerCik><issuerName><value>Atea Pharmaceuticals, Inc.</value></issuerName></issuer>
+<issuer><issuerCik><value>0001593899</value></issuerCik><issuerName><value>Atea Pharmaceuticals, Inc.</value></issuerName></issuer>
 <reportingOwner><reportingOwnerId><rptOwnerCik><value>0001508458</value></rptOwnerCik><rptOwnerName><value>Bruce Polsky</value></rptOwnerName></reportingOwnerId><reportingOwnerRelationship><isDirector><value>1</value></isDirector></reportingOwnerRelationship></reportingOwner>
 <remarks>Sale transactions were executed to pay the exercise price of options for tax planning purposes.</remarks>
 </ownershipDocument>"""
