@@ -1,7 +1,7 @@
 # Phase 535 — FINRA ATS historical archive access, schema and PIT reconciliation
 
 **Date:** 2026-11-20  
-**Status:** live GET-only archive audit running; no alpha test authorized  
+**Status:** completed — archive endpoint returned HTTP 530; no alpha test authorized  
 **Branch:** \`phase535-finra-ats-archive-access-audit\`
 
 ## Executive decision
@@ -104,6 +104,44 @@ The data measure reported ATS activity, not aggressor direction, beneficial owne
 - FINRA daily short-volume stock-selection implementation: killed in Phase 100; final holdout remains unused.
 - No Smart Money signal admitted.
 - \`F80_TOP20_PARTIAL50_BASELINE_C20\` remains frozen; no parameter, exposure, cost, holdout or production changes.
+
+## 9. Existing FINRA Query API alternative and legal boundary
+
+The HTTP 530 result applies to the separate `ats.finra.org` machine-download archive. It does not mean the FINRA Query API is unavailable. The Query API is already a more reproducible route for the recent history, but it does not supply the potential 2014+ extension.
+
+### 9.1 Query API history and filter constraints
+
+Official FINRA documentation describes:
+- `otcMarket/weeklySummary`: rolling 12 months.
+- `otcMarket/weeklySummaryHistoric`: a rolling four-year historical window; data older than one year is static and should not be repeatedly re-downloaded.
+- The historical endpoint accepts one of `weekStartDate`, `historicalWeek`, or `historicalMonth`, plus optional `tierIdentifier`. No other fields can be used to filter the historical dataset.
+
+The repository has already tested the symbol-filter limitation:
+- Phase 521: `domainFilters` on `issueSymbolIdentifier` returned HTTP 400.
+- Phase 522: `issueSymbolIdentifier = EQUAL` as a `compareFilter` also returned HTTP 400.
+
+Therefore the historical symbol-week panel requires full week/tier partitions and in-memory filtering; a targeted 335-symbol query is not supported.
+
+### 9.2 Existing live coverage evidence — do not repeat
+
+- Phase 100 sampled 10 partitions / 968,139 rows. Every page reconciled to FINRA `Record-Total`; `initialPublishedDate` was present for 100% of symbol-aggregate rows in the sample. Observed publication lags were 21 calendar days for T1 and 35 for T2. The sample also found 1,882 rows updated after initial publication, two symbol-missing rows and two conflicting LND duplicate-key groups.
+- Phase 518 retrieved 50 incremental weeks / 3,497,002 rows, reconciled all pagination and all 50 publication clocks, and extended the combined panel to 259 consecutive weeks from 2021-11-15 through 2026-10-26.
+- These results establish a useful recent weekly panel, not a fully revision-reproducible 2014+ archive. The final/current values cannot be backdated to `initialPublishedDate` where `lastUpdateDate` is later. The aggregate HHI return-test path already failed its predeclared chronological sample gate. The symbol-week panel remains deferred until effective-dated identity, historical active-universe membership and survivorship-aware returns are available.
+
+### 9.3 Terms and safe use
+
+FINRA's current API Terms of Service (last updated 2026-03-19) govern Query API access. The Equity Specific Terms (last updated 2022-12-20) state that an individual may obtain a Public credential for public data and limit use to non-commercial personal or professional purposes. They permit derivative/Resultant Data, with redistribution subject to FINRA attribution, no charge and no further redistribution by recipients.
+
+The general API terms require use of FINRA-issued credentials and the Licensed APIs; they prohibit scraping/harvesting or bulk copying through other processes, unauthorized access, and security-feature bypass. They also contain a restriction concerning algorithms/products/services that compete with FINRA products or services. These terms are not a blanket clearance for a firm's commercial workflow or public distribution of raw data.
+
+No new credential was created and no terms were accepted in this phase. The earlier Phase 518 workflow used the repository's existing `FINRA_API_TOKEN` secret; its credential owner and acceptance record were not inspected. Do not publish raw FINRA rows or participant identifiers in this public repository. Keep any future API use within the accepted credential's authorized purpose and applicable terms.
+
+### 9.4 Final source decision
+
+- `ats.finra.org` machine archive: **blocked in GitHub Actions (HTTP 530); no challenge bypass, scraping workaround, login or certification submission.** Revisit only if FINRA supplies an authorized alternate delivery path or the user obtains the reports through an authorized process.
+- Query API: **retained as a recent, approximately five-year weekly source**, subject to publication-vintage, duplicate/missing-row, identity and universe gates. It does not extend the validated panel to 2014.
+- No full-partition re-extraction is authorized now. The existing evidence is sufficient to defer the symbol-week panel until identity and return-source prerequisites are resolved.
+- No signal, alpha test or strategy change is admitted.
 
 ## Official sources
 
