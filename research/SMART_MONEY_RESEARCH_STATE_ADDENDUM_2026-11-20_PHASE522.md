@@ -1,0 +1,8 @@
+## Phase 522 — FINRA historical symbol equality-filter probe (2026-11-20)
+
+- Final run [44711825847](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44711825847) passed offline tests and the live diagnostic after correcting a direct-script import-path issue found in initial run [44711710024](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44711710024).
+- The first `issueSymbolIdentifier = EQUAL` query against `weeklySummaryHistoric` returned HTTP 400; the probe stopped after one request. Artifact [14616309604](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44711825847/artifacts/14616309604) records counts and hashes only.
+- FINRA's official Weekly Summary docs explicitly state that `weeklySummaryHistoric` allows one time partition filter (`weekStartDate`, `historicalWeek` or `historicalMonth`) plus optional `tierIdentifier`; no other fields can be used to filter. This confirms both Phase 521 domain-filter and Phase 522 symbol-equality rejection are endpoint constraints, not missing-data evidence.
+- Do not retry per-symbol filters or issue a ticker-by-ticker extraction. A symbol-week panel would require one-time full partition downloads and in-memory filtering. Defer that extraction until PIT identity, historical active-universe and survivorship-aware return sources are available; historical data older than one year is static and should not be repeatedly re-downloaded.
+- FINRA T1 aggregate weekly HHI remains killed for insufficient evaluation sample size. Cboe/OptionMetrics options flow remains the higher-priority conditional source line, subject to licensing and first-receipt PIT.
+- `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
