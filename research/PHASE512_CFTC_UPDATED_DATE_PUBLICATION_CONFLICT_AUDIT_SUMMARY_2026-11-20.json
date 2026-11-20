@@ -70,5 +70,19 @@
     "production_changed": false
   },
   "no_raw_positions_or_trader_ids_committed": true,
-  "no_returns_or_backtests_run": true
+  "no_returns_or_backtests_run": true,
+  "latest_dataset_reconciliation": {
+    "run_id": "44648241623",
+    "artifact_id": 14589078987,
+    "dataset_id": "gpe5-46if",
+    "retrieved_rows": 47420,
+    "schema_fields": 90,
+    "distinct_report_dates": 1066,
+    "first_report_date": "2006-06-13",
+    "last_report_date": "2026-11-10",
+    "phase380_archive_census_report_dates": 1065,
+    "phase380_archive_last_report_date": "2026-11-03",
+    "count_difference_explanation": "The full dataset audit is one weekly report newer than the Phase 380 archive census; not evidence of a missing historical report date.",
+    "pit_effect": "No change; archive Updated remains unsafe as a global availability bound."
+  }
 }
