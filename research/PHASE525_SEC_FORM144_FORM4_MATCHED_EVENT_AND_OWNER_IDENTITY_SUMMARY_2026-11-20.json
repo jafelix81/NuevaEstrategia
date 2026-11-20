@@ -1,0 +1,120 @@
+{
+  "phase": 525,
+  "audit_date": "2026-11-20",
+  "main_head_at_preflight": "74ae49d3a17e8dce424d5fd5722d0bd49d2c2c65",
+  "latest_form4_run": {
+    "id": 44716430351,
+    "conclusion": "success",
+    "new_accessions": 33,
+    "structured_backfill_accessions": 10,
+    "detail_rows_appended": 37,
+    "transaction_rows_in_backfill": 27,
+    "parse_errors": 0,
+    "remaining_bounded_accessions": 1213
+  },
+  "latest_form144_run": {
+    "id": 44720422923,
+    "conclusion": "success",
+    "new_accessions": 0,
+    "feed_observation_rows": 52,
+    "structured_backfill_accessions": 10,
+    "detail_rows_appended": 64,
+    "parse_errors": 0,
+    "remaining_structured_accessions": 358,
+    "live_feed_errors": 0,
+    "possible_feed_gap": false
+  },
+  "current_ledgers": {
+    "form144": {
+      "event_accessions": 448,
+      "structured_accessions": 90,
+      "detail_rows": 660,
+      "proposed_sale_rows": 90,
+      "prior_sale_rows": 288,
+      "distinct_issuer_ciks": 71,
+      "xml_hash_match_rows": 660,
+      "xml_hash_mismatch_rows": 0
+    },
+    "form4": {
+      "event_accessions": 1268,
+      "structured_accessions": 20,
+      "detail_rows": 59,
+      "transaction_rows": 39,
+      "distinct_issuer_ciks": 16,
+      "single_owner_filings": 18,
+      "multi_owner_filings_quarantined": 2
+    }
+  },
+  "crosswalk": {
+    "form144_proposed_rows": 90,
+    "form144_prior_sale_rows": 288,
+    "form4_transaction_rows": 39,
+    "issuer_cik_intersection_count": 1,
+    "same_issuer_pair_comparisons": 14,
+    "same_date_pairs": 8,
+    "exact_proposed_sale_matches": 2,
+    "exact_prior_sale_matches": 1,
+    "signal_eligible_matches": 0
+  },
+  "matched_events": [
+    {
+      "role": "PROPOSED_SALE",
+      "form144_accession": "0001950047-26-011348",
+      "seller": "Bruce Polsky",
+      "owner_cik": "0001508458",
+      "form4_accession": "0001193125-26-469037",
+      "date": "2026-11-19",
+      "shares": 8750,
+      "form4_price": 4.0341,
+      "form4_gross": 35298.375,
+      "form144_reported_value": 35299.25,
+      "form144_acceptance_utc": "2026-11-19T21:17:53Z",
+      "form4_acceptance_utc": "2026-11-20T02:51:07Z",
+      "availability": "FORM144_ACCEPTED_BEFORE_FORM4_ACCEPTANCE_EXECUTION_TIME_UNKNOWN",
+      "economic_context": "exercise price and tax planning mentioned"
+    },
+    {
+      "role": "PROPOSED_SALE",
+      "form144_accession": "0001950047-26-011363",
+      "seller": "Bruno Lucidi",
+      "owner_cik": "0001829622",
+      "form4_accession": "0001193125-26-469038",
+      "date": "2026-11-19",
+      "shares": 22619,
+      "form4_price": 3.9445,
+      "form4_gross": 89220.6455,
+      "form144_reported_value": 89219.37,
+      "form144_acceptance_utc": "2026-11-19T21:38:14Z",
+      "form4_acceptance_utc": "2026-11-20T02:51:12Z",
+      "availability": "FORM144_ACCEPTED_BEFORE_FORM4_ACCEPTANCE_EXECUTION_TIME_UNKNOWN",
+      "economic_context": "exercise price and tax planning mentioned"
+    },
+    {
+      "role": "PRIOR_SALE_HISTORY",
+      "form144_accession": "0001950047-26-011363",
+      "seller": "Bruno Lucidi",
+      "owner_cik": "0001829622",
+      "form4_accession": "0001193125-26-469038",
+      "date": "2026-11-17",
+      "shares": 6741,
+      "form4_price": 4.0335,
+      "form4_gross": 27189.8235,
+      "form144_reported_value": 27189.82,
+      "availability": "HISTORICAL_SALE_LISTED_IN_FORM144"
+    }
+  ],
+  "owner_identity_sidecar": {
+    "new_file": "research/data/sec_form4_first_seen/reporting_owners.csv",
+    "single_owner_filing_grain_only": true,
+    "multi_owner_line_link_authorized": false,
+    "remarks_captured_at_filing_grain": true,
+    "signal_eligible": false
+  },
+  "controls": {
+    "public_availability_certified": false,
+    "historical_f80_membership_verified": false,
+    "execution_intraday_time_known": false,
+    "alpha_test_authorized": false,
+    "baseline_frozen": true
+  }
+}
