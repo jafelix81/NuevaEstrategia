@@ -459,6 +459,9 @@ def load_historical(summary_path, clock_summary_path, clock_csv_path):
             "participant_count_median": conc["participant_count"]["median"],
             "participant_count_p90": conc["participant_count"]["p90"],
             "stable_unique_participant_keys": part["stable_unique_participant_keys"],
+            "revision_stable_symbols": part["revision_stable_symbols"],
+            "revised_symbols": part["revised_symbols"],
+            "revision_stable_concentration_symbols": part["revision_stable_concentration_symbols"],
             "source_window": "weeklySummaryHistoric",
             "date_level_clock_valid": True,
             "symbol_bridge_gate": "PASS",
@@ -539,7 +542,7 @@ def audit_current_inventory(session):
     }
 
 
-def fetch_current(session):
+def fetch_current(session, after_week, historical):
     metadata = request_json(session, META_URL)
     fields = tuple(metadata.get("partitionFields") or ())
     if fields != EXPECTED_FIELDS:
@@ -548,22 +551,42 @@ def fetch_current(session):
         raise RuntimeError(f"Current weeklySummary status is not Active: {metadata.get('status')}")
     partitions = request_json(session, PARTITIONS_URL)
     raw, unique = parse_partitions(partitions, fields)
-    weeks = sorted({week for week, tier in unique if tier == TIER})
-    if len(weeks) < 40 or len(weeks) > 300:
-        raise RuntimeError(f"Unexpected current T1 partition count: {len(weeks)}")
-    parsed = [date.fromisoformat(week) for week in weeks]
-    if any(day.weekday() != 0 for day in parsed):
+    tier_counts = Counter(tier for _, tier in unique)
+    all_weeks = sorted({week for week, tier in unique if tier == TIER})
+    if len(all_weeks) < 200 or len(all_weeks) > 300:
+        raise RuntimeError(f"Unexpected current T1 partition inventory: {len(all_weeks)}")
+    parsed_all = [date.fromisoformat(week) for week in all_weeks]
+    if any(day.weekday() != 0 for day in parsed_all):
         raise RuntimeError("Current T1 week anchor is not Monday")
+    all_gaps = [(a.isoformat(), b.isoformat()) for a, b in zip(parsed_all, parsed_all[1:]) if (b-a).days != 7]
+    if all_gaps:
+        raise RuntimeError(f"Current T1 partition inventory has gaps: {all_gaps[:5]}")
+
+    incremental_weeks = [week for week in all_weeks if week > after_week]
+    if len(incremental_weeks) < 40 or len(incremental_weeks) > 60:
+        raise RuntimeError(f"Unexpected incremental T1 extension after {after_week}: {len(incremental_weeks)} weeks")
+    parsed = [date.fromisoformat(week) for week in incremental_weeks]
     gaps = [(a.isoformat(), b.isoformat()) for a, b in zip(parsed, parsed[1:]) if (b-a).days != 7]
     if gaps:
-        raise RuntimeError(f"Current T1 production partitions are not consecutive: {gaps[:5]}")
+        raise RuntimeError(f"Incremental current T1 weeks are not consecutive: {gaps[:5]}")
+    if parsed and (parsed[0] - date.fromisoformat(after_week)).days != 7:
+        raise RuntimeError(f"Current T1 extension does not begin one week after historical end {after_week}")
+
+    overlap_candidates = ["2021-12-06", "2024-05-20"]
+    overlap_weeks = [week for week in overlap_candidates if week in all_weeks]
+    historical_map = {row["week_start_date"]: row for row in historical}
+    if len(overlap_weeks) != len(overlap_candidates) or any(week not in historical_map for week in overlap_weeks):
+        raise RuntimeError("Required historical/current overlap validation weeks are unavailable")
+
     nyse = mcal.get_calendar("NYSE")
-    cal_start = min(parsed) - timedelta(days=10)
-    cal_end = max(parsed) + timedelta(days=120)
+    all_sample_dates = [date.fromisoformat(week) for week in incremental_weeks + overlap_weeks]
+    cal_start = min(all_sample_dates) - timedelta(days=10)
+    cal_end = max(all_sample_dates) + timedelta(days=120)
     schedule = nyse.schedule(start_date=cal_start.isoformat(), end_date=cal_end.isoformat())
     sessions = sorted(ts.date() for ts in schedule.index)
+
     output = []
-    for index, week in enumerate(weeks, start=1):
+    for index, week in enumerate(incremental_weeks, start=1):
         rows, total, pages = fetch_week(session, week)
         part = analyze_week(rows, week, total, pages)
         if not part["retrieval_count_match"]:
@@ -576,20 +599,84 @@ def fetch_current(session):
         part["source_window"] = "weeklySummary"
         output.append(part)
         print(
-            f"CURRENT_WEEK={index}/{len(weeks)}|WEEK={week}|ROWS={total}|"
+            f"CURRENT_WEEK={index}/{len(incremental_weeks)}|WEEK={week}|ROWS={total}|"
             f"STABLE_SYMBOLS={part['revision_stable_concentration_symbols']}|"
             f"SHARE_COVERAGE={part['share_coverage_pct']}|CLOCK=PASS",
             flush=True,
         )
         del rows
+
+    overlap_results = []
+    for week in overlap_weeks:
+        rows, total, pages = fetch_week(session, week)
+        part = analyze_week(rows, week, total, pages)
+        old = historical_map[week]
+        checks = {
+            "publication_date": part["initial_published_date"] == old["initial_published_date"],
+            "share_coverage": (
+                old.get("share_coverage_pct") is not None
+                and part.get("share_coverage_pct") is not None
+                and abs(float(old["share_coverage_pct"]) - float(part["share_coverage_pct"])) < 1e-5
+            ),
+            "hhi_mean": (
+                old.get("hhi_mean") is not None and part.get("hhi_mean") is not None
+                and abs(float(old["hhi_mean"]) - float(part["hhi_mean"])) < 1e-6
+            ),
+            "top1_share_mean": (
+                old.get("top1_share_mean") is not None and part.get("top1_share_mean") is not None
+                and abs(float(old["top1_share_mean"]) - float(part["top1_share_mean"])) < 1e-6
+            ),
+            "top3_share_mean": (
+                old.get("top3_share_mean") is not None and part.get("top3_share_mean") is not None
+                and abs(float(old["top3_share_mean"]) - float(part["top3_share_mean"])) < 1e-6
+            ),
+            "participant_count_mean": (
+                old.get("participant_count_mean") is not None and part.get("participant_count_mean") is not None
+                and abs(float(old["participant_count_mean"]) - float(part["participant_count_mean"])) < 1e-6
+            ),
+            "revision_stable_symbols": old.get("revision_stable_symbols") == part.get("revision_stable_symbols"),
+            "revised_symbols": old.get("revised_symbols") == part.get("revised_symbols"),
+            "bridge_gate": part.get("symbol_bridge_gate") == "PASS",
+            "retrieval_count": part.get("retrieval_count_match") is True,
+        }
+        overlap_results.append({
+            "week_start_date": week,
+            "checks": checks,
+            "metrics_match": all(checks.values()),
+            "current_rows": total,
+            "current_pages": pages,
+            "historical_hhi_mean": old.get("hhi_mean"),
+            "current_hhi_mean": part.get("hhi_mean"),
+            "historical_share_coverage_pct": old.get("share_coverage_pct"),
+            "current_share_coverage_pct": part.get("share_coverage_pct"),
+        })
+        print(
+            f"OVERLAP_VALIDATION|WEEK={week}|MATCH={all(checks.values())}|"
+            f"HHI_OLD={old.get('hhi_mean')}|HHI_NEW={part.get('hhi_mean')}",
+            flush=True,
+        )
+        del rows
+    if not all(item["metrics_match"] for item in overlap_results):
+        raise RuntimeError("Current/historic overlap validation failed")
+
     return {
         "metadata_status": metadata.get("status"),
         "partition_fields": list(fields),
         "raw_partition_pairs": len(raw),
         "unique_partition_pairs": len(unique),
+        "tier_counts": dict(tier_counts),
+        "inventory_total_t1_weeks": len(all_weeks),
+        "inventory_first_t1_week": all_weeks[0],
+        "inventory_last_t1_week": all_weeks[-1],
+        "incremental_weeks_count": len(output),
+        "incremental_first_week": output[0]["week_start_date"],
+        "incremental_last_week": output[-1]["week_start_date"],
+        "overlap_validation": overlap_results,
+        "all_incremental_pages_reconciled": all(row["retrieval_count_match"] for row in output),
+        "all_incremental_date_level_clocks_valid": all(row["date_level_clock_valid"] for row in output),
+        "all_incremental_symbol_bridges_pass": all(row["symbol_bridge_gate"] == "PASS" for row in output),
         "weeks": output,
     }
-
 
 def consecutive_weekly(rows):
     weeks = [date.fromisoformat(row["week_start_date"]) for row in rows]
