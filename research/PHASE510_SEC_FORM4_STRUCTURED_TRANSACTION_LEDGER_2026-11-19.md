@@ -24,7 +24,7 @@ The new phase510_form4_structured_transaction_ledger.py processes only existing 
 - Does not persist raw XML or full footnote text.
 - Does not attach reporting-owner CIK to transaction rows. Single-owner records remain filing-grain only; multi-owner rows are explicitly quarantined because the applicable schema does not provide a transaction-to-owner key.
 - Preserves Form 4/A as an amendment information arrival. It is not automatically counted as a new economic trade.
-- Code P remains open-market-or-private purchase; the parser never labels it confirmed exchange execution. S/D and other codes are also preserved without inferring motive.
+- Code P remains open-market-or-private purchase; the parser never labels it confirmed exchange execution. S is likewise open-market-or-private sale. The SEC's official code list makes this distinction explicit: https://www.sec.gov/edgar/searchedgar/ownershipformcodes.html. S/D and other codes are preserved without inferring motive.
 - Every row remains non-research-eligible, non-signal, non-intraday and without certified public-availability time.
 
 A fetch failure remains pending for a later bounded retry. A successfully retrieved but malformed XML is recorded as a parse-error header row and quarantined rather than silently discarded. The detail ledger is append-only and idempotent by row key.
