@@ -1,0 +1,31 @@
+name: Phase 44 - SEC FTD frozen-universe coverage audit
+
+on:
+  push:
+    branches:
+      - phase44-sec-ftd-universe-coverage-audit
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'research/phase44_sec_ftd_universe_coverage_audit.py'
+      - 'research/phase44_frozen_universe_335_tickers.csv'
+      - '.github/workflows/phase44_sec_ftd_universe_coverage_audit.yml'
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run SEC FTD universe coverage audit
+        run: python research/phase44_sec_ftd_universe_coverage_audit.py
+      - name: Upload audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase44-sec-ftd-universe-coverage-audit
+          path: ftd_universe_coverage_audit.json
