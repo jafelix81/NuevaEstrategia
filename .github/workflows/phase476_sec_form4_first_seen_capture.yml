@@ -1,4 +1,5 @@
 name: Phase 476 - SEC Form 4 first-seen prospective metadata capture
+# Phase 525 adds schedule-only filing-level owner enrichment and a non-signal crosswalk.
 
 on:
   push:
