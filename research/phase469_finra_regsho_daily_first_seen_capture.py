@@ -71,12 +71,17 @@ def _decimal(value: str, field: str) -> Decimal:
 
 
 def parse_finra_file(raw: bytes, requested_trade_date: date) -> dict[str, Any]:
-    """Parse the CNMS file at (symbol, reporting-facility) grain.
+    """Parse a FINRA CNMS daily file without double-counting facilities.
 
-    FINRA publishes separate facility rows for a security. The file's Market
-    field is a one-letter reporting-facility code, so repeated symbols across
-    different markets are expected. Validate uniqueness at (symbol, market),
-    then aggregate the facility rows to one symbol observation in memory.
+    Current consolidated CNMS rows are security-grain: the Market field may
+    contain a comma-separated list of reporting facilities (for example
+    B,Q,N), and the volume columns are already consolidated. Older or
+    facility-grain snapshots can contain repeated symbols with one facility
+    code per row; those are aggregated by (symbol, market).
+
+    If any row carries a multi-facility list, the file is treated as
+    security-grain and duplicate symbols are rejected. This avoids summing an
+    already-consolidated row with another row for the same security.
     """
     if not isinstance(raw, bytes) or not raw:
         raise ValueError("file_empty")
@@ -109,10 +114,9 @@ def parse_finra_file(raw: bytes, requested_trade_date: date) -> dict[str, Any]:
     declared_count = int(trailer[0].strip())
     data_lines = lines[1:-1]
 
-    seen_symbol_markets: set[tuple[str, str]] = set()
+    parsed_rows: list[dict[str, Any]] = []
     market_codes: set[str] = set()
-    aggregates: dict[str, dict[str, Any]] = {}
-    facility_row_count = 0
+    has_composite_market_list = False
 
     for line_number, line in enumerate(data_lines, start=2):
         cells = line.split("|")
@@ -126,14 +130,19 @@ def parse_finra_file(raw: bytes, requested_trade_date: date) -> dict[str, Any]:
         symbol = cells[positions["symbol"]].strip().upper()
         if not symbol or any(ch.isspace() for ch in symbol):
             raise ValueError("symbol_invalid")
-        market = cells[positions["market"]].strip().upper()
-        if len(market) != 1 or not market.isalpha():
+
+        market_value = cells[positions["market"]].strip().upper()
+        market_tokens = [token.strip() for token in market_value.split(",")]
+        if not market_value or any(
+            not token or len(token) != 1 or not token.isalpha()
+            for token in market_tokens
+        ):
             raise ValueError("market_code_invalid")
-        symbol_market = (symbol, market)
-        if symbol_market in seen_symbol_markets:
-            raise ValueError("duplicate_symbol_market")
-        seen_symbol_markets.add(symbol_market)
-        market_codes.add(market)
+        if len(set(market_tokens)) != len(market_tokens):
+            raise ValueError("market_code_duplicate")
+        if len(market_tokens) > 1:
+            has_composite_market_list = True
+        market_codes.update(market_tokens)
 
         short_volume = _decimal(cells[positions["short_volume"]], "short_volume")
         short_exempt = _decimal(cells[positions["short_exempt_volume"]], "short_exempt_volume")
@@ -143,46 +152,95 @@ def parse_finra_file(raw: bytes, requested_trade_date: date) -> dict[str, Any]:
         if short_volume > total_volume:
             raise ValueError("short_exceeds_total")
 
-        aggregate = aggregates.setdefault(
-            symbol,
-            {
-                "short_volume": Decimal("0"),
-                "short_exempt_volume": Decimal("0"),
-                "total_volume": Decimal("0"),
-                "markets": set(),
-            },
-        )
-        aggregate["short_volume"] += short_volume
-        aggregate["short_exempt_volume"] += short_exempt
-        aggregate["total_volume"] += total_volume
-        aggregate["markets"].add(market)
-        facility_row_count += 1
-
-    if facility_row_count != declared_count:
-        raise ValueError("trailer_count_mismatch")
-
-    rows = [
-        {
+        parsed_rows.append({
             "symbol": symbol,
             "trade_date": requested_trade_date.isoformat(),
-            "short_volume": values["short_volume"],
-            "short_exempt_volume": values["short_exempt_volume"],
-            "total_volume": values["total_volume"],
-            "market": ",".join(sorted(values["markets"])),
-        }
-        for symbol, values in aggregates.items()
-    ]
+            "short_volume": short_volume,
+            "short_exempt_volume": short_exempt,
+            "total_volume": total_volume,
+            "markets": market_tokens,
+        })
+
+    if len(parsed_rows) != declared_count:
+        raise ValueError("trailer_count_mismatch")
+
+    rows: list[dict[str, Any]] = []
+    if has_composite_market_list:
+        # A comma-separated Market field denotes an already consolidated
+        # security row. Never aggregate its volumes with another row.
+        seen_symbols: set[str] = set()
+        for item in parsed_rows:
+            symbol = item["symbol"]
+            if symbol in seen_symbols:
+                raise ValueError("duplicate_symbol_in_consolidated_file")
+            seen_symbols.add(symbol)
+            rows.append({
+                "symbol": symbol,
+                "trade_date": item["trade_date"],
+                "short_volume": item["short_volume"],
+                "short_exempt_volume": item["short_exempt_volume"],
+                "total_volume": item["total_volume"],
+                "market": ",".join(sorted(item["markets"])),
+            })
+        row_grain = "security_rows_with_market_lists"
+    else:
+        # Single-code rows can be facility-grain. Aggregate only when a
+        # security appears in more than one distinct facility.
+        seen_symbol_markets: set[tuple[str, str]] = set()
+        aggregates: dict[str, dict[str, Any]] = {}
+        for item in parsed_rows:
+            symbol = item["symbol"]
+            market = item["markets"][0]
+            symbol_market = (symbol, market)
+            if symbol_market in seen_symbol_markets:
+                raise ValueError("duplicate_symbol_market")
+            seen_symbol_markets.add(symbol_market)
+            aggregate = aggregates.setdefault(
+                symbol,
+                {
+                    "short_volume": Decimal("0"),
+                    "short_exempt_volume": Decimal("0"),
+                    "total_volume": Decimal("0"),
+                    "markets": set(),
+                },
+            )
+            aggregate["short_volume"] += item["short_volume"]
+            aggregate["short_exempt_volume"] += item["short_exempt_volume"]
+            aggregate["total_volume"] += item["total_volume"]
+            aggregate["markets"].add(market)
+        for symbol, values in aggregates.items():
+            rows.append({
+                "symbol": symbol,
+                "trade_date": requested_trade_date.isoformat(),
+                "short_volume": values["short_volume"],
+                "short_exempt_volume": values["short_exempt_volume"],
+                "total_volume": values["total_volume"],
+                "market": ",".join(sorted(values["markets"])),
+            })
+        row_grain = (
+            "facility_rows_aggregated"
+            if len(rows) < len(parsed_rows)
+            else "single_market_symbol_rows"
+        )
+
     header_signature = hashlib.sha256("|".join(normalised).encode("utf-8")).hexdigest()[:16]
+    market_encoding = (
+        "comma_separated_facility_codes"
+        if has_composite_market_list
+        else "single_facility_code_per_row"
+    )
     return {
         "trade_date": requested_trade_date.isoformat(),
         "rows": rows,
-        "row_count": facility_row_count,
-        "facility_row_count": facility_row_count,
+        "row_count": len(parsed_rows),
+        "facility_row_count": len(parsed_rows),
         "symbol_count": len(rows),
         "facility_count": len(market_codes),
+        "row_grain": row_grain,
+        "market_encoding": market_encoding,
         "response_bytes": len(raw),
         "raw_sha256": hashlib.sha256(raw).hexdigest(),
-        "schema_version": f"CNMSshvol:{header_signature}",
+        "schema_version": f"CNMSshvol:{header_signature}:{row_grain}",
         "header": normalised,
     }
 
