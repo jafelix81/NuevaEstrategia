@@ -1,0 +1,40 @@
+name: Phase 535 - FINRA ATS archive access and schema audit
+
+on:
+  push:
+    branches: [phase535-finra-ats-archive-access-audit]
+    paths:
+      - "research/phase535_finra_ats_archive_audit.py"
+      - "research/test_phase535_finra_ats_archive_audit.py"
+      - ".github/workflows/phase535_finra_ats_archive_audit.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase535-finra-ats-archive-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run offline parser tests
+        run: |
+          python -m py_compile research/phase535_finra_ats_archive_audit.py research/test_phase535_finra_ats_archive_audit.py
+          python -m unittest -v research.test_phase535_finra_ats_archive_audit
+      - name: Run GET-only public archive feasibility audit
+        run: python -u research/phase535_finra_ats_archive_audit.py
+      - name: Upload metadata-only audit result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase535-finra-ats-archive-audit
+          path: phase535_output/summary.json
+          retention-days: 30
+          if-no-files-found: warn
