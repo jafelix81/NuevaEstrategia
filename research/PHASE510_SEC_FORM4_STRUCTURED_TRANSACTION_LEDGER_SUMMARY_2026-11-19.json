@@ -57,5 +57,7 @@
   "decision": "INFRASTRUCTURE_ONLY_NO_SIGNAL_ADMITTED",
   "pr_number": 163,
   "pr_merged": true,
-  "merged_commit_sha": "a4272aa3d7998c23003d02293a6186c79e1ece12"
+  "merged_commit_sha": "a4272aa3d7998c23003d02293a6186c79e1ece12",
+  "official_semantics_source": "https://www.sec.gov/edgar/searchedgar/ownershipformcodes.html",
+  "transaction_code_semantics": "P and S are open-market-or-private, not proof of exchange execution"
 }
