@@ -1,0 +1,114 @@
+{
+  "phase": 514,
+  "date": "2026-11-20",
+  "disposition": "BOTH_SEC_STRUCTURED_PARSERS_SCHEDULED_LIVE_VALIDATED_NON_SIGNAL",
+  "main_base_sha": "8850828f4f76576eba789b907504d23e72d49a9b",
+  "actions_inventory": {
+    "total_runs": 7924,
+    "latest_100": {
+      "success": 77,
+      "failure": 22,
+      "cancelled": 1
+    },
+    "active_runs": 0,
+    "open_pull_requests": 60,
+    "branches_inspected": 334
+  },
+  "form4": {
+    "run_id": 44656159115,
+    "artifact_id": 14592859142,
+    "offline_regression": "success",
+    "live_capture": "success",
+    "new_form4_accessions": 457,
+    "new_form4a_accessions": 0,
+    "structured_accessions_parsed": 10,
+    "parse_errors": 0,
+    "detail_rows_appended": 22,
+    "filing_header_rows": 10,
+    "transaction_rows": 12,
+    "transaction_code_counts": {
+      "P": 3,
+      "M": 2,
+      "F": 1,
+      "A": 5,
+      "S": 1
+    },
+    "multi_owner_filings_quarantined": 1,
+    "single_owner_filing_grain_only": 9,
+    "remaining_backfill_accessions": 1190,
+    "source_hash_comparable_rows": 0,
+    "source_hash_noncomparable_rows": 22,
+    "public_availability_certified_rows": 0,
+    "signal_eligible_rows": 0,
+    "first_seen_interval_lower_utc": "2026-11-19T19:31:20Z",
+    "first_seen_interval_upper_utc": "2026-11-20T01:47:52Z"
+  },
+  "form144": {
+    "run_id": 44662324343,
+    "artifact_id": 14595524069,
+    "offline_regression": "success",
+    "live_capture": "success",
+    "feeds_successful": [
+      "144",
+      "144A"
+    ],
+    "pagination_complete": true,
+    "feed_errors": 0,
+    "possible_feed_window_gap": false,
+    "feed_observation_rows_appended": 103,
+    "new_xml_blocks_resolved": 70,
+    "structured_accessions_processed_this_run": 10,
+    "parse_errors_this_run": 0,
+    "detail_rows_appended_this_run": 54,
+    "ledger_accessions": 80,
+    "ledger_rows": 596,
+    "issuer_ciks": 61,
+    "section_rows": {
+      "filing_header": 80,
+      "securities_information": 80,
+      "securities_to_be_sold": 169,
+      "securities_sold_in_past_3_months": 267
+    },
+    "hash_matches": 596,
+    "hash_mismatches": 0,
+    "proposed_sale_field_completeness": {
+      "units": "80/80",
+      "aggregate_market_value": "80/80",
+      "units_outstanding": "80/80",
+      "approximate_sale_date": "80/80"
+    },
+    "acquisition_lot_field_completeness": {
+      "date": "169/169",
+      "amount": "169/169",
+      "nature": "169/169"
+    },
+    "prior_sale_field_completeness": {
+      "date": "267/267",
+      "amount": "267/267",
+      "gross_proceeds": "267/267"
+    },
+    "remaining_backfill_accessions": 368,
+    "public_availability_certified_rows": 0,
+    "signal_eligible_rows": 0,
+    "first_seen_interval_lower_utc": "2026-11-19T21:00:26Z",
+    "first_seen_interval_upper_utc": "2026-11-20T02:39:37Z"
+  },
+  "controls": {
+    "no_intraday_authorization": true,
+    "no_backtest": true,
+    "no_event_study": true,
+    "no_oos": true,
+    "no_bootstrap": true,
+    "no_loo": true,
+    "no_signal_admitted": true,
+    "f80_frozen": true,
+    "production_unchanged": true
+  },
+  "next_steps": [
+    "Continue existing bounded Form 4 and Form 144 backfills without manual duplicate dispatch.",
+    "Resolve effective-dated security identity and historical F80 membership before any cross-sectional feature construction.",
+    "Resolve public-availability intervals conservatively; no same-day/intraday use.",
+    "For Form 4, preserve original XML hashes at first-seen capture in future only if rate limits and operational design permit; do not call current non-comparable hashes mismatches.",
+    "Only after identity and PIT gates pass, test incremental information versus frozen LTM/F80 with chronological OOS and identical exposure/costs."
+  ]
+}
