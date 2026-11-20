@@ -63,5 +63,19 @@
   "signal_admitted": false,
   "alpha_tested": false,
   "oos_tested": false,
-  "baseline_changed": false
+  "baseline_changed": false,
+  "api_migration": {
+    "announcement_date": "2026-11-10",
+    "preview_available_from": "2026-11-10",
+    "production_effective_date": "2026-12-10",
+    "preview_gateway": "hist-preview.databento.com",
+    "current_production_listing_status": "latest status repeated across historical records; not PIT before cutover",
+    "post_cutover_listing_status": "status applicable to each historical record",
+    "nasdaq_symbol_change": "NYSE suffix/class-share formatting will match Nasdaq format",
+    "pilot_rule": "Use preview now; do not use pre-cutover production listing_status as historical as-of status; version and compare preview/production around Dec 10."
+  },
+  "coverage_count_conflict": [
+    "860,000+ headline",
+    "310,000+ listed/delisted body count; exact definition requires vendor clarification"
+  ]
 }
