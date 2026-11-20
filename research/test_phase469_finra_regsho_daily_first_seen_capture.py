@@ -74,9 +74,38 @@ class TestPhase469Parser(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "duplicate_symbol_market"):
             parse_finra_file(file_bytes(rows=rows), date(2026, 11, 17))
 
-    def test_market_code_must_be_one_letter(self):
-        rows = ["20261117|ABC|1|0|2|B,Q,N"]
+    def test_consolidated_market_list_is_not_double_aggregated(self):
+        rows = [
+            "20261117|ABC|120.5|2.5|300.0|B,Q,N",
+            "20261117|XYZ|10|0|50|D",
+        ]
+        parsed = parse_finra_file(file_bytes(rows=rows), date(2026, 11, 17))
+        self.assertEqual(parsed["row_count"], 2)
+        self.assertEqual(parsed["symbol_count"], 2)
+        self.assertEqual(parsed["facility_count"], 4)
+        self.assertEqual(parsed["row_grain"], "security_rows_with_market_lists")
+        self.assertEqual(parsed["market_encoding"], "comma_separated_facility_codes")
+        abc = next(row for row in parsed["rows"] if row["symbol"] == "ABC")
+        self.assertEqual(str(abc["short_volume"]), "120.5")
+        self.assertEqual(str(abc["total_volume"]), "300.0")
+        self.assertEqual(abc["market"], "B,N,Q")
+
+    def test_consolidated_market_list_requires_unique_symbols(self):
+        rows = [
+            "20261117|ABC|120.5|2.5|300.0|B,Q,N",
+            "20261117|ABC|10|0|50|D",
+        ]
+        with self.assertRaisesRegex(ValueError, "duplicate_symbol_in_consolidated_file"):
+            parse_finra_file(file_bytes(rows=rows), date(2026, 11, 17))
+
+    def test_market_list_rejects_multicharacter_tokens(self):
+        rows = ["20261117|ABC|1|0|2|B,QQ"]
         with self.assertRaisesRegex(ValueError, "market_code_invalid"):
+            parse_finra_file(file_bytes(rows=rows), date(2026, 11, 17))
+
+    def test_market_list_rejects_duplicate_facility_codes(self):
+        rows = ["20261117|ABC|1|0|2|B,Q,B"]
+        with self.assertRaisesRegex(ValueError, "market_code_duplicate"):
             parse_finra_file(file_bytes(rows=rows), date(2026, 11, 17))
 
     def test_market_header_is_required(self):
