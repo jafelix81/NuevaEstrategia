@@ -1,0 +1,67 @@
+{
+  "phase": 520,
+  "date_utc": "2026-11-20",
+  "source": "Databento Security Master",
+  "disposition": "conditional_best_documented_historical_listing_identity_candidate",
+  "history": {
+    "start": "2005-01-01",
+    "end": "present",
+    "advertised_years": 21,
+    "update_frequency": "weekly"
+  },
+  "api": {
+    "method": "Reference.security_master.get_range",
+    "index_fields": [
+      "ts_effective",
+      "ts_record"
+    ],
+    "max_symbols_per_request": 2000,
+    "fields": [
+      "listing_id",
+      "listing_group_id",
+      "security_id",
+      "issuer_id",
+      "listing_status",
+      "listing_date",
+      "delisting_date",
+      "symbol",
+      "nasdaq_symbol",
+      "local_code",
+      "CIK",
+      "CUSIP/US code",
+      "ISIN",
+      "FIGI"
+    ]
+  },
+  "universe": {
+    "snapshot_symbols": 335,
+    "source_commit": "1aa1b91f383ce9cef375a43e775c736a27356a5f",
+    "path": "research/phase44_frozen_universe_335_tickers.csv",
+    "sha1": "7edbd62b4fb34a6123276e4ce45cb3c1c62479c7",
+    "sha256": "f850655a22a8843dad90e9562b3152b9ca064560586109022b5bfd205a003dda",
+    "coverage_tested": false
+  },
+  "limitations": [
+    "ts_record semantics and upstream delay not explicitly documented; weekly updates",
+    "exact 335-symbol coverage not tested",
+    "listing/security ID continuity does not extend to spin-offs or permanent delistings",
+    "does not provide terminal delisting returns or total-return outcomes",
+    "static 335 snapshot is not a date-appropriate active-universe history",
+    "plan naming and incremental pricing conflict on product page"
+  ],
+  "pricing": {
+    "page_claims": [
+      "Standard: 1000 symbols included; $0.50/month per additional symbol",
+      "FAQ: Starter; $1.75/month per additional symbol"
+    ],
+    "new_user_credits_usd": 125,
+    "decision": "obtain written quote; no purchase"
+  },
+  "human_gate": "Create/authorize Databento account and add DATABENTO_API_KEY secret only after terms and pricing are confirmed.",
+  "api_calls": 0,
+  "raw_data_downloaded": false,
+  "signal_admitted": false,
+  "alpha_tested": false,
+  "oos_tested": false,
+  "baseline_changed": false
+}
