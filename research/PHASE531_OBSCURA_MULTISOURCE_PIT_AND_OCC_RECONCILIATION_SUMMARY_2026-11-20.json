@@ -1,0 +1,91 @@
+{
+  "phase": 531,
+  "date": "2026-11-20",
+  "status": "COMPLETE_SOURCE_FEASIBILITY_ONLY",
+  "repo_preflight": {
+    "main_head": "49bf4c2a6529fa1eb4b64e7a1f22a147952071f9",
+    "in_progress_runs": 0,
+    "queued_runs": 0,
+    "latest_form4_schedule_run": 44716430351,
+    "latest_form4_run_created_utc": "2026-11-20T10:06:51Z",
+    "latest_form144_schedule_run": 44720422923,
+    "latest_form144_run_created_utc": "2026-11-20T10:34:45Z",
+    "expected_slots_missed_by_audit_time_utc": [
+      "2026-11-20T16:47:00Z",
+      "2026-11-20T17:17:00Z"
+    ],
+    "form4_reporting_owners_file_present": false,
+    "issue_185_updated": true,
+    "manual_dispatch_performed": false
+  },
+  "occ": {
+    "daily_open_interest": {
+      "run_id": 41762027453,
+      "artifact_id": 13290557109,
+      "result": "MONTHLY_MARKET_WIDE_TOTALS_NOT_CONTRACT_LEVEL_OI",
+      "decision": "REJECT_AS_PER_SECURITY_OI"
+    },
+    "volume_query": {
+      "run_id": 41763113005,
+      "artifact_id": 13292225481,
+      "valid_responses": 645,
+      "total_requests": 670,
+      "coverage_2025_01_03": 0.9701492537313433,
+      "coverage_2026_11_02": 0.9552238805970149,
+      "history_limit": "ABOUT_24_MONTHS",
+      "fields_missing_for_directional_flow": [
+        "buy_sell_side",
+        "strike",
+        "expiry",
+        "open_close",
+        "open_interest"
+      ],
+      "decision": "RECENT_DESCRIPTIVE_ONLY"
+    },
+    "automation_legal_gate": "BLOCKED_PENDING_WRITTEN_AUTHORIZATION"
+  },
+  "obscura": {
+    "catalog_size": 125,
+    "flow_metrics": {
+      "daily": true,
+      "columns": 127,
+      "described_factors": 119,
+      "aggressor_method": "QUOTE_RULE_WITH_TICK_RULE_FALLBACK",
+      "available_date": "SESSION_DATE_ONLY",
+      "exact_history_start_verified": false,
+      "universe_335_coverage_verified": false,
+      "source_methodology_independently_verified": false,
+      "decision": "CONDITIONAL_PILOT_CANDIDATE"
+    },
+    "sec_midas_security_metrics": {
+      "source_period": "2012Q1_TO_2026Q2",
+      "vendor_claimed_missing_quarters": [
+        "2014Q2",
+        "2016Q1",
+        "2016Q2",
+        "2016Q3",
+        "2016Q4",
+        "2019Q4"
+      ],
+      "per_quarter_publication_dates_verified": false,
+      "universe_335_coverage_verified": false,
+      "decision": "CONDITIONAL_PIT_AND_COVERAGE_AUDIT"
+    },
+    "finra_short_volume": {
+      "same_day_file_after_regular_hours": true,
+      "same_day_close_use_permitted": false,
+      "distinct_from_short_interest": true
+    },
+    "licensing": {
+      "standard_usd_month": 199,
+      "professional_usd_month_equivalent": 600,
+      "professional_billed_annually": true,
+      "redistribution_requires_enterprise": true,
+      "purchase_or_api_use": false
+    }
+  },
+  "alpha_test_performed": false,
+  "new_signals_admitted": 0,
+  "f80_changed": false,
+  "human_blocker": "SEC scheduled workflows have missed subsequent slots; verify Phase 476 and Phase 403 are enabled in GitHub Actions."
+}
