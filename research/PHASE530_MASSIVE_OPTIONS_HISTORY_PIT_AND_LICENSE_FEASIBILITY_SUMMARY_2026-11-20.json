@@ -1,0 +1,100 @@
+{
+  "phase": 530,
+  "audit_date": "2026-11-20",
+  "main_head_preflight": "49bf4c2a6529fa1eb4b64e7a1f22a147952071f9",
+  "source": "Massive Options / OPRA",
+  "disposition": "BEST_CURRENT_CONDITIONAL_OPTIONS_CANDIDATE_NOT_LICENSE_CLEARED_NOT_STRICT_PIT_NOT_UNIVERSE_VERIFIED_NO_ALPHA",
+  "plan": {
+    "name": "Options Advanced",
+    "monthly_usd": 199,
+    "individual_nonprofessional": true
+  },
+  "history": {
+    "contracts": "active and expired; as_of date query",
+    "trades_start": "2014-06-02",
+    "quotes_start": "2022-03-07",
+    "open_interest_start": "2022-09-01",
+    "historical_greeks_iv_start": "2022-09-01",
+    "trades_history": "all history on Advanced",
+    "quotes_history": "all history on Advanced",
+    "oi_history": "all history on Advanced",
+    "greeks_iv_history": "all history on Advanced"
+  },
+  "timing": {
+    "trades": {
+      "participant_timestamp": "exchange event generation",
+      "sip_timestamp": "SIP receipt",
+      "subscriber_first_receipt_certified": false,
+      "options_trade_id": "empty",
+      "sequence_number": "unique per ticker, not consecutive"
+    },
+    "quotes": {
+      "grain": "OPRA top of book NBBO",
+      "start": "2022-03-07",
+      "subscriber_first_receipt_certified": false
+    },
+    "open_interest": {
+      "date_semantics": "trading session represented",
+      "availability": "new data each morning for prior session",
+      "subscriber_first_receipt_certified": false
+    },
+    "greeks_iv": {
+      "snapshot_et": "15:45 standard session; 12:45 early close",
+      "availability": "daily; provider schedule says prior-day files updated about 11:00 ET",
+      "subscriber_first_receipt_certified": false
+    },
+    "flat_files": {
+      "trades_update_et": "11:00 previous day",
+      "quotes_update_et": "11:00 previous day",
+      "prospective_first_seen_ledger_required": true
+    }
+  },
+  "coverage": {
+    "vendor_claim": "100% U.S. OPRA / 20 exchanges; 1.67m+ options tickers",
+    "f80_universe_n": 335,
+    "f80_universe_verified": false,
+    "inactive_delisted_underlying_verified": false,
+    "historical_contract_reference": "active and expired contracts; as_of supported",
+    "api_filters": "OI and historical Greeks/IV support underlying_ticker and date filters",
+    "full_market_quotes_storage": "20-30 TB/year recent years; not a viable first step",
+    "trades_file_size": "about 13.5-15 GB per year recently"
+  },
+  "license": {
+    "terms_last_updated": "2026-11-03",
+    "personal_use_includes_own_research_analysis_investment": true,
+    "sharing_information_prohibited": true,
+    "employer_or_organization_use_prohibited": true,
+    "professional_commercial_use_prohibited": true,
+    "derived_information_restriction": true,
+    "opra_nonprofessional_attestation_required": true,
+    "public_repo_actions_artifacts_cleared": false,
+    "vendor_written_clarification_required": true,
+    "account_or_purchase": false,
+    "sample_downloaded": false,
+    "vendor_contacted": false
+  },
+  "theta_comparison": {
+    "price_usd_month": 160,
+    "tick_history_start": "2012-06-01",
+    "massive_trade_history_start": "2014-06-02",
+    "massive_quote_history_start": "2022-03-07",
+    "massive_oi_iv_start": "2022-09-01"
+  },
+  "preregistered_hypotheses": [
+    "H1 options-implied risk state",
+    "H2 quote-conditioned signed options pressure",
+    "H3 OI as non-directional confirmation only",
+    "H4 implied-versus-realized volatility risk premium"
+  ],
+  "tests_run": {
+    "data_sample": false,
+    "backtest": false,
+    "oos": false,
+    "bootstrap": false,
+    "loo": false,
+    "holdout_access": false
+  },
+  "baseline": "F80_TOP20_PARTIAL50_BASELINE_C20",
+  "baseline_status": "FROZEN",
+  "next_gate": "written vendor/OPRA permission and classification; then authorized stratified 335-name coverage/PIT pilot with no public licensed data"
+}
