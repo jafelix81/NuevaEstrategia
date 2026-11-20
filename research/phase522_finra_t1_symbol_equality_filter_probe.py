@@ -17,15 +17,15 @@ from pathlib import Path
 
 import requests
 
-from research.phase521_finra_t1_symbol_domain_filter_probe import (
-    FIELDS,
-    SAMPLE_SYMBOLS,
-    TIER,
-    WEEK,
-    analyze_symbol,
-    manifest_hash,
-    parse_rows,
-)
+try:
+    from research.phase521_finra_t1_symbol_domain_filter_probe import (
+        FIELDS, SAMPLE_SYMBOLS, TIER, WEEK, analyze_symbol, manifest_hash, parse_rows,
+    )
+except ModuleNotFoundError:
+    # Direct script execution places research/ rather than the repository root on sys.path.
+    from phase521_finra_t1_symbol_domain_filter_probe import (
+        FIELDS, SAMPLE_SYMBOLS, TIER, WEEK, analyze_symbol, manifest_hash, parse_rows,
+    )
 
 BASE = "https://api.finra.org"
 DATA_URL = f"{BASE}/data/group/otcmarket/name/weeklySummaryHistoric"
