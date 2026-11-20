@@ -1,6 +1,6 @@
 {
   "phase": 510,
-  "status": "IMPLEMENTED_PENDING_POST_MERGE_LIVE_VALIDATION",
+  "status": "MERGED_PENDING_POST_MERGE_LIVE_VALIDATION",
   "repository": "jafelix81/NuevaEstrategia",
   "preflight_main": "44b2560cd931b52c474cd05f939fe440ae484f0d",
   "source": "existing SEC Form 4/4-A first-seen event ledger from Phase 476",
@@ -41,7 +41,8 @@
     "ci_tests_total": 50,
     "ci_run_id": 44642337001,
     "ci_conclusion": "success",
-    "live_capture": "skipped_by_design_in_pull_request"
+    "live_capture": "skipped_by_design_in_pull_request",
+    "live_capture_in_pr_ci": "skipped_by_design"
   },
   "prior_evidence": {
     "phase497_accessions_retrieved": 637,
@@ -53,5 +54,8 @@
     "phase498_interval_width_hours_min": 6.4675,
     "phase498_interval_width_hours_max": 8.54
   },
-  "decision": "INFRASTRUCTURE_ONLY_NO_SIGNAL_ADMITTED"
+  "decision": "INFRASTRUCTURE_ONLY_NO_SIGNAL_ADMITTED",
+  "pr_number": 163,
+  "pr_merged": true,
+  "merged_commit_sha": "a4272aa3d7998c23003d02293a6186c79e1ece12"
 }
