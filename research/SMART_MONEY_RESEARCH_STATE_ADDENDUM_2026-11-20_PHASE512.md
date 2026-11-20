@@ -3,6 +3,8 @@
 ## Phase 512 — CFTC historical availability falsification
 
 - Replayed the date-only artifact from Phase 380 run 43499455469 / artifact 14074090576 (ZIP SHA-256 `f74850aed35d7ed885f33de892895d6bbc755edbd7d4546340427d28468ceb9b`).
+
+- The separate Phase 377 full-dataset audit [run 44648241623](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44648241623) passed its coverage/schema gates: 47,420 rows, 90 fields, 1,066 report dates through 2026-11-10. This is one weekly report newer than Phase 380's archive census (1,065 dates through 2026-11-03), not a missing historical date. It does not resolve PIT publication timing.
 - Of 851 post-launch TFF report dates, 846 archive pages were retrieved. After the original weak checks, 843 pages passed (exact heading and archive Updated >= report date).
 - A stronger comparison against the CFTC's normal Friday 3:30 p.m. ET publication rule and its official historical announcements found six dates whose archive Updated date precedes the normal/known publication date: 2012-07-03, 2012-09-04, 2015-06-16, 2018-12-18, 2021-03-23 and 2021-05-04.
 - One additional 2014-12-30 / Updated 2015-01-03 row is left unresolved and excluded from the six-count.
