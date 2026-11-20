@@ -192,6 +192,19 @@ class Phase510Tests(unittest.TestCase):
                 stored = list(csv.DictReader(handle))
             self.assertEqual(len(stored), len(rows))
 
+    def test_new_parser_version_can_reprocess_prior_quarantined_accession(self):
+        parsed = p.parse_form4_details(XML)
+        current_rows = p.build_detail_rows(event(), {"detail_retrieved_at_utc": "2026-11-19T22:00:00Z"}, parsed)
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "transaction_details.csv"
+            old_rows = [dict(row) for row in current_rows]
+            for row in old_rows:
+                row["parser_version"] = "phase510-v0"
+            self.assertEqual(p.append_detail_rows(path, old_rows), len(old_rows))
+            self.assertNotIn(event()["accession"], p.read_completed_accessions(path))
+            self.assertEqual(p.append_detail_rows(path, current_rows), len(current_rows))
+            self.assertIn(event()["accession"], p.read_completed_accessions(path))
+
     def test_backfill_only_uses_bounded_events_and_is_limited(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
