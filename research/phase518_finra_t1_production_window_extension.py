@@ -459,6 +459,8 @@ def load_historical(summary_path, clock_summary_path, clock_csv_path):
             "stable_unique_participant_keys": part["stable_unique_participant_keys"],
             "source_window": "weeklySummaryHistoric",
             "date_level_clock_valid": True,
+            "symbol_bridge_gate": "PASS",
+            "revision_stable_concentration_symbols": part["revision_stable_concentration_symbols"],
         })
     output.sort(key=lambda row: row["week_start_date"])
     if len(output) != 209:
@@ -580,6 +582,8 @@ def build_sample_diagnostics(rows):
             and float(row["share_coverage_pct"]) >= COVERAGE_FLOOR
             and row.get("hhi_mean") is not None
             and row.get("date_level_clock_valid", True)
+            and row.get("symbol_bridge_gate", "PASS") == "PASS"
+            and int(row.get("revision_stable_concentration_symbols", 1) or 0) > 0
         )
         history = [
             float(x["hhi_mean"]) for x in prior
@@ -744,6 +748,7 @@ def main():
             "last_week": current_result["weeks"][-1]["week_start_date"] if current_result["weeks"] else None,
             "all_pages_reconciled": all(row["retrieval_count_match"] for row in current_result["weeks"]),
             "all_date_level_clocks_valid": all(row["date_level_clock_valid"] for row in current_result["weeks"]),
+            "all_symbol_bridges_pass": all(row["symbol_bridge_gate"] == "PASS" for row in current_result["weeks"]),
         },
         "combined_history": reconciliation,
         "sample_diagnostics": diagnostics,
