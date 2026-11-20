@@ -14,7 +14,9 @@
       "price_per_share": 1.8391,
       "gross_proceeds_approx": 183910,
       "shares_direct_after": 1882832,
-      "accepted_at_utc": "2026-11-12T21:02:10Z"
+      "accepted_at_utc": null,
+      "filed_date": "2026-11-12",
+      "acceptance_time_note": "Exact public acceptance time not independently verified from primary filing page"
     },
     "form144": {
       "accession": "0001974078-26-000422",
