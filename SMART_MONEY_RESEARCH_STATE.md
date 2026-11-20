@@ -16,9 +16,9 @@ Phase 535 report: [archive/PIT reconciliation](research/PHASE535_FINRA_ATS_ARCHI
 
 ---
 
-# Current Smart Money Research Snapshot — 2026-11-20 (Phase 535)
+# Phase 535 preflight (superseded by final disposition above)
 
-- **FINRA ATS Transparency archive:** newly identified public weekly security-by-ATS source with a possible 2014 start. The official 2015 guide documents the `tblTrading` machine-download index, downloadable historical reports by year, per-security/ATS rows, and per-row `Shares_Last_Updated` / `Trades_Last_Updated` fields. Phase 535 runs a GET-only live audit; it does not accept certification or terms. Result pending.
+- The initial archive feasibility hypothesis and GET-only method are retained for audit history. The completed live result is HTTP 530; see the Phase 535 final snapshot and report above.
 - **Licensing correction:** the 2014 ATS fee schedule was removed by SR-FINRA-2015-023; FINRA made ATS data publicly available at no charge effective 2015-07-13. Do not repeat the old $12k/$18k fees as current. The current site's certification/terms still apply.
 - **PIT:** archive files do not document an explicit `initialPublishedDate` field. The nominal two-/four-week delay is not an exact timestamp. Reconcile per-row update dates against API `initialPublishedDate` / `lastUpdateDate` and first-seen capture before any signal use.
 - **FINRA `blocksSummary`:** Phase 36's live schema has 123 monthly partitions (2016-06 through 2026-08) but no security identifier. Stock-level block hypotheses are killed; market-regime-only use is parked.
