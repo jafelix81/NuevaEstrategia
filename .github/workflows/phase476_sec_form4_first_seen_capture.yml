@@ -9,6 +9,13 @@ on:
       - "research/test_phase476_sec_form4_first_seen_capture.py"
       - "research/phase510_form4_structured_transaction_ledger.py"
       - "research/test_phase510_form4_structured_transaction_ledger.py"
+      - "research/phase525_form4_reporting_owner_identity.py"
+      - "research/test_phase525_form4_reporting_owner_identity.py"
+      - "research/phase525_form144_form4_crosswalk.py"
+      - "research/test_phase525_form144_form4_crosswalk.py"
+      - "research/PHASE525_SEC_FORM144_FORM4_MATCHED_EVENT_AND_OWNER_IDENTITY_AUDIT_2026-11-20.md"
+      - "research/PHASE525_SEC_FORM144_FORM4_MATCHED_EVENT_AND_OWNER_IDENTITY_SUMMARY_2026-11-20.json"
+      - "research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-20_PHASE525.md"
       - "research/PHASE476_SEC_FORM4_FIRST_SEEN_PROSPECTIVE_CAPTURE_AUDIT_2026-11-18.md"
       - "research/PHASE476_SEC_FORM4_FIRST_SEEN_PROSPECTIVE_CAPTURE_SUMMARY_2026-11-18.json"
       - "research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-18_PHASE476.md"
@@ -25,6 +32,13 @@ on:
       - "research/test_phase476_sec_form4_first_seen_capture.py"
       - "research/phase510_form4_structured_transaction_ledger.py"
       - "research/test_phase510_form4_structured_transaction_ledger.py"
+      - "research/phase525_form4_reporting_owner_identity.py"
+      - "research/test_phase525_form4_reporting_owner_identity.py"
+      - "research/phase525_form144_form4_crosswalk.py"
+      - "research/test_phase525_form144_form4_crosswalk.py"
+      - "research/PHASE525_SEC_FORM144_FORM4_MATCHED_EVENT_AND_OWNER_IDENTITY_AUDIT_2026-11-20.md"
+      - "research/PHASE525_SEC_FORM144_FORM4_MATCHED_EVENT_AND_OWNER_IDENTITY_SUMMARY_2026-11-20.json"
+      - "research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-20_PHASE525.md"
       - "research/PHASE476_SEC_FORM4_FIRST_SEEN_PROSPECTIVE_CAPTURE_AUDIT_2026-11-18.md"
       - "research/PHASE476_SEC_FORM4_FIRST_SEEN_PROSPECTIVE_CAPTURE_SUMMARY_2026-11-18.json"
       - "research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-18_PHASE476.md"
@@ -51,8 +65,8 @@ jobs:
           python-version: "3.11"
       - name: Compile and run offline regressions
         run: |
-          python -m py_compile research/phase476_sec_form4_first_seen_capture.py research/test_phase476_sec_form4_first_seen_capture.py research/phase510_form4_structured_transaction_ledger.py research/test_phase510_form4_structured_transaction_ledger.py
-          python -m unittest -v research.test_phase476_sec_form4_first_seen_capture research.test_phase510_form4_structured_transaction_ledger
+          python -m py_compile research/phase476_sec_form4_first_seen_capture.py research/test_phase476_sec_form4_first_seen_capture.py research/phase510_form4_structured_transaction_ledger.py research/test_phase510_form4_structured_transaction_ledger.py research/phase525_form4_reporting_owner_identity.py research/test_phase525_form4_reporting_owner_identity.py research/phase525_form144_form4_crosswalk.py research/test_phase525_form144_form4_crosswalk.py
+          python -m unittest -v research.test_phase476_sec_form4_first_seen_capture research.test_phase510_form4_structured_transaction_ledger research.test_phase525_form4_reporting_owner_identity research.test_phase525_form144_form4_crosswalk
   live-capture:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     needs: offline-regression
@@ -75,6 +89,12 @@ jobs:
       - name: Backfill bounded Form 4 structured transaction details
         if: github.event_name == 'schedule'
         run: python -u -m research.phase510_form4_structured_transaction_ledger --mode schedule --limit 10 --output phase510_output
+      - name: Backfill filing-level Form 4 reporting-owner identity and remarks
+        if: github.event_name == 'schedule'
+        run: python -u -m research.phase525_form4_reporting_owner_identity --mode schedule --limit 10 --output phase525_output
+      - name: Build descriptive Form 144 / Form 4 crosswalk
+        if: github.event_name == 'schedule'
+        run: python -u -m research.phase525_form144_form4_crosswalk --output phase525_output
       - name: Commit append-only metadata ledger
         if: github.event_name == 'schedule'
         run: |
@@ -95,5 +115,6 @@ jobs:
           path: |
             phase476_output/
             phase510_output/
+            phase525_output/
           retention-days: 90
           if-no-files-found: warn
