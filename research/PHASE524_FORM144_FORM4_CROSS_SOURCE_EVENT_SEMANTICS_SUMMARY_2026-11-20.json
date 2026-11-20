@@ -1,0 +1,80 @@
+{
+  "phase": 524,
+  "audit_timestamp_utc": "2026-11-20T10:44:00Z",
+  "base_main": "e44ef875f4d1215387003c9c77cec603c65abe5a",
+  "clean_energy_pair": {
+    "issuer": "Clean Energy Fuels Corp.",
+    "seller": "Andrew J. Littlefair",
+    "symbol": "CLNE",
+    "form4": {
+      "accession": "0001400209-26-000018",
+      "transaction_date": "2026-11-10",
+      "code": "S",
+      "shares_disposed": 100000,
+      "price_per_share": 1.8391,
+      "gross_proceeds_approx": 183910,
+      "shares_direct_after": 1882832,
+      "accepted_at_utc": "2026-11-12T21:02:10Z"
+    },
+    "form144": {
+      "accession": "0001974078-26-000422",
+      "notice_date": "2026-11-19",
+      "accepted_at_utc": "2026-11-19T20:57:06Z",
+      "approx_sale_date": "2026-11-10",
+      "proposed_shares": 100000,
+      "aggregate_market_value": 183391,
+      "nothing_to_report_flag": true,
+      "rule_10b5_1_plan_date": null,
+      "first_seen_upper_bound_utc": "2026-11-19T21:00:26Z",
+      "first_seen_lower_bound_utc": "2026-11-19T02:50:33Z"
+    },
+    "gap_days_transaction_to_notice": 9,
+    "gap_days_form4_to_form144": 7,
+    "classification": "MATCHED_FORM4_SALE_PRECEDES_FORM144_NOTICE",
+    "consistency_flag": "PRIOR_SALES_FLAG_CONFLICT",
+    "legal_conclusion": false,
+    "form4_present_in_current_collector_ledger": false
+  },
+  "other_pre_notice_records": {
+    "count": 3,
+    "verano": {
+      "accession": "0001493152-26-053320",
+      "form": "144/A",
+      "classification": "plan_termination_and_past_sales_explicitly_reported"
+    },
+    "eagle_bancorp_montana": {
+      "accession": "0001972649-26-000002",
+      "approx_sale_date": "2026-11-18",
+      "notice_date": "2026-11-19",
+      "classification": "proposed_or_unconfirmed_no_form4_match_at_cutoff"
+    },
+    "griffon": {
+      "accession": "0001959173-26-008160",
+      "approx_sale_date": "2026-11-16",
+      "notice_date": "2026-11-19",
+      "classification": "proposed_or_unconfirmed_no_form4_match_at_cutoff"
+    }
+  },
+  "authoritative_guidance": {
+    "rule": "17 CFR 230.144(h)(3)",
+    "ecfr_current_as_of": "2026-11-18",
+    "sec_cdi": "Questions 136.01, 136.05, 136.09",
+    "sec_cdi_updated": "2026-11-17",
+    "concurrent_means_same_day": true,
+    "if_no_sale_amendment_required": false
+  },
+  "research_decision": "Never use approxSaleDate as event time. Link Form 144 to Form 4 with multi-field matching; exclude post-trade or unresolved pairs from leading-signal tests; quarantine Nothing-to-Report conflicts.",
+  "controls": {
+    "returns_used": false,
+    "event_study": false,
+    "backtest": false,
+    "alpha_test": false,
+    "oos": false,
+    "bootstrap": false,
+    "loo": false,
+    "holdout": false,
+    "new_signals": 0,
+    "f80_changed": false,
+    "production_changed": false
+  }
+}
