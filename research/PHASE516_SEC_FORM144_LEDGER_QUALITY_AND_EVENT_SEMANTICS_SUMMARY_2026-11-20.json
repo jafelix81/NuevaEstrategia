@@ -1,0 +1,101 @@
+{
+  "phase": 516,
+  "date": "2026-11-20",
+  "disposition": "DESCRIPTIVE_LEDGER_QUALITY_PASS_WITH_SEMANTIC_REVIEW_QUEUE",
+  "source": "research/data/sec_form144_first_seen/sale_details.csv",
+  "provenance": {
+    "main_head_at_audit_start": "cca5224c0980d6b0765b203ea618a335d9b88510",
+    "form144_run": 44662324343,
+    "prior_capture_run": 44614323236,
+    "source_hash_matches": 596,
+    "source_hash_mismatches": 0,
+    "parse_error_rows": 0
+  },
+  "counts": {
+    "detail_rows": 596,
+    "filing_headers": 80,
+    "issuer_ciks": 61,
+    "form_filing_counts": {
+      "144": 79,
+      "144/A": 1
+    },
+    "proposed_sale_rows": 80,
+    "proposed_sale_complete_rows": 80,
+    "acquisition_lot_rows": 169,
+    "prior_three_month_sale_rows": 267,
+    "filings_with_prior_sales": 49,
+    "filings_with_nothing_to_report": 31
+  },
+  "rule_10b5_1": {
+    "formal_plan_date_filings": 27,
+    "remarks_keyword_filings": 6,
+    "overlap": 2,
+    "formal_date_only": 25,
+    "remarks_only": 4,
+    "plan_age_days_min": 72,
+    "plan_age_days_median": 183,
+    "plan_age_days_max": 528
+  },
+  "proposed_to_reported_class_units_outstanding_ratio": {
+    "min": 1.352550922e-7,
+    "p25": 0.0000188787702201,
+    "median": 0.0000747412646806,
+    "p75": 0.0006319351881585,
+    "max": 0.0038642657190292,
+    "note": "Not float; not executed-sale ratio; class/denominator semantics remain a gate."
+  },
+  "sale_date_relation_to_notice": {
+    "same_as_notice_date": 77,
+    "before_notice_date": 3
+  },
+  "semantic_review_queue": [
+    {
+      "accession": "0001493152-26-053320",
+      "issuer": "Verano Holdings Corp.",
+      "form": "144/A",
+      "disposition": "plan termination / completed sales; Remarks say no further sales; not a new forward-supply event"
+    },
+    {
+      "accession": "0001974078-26-000422",
+      "issuer": "Clean Energy Fuels Corp.",
+      "form": "144",
+      "disposition": "approximate sale date precedes notice; manual review required"
+    },
+    {
+      "accession": "0001972649-26-000002",
+      "issuer": "Eagle Bancorp Montana, Inc.",
+      "form": "144",
+      "disposition": "approximate sale date precedes notice; manual review required"
+    }
+  ],
+  "pit": {
+    "research_observation_eligible_headers": 80,
+    "public_availability_certified_headers": 0,
+    "signal_eligible_headers": 0,
+    "first_seen_interval_hours_by_run": {
+      "44662324343": {
+        "filings": 70,
+        "hours": 5.6531
+      },
+      "44614323236": {
+        "filings": 10,
+        "hours": 18.1647
+      }
+    },
+    "exact_publication_timestamp_certified": false,
+    "same_day_intraday_use_authorized": false
+  },
+  "controls": {
+    "no_backtest": true,
+    "no_event_study": true,
+    "no_oos": true,
+    "no_bootstrap": true,
+    "no_loo": true,
+    "no_signal_admitted": true,
+    "f80_frozen": true
+  },
+  "sources": [
+    "https://www.sec.gov/files/form144.pdf",
+    "https://www.sec.gov/files/corpfin/exchange-act-rules-042525-120-1.pdf"
+  ]
+}
