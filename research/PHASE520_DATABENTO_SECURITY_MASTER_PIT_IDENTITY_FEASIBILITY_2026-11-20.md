@@ -36,7 +36,7 @@ Sources:
 
 ## 3. PIT interpretation — conditional, not yet certified
 
-The API's ability to filter/order by `ts_record` and `ts_effective` is materially better than a current-state-only master. The guide describes the records as PIT, and the sample response shows separate values for the two fields.
+The API's ability to filter/order by `ts_record` and `ts_effective` is materially better than a current-state-only master. The guide describes the records as PIT, and the sample response shows separate values for the two fields. However, the November 10, 2026 migration notice separately warns that the current production `listing_status` is not historical PIT until the December 10 cutover; use the preview gateway for a pre-cutover PIT-status pilot.
 
 However, the public documentation does **not** define `ts_record` as the exact first time the information became publicly available, nor does it state a maximum delay from the upstream event to Databento's record. The guide says the product is updated weekly. Therefore:
 - `ts_effective` is the candidate valid-from clock;
@@ -46,6 +46,24 @@ However, the public documentation does **not** define `ts_record` as the exact f
 - weekly update cadence may create a conservative lag and must be measured, not assumed away.
 
 The pilot must retain both clocks, query parameters, retrieval time, response hash and vendor/API version. If vendor confirmation is unavailable, classify the source as historical identity support only, not a fully certified public-information clock.
+
+## 3A. Critical Reference API migration announced 2026-11-10
+
+A vendor announcement published November 10, 2026 states that the current production `listing_status` field reflects a listing's **most recent** status across its historical records. Until the production cutover, historical rows must therefore not use `listing_status` as an as-of status: a later delisting can appear in an earlier historical row and create look-ahead.
+
+Databento says the corrected behavior is available in a preview gateway from November 10, 2026 and will become the production Reference API behavior on **December 10, 2026**. Under the new behavior, each historical record will show the listing status applicable to that period; pending (`P`) listings will also be treated as listed from their `start_date`.
+
+The same migration changes `nasdaq_symbol` formatting for some NYSE-listed class/suffix securities to match the Nasdaq formatting used in Databento's market-data APIs. Use CUSIP/FIGI/ISIN and stable listing/security identifiers as primary joins; treat ticker strings as effective-dated aliases, and test suffix symbols across the cutover.
+
+Preview access is documented as:
+```python
+client = db.Reference(gateway="hist-preview.databento.com")
+```
+Preview coverage follows the same subscription coverage as production. The one-shot pilot should test the preview now, retain API/version/gateway metadata, and compare preview against production after December 10. Never mix pre-cutover production `listing_status` values with the new PIT semantics in one historical panel without explicit versioning.
+
+Vendor announcement: https://databento.com/blog/reference-api-changes-2026-11
+
+This change improves feasibility, but it does not certify `ts_record` as exact first public availability or quantify upstream delay. It also does not solve spin-off/permanent-delisting identity continuity or terminal-return coverage.
 
 ## 4. Identity continuity and survivorship limits
 
