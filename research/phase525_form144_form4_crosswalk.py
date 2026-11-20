@@ -164,7 +164,10 @@ def build_crosswalk(form144_rows: list[dict], form4_rows: list[dict], owner_rows
     ]
     output = []
     used = set()
+    ambiguous_events = 0
+    reused_transactions_prevented = 0
     for sale in sales:
+        candidates = []
         for tx in transactions:
             owner = owner_index.get(tx.get("accession", ""))
             if owner is None:
@@ -178,41 +181,56 @@ def build_crosswalk(form144_rows: list[dict], form4_rows: list[dict], owner_rows
                 or not security_matches(sale["security_class"], tx.get("security_title"))
             ):
                 continue
-            price = decimal_value(tx.get("price_per_share_numeric"))
-            gross = sale["quantity"] * price if price is not None else None
-            difference = sale["reported_value"] - gross if sale["reported_value"] is not None and gross is not None else None
-            try:
-                flags = json.loads(owner.get("remarks_flags_json") or "{}")
-            except json.JSONDecodeError:
-                flags = {}
-            output.append({
-                "form144_event_role": sale["role"],
-                "form144_accession": sale["accession"],
-                "form4_accession": tx.get("accession"),
-                "issuer_cik": sale["issuer_cik"],
-                "issuer_name": sale["issuer_name"] or tx.get("issuer_name"),
-                "owner_cik": sale["owner_cik"],
-                "owner_name": sale["owner_name"],
-                "transaction_date": sale["date"],
-                "shares": str(sale["quantity"]),
-                "transaction_code": tx.get("transaction_code"),
-                "acquired_disposed_code": tx.get("acquired_disposed_code"),
-                "security_class": sale["security_class"],
-                "security_title": tx.get("security_title"),
-                "form144_reported_value": str(sale["reported_value"]) if sale["reported_value"] is not None else "",
-                "form4_calculated_gross_value": str(gross) if gross is not None else "",
-                "value_difference": str(difference) if difference is not None else "",
-                "form144_acceptance_utc": sale["acceptance"],
-                "form144_first_seen_upper_utc": sale["first_seen_upper"],
-                "form4_acceptance_utc": tx.get("acceptance_datetime_utc"),
-                "form4_first_seen_upper_utc": tx.get("first_seen_interval_upper_bound_utc") or tx.get("first_seen_at_utc"),
-                "availability_relation": availability_relation(sale["role"], sale["acceptance"], tx.get("acceptance_datetime_utc", "")),
-                "form4_remarks_flags_json": json.dumps(flags, sort_keys=True, separators=(",", ":")),
-                "economic_context_class": economic_context(flags),
-                "signal_eligible": False,
-                "historical_f80_membership_verified": False,
-            })
-            used.add(tx.get("accession"))
+            candidates.append((tx, owner))
+        if len(candidates) > 1:
+            ambiguous_events += 1
+            continue
+        if not candidates:
+            continue
+        tx, owner = candidates[0]
+        transaction_key = tx.get("detail_row_key") or "|".join((
+            tx.get("accession", ""), tx.get("table_type", ""),
+            tx.get("row_index", ""), tx.get("transaction_date", ""),
+            tx.get("shares_numeric", ""),
+        ))
+        if transaction_key in used:
+            reused_transactions_prevented += 1
+            continue
+        used.add(transaction_key)
+        price = decimal_value(tx.get("price_per_share_numeric"))
+        gross = sale["quantity"] * price if price is not None else None
+        difference = sale["reported_value"] - gross if sale["reported_value"] is not None and gross is not None else None
+        try:
+            flags = json.loads(owner.get("remarks_flags_json") or "{}")
+        except json.JSONDecodeError:
+            flags = {}
+        output.append({
+            "form144_event_role": sale["role"],
+            "form144_accession": sale["accession"],
+            "form4_accession": tx.get("accession"),
+            "issuer_cik": sale["issuer_cik"],
+            "issuer_name": sale["issuer_name"] or tx.get("issuer_name"),
+            "owner_cik": sale["owner_cik"],
+            "owner_name": sale["owner_name"],
+            "transaction_date": sale["date"],
+            "shares": str(sale["quantity"]),
+            "transaction_code": tx.get("transaction_code"),
+            "acquired_disposed_code": tx.get("acquired_disposed_code"),
+            "security_class": sale["security_class"],
+            "security_title": tx.get("security_title"),
+            "form144_reported_value": str(sale["reported_value"]) if sale["reported_value"] is not None else "",
+            "form4_calculated_gross_value": str(gross) if gross is not None else "",
+            "value_difference": str(difference) if difference is not None else "",
+            "form144_acceptance_utc": sale["acceptance"],
+            "form144_first_seen_upper_utc": sale["first_seen_upper"],
+            "form4_acceptance_utc": tx.get("acceptance_datetime_utc"),
+            "form4_first_seen_upper_utc": tx.get("first_seen_interval_upper_bound_utc") or tx.get("first_seen_at_utc"),
+            "availability_relation": availability_relation(sale["role"], sale["acceptance"], tx.get("acceptance_datetime_utc", "")),
+            "form4_remarks_flags_json": json.dumps(flags, sort_keys=True, separators=(",", ":")),
+            "economic_context_class": economic_context(flags),
+            "signal_eligible": False,
+            "historical_f80_membership_verified": False,
+        })
 
     summary = {
         "phase": PHASE,
@@ -224,7 +242,9 @@ def build_crosswalk(form144_rows: list[dict], form4_rows: list[dict], owner_rows
         "multi_owner_accessions_quarantined": len(multi_owner),
         "matched_proposed_sales": sum(1 for x in output if x["form144_event_role"] == "PROPOSED_SALE"),
         "matched_prior_sales": sum(1 for x in output if x["form144_event_role"] == "PRIOR_SALE_HISTORY"),
-        "matched_form4_accessions": len(used),
+        "matched_form4_accessions": len({row["form4_accession"] for row in output}),
+        "ambiguous_form144_events_quarantined": ambiguous_events,
+        "duplicate_transaction_reuse_prevented": reused_transactions_prevented,
         "form4_accessions_without_single_owner_identity": sum(
             1 for tx in transactions if tx.get("accession") not in owner_index
         ),
