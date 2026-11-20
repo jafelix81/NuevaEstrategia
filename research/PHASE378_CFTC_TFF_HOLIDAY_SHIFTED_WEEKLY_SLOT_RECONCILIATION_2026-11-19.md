@@ -1,7 +1,7 @@
 # Phase 378 — CFTC TFF holiday-shifted weekly-slot reconciliation
 
 **Date:** 2026-11-19  
-**Status before hosted rerun:** implementation and deterministic tests prepared; corrected full-snapshot validation pending.  
+**Status:** completed; corrected hosted full-snapshot validation passed on 2026-11-20 UTC.  
 **Parent:** Phase 377 full CFTC TFF Futures Only coverage and contract-key audit.  
 **Scope:** source-grain/coverage correction only; no feature or return test.
 
@@ -39,3 +39,19 @@ TFF categories are self-reported business-purpose classifications, not verified 
 ## Controls
 
 No raw rows/IDs retained, no forward returns, no alpha, no OOS, no bootstrap/LOO, no holdout, no vendor purchase, and no change to `F80_TOP20_PARTIAL50_BASELINE_C20`, production, universe, capital, exposure or parameters.
+
+
+## Hosted result
+
+The corrected full-snapshot workflow [44648241623](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44648241623) passed. The uploaded anonymized artifact is [14589078987](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44648241623/artifacts/14589078987). The job ran 19/19 tests successfully, retrieved 47,420 rows / 90 fields, reconciled the source row count and metadata timestamp, and confirmed snapshot stability.
+
+| Contract code | Report dates | ISO-week coverage | Missing ISO weeks | Shifted report dates | Longest/latest contiguous run |
+|---|---:|---:|---:|---:|---|
+| 13874A E-mini S&P 500 | 1,066 | 100.0% | 0 | 14 | 1,066 weeks, 2006-06-12 to 2026-11-09 |
+| 209742 Nasdaq-100 Mini | 1,066 | 100.0% | 0 | 14 | 1,066 weeks, 2006-06-12 to 2026-11-09 |
+| 124603 DJIA x $5 | 1,066 | 100.0% | 0 | 14 | 1,066 weeks, 2006-06-12 to 2026-11-09 |
+| 239742 Russell E-mini | 602 | 56.472795% | 464 | 9 | 483 weeks, 2017-08-14 to 2026-11-09 |
+
+The full dataset now contains 47,420 rows versus 47,322 in the prior Phase 377 snapshot; its latest report date is 2026-11-10. The CFTC's current page lists reports dated November 10, 2026, and its release schedule lists November 16, 2026 at 3:30 p.m. ET as a delayed publication due to a federal holiday. The prospective Phase 384 ledger records our first actual collector observation for that report date at 2026-11-18 03:44:57 UTC for all four contracts. This is the first recorded collector observation, not a claim that the CFTC first published it then. The following scheduled capture [44453066854](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44453066854) found no new report or revision and made no state change. The first recorded observation is after the U.S. equity close; the earliest conservative equity session is November 18, 2026.
+
+The Phase 384 ledger marks those four reports as research-observation eligible but signal-ineligible; no trade signal was generated. Historical backfill remains excluded from signal features. CFTC's announced move to semiweekly publication by the end of 2026 is a planned cadence change, not yet assumed to be active; the existing capture polls every business day and its tests suppress weekly features when semiweekly cadence is detected.

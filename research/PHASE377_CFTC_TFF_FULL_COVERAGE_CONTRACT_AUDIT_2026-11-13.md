@@ -71,3 +71,15 @@ The full CFTC historical viewable archive explicitly says its dates are report d
 The corrected hosted full-snapshot rerun is pending. Russell 2000 (239742) remains a separate incomplete-history candidate: 601 rows versus 1,065 weekly slots in the original full-span diagnostic (56.431925%), with a 3,255-day maximum gap. Phase 378 adds contiguous-run diagnostics before deciding whether any later subperiod could be considered.
 
 No feature, forward return, alpha, OOS, bootstrap, LOO or holdout test is authorized. No release-date inference, signal admission, production change or F80 change.
+
+
+### Hosted Phase 378 rerun — PASS (2026-11-20 UTC)
+
+- Run: [44648241623](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44648241623); artifact: [14589078987](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44648241623/artifacts/14589078987).
+- 19/19 deterministic tests passed; full public snapshot: 47,420 rows, 90 fields; before/after row count and metadata timestamp reconciled; snapshot stable during retrieval.
+- Primary contracts 13874A, 209742 and 124603: 1,066 report dates each, 1,066/1,066 ISO weeks (100%), zero missing ISO weeks, zero duplicate ISO-week slots, 14 shifted non-Tuesday report dates each, longest contiguous run 1,066 weeks from 2006-06-12 through 2026-11-09. The maximum raw date gap remains 8 days, but the maximum ISO-week gap is 1.
+- Russell 2000 239742: 602 report dates; 56.472795% full-span weekly coverage; 464 missing ISO weeks; maximum gap 3,255 days. Its latest and longest contiguous run is 483 weeks from 2017-08-14 through 2026-11-09. Treat it as a separate 2017-08-14+ subperiod candidate, not as a continuous 2006–2026 series.
+- All four candidate codes present; natural keys `(report_date, contract_code)` unique; no duplicate ISO-week slots; primary-index weekly-completeness gate passed.
+- The earlier run [44648144217](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44648144217) failed only one newly added synthetic fixture (Russell fixture contained a single date and therefore no internal gap). The fixture was corrected; the subsequent hosted run above passed. No source retrieval occurred in the failed run.
+
+This corrects the Phase 377 date-grid metric. It does **not** establish historical publication-time PIT, and does not authorize an alpha test.

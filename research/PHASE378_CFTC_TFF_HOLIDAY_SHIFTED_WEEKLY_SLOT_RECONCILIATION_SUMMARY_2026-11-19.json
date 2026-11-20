@@ -1,0 +1,88 @@
+{
+  "phase": 378,
+  "title": "CFTC TFF holiday-shifted weekly-slot reconciliation",
+  "as_of_local": "2026-11-19",
+  "hosted_run_id": 44648241623,
+  "hosted_run_url": "https://github.com/jafelix81/NuevaEstrategia/actions/runs/44648241623",
+  "artifact_id": 14589078987,
+  "tests": {
+    "passed": 19,
+    "failed": 0
+  },
+  "source_snapshot": {
+    "dataset_id": "gpe5-46if",
+    "retrieved_rows": 47420,
+    "schema_fields": 90,
+    "row_count_reconciled": true,
+    "metadata_timestamp_reconciled": true,
+    "snapshot_stable": true,
+    "first_report_date": "2006-06-13",
+    "last_report_date": "2026-11-10"
+  },
+  "contracts": {
+    "124603": {
+      "report_dates": 1066,
+      "iso_week_coverage_pct": 100,
+      "missing_iso_weeks": 0,
+      "shifted_report_dates": 14,
+      "duplicate_iso_week_slots": 0,
+      "longest_contiguous_run_weeks": 1066,
+      "run_start": "2006-06-12",
+      "run_end": "2026-11-09"
+    },
+    "209742": {
+      "report_dates": 1066,
+      "iso_week_coverage_pct": 100,
+      "missing_iso_weeks": 0,
+      "shifted_report_dates": 14,
+      "duplicate_iso_week_slots": 0,
+      "longest_contiguous_run_weeks": 1066,
+      "run_start": "2006-06-12",
+      "run_end": "2026-11-09"
+    },
+    "239742": {
+      "report_dates": 602,
+      "iso_week_coverage_pct": 56.472795,
+      "missing_iso_weeks": 464,
+      "shifted_report_dates": 9,
+      "duplicate_iso_week_slots": 0,
+      "longest_contiguous_run_weeks": 483,
+      "latest_contiguous_run_weeks": 483,
+      "latest_run_start": "2017-08-14",
+      "latest_run_end": "2026-11-09",
+      "max_gap_days": 3255
+    },
+    "13874A": {
+      "report_dates": 1066,
+      "iso_week_coverage_pct": 100,
+      "missing_iso_weeks": 0,
+      "shifted_report_dates": 14,
+      "duplicate_iso_week_slots": 0,
+      "longest_contiguous_run_weeks": 1066,
+      "run_start": "2006-06-12",
+      "run_end": "2026-11-09"
+    }
+  },
+  "gates": {
+    "candidate_codes_present": true,
+    "natural_key_unique": true,
+    "weekly_slots_unique": true,
+    "primary_index_contracts_weekly_complete": true
+  },
+  "pit": {
+    "historical_release_timestamp_coverage": "NOT_CERTIFIED",
+    "prospective_first_seen": "2026-11-18T03:44:57Z",
+    "report_date": "2026-11-10",
+    "research_observation_eligible": true,
+    "signal_eligible": false,
+    "trade_signal_generated": false
+  },
+  "controls": {
+    "raw_rows_retained": false,
+    "forward_returns_used": false,
+    "alpha_test_authorized": false,
+    "holdout_used": false,
+    "f80_changed": false,
+    "production_changed": false
+  }
+}
