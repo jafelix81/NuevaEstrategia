@@ -1,0 +1,83 @@
+name: Phase 518 FINRA T1 production-window extension
+
+on:
+  push:
+    branches:
+      - phase518-finra-t1-production-window-extension
+    paths:
+      - research/phase518_finra_t1_production_window_extension.py
+      - research/test_phase518_finra_t1_production_window_extension.py
+      - .github/workflows/phase518_finra_t1_production_window_extension.yml
+  pull_request:
+    paths:
+      - research/phase518_finra_t1_production_window_extension.py
+      - research/test_phase518_finra_t1_production_window_extension.py
+      - .github/workflows/phase518_finra_t1_production_window_extension.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: phase518-finra-t1-production-window-extension
+  cancel-in-progress: false
+
+jobs:
+  offline-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: python -m pip install --upgrade requests pandas-market-calendars
+      - name: Run offline regression tests
+        run: python -m unittest research.test_phase518_finra_t1_production_window_extension -v
+
+  live-audit:
+    if: github.event_name != 'pull_request'
+    needs: offline-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: python -m pip install --upgrade requests pandas-market-calendars
+      - name: Download immutable Phase 375 historical audit artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: phase375-finra-t1-ats-full-weekly-revision-audit
+          run-id: 43493465495
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          path: inputs/phase375
+      - name: Download immutable Phase 385 publication-clock artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: phase385-finra-t1-publication-clock-audit
+          run-id: 43536490386
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          path: inputs/phase385
+      - name: Extend historical panel with production weeklySummary
+        env:
+          FINRA_API_TOKEN: ${{ secrets.FINRA_API_TOKEN }}
+        run: |
+          python research/phase518_finra_t1_production_window_extension.py \
+            --historical-summary inputs/phase375/summary.json \
+            --historical-clock-summary inputs/phase385/summary.json \
+            --historical-clock-csv inputs/phase385/weekly_clock.csv \
+            --output phase518_output
+      - name: Upload aggregate-only feasibility artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase518-finra-t1-production-window-extension
+          path: phase518_output/
+          if-no-files-found: warn
+          retention-days: 90

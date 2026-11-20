@@ -1,0 +1,106 @@
+{
+  "phase": 518,
+  "audit_timestamp_utc": "2026-11-20T08:32:11.967226Z",
+  "run_id": 44701029373,
+  "artifact_id": 14613284655,
+  "status": "DATA_RETRIEVAL_AND_CLOCK_PASS_AGGREGATE_WEEKLY_SAMPLE_GATE_FAIL",
+  "incremental_weeks": 50,
+  "incremental_rows": 3497002,
+  "combined_weeks": 259,
+  "combined_first": "2021-11-15",
+  "combined_last": "2026-10-26",
+  "consecutive": true,
+  "overlap_checks": [
+    {
+      "week": "2021-12-06",
+      "historical_hhi": 0.165246,
+      "current_hhi": 0.16524579,
+      "match": true
+    },
+    {
+      "week": "2024-05-20",
+      "historical_hhi": 0.172722,
+      "current_hhi": 0.17272223,
+      "match": true
+    }
+  ],
+  "incremental_coverage": {
+    "weeks": 50,
+    "at_least_90_pct": 49,
+    "at_least_95_pct": 48,
+    "below_90_pct": [
+      {
+        "week": "2026-03-23",
+        "share_coverage_pct": 79.931859
+      }
+    ],
+    "below_95_additional": [
+      {
+        "week": "2026-08-10",
+        "share_coverage_pct": 94.631992
+      }
+    ]
+  },
+  "sample_gate": {
+    "strict_52_of_52": {
+      "valid_observations": 19,
+      "high": 14
+    },
+    "exploratory_48_of_52": {
+      "valid_observations": 190,
+      "high": 44,
+      "nonhigh": 146,
+      "admitted": false
+    },
+    "horizons": {
+      "5": {
+        "matured": 189,
+        "evaluation": 137,
+        "high": 26,
+        "nonhigh": 111,
+        "pass": false
+      },
+      "10": {
+        "matured": 188,
+        "evaluation": 136,
+        "high": 26,
+        "nonhigh": 110,
+        "pass": false
+      },
+      "20": {
+        "matured": 186,
+        "evaluation": 132,
+        "high": 24,
+        "nonhigh": 108,
+        "pass": false
+      }
+    },
+    "minimums": {
+      "evaluation": 150,
+      "high": 30,
+      "nonhigh": 100
+    }
+  },
+  "hhi_autocorrelation": {
+    "lag1": {
+      "n": 239,
+      "r": 0.687699
+    },
+    "lag4": {
+      "n": 212,
+      "r": 0.481133
+    }
+  },
+  "next_gate": "FINRA domainFilters one-week probe on issueSymbolIdentifier for a predeclared 10-name subset of frozen 335 snapshot",
+  "authorization": {
+    "returns": false,
+    "alpha": false,
+    "oos": false,
+    "bootstrap": false,
+    "loo": false,
+    "holdout": false,
+    "signal_admitted": false,
+    "f80_changed": false,
+    "production_changed": false
+  }
+}
