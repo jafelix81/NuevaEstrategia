@@ -43,6 +43,43 @@ class Phase377Tests(unittest.TestCase):
         self.assertEqual(result["missing_week_count"], 1)
         self.assertEqual(result["coverage_pct"], 66.666667)
 
+    def test_holiday_shifted_report_date_counts_as_same_iso_week(self):
+        result = _weekly_coverage([
+            date(2006, 7, 3), date(2006, 7, 11), date(2006, 7, 18),
+        ])
+        self.assertEqual(result["observed_iso_week_count"], 3)
+        self.assertEqual(result["expected_iso_week_count"], 3)
+        self.assertEqual(result["missing_week_count"], 0)
+        self.assertEqual(result["coverage_pct"], 100.0)
+        self.assertEqual(result["shifted_report_date_count"], 1)
+        self.assertEqual(result["shifted_report_date_examples"][0]["weekday"], "Monday")
+
+    def test_missing_iso_week_is_detected(self):
+        result = _weekly_coverage([date(2026, 10, 20), date(2026, 11, 3)])
+        self.assertEqual(result["observed_iso_week_count"], 2)
+        self.assertEqual(result["expected_iso_week_count"], 3)
+        self.assertEqual(result["missing_week_count"], 1)
+        self.assertEqual(result["coverage_pct"], 66.666667)
+        self.assertEqual(result["missing_iso_week_examples"], ["2026-W44"])
+
+    def test_duplicate_report_dates_within_iso_week_are_flagged(self):
+        result = _weekly_coverage([
+            date(2026, 10, 19), date(2026, 10, 20), date(2026, 10, 27),
+        ])
+        self.assertEqual(result["observed_iso_week_count"], 2)
+        self.assertEqual(result["duplicate_iso_week_count"], 1)
+        self.assertEqual(result["duplicate_iso_week_examples"][0]["iso_week"], "2026-W43")
+
+    def test_latest_contiguous_week_run_is_reported(self):
+        result = _weekly_coverage([
+            date(2026, 10, 6), date(2026, 10, 13),
+            date(2026, 10, 27), date(2026, 11, 3),
+        ])
+        self.assertEqual(result["longest_contiguous_run_weeks"], 2)
+        self.assertEqual(result["latest_contiguous_run_weeks"], 2)
+        self.assertEqual(result["latest_contiguous_run_start"], "2026-10-26")
+        self.assertEqual(result["latest_contiguous_run_end"], "2026-11-02")
+
     def test_position_field_resolver(self):
         result = resolve_position_fields(FIELDS)
         self.assertEqual(result["dealer"]["long"], "dealer_positions_long_all")
@@ -154,6 +191,25 @@ class Phase377Tests(unittest.TestCase):
         )
         self.assertTrue(result["candidate_codes_present_gate"])
         self.assertTrue(result["candidate_report_date_code_unique_gate"])
+
+    def test_primary_index_weekly_gate_is_separate_from_incomplete_russell_history(self):
+        rows = []
+        row_id = 0
+        for code in ("13874A", "209742", "124603"):
+            for report_date in ("2026-10-20", "2026-10-27", "2026-11-03"):
+                row_id += 1
+                rows.append(make_row(report_date, code, row_id=str(row_id)))
+        row_id += 1
+        rows.append(make_row("2026-11-03", "239742", row_id=str(row_id)))
+        result = build_summary(
+            rows, FIELDS, count_before=len(rows), count_after=len(rows),
+            metadata_updated_before=123, metadata_updated_after=123,
+        )
+        self.assertTrue(result["candidate_week_slots_unique_gate"])
+        self.assertTrue(result["primary_index_contracts_weekly_complete_gate"])
+        self.assertGreater(
+            result["candidate_contracts"]["239742"]["weekly_coverage"]["missing_week_count"], 0
+        )
 
     def test_missing_candidate_contract_is_not_silently_accepted(self):
         result = build_summary(

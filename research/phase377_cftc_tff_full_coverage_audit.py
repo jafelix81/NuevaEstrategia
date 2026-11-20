@@ -31,6 +31,7 @@ CANDIDATE_CODES = {
     "239742": "RUSSELL 2000 STOCK INDEX (MINI)",
     "124603": "DOW JONES INDUSTRIAL AVG - x $5",
 }
+PRIMARY_INDEX_CODES = ("13874A", "209742", "124603")
 RELATED_PATTERNS = ("S&P 500", "NASDAQ-100", "NASDAQ 100", "RUSSELL 2000", "DOW JONES")
 CATEGORY_PREFIXES = {
     "dealer": "dealer",
@@ -85,29 +86,107 @@ def resolve_position_fields(field_names):
 
 
 def _weekly_coverage(dates):
+    """Measure weekly report slots, allowing holiday-shifted report dates.
+
+    CFTC report_date is an as-of/report date, not the publication timestamp.
+    A weekly report can carry a Monday or Wednesday date around a holiday.
+    Grouping by ISO week prevents a shifted date from being miscounted as a
+    missing Tuesday plus an extra non-Tuesday observation.
+    """
     dates = sorted(set(dates))
     if not dates:
         return {
-            "observed_weeks": 0, "expected_weekly_anchors": 0,
-            "coverage_pct": None, "missing_week_count": 0,
-            "missing_week_examples": [], "max_gap_days": None,
-            "non_tuesday_count": 0,
+            "observed_weeks": 0, "observed_report_dates": 0,
+            "expected_weekly_anchors": 0, "expected_iso_week_count": 0,
+            "observed_iso_week_count": 0, "coverage_pct": None,
+            "missing_week_count": 0, "missing_week_examples": [],
+            "missing_iso_week_examples": [], "max_gap_days": None,
+            "max_gap_weeks": None, "non_tuesday_count": 0,
+            "shifted_report_date_count": 0, "shifted_report_date_examples": [],
+            "duplicate_iso_week_count": 0, "duplicate_iso_week_examples": [],
+            "longest_contiguous_run_weeks": 0,
+            "longest_contiguous_run_start": None,
+            "longest_contiguous_run_end": None,
+            "latest_contiguous_run_weeks": 0,
+            "latest_contiguous_run_start": None,
+            "latest_contiguous_run_end": None,
         }
-    expected = []
-    cursor = dates[0]
-    while cursor <= dates[-1]:
-        expected.append(cursor)
+
+    def week_key(d):
+        iso = d.isocalendar()
+        return (iso.year, iso.week)
+
+    def week_monday(key):
+        return date.fromisocalendar(key[0], key[1], 1)
+
+    counts = Counter(week_key(d) for d in dates)
+    observed_keys = sorted(counts)
+    first_monday = week_monday(observed_keys[0])
+    last_monday = week_monday(observed_keys[-1])
+    expected_keys = []
+    cursor = first_monday
+    while cursor <= last_monday:
+        expected_keys.append(week_key(cursor))
         cursor += timedelta(days=7)
-    missing = sorted(set(expected) - set(dates))
-    gaps = [(b - a).days for a, b in zip(dates, dates[1:])]
+
+    missing = sorted(set(expected_keys) - set(observed_keys))
+    duplicates = sorted((key, count) for key, count in counts.items() if count > 1)
+    shifted = [d for d in dates if d.weekday() != 1]
+
+    runs = []
+    run_start = run_end = observed_keys[0]
+    for key in observed_keys[1:]:
+        if (week_monday(key) - week_monday(run_end)).days == 7:
+            run_end = key
+        else:
+            runs.append((run_start, run_end))
+            run_start = run_end = key
+    runs.append((run_start, run_end))
+
+    def run_length(run):
+        return ((week_monday(run[1]) - week_monday(run[0])).days // 7) + 1
+
+    longest = max(runs, key=run_length)
+    latest = runs[-1]
+    actual_gaps = [(b - a).days for a, b in zip(dates, dates[1:])]
+    week_gaps = [
+        (week_monday(b) - week_monday(a)).days // 7
+        for a, b in zip(observed_keys, observed_keys[1:])
+    ]
+
     return {
-        "observed_weeks": len(dates),
-        "expected_weekly_anchors": len(expected),
-        "coverage_pct": round(100 * len(dates) / len(expected), 6),
+        "observed_weeks": len(observed_keys),
+        "observed_report_dates": len(dates),
+        "expected_weekly_anchors": len(expected_keys),
+        "expected_iso_week_count": len(expected_keys),
+        "observed_iso_week_count": len(observed_keys),
+        "coverage_pct": round(100 * len(observed_keys) / len(expected_keys), 6) if expected_keys else None,
         "missing_week_count": len(missing),
-        "missing_week_examples": [x.isoformat() for x in missing[:20]],
-        "max_gap_days": max(gaps) if gaps else 0,
-        "non_tuesday_count": sum(x.weekday() != 1 for x in dates),
+        "missing_week_examples": [week_monday(key).isoformat() for key in missing[:20]],
+        "missing_iso_week_examples": [f"{year}-W{week:02d}" for year, week in missing[:20]],
+        "max_gap_days": max(actual_gaps) if actual_gaps else 0,
+        "max_gap_weeks": max(week_gaps) if week_gaps else 0,
+        "non_tuesday_count": len(shifted),
+        "shifted_report_date_count": len(shifted),
+        "shifted_report_date_examples": [
+            {
+                "report_date": d.isoformat(),
+                "weekday": d.strftime("%A"),
+                "iso_week": f"{week_key(d)[0]}-W{week_key(d)[1]:02d}",
+            }
+            for d in shifted[:20]
+        ],
+        "duplicate_iso_week_count": len(duplicates),
+        "duplicate_iso_week_examples": [
+            {"iso_week": f"{year}-W{week:02d}", "report_dates": count}
+            for (year, week), count in duplicates[:20]
+        ],
+        "longest_contiguous_run_weeks": run_length(longest),
+        "longest_contiguous_run_start": week_monday(longest[0]).isoformat(),
+        "longest_contiguous_run_end": week_monday(longest[1]).isoformat(),
+        "latest_contiguous_run_weeks": run_length(latest),
+        "latest_contiguous_run_start": week_monday(latest[0]).isoformat(),
+        "latest_contiguous_run_end": week_monday(latest[1]).isoformat(),
     }
 
 
@@ -297,6 +376,15 @@ def build_summary(rows, field_names, metadata=None, count_before=None, count_aft
         candidates[code]["duplicate_report_date_code_groups"] == 0
         for code in CANDIDATE_CODES
     )
+    candidate_week_slots_unique = all(
+        candidates[code]["weekly_coverage"]["duplicate_iso_week_count"] == 0
+        for code in CANDIDATE_CODES
+    )
+    primary_index_contracts_weekly_complete = all(
+        candidates[code]["weekly_coverage"]["missing_week_count"] == 0
+        and candidates[code]["weekly_coverage"]["duplicate_iso_week_count"] == 0
+        for code in PRIMARY_INDEX_CODES
+    )
     return {
         "phase": 377,
         "source": "CFTC TFF Futures Only Socrata dataset",
@@ -327,6 +415,9 @@ def build_summary(rows, field_names, metadata=None, count_before=None, count_aft
         "candidate_contracts": candidates,
         "candidate_codes_present_gate": candidate_codes_present,
         "candidate_report_date_code_unique_gate": candidate_keys_unique,
+        "candidate_week_slots_unique_gate": candidate_week_slots_unique,
+        "primary_index_contract_codes": list(PRIMARY_INDEX_CODES),
+        "primary_index_contracts_weekly_complete_gate": primary_index_contracts_weekly_complete,
         "related_equity_index_series": related_series[:100],
         "cftc_13874_plus_is_separate_consolidated_series": True,
         "missing_contract_weeks_are_not_zero_or_forward_filled": True,
@@ -348,6 +439,7 @@ def build_summary(rows, field_names, metadata=None, count_before=None, count_aft
             if not missing_required and category_fields_complete
             and count_before == len(rows) == count_after and snapshot_stable
             and candidate_codes_present and candidate_keys_unique
+            and candidate_week_slots_unique and primary_index_contracts_weekly_complete
             else "CFTC_TFF_COVERAGE_AUDIT_INCOMPLETE"
         ),
     }

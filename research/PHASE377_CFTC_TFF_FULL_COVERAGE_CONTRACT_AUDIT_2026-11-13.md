@@ -58,3 +58,16 @@ No hypothesis is tested in this phase. If data gates pass, freeze one primary E-
 ## Controls
 
 No raw data retention, forward returns, alpha, OOS, bootstrap, LOO or holdout use. No vendor purchase/contact. No change to `F80_TOP20_PARTIAL50_BASELINE_C20`, production, universe, capital, parameters or exposure.
+
+
+## Phase 378 correction — holiday-shifted weekly report slots (2026-11-19)
+
+The hosted Phase 377 run [43497266092](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43497266092) retrieved 47,322 rows across 90 fields, reconciled the before/after row counts and metadata stamp, and found 1,065 distinct report dates. For the three primary index contracts (13874A, 209742, 124603), the original summary showed 100.0% `coverage_pct` but also 14 missing Tuesday anchors, 14 non-Tuesday dates and an 8-day maximum date gap. This was an internal metric inconsistency: the original helper anchored an exact 7-day date grid at the first observed report date, even though the CFTC historical report calendar contains holiday-shifted report dates.
+
+Phase 378 replaces exact-Tuesday anchoring with ISO-week slots, reports shifted dates separately, detects duplicate report dates within a week, and calculates longest/latest contiguous weekly runs. This changes only the **report-date coverage diagnostic**. It does not turn report dates into publication dates or resolve historical PIT.
+
+The full CFTC historical viewable archive explicitly says its dates are report dates, not release dates, and displays holiday-shifted report dates such as 2006-07-03, 2007-01-03, 2007-12-24, 2008-01-02, 2008-12-22, 2023-07-03 and 2025-11-10. Official reference: https://www.cftc.gov/MarketReports/CommitmentsofTraders/HistoricalViewable/index.htm.
+
+The corrected hosted full-snapshot rerun is pending. Russell 2000 (239742) remains a separate incomplete-history candidate: 601 rows versus 1,065 weekly slots in the original full-span diagnostic (56.431925%), with a 3,255-day maximum gap. Phase 378 adds contiguous-run diagnostics before deciding whether any later subperiod could be considered.
+
+No feature, forward return, alpha, OOS, bootstrap, LOO or holdout test is authorized. No release-date inference, signal admission, production change or F80 change.

@@ -45,6 +45,8 @@ jobs:
               sys.exit("CFTC schema gate failed")
           if not r.get("candidate_codes_present_gate") or not r.get("candidate_report_date_code_unique_gate"):
               sys.exit("Candidate index-futures code/key gate failed")
+          if not r.get("candidate_week_slots_unique_gate") or not r.get("primary_index_contracts_weekly_complete_gate"):
+              sys.exit("Holiday-aware weekly-slot coverage gate failed for primary index contracts")
           if r.get("forward_returns_used") or r.get("alpha_test_authorized") or r.get("holdout_used"):
               sys.exit("Research-only controls violated")
           if r.get("raw_rows_retained") or r.get("raw_ids_retained") or r.get("f80_changed") or r.get("production_changed"):
