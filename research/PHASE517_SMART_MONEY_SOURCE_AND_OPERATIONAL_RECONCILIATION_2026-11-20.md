@@ -96,3 +96,15 @@ OptionMetrics TradeFlow and Implied Dividend Gap remain conditional candidates. 
 - `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen: universe, parameters, holding period, exposure, costs, holdout and production unchanged.
 
 **Conclusion:** the current strongest progress is data infrastructure, not alpha. FINRA CNMS repair is merged but awaits a post-merge live poll; SEC structured ledgers are operating but remain non-signal; the historical 13D/G panel is quarantined until subject-issuer identity is rebuilt. The next work should clear these admission gates rather than add more unvalidated indicators.
+
+
+## 8. Schedule cadence recheck
+
+A separate schedule-only Actions query returned 36 scheduled runs in total. The most recent relevant events were:
+
+- Phase 476 Form 4: five schedule-triggered runs in the inventory; latest [44656159115](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44656159115) at 2026-11-20 01:47:28 UTC. The workflow YAML remains configured for `17 * * * 1-5`; no later Phase 476 schedule event appears through the 06:52 UTC cutoff.
+- Phase 403 Form 144: sixteen schedule-triggered runs in the inventory; latest [44662324343](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44662324343) at 2026-11-20 02:39:13 UTC. The workflow YAML remains configured for `47 * * * *`; no later Phase 403 schedule event appears through the 06:52 UTC cutoff.
+
+The last captures succeeded, so this does not invalidate their persisted data. It does show intermittent schedule delivery relative to the configured cadence. The latest 100-run inventory had zero active/queued runs. The connected read interface does not expose the administrative workflow enabled-state endpoint; absence of schedule events alone does not prove that either workflow is disabled.
+
+Issue [#136](https://github.com/jafelix81/NuevaEstrategia/issues/136) was reopened at 06:58 UTC with this evidence. Human action: inspect Actions → Workflows, confirm Phase 403 and Phase 476 are enabled on default branch `main`, and review any schedule failures or paused state. No manual dispatch, rerun, cron change or replacement poller was made.
