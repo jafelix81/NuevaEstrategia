@@ -72,7 +72,8 @@ jobs:
             --historical-summary inputs/phase375/summary.json \
             --historical-clock-summary inputs/phase385/summary.json \
             --historical-clock-csv inputs/phase385/weekly_clock.csv \
-            --output phase518_output
+            --output phase518_output \\
+            --inventory-only
       - name: Upload aggregate-only feasibility artifact
         if: always()
         uses: actions/upload-artifact@v4
