@@ -1,3 +1,19 @@
+# Current Smart Money Research Snapshot — 2026-11-21 (Phase 542)
+
+**Audit cutoff:** 2026-11-21 07:36 UTC. Main HEAD at preflight: `712dbaf7c94e1a3e937edf6dfe2ffeccb0eef940`.
+
+- **SEC FTD:** three Phase 43 actual-file runs ([40540331780](https://github.com/jafelix81/NuevaEstrategia/actions/runs/40540331780), [40746722935](https://github.com/jafelix81/NuevaEstrategia/actions/runs/40746722935), [41065549815](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41065549815)) failed with HTTP 403 on the first download; parsing never ran. The cause is a generic hardcoded User-Agent without a monitored contact. Phase 542 wires the workflow to `SEC_USER_AGENT`; human action is required to configure that repository secret before one bounded validation run.
+- **SEC Form 4/Form 144:** latest captures [44846461134](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44846461134) and [44847230610](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44847230610) succeeded. The current Form 4 detail ledger has 70 transaction rows across 40 accessions/32 issuers, but zero research-eligible or signal-eligible rows. There are 29 owner rows across 20 accessions; two multi-owner filings remain unlinked to individual transaction lines. The three-row Form 144/Form 4 crosswalk remains descriptive only; zero eligible matches.
+- **FINRA Reg SHO:** [44860690600](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44860690600) predates Phase 539 merge and rejected 8/8 files for `duplicate_symbol_in_consolidated_file`. The artifact has no new diagnostic. Await a natural post-merge capture; do not dispatch or aggregate manually.
+- **CFTC TFF:** [44860341977](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44860341977) captured four prospective weekly events, first received 2026-11-21 03:17:36 UTC. Historical 3,043-row archive remains excluded from full-history PIT features.
+- **Phase 20C:** latest recorded census remains 328/335; AVB, EA, EQR, LPRO, ROKU, WBD and WBS still need terminal/successor total-return and corporate-action reconstruction. Not revalidated in this phase.
+- **Other sources:** SEC 13D/G remains quarantined; the same `SEC_USER_AGENT` prerequisite applies. Options remain conditional on licensing/PIT/coverage. FINRA ATS historical access remains HTTP 530 with identity/revision/PIT gates open.
+- **Frozen controls:** `F80_TOP20_PARTIAL50_BASELINE_C20` unchanged; signals admitted **0**; no new backtest, event study, OOS, bootstrap, LOO, cost, exposure, universe, holdout or production change.
+
+Latest report: [Phase 542 — SEC FTD access gate and Form 4 eligibility census](research/PHASE542_SEC_FTD_ACCESS_AND_FORM4_ELIGIBILITY_AUDIT_2026-11-21.md).
+
+---
+
 # Current Smart Money Research Snapshot — 2026-11-21 (Phase 541)
 
 **Current audit cutoff:** 2026-11-21 05:22 UTC. Historical snapshots below are retained for audit and superseded where noted here.
