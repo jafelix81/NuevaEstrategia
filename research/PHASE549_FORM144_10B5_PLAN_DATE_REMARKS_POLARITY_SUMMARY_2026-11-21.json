@@ -1,0 +1,171 @@
+{
+  "phase": 549,
+  "audit_cutoff_utc": "2026-11-21T18:24:00Z",
+  "base_main_sha": "9624d7a5404d339e83aeca72c9adc5cd47994ca8",
+  "source_git_blob_shas": {
+    "form144_sale_details_csv": "b6cd40234df037c30dd7e124f4b7d3bce59126c7",
+    "form4_transaction_details_csv": "5effbaf9219e440e027909856dba9332a4c7a034",
+    "form4_reporting_owners_csv": "fd64c5f46a1fc92316c4ac0bd56ad07039a3ba82"
+  },
+  "preflight": {
+    "latest_100_runs": {
+      "success": 88,
+      "failure": 11,
+      "cancelled": 1,
+      "in_progress": 0,
+      "queued": 0
+    },
+    "branch_count": 368,
+    "open_pr_count": 70,
+    "latest_form144_run": 44927447674,
+    "latest_form144_artifact": 14715874942,
+    "latest_form144_run_result": {
+      "offline_tests": "64/64",
+      "feed_observations": 53,
+      "new_accessions": 0,
+      "possible_feed_window_gap": false,
+      "backfill_accessions": 10,
+      "detail_rows_appended": 39,
+      "ledger_accessions": 245,
+      "ledger_rows": 1751,
+      "remaining_backfill_accessions": 318,
+      "parse_errors": 0,
+      "source_hash_mismatches": 0,
+      "signal_eligible": 0
+    },
+    "form144_missed_next_slot_utc": "2026-11-21T17:47:00Z",
+    "finra_run": 44860690600,
+    "finra_artifact": 14688803921,
+    "finra_result": {
+      "http_200": 8,
+      "invalid_files": 8,
+      "valid_files": 0,
+      "reason": "duplicate_symbol_in_consolidated_file",
+      "phase539_merge_utc": "2026-11-21T05:22:40Z",
+      "next_validation": "next natural weekday scheduled capture"
+    },
+    "cftc_run": 44860341977,
+    "cftc_artifact": 14689726870,
+    "cftc_new_prospective_reports": 4,
+    "cftc_historical_rows": 3043,
+    "form4_run": 44846461134,
+    "form4_artifact": 14683520646,
+    "form4_crosswalk": {
+      "rows": 3,
+      "proposed_sale_matches": 2,
+      "prior_sale_matches": 1,
+      "signal_eligible": 0
+    }
+  },
+  "form144": {
+    "detail_rows": 1751,
+    "accessions": 245,
+    "forms_by_accession": {
+      "144": 243,
+      "144/A": 2
+    },
+    "formal_plan_date_accessions": 85,
+    "formal_plan_date_accessions_by_form": {
+      "144": 84,
+      "144/A": 1
+    },
+    "formal_plan_date_pct_of_bounded_accessions": 34.69,
+    "distinct_plan_adoption_dates": 53,
+    "plan_date_lag_days": {
+      "n": 85,
+      "min": 72,
+      "p25": 97,
+      "median": 185,
+      "p75": 263,
+      "max": 546,
+      "quantile_method": "lower_index_floor((n-1)*p)"
+    },
+    "plan_dates_before_notice": 85,
+    "plan_dates_same_as_notice": 0,
+    "plan_dates_after_notice": 0,
+    "remarks_polarity_accessions": {
+      "POSITIVE_EXPLICIT": 5,
+      "NEGATIVE_EXPLICIT": 4,
+      "AMBIGUOUS_MENTION": 1,
+      "NO_MENTION": 235
+    },
+    "formal_plan_date_remarks_crosstab": {
+      "FORMAL_PLAN_DATE|AMBIGUOUS_MENTION": 1,
+      "FORMAL_PLAN_DATE|NO_MENTION": 79,
+      "FORMAL_PLAN_DATE|POSITIVE_EXPLICIT": 5,
+      "NO_FORMAL_PLAN_DATE|NEGATIVE_EXPLICIT": 4,
+      "NO_FORMAL_PLAN_DATE|NO_MENTION": 156
+    },
+    "plan_termination_accessions": 1,
+    "negative_sell_to_cover_cluster": {
+      "issuer": "Fermi Inc.",
+      "issuer_cik": "0002071778",
+      "notice_date": "2026-11-19",
+      "accession_count": 4,
+      "proposed_units_sum": 2253270,
+      "accessions": [
+        "0001213900-26-122355",
+        "0001213900-26-122358",
+        "0001213900-26-122359",
+        "0001213900-26-122362"
+      ]
+    }
+  },
+  "form4": {
+    "detail_rows": 110,
+    "accessions": 40,
+    "aff10b5one_by_accession": {
+      "checked": 3,
+      "unchecked": 37,
+      "unknown": 0,
+      "conflict": 0
+    },
+    "row_repeated_checked_flag_count": 20,
+    "owner_sidecar_rows": 29,
+    "owner_sidecar_accessions": 20,
+    "single_owner_accessions": 18,
+    "multi_owner_accessions": 2,
+    "exact_issuer_and_owner_cik_pairs_with_form144": 0
+  },
+  "interpretation": {
+    "formal_plan_date_is_primary_positive_reliance_context": true,
+    "remarks_keyword_flag_is_not_polarity": true,
+    "negative_mention_cluster_is_mechanical_sell_to_cover": true,
+    "proposed_notice_amount_is_not_executed_volume": true,
+    "plan_date_is_not_availability_timestamp": true,
+    "no_direct_cross_form_match_in_current_bounded_sample": true
+  },
+  "controls": {
+    "signal_admitted": false,
+    "alpha_test_run": false,
+    "event_study_run": false,
+    "oos_test_run": false,
+    "bootstrap_run": false,
+    "loo_run": false,
+    "f80_frozen": true,
+    "production_changed": false,
+    "costs_changed": false,
+    "exposure_changed": false,
+    "universe_changed": false,
+    "holdout_changed": false,
+    "data_purchased": false,
+    "live_poll_dispatched": false
+  },
+  "validation": {
+    "phase549_run": 44936177659,
+    "status": "success",
+    "unit_tests": 6,
+    "artifact": 14719697917,
+    "phase403_pr_run": 44936297763,
+    "phase403_offline_tests": 70,
+    "phase403_conclusion": "success",
+    "phase403_live_capture": "skipped_as_designed_for_pull_request",
+    "phase403_artifact": 14720010278,
+    "phase460_run": 44936177358,
+    "phase460_conclusion": "success",
+    "phase461_run": 44936177639,
+    "phase461_conclusion": "success",
+    "followup_phase461_run": 44936297731,
+    "status_at_1835_utc": "in_progress"
+  }
+}
