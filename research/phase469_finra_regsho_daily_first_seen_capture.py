@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+from collections import defaultdict
 import hashlib
 import json
 import os
@@ -28,6 +29,11 @@ EVENT_FIELDS = [
     "raw_sha256", "previous_sha256", "response_bytes", "row_count",
     "symbol_count", "schema_version", "research_observation_eligible",
     "signal_eligible", "url",
+]
+DUPLICATE_DIAGNOSTIC_FIELDS = [
+    "run_id", "mode", "trade_date", "poll_start_utc", "poll_end_utc",
+    "raw_sha256", "response_bytes", "diagnostic_version",
+    "duplicate_symbol_count", "duplicate_extra_row_count", "details_json",
 ]
 REQUIRED_HEADERS = {
     "date": "date",
@@ -68,6 +74,65 @@ def _decimal(value: str, field: str) -> Decimal:
     if not result.is_finite() or result < 0:
         raise ValueError(f"{field}_negative_or_nonfinite")
     return result
+
+
+class FinraParseError(ValueError):
+    """A fail-closed parse error with optional non-row-level diagnostics."""
+
+    def __init__(self, message: str, diagnostics: dict[str, Any] | None = None):
+        super().__init__(message)
+        self.diagnostics = diagnostics or {}
+
+
+def _duplicate_symbol_diagnostics(parsed_rows: list[dict[str, Any]]) -> dict[str, Any]:
+    grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for item in parsed_rows:
+        grouped[item["symbol"]].append(item)
+
+    symbols: list[dict[str, Any]] = []
+    for symbol, items in sorted(grouped.items()):
+        if len(items) <= 1:
+            continue
+        market_sets = [set(item["markets"]) for item in items]
+        distinct_sets = sorted({tuple(sorted(values)) for values in market_sets})
+        facility_union = set().union(*market_sets)
+        facility_intersection = set.intersection(*market_sets) if market_sets else set()
+        pairwise_overlap_tokens: set[str] = set()
+        pairwise_overlap_pair_count = 0
+        for left in range(len(market_sets)):
+            for right in range(left + 1, len(market_sets)):
+                overlap = market_sets[left].intersection(market_sets[right])
+                if overlap:
+                    pairwise_overlap_pair_count += 1
+                    pairwise_overlap_tokens.update(overlap)
+
+        fingerprint_counts: dict[str, int] = {}
+        for item in items:
+            fingerprint = item["raw_row_sha256"]
+            fingerprint_counts[fingerprint] = fingerprint_counts.get(fingerprint, 0) + 1
+        exact_row_duplicate_count = sum(count - 1 for count in fingerprint_counts.values() if count > 1)
+
+        symbols.append({
+            "symbol": symbol,
+            "row_count": len(items),
+            "line_numbers": [item["line_number"] for item in items],
+            "distinct_facility_token_sets": [list(values) for values in distinct_sets],
+            "facility_union": sorted(facility_union),
+            "facility_intersection": sorted(facility_intersection),
+            "pairwise_overlap_tokens": sorted(pairwise_overlap_tokens),
+            "pairwise_overlap_pair_count": pairwise_overlap_pair_count,
+            "exact_row_duplicate": exact_row_duplicate_count > 0,
+            "exact_row_duplicate_count": exact_row_duplicate_count,
+        })
+
+    return {
+        "diagnostic_version": 1,
+        "duplicate_symbol_count": len(symbols),
+        "duplicate_extra_row_count": sum(item["row_count"] - 1 for item in symbols),
+        "duplicate_symbols": symbols,
+        "raw_rows_persisted": False,
+        "volume_values_persisted": False,
+    }
 
 
 def parse_finra_file(raw: bytes, requested_trade_date: date) -> dict[str, Any]:
@@ -159,6 +224,8 @@ def parse_finra_file(raw: bytes, requested_trade_date: date) -> dict[str, Any]:
             "short_exempt_volume": short_exempt,
             "total_volume": total_volume,
             "markets": market_tokens,
+            "line_number": line_number,
+            "raw_row_sha256": hashlib.sha256(line.encode("utf-8")).hexdigest(),
         })
 
     if len(parsed_rows) != declared_count:
@@ -168,12 +235,11 @@ def parse_finra_file(raw: bytes, requested_trade_date: date) -> dict[str, Any]:
     if has_composite_market_list:
         # A comma-separated Market field denotes an already consolidated
         # security row. Never aggregate its volumes with another row.
-        seen_symbols: set[str] = set()
+        diagnostics = _duplicate_symbol_diagnostics(parsed_rows)
+        if diagnostics["duplicate_symbol_count"]:
+            raise FinraParseError("duplicate_symbol_in_consolidated_file", diagnostics)
         for item in parsed_rows:
             symbol = item["symbol"]
-            if symbol in seen_symbols:
-                raise ValueError("duplicate_symbol_in_consolidated_file")
-            seen_symbols.add(symbol)
             rows.append({
                 "symbol": symbol,
                 "trade_date": item["trade_date"],
@@ -409,11 +475,15 @@ def run_capture(
     trade_dates = candidate_trade_dates(ny_now.date(), lookback_days)
     poll_rows: list[dict[str, Any]] = []
     event_rows: list[dict[str, Any]] = []
+    duplicate_diagnostic_rows: list[dict[str, Any]] = []
+    duplicate_diagnostics: list[dict[str, Any]] = []
     counts = {
         "http_200": 0, "valid_files": 0, "first_seen": 0,
         "late_first_seen": 0, "bootstrap": 0,
         "revisions": 0, "unchanged": 0, "not_available": 0,
         "http_errors": 0, "invalid_files": 0, "eligible_first_seen": 0,
+        "duplicate_diagnostic_files": 0, "duplicate_symbol_count": 0,
+        "duplicate_extra_row_count": 0,
     }
 
     for trade_date in trade_dates:
@@ -453,6 +523,34 @@ def run_capture(
                 poll_status = "invalid_file"
                 error = str(exc)
                 counts["invalid_files"] += 1
+                diagnostics = getattr(exc, "diagnostics", None)
+                if diagnostics:
+                    duplicate_diagnostics.append({
+                        "run_id": str(run_id),
+                        "mode": mode,
+                        "trade_date": trade_date.isoformat(),
+                        "poll_start_utc": start_iso,
+                        "poll_end_utc": end_iso,
+                        "raw_sha256": digest,
+                        "response_bytes": response_bytes,
+                        **diagnostics,
+                    })
+                    duplicate_diagnostic_rows.append({
+                        "run_id": str(run_id),
+                        "mode": mode,
+                        "trade_date": trade_date.isoformat(),
+                        "poll_start_utc": start_iso,
+                        "poll_end_utc": end_iso,
+                        "raw_sha256": digest,
+                        "response_bytes": response_bytes,
+                        "diagnostic_version": diagnostics["diagnostic_version"],
+                        "duplicate_symbol_count": diagnostics["duplicate_symbol_count"],
+                        "duplicate_extra_row_count": diagnostics["duplicate_extra_row_count"],
+                        "details_json": json.dumps(diagnostics, sort_keys=True, separators=(",", ":")),
+                    })
+                    counts["duplicate_diagnostic_files"] += 1
+                    counts["duplicate_symbol_count"] += diagnostics["duplicate_symbol_count"]
+                    counts["duplicate_extra_row_count"] += diagnostics["duplicate_extra_row_count"]
             else:
                 counts["valid_files"] += 1
                 digest = parsed["raw_sha256"]
@@ -580,9 +678,20 @@ def run_capture(
     }
     output_dir.mkdir(parents=True, exist_ok=True)
     _write_json_atomic(output_dir / "summary.json", summary)
+    _write_json_atomic(output_dir / "duplicate_diagnostics.json", {
+        "run_id": str(run_id),
+        "diagnostic_version": 1,
+        "diagnostics": duplicate_diagnostics,
+        "raw_rows_persisted": False,
+    })
     if mode == "schedule":
         _append_csv(data_dir / "polls.csv", POLL_FIELDS, poll_rows)
         _append_csv(data_dir / "events.csv", EVENT_FIELDS, event_rows)
+        _append_csv(
+            data_dir / "duplicate_diagnostics.csv",
+            DUPLICATE_DIAGNOSTIC_FIELDS,
+            duplicate_diagnostic_rows,
+        )
         state["last_poll_completed_utc"] = summary["poll_completed_utc"]
         state["last_run_id"] = str(run_id)
         _write_json_atomic(state_path, state)
