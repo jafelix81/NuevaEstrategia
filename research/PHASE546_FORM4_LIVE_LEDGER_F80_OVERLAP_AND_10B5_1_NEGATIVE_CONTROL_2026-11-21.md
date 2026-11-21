@@ -8,7 +8,7 @@
 
 - Inspected the latest 100 Actions runs, relevant jobs/logs/artifacts, open PRs, branch pages and current research files before analysis.
 - Latest 100 run outcomes: **87 success, 12 failure, 1 cancelled**; zero queued, waiting or in-progress.
-- Branch search returned 363 branches across four pages (100/100/100/63); 67 open PRs were visible. No Phase 546 branch or PR existed at preflight.
+- The phase-branch search returned 363 matching branches across four pages (100/100/100/63); 67 open PRs were visible. No Phase 546 branch or PR existed at preflight.
 - Relevant completed runs and artifacts:
   - Form 144 [44886726541](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44886726541): offline and live jobs succeeded; 64/64 offline tests; artifact [14700173280](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44886726541/artifacts/14700173280).
   - Form 4 [44846461134](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44846461134): offline and live jobs succeeded; artifact [14683520646](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44846461134/artifacts/14683520646).
