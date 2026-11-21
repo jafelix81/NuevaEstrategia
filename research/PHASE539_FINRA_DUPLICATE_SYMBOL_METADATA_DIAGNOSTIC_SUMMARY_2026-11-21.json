@@ -34,12 +34,16 @@
   "invalid_files_remain_ineligible": true,
   "state_advances_on_invalid_file": false,
   "new_offline_tests": 2,
-  "github_pr_checks": "PENDING_AT_REPORT_CREATION",
+  "github_pr_checks": "SUCCESS",
   "alpha_test": false,
   "oos_test": false,
   "bootstrap": false,
   "loo": false,
   "signal_admitted": false,
   "f80_frozen": true,
-  "production_changed": false
+  "production_changed": false,
+  "github_pr_run_id": 44868210834,
+  "github_pr_tests": 61,
+  "github_live_capture_job": "SKIPPED_AS_DESIGNED",
+  "live_scheduled_diagnostic": "PENDING"
 }
