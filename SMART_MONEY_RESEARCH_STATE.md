@@ -12,7 +12,7 @@
 - **Open research PRs:** Phase 537 [#196](https://github.com/jafelix81/NuevaEstrategia/pull/196) and Phase 539 [#197](https://github.com/jafelix81/NuevaEstrategia/pull/197) remain Draft. Phase 539 must remain Draft until a natural scheduled FINRA run produces interpretable duplicate diagnostics.
 - **Frozen controls:** `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen. Signals admitted: **0**. No new backtest, OOS, bootstrap, LOO, exposure, cost, holdout, universe or production change.
 
-Latest reports: [Phase 538 operational reconciliation](research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-21_PHASE538.md) · [Phase 539 FINRA duplicate diagnostics](research/PHASE539_FINRA_DUPLICATE_SYMBOL_METADATA_DIAGNOSTIC_2026-11-21.md) · [Phase 540 CFTC normalized net/OI audit](research/PHASE540_CFTC_TFF_NET_OI_FEATURE_AUDIT_2026-11-21.md).
+Latest reports: [Phase 538 operational reconciliation](research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-21_PHASE538.md) · [Phase 539 FINRA duplicate diagnostics — Draft PR #197](https://github.com/jafelix81/NuevaEstrategia/pull/197) · [Phase 540 CFTC normalized net/OI audit](research/PHASE540_CFTC_TFF_NET_OI_FEATURE_AUDIT_2026-11-21.md).
 
 ---
 
