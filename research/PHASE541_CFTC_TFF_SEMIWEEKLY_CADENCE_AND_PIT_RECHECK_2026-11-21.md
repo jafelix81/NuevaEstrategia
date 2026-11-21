@@ -28,7 +28,7 @@ The append-only prospective ledger contains two report vintages per tracked cont
 The latest report date advances by seven calendar days, consistent with weekly rather than semiweekly reporting. The 2026-11-17 snapshot was scheduled for publication on 2026-11-20; the collector first observed it at 03:17:36Z on 2026-11-21. That timestamp is the conservative pipeline first-receipt clock, not a claim about the exact instant the data first became public.
 
 The latest capture appended one new report per contract (four contract events). The archive now contains 3,043 rows:
-- E-mini S&P 500, Nasdaq Mini and DJIA x $5: 853 weekly rows each, 2026-07-20? No — the verified first report date is **2010-07-20**, through 2026-11-17.
+- E-mini S&P 500, Nasdaq Mini and DJIA x $5: 853 weekly rows each, 2010-07-20 through 2026-11-17.
 - Russell E-mini: 484 rows, 2017-08-15 through 2026-11-17.
 
 There are no gaps exceeding eight days in the four contract histories. This is useful historical coverage, but report dates are not publication timestamps. The CFTC FAQ says historical release-date listings are only maintained for the most recent 13 months; therefore the archive cannot be promoted to a full-history PIT panel merely by assigning report dates or assuming a fixed Friday release. Historical backfill remains excluded from features, labels and returns tests.
