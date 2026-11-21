@@ -1,0 +1,96 @@
+{
+  "phase": 536,
+  "audit_timestamp_utc": "2026-11-21T00:11:00Z",
+  "base_main_sha": "768148566993e620664610f93b2ba0f624a1d48d",
+  "disposition": "DATA_INTEGRITY_NEGATIVE_CONTROL_NO_ALPHA_TEST",
+  "findings": {
+    "atea_pairs": [
+      {
+        "seller": "Bruce Polsky",
+        "form144": "0001950047-26-011348",
+        "form4": "0001193125-26-469037",
+        "issuer_cik": "0001593899",
+        "owner_cik": "0001508458",
+        "transaction_date": "2026-11-19",
+        "shares": 8750,
+        "price": 4.0341,
+        "form144_notice_date": "2026-11-19",
+        "form144_common_stock_amount": 8750,
+        "remarks": "Sales executed to pay option exercise costs and tax-planning purposes",
+        "classification": "EXERCISE_RELATED_TAX_PLANNING_NOT_DISCRETIONARY_BEARISH"
+      },
+      {
+        "seller": "Bruno Lucidi",
+        "form144": "0001950047-26-011363",
+        "form4": "0001193125-26-469038",
+        "issuer_cik": "0001593899",
+        "owner_cik": "0001829622",
+        "transaction_date": "2026-11-19",
+        "shares": 22619,
+        "price": 3.9445,
+        "form144_notice_date": "2026-11-19",
+        "form144_common_stock_amount": 22619,
+        "remarks": "Sales executed to pay option exercise costs and tax-planning purposes",
+        "classification": "EXERCISE_RELATED_TAX_PLANNING_NOT_DISCRETIONARY_BEARISH"
+      }
+    ],
+    "automated_crosswalk": {
+      "latest_form4_run": 44794670480,
+      "owner_rows": 14,
+      "owner_accessions": 10,
+      "bounded_accessions_remaining": 20,
+      "atea_owner_rows_present": false,
+      "crosswalk_rows": 0,
+      "signal_eligible_matches": 0,
+      "reason": "Atea accessions remain in next bounded owner-enrichment batch; strict automated owner sidecar incomplete"
+    },
+    "form144": {
+      "latest_run": 44796839433,
+      "notices_present": true,
+      "public_availability_certified": false,
+      "same_day_intraday_use_authorized": false,
+      "signal_eligible_count": 0
+    },
+    "actions_delivery": {
+      "total_runs": 7998,
+      "latest_records": 100,
+      "last_form4_schedule": "2026-11-20T18:38:24Z",
+      "last_form144_schedule": "2026-11-20T18:52:22Z",
+      "no_later_scheduled_runs_visible": true,
+      "no_queued_or_in_progress_runs_in_latest_100": true,
+      "form4_cron": "17 * * * 1-5",
+      "form144_cron": "47 * * * *",
+      "workflow_enabled_state_verified": false,
+      "issue": 194
+    },
+    "finra_regsho": {
+      "latest_run": 44669121290,
+      "http_200": 8,
+      "invalid_files": 8,
+      "valid_files": 0,
+      "post_phase515_live_validation": false
+    }
+  },
+  "hypothesis_disposition": {
+    "naive_raw_form4_sale_cluster_bearish": "REJECTED_FOR_ATEA_EVENT; event semantics show exercise-cost/tax-planning sales",
+    "broader_insider_signal": "CONDITIONAL_NOT_KILLED; requires automated owner attribution, remarks/footnote classification, PIT, historical universe, chronological OOS"
+  },
+  "controls": {
+    "signal_admissions": 0,
+    "new_oos_results": 0,
+    "new_backtests": 0,
+    "bootstrap_loo_changes": false,
+    "f80_frozen": true,
+    "production_changes": false,
+    "universe_changes": false,
+    "exposure_cost_holdout_changes": false
+  },
+  "sources": {
+    "form4_lucidi": "https://ir.ateapharma.com/sec-filings/sec-filing/4/0001193125-26-469038",
+    "form4_polsky": "https://ir.ateapharma.com/sec-filings/sec-filing/4/0001193125-26-469037",
+    "form144_lucidi": "https://ir.ateapharma.com/sec-filings/sec-filing/144/0001950047-26-011363",
+    "form144_polsky": "https://ir.ateapharma.com/sec-filings/sec-filing/144/0001950047-26-011348",
+    "sec_xml_lucidi": "https://www.sec.gov/Archives/edgar/data/1593899/000119312526469038/ownership.xml",
+    "sec_xml_polsky": "https://www.sec.gov/Archives/edgar/data/1508458/000119312526469037/ownership.xml"
+  }
+}
