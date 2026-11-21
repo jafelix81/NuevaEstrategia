@@ -1,3 +1,19 @@
+# Current Smart Money Research Snapshot — 2026-11-21 (Phase 543)
+
+**Audit cutoff:** 2026-11-21 08:54 UTC. Main HEAD before this documentation update: `c30b2d3263a974de737900035f3d0fe9a1da4c71`.
+
+- **SEC Form 144 / 144-A:** natural run [44886726541](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44886726541) succeeded at 08:50 UTC after the prior successful poll at 00:58:15 UTC (7h52m07s). It observed 53 feed entries (51 Form 144, 2 Form 144-A), appended three new events and three acceptance reconciliations, with zero unresolved, zero candidate-issuer matches and zero signal-eligible events. The previous latest accession was present and `possible_feed_window_gap=false`; this is not proof that hourly schedule delivery was continuous because slots 01:47–07:47 UTC were absent. First-seen is a receipt upper bound, not certified public availability. The bounded detail backfill parsed ten accessions/55 rows; cumulative ledger 235 accessions/1,712 rows, 328 remaining.
+- **SEC Form 4:** latest scheduled run remains [44846461134](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44846461134). It produced 474 feed observations, 24 structured detail rows, 15 owner rows and three descriptive crosswalk matches; zero signal-eligible. No newer scheduled Form 4 run appears in the latest 100 Actions records at the Phase 543 cutoff.
+- **FINRA Reg SHO:** [44860690600](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44860690600) predates Phase 539 merge `c7666f0` by 13 commits; eight files were rejected, zero valid/eligible. The next natural post-merge poll is still required to validate the diagnostics.
+- **CFTC TFF:** latest run [44860341977](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44860341977) passed 17 tests and captured four prospective report events; historical 3,043-row archive remains excluded from full-history PIT features.
+- **SEC FTD / 13D-G:** PR [#198](https://github.com/jafelix81/NuevaEstrategia/pull/198) remains Draft pending human configuration of repository secret `SEC_USER_AGENT`; no FTD sample/backfill performed.
+- **Phase 20C:** latest recorded price-history census remains 328/335; seven terminal/successor and corporate-action cases remain unresolved.
+- **Research decision:** Form 144 delivery partially resumed for one natural poll, not yet stable. Signals admitted **0**; no new backtest, OOS, bootstrap, LOO or production change. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+Latest report: [Phase 543 — SEC Form 144 delivery recovery and PIT disposition](research/PHASE543_SEC_FORM144_DELIVERY_RECOVERY_AND_PIT_DISPOSITION_2026-11-21.md).
+
+---
+
 # Current Smart Money Research Snapshot — 2026-11-21 (Phase 541)
 
 **Current audit cutoff:** 2026-11-21 05:22 UTC. Historical snapshots below are retained for audit and superseded where noted here.
