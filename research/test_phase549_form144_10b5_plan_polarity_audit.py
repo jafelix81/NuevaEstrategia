@@ -32,6 +32,25 @@ class Phase549Form144PlanPolarityTests(unittest.TestCase):
         remarks = "Sales were performed to cover obligations under an established 10b51 plan."
         self.assertEqual(classify_remarks_10b5(remarks, "True"), "AMBIGUOUS_MENTION")
 
+    def test_negated_in_connection_with_phrase_is_not_positive(self):
+        remarks = "The shares are not being sold in connection with a Rule 10b5-1 trading plan."
+        self.assertEqual(classify_remarks_10b5(remarks), "NEGATIVE_EXPLICIT")
+
+    def test_negated_sold_pursuant_to_phrase_is_not_positive(self):
+        remarks = "The sale was not sold pursuant to a Rule 10b5-1 plan."
+        self.assertEqual(classify_remarks_10b5(remarks), "NEGATIVE_EXPLICIT")
+
+    def test_negated_plan_identity_is_negative(self):
+        remarks = "The proposed sale is not a Rule 10b5-1 plan transaction."
+        self.assertEqual(classify_remarks_10b5(remarks), "NEGATIVE_EXPLICIT")
+
+    def test_conflicting_positive_and_negative_clauses_fail_closed(self):
+        remarks = (
+            "The prior sale was not made pursuant to a Rule 10b5-1 plan; "
+            "the current sale is made pursuant to a Rule 10b5-1 plan."
+        )
+        self.assertEqual(classify_remarks_10b5(remarks), "AMBIGUOUS_MENTION")
+
     def test_plan_termination_is_separate_from_plan_reliance(self):
         remarks = (
             "The Reporting Person terminated the Plan effective November 18, 2026. "

@@ -16,16 +16,19 @@ FORM144_DEFAULT = Path("research/data/sec_form144_first_seen/sale_details.csv")
 FORM4_DEFAULT = Path("research/data/sec_form4_first_seen/transaction_details.csv")
 
 MENTION_RE = re.compile(r"10b5\s*-?\s*1", re.IGNORECASE)
+PLAN_REF = r"(?:rule\s*)?10b5\s*-?\s*1"
 NEGATIVE_PATTERNS = (
-    re.compile(r"\bnot\s+(?:being\s+)?made\s+pursuant\s+to\s+(?:a\s+)?rule\s+10b5-1\b", re.I),
-    re.compile(r"\bnot\s+pursuant\s+to\s+(?:a\s+)?rule\s+10b5-1\b", re.I),
-    re.compile(r"\bnot\s+(?:being\s+)?made\s+under\s+(?:a\s+)?rule\s+10b5-1\b", re.I),
+    re.compile(rf"\bnot\b.{{0,100}}?\b(?:pursuant\s+to|under|in\s+connection\s+with|relying\s+on)\b.{{0,100}}?\b{PLAN_REF}\b", re.I),
+    re.compile(rf"\bnot\b.{{0,80}}?\b(?:a|an)\s+{PLAN_REF}\b", re.I),
+    re.compile(rf"\bnot\b.{{0,100}}?\bintended\s+to\s+comply\s+with\b.{{0,50}}?\b{PLAN_REF}\b", re.I),
+    re.compile(rf"\bno\s+{PLAN_REF}\b", re.I),
+    re.compile(rf"\bwithout\b.{{0,80}}?\b(?:reliance\s+on|using|under)\b.{{0,80}}?\b{PLAN_REF}\b", re.I),
+    re.compile(rf"\bno\s+(?:sales?|transactions?)\b.{{0,100}}?\b(?:pursuant\s+to|under|in\s+connection\s+with)\b.{{0,100}}?\b{PLAN_REF}\b", re.I),
 )
 POSITIVE_PATTERNS = (
-    re.compile(r"\bsold\s+pursuant\s+to\s+(?:a\s+)?(?:rule\s+)?10b5-1\b", re.I),
-    re.compile(r"\bintended\s+to\s+comply\s+with\s+rule\s+10b5-1\b", re.I),
-    re.compile(r"\b(?:sales?|transactions?|shares?)\b.{0,160}\b(?:pursuant\s+to|in\s+connection\s+with|under)\b.{0,160}\b10b5-1\b", re.I),
-    re.compile(r"\bpursuant\s+to\s+(?:a\s+)?rule\s+10b5-1\s+(?:trading\s+)?plan\b", re.I),
+    re.compile(rf"\b(?:sold|sales?|transactions?|shares?)\b.{{0,160}}?\b(?:pursuant\s+to|in\s+connection\s+with|under)\b.{{0,160}}?\b{PLAN_REF}\b", re.I),
+    re.compile(rf"\bintended\s+to\s+comply\s+with\b.{{0,50}}?\b{PLAN_REF}\b", re.I),
+    re.compile(rf"\bpursuant\s+to\s+(?:a\s+)?{PLAN_REF}\s+(?:trading\s+)?plan\b", re.I),
 )
 TERMINATION_RE = re.compile(r"\bterminated\s+(?:the\s+)?plan\b|\bno\s+further\s+sales\b", re.I)
 SELL_TO_COVER_RE = re.compile(r"sell[\s-]*to[\s-]*cover", re.I)
@@ -56,12 +59,48 @@ def classify_remarks_10b5(remarks: str, raw_mention_flag: str | None = None) -> 
     mentioned = bool(MENTION_RE.search(text)) or str(raw_mention_flag or "").strip().lower() in {"1", "true", "yes", "y"}
     if not mentioned:
         return "NO_MENTION"
-    if any(pattern.search(text) for pattern in NEGATIVE_PATTERNS):
+
+    negative_seen = False
+    positive_seen = False
+    ambiguous_seen = False
+    clauses = [part for part in re.split(r"(?<=[.!?;])\s+|[\r\n]+", text) if part.strip()]
+
+    for clause in clauses:
+        if not MENTION_RE.search(clause):
+            continue
+        negative_spans = [
+            match.span()
+            for pattern in NEGATIVE_PATTERNS
+            for match in pattern.finditer(clause)
+        ]
+        if negative_spans:
+            merged: list[tuple[int, int]] = []
+            for start, end in sorted(negative_spans):
+                if merged and start <= merged[-1][1]:
+                    merged[-1] = (merged[-1][0], max(merged[-1][1], end))
+                else:
+                    merged.append((start, end))
+            residual = list(clause)
+            for start, end in merged:
+                residual[start:end] = [" "] * (end - start)
+            if any(pattern.search("".join(residual)) for pattern in POSITIVE_PATTERNS):
+                ambiguous_seen = True
+            else:
+                negative_seen = True
+            continue
+
+        if any(pattern.search(clause) for pattern in POSITIVE_PATTERNS):
+            positive_seen = True
+        else:
+            ambiguous_seen = True
+
+    if ambiguous_seen or (negative_seen and positive_seen):
+        return "AMBIGUOUS_MENTION"
+    if negative_seen:
         return "NEGATIVE_EXPLICIT"
-    if any(pattern.search(text) for pattern in POSITIVE_PATTERNS):
+    if positive_seen:
         return "POSITIVE_EXPLICIT"
     return "AMBIGUOUS_MENTION"
-
 
 def has_plan_termination(remarks: str) -> bool:
     return bool(TERMINATION_RE.search(str(remarks or "")))
