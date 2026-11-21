@@ -1,0 +1,109 @@
+{
+  "phase": 513,
+  "audit_date_utc": "2026-11-20",
+  "source": "SEC EDGAR Form 4 and Form 4/A latest-filings feeds plus retrieved filing submissions",
+  "workflow": {
+    "name": "Phase 476 - SEC Form 4 first-seen prospective metadata capture",
+    "run_id": "44656159115",
+    "run_url": "https://github.com/jafelix81/NuevaEstrategia/actions/runs/44656159115",
+    "main_head_before_run": "f9000ab6579b81b2c7946d37532a67cf5b617d86",
+    "main_commit_after_run": "abf97fb7eab6a42e5db284382dca79b05017e212",
+    "offline_regression": {
+      "status": "success",
+      "tests_passed": 50
+    },
+    "live_capture": {
+      "status": "success",
+      "artifact_id": "14592859142",
+      "artifact_name": "phase476-sec-form4-first-seen",
+      "artifact_size_bytes": 1318,
+      "artifact_sha256": "faf88269277209efaf3f68c7920b300bd78448c44a6f2615fdd4b753e3062b8d"
+    }
+  },
+  "metadata_poll": {
+    "both_feeds_successful": true,
+    "accession_observation_rows": 1001,
+    "new_form4_accessions": 457,
+    "new_form4a_accessions": 0,
+    "new_canonical_accessions_total": 457,
+    "bounded_metadata_rows": 457,
+    "same_feed_duplicate_occurrences": 538,
+    "cross_feed_duplicate_occurrences": 5,
+    "incomplete_poll_candidates_suppressed": 0,
+    "public_availability_certified": false,
+    "research_observation_eligible_rows": 0,
+    "signal_eligible_rows": 0
+  },
+  "structured_detail_backfill": {
+    "parser_version": "phase510-v1",
+    "attempted_accessions": 10,
+    "accessions_parsed": 10,
+    "parse_errors": 0,
+    "fetch_unresolved": 0,
+    "detail_rows_appended": 22,
+    "remaining_bounded_accessions": 1190,
+    "row_breakdown": {
+      "filing_headers": 10,
+      "transaction_rows": 12,
+      "unique_accessions": 10,
+      "forms": {
+        "4": 9,
+        "4/A": 1
+      },
+      "owner_count_buckets": {
+        "single": 9,
+        "multiple": 1
+      },
+      "multiple_owner_disposition": "QUARANTINED_MULTI_OWNER_NO_LINE_LINK",
+      "transaction_code_counts": {
+        "P": 3,
+        "M": 2,
+        "F": 1,
+        "A": 5,
+        "S": 1
+      }
+    }
+  },
+  "temporal_provenance": {
+    "first_seen_interval_lower_bound_utc": "2026-11-19T19:31:20Z",
+    "first_seen_interval_upper_bound_utc": "2026-11-20T01:47:52Z",
+    "interval_is_exact_receipt": false,
+    "acceptance_clock_status": "PARSED_NOT_EXACT_PUBLIC_AVAILABILITY",
+    "same_day_intraday_use_authorized": false
+  },
+  "eligibility_and_integrity": {
+    "rows_total": 22,
+    "signal_eligible_rows": 0,
+    "research_observation_eligible_rows": 0,
+    "public_availability_certified_rows": 0,
+    "security_identity_verified_rows": 0,
+    "historical_f80_membership_verified_rows": 0,
+    "owner_attribution_verified_rows": 0,
+    "transaction_semantics_verified_rows": 0,
+    "economic_new_trade_authorized_rows": 0,
+    "source_hash_comparable_rows": 0,
+    "source_hash_match_status": "NOT_COMPARABLE_NO_ORIGINAL_XML_HASH_IN_EVENT_LEDGER",
+    "raw_xml_persisted": false
+  },
+  "disposition": {
+    "phase510_live_parser_execution": "PASS",
+    "structured_detail_persistence": "PASS",
+    "pit_public_availability_gate": "NOT_CERTIFIED",
+    "identity_and_historical_universe_gate": "NOT_PASSED",
+    "owner_and_transaction_semantics_gate": "NOT_PASSED",
+    "alpha_or_backtest_authorized": false,
+    "new_signals_admitted": 0,
+    "f80_changed": false,
+    "production_changed": false
+  },
+  "form144_separate_status": {
+    "last_successful_scheduled_run_id": "44614323236",
+    "run_predates_phase509_merge": true,
+    "sale_details_csv_present_on_main": false,
+    "live_validation": "PENDING_EXISTING_PHASE403_SCHEDULE"
+  },
+  "no_returns_or_backtests_run": true,
+  "no_oos_bootstrap_loo_or_holdout_test_run": true,
+  "f80_baseline": "F80_TOP20_PARTIAL50_BASELINE_C20",
+  "f80_frozen": true
+}
