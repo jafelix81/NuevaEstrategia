@@ -45,5 +45,8 @@
   "github_pr_run_id": 44868210834,
   "github_pr_tests": 61,
   "github_live_capture_job": "SKIPPED_AS_DESIGNED",
-  "live_scheduled_diagnostic": "PENDING"
+  "live_scheduled_diagnostic": "PENDING",
+  "pr_status": "MERGED",
+  "merged_at_utc": "2026-11-21T05:22:40Z",
+  "merge_commit": "c7666f03a6e01c569fce7b98e1651490bf2376dc"
 }
