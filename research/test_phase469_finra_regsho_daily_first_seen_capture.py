@@ -7,6 +7,7 @@ from datetime import date, datetime, timezone
 from pathlib import Path
 
 from research.phase469_finra_regsho_daily_first_seen_capture import (
+    FinraParseError,
     build_symbol_observations,
     candidate_trade_dates,
     parse_finra_file,
@@ -97,6 +98,33 @@ class TestPhase469Parser(unittest.TestCase):
         ]
         with self.assertRaisesRegex(ValueError, "duplicate_symbol_in_consolidated_file"):
             parse_finra_file(file_bytes(rows=rows), date(2026, 11, 17))
+
+    def test_consolidated_duplicate_emits_metadata_only_diagnostic(self):
+        rows = [
+            "20261117|ABC|120.5|2.5|300.0|B,Q,N",
+            "20261117|ABC|10|0|50|D",
+            "20261117|ABC|120.5|2.5|300.0|B,Q,N",
+            "20261117|XYZ|0|0|100|N",
+        ]
+        with self.assertRaisesRegex(FinraParseError, "duplicate_symbol_in_consolidated_file") as caught:
+            parse_finra_file(file_bytes(rows=rows), date(2026, 11, 17))
+        diagnostic = caught.exception.diagnostics
+        self.assertEqual(diagnostic["duplicate_symbol_count"], 1)
+        self.assertEqual(diagnostic["duplicate_extra_row_count"], 2)
+        item = diagnostic["duplicate_symbols"][0]
+        self.assertEqual(item["symbol"], "ABC")
+        self.assertEqual(item["row_count"], 3)
+        self.assertEqual(item["facility_union"], ["B", "D", "N", "Q"])
+        self.assertEqual(item["facility_intersection"], [])
+        self.assertEqual(item["pairwise_overlap_tokens"], ["B", "N", "Q"])
+        self.assertEqual(item["pairwise_overlap_pair_count"], 1)
+        self.assertTrue(item["exact_row_duplicate"])
+        self.assertEqual(item["exact_row_duplicate_count"], 1)
+        rendered = json.dumps(diagnostic)
+        self.assertNotIn("short_volume", rendered)
+        self.assertNotIn("120.5", rendered)
+        self.assertFalse(diagnostic["raw_rows_persisted"])
+        self.assertFalse(diagnostic["volume_values_persisted"])
 
     def test_market_list_rejects_multicharacter_tokens(self):
         rows = ["20261117|ABC|1|0|2|B,QQ"]
@@ -260,6 +288,38 @@ class TestPhase469Capture(unittest.TestCase):
             self.assertEqual(int(poll["response_bytes"]), len(bad_payload))
             state = json.loads((root / "data" / "state.json").read_text())
             self.assertEqual(state["files"], {})
+
+    def test_duplicate_consolidated_capture_persists_diagnostic_but_not_state(self):
+        payload = file_bytes(rows=[
+            "20261117|ABC|120.5|2.5|300.0|B,Q,N",
+            "20261117|ABC|10|0|50|D",
+        ])
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            summary = run_capture(
+                mode="schedule", run_id="duplicate-meta", data_dir=root / "data",
+                output_dir=root / "out", lookback_days=1,
+                now_fn=self.fixed_now, fetcher=self.fetch_current_only(payload),
+            )
+            self.assertEqual(summary["counts"]["invalid_files"], 1)
+            self.assertEqual(summary["counts"]["duplicate_diagnostic_files"], 1)
+            self.assertEqual(summary["counts"]["duplicate_symbol_count"], 1)
+            self.assertEqual(summary["counts"]["duplicate_extra_row_count"], 1)
+            with (root / "data" / "polls.csv").open(newline="") as handle:
+                poll = next(csv.DictReader(handle))
+            self.assertEqual(poll["poll_status"], "invalid_file")
+            self.assertEqual(poll["error"], "duplicate_symbol_in_consolidated_file")
+            state = json.loads((root / "data" / "state.json").read_text())
+            self.assertEqual(state["files"], {})
+            with (root / "data" / "duplicate_diagnostics.csv").open(newline="") as handle:
+                diagnostic_row = next(csv.DictReader(handle))
+            detail = json.loads(diagnostic_row["details_json"])
+            self.assertEqual(detail["duplicate_symbol_count"], 1)
+            self.assertNotIn("120.5", diagnostic_row["details_json"])
+            self.assertFalse(detail["raw_rows_persisted"])
+            artifact_detail = json.loads((root / "out" / "duplicate_diagnostics.json").read_text())
+            self.assertEqual(len(artifact_detail["diagnostics"]), 1)
+            self.assertFalse(artifact_detail["raw_rows_persisted"])
 
     def test_old_date_first_capture_is_bootstrap_not_eligible(self):
         payload = file_bytes(day="20261116", rows=["20261116|ABC|1|0|2|N"])
