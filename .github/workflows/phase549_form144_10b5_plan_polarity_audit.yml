@@ -1,0 +1,41 @@
+name: Phase 549 - Form 144 Rule 10b5-1 plan-date and remarks-polarity audit
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/phase549_form144_10b5_plan_polarity_audit.yml"
+      - "research/phase549_form144_10b5_plan_polarity_audit.py"
+      - "research/test_phase549_form144_10b5_plan_polarity_audit.py"
+      - "research/PHASE549_FORM144_10B5_PLAN_DATE_REMARKS_POLARITY_AUDIT_2026-11-21.md"
+      - "research/PHASE549_FORM144_10B5_PLAN_DATE_REMARKS_POLARITY_SUMMARY_2026-11-21.json"
+      - "research/data/sec_form144_first_seen/sale_details.csv"
+      - "research/data/sec_form4_first_seen/transaction_details.csv"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase549-form144-plan-polarity
+  cancel-in-progress: false
+
+jobs:
+  offline-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile and run unit tests
+        run: |
+          python -m py_compile research/phase549_form144_10b5_plan_polarity_audit.py research/test_phase549_form144_10b5_plan_polarity_audit.py
+          python -m unittest -v research.test_phase549_form144_10b5_plan_polarity_audit
+      - name: Recompute accession-grain audit from committed ledgers
+        run: |
+          python -m research.phase549_form144_10b5_plan_polarity_audit --output phase549_output/summary.json
+      - name: Upload aggregate audit summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase549-form144-plan-polarity-audit
+          path: phase549_output/summary.json
+          retention-days: 90
