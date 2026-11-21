@@ -23,3 +23,8 @@ The original six tests did not cover this negated “in connection with” const
 The existing Phase 403 pull-request offline-regression path is reused; no new scheduled collector or live capture is added. The PR regression will regenerate the audit artifact from the bounded current Form 144 and Form 4 ledgers. The resulting accession-level counts must be inspected before updating the narrative summary.
 
 No return/event study, alpha test, backtest, OOS, bootstrap, LOO, data purchase, feature admission, cost/exposure/universe/holdout change, or production change is authorized by this correction. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+
+## CI-discovered edge case
+
+The first expanded regression run correctly caught one over-broad acceptance: the shared explicit-plan token also accepted the nonstandard compact string `10b51`, which the original audit intentionally kept ambiguous. The explicit positive/negative token was tightened to require the hyphen in `10b5-1`; the broader mention detector remains unchanged so nonstandard mentions are still surfaced but not promoted. The failed run was [44948739438](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44948739438); its only failing assertion was the existing nonstandard-token ambiguity test. No live-capture job ran.

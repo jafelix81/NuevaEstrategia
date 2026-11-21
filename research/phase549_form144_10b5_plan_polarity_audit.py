@@ -16,7 +16,7 @@ FORM144_DEFAULT = Path("research/data/sec_form144_first_seen/sale_details.csv")
 FORM4_DEFAULT = Path("research/data/sec_form4_first_seen/transaction_details.csv")
 
 MENTION_RE = re.compile(r"10b5\s*-?\s*1", re.IGNORECASE)
-PLAN_REF = r"(?:rule\s*)?10b5\s*-?\s*1"
+PLAN_REF = r"(?:rule\s*)?10b5\s*-\s*1"
 NEGATIVE_PATTERNS = (
     re.compile(rf"\bnot\b.{{0,100}}?\b(?:pursuant\s+to|under|in\s+connection\s+with|relying\s+on)\b.{{0,100}}?\b{PLAN_REF}\b", re.I),
     re.compile(rf"\bnot\b.{{0,80}}?\b(?:a|an)\s+{PLAN_REF}\b", re.I),
