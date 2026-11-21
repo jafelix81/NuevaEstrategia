@@ -64,7 +64,7 @@ FINRA Reg SHO daily short volume is executed short-sale flow, not outstanding sh
 
 ## 6. Validation and decision
 
-Two new offline tests cover (1) duplicate-symbol diagnostics and exact-row detection without volume leakage, and (2) persistence of metadata while preserving invalid status and an empty first-seen state. Existing parser and capture tests remain in place. GitHub PR checks are pending at report creation.
+Two new offline tests cover (1) duplicate-symbol diagnostics and exact-row detection without volume leakage, and (2) persistence of metadata while preserving invalid status and an empty first-seen state. Existing parser and capture tests remain in place. PR [#197](https://github.com/jafelix81/NuevaEstrategia/pull/197) offline regression run [44868210834](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44868210834) passed **61 tests**. The live-capture job was skipped as designed for a pull-request event; natural scheduled validation remains pending.
 
 No live poll, backtest, event study, OOS, bootstrap, LOO, price download or alpha test was started in this phase. The next live diagnostic must be obtained from the existing scheduled workflow, not a manual dispatch.
 
