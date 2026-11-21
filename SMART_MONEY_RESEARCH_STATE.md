@@ -1,3 +1,20 @@
+# Current Smart Money Research Snapshot — 2026-11-21 (Phase 547)
+
+**Audit cutoff:** 2026-11-21 13:37 UTC. Main HEAD before this update: `cb9aab722f905e2df54e349091e42ae7d9bf243a`.
+
+- **Cboe options source ranking:** official product specifications confirm OPRA-wide Option Trades and Option Quotes history from January 2012. Trades include millisecond Eastern execution time, OPRA sequence, trade conditions, prevailing NBBO and optional point-in-time IV/Greeks; Quotes provide interval NBBO/OHLC/volume, optional IV/Greeks and OCC start-of-day OI. These are strong conditional candidates for market-wide signed-flow and IV/OI features, but do not identify participant capacity or opening/closing. Historical file first-receipt clocks and exact 335-name coverage remain unverified.
+- **Cboe Open-Close EOD:** participant capacity, buy/sell and open/close fields are available on Cboe exchanges only. Four-venue coverage starts 2018-01-02 (C1 starts 2005-01-03). Official specifications disclose OI date shifts (C1 through 2019-10-04; C2 through 2018-05-11), C2 industry-volume doubling through 2018-05-11, and a C1 total-exchange-volume formula break through 2019-10-04. EOD subscriptions typically deliver preliminary and final files 00:30–01:00 ET next morning; use final only after observed receipt. Raw data are internal-only; external distribution of derived data needs additional fees and approval. No sample, purchase or license.
+- **Phase 546 Form 4:** PR [#199](https://github.com/jafelix81/NuevaEstrategia/pull/199) records one SE accession with seven sale rows and affirmative Rule 10b5-1 checkbox. SEC Question 135.04 confirms the checkbox refers to transactions under a plan intended to satisfy amended Rule 10b5-1(c); keep this as a planned-trading negative control, not discretionary insider flow. PR #199 remains Draft; Phase 460/461 checks passed 16/16 and 21/21.
+- **SEC Form 144 delivery:** latest natural run [44886726541](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44886726541) remains the only observed capture after the prior gap. At 13:37 UTC, :47 slots 09:47, 10:47, 11:47 and 12:47 were absent; 13:47 was not yet due. Issue [#194](https://github.com/jafelix81/NuevaEstrategia/issues/194) remains open. The 08:50 poll's prior-watermark continuity does not prove scheduler continuity.
+- **FINRA/CFTC:** FINRA [44860690600](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44860690600) predates Phase 539 merge; first natural post-merge diagnostic capture remains pending. CFTC [44860341977](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44860341977) remains the latest prospective TFF capture; no new vintage.
+- **SEC FTD/13D-G:** PR [#198](https://github.com/jafelix81/NuevaEstrategia/pull/198) remains Draft pending human configuration of `SEC_USER_AGENT`.
+- **Actions preflight:** latest 100 runs = 87 success, 12 failure, 1 cancelled; zero active/queued. No dispatch, rerun, cancellation or duplicate workflow.
+- **Research decision:** options source is conditional, not approved for purchase or testing. Signals admitted 0; no event study, backtest, OOS, bootstrap, LOO or holdout test. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+Latest report: [Phase 547 — Cboe OPRA options data and Open-Close historical PIT feasibility](research/PHASE547_CBOE_OPRA_OPTIONS_PIT_FEASIBILITY_2026-11-21.md).
+
+---
+
 # Current Smart Money Research Snapshot — 2026-11-21 (Phase 543)
 
 **Audit cutoff:** 2026-11-21 08:54 UTC. Main HEAD before this documentation update: `c30b2d3263a974de737900035f3d0fe9a1da4c71`.
