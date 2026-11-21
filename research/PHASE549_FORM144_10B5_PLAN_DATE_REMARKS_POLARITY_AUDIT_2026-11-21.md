@@ -83,7 +83,7 @@ The current bounded Form 4 detail ledger has 110 rows across 40 accessions. Grou
 
 ## 4. Reproducibility and validation
 
-Added a standalone offline audit script, accession-grain polarity classifier, unit tests and a PR-only GitHub Actions workflow. The workflow does not poll SEC/FINRA, use secrets, or change any live collector. It regenerates an aggregate summary artifact from the committed ledgers.
+Added a standalone offline audit script, accession-grain polarity classifier and six unit tests. The initial PR-only audit run [44936177659](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44936177659) passed all six tests and generated artifact [14719697917](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44936177659/artifacts/14719697917). To avoid a duplicate Form 144 workflow, the branch now extends the existing Phase 403 offline-regression path to run this audit on relevant PRs; its live-capture job remains disabled for pull-request events. No live collector was changed.
 
 The classifier preserves four states: POSITIVE_EXPLICIT, NEGATIVE_EXPLICIT, AMBIGUOUS_MENTION, and NO_MENTION. It separately records formal plan-date presence, plan termination and sell-to-cover/tax context. It never upgrades a row to signal eligibility.
 
