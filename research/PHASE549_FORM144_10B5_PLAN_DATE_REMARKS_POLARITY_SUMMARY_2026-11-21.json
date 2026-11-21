@@ -153,14 +153,19 @@
   },
   "validation": {
     "phase549_run": 44936177659,
-    "job": "offline-audit",
     "status": "success",
     "unit_tests": 6,
     "artifact": 14719697917,
-    "artifact_url": "https://github.com/jafelix81/NuevaEstrategia/actions/runs/44936177659/artifacts/14719697917",
+    "phase403_pr_run": 44936297763,
+    "phase403_offline_tests": 70,
+    "phase403_conclusion": "success",
+    "phase403_live_capture": "skipped_as_designed_for_pull_request",
+    "phase403_artifact": 14720010278,
     "phase460_run": 44936177358,
     "phase460_conclusion": "success",
     "phase461_run": 44936177639,
-    "phase461_conclusion": "success"
+    "phase461_conclusion": "success",
+    "followup_phase461_run": 44936297731,
+    "status_at_1835_utc": "in_progress"
   }
 }
