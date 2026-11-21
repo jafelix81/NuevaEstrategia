@@ -1,0 +1,121 @@
+{
+  "phase": 546,
+  "audit_cutoff_utc": "2026-11-21T12:26:04Z",
+  "base_main_sha": "cb9aab722f905e2df54e349091e42ae7d9bf243a",
+  "disposition": "ONE_EXACT_F80_SNAPSHOT_SYMBOL_OVERLAP; RULE_10B5_1_NEGATIVE_CONTROL; NO_SIGNAL",
+  "actions": {
+    "latest_100": {
+      "success": 87,
+      "failure": 12,
+      "cancelled": 1
+    },
+    "active": 0,
+    "queued": 0,
+    "waiting": 0,
+    "open_prs": 67,
+    "phase_named_branch_matches": 363
+  },
+  "form4": {
+    "transaction_rows": 70,
+    "accessions": 40,
+    "distinct_issuer_symbols": 32,
+    "single_owner_filing_grain_rows": 66,
+    "multi_owner_quarantined_rows": 4,
+    "owner_sidecar_accessions": 20,
+    "owner_sidecar_single_owner_accessions": 18,
+    "owner_sidecar_multi_owner_accessions": 2,
+    "owner_sidecar_pending_accessions": 20,
+    "research_observation_eligible_rows": 0,
+    "signal_eligible_rows": 0,
+    "universe_snapshot_size": 335,
+    "exact_symbol_overlap_symbols": [
+      "SE"
+    ],
+    "exact_symbol_overlap_rows": 7,
+    "exact_symbol_overlap_accessions": [
+      "0001193125-26-469085"
+    ],
+    "issuer_cik": "0001703399",
+    "issuer_name": "Sea Ltd",
+    "security_title": "Class A ordinary shares",
+    "transaction_codes": [
+      "S"
+    ],
+    "acquired_disposed_codes": [
+      "D"
+    ],
+    "transaction_dates": [
+      "2026-11-18",
+      "2026-11-19"
+    ],
+    "aggregate_shares": 1600,
+    "aggregate_gross_value_approx_usd": 109300.43,
+    "reporting_owner_count": 1,
+    "owner_sidecar_present": false,
+    "aff10b5one": "yes",
+    "footnote_rule_10b5_1_mention": true,
+    "owner_backfill_queue_rank_1based": 10,
+    "owner_backfill_queue_total": 20,
+    "first_seen_lower_bound_utc": "2026-11-20T10:07:15Z",
+    "acceptance_datetime_utc": "2026-11-20T11:00:12Z",
+    "acceptance_clock_status": "PARSED_NOT_EXACT_PUBLIC_AVAILABILITY",
+    "first_seen_upper_bound_utc": "2026-11-20T18:38:51Z",
+    "next_full_session_after_upper_bound": "2026-11-23",
+    "historical_f80_membership_verified": false,
+    "public_availability_certified": false,
+    "same_day_intraday_use_authorized": false
+  },
+  "form144": {
+    "run_id": 44886726541,
+    "artifact_id": 14700173280,
+    "feed_observations": 53,
+    "new_events": 3,
+    "acceptance_reconciliations": 3,
+    "unresolved": 0,
+    "research_observation_eligible_metadata_events": 3,
+    "candidate_issuer_matches": 0,
+    "signal_eligible": 0,
+    "backfill_accessions_parsed": 10,
+    "backfill_detail_rows": 55,
+    "ledger_accessions": 235,
+    "ledger_detail_rows": 1712,
+    "remaining_backfill_accessions": 328,
+    "latest_successful_poll_utc": "2026-11-21T08:50:23Z",
+    "previous_successful_poll_start_utc": "2026-11-21T00:58:15Z",
+    "missing_schedule_slots_utc": [
+      "2026-11-21T09:47:00Z",
+      "2026-11-21T10:47:00Z",
+      "2026-11-21T11:47:00Z"
+    ],
+    "next_slot_not_yet_due_utc": "2026-11-21T12:47:00Z"
+  },
+  "finra": {
+    "latest_run_id": 44860690600,
+    "http_200": 8,
+    "invalid_files": 8,
+    "valid_files": 0,
+    "reason": "duplicate_symbol_in_consolidated_file",
+    "post_phase539_live_validation": false
+  },
+  "cftc": {
+    "latest_run_id": 44860341977,
+    "prospective_events": 4,
+    "historical_rows": 3043,
+    "historical_pit_eligible": false
+  },
+  "phase20c": {
+    "valid_histories": 328,
+    "configured": 335,
+    "unresolved_inactive_corporate_action_cases": 7
+  },
+  "controls": {
+    "signals_admitted": 0,
+    "backtests": 0,
+    "oos": 0,
+    "bootstrap": 0,
+    "loo": 0,
+    "holdout_used": false,
+    "f80_changed": false,
+    "production_changed": false
+  }
+}
