@@ -101,3 +101,72 @@ Sources:
 No vendor account, purchase, license acceptance, sample download, API request, raw data or licensed data was used. No signal, event study, backtest, OOS, bootstrap, LOO or holdout test was run. No universe, capital, exposure, costs, parameters or production changes.
 
 **Frozen control:** `F80_TOP20_PARTIAL50_BASELINE_C20` remains unchanged.
+
+
+## Follow-up — prior Cboe research reconciliation and strict delivery/PIT clarifications (2026-11-21 13:56 UTC)
+
+This follow-up corrects the source ranking and records documentation conflicts discovered after the initial 13:37 UTC snapshot. It does **not** create a new TBT discovery or authorize a data purchase.
+
+### 1. Reconcile with Phases 236, 351 and 373 — no duplicate TBT work
+
+The repository already contains:
+- Phase 236: TBT execution-detail feasibility, public launch-documentation floor and licensing/PIT audit.
+- Phase 351: a 3% public TBT sample parse for 2025-03-28.
+- Phase 373: the broader options-source ranking, which keeps OptionMetrics IvyDB TradeFlow as the primary conditional all-venue signed-flow candidate, Cboe Option Trades as independent OPRA-wide trade/NBBO validation, Open-Close as a Cboe-venue capacity/open-close complement, Options PITCH as a separate order-book microstructure candidate, and TBT as a narrower C1 execution-measurement candidate.
+
+Therefore Phase 547's OPRA pair is a **broad-market raw-data/IV/OI feasibility complement**, not a replacement for TradeFlow and not a new discovery of TBT. TradeFlow remains the first conditional signed-flow candidate, subject to its existing PIT, sample, version and licensing gates. No Phase 373 hypothesis is promoted by this follow-up.
+
+Phase 351's existing 3% TBT sample is not a representative market panel and exposed important parser/measurement risks:
+- 113,018 sample rows for one trade date; 1,250 underlying symbols; sample selection is not established as random.
+- 17.86% of rows have blank OPEN_CLOSE; 0.45% have incomplete OSI/call-put identity; 69 rows have an unrecognized SIDE code.
+- 99.45% lack FLOOR_ACTION_TS; all sample rows have timezone-naive timestamps.
+- 1,685 two-row EXEC_ID groups contain both B and S, but 109,648 of 111,333 nonblank EXEC_ID groups are singletons; complex IDs span multiple option series.
+- 12 crossed NBBO rows and 1,646 trade prices outside NBBO remain diagnostics, not inferred aggressor labels.
+- All rows carry TRADING_SEGMENT=1, including RTH rows, conflicting with the v1.1 specification's segment examples.
+
+Keep unknowns quarantined. Do not assume every EXEC_ID is a complete two-sided execution, do not sum complex legs as independent trades, do not use the sample as a C1 market-share estimate, and do not treat SIDE or CAPACITY as aggressor direction or beneficial-owner identity. The session/segment and missing OPEN_CLOSE semantics still require vendor clarification.
+
+### 2. New official FAQ reconciliation — delivery is not guaranteed by the nominal T+1 window
+
+Cboe's current FAQ states that daily equity/option files for a trade date are normally uploaded to SFTP the next day between 00:05 and 03:00 U.S. Eastern, but a delay can push the prior day's file until **after the next market session has opened**. TBT's own v1.1 specification gives a typical 00:30–01:30 ET T+1 window, not a guarantee. Open-Close EOD is described as overnight after midnight, with preliminary/final files; use only the final file after its actual receipt.
+
+Consequences:
+- Do not assume a T+1 file was available before the next session's open.
+- A retrospective archive timestamp or trade timestamp is not a file-receipt timestamp.
+- Prospective capture must store first receipt, file date, immutable hash, schema/version, and every later correction/replacement receipt.
+- For the project's end-of-day execution discipline, the earliest eligible execution is the close of the first full regular session whose open is strictly after the verified final-file receipt. If receipt occurs after that session opens, roll to the next session.
+
+Official FAQ: https://datashop.cboe.com/faqs
+
+### 3. Conflicting advertised history start dates — unresolved
+
+The current Option Trades and Option Quotes product pages advertise January 2012 historical availability. The same current FAQ's dataset-start table lists January 2010 for both Option Trades and Option Quotes. This is an official-documentation inconsistency. Until Cboe confirms the applicable product/version and a symbol/date availability matrix, do not claim a guaranteed 2010 or 2012 start for the exact 335-name panel. The purchase selector's excluded-symbol/date warning is not a substitute for a stratified coverage report.
+
+Sources:
+- https://datashop.cboe.com/option-trades
+- https://datashop.cboe.com/option-quote-intervals
+- https://datashop.cboe.com/faqs
+
+### 4. OI, quote-size and trade-condition controls
+
+The FAQ states that option OI is the prior night's OCC end-of-day OI carried as a static value throughout the trading day and updated the following morning. Thus:
+- it is start-of-day OI, not same-day closing OI;
+- comparing SOD OI for t and t+1 is usable only after the t+1 file is actually received and its OCC as-of date is verified;
+- OI change does not identify buy/sell direction or establish that a particular participant opened a position.
+
+The Option Quotes product page documents a quote-size convention change effective 2026-06-22: before that date, size reflects the latest size within the interval regardless of price changes; after that date, size is captured at the most recent price change. Version this break. The FAQ also documents zero IV/Greeks when model inputs are insufficient and zero underlying bid/ask when no underlying quote is disseminated. Treat these as missing/invalid states, not economic zeros. Some late-reported conditions can contribute volume without updating OHLC, so trade-condition mapping is mandatory.
+
+The all-symbol Option Quotes size estimates are large: approximately 2.3 TB compressed/year at 1-minute with Calcs, 155 GB at 15-minute, and 40 GB at 60-minute. The 335-symbol subset is not published; obtain an exact quote/sample before choosing granularity.
+
+### 5. Updated source ranking and admission
+
+1. **IvyDB TradeFlow** — remains the primary conditional all-venue signed-flow candidate (Phase 373); historical backfill is not automatically PIT.
+2. **Cboe Option Trades** — OPRA-wide raw prints/NBBO and independent validation candidate; aggressor side must be estimated and condition-aware.
+3. **Cboe Option Quotes** — quote/IV/skew and OCC SOD-OI companion; high storage cost and receipt/PIT gates remain.
+4. **Cboe Open-Close EOD** — capacity × buy/sell × open/close on C1/BZX/C2/EDGX only; apply documented historical convention breaks and final-file receipt controls.
+5. **Cboe TBT** — rich C1-only execution measurement since the advertised 2019-10-07 archive, but pre-launch history is retrospective; Phase 351 sample missingness/row-grain/session issues remain unresolved. Phase 236's last located fee schedule listed USD 12,000/month subscription and USD 8,000 per month of ad-hoc history (2026-04-21); reconfirm current terms before any acquisition.
+6. **Options PITCH** — retain as a separate high-complexity depth/order-flow hypothesis, not participant identity.
+
+No sample was newly downloaded, no account/trial/vendor contact/purchase/license acceptance occurred, and no raw or licensed data were added to the public repository. No signal, event study, backtest, OOS, bootstrap, LOO or holdout test is authorized by this documentation follow-up.
+
+**Control unchanged:** `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
