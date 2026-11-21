@@ -1628,3 +1628,18 @@ This section supersedes any older “in progress” status above where later com
 - Reproduced the Phase 525 owner-enrichment candidate selection from code and the current ledgers. Of 30 structured accessions, 10 were already enriched and 20 remained. Candidates are stable-sorted by first-seen receipt; the next scheduled limit-10 batch contains Atea Form 4 accessions 0001193125-26-469038 and 0001193125-26-469037 at ranks 2 and 3.
 - Their transaction rows are already present in Form 4 `transaction_details.csv`; corresponding Form 144 accessions 0001950047-26-011348 and 0001950047-26-011363 are present in `sale_details.csv`. They were absent from `reporting_owners.csv` because the first owner-enrichment run had not yet reached them.
 - Let the next natural scheduled Form 4 run process the batch and then inspect the strict crosswalk. No manual dispatch, relaxed match, signal, alpha test or strategy change.
+
+
+---
+
+# Smart Money Research state addendum — Phase 537 (2026-11-21)
+
+- **SEC Form 4/4-A:** natural scheduled run 44846461134 succeeded; 474 new accessions were captured with bounded metadata. Ten structured accessions produced 24 detail rows; ten owner accessions produced 15 owner rows. The two queued Atea single-owner filings are now in the sidecar.
+- **SEC Form 144/144-A:** natural scheduled run 44847230610 succeeded; 91 events and 103 feed observations were captured, with 91/91 acceptance reconciliations and zero unresolved. Ten backfill accessions produced 62 detail rows. First-seen remains a receipt upper bound, not exact public availability.
+- **Automated crosswalk:** the Form 4 run artifact now contains three strict matches: two Atea proposed-sale rows (Bruce Polsky, 8,750 shares; Bruno Lucidi, 22,619 shares) and one Bruno Lucidi prior-sale-history row. Both proposed sales are explicitly linked in filing remarks to option exercise costs and tax planning. Treat as a negative control against naive bearish insider-sale counts. Zero signal-eligible matches.
+- **SEC delivery:** both collectors have now produced a further natural scheduled success after the Phase 536 gap snapshot. Keep Issue #194 open until recurring cadence is stable; no manual dispatch or rerun.
+- **FINRA Reg SHO:** 56 offline tests passed in run 44669121290, but its live poll remains 8/8 HTTP-200 invalid and predates the Phase 515 repair. No post-Phase-515 scheduled live validation was visible in the latest 100 runs at 2026-11-21 01:22 UTC. No manual dispatch or rerun.
+- **Phase 20C:** historical price panel remains 328/329; provider fallback did not recover missing symbols. FINRA Short Interest still requires authorized credentials and one complete async settlement snapshot.
+- **Controls:** no event study, backtest, OOS, bootstrap, LOO or holdout test; no signal admitted; `F80_TOP20_PARTIAL50_BASELINE_C20` and production remain frozen.
+
+See `PHASE537_SEC_FORM4_OWNER_ENRICHMENT_AND_CROSSWALK_LIVE_VALIDATION_2026-11-21.md` and its JSON summary for the complete audit.
