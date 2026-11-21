@@ -1,0 +1,123 @@
+{
+  "phase": 542,
+  "audit_cutoff_utc": "2026-11-21T07:36:00Z",
+  "main_head_preflight": "712dbaf7c94e1a3e937edf6dfe2ffeccb0eef940",
+  "actions": {
+    "latest_100_inspected": true,
+    "active_or_queued_runs": 0,
+    "branches": 364,
+    "duplicate_workflow_dispatched": false
+  },
+  "finra_regsho": {
+    "run_id": 44860690600,
+    "run_predates_phase539_merge": true,
+    "http_200": 8,
+    "valid_files": 0,
+    "invalid_files": 8,
+    "error": "duplicate_symbol_in_consolidated_file",
+    "eligible_observations": 0,
+    "diagnostic_artifact_present": false,
+    "next_step": "wait_for_natural_post_merge_capture"
+  },
+  "cftc_tff": {
+    "run_id": 44860341977,
+    "prospective_contract_events": 4,
+    "report_date": "2026-11-17",
+    "first_received_utc": "2026-11-21T03:17:36Z",
+    "historical_rows": 3043,
+    "full_history_pit_eligible": false
+  },
+  "sec_form4": {
+    "run_id": 44846461134,
+    "detail_rows": 110,
+    "filing_headers": 40,
+    "transaction_rows": 70,
+    "accessions": 40,
+    "issuer_ciks": 32,
+    "transaction_codes": {
+      "P": 27,
+      "S": 21,
+      "A": 13,
+      "M": 6,
+      "G": 2,
+      "F": 1
+    },
+    "first_seen_interval_hours": {
+      "min": 6.2022,
+      "median": 8.3231,
+      "max": 8.5267
+    },
+    "research_observation_eligible": 0,
+    "signal_eligible": 0,
+    "public_availability_certified": 0,
+    "security_identity_verified": 0,
+    "historical_f80_membership_verified": 0,
+    "owner_attribution_verified": 0,
+    "transaction_semantics_verified": 0,
+    "economic_event_new_trade_authorized": 0
+  },
+  "sec_form4_owners": {
+    "owner_rows": 29,
+    "owner_accessions": 20,
+    "single_owner_accessions": 18,
+    "multi_owner_accessions": 2,
+    "multi_owner_counts": [
+      5,
+      6
+    ],
+    "transaction_line_attribution_verified": 0,
+    "signal_eligible": 0
+  },
+  "sec_crosswalk": {
+    "form144_form4_matches": 3,
+    "proposed_sales": 2,
+    "prior_sales": 1,
+    "signal_eligible": 0,
+    "execution_time_known": false,
+    "historical_f80_membership_verified": false
+  },
+  "sec_ftd": {
+    "runs": [
+      40540331780,
+      40746722935,
+      41065549815
+    ],
+    "download_http_status": 403,
+    "parser_executed": false,
+    "artifacts_created": 0,
+    "blocker": "generic_user_agent_without_monitored_contact",
+    "workflow_secret_wired": true,
+    "required_secret": "SEC_USER_AGENT",
+    "human_action_required": true
+  },
+  "sec_form144": {
+    "run_id": 44847230610,
+    "new_events": 91,
+    "acceptance_reconciliations": 91,
+    "unresolved": 0
+  },
+  "phase20c": {
+    "latest_recorded_valid_histories": 328,
+    "configured_universe": 335,
+    "unresolved_symbols": [
+      "AVB",
+      "EA",
+      "EQR",
+      "LPRO",
+      "ROKU",
+      "WBD",
+      "WBS"
+    ],
+    "revalidated_this_phase": false
+  },
+  "controls": {
+    "f80_frozen": true,
+    "signals_admitted": 0,
+    "backtest": false,
+    "event_study": false,
+    "oos": false,
+    "bootstrap": false,
+    "loo": false,
+    "production_change": false
+  }
+}
