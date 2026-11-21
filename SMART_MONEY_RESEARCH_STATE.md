@@ -10,7 +10,7 @@
 - **Other sources:** SEC 13D/G remains quarantined; the same `SEC_USER_AGENT` prerequisite applies. Options remain conditional on licensing/PIT/coverage. FINRA ATS historical access remains HTTP 530 with identity/revision/PIT gates open.
 - **Frozen controls:** `F80_TOP20_PARTIAL50_BASELINE_C20` unchanged; signals admitted **0**; no new backtest, event study, OOS, bootstrap, LOO, cost, exposure, universe, holdout or production change.
 
-Latest report: [Phase 542 — SEC FTD access gate and Form 4 eligibility census](research/PHASE542_SEC_FTD_ACCESS_AND_FORM4_ELIGIBILITY_AUDIT_2026-11-21.md).
+Latest report: [Phase 542 — SEC FTD access gate and Form 4 eligibility census](research/PHASE542_SEC_FTD_ACCESS_AND_FORM4_ELIGIBILITY_AUDIT_2026-11-21.md). Draft implementation PR: [#198](https://github.com/jafelix81/NuevaEstrategia/pull/198); it is waiting on the repository `SEC_USER_AGENT` secret and one successful bounded FTD validation.
 
 ---
 
