@@ -74,3 +74,8 @@ No live poll, backtest, event study, OOS, bootstrap, LOO, price download or alph
 - Universe, parameters, exposure, costs and holding-period policy unchanged.
 - New signals admitted: **0**.
 - Production changes: **0**.
+
+
+## Post-audit disposition
+
+After the 04:50 UTC audit cutoff, PR [#197](https://github.com/jafelix81/NuevaEstrategia/pull/197) was reviewed, marked ready and merged to `main` at 2026-11-21 05:22:40 UTC. Merge commit: [c7666f03](https://github.com/jafelix81/NuevaEstrategia/commit/c7666f03a6e01c569fce7b98e1651490bf2376dc). This enables the existing scheduled collector to write the new metadata-only diagnostics. The next natural scheduled capture remains pending; no manual dispatch or rerun was used.
