@@ -12,8 +12,8 @@
     "active": 0,
     "queued": 0,
     "waiting": 0,
-    "branches": 363,
-    "open_prs": 67
+    "open_prs": 67,
+    "phase_named_branch_matches": 363
   },
   "form4": {
     "transaction_rows": 70,
