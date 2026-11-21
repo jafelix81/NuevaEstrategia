@@ -1,0 +1,71 @@
+{
+  "phase": 540,
+  "audit_date_utc": "2026-11-21",
+  "disposition": "PROSPECTIVE_NORMALIZED_NET_OI_DESCRIPTIVE_AUDIT_ONLY; NO_ALPHA; NO_SIGNAL",
+  "source": "CFTC Traders in Financial Futures",
+  "observations_used": 2,
+  "contracts": 4,
+  "historical_rows_in_archive": 3043,
+  "historical_backfill_used_for_features": false,
+  "report_dates": [
+    "2026-11-10",
+    "2026-11-17"
+  ],
+  "first_receipt_utc": [
+    "2026-11-18T03:44:57Z",
+    "2026-11-21T03:17:36Z"
+  ],
+  "latest_report_earliest_executable_session": "2026-11-23",
+  "formula": "(long - short) / open_interest",
+  "current_net_oi_pct": {
+    "E-MINI S&P 500": {
+      "asset_managers": 42.683,
+      "dealers": -37.548,
+      "leveraged_funds": -11.206
+    },
+    "NASDAQ MINI": {
+      "asset_managers": 27.967,
+      "dealers": -30.253,
+      "leveraged_funds": -3.687
+    },
+    "DJIA x $5": {
+      "asset_managers": -9.239,
+      "dealers": 1.271,
+      "leveraged_funds": 4.134
+    },
+    "RUSSELL E-MINI": {
+      "asset_managers": 6.672,
+      "dealers": 2.711,
+      "leveraged_funds": -9.213
+    }
+  },
+  "delta_net_oi_percentage_points": {
+    "E-MINI S&P 500": {
+      "asset_managers": -2.623,
+      "dealers": -1.106,
+      "leveraged_funds": 3.815
+    },
+    "NASDAQ MINI": {
+      "asset_managers": 2.757,
+      "dealers": 4.417,
+      "leveraged_funds": -8.524
+    },
+    "DJIA x $5": {
+      "asset_managers": -11.74,
+      "dealers": 9.853,
+      "leveraged_funds": 2.552
+    },
+    "RUSSELL E-MINI": {
+      "asset_managers": 2.209,
+      "dealers": -2.342,
+      "leveraged_funds": 0.872
+    }
+  },
+  "alpha_test": false,
+  "oos_test": false,
+  "bootstrap": false,
+  "loo": false,
+  "signal_admitted": false,
+  "f80_frozen": true,
+  "production_changed": false
+}
