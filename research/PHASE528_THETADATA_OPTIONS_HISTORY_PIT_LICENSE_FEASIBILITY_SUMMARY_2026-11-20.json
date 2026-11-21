@@ -1,0 +1,76 @@
+{
+  "phase": 528,
+  "audit_date": "2026-11-20",
+  "source": "ThetaData",
+  "disposition": "CONDITIONAL_OPTIONS_FLOW_OI_IV_CANDIDATE_NOT_ADMITTED",
+  "published_tiers": {
+    "value": {
+      "monthly_usd": 40,
+      "history_years": 6,
+      "concurrent_requests": 2
+    },
+    "standard": {
+      "monthly_usd": 80,
+      "history_years": 10,
+      "concurrent_requests": 4
+    },
+    "pro": {
+      "monthly_usd": 160,
+      "history_years": 14,
+      "concurrent_requests": 8
+    }
+  },
+  "advertised_market_coverage": "100% US index and stock symbols; not independently verified for F80 335-name PIT or inactive/delisted universe",
+  "historical_bulk": {
+    "self_service_flat_files_days": 7,
+    "professional_users_only": true,
+    "option_trade_quote_gb_per_day": 1.2,
+    "option_quote_gb_per_day": 38,
+    "option_open_interest_mb_per_day": 50,
+    "option_eod_mb_per_day": 150,
+    "historical_archive": "requires sales or separate arrangement"
+  },
+  "api": {
+    "history_symbol_specific": true,
+    "eod_recommended_days": 30,
+    "option_tick_recommended_days": 7,
+    "highly_liquid_tick_recommended_days": 1,
+    "trade_quote_multiday_limit_days": 30,
+    "trade_quote_multiday_requires_expiration": true,
+    "recommended_max_ticks_per_response": 1000000,
+    "pro_concurrency": 8,
+    "standard_concurrency": 4,
+    "queue_default": 16,
+    "may_return_429_if_queue_exceeded": true
+  },
+  "backfill_scale": {
+    "universe_symbols": 335,
+    "years": 14,
+    "month_partitions_per_symbol": 168,
+    "lower_bound_symbol_month_requests_per_endpoint": 56280,
+    "note": "Lower-bound planning count for one-month-per-symbol EOD/OI partitions before retries, gaps, expiration partitions or tick-level weekly sizing."
+  },
+  "timing": {
+    "option_eod_report_created_et": "17:15",
+    "open_interest_reported_et_approx": "06:30",
+    "open_interest_represents": "previous trading day's end",
+    "trade_quote_event_timestamp": "millisecond; exclusive=true can require quote strictly before trade",
+    "actual_first_receipt_certified": false,
+    "historical_delivery_vintages_certified": false
+  },
+  "license": {
+    "individual_permitted_use_includes": "internal personal use, trading on licensee's behalf, analysis and research",
+    "one_individual_only": true,
+    "redistribution_prohibited_without_written_consent": true,
+    "broad_derivative_work_restriction": true,
+    "derived_work_expungement_days_after_termination": 30,
+    "automated_non_display_classification_resolved": false,
+    "written_clarification_required": true
+  },
+  "tests_authorized": false,
+  "signal_eligible": false,
+  "alpha_test_authorized": false,
+  "f80_changed": false,
+  "production_changed": false,
+  "purchase_or_vendor_contact": false
+}
