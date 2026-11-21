@@ -1,0 +1,133 @@
+{
+  "phase": 537,
+  "audit_timestamp_utc": "2026-11-21T01:22:00Z",
+  "base_main_sha": "c5a5d0942a4b97e3147d6a377ff437c700dfe645",
+  "disposition": "SEC_NATURAL_CAPTURE_AND_STRICT_CROSSWALK_VALIDATED_NO_ALPHA",
+  "source_runs": {
+    "form4": {
+      "run_id": 44846461134,
+      "artifact_id": 14683520646,
+      "started_utc": "2026-11-21T00:50:42Z",
+      "completed_utc": "2026-11-21T00:51:03Z",
+      "conclusion": "success"
+    },
+    "form144": {
+      "run_id": 44847230610,
+      "artifact_id": 14684225291,
+      "started_utc": "2026-11-21T00:58:15Z",
+      "completed_utc": "2026-11-21T00:58:43Z",
+      "conclusion": "success"
+    }
+  },
+  "form4": {
+    "new_accessions": 474,
+    "canonical_event_observations": 474,
+    "bounded_metadata_candidates": 976,
+    "feed_pages": 15,
+    "cross_feed_duplicate_occurrences": 5,
+    "same_feed_duplicate_occurrences": 507,
+    "structured_accessions_parsed": 10,
+    "detail_rows_appended": 24,
+    "structured_parse_errors": 0,
+    "structured_accessions_remaining": 1758,
+    "owner_accessions_parsed": 10,
+    "owner_rows_appended": 15,
+    "single_owner_filings": 9,
+    "multi_owner_filings": 1,
+    "owner_accessions_remaining": 20,
+    "public_availability_certified": false,
+    "research_observation_eligible_rows": 0,
+    "signal_eligible_rows": 0
+  },
+  "form144": {
+    "new_events": 91,
+    "feed_observation_rows": 103,
+    "acceptance_reconciliations_added": 91,
+    "acceptance_reconciliations_unresolved": 0,
+    "candidate_issuer_matches": 12,
+    "cross_feed_provenance_complete": true,
+    "possible_feed_window_gap": false,
+    "structured_accessions_parsed": 10,
+    "detail_rows_appended": 62,
+    "structured_parse_errors": 0,
+    "ledger_accessions": 222,
+    "ledger_rows": 1644,
+    "structured_accessions_remaining": 338,
+    "first_seen_is_poll_receipt_upper_bound": true,
+    "public_availability_certified": false,
+    "same_day_intraday_use_authorized": false,
+    "signal_eligible_count": 0
+  },
+  "crosswalk": {
+    "rows": 3,
+    "proposed_sale_matches": 2,
+    "prior_sale_matches": 1,
+    "matched_form4_accessions": 2,
+    "single_owner_accessions_with_identity": 18,
+    "multi_owner_accessions_quarantined": 2,
+    "form4_sale_disposition_accessions_without_single_owner_identity": 8,
+    "ambiguous_form144_events": 0,
+    "ambiguous_transaction_reuse": 0,
+    "signal_eligible_matches": 0,
+    "atea_pairs": [
+      {
+        "seller": "Bruce Polsky",
+        "form144": "0001950047-26-011348",
+        "form4": "0001193125-26-469037",
+        "shares": 8750,
+        "transaction_date": "2026-11-19",
+        "context": "option exercise costs and tax planning",
+        "classification": "EXERCISE_RELATED_NOT_DISCRETIONARY_BEARISH"
+      },
+      {
+        "seller": "Bruno Lucidi",
+        "form144": "0001950047-26-011363",
+        "form4": "0001193125-26-469038",
+        "shares": 22619,
+        "transaction_date": "2026-11-19",
+        "context": "option exercise costs and tax planning",
+        "classification": "EXERCISE_RELATED_NOT_DISCRETIONARY_BEARISH"
+      }
+    ],
+    "execution_intraday_time_known": false,
+    "transaction_line_owner_attribution_verified": false,
+    "historical_f80_membership_verified": false
+  },
+  "finra_regsho": {
+    "latest_scheduled_run_id": 44669121290,
+    "http_200_files": 8,
+    "valid_files": 0,
+    "invalid_files": 8,
+    "signal_eligible_count": 0,
+    "post_phase515_live_validation": false,
+    "manual_dispatch_or_rerun": false
+  },
+  "phase20c": {
+    "valid_price_histories": 328,
+    "required_price_histories": 329,
+    "provider_fallback_recovered_missing_symbols": false
+  },
+  "controls": {
+    "alpha_test": false,
+    "event_study": false,
+    "backtest": false,
+    "oos": false,
+    "bootstrap": false,
+    "loo": false,
+    "holdout": false,
+    "signal_admissions": 0,
+    "f80_frozen": true,
+    "production_changes": false,
+    "universe_changes": false,
+    "exposure_cost_changes": false
+  },
+  "sources": {
+    "form4_run": "https://github.com/jafelix81/NuevaEstrategia/actions/runs/44846461134",
+    "form144_run": "https://github.com/jafelix81/NuevaEstrategia/actions/runs/44847230610",
+    "form4_artifact": 14683520646,
+    "form144_artifact": 14684225291,
+    "finra_regsho_run": "https://github.com/jafelix81/NuevaEstrategia/actions/runs/44669121290",
+    "phase20c_issue": "https://github.com/jafelix81/NuevaEstrategia/issues/57",
+    "finra_short_interest_issue": "https://github.com/jafelix81/NuevaEstrategia/issues/159"
+  }
+}
