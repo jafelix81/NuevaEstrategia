@@ -1,0 +1,107 @@
+{
+  "phase": 547,
+  "audit_cutoff_utc": "2026-11-21T13:37:00Z",
+  "base_main": "cb9aab722f905e2df54e349091e42ae7d9bf243a",
+  "disposition": "conditional_options_data_candidate_only_no_purchase_no_signal_test",
+  "options_candidates": [
+    {
+      "product": "Cboe Option Trades",
+      "historical_start": "2012-01",
+      "scope": "OPRA-wide U.S. listed stock ETF index options",
+      "fields": [
+        "trade timestamp ET millisecond",
+        "OPRA sequence",
+        "trade condition",
+        "trade price/size",
+        "exchange",
+        "prevailing NBBO",
+        "optional point-in-time IV and Greeks"
+      ],
+      "missing": [
+        "participant capacity",
+        "opening versus closing"
+      ],
+      "pit_gate": "daily file receipt time and correction vintages must be captured prospectively"
+    },
+    {
+      "product": "Cboe Option Quotes",
+      "historical_start": "2012-01",
+      "scope": "OPRA-wide U.S. listed stock ETF index options",
+      "fields": [
+        "interval NBBO",
+        "option OHLC and volume",
+        "optional IV/Greeks",
+        "optional OCC SOD open interest"
+      ],
+      "pit_gate": "SOD OI date and next-day availability must be verified; historical receipt time unavailable"
+    },
+    {
+      "product": "Cboe Open-Close EOD",
+      "historical_start": {
+        "C1": "2005-01-03",
+        "BZX_C2_EDGX": "2018-01-02"
+      },
+      "scope": "Cboe exchanges only",
+      "fields": [
+        "capacity",
+        "buy/sell",
+        "open/close",
+        "size buckets",
+        "OI",
+        "industry volume"
+      ],
+      "historical_breaks": [
+        "C1 OI shifted one day ahead through 2019-10-04",
+        "C2 OI shifted one day ahead through 2018-05-11",
+        "C2 industry volume doubled through 2018-05-11",
+        "C1 total exchange volume formula changed through 2019-10-04"
+      ],
+      "licensing": "raw internal-only; external derived data requires additional fees and approval"
+    }
+  ],
+  "sec_form4_negative_control": {
+    "issuer": "SE",
+    "accession": "0001193125-26-469085",
+    "transaction_rows": 7,
+    "shares": 1600,
+    "gross_usd_approx": 109300.43,
+    "aff10b5one": true,
+    "decision": "planned-trading negative control; not discretionary insider signal"
+  },
+  "actions_preflight": {
+    "latest_100": {
+      "success": 87,
+      "failure": 12,
+      "cancelled": 1
+    },
+    "active_or_queued": 0,
+    "latest_form144_run": 44886726541,
+    "missing_due_slots_utc": [
+      "2026-11-21T09:47Z",
+      "2026-11-21T10:47Z",
+      "2026-11-21T11:47Z",
+      "2026-11-21T12:47Z"
+    ],
+    "next_slot_not_yet_due_utc": "2026-11-21T13:47Z",
+    "latest_finra_run": 44860690600,
+    "latest_cftc_run": 44860341977
+  },
+  "research": {
+    "signals_admitted": 0,
+    "backtests": 0,
+    "oos_tests": 0,
+    "bootstrap": 0,
+    "loo": 0,
+    "baseline": "F80_TOP20_PARTIAL50_BASELINE_C20",
+    "baseline_changed": false
+  },
+  "sources": [
+    "https://datashop.cboe.com/option-trades",
+    "https://datashop.cboe.com/documents/Option_Trades_File_Specification.pdf",
+    "https://datashop.cboe.com/option-quote-intervals",
+    "https://datashop.cboe.com/documents/Option_Quotes_Layout.pdf",
+    "https://datashop.cboe.com/cboe-options-open-close-volume-summary",
+    "https://datashop.cboe.com/documents/Open_Close_EOD_Spec_v1.3.pdf",
+    "https://www.sec.gov/rules-regulations/staff-guidance/corporation-finance-interpretations/exchange-act-section-16-related-rules-forms"
+  ]
+}
