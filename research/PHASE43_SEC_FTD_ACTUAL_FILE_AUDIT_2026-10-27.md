@@ -52,3 +52,12 @@ No feature will be interpreted as directional short pressure a priori.
 `ACTUAL_FILE_GATE_TRIGGERED_2026-10-30`
 
 The Phase 43 workflow is present on `main` and a fresh main-branch content commit has now been issued to trigger the actual-file audit. No alpha work is authorized until the workflow validates the representative files and universe/PIT coverage. No alpha conclusion. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.
+
+
+## Phase 542 — post-trigger execution and access disposition (2026-11-21)
+
+The actual-file workflow was triggered three times after the initial feasibility gate: [40540331780](https://github.com/jafelix81/NuevaEstrategia/actions/runs/40540331780), [40746722935](https://github.com/jafelix81/NuevaEstrategia/actions/runs/40746722935), and [41065549815](https://github.com/jafelix81/NuevaEstrategia/actions/runs/41065549815). All three failed in **Download representative SEC FTD files** with HTTP 403 before parsing. The parse and artifact steps were skipped; no sample file or parser artifact was produced.
+
+The workflow used a hardcoded generic `User-Agent: NuevaEstrategia research contact` without a monitored contact address. This is an access/configuration failure, not a source-schema failure. Phase 542 updates the workflow to read the repository's `SEC_USER_AGENT` Actions secret and fail fast if it is missing. The secret must identify the project and include a monitored contact email; its value must never be committed or printed.
+
+**Updated gate:** `BLOCKED_SEC_403_CONTACT_USER_AGENT_REQUIRED`. After the human configures the secret, run the existing two-file sample once. No historical backfill, universe coverage audit, FTD feature, return test or alpha work is authorized until the actual-file parser gate passes.
