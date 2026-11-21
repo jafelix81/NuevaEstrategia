@@ -1,26 +1,26 @@
 {
-  "accession_observation_ledger_rows_appended": 2794,
+  "accession_observation_ledger_rows_appended": 3782,
   "accession_observation_ledger_started_run_id": "44440313382",
   "accession_observation_ledger_started_utc": "2026-11-19T01:54:11Z",
   "feeds": {
     "4": {
-      "last_poll_run_id": "44794670480",
+      "last_poll_run_id": "44846461134",
       "last_poll_status": "SUCCESS",
-      "last_successful_poll_end_utc": "2026-11-20T18:38:51Z",
-      "latest_accession": "0001213900-26-122587",
-      "latest_feed_updated_utc": "2026-11-20T18:34:13Z"
+      "last_successful_poll_end_utc": "2026-11-21T00:51:03Z",
+      "latest_accession": "0000943819-26-000133",
+      "latest_feed_updated_utc": "2026-11-21T00:27:14Z"
     },
     "4A": {
-      "last_poll_run_id": "44794670480",
+      "last_poll_run_id": "44846461134",
       "last_poll_status": "SUCCESS",
-      "last_successful_poll_end_utc": "2026-11-20T18:38:51Z",
-      "latest_accession": "0001976408-26-000956",
-      "latest_feed_updated_utc": "2026-11-20T11:04:46Z"
+      "last_successful_poll_end_utc": "2026-11-21T00:51:03Z",
+      "latest_accession": "0001753926-26-002220",
+      "latest_feed_updated_utc": "2026-11-20T23:44:10Z"
     }
   },
-  "last_poll_ended_utc": "2026-11-20T18:38:51Z",
-  "last_poll_run_id": "44794670480",
-  "last_poll_started_utc": "2026-11-20T18:38:38Z",
+  "last_poll_ended_utc": "2026-11-21T00:51:03Z",
+  "last_poll_run_id": "44846461134",
+  "last_poll_started_utc": "2026-11-21T00:50:42Z",
   "phase": 476,
   "schema_version": 1
 }
