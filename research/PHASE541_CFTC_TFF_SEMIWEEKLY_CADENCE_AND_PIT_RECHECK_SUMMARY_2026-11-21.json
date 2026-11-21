@@ -1,0 +1,73 @@
+{
+  "phase": 541,
+  "audit_cutoff_utc": "2026-11-21T05:22:00Z",
+  "disposition": "TFF_STILL_WEEKLY_IN_PROSPECTIVE_CAPTURE; SEMIWEEKLY_TRANSITION_NOT_YET_OBSERVED; HISTORICAL_PIT_UNRESOLVED; NO_ALPHA",
+  "source": "CFTC Traders in Financial Futures Futures Only",
+  "dataset_id": "gpe5-46if",
+  "prospective_report_dates": [
+    "2026-11-10",
+    "2026-11-17"
+  ],
+  "prospective_first_receipt_utc": [
+    "2026-11-18T03:44:57Z",
+    "2026-11-21T03:17:36Z"
+  ],
+  "prospective_contracts": 4,
+  "historical_rows": 3043,
+  "historical_coverage": {
+    "124603": {
+      "contract": "DJIA x $5",
+      "rows": 853,
+      "first_report_date": "2010-07-20",
+      "last_report_date": "2026-11-17",
+      "gaps_over_8_days": 0
+    },
+    "209742": {
+      "contract": "Nasdaq Mini",
+      "rows": 853,
+      "first_report_date": "2010-07-20",
+      "last_report_date": "2026-11-17",
+      "gaps_over_8_days": 0
+    },
+    "239742": {
+      "contract": "Russell E-mini",
+      "rows": 484,
+      "first_report_date": "2017-08-15",
+      "last_report_date": "2026-11-17",
+      "gaps_over_8_days": 0
+    },
+    "13874A": {
+      "contract": "E-mini S&P 500",
+      "rows": 853,
+      "first_report_date": "2010-07-20",
+      "last_report_date": "2026-11-17",
+      "gaps_over_8_days": 0
+    }
+  },
+  "historical_backfill_feature_eligible": false,
+  "historical_publication_timestamp_coverage": "not sufficient for full-history PIT reconstruction",
+  "official_cot_semiweekly_announcement_date": "2026-10-27",
+  "official_announcement_url": "https://www.cftc.gov/PressRoom/PressReleases/9316-26",
+  "official_november_release_calendar_still_weekly": true,
+  "actual_tff_semiweekly_report_observed": false,
+  "weekday_polling_cron_utc": "25 22 * * 1-5",
+  "phase387_weekly_preregistration_unchanged": true,
+  "phase387_minimum_evaluation_observations_per_contract": 150,
+  "phase387_minimum_high_events": 30,
+  "phase387_minimum_non_high_events": 100,
+  "semiweekly_one_year_reference_reports": 104,
+  "finra_phase539_pr_merged": true,
+  "finra_merge_commit": "c7666f03a6e01c569fce7b98e1651490bf2376dc",
+  "finra_live_diagnostic_pending": true,
+  "sec_crosswalk_rows": 3,
+  "sec_signal_eligible_matches": 0,
+  "phase20c_valid_histories": 328,
+  "phase20c_configured_histories": 335,
+  "signal_admitted": false,
+  "alpha_test": false,
+  "oos_test": false,
+  "bootstrap": false,
+  "loo": false,
+  "f80_frozen": true,
+  "production_changed": false
+}
