@@ -33,6 +33,22 @@ The existing Phase 403 `live-capture` job now:
 
 No second collector, new schedule, new network request, manual dispatch, retry, or new artifact-upload workflow is introduced. The audit reads only the committed local CSV after the live step has updated it. Existing append-only commit and artifact upload behavior is unchanged.
 
+
+
+## 5. Persistence and failure-semantics hardening (2026-11-22 04:xx UTC)
+
+A review of the first PR validation [44983972414](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44983972414) found that the new post-capture audit was initially a hard-failing step placed before the append-only ledger commit. If Phase 516 failed after a successful SEC poll, GitHub Actions would skip the later commit step and the newly captured ledger/state could be lost with the ephemeral runner. The PR run passed 64 offline tests, but correctly skipped the live job; it did not exercise this ordering on a live capture.
+
+The workflow was hardened before merge:
+1. The SEC capture step now has the stable id `sec_capture`.
+2. The post-capture Phase 516 step has id `post_capture_quality` and `continue-on-error: true`, so a quality-audit failure does not block persistence.
+3. The append-only commit is explicitly gated on a successful SEC capture; a failed capture is never committed as a successful poll.
+4. Artifact upload remains `if: always()`, so poll logs and any generated audit output are retained.
+5. A final guard fails the job after commit and artifact-upload attempts if the post-capture quality audit failed. Thus data persistence is not silently traded for a green quality status.
+6. The offline regression now smoke-tests the exact post-capture output path and summary schema against the committed ledger.
+
+The new workflow revision has not yet passed its triggered PR check at this report cutoff. A natural scheduled capture is still required to prove that the artifact contains the post-capture summary and that its filing/row counts reconcile to the poll summary. No manual poll or merge was performed.
+
 ## 4. Validation and controls
 
 - The PR will use the existing Phase 403 pull-request regression path; its `live-capture` job remains skipped for pull-request events.
