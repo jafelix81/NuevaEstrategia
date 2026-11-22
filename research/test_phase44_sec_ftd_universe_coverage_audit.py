@@ -53,10 +53,11 @@ class Phase44CredentialAndParserTests(unittest.TestCase):
             "20180102|123456789|AAA|100|Issuer A|10.00\n"
             "20180102|987654321|AAA|200|Issuer A second class|10.00\n"
             "20180102|222222222||50|Missing ticker|10.00\n"
+            "20180103|222222222||25|Missing ticker repeat|10.00\n"
             "TOTAL|||||\n"
         )
         parsed = audit.parse_zip(payload)
-        self.assertEqual(parsed["economic_rows"], 3)
+        self.assertEqual(parsed["economic_rows"], 4)
         self.assertEqual(parsed["symbols"]["AAA"], ["123456789", "987654321"])
         self.assertEqual(parsed["cusip_only_rows"], 2)
         self.assertEqual(parsed["cusip_only_unique_cusips"], ["222222222"])
