@@ -64,3 +64,12 @@ No SEC request, sample download, backfill, purchase, signal test, return test, O
 - New signals admitted: **0**.
 - `F80_TOP20_PARTIAL50_BASELINE_C20`: unchanged and frozen.
 - No universe, parameters, exposure, costs, holding-period policy, holdout or production changes.
+
+## Final PR / repository checkpoint — 2026-11-22 17:00 UTC
+
+- Consolidated draft [PR #204](https://github.com/jafelix81/NuevaEstrategia/pull/204) is open, mergeable, 10 commits ahead and 0 behind current `main`; it remains Draft pending the human SEC credential/live-access gate.
+- Final push validation [45046949452](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45046949452) and final PR validation [45046956034](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45046956034) both passed all five offline tests. In both runs, `live-coverage` was skipped as designed.
+- Repository Actions total: 8,060; latest 100 = 96 successes / 4 failures; zero active or queued. The two new failures in this run were the intentionally exposed fixture mismatch documented above; the final commit passed.
+- Branches: 371; open PRs: 72. The new branch is `phase559-sec-ftd-credential-integration`.
+- The latest natural Form 144 scheduled run remains 45012113618 at 10:22:19 UTC; no newer scheduled Form 144 run appears in the latest 100 as of 17:00 UTC. Nominal :47 slots after that creation time are absent, but `created_at` is not a certified cron-fire timestamp.
+- No SEC request, manual dispatch, historical pull, backfill, return test or strategy/production change was performed.
