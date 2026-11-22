@@ -55,6 +55,8 @@ jobs:
           python -m py_compile research/phase401_form144a_full_parent_identity_census.py research/phase403_sec_form144_first_seen_capture.py research/phase454_form144_event_ledger_schema_migration.py research/test_phase454_form144_event_ledger_schema_migration.py research/phase464_form144_first_production_capture_audit.py research/test_phase464_form144_first_production_capture_audit.py research/test_phase465_sec_atom_pagination.py research/phase509_form144_structured_detail_parser.py research/test_phase509_form144_structured_detail_parser.py research/phase516_form144_ledger_quality_audit.py research/test_phase516_form144_ledger_quality_audit.py
           python -m unittest -v research.test_phase403_sec_form144_first_seen_capture research.test_phase454_form144_event_ledger_schema_migration research.test_phase464_form144_first_production_capture_audit research.test_phase465_sec_atom_pagination research.test_phase509_form144_structured_detail_parser research.test_phase516_form144_ledger_quality_audit
           python -m research.phase516_form144_ledger_quality_audit --input research/data/sec_form144_first_seen/sale_details.csv --output phase516_output/summary.json
+          python -m research.phase516_form144_ledger_quality_audit --input research/data/sec_form144_first_seen/sale_details.csv --output phase403_output/phase516_post_capture_summary.json
+          python -c "import json; from pathlib import Path; p=Path('phase403_output/phase516_post_capture_summary.json'); d=json.loads(p.read_text()); assert d['filing_count'] > 0 and d['row_count'] >= d['filing_count']; assert 'pit' in d and 'signal_eligible_filing_headers' in d['pit']; print('Phase 550 output-path/schema smoke test passed')"
 
   live-capture:
     if: github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
@@ -69,10 +71,11 @@ jobs:
         with:
           python-version: "3.11"
       - name: Compile capture and migration clients
-        run: python -m py_compile research/phase403_sec_form144_first_seen_capture.py research/phase454_form144_event_ledger_schema_migration.py research/phase509_form144_structured_detail_parser.py
+        run: python -m py_compile research/phase403_sec_form144_first_seen_capture.py research/phase454_form144_event_ledger_schema_migration.py research/phase509_form144_structured_detail_parser.py research/phase516_form144_ledger_quality_audit.py
       - name: Migrate append-only event ledger schema
         run: python -m research.phase454_form144_event_ledger_schema_migration --path research/data/sec_form144_first_seen/events.csv --output phase403_output/schema_migration.json
       - name: Run SEC Latest Filings capture
+        id: sec_capture
         env:
           EVENT_NAME: ${{ github.event_name }}
           RUN_ID: ${{ github.run_id }}
@@ -84,8 +87,16 @@ jobs:
             *) echo "Unsupported event: $EVENT_NAME"; exit 1 ;;
           esac
           python -u -m research.phase403_sec_form144_first_seen_capture --mode "$MODE" --run-id "$RUN_ID" --output phase403_output
+      - name: Run post-capture Form 144 ledger quality audit
+        id: post_capture_quality
+        continue-on-error: true
+        run: |
+          python -m research.phase516_form144_ledger_quality_audit \
+            --input research/data/sec_form144_first_seen/sale_details.csv \
+            --output phase403_output/phase516_post_capture_summary.json
+          python -c "import json; from pathlib import Path; p=Path('phase403_output'); poll=json.loads((p/'summary.json').read_text()); quality=json.loads((p/'phase516_post_capture_summary.json').read_text()); ledger=poll['structured_detail_summary']; assert quality['filing_count'] == ledger['ledger_accession_count'], (quality['filing_count'], ledger['ledger_accession_count']); assert quality['row_count'] == ledger['ledger_row_count'], (quality['row_count'], ledger['ledger_row_count']); print('Phase 550 post-capture ledger-count reconciliation passed')"
       - name: Commit append-only first-seen ledger and poll state
-        if: github.event_name == 'push' || github.event_name == 'schedule'
+        if: (github.event_name == 'push' || github.event_name == 'schedule') && steps.sec_capture.outcome == 'success'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -104,3 +115,8 @@ jobs:
           path: phase403_output/
           retention-days: 90
           if-no-files-found: warn
+      - name: Fail after persistence if post-capture quality audit failed
+        if: always() && steps.post_capture_quality.outcome == 'failure'
+        run: |
+          echo "Post-capture Phase 516 audit failed; capture ledger persistence and artifact upload were attempted first." >&2
+          exit 1
