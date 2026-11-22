@@ -46,6 +46,11 @@ These are fixed-snapshot feasibility diagnostics, not date-appropriate active-un
 
 This branch's push workflow runs only offline tests. A successful offline run does not validate SEC access.
 
+Final offline validation:
+- Push run [45046949452](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45046949452): success; all 5 tests passed.
+- Pull-request run [45046956034](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45046956034): success; all 5 tests passed; `live-coverage` was skipped as designed.
+- Earlier runs [45046895972](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45046895972) and [45046898162](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45046898162) caught a fixture inconsistency: the test expected two CUSIP-only rows but supplied one. The fixture was corrected to include a second observation for the same CUSIP; the final test now distinguishes observation-row count from unique-CUSIP count.
+
 The repository connector cannot inspect or set the GitHub Actions secret. Before any live sample, the repository owner must configure `SEC_USER_AGENT` with a project identifier and monitored contact email. Then:
 1. manually dispatch Phase 43's existing two-file representative sample;
 2. require both files to download and pass schema/type/trailer/hash checks;
