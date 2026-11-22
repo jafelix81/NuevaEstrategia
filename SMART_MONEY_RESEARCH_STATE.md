@@ -1,3 +1,15 @@
+# Post-merge checkpoint — 2026-11-22 18:41 UTC
+
+- **Phase 560 integrated:** PR [#205](https://github.com/jafelix81/NuevaEstrategia/pull/205) merged as [7cd077ff](https://github.com/jafelix81/NuevaEstrategia/commit/7cd077ff8254ce2bcec7221ecf6b5fffdb322e58). Final Phase 403 PR check [45056358699](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45056358699) passed 74/74 tests with live-capture skipped; Phase 460 and Phase 461 PR checks [45056309162](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45056309162) and [45056309167](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45056309167) also passed. The classifier is now part of the existing offline-regression path; no second scheduled collector was added.
+- **Repository / Actions:** 8,069 total runs; latest 100 = 96 success / 4 failure; zero active or queued. Branches: 372; open PRs: 72.
+- **Form 144:** latest natural capture [45052961790](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45052961790) remains successful. Current ledger: 285 accessions / 2,114 detail rows; 278 remain in bounded backfill. Ten existing accessions yielded 42 new detail rows; no new accession/event. Zero parse errors, hash mismatches, public-availability-certified filings or signal-eligible filings.
+- **Current 10b5-1 description:** 9 positive / 4 negative / 1 ambiguous / 271 no mention; 103 formal plan-date accessions and 64 distinct dates; lag 72–546 days, median 185; one plan termination. Four negative Fermi cases are sell-to-cover/tax-withholding notices, not discretionary bearish supply. See [Phase 560](research/PHASE560_FORM144_CURRENT_10B5_REFRESH_2026-11-22.md) and aggregate artifact [14767179586](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45056358699/artifacts/14767179586).
+- **SEC FTD / 13D-G:** PR [#204](https://github.com/jafelix81/NuevaEstrategia/pull/204) remains Draft, 11 commits ahead / 2 behind main. No live request was made. Human prerequisite remains the SEC_USER_AGENT Actions secret with project identifier and monitored contact; bounded two-file validation must pass before any backfill.
+- **FINRA / Phase 20C:** Sunday; no weekday FINRA live capture expected. Phase 539 still awaits natural post-merge validation; duplicate-symbol files remain rejected. Phase 20C remains 328/335 with seven unresolved histories.
+- **Research decision:** zero new signals; no return/event/OOS/bootstrap/LOO test. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen; no universe, costs, exposure, holdout or production change.
+
+---
+
 # Current Smart Money Research Snapshot — 2026-11-22 (Phase 560)
 
 **Audit cutoff:** 2026-11-22 18:38 UTC. Main HEAD at data cutoff: 7680c3d66f974622b4aef4764abe885a703742d2. Report: [Phase 560 — current Form 144 Rule 10b5-1 refresh](research/PHASE560_FORM144_CURRENT_10B5_REFRESH_2026-11-22.md).
