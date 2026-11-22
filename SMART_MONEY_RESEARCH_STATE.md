@@ -1,3 +1,20 @@
+# Current Smart Money Research Snapshot — 2026-11-22 (Phase 551)
+
+**Audit cutoff:** 2026-11-22 07:22 UTC. Main HEAD before this documentation update: `4d7107c7b56926107f9049017947cdc7619483ce`.
+
+- **Actions / repository:** 8,051 total runs; latest 100 = 98 success / 2 failure / 0 cancelled; zero active or queued. 370 branches, 72 open PRs, 94 workflow files. No workflow was dispatched, rerun, cancelled or duplicated.
+- **SEC Form 144 / 144-A:** latest natural run [44977181082](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44977181082) succeeded at 02:40 UTC. It observed 53 feed entries, found no new accession/event, and backfilled 10 accessions / 78 rows. Current ledger: **265 accessions / 1,906 rows**, 298 remaining; zero parse errors, unresolved accessions or hash mismatches; zero public-availability-certified and zero signal-eligible filing headers. The hourly `47 * * * *` workflow has no later schedule run through the 06:47 UTC nominal slot; this is an observed delivery gap, not proof of disablement.
+- **Phase 550:** PR [#203](https://github.com/jafelix81/NuevaEstrategia/pull/203) remains Draft, clean/mergeable, six commits ahead. Latest PR run [44993471381](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44993471381) passed 64/64 offline tests and exact artifact-path/schema smoke test; live capture skipped as designed. First natural post-merge artifact must verify the new post-capture Phase 516 summary and same-run count reconciliation.
+- **SEC Form 4:** latest scheduled run [44846461134](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44846461134) captured 474 accession observations, 24 structured transaction rows and 15 owner rows; three descriptive crosswalk matches, zero signal-eligible. Current accession-observation ledger: 3,782 rows.
+- **FINRA Reg SHO:** latest natural run [44860690600](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44860690600) received eight HTTP-200 files, rejected all eight for duplicate symbols, zero valid/eligible. Phase 539 metadata-only diagnostics are merged; next natural weekday capture is pending.
+- **CFTC TFF:** latest capture [44860341977](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44860341977) observed four prospective report rows for 2026-11-17. Historical archive has 3,043 rows but is not full-history PIT-eligible; only two prospective vintages exist.
+- **Other gates:** options candidates remain conditional on licensing/PIT/coverage; 13F remains parked; N-PORT share-growth remains killed; MIDAS is liquidity/market-structure only; SEC FTD/13D-G needs authorized `SEC_USER_AGENT`; FINRA Short Interest needs authorized credentials. Phase 20C remains 328/335 with seven unresolved terminal/security-history cases.
+- **Research decision:** signals admitted **0**. No new return test, OOS, bootstrap, LOO, holdout or production change. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+Latest audit: [Phase 551 operational and PIT gate reconciliation](research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-22_PHASE551.md).
+
+---
+
 # Current Smart Money Research Snapshot — 2026-11-21 (Phase 543)
 
 **Audit cutoff:** 2026-11-21 08:54 UTC. Main HEAD before this documentation update: `c30b2d3263a974de737900035f3d0fe9a1da4c71`.
