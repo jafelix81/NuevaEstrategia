@@ -1,3 +1,21 @@
+# Current Smart Money Research Snapshot — 2026-11-22 (Phase 554)
+
+**Audit cutoff:** 2026-11-22 11:50 UTC. Main HEAD before this state update: `01f456832bd50e0892db33db8f8b56dbed5d1474`. Phase 554 report and JSON are recorded in `research/PHASE554_FORM144_CURRENT_10B5_REMARKS_POLARITY_REFRESH_2026-11-22.md` and `research/PHASE554_FORM144_CURRENT_10B5_REMARKS_POLARITY_SUMMARY_2026-11-22.json`.
+
+- **Actions / repository:** 8,052 total runs; latest 100 = 98 success / 2 failure / 0 cancelled; no active, queued, waiting or requested run. Branches: 370. Open PRs: 71. Latest natural run remains Form 144 Phase 403 [45012113618](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45012113618); both jobs succeeded. No workflow was dispatched, rerun, cancelled or duplicated.
+- **Phase 550:** PR [#203](https://github.com/jafelix81/NuevaEstrategia/pull/203) is merged. Its first natural post-merge capture passed the Phase 516 post-capture audit and same-run reconciliation. Artifact [14750197356](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45012113618/artifacts/14750197356) contains the post-capture summary; 275 filing headers / 2,072 rows match the poll ledger.
+- **SEC Form 144 / 144-A:** latest natural capture observed 53 feed entries (51 Form 144, 2 Form 144/A), no new accession/event, complete pagination, prior boundaries present and no possible feed gap. Backfill parsed 10 accessions / 166 detail rows; ledger: **275 accessions / 2,072 rows**, 288 bounded accessions remaining. Zero parse errors, unresolved accessions or source-hash mismatches. Phase 516 reports 0 public-availability-certified and 0 signal-eligible headers.
+- **Phase 554 / Rule 10b5-1:** re-applied the clause-level Phase 549 classifier to the current 275-accession main ledger (2,072 detail rows). Current polarity: **8 positive / 4 negative / 1 ambiguous / 262 no mention**. One positive is the Verano Form 144/A plan-termination notice, not a new forward-sale event; excluding it leaves 7 positive proposed-sale notices across 6 issuers. Four Fermi negative notices are automatic sell-to-cover/tax-withholding cases. The compact Teva `10B51` mention remains ambiguous. Formal plan dates: 101 accessions / 62 distinct dates; median plan-date-to-notice lag 185 days. These are descriptive counts, not alpha. PR [#202](https://github.com/jafelix81/NuevaEstrategia/pull/202) remains Draft and non-mergeable/diverged; its original 245-accession summary is historical and must not be merged or cited as current without reconciliation.
+- **SEC Form 4:** latest known natural scheduled capture [44846461134](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44846461134); no newer Form 4 scheduled run appears in the latest 100 Actions records. Owner/transaction attribution and PIT restrictions remain.
+- **FINRA Reg SHO:** latest known natural capture [44860690600](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44860690600) predates Phase 539. Current state remains empty; all eight HTTP-200 files in that run were rejected for duplicate symbols. Natural post-Phase-539 validation remains pending; no aggregation/deduplication is authorized.
+- **CFTC TFF:** latest known capture [44860341977](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44860341977); prospective sample remains insufficient and historical archive is not full-history PIT eligible.
+- **Other gates:** Phase 20C remains 328/335 with seven unresolved terminal/security-history cases. Options remain conditional on licensing/PIT/coverage; MIDAS is exchange market-structure only; 13F remains parked; the specified N-PORT share-growth hypothesis remains killed; FINRA Short Interest and SEC FTD/13D-G remain credential-gated.
+- **Research decision:** signals admitted **0**. No event study, forward-return test, backtest, OOS, bootstrap, LOO or holdout use. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+Latest audit: [Phase 554 — current Form 144 Rule 10b5-1 polarity refresh](research/PHASE554_FORM144_CURRENT_10B5_REMARKS_POLARITY_REFRESH_2026-11-22.md).
+
+---
+
 # Current Smart Money Research Snapshot — 2026-11-22 (Phase 553)
 
 **Audit cutoff:** 2026-11-22 10:33 UTC. Main HEAD after the natural Form 144 capture commit: `621aa29912f6297c828d984d30cbc5c69985e005`.
