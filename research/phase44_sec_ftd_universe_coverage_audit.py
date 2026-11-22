@@ -70,7 +70,8 @@ def parse_zip(payload: bytes) -> dict:
         raise ValueError(f"unexpected FTD schema: {header!r}")
 
     by_symbol: dict[str, set[str]] = defaultdict(set)
-    cusip_only: set[str] = set()
+    cusip_only_cusips: set[str] = set()
+    cusip_only_rows = 0
     identity_missing_rows = 0
     economic_rows = 0
     duplicate_rows = 0
@@ -106,15 +107,16 @@ def parse_zip(payload: bytes) -> dict:
         if normalized_symbol:
             by_symbol[normalized_symbol].add(normalized_cusip)
         elif normalized_cusip:
-            cusip_only.add(normalized_cusip)
+            cusip_only_rows += 1
+            cusip_only_cusips.add(normalized_cusip)
         else:
             identity_missing_rows += 1
 
     return {
         "member": members[0],
         "symbols": {symbol: sorted(cusips) for symbol, cusips in by_symbol.items()},
-        "cusip_only_rows": len(cusip_only),
-        "cusip_only_cusips": sorted(cusip_only),
+        "cusip_only_rows": cusip_only_rows,
+        "cusip_only_unique_cusips": sorted(cusip_only_cusips),
         "identity_missing_rows": identity_missing_rows,
         "economic_rows": economic_rows,
         "exact_duplicate_rows": duplicate_rows,
