@@ -1,3 +1,20 @@
+# Current Smart Money Research Snapshot — 2026-11-22 (Phase 552)
+
+**Audit cutoff:** 2026-11-22 09:53 UTC. Main HEAD after Phase 550 merge and Phase 552 audit: `e448e4f00bbef58d03cef27e4807b7c59aa63e39`.
+
+- **Actions:** 8,051 total runs; latest 100 = 98 success / 2 failure / 0 cancelled; no active or queued run at the audit cutoff.
+- **Phase 550:** PR [#203](https://github.com/jafelix81/NuevaEstrategia/pull/203) was reviewed and squash-merged as [505e9234](https://github.com/jafelix81/NuevaEstrategia/commit/505e9234d5d99c1e1fcc0cf78a8a9bbc3169ff9f). Its 64/64 offline tests and exact artifact-path/schema smoke test passed. It adds a post-capture Phase 516 summary and same-run ledger-count reconciliation to the existing Form 144 artifact. **Integrated, not yet live-validated**; the first natural scheduled capture after merge must verify the artifact and matching counts. No manual poll or rerun.
+- **SEC Form 144 / 144-A:** latest natural run [44977181082](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44977181082) remains 265 accessions / 1,906 detail rows, 298 bounded backfill accessions remaining; zero parse errors, unresolved accessions or hash mismatches; zero public-availability-certified and zero signal-eligible headers.
+- **SEC Form 4:** latest scheduled run [44846461134](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44846461134): 474 accession observations, 24 transaction rows, 15 owner rows; zero signal-eligible matches.
+- **FINRA Reg SHO:** latest natural run [44860690600](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44860690600) returned eight HTTP-200 files but rejected all eight for duplicate symbols. Phase 539 diagnostics are integrated; natural post-Phase-539 validation is pending.
+- **CFTC TFF:** latest capture [44860341977](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44860341977) has four prospective observations for report date 2026-11-17; historical archive is not full-history PIT eligible.
+- **Other gates:** Phase 20C remains 328/335 with seven inactive/acquired/renamed securities lacking fully reconciled terminal price/corporate-action histories. 13F remains parked; the specified N-PORT share-growth hypothesis remains killed. Options remain conditional on licensing/PIT/coverage; MIDAS is exchange market-structure only; FINRA Short Interest and SEC FTD/13D-G remain credential-gated.
+- **Research decision:** signals admitted **0**. No new return test, OOS, bootstrap, LOO or holdout use. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+Latest audit: [Phase 552 merge and natural-validation gate](research/PHASE552_PHASE550_MERGE_AND_NATURAL_VALIDATION_GATE_2026-11-22.md).
+
+---
+
 # Current Smart Money Research Snapshot — 2026-11-22 (Phase 551)
 
 **Audit cutoff:** 2026-11-22 07:22 UTC. Main HEAD before this documentation update: `4d7107c7b56926107f9049017947cdc7619483ce`.
