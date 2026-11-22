@@ -58,7 +58,8 @@ class Phase44CredentialAndParserTests(unittest.TestCase):
         parsed = audit.parse_zip(payload)
         self.assertEqual(parsed["economic_rows"], 3)
         self.assertEqual(parsed["symbols"]["AAA"], ["123456789", "987654321"])
-        self.assertEqual(parsed["cusip_only_rows"], 1)
+        self.assertEqual(parsed["cusip_only_rows"], 2)
+        self.assertEqual(parsed["cusip_only_unique_cusips"], ["222222222"])
         self.assertEqual(parsed["identity_missing_rows"], 0)
         self.assertEqual(parsed["exact_duplicate_rows"], 0)
 
