@@ -1,0 +1,64 @@
+name: Phase 44 - SEC FTD frozen-universe coverage audit
+
+on:
+  push:
+    branches: [phase559-sec-ftd-credential-integration]
+    paths:
+      - 'research/phase44_sec_ftd_universe_coverage_audit.py'
+      - 'research/test_phase44_sec_ftd_universe_coverage_audit.py'
+      - 'research/phase44_frozen_universe_335_tickers.csv'
+      - '.github/workflows/phase44_sec_ftd_universe_coverage_audit.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'research/phase44_sec_ftd_universe_coverage_audit.py'
+      - 'research/test_phase44_sec_ftd_universe_coverage_audit.py'
+      - 'research/phase44_frozen_universe_335_tickers.csv'
+      - '.github/workflows/phase44_sec_ftd_universe_coverage_audit.yml'
+      - '.github/workflows/phase43_sec_ftd_actual_file_audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compile and run offline Phase 44 tests
+        run: |
+          python -m py_compile research/phase44_sec_ftd_universe_coverage_audit.py research/test_phase44_sec_ftd_universe_coverage_audit.py
+          python -m unittest -v research.test_phase44_sec_ftd_universe_coverage_audit
+
+  live-coverage:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    env:
+      SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Require monitored SEC User-Agent
+        run: |
+          set -euo pipefail
+          if [ -z "${SEC_USER_AGENT:-}" ]; then
+            echo "::error::Configure the SEC_USER_AGENT Actions secret with a project identifier and monitored contact email."
+            exit 1
+          fi
+          if [[ "${SEC_USER_AGENT}" != *"@"* ]]; then
+            echo "::error::SEC_USER_AGENT must include a monitored contact email."
+            exit 1
+          fi
+      - name: Run bounded SEC FTD universe coverage audit
+        run: python research/phase44_sec_ftd_universe_coverage_audit.py
+      - name: Upload aggregate audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase44-sec-ftd-universe-coverage-audit
+          path: ftd_universe_coverage_audit.json
