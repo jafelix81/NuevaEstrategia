@@ -1,3 +1,20 @@
+# Current Smart Money Research Snapshot — 2026-11-22 (Phase 558)
+
+**Audit cutoff:** 2026-11-22 16:42 UTC. Main HEAD at audit start: `ee944e215ffc71a98b1762ac7ebcd3d27532e287`. Report: [Phase 558 — SEC FTD credential and integration re-entry audit](research/PHASE558_SEC_FTD_CREDENTIAL_AND_INTEGRATION_REENTRY_AUDIT_2026-11-22.md).
+
+- **Actions / repository:** 8,052 total runs; latest 100 = 98 success / 2 failure; zero active or queued. Branches: 370; open PRs: 71. Latest natural Form 144 run remains [45012113618](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45012113618), with both jobs successful and no newer scheduled Form 144 event in the latest 100 at 16:42 UTC. No dispatch/rerun/cancel/cron change.
+- **Phase 550:** natural capture and post-capture Phase 516 audit passed. Same-run reconciliation = 275 filing headers / 2,072 rows. Ten accessions / 166 detail rows backfilled; 288 remain. 53 feed observations; no new accession/event; complete pagination; zero parse errors, unresolved accessions or hash mismatches; zero public-availability-certified and zero signal-eligible headers. Artifact [14750197356](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45012113618/artifacts/14750197356) is unexpired.
+- **SEC FTD / Phases 43–44:** representative files cover 253/335 (75.522%) in 2018H1 and 316/335 (94.328%) in 2026H2; 237/335 in both and 332/335 in either. This is against a fixed 335-name snapshot, not a date-appropriate active universe. FTD is an aggregate outstanding fails balance, not daily short-sale flow or evidence of naked shorting. Keep only as a conditional non-directional settlement-friction state candidate; next gate is effective-dated active-universe/CUSIP mapping, no returns yet.
+- **SEC credential integration:** canonical main Phase 43 workflow still uses a generic User-Agent. Draft PR #198 proposes `SEC_USER_AGENT` secret use, but Phase 44 PR #5 still hardcodes `research@example.com` and does not pass the secret. PR #4 adds a misspelled duplicate `fase43` workflow. Integration comments were added to PRs #4/#5/#198. Human prerequisite: configure `SEC_USER_AGENT` with project identifier and monitored contact, then use only the bounded two-file sample. Do not expose the secret in code/chat.
+- **SEC 13D/G:** high-priority hypothesis, but 20,266-row legacy panel remains quarantined pending subject/filer identity and PIT reconstruction; shares the SEC User-Agent prerequisite.
+- **FINRA ATS:** Phase 535 archive access returned HTTP 530. Recent Query API sample has publication dates but 1,882 revised rows after initial publication; strict vintage/PIT gate not passed.
+- **Options:** OPRA remains an independent broad-market candidate, Open-Close a venue-capacity complement, IvyDB TradeFlow the conditional all-venue signed-flow candidate; license, exact coverage and receipt/correction vintages unresolved.
+- **FINRA Reg SHO:** latest natural run [44860690600](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44860690600) predates Phase 539; eight files invalid for duplicate symbols, zero valid/eligible. Wait for natural weekday validation; no aggregation/deduplication.
+- **Phase 20C:** Phase 487 rejected Phase 20B/20C for promotion; seven price histories remain unresolved.
+- **Research decision:** signals admitted **0**. No new return/OOS/bootstrap/LOO test. No universe/cost/exposure/holding-period/holdout/production change. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+---
+
 # Current Smart Money Research Snapshot — 2026-11-22 (Phase 556)
 
 **Audit cutoff:** 2026-11-22 14:16 UTC. Main HEAD before this documentation update: `8ddaeabb18ef44cef0b3d590e7bcceb956e3115a`. New report: [Phase 556 — SEC 13D/G regime and PIT availability audit](research/PHASE556_SEC_13DG_REGIME_AND_PIT_AVAILABILITY_AUDIT_2026-11-22.md).
