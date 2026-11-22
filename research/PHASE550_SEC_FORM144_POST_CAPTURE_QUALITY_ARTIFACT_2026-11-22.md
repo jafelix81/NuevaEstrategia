@@ -35,7 +35,7 @@ No second collector, new schedule, new network request, manual dispatch, retry, 
 
 
 
-## 5. Persistence and failure-semantics hardening (2026-11-22 04:xx UTC)
+## 5. Persistence and failure-semantics hardening (2026-11-22 05:00 UTC)
 
 A review of the first PR validation [44983972414](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44983972414) found that the new post-capture audit was initially a hard-failing step placed before the append-only ledger commit. If Phase 516 failed after a successful SEC poll, GitHub Actions would skip the later commit step and the newly captured ledger/state could be lost with the ephemeral runner. The PR run passed 64 offline tests, but correctly skipped the live job; it did not exercise this ordering on a live capture.
 
