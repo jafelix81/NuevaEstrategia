@@ -1,3 +1,18 @@
+# Current Smart Money Research Snapshot — 2026-11-22 (Phase 556)
+
+**Audit cutoff:** 2026-11-22 14:16 UTC. Main HEAD before this documentation update: `8ddaeabb18ef44cef0b3d590e7bcceb956e3115a`. New report: [Phase 556 — SEC 13D/G regime and PIT availability audit](research/PHASE556_SEC_13DG_REGIME_AND_PIT_AVAILABILITY_AUDIT_2026-11-22.md).
+
+- **Repository / Actions:** latest repository commit observed before this update is Phase 555 state commit `8ddaeabb`. The connector in this run does not expose a full recent workflow-run inventory; last available aggregate snapshot is 8,052 total / latest 100 = 98 success, 2 failure, 0 cancelled / no active or queued as of 11:50 UTC. Independently verified jobs/logs/artifacts for known runs 45012113618, 44860690600, 44846461134, and 44860341977; all known jobs are completed. Cannot certify absence of a newer no-commit scheduled run. No dispatch/rerun/cancel/cron change.
+- **Form 144 / Phase 550:** latest independently verified run 45012113618; both jobs success, artifact 14750197356 unexpired, post-capture reconciliation passed at 275 headers / 2,072 rows. Hash matches 2,072, mismatches 0, public-availability-certified 0, signal-eligible 0. Acceptance-to-first-seen upper-bound sample n=213: median 3.818h, p25 3.205h, p75 4.996h, max 7.201h; this measures collector observation delay, not SEC dissemination latency.
+- **FINRA Reg SHO:** latest known run 44860690600 predates Phase 539; jobs completed but 8 files invalid, 0 valid, 0 signal-eligible. Natural post-Phase-539 validation still required; no aggregation/deduplication.
+- **Form 4 / CFTC:** known runs 44846461134 / 44860341977 completed successfully but are older; no new signal eligibility.
+- **SEC 13D/G:** Phase 555 priority remains. Phase 556 adds official EDGAR index/submissions discovery and timestamp/correction findings, plus explicit legal/schema regime splits: 2024-02-05 (13D deadlines/cut-off), 2024-09-30 (13G compliance), 2024-12-18 (structured XML required). SEC confirms no timestamp for exact first public availability; acceptance datetime is not the market-knowledge timestamp. The 20,266-row legacy panel remains quarantined; Phase 485 subject/filer parser is a building block only.
+- **Human gate:** repository secret `SEC_USER_AGENT` with project identifier and monitored contact remains required before SEC parent-document retrieval. Connected interface cannot inspect or set it. Do not start full rebuild; bounded sample first after secret is configured.
+- **Other gates:** Phase 20C remains 328/335 with seven terminal/security-history cases unresolved; options remain conditional on license/PIT/coverage; CFTC historical series remain non-PIT; MIDAS is exchange market structure only; 13F remains parked; N-PORT share-growth remains killed.
+- **Research decision:** signals admitted **0**. No event study, forward-return test, backtest, OOS, bootstrap, LOO, or holdout use. No universe/cost/exposure/holding-period/production change. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+---
+
 # Current Smart Money Research Snapshot — 2026-11-22 (Phase 554)
 
 **Audit cutoff:** 2026-11-22 11:50 UTC. Main HEAD before this state update: `01f456832bd50e0892db33db8f8b56dbed5d1474`. Phase 554 report and JSON are recorded in `research/PHASE554_FORM144_CURRENT_10B5_REMARKS_POLARITY_REFRESH_2026-11-22.md` and `research/PHASE554_FORM144_CURRENT_10B5_REMARKS_POLARITY_SUMMARY_2026-11-22.json`.
