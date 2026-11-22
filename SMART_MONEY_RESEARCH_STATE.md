@@ -1816,3 +1816,15 @@ This section supersedes any older “in progress” status above where later com
 - Repository: 372 branches; 72 open PRs. PR #204 remains Draft/open and diverged (11 ahead / 6 behind main); no merge.
 - MIDAS remains conditional market-structure/liquidity context, not investor identity or dark-pool flow. No file payload validated, no signal/backtest/OOS/bootstrap/LOO test, and no strategy/production change. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
 - Report: [Phase 563](research/PHASE563_SEC_MIDAS_2012Q1_ARCHIVE_LINK_INTEGRITY_AND_OPERATIONAL_RECHECK_2026-11-22.md).
+
+
+## Phase 564 — SEC FTD release cadence, balance semantics and PIT gate (2026-11-22)
+
+- Official SEC Fails-to-Deliver Data documentation now explicitly confirms the post-July-2009 release pattern: first-half files at month-end; second-half files about the 15th of the following month. The SEC also explicitly does **not** guarantee posting by a particular date or data accuracy. Pre-July-2009 files are monthly settlement-date files archived quarterly.
+- FTD is an aggregate NSCC CNS **outstanding net balance** across all members, not new daily fails, short-sale volume, short interest, or participant identity. It includes carryover + new fails − settled fails; the age/source of individual fails cannot be inferred. Fails may arise from long or short sales. Pre-2008-09-16 reporting omits balances below 10,000 shares; post-boundary zero balances have no row.
+- PIT policy: settlement date is not the knowledge date. The documented cadence is approximate, not strict PIT. Use prospective append-only first-seen timestamps; historical lag variants remain sensitivity-only. Post-2008 absent rows may be zero only within a complete validated file and a valid effective-dated CUSIP mapping; otherwise unknown. Pre-2008 absence is threshold-censored.
+- Existing fixed-335 FTD coverage diagnostics (253/335 in 2018H1; 316/335 in 2026H2) remain non-historical-universe diagnostics, not date-appropriate coverage.
+- Latest known run audit: [45056358765](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45056358765) was a successful offline-only PR check (16 tests, no artifact); latest known natural Form 144 capture remains [45052961790](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45052961790), both jobs successful, artifact [14765739720](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45052961790/artifacts/14765739720). This connector does not expose a repository-wide Actions run-list endpoint, so no newer full run census or active-run claim is made.
+- Branch inventory reconciled 372 branches; open PR search returned 72. PR #204 remains Draft/open; current compare is 11 ahead / 8 behind main and diverged. It is not ready to merge. `SEC_USER_AGENT` remains a human prerequisite for the bounded Phase 43/44 SEC sample; no live SEC request was made.
+- Report: [Phase 564](research/PHASE564_SEC_FTD_RELEASE_CADENCE_AND_BALANCE_SEMANTICS_PIT_AUDIT_2026-11-22.md).
+- No signal, return/event/backtest/OOS/bootstrap/LOO/holdout test or production change. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
