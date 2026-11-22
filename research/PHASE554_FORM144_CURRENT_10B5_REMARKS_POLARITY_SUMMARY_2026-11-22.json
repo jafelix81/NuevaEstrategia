@@ -1,0 +1,81 @@
+{
+  "phase": 554,
+  "audit_cutoff_utc": "2026-11-22T11:50:00Z",
+  "main_base_sha_before_documentation": "01f456832bd50e0892db33db8f8b56dbed5d1474",
+  "source": {
+    "path": "research/data/sec_form144_first_seen/sale_details.csv",
+    "blob_sha": "486033425d43d9dbdcaba78c0260d2ebbb8c22e9",
+    "size_bytes": 1705244,
+    "detail_rows": 2072,
+    "accessions": 275,
+    "forms_by_accession": {
+      "144": 273,
+      "144/A": 2
+    }
+  },
+  "classifier": {
+    "source_pr": 202,
+    "branch": "phase549-form144-10b5-plan-date-polarity-audit",
+    "source_blob_sha": "771bdf268b4915ccbcf0c4b735f1408ba416f815",
+    "tests_blob_sha": "0f67567a13d0699f75354253e1551db1c9e693df",
+    "reproduced_polarity_edge_checks": 7,
+    "reproduced_polarity_edge_checks_passed": 7
+  },
+  "remarks_polarity_accessions": {
+    "positive_explicit": 8,
+    "negative_explicit": 4,
+    "ambiguous_mention": 1,
+    "no_mention": 262,
+    "total": 275,
+    "raw_remarks_keyword_mentions": 13
+  },
+  "positive_context": {
+    "positive_accessions_including_termination": 8,
+    "plan_termination_accessions_in_positive_class": 1,
+    "positive_proposed_sale_notices_excluding_termination": 7,
+    "distinct_issuers_excluding_termination": 6,
+    "repeated_constellation_seller_plan_notices": 2
+  },
+  "formal_plan_dates": {
+    "accessions": 101,
+    "pct_of_bounded_accessions": 36.73,
+    "distinct_dates": 62,
+    "lag_days": {
+      "n": 101,
+      "min": 72,
+      "p25": 97,
+      "median": 185,
+      "p75": 268,
+      "max": 546
+    },
+    "dates_after_notice": 0,
+    "formal_date_only_accessions": 92,
+    "formal_date_and_remarks_accessions": 9,
+    "remarks_only_accessions": 4
+  },
+  "negative_controls": {
+    "fermi_explicit_negative_sell_to_cover_tax_accessions": 4,
+    "sell_to_cover_and_tax_withholding_accessions": 11,
+    "plan_termination_accessions": 1,
+    "ambiguous_compact_10b51_accessions": 1
+  },
+  "pit": {
+    "filing_headers_with_bounded_first_seen_intervals": 275,
+    "public_availability_certified_headers": 0,
+    "signal_eligible_headers": 0,
+    "first_seen_is_exact_public_release": false
+  },
+  "controls": {
+    "proposed_sale_notice_is_execution_confirmation": false,
+    "formal_plan_date_is_signal_availability_time": false,
+    "signal_admitted": false,
+    "forward_return_test_run": false,
+    "event_study_run": false,
+    "oos_run": false,
+    "bootstrap_run": false,
+    "loo_run": false,
+    "f80_frozen": true,
+    "production_changed": false
+  },
+  "disposition": "DESCRIPTIVE_REFRESH_ONLY_NO_ALPHA_EVIDENCE"
+}
