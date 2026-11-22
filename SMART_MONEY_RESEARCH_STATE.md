@@ -1,3 +1,20 @@
+# Current Smart Money Research Snapshot — 2026-11-21 (Phase 546)
+
+**Audit cutoff:** 2026-11-21 12:26 UTC. Main HEAD before this update: `cb9aab722f905e2df54e349091e42ae7d9bf243a`.
+
+- **SEC Form 4:** the live structured ledger contains 70 transaction rows across 40 accessions and 32 issuer symbols. Exact comparison with the immutable 335-symbol snapshot found one symbol overlap: SE / Sea Ltd, one accession with seven sale lines. The filing has one reporting owner and an affirmative `AFF10B5ONE=yes` Rule 10b5-1 indicator; the owner sidecar is still pending (rank 10/20 in the bounded queue). Treat it as one planned-trading negative control, not discretionary insider flow. All 70 rows remain research-/signal-ineligible; the 335 list is a static snapshot, not historical F80 membership.
+- **Form 4 timing:** SE first-seen interval is 2026-11-20 10:07:15–18:38:51 UTC. The 11:00:12 acceptance clock is parsed but not certified as exact public availability. Any later research-only event study must use the receipt upper bound and a next-full-session rule (2026-11-23), not transaction dates or same-day execution.
+- **SEC Form 144:** natural run [44886726541](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44886726541) succeeded; artifact [14700173280](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44886726541/artifacts/14700173280). It added three metadata observations marked research-observation eligible at the all-feed scope, but zero candidate-issuer matches and zero signal-eligible events. Backfill: 235 accessions / 1,712 detail rows, 328 remaining. The 09:47, 10:47 and 11:47 UTC hourly slots were absent at the audit cutoff; issue #194 remains open.
+- **FINRA Reg SHO:** latest scheduled run [44860690600](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44860690600) predates Phase 539 merge; eight HTTP-200 files were all rejected as duplicate-symbol consolidated files. Await the first natural post-merge diagnostic capture.
+- **CFTC TFF:** latest prospective run [44860341977](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44860341977) captured four contract-report events. The 3,043-row historical archive remains excluded from full-history PIT features.
+- **Options and other sources:** Cboe Open-Close EOD remains a conditional participant-capacity/lifecycle complement; OPRA-wide Cboe Option Trades is the independent aggressor-reconstruction candidate. IvyDB TradeFlow and Obscura flow_metrics remain conditional on archive lineage, methodology, PIT and universe coverage. No vendor data were purchased. MIDAS per-quarter publication clocks remain unverified; 13F is parked and the current N-PORT share-growth hypothesis remains killed.
+- **Phase 20C:** latest census remains 328/335 valid histories; seven inactive/acquired/renamed cases still need terminal-return/corporate-action reconstruction.
+- **Research decision:** the only current Form 4 overlap is a Rule 10b5-1 negative control. Signals admitted **0**; no event study, backtest, OOS, bootstrap, LOO, holdout use or production change. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+Latest report: [Phase 546 — Form 4 live-ledger overlap and 10b5-1 negative control](research/PHASE546_FORM4_LIVE_LEDGER_F80_OVERLAP_AND_10B5_1_NEGATIVE_CONTROL_2026-11-21.md).
+
+---
+
 # Current Smart Money Research Snapshot — 2026-11-21 (Phase 543)
 
 **Audit cutoff:** 2026-11-21 08:54 UTC. Main HEAD before this documentation update: `c30b2d3263a974de737900035f3d0fe9a1da4c71`.
