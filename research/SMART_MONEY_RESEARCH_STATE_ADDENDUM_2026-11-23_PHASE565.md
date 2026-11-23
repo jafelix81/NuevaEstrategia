@@ -1,12 +1,15 @@
 # Smart Money Research state addendum — Phase 565 (2026-11-23)
 
-- Latest natural Form 144 scheduled run: [45085664016](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45085664016), created 23:53:30 UTC (6m30s after the 23:47 cron minute); both jobs succeeded. This is one observed recovery, not proof of uninterrupted hourly delivery.
-- Form 144/144-A feeds: 53 observations appended; no new accession/event; both feeds complete with no errors or possible gap.
-- Structured-detail backfill parsed 10 existing accessions and appended 82 rows; ledger now 295 accessions / 2,196 rows; 268 remain. Zero parse errors, unresolved accessions or source-hash mismatches.
-- 295 filings are research-observation-eligible, but zero are public-availability-certified and zero signal-eligible. No return/alpha/OOS test.
-- The Phase 560 10b5-1 artifact is generated before live capture and is stale relative to the post-capture ledger. Draft PR adds a post-capture Phase 549 summary, exact count reconciliation to Phase 516 and a separate artifact; no new collector.
-- Actions inventory: 8,070 total; latest 100 = 96 success / 4 failure / 0 active; 372 branches; 72 open PRs.
-- PR #204 remains Draft/diverged (11 ahead / 11 behind); SEC_USER_AGENT remains required for bounded FTD validation.
-- Phase 20C remains at 328/335 valid histories; no weekend FINRA capture expected.
-- No new signal or incremental OOS evidence. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+- **Integration:** PR [#206](https://github.com/jafelix81/NuevaEstrategia/pull/206) merged as [4eea1a95](https://github.com/jafelix81/NuevaEstrategia/commit/4eea1a95735a559083ae0ea12e80e83dcfa6e653). The existing Phase 403 workflow now emits a post-capture Phase 549 artifact only after successful Phase 516 reconciliation and exact accession/detail-row count checks. It asserts `signal_admitted=false`.
+- **Failure-path protection:** if the SEC capture succeeds but either descriptive audit fails, the append-only capture ledger is still committed first; the workflow then fails closed. Two new regression tests protect persistence and the final dual-audit gate.
+- **CI:** [45096929863](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45096929863) passed 80/80 offline tests; live-capture was skipped for PR CI. The new post-capture artifact awaits the first natural post-merge schedule run.
+- **Latest natural Form 144:** [45085664016](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45085664016), created 23:53:30 UTC (6m30s after the 23:47 cron minute); both jobs succeeded. At the 01:53 UTC recheck, 00:47 UTC remained absent >66m; 01:47 UTC was only about six minutes old and remains pending. Cron stays `47 * * * *`; Issue #194 records the gap. No manual dispatch/rerun/cancel/cron change.
+- **Feed semantics correction:** 53 current feed entries were observed (51 Form 144 + 2 Form 144/A), but **zero new feed entries, accessions or events** were appended. The poll completed with prior watermarks and no possible feed-window gap.
+- **Structured-detail backfill:** 10 existing accessions parsed; 82 detail rows appended. Ledger: **295 accessions / 2,196 rows**; 268 remain. Parse errors 0, unresolved backfill accessions 0, source-hash mismatches 0.
+- **Eligibility:** 295 research-observation-eligible headers, 0 public-availability-certified and 0 signal-eligible.
+- **Current descriptive 10b5-1 refresh:** 9 positive explicit / 4 negative explicit / 1 ambiguous / 281 no mention; 108 formal plan-date accessions across 65 distinct dates, 72–546 day lag, median 185; no plan date after notice. The four negative cases are Fermi sell-to-cover/tax-withholding notices. This is descriptive, not a trade/alpha label.
+- **Repository / Actions:** 8,072 total runs; latest 100 = 96 success / 4 failure / 0 active or queued; 373 branches; 72 open PRs.
+- **SEC FTD:** PR #204 remains Draft/diverged, 11 ahead / 12 behind. `SEC_USER_AGENT` remains a human prerequisite for bounded two-file validation; no live FTD request or backfill.
+- **FINRA / Phase 20C:** no new Sunday FINRA capture expected; latest known natural Reg SHO run [44860690600](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44860690600) predates Phase 539. Phase 20C remains 328/335 with seven unresolved histories.
+- **Research decision:** 0 new signals, no new return/OOS/bootstrap/LOO evidence and no strategy changes. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
 - Full report: [Phase 565](PHASE565_FORM144_SCHEDULE_RECOVERY_AND_POSTCAPTURE_10B5_ARTIFACT_GATE_2026-11-23.md).
