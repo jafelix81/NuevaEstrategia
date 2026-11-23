@@ -609,6 +609,7 @@ def run_capture(mode: str, run_id: str, output_dir: Path) -> dict:
         "poll_ended_utc": poll_ended,
         "feed_count": len(FEEDS),
         "feeds": feed_summaries,
+        "all_feeds_successful": all(result["poll_success"] for result in feed_updates.values()),
         "new_event_rows": len(event_rows),
         "new_accession_count": len(event_rows),
         "candidate_accession_occurrence_count": sum(
