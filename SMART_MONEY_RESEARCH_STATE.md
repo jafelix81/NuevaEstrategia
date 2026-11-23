@@ -1,4 +1,18 @@
-# Current Smart Money Research Snapshot — 2026-11-23 (Phase 567)
+# Current Smart Money Research Snapshot — 2026-11-23 (Phase 569)
+
+**Audit cutoff:** 2026-11-23 05:39 UTC. **Main HEAD before this checkpoint:** `c3b78cb20773cfe130053c8426487ad61220decb`. Full report: [Phase 569 — open research-PR adjudication and post-Phase-565 operations recheck](research/PHASE569_OPEN_RESEARCH_PR_ADJUDICATION_AND_POST_PHASE565_OPERATIONS_RECHECK_2026-11-23.md).
+
+- **Actions preflight:** 8,072 total runs; latest 100 = 96 success / 4 failure; zero queued/in-progress. 373 branches, 72 open PRs. No workflow was dispatched or duplicated.
+- **Phase 565:** PR CI [45096929863](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45096929863) passed 80/80 offline tests; live capture skipped. Latest natural Form 144 [45085664016](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45085664016) predates the merge: 295 accessions / 2,196 detail rows, 268 backfill pending, 0 new accessions/events, 0 parse/hash errors and 0 signal-eligible filings. The new post-capture Phase 549 artifact remains unvalidated. Form 144 cron :47 has no visible run for 00:47–04:47 UTC at cutoff; 05:47 was not yet due.
+- **Form 4:** latest natural run [44846461134](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44846461134) remains the latest visible capture; artifact [14683520646](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44846461134/artifacts/14683520646). Its live log shows 3 descriptive crosswalk rows, 2 matched accessions, 0 signal-eligible matches, 20 owner-sidecar accessions remaining and 8 accessions without single-owner identity.
+- **FINRA/CFTC:** Reg SHO [44860690600](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44860690600) predates Phase 539 and rejected 8/8 files; natural post-merge validation remains pending. CFTC TFF [44860341977](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44860341977) has 3,043 archive rows but only two prospective report vintages; historical rows remain feature-ineligible.
+- **New cross-PR adjudication:** Phase 548 kills the interpretation of SEC MIDAS hidden volume as dark/off-exchange institutional accumulation; MIDAS remains exchange-market-structure/liquidity context only. Phase 547 Cboe options remain blocked for strategy research absent a separate written, executed license authorization. Phase 546's SE Form 4 overlap is one Rule 10b5-1 planned-trading negative control, not seven discretionary insider-sale events. PRs #200/#201/#199 remain Draft and materially behind main; no stale branch was merged.
+- **Phase 20C:** 328/335 histories; seven inactive/acquired/renamed names still lack reconciled terminal/successor total returns.
+- **Decision:** no new signal, incremental alpha or OOS evidence; no exposure/cost/universe/holdout/production change. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+---
+
+## Prior snapshot — 2026-11-23 (Phase 567; superseded by Phase 569)
 
 **Audit cutoff:** 2026-11-23 03:23 UTC. Main HEAD before this documentation update: `c280930ffd7060e57b7acce8627b6c06940076e2`. Report: [Phase 567 — FINRA Weekly Summary row-level PIT clock and schema reconciliation](research/PHASE567_FINRA_WEEKLY_SUMMARY_ROW_LEVEL_PIT_CLOCK_RECONCILIATION_2026-11-23.md).
 
