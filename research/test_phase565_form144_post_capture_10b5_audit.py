@@ -35,5 +35,22 @@ class Phase565PostCapture10b5WorkflowTests(unittest.TestCase):
         self.assertIn("research/phase549_form144_10b5_plan_polarity_audit.py", live_compile)
 
 
+    def test_ledger_commit_survives_post_capture_classifier_failure(self):
+        commit = self.text.split(
+            "- name: Commit append-only first-seen ledger and poll state", 1
+        )[1].split("- name: Upload poll audit", 1)[0]
+        self.assertIn(
+            "if: always() && (github.event_name == 'push' || github.event_name == 'schedule') "
+            "&& steps.sec_capture.outcome == 'success'",
+            commit,
+        )
+
+    def test_final_gate_checks_both_post_capture_audits_after_persistence(self):
+        gate = self.text.split(
+            "- name: Fail after persistence if post-capture quality or 10b5 audit failed", 1
+        )[1]
+        self.assertIn("steps.post_capture_quality.outcome == 'failure'", gate)
+        self.assertIn("steps.post_capture_10b5.outcome == 'failure'", gate)
+
 if __name__ == "__main__":
     unittest.main()
