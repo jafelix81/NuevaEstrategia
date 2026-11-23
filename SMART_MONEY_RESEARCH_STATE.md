@@ -1,4 +1,17 @@
-# Current Smart Money Research Snapshot — 2026-11-23 (Phase 579)
+# Current Smart Money Research Snapshot — 2026-11-23 (Phase 580)
+
+**Audit cutoff:** 2026-11-23 18:15 UTC. **Main HEAD after merge:** `db463ddba9176f9482d3f424e39a66b5eaafdfcd`. Full report: [Phase 580 — FINRA ATS tier-specific clock and entry-date identity guard](research/PHASE580_FINRA_ATS_TIER_AND_IDENTITY_ENTRY_GUARD_2026-11-23.md). PR [#209](https://github.com/jafelix81/NuevaEstrategia/pull/209) merged by squash.
+
+- **Repository / validation:** 376 branches; 72 open PRs after merge. Phase 580 PR workflow [45236294572](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45236294572) and Phase 579 regression workflow [45236295142](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45236295142) both completed successfully. Each ran **25/25 synthetic tests**. No artifacts expected; both workflows are offline-only.
+- **Phase 580 correction:** the 21/22-calendar-day publication clock is now explicitly restricted to a common, present `tierIdentifier=T1`. Missing, mixed, T2 and OTCE groups fail closed. This reflects FINRA API specification v0.4: T1 uses a two-week reporting delay; T2/OTC use four weeks. The prior gate was based on the Tier 1 census but did not enforce the tier field.
+- **Identity correction:** effective-dated security-master records must cover both the report-week start and the first executable session, in addition to being known no later than that session's open, having certified record-time semantics, and uniquely identifying listing/security/issuer. A mapping expiring before entry no longer qualifies.
+- **Data boundary:** no real FINRA rows, live API request, raw data, vendor identity sample or licensed data were used. No T2/OTCE clock was reconstructed. Historical identity, historical universe membership and complete active/inactive total-return/delisting coverage remain unresolved.
+- **FINRA Consolidated Short Interest:** settlement 2026-11-13 remains scheduled for publication 2026-11-24; conservative availability gate 21:40 UTC / 14:40 Hermosillo. Existing Phase 447 single-date workflow must explicitly receive `settlement_date=2026-11-13`; authorized credentials and permitted-use rights remain prerequisites. No live request or dispatch.
+- **Research decision:** no new signal admitted; no incremental alpha, return, event, walk-forward/OOS, bootstrap or LOO test. No model, universe, exposure, cost, holdout, holding-period or production change. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+---
+
+
 
 **Audit cutoff:** 2026-11-23 17:46 UTC. **Main HEAD after merge:** `b0bda48f94611014ef151bef65c7b63ee8006ee2`. Full report: [Phase 579 — FINRA ATS stable-row PIT gate implementation](research/PHASE579_FINRA_ATS_STABLE_ROW_PIT_GATE_2026-11-23.md). PR [#208](https://github.com/jafelix81/NuevaEstrategia/pull/208) merged by squash.
 
