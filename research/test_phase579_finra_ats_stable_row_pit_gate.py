@@ -67,15 +67,15 @@ class Phase579StableRowGateTests(unittest.TestCase):
 
     def test_revised_row_is_quarantined(self):
         data = rows()
-        data[1]["lastReportedDate"] = "2026-01-27"
-        data[1]["lastUpdateDate"] = "2026-01-27"
+        data[1]["lastReportedDate"] = "2026-01-28"
+        data[1]["lastUpdateDate"] = "2026-01-28"
         result = classify_symbol_week(data, sessions())
         self.assertFalse(result["stable_row_pit_eligible"])
         self.assertIn("row_1:revised_row_quarantined", result["rejection_reasons"])
 
     def test_update_date_must_equal_max_of_publication_and_last_report(self):
         data = rows()
-        data[0]["lastUpdateDate"] = "2026-01-27"
+        data[0]["lastUpdateDate"] = "2026-01-28"
         result = classify_symbol_week(data, sessions())
         self.assertFalse(result["stable_row_pit_eligible"])
         self.assertIn("row_0:last_update_semantics_mismatch", result["rejection_reasons"])
@@ -83,18 +83,18 @@ class Phase579StableRowGateTests(unittest.TestCase):
     def test_invalid_publication_lag_is_quarantined(self):
         data = rows()
         for row in data:
-            row["initialPublishedDate"] = "2026-01-27"
-            row["lastReportedDate"] = "2026-01-27"
-            row["lastUpdateDate"] = "2026-01-27"
+            row["initialPublishedDate"] = "2026-01-28"
+            row["lastReportedDate"] = "2026-01-28"
+            row["lastUpdateDate"] = "2026-01-28"
         result = classify_symbol_week(data, sessions())
         self.assertFalse(result["stable_row_pit_eligible"])
         self.assertIn("publication_lag_outside_21_22", " ".join(result["rejection_reasons"]))
 
     def test_publication_date_must_be_common_across_group(self):
         data = rows()
-        data[1]["initialPublishedDate"] = "2026-01-27"
-        data[1]["lastReportedDate"] = "2026-01-27"
-        data[1]["lastUpdateDate"] = "2026-01-27"
+        data[1]["initialPublishedDate"] = "2026-01-28"
+        data[1]["lastReportedDate"] = "2026-01-28"
+        data[1]["lastUpdateDate"] = "2026-01-28"
         result = classify_symbol_week(data, sessions())
         self.assertFalse(result["stable_row_pit_eligible"])
         self.assertIn("publication_date_mismatch", result["rejection_reasons"])
