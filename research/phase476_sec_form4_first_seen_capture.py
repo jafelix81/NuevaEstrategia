@@ -27,7 +27,7 @@ OBSERVATIONS_PATH = DATA_DIR / "feed_observations.csv"
 ACCESSION_OBSERVATIONS_PATH = DATA_DIR / "accession_observations.csv"
 
 PAGE_SIZE = 100
-MAX_FEED_PAGES = 20
+MAX_FEED_PAGES = 50  # 5,000 raw Atom entries; incomplete polls still fail closed
 PAGE_DELAY_SECONDS = 0.35
 FEEDS = {
     "4": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&type=4&owner=include&count=100&output=atom",
