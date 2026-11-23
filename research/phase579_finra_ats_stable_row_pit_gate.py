@@ -18,9 +18,12 @@ def _date(value: Any, field: str) -> date:
     if not isinstance(value, str) or not value.strip():
         raise ValueError(f"{field}_missing")
     try:
-        return date.fromisoformat(value.strip()[:10])
+        parsed = date.fromisoformat(value.strip())
     except ValueError as exc:
         raise ValueError(f"{field}_invalid") from exc
+    if parsed.isoformat() != value.strip():
+        raise ValueError(f"{field}_must_be_date_only")
+    return parsed
 
 
 def _utc(value: Any, field: str) -> datetime:
