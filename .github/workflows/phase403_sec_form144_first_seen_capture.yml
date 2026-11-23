@@ -123,7 +123,8 @@ jobs:
           retention-days: 90
           if-no-files-found: error
       - name: Commit append-only first-seen ledger and poll state
-        if: (github.event_name == 'push' || github.event_name == 'schedule') && steps.sec_capture.outcome == 'success'
+        # Persist a successful capture even if a downstream descriptive audit fails.
+        if: always() && (github.event_name == 'push' || github.event_name == 'schedule') && steps.sec_capture.outcome == 'success'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -142,8 +143,8 @@ jobs:
           path: phase403_output/
           retention-days: 90
           if-no-files-found: warn
-      - name: Fail after persistence if post-capture quality audit failed
-        if: always() && steps.post_capture_quality.outcome == 'failure'
+      - name: Fail after persistence if post-capture quality or 10b5 audit failed
+        if: always() && (steps.post_capture_quality.outcome == 'failure' || steps.post_capture_10b5.outcome == 'failure')
         run: |
-          echo "Post-capture Phase 516 audit failed; capture ledger persistence and artifact upload were attempted first." >&2
+          echo "Post-capture Phase 516 or Phase 549 audit failed; capture ledger persistence and artifact upload were attempted first." >&2
           exit 1
