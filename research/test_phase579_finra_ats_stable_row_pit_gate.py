@@ -7,9 +7,12 @@ from research.phase579_finra_ats_stable_row_pit_gate import classify_symbol_week
 def sessions():
     return [
         {"session_date": "2026-01-05", "open_utc": "2026-01-05T14:30:00Z"},
+        {"session_date": "2026-01-26", "open_utc": "2026-01-26T14:30:00Z"},
+        {"session_date": "2026-01-27", "open_utc": "2026-01-27T14:30:00Z"},
+        {"session_date": "2026-01-28", "open_utc": "2026-01-28T14:30:00Z"},
+        {"session_date": "2026-01-29", "open_utc": "2026-01-29T14:30:00Z"},
+        {"session_date": "2026-01-30", "open_utc": "2026-01-30T14:30:00Z"},
         {"session_date": "2026-02-02", "open_utc": "2026-02-02T14:30:00Z"},
-        {"session_date": "2026-02-03", "open_utc": "2026-02-03T14:30:00Z"},
-        {"session_date": "2026-02-04", "open_utc": "2026-02-04T14:30:00Z"},
     ]
 
 
@@ -58,10 +61,23 @@ def identity(**overrides):
 
 
 class Phase579StableRowGateTests(unittest.TestCase):
-    def test_stable_group_uses_next_session_strictly_after_publication(self):
+    def evaluate(self, data, calendar=None, identity_records=()):
+        return classify_symbol_week(
+            data,
+            calendar if calendar is not None else sessions(),
+            identity_records,
+            session_calendar_complete=True,
+        )
+
+    def test_uncertified_session_calendar_blocks_executable_label(self):
         result = classify_symbol_week(rows(), sessions())
+        self.assertFalse(result["stable_row_pit_eligible"])
+        self.assertEqual(result["reason"], "session_calendar_not_certified_complete")
+
+    def test_stable_group_uses_next_session_strictly_after_publication(self):
+        result = self.evaluate(rows(), sessions())
         self.assertTrue(result["stable_row_pit_eligible"])
-        self.assertEqual(result["first_executable_session"], "2026-02-02")
+        self.assertEqual(result["first_executable_session"], "2026-01-27")
         self.assertFalse(result["economic_test_eligible"])
         self.assertFalse(result["signal_admitted"])
 
@@ -69,14 +85,14 @@ class Phase579StableRowGateTests(unittest.TestCase):
         data = rows()
         data[1]["lastReportedDate"] = "2026-01-28"
         data[1]["lastUpdateDate"] = "2026-01-28"
-        result = classify_symbol_week(data, sessions())
+        result = self.evaluate(data, sessions())
         self.assertFalse(result["stable_row_pit_eligible"])
         self.assertIn("row_1:revised_row_quarantined", result["rejection_reasons"])
 
     def test_update_date_must_equal_max_of_publication_and_last_report(self):
         data = rows()
         data[0]["lastUpdateDate"] = "2026-01-28"
-        result = classify_symbol_week(data, sessions())
+        result = self.evaluate(data, sessions())
         self.assertFalse(result["stable_row_pit_eligible"])
         self.assertIn("row_0:last_update_semantics_mismatch", result["rejection_reasons"])
 
@@ -86,7 +102,7 @@ class Phase579StableRowGateTests(unittest.TestCase):
             row["initialPublishedDate"] = "2026-01-28"
             row["lastReportedDate"] = "2026-01-28"
             row["lastUpdateDate"] = "2026-01-28"
-        result = classify_symbol_week(data, sessions())
+        result = self.evaluate(data, sessions())
         self.assertFalse(result["stable_row_pit_eligible"])
         self.assertIn("publication_lag_outside_21_22", " ".join(result["rejection_reasons"]))
 
@@ -95,7 +111,7 @@ class Phase579StableRowGateTests(unittest.TestCase):
         data[1]["initialPublishedDate"] = "2026-01-28"
         data[1]["lastReportedDate"] = "2026-01-28"
         data[1]["lastUpdateDate"] = "2026-01-28"
-        result = classify_symbol_week(data, sessions())
+        result = self.evaluate(data, sessions())
         self.assertFalse(result["stable_row_pit_eligible"])
         self.assertIn("publication_date_mismatch", result["rejection_reasons"])
 
@@ -105,38 +121,38 @@ class Phase579StableRowGateTests(unittest.TestCase):
         duplicate["totalWeeklyShareQuantity"] = "500"
         duplicate["totalWeeklyTradeCount"] = "50"
         data.insert(1, duplicate)
-        result = classify_symbol_week(data, sessions())
+        result = self.evaluate(data, sessions())
         self.assertFalse(result["stable_row_pit_eligible"])
         self.assertIn("duplicate_aggregate_product_type", result["rejection_reasons"])
 
     def test_missing_aggregate_is_quarantined(self):
-        result = classify_symbol_week([rows()[1]], sessions())
+        result = self.evaluate([rows()[1]], sessions())
         self.assertFalse(result["stable_row_pit_eligible"])
         self.assertIn("aggregate_rows_missing", result["rejection_reasons"])
 
     def test_identity_requires_certified_record_clock(self):
-        result = classify_symbol_week(rows(), sessions(), [identity(record_time_semantics_certified=False)])
+        result = self.evaluate(rows(), sessions(), [identity(record_time_semantics_certified=False)])
         self.assertEqual(result["security_identity"]["status"], "record_clock_uncertified")
 
     def test_identity_record_must_be_known_by_entry_open(self):
-        result = classify_symbol_week(rows(), sessions(), [identity(record_known_utc="2026-02-02T14:31:00Z")])
+        result = self.evaluate(rows(), sessions(), [identity(record_known_utc="2026-02-02T14:31:00Z")])
         self.assertEqual(result["security_identity"]["status"], "no_effective_known_mapping")
 
     def test_exactly_one_permanent_identity_tuple_can_match(self):
-        result = classify_symbol_week(rows(), sessions(), [identity()])
+        result = self.evaluate(rows(), sessions(), [identity()])
         self.assertEqual(result["security_identity"]["status"], "matched")
         self.assertEqual(result["security_identity"]["listing_id"], "L1")
 
     def test_multiple_identity_mappings_are_ambiguous(self):
-        result = classify_symbol_week(rows(), sessions(), [identity(), identity(listing_id="L2", security_id="S2")])
+        result = self.evaluate(rows(), sessions(), [identity(), identity(listing_id="L2", security_id="S2")])
         self.assertEqual(result["security_identity"]["status"], "ambiguous_mapping")
 
     def test_identity_must_be_effective_on_report_week(self):
-        result = classify_symbol_week(rows(), sessions(), [identity(effective_from="2026-01-06")])
+        result = self.evaluate(rows(), sessions(), [identity(effective_from="2026-01-06")])
         self.assertEqual(result["security_identity"]["status"], "no_effective_known_mapping")
 
     def test_concentration_requires_reconciled_complete_unique_mpid_rows(self):
-        result = classify_symbol_week(rows(), sessions())
+        result = self.evaluate(rows(), sessions())
         self.assertTrue(result["bridge_reconciled"])
         self.assertTrue(result["concentration_eligible"])
 
@@ -144,20 +160,20 @@ class Phase579StableRowGateTests(unittest.TestCase):
         data = rows()
         data[1]["atsMpid"] = ""
         data[1]["marketParticipantName"] = "De Minimis"
-        result = classify_symbol_week(data, sessions())
+        result = self.evaluate(data, sessions())
         self.assertTrue(result["stable_row_pit_eligible"])
         self.assertFalse(result["concentration_eligible"])
 
     def test_non_reconciled_firm_totals_block_concentration(self):
         data = rows()
         data[1]["totalWeeklyShareQuantity"] = "999"
-        result = classify_symbol_week(data, sessions())
+        result = self.evaluate(data, sessions())
         self.assertTrue(result["stable_row_pit_eligible"])
         self.assertFalse(result["bridge_reconciled"])
         self.assertFalse(result["concentration_eligible"])
 
     def test_missing_future_session_blocks_stable_candidate(self):
-        result = classify_symbol_week(rows(), sessions()[:1])
+        result = self.evaluate(rows(), sessions()[:1])
         self.assertFalse(result["stable_row_pit_eligible"])
         self.assertIn("no_future_executable_session", result["rejection_reasons"])
 
