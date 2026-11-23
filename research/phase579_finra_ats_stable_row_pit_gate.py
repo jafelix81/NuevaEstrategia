@@ -17,6 +17,8 @@ ALLOWED_PUBLICATION_LAGS = {21, 22}
 def _date(value: Any, field: str) -> date:
     if not isinstance(value, str) or not value.strip():
         raise ValueError(f"{field}_missing")
+    if len(value.strip()) != 10:
+        raise ValueError(f"{field}_must_be_date_only")
     try:
         parsed = date.fromisoformat(value.strip())
     except ValueError as exc:
