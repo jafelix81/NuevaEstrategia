@@ -1,3 +1,16 @@
+# Phase 566 checkpoint — 2026-11-23 02:49 UTC
+
+- **FINRA short-interest release:** official FINRA 2026 calendar lists the 2026-11-13 settlement, 2026-11-17 6:00 p.m. ET filing deadline, and **2026-11-24** public publication. FINRA API availability is by 4:40 p.m. ET on publication day; use publication/first-receipt knowledge time, not settlement date, and trade no earlier than the next regular session.
+- **Rulemaking recheck:** SEC marks SR-FINRA-2026-012 (weekly Rule 4560 proposal / proposed deleted-symbol final report) **withdrawn 2026-08-05**. Twice-monthly cadence remains operative. SEC Release 34-104303 exempts Rule 13f-2/Form SHO reporting through **2028-01-02**; first January 2028 reporting-period filings are due within 14 calendar days after month-end. Form SHO public output is aggregated by security, not a named-manager short book. Rule 10c-1a reporting/dissemination are also delayed until 2028/2029.
+- **Source semantics:** FINRA daily Reg SHO short-sale volume is off-exchange FINRA-facility flow, not exchange-wide short flow or open short interest. Keep flow and position separate.
+- **Prior gates unchanged:** Phase 31 SI panel remains unusable (102/102 successful synchronous requests hit the 5,000-row cap; four failures); Phase 445 zero-vs-missing rules control; Phase 447 async client has only synthetic validation and no successful live request; Phase 505 PR #159 remains Draft pending an authorized one-settlement async sample and appropriate credentials/terms. Phase 539 Reg SHO parser remains fail-closed pending natural post-merge row-grain evidence.
+- **Actions / operations:** 8,072 total runs; latest 100 = 96 success / 4 failure; no active/queued runs. Latest PR CI [45096929863](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45096929863) passed offline regression; live capture skipped. Latest natural Form 144 run [45085664016](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45085664016) predates Phase 565 merge, so the post-capture Phase 549 artifact is not yet live-validated. At 02:49 UTC the 00:47 and 01:47 cron slots were absent; 02:47 was only two minutes old. Issue #194 records the gap; no manual poll, cron change or duplicate workflow.
+- **Research decision:** signals 0; no new return/alpha/OOS/bootstrap/LOO test; `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+Report: [Phase 566 — FINRA short interest and Form SHO regulatory/PIT recheck](research/PHASE566_FINRA_SHORT_INTEREST_AND_FORM_SHO_REGULATORY_PIT_RECHECK_2026-11-23.md).
+
+---
+
 # Post-merge checkpoint — 2026-11-23 01:53 UTC
 
 - **Phase 565 integrated:** PR [#206](https://github.com/jafelix81/NuevaEstrategia/pull/206) merged as [4eea1a95](https://github.com/jafelix81/NuevaEstrategia/commit/4eea1a95735a559083ae0ea12e80e83dcfa6e653). The existing Phase 403 workflow now runs the Phase 549 classifier after successful post-capture Phase 516 reconciliation, checks accession/detail-row equality and `signal_admitted=false`, and uploads a separate post-capture artifact. No second collector or strategy code was added.
