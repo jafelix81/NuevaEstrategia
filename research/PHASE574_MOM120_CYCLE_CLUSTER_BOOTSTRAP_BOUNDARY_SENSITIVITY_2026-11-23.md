@@ -44,7 +44,7 @@ The sign test is descriptive and assumes independent cycles; it is not treated a
 | Cycle treatment | Clusters | Positive relative cycles | Equal-cycle mean daily excess | 95% cycle-bootstrap CI | One-sided sign-test p | Minimum leave-one-cycle-out mean |
 |---|---:|---:|---:|---:|---:|---:|
 | All groups | 10 | 8/10 | 2.734 bps | -3.432 to 7.478 bps | 0.0547 | 1.637 bps |
-| Exclude 6-session initial stub | 9 | 8/9 | 5.340 bps | 2.555 to 8.382 bps | 0.0195 | 4.431 bps |
+| Exclude 6-session initial stub | 9 | 8/9 | 5.340 bps | 2.554 to 8.362 bps | 0.0195 | 4.431 bps |
 
 Additional checks:
 
@@ -54,9 +54,16 @@ Additional checks:
 - The terminal 75-session cycle (2026-07-31–2026-11-13) was negative: -1.273 bps mean daily excess and -0.968% compounded relative return.
 - The 9-cluster mean log relative return is 0.04204 per cycle (4.294% after exponentiation); this is a historical relative comparison, not an annualized forecast.
 
-The original Phase 426 circular block bootstrap at C20 reported a positive 80-session-block 95% interval of 2.463–7.922 bps/day. This reanalysis is directionally consistent when comparing the 9 comparable cycles, but the all-10 boundary treatment crosses zero. The boundary sensitivity must remain visible.
+The original Phase 426 circular block bootstrap at C20 reported a positive 80-session-block 95% interval of 2.463–7.922 bps/day. This reanalysis is directionally consistent when comparing the 9 comparable cycles, but the all-10 boundary treatment crosses zero. The boundary sensitivity must remain visible. The reproducible script reports the 9-cycle equal-cluster interval as 2.554–8.362 bps/day and the day-weighted interval as 2.614–8.376 bps/day.
 
-## 5. Interpretation and disposition
+## 5. Reproduction
+
+- Script: [phase574_mom120_cycle_cluster_bootstrap.py](phase574_mom120_cycle_cluster_bootstrap.py)
+- Unit tests: [test_phase574_mom120_cycle_cluster_bootstrap.py](test_phase574_mom120_cycle_cluster_bootstrap.py)
+- Local validation: 3/3 tests passed.
+- The script verifies the source CSV SHA-256 and 721-row count, uses 200,000 cluster-bootstrap draws with seed `20261123`, and emits both boundary treatments. Input is `paired_exposure_matched_excess_C20.csv` from artifact 14191029663.
+
+## 6. Interpretation and disposition
 
 This supports retaining MOM120 as a **promising historical diagnostic**: its exposure-matched excess was positive in 8 of 9 comparable/near-comparable cycles, and the cycle-cluster bootstrap interval was positive under that boundary definition.
 
@@ -72,7 +79,7 @@ It does **not** establish a new or independent edge:
 
 **Decision:** retain the candidate for prospective shadow tracking and a future conditional/residual test, but do not promote, retune, consume the final holdout, or change production. A valid next test requires a point-in-time security master, a genuinely untouched prospective sample, residualization/conditioning on LTM, identical exposure and costs, and dependence-aware bootstrap/LOO at the signal-cycle level.
 
-## 6. Frozen controls
+## 7. Frozen controls
 
 - `F80_TOP20_PARTIAL50_BASELINE_C20`: unchanged and frozen.
 - Universe, parameters, capital, exposure, costs, holdout and production: unchanged.
