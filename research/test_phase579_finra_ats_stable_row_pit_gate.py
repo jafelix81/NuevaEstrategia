@@ -74,6 +74,13 @@ class Phase579StableRowGateTests(unittest.TestCase):
         self.assertFalse(result["stable_row_pit_eligible"])
         self.assertEqual(result["reason"], "session_calendar_not_certified_complete")
 
+    def test_timestamp_is_not_accepted_as_date_only_finra_field(self):
+        data = rows()
+        data[0]["initialPublishedDate"] = "2026-01-26T06:00:00Z"
+        result = self.evaluate(data, sessions())
+        self.assertFalse(result["stable_row_pit_eligible"])
+        self.assertTrue(any("must_be_date_only" in x for x in result["rejection_reasons"]))
+
     def test_stable_group_uses_next_session_strictly_after_publication(self):
         result = self.evaluate(rows(), sessions())
         self.assertTrue(result["stable_row_pit_eligible"])
