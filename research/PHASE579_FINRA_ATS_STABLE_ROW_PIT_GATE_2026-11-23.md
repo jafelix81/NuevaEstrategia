@@ -36,7 +36,7 @@ The new offline test suite covers 18 synthetic cases, including:
 - Missing future executable session and an uncertified/incomplete session calendar.
 - Strict date-only parsing; timestamp strings cannot be silently truncated into FINRA date fields.
 
-The workflow is offline-only. The final push run and PR run passed all 18 tests. Two earlier incremental push runs failed because the first invalid-lag fixture accidentally used a valid 22-day lag; the fixture was corrected to a true 23-day lag before the successful runs. The workflow does not contain secrets, network access, a live FINRA step, raw source artifacts or vendor calls.
+The workflow is offline-only. The final push run and PR run passed all 18 tests. During iteration, an invalid-lag fixture initially used an allowed 22-day lag, and the date-only regression test exposed the need for an explicit 10-character guard before ISO parsing. Both issues were corrected before the final green runs. The workflow does not contain secrets, network access, a live FINRA step, raw source artifacts or vendor calls.
 
 ## Explicitly not established
 
