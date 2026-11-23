@@ -37,7 +37,7 @@ def rows():
             "lastReportedDate": "2026-01-26",
             "lastUpdateDate": "2026-01-26",
             "productTypeCode": "CTS",
-            "atsMpid": "XABC",
+            "MPID": "XABC",
             "marketParticipantName": "Example ATS",
             "totalWeeklyShareQuantity": "1000",
             "totalWeeklyTradeCount": "100",
@@ -165,8 +165,25 @@ class Phase579StableRowGateTests(unittest.TestCase):
 
     def test_de_minimis_or_missing_mpid_blocks_concentration_not_stable_pit(self):
         data = rows()
-        data[1]["atsMpid"] = ""
+        data[1]["MPID"] = ""
+        data[1]["firmCRDNumber"] = "0"
         data[1]["marketParticipantName"] = "De Minimis"
+        result = self.evaluate(data, sessions())
+        self.assertTrue(result["stable_row_pit_eligible"])
+        self.assertFalse(result["concentration_eligible"])
+
+    def test_firm_crd_is_valid_fallback_when_mpid_missing(self):
+        data = rows()
+        data[1]["MPID"] = ""
+        data[1]["firmCRDNumber"] = "12345"
+        result = self.evaluate(data, sessions())
+        self.assertTrue(result["stable_row_pit_eligible"])
+        self.assertTrue(result["concentration_eligible"])
+
+    def test_missing_mpid_and_zero_crd_block_concentration(self):
+        data = rows()
+        data[1]["MPID"] = ""
+        data[1]["firmCRDNumber"] = "0"
         result = self.evaluate(data, sessions())
         self.assertTrue(result["stable_row_pit_eligible"])
         self.assertFalse(result["concentration_eligible"])
