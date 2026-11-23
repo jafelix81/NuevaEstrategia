@@ -33,6 +33,7 @@ on:
       - "research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-17_PHASE464.md"
       - "research/phase549_form144_10b5_plan_polarity_audit.py"
       - "research/test_phase549_form144_10b5_plan_polarity_audit.py"
+      - "research/test_phase565_form144_post_capture_10b5_audit.py"
   workflow_dispatch:
   schedule:
     - cron: "47 * * * *"
@@ -54,8 +55,8 @@ jobs:
           python-version: "3.11"
       - name: Compile and run offline regressions
         run: |
-          python -m py_compile research/phase401_form144a_full_parent_identity_census.py research/phase403_sec_form144_first_seen_capture.py research/phase454_form144_event_ledger_schema_migration.py research/test_phase454_form144_event_ledger_schema_migration.py research/phase464_form144_first_production_capture_audit.py research/test_phase464_form144_first_production_capture_audit.py research/test_phase465_sec_atom_pagination.py research/phase509_form144_structured_detail_parser.py research/test_phase509_form144_structured_detail_parser.py research/phase516_form144_ledger_quality_audit.py research/test_phase516_form144_ledger_quality_audit.py research/phase549_form144_10b5_plan_polarity_audit.py research/test_phase549_form144_10b5_plan_polarity_audit.py
-          python -m unittest -v research.test_phase403_sec_form144_first_seen_capture research.test_phase454_form144_event_ledger_schema_migration research.test_phase464_form144_first_production_capture_audit research.test_phase465_sec_atom_pagination research.test_phase509_form144_structured_detail_parser research.test_phase516_form144_ledger_quality_audit research.test_phase549_form144_10b5_plan_polarity_audit
+          python -m py_compile research/phase401_form144a_full_parent_identity_census.py research/phase403_sec_form144_first_seen_capture.py research/phase454_form144_event_ledger_schema_migration.py research/test_phase454_form144_event_ledger_schema_migration.py research/phase464_form144_first_production_capture_audit.py research/test_phase464_form144_first_production_capture_audit.py research/test_phase465_sec_atom_pagination.py research/phase509_form144_structured_detail_parser.py research/test_phase509_form144_structured_detail_parser.py research/phase516_form144_ledger_quality_audit.py research/test_phase516_form144_ledger_quality_audit.py research/phase549_form144_10b5_plan_polarity_audit.py research/test_phase549_form144_10b5_plan_polarity_audit.py research/test_phase565_form144_post_capture_10b5_audit.py
+          python -m unittest -v research.test_phase403_sec_form144_first_seen_capture research.test_phase454_form144_event_ledger_schema_migration research.test_phase464_form144_first_production_capture_audit research.test_phase465_sec_atom_pagination research.test_phase509_form144_structured_detail_parser research.test_phase516_form144_ledger_quality_audit research.test_phase549_form144_10b5_plan_polarity_audit research.test_phase565_form144_post_capture_10b5_audit
           python -m research.phase516_form144_ledger_quality_audit --input research/data/sec_form144_first_seen/sale_details.csv --output phase516_output/summary.json
           python -m research.phase516_form144_ledger_quality_audit --input research/data/sec_form144_first_seen/sale_details.csv --output phase403_output/phase516_post_capture_summary.json
           python -c "import json; from pathlib import Path; p=Path('phase403_output/phase516_post_capture_summary.json'); d=json.loads(p.read_text()); assert d['filing_count'] > 0 and d['row_count'] >= d['filing_count']; assert 'pit' in d and 'signal_eligible_filing_headers' in d['pit']; print('Phase 550 output-path/schema smoke test passed')"
@@ -83,7 +84,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Compile capture and migration clients
-        run: python -m py_compile research/phase403_sec_form144_first_seen_capture.py research/phase454_form144_event_ledger_schema_migration.py research/phase509_form144_structured_detail_parser.py research/phase516_form144_ledger_quality_audit.py
+        run: python -m py_compile research/phase403_sec_form144_first_seen_capture.py research/phase454_form144_event_ledger_schema_migration.py research/phase509_form144_structured_detail_parser.py research/phase516_form144_ledger_quality_audit.py research/phase549_form144_10b5_plan_polarity_audit.py
       - name: Migrate append-only event ledger schema
         run: python -m research.phase454_form144_event_ledger_schema_migration --path research/data/sec_form144_first_seen/events.csv --output phase403_output/schema_migration.json
       - name: Run SEC Latest Filings capture
@@ -107,6 +108,20 @@ jobs:
             --input research/data/sec_form144_first_seen/sale_details.csv \
             --output phase403_output/phase516_post_capture_summary.json
           python -c "import json; from pathlib import Path; p=Path('phase403_output'); poll=json.loads((p/'summary.json').read_text()); quality=json.loads((p/'phase516_post_capture_summary.json').read_text()); ledger=poll['structured_detail_summary']; assert quality['filing_count'] == ledger['ledger_accession_count'], (quality['filing_count'], ledger['ledger_accession_count']); assert quality['row_count'] == ledger['ledger_row_count'], (quality['row_count'], ledger['ledger_row_count']); print('Phase 550 post-capture ledger-count reconciliation passed')"
+      - name: Run post-capture Form 144 10b5-1 audit
+        id: post_capture_10b5
+        if: steps.post_capture_quality.outcome == 'success'
+        run: |
+          python -m research.phase549_form144_10b5_plan_polarity_audit --output phase403_output/phase549_post_capture_summary.json
+          python -c "import json; from pathlib import Path; p=Path('phase403_output'); d=json.loads((p/'phase549_post_capture_summary.json').read_text()); q=json.loads((p/'phase516_post_capture_summary.json').read_text()); f=d['form144']; assert f['accessions'] == q['filing_count']; assert f['detail_rows'] == q['row_count']; assert d['controls']['signal_admitted'] is False; print('Phase 565 post-capture 10b5-1 reconciliation passed')"
+      - name: Upload post-capture Form 144 10b5-1 audit
+        if: always() && steps.post_capture_10b5.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase565-form144-10b5-post-capture
+          path: phase403_output/phase549_post_capture_summary.json
+          retention-days: 90
+          if-no-files-found: error
       - name: Commit append-only first-seen ledger and poll state
         if: (github.event_name == 'push' || github.event_name == 'schedule') && steps.sec_capture.outcome == 'success'
         run: |
