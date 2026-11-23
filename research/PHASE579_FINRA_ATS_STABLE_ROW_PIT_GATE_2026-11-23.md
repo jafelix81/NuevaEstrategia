@@ -17,14 +17,14 @@ For each symbol-week:
 3. Require the publication lag to be 21 or 22 calendar days.
 4. Enforce FINRA's documented `lastUpdateDate = max(initialPublishedDate, lastReportedDate)`.
 5. Admit the initial-publication clock only if `lastReportedDate <= initialPublishedDate`, `lastUpdateDate = initialPublishedDate`, and all rows in the group share one publication date.
-6. Choose the first supplied regular session whose date is strictly later than the publication date. Never use the publication date itself.
+6. Require the caller to attest that the supplied exchange-session calendar is complete through the candidate entry date (default is fail-closed). Choose the first supplied regular session whose date is strictly later than the publication date. Never use the publication date itself.
 7. Treat security identity separately. A ticker mapping must be effective on the report week, record-known no later than the next session open, explicitly marked as having certified record-time semantics, and uniquely identify listing/security/issuer. A Databento `ts_record` value must not be marked certified until the vendor's semantics and update lag are confirmed in writing.
 8. Calculate concentration eligibility separately: aggregate and firm totals must reconcile; MPID rows must be complete and unique; De Minimis buckets block participant concentration but do not automatically invalidate the stable aggregate PIT row.
 9. Hard-code economic-test eligibility and signal admission to false. Historical universe membership and complete total-return/delisting coverage remain separate mandatory gates.
 
 ## Tests
 
-The new offline test suite covers:
+The new offline test suite covers 18 synthetic cases, including:
 - Stable row / next-session boundary.
 - Revised rows and update-date semantic mismatch.
 - 21/22-day publication-lag guard.
@@ -33,9 +33,10 @@ The new offline test suite covers:
 - Uncertified or late identity record clocks.
 - Unique, ambiguous and ineffective security mappings.
 - Aggregate/firm reconciliation and MPID/De Minimis concentration gates.
-- Missing future executable session.
+- Missing future executable session and an uncertified/incomplete session calendar.
+- Strict date-only parsing; timestamp strings cannot be silently truncated into FINRA date fields.
 
-The workflow is offline-only. It does not contain secrets, network access, a live FINRA step, raw source artifacts or vendor calls.
+The workflow is offline-only. The final push run and PR run passed all 18 tests. Two earlier incremental push runs failed because the first invalid-lag fixture accidentally used a valid 22-day lag; the fixture was corrected to a true 23-day lag before the successful runs. The workflow does not contain secrets, network access, a live FINRA step, raw source artifacts or vendor calls.
 
 ## Explicitly not established
 
