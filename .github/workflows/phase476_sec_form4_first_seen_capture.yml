@@ -81,6 +81,7 @@ jobs:
       - name: Compile capture client
         run: python -m py_compile research/phase476_sec_form4_first_seen_capture.py
       - name: Capture Form 4 / 4-A first-seen metadata
+        id: sec_capture
         env:
           EVENT_NAME: ${{ github.event_name }}
           RUN_ID: ${{ github.run_id }}
