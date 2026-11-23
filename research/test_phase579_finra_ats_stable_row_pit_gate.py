@@ -20,6 +20,7 @@ def rows():
     return [
         {
             "summaryTypeCode": "ATS_W_SMBL",
+            "tierIdentifier": "T1",
             "issueSymbolIdentifier": "ABC",
             "weekStartDate": "2026-01-05",
             "initialPublishedDate": "2026-01-26",
@@ -31,6 +32,7 @@ def rows():
         },
         {
             "summaryTypeCode": "ATS_W_SMBL_FIRM",
+            "tierIdentifier": "T1",
             "issueSymbolIdentifier": "ABC",
             "weekStartDate": "2026-01-05",
             "initialPublishedDate": "2026-01-26",
@@ -157,6 +159,29 @@ class Phase579StableRowGateTests(unittest.TestCase):
     def test_identity_must_be_effective_on_report_week(self):
         result = self.evaluate(rows(), sessions(), [identity(effective_from="2026-01-06")])
         self.assertEqual(result["security_identity"]["status"], "no_effective_known_mapping")
+
+    def test_non_t1_tier_is_quarantined_under_t1_publication_lag_rule(self):
+        data = rows()
+        for row in data:
+            row["tierIdentifier"] = "T2"
+        result = self.evaluate(data, sessions())
+        self.assertFalse(result["stable_row_pit_eligible"])
+        self.assertIn("tier_not_t1_for_21_22_day_gate", result["rejection_reasons"])
+
+    def test_mixed_tier_group_is_quarantined(self):
+        data = rows()
+        data[1]["tierIdentifier"] = "T2"
+        result = self.evaluate(data, sessions())
+        self.assertFalse(result["stable_row_pit_eligible"])
+        self.assertIn("tier_identifier_missing_or_mixed", result["rejection_reasons"])
+
+    def test_identity_must_remain_effective_through_entry_session(self):
+        result = self.evaluate(rows(), sessions(), [identity(effective_to="2026-01-26")])
+        self.assertEqual(result["security_identity"]["status"], "no_effective_known_mapping")
+
+    def test_identity_effective_through_entry_session_is_accepted(self):
+        result = self.evaluate(rows(), sessions(), [identity(effective_to="2026-01-27")])
+        self.assertEqual(result["security_identity"]["status"], "matched")
 
     def test_concentration_requires_reconciled_complete_unique_mpid_rows(self):
         result = self.evaluate(rows(), sessions())
