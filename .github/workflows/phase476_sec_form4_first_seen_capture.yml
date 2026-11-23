@@ -119,3 +119,15 @@ jobs:
             phase525_output/
           retention-days: 90
           if-no-files-found: warn
+      - name: Fail after persistence if any Form 4 feed is incomplete
+        if: always() && steps.sec_capture.outcome == 'success'
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          summary = json.loads(Path("phase476_output/poll_summary.json").read_text(encoding="utf-8"))
+          if not summary.get("all_feeds_successful", False):
+              failed = [name for name, feed in summary.get("feeds", {}).items() if not feed.get("poll_success", False)]
+              raise SystemExit("Incomplete SEC Form 4 feed poll(s); candidates remain suppressed: " + ", ".join(failed))
+          print("Both Form 4 and Form 4/A watermark/continuity gates passed.")
+          PY
