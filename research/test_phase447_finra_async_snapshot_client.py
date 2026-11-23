@@ -2,7 +2,7 @@ import json
 import os
 import tempfile
 import unittest
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from unittest.mock import patch
 
@@ -133,6 +133,40 @@ class Phase447Tests(unittest.TestCase):
         self.assertIsNotNone(session.fip_call)
         self.assertIsNotNone(session.post_call)
 
+    def test_manifest_timestamps_bracket_actual_submission_after_oauth(self):
+        session = FakeSession(self.records)
+        env = {
+            "FINRA_ACCESS_TOKEN": "",
+            "FINRA_CLIENT_ID": "client-id",
+            "FINRA_CLIENT_SECRET": "client-secret",
+        }
+        current = [datetime(2026, 11, 16, 12, 0, tzinfo=timezone.utc)]
+
+        def clock():
+            value = current[0]
+            current[0] += timedelta(seconds=1)
+            return value
+
+        with patch.dict(os.environ, env):
+            with tempfile.TemporaryDirectory() as tmp:
+                manifest = retrieve_snapshot(
+                    self.day, tmp, session=session, sleep_fn=lambda seconds: None,
+                    clock_fn=clock,
+                )
+
+        ordered = [
+            manifest["run_started_at_utc"],
+            manifest["auth_ready_at_utc"],
+            manifest["submitted_at_utc"],
+            manifest["submission_accepted_at_utc"],
+            manifest["status_checked_at_utc"],
+            manifest["result_download_started_at_utc"],
+            manifest["downloaded_at_utc"],
+        ]
+        self.assertEqual(ordered, sorted(ordered))
+        self.assertLess(manifest["auth_ready_at_utc"], manifest["submitted_at_utc"])
+        self.assertLess(manifest["submitted_at_utc"], manifest["submission_accepted_at_utc"])
+
     def test_missing_credentials_fail_before_any_request(self):
         session = FakeSession(self.records)
         env = {"FINRA_ACCESS_TOKEN": "", "FINRA_CLIENT_ID": "", "FINRA_CLIENT_SECRET": ""}
@@ -256,6 +290,24 @@ class Phase447Tests(unittest.TestCase):
                 complete_headers(), "abc",
                 now=datetime(2026, 11, 16, tzinfo=timezone.utc),
             )
+
+    def test_result_link_rejects_hostname_suffix_confusion(self):
+        for url in (
+            "https://evilamazonaws.com/result?sig=x",
+            "https://bucket.s3.amazonaws.com.evil.example/result?sig=x",
+            "https://user@bucket.s3.amazonaws.com/result?sig=x",
+            "https://bucket.s3.amazonaws.com:8443/result?sig=x",
+        ):
+            with self.subTest(url=url):
+                with self.assertRaises(SnapshotContractError):
+                    parse_status(
+                        200,
+                        {"requestId": "abc", "status": "complete",
+                         "resultLink": url,
+                         "expires": "2026-11-17T00:00:00Z"},
+                        complete_headers(), "abc",
+                        now=datetime(2026, 11, 16, tzinfo=timezone.utc),
+                    )
 
 
 if __name__ == "__main__":
