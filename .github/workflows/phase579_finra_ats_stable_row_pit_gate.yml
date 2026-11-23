@@ -1,0 +1,34 @@
+name: Phase 579 FINRA ATS stable-row PIT gate
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/phase579_finra_ats_stable_row_pit_gate.yml"
+      - "research/phase579_finra_ats_stable_row_pit_gate.py"
+      - "research/test_phase579_finra_ats_stable_row_pit_gate.py"
+      - "research/PHASE579_FINRA_ATS_STABLE_ROW_PIT_GATE_2026-11-23.md"
+  push:
+    branches:
+      - phase579-finra-ats-stable-row-pit-gate
+    paths:
+      - ".github/workflows/phase579_finra_ats_stable_row_pit_gate.yml"
+      - "research/phase579_finra_ats_stable_row_pit_gate.py"
+      - "research/test_phase579_finra_ats_stable_row_pit_gate.py"
+      - "research/PHASE579_FINRA_ATS_STABLE_ROW_PIT_GATE_2026-11-23.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile PIT gate
+        run: python -m py_compile research/phase579_finra_ats_stable_row_pit_gate.py research/test_phase579_finra_ats_stable_row_pit_gate.py
+      - name: Run synthetic PIT gate tests
+        run: python -m unittest -v research.test_phase579_finra_ats_stable_row_pit_gate
