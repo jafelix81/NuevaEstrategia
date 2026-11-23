@@ -275,6 +275,7 @@ class Phase476Tests(unittest.TestCase):
                  patch.object(p.p401, "fetch_bytes", return_value=raw):
                 summary = p.run_capture("schedule", "baseline-run", output_dir)
             self.assertEqual(summary["new_event_rows"], 1)
+            self.assertTrue(summary["all_feeds_successful"])
             self.assertEqual(summary["bounded_metadata_rows"], 0)
             self.assertEqual(summary["signal_eligible_rows"], 0)
             self.assertTrue((data_dir / "state.json").exists())
@@ -309,6 +310,7 @@ class Phase476Tests(unittest.TestCase):
                 previous_end = json.loads((data_dir / "state.json").read_text())["feeds"]["4"]["last_successful_poll_end_utc"]
                 summary = p.run_capture("schedule", "bounded-run", output_dir)
             self.assertEqual(summary["new_event_rows"], 1)
+            self.assertTrue(summary["all_feeds_successful"])
             self.assertEqual(summary["bounded_metadata_rows"], 1)
             with (data_dir / "events.csv").open(newline="", encoding="utf-8") as handle:
                 rows = list(csv.DictReader(handle))
@@ -371,6 +373,7 @@ class Phase476Tests(unittest.TestCase):
             self.assertEqual(state["feeds"]["4"]["last_poll_status"], "GAP_OR_FETCH_ERROR")
             self.assertEqual(summary["bounded_metadata_rows"], 0)
             self.assertEqual(summary["new_event_rows"], 0)
+            self.assertFalse(summary["all_feeds_successful"])
             self.assertEqual(summary["incomplete_poll_candidate_rows_suppressed"], 1)
             self.assertEqual(summary["incomplete_poll_candidate_occurrences_suppressed"], 1)
             self.assertFalse((data_dir / "events.csv").exists())
@@ -411,6 +414,7 @@ class Phase476Tests(unittest.TestCase):
                 p.run_capture("schedule", "baseline-run", output_dir)
                 failed = p.run_capture("schedule", "gap-run", output_dir)
                 self.assertEqual(failed["new_event_rows"], 0)
+                self.assertFalse(failed["all_feeds_successful"])
                 self.assertEqual(failed["incomplete_poll_candidate_rows_suppressed"], 1)
                 with (data_dir / "events.csv").open(newline="", encoding="utf-8") as handle:
                     after_gap = list(csv.DictReader(handle))
@@ -419,6 +423,7 @@ class Phase476Tests(unittest.TestCase):
                 recovered = p.run_capture("schedule", "retry-run", output_dir)
 
             self.assertEqual(recovered["new_event_rows"], 1)
+            self.assertTrue(recovered["all_feeds_successful"])
             self.assertEqual(recovered["bounded_metadata_rows"], 1)
             with (data_dir / "events.csv").open(newline="", encoding="utf-8") as handle:
                 rows = list(csv.DictReader(handle))
