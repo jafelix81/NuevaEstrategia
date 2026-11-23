@@ -176,7 +176,7 @@ def classify_symbol_week(
     row_lags = []
     row_errors = []
     aggregate_products = []
-    firm_mpids = []
+    firm_participant_keys = []
     de_minimis = False
     aggregate_shares = aggregate_trades = 0
     firm_shares = firm_trades = 0
@@ -218,15 +218,13 @@ def classify_symbol_week(
             firm_rows.append(row)
             firm_shares += shares
             firm_trades += trades
-            mpid = str(row.get("atsMpid") or row.get("ATS_MPID") or row.get("marketParticipantId") or "").strip().upper()
+            mpid = str(row.get("MPID") or row.get("mpid") or row.get("atsMpid") or row.get("ATS_MPID") or "").strip().upper()
+            crd = str(row.get("firmCRDNumber") or "").strip().upper()
+            participant_key = mpid or (crd if crd and crd != "0" else "")
             name = str(row.get("marketParticipantName", "")).strip().upper()
             if "DE MINIMIS" in name:
                 de_minimis = True
-            if not mpid:
-                # A De Minimis bucket is deliberately not treated as a participant identity.
-                firm_mpids.append("")
-            else:
-                firm_mpids.append(mpid)
+            firm_participant_keys.append("" if "DE MINIMIS" in name else participant_key)
 
     if not aggregate_rows:
         row_errors.append("aggregate_rows_missing")
@@ -245,8 +243,8 @@ def classify_symbol_week(
     stable = not row_errors and publication_date is not None and bool(aggregate_rows)
     identity = _identity_for(symbol, week_start, entry_session["open_utc"] if entry_session else None, security_master_records) if stable else {"status": "not_evaluated"}
     bridge_reconciled = bool(aggregate_rows and firm_rows) and aggregate_shares == firm_shares and aggregate_trades == firm_trades
-    unique_mpid = bool(firm_mpids) and all(firm_mpids) and len(firm_mpids) == len(set(firm_mpids))
-    concentration_eligible = stable and bridge_reconciled and unique_mpid and not de_minimis
+    unique_participant_keys = bool(firm_participant_keys) and all(firm_participant_keys) and len(firm_participant_keys) == len(set(firm_participant_keys))
+    concentration_eligible = stable and bridge_reconciled and unique_participant_keys and not de_minimis
     return {
         "symbol": symbol,
         "week_start_date": week_start.isoformat(),
