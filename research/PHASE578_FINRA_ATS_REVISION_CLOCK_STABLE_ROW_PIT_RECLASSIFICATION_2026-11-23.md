@@ -48,7 +48,7 @@ The separate Phase 375 bridge reports **432,804 of 438,798 symbol-week groups** 
 
 These are symbol-week group statistics, not the 438,822 row count or the 5,994 revised aggregate-row count from Phase 385. Do not conflate the grains or infer identical denominators.
 
-Report: [Phase 375](research/PHASE375_FINRA_T1_ATS_FULL_WEEKLY_REVISION_AUDIT_2026-11-13.md).
+The Phase 375 full audit and implementation are contained in the Draft [PR #61](https://github.com/jafelix81/NuevaEstrategia/pull/61) branch; its source branch is 189 commits ahead / 455 behind main and must not be merged as-is. The mainline Phase 385 publication-clock result is [here](research/PHASE385_FINRA_T1_PUBLICATION_CLOCK_RESULT_2026-11-14.md).
 
 ### Phase 535 / broader recent API panel
 
