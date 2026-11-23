@@ -5,13 +5,13 @@ resolve real securities, calculate returns, or admit an investment signal.
 """
 from __future__ import annotations
 
-from collections import defaultdict
 from datetime import date, datetime, timezone
 from math import isfinite
 from typing import Any, Iterable, Mapping
 
 ALLOWED_TYPES = {"ATS_W_SMBL", "ATS_W_SMBL_FIRM"}
 ALLOWED_PUBLICATION_LAGS = {21, 22}
+ALLOWED_TIERS = {"T1"}
 
 
 def _date(value: Any, field: str) -> date:
@@ -70,6 +70,7 @@ def _session_calendar(sessions: Iterable[Mapping[str, Any]]) -> list[dict[str, A
 def _identity_for(
     symbol: str,
     week_start: date,
+    entry_date: date | None,
     entry_open: datetime | None,
     records: Iterable[Mapping[str, Any]],
 ) -> dict[str, Any]:
@@ -86,9 +87,12 @@ def _identity_for(
             record_known = _utc(raw.get("record_known_utc"), "record_known_utc")
         except ValueError:
             continue
-        if effective_from <= week_start and (effective_to is None or week_start <= effective_to):
-            if entry_open is not None and record_known <= entry_open:
-                candidates.append(raw)
+        on_report_week = effective_from <= week_start and (effective_to is None or week_start <= effective_to)
+        on_entry_date = entry_date is not None and effective_from <= entry_date and (
+            effective_to is None or entry_date <= effective_to
+        )
+        if on_report_week and on_entry_date and entry_open is not None and record_known <= entry_open:
+            candidates.append(raw)
 
     if not matching_symbol:
         return {"status": "missing_symbol_mapping"}
@@ -125,6 +129,7 @@ def classify_symbol_week(
       * every supplied ATS_W_SMBL / ATS_W_SMBL_FIRM row has valid dates;
       * lastUpdateDate == max(initialPublishedDate, lastReportedDate);
       * lastReportedDate <= initialPublishedDate;
+      * tierIdentifier == T1 (the 21/22-day rule is T1-specific);
       * a 21/22 calendar-day publication lag; and
       * one common initialPublishedDate across the group.
 
@@ -136,10 +141,10 @@ def classify_symbol_week(
     through the candidate entry date; otherwise no executable date is admitted.
 
     Security identity is separate from row PIT. A mapping is accepted only
-    when its effective interval covers the report week, its record-known time
-    is no later than the next session open, its record-time semantics are
-    explicitly certified, and exactly one permanent listing/security/issuer
-    tuple matches. This does not certify a vendor's clock by itself; the caller
+    when its effective interval covers both the report week and the executable
+    entry session, its record-known time is no later than the next session open,
+    its record-time semantics are explicitly certified, and exactly one
+    permanent listing/security/issuer tuple matches. This does not certify a vendor's clock by itself; the caller
     must set the certification flag only after written semantic validation.
 
     Economic eligibility remains false here because historical universe
@@ -175,12 +180,17 @@ def classify_symbol_week(
     publication_dates = set()
     row_lags = []
     row_errors = []
+    tier_values = {str(x.get("tierIdentifier", "")).strip().upper() for x in materialized}
+    tier_identifier = next(iter(tier_values)) if len(tier_values) == 1 else None
+    if len(tier_values) != 1 or "" in tier_values:
+        row_errors.append("tier_identifier_missing_or_mixed")
+    elif tier_identifier not in ALLOWED_TIERS:
+        row_errors.append("tier_not_t1_for_21_22_day_gate")
     aggregate_products = []
     firm_participant_keys = []
     de_minimis = False
     aggregate_shares = aggregate_trades = 0
     firm_shares = firm_trades = 0
-    numeric_bridge_valid = True
 
     for index, row in enumerate(materialized):
         typ = str(row.get("summaryTypeCode", "")).strip().upper()
@@ -241,13 +251,20 @@ def classify_symbol_week(
         row_errors.append("no_future_executable_session")
 
     stable = not row_errors and publication_date is not None and bool(aggregate_rows)
-    identity = _identity_for(symbol, week_start, entry_session["open_utc"] if entry_session else None, security_master_records) if stable else {"status": "not_evaluated"}
+    identity = _identity_for(
+        symbol,
+        week_start,
+        entry_session["session_date"] if entry_session else None,
+        entry_session["open_utc"] if entry_session else None,
+        security_master_records,
+    ) if stable else {"status": "not_evaluated"}
     bridge_reconciled = bool(aggregate_rows and firm_rows) and aggregate_shares == firm_shares and aggregate_trades == firm_trades
     unique_participant_keys = bool(firm_participant_keys) and all(firm_participant_keys) and len(firm_participant_keys) == len(set(firm_participant_keys))
     concentration_eligible = stable and bridge_reconciled and unique_participant_keys and not de_minimis
     return {
         "symbol": symbol,
         "week_start_date": week_start.isoformat(),
+        "tier_identifier": tier_identifier,
         "publication_date": publication_date.isoformat() if publication_date else None,
         "publication_lag_days": row_lags[0] if row_lags and len(set(row_lags)) == 1 else None,
         "stable_row_pit_eligible": stable,

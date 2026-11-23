@@ -1,0 +1,34 @@
+name: Phase 580 FINRA ATS tier and identity entry guard
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/phase580_finra_ats_tier_identity_entry_guard.yml"
+      - "research/phase579_finra_ats_stable_row_pit_gate.py"
+      - "research/test_phase579_finra_ats_stable_row_pit_gate.py"
+      - "research/PHASE580_FINRA_ATS_TIER_AND_IDENTITY_ENTRY_GUARD_2026-11-23.md"
+  push:
+    branches:
+      - phase580-finra-ats-tier-and-identity-entry-guard
+    paths:
+      - ".github/workflows/phase580_finra_ats_tier_identity_entry_guard.yml"
+      - "research/phase579_finra_ats_stable_row_pit_gate.py"
+      - "research/test_phase579_finra_ats_stable_row_pit_gate.py"
+      - "research/PHASE580_FINRA_ATS_TIER_AND_IDENTITY_ENTRY_GUARD_2026-11-23.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile PIT gate
+        run: python -m py_compile research/phase579_finra_ats_stable_row_pit_gate.py research/test_phase579_finra_ats_stable_row_pit_gate.py
+      - name: Run synthetic PIT gate tests
+        run: python -m unittest -v research.test_phase579_finra_ats_stable_row_pit_gate
