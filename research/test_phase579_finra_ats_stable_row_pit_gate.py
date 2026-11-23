@@ -168,6 +168,14 @@ class Phase579StableRowGateTests(unittest.TestCase):
         self.assertFalse(result["stable_row_pit_eligible"])
         self.assertIn("tier_not_t1_for_21_22_day_gate", result["rejection_reasons"])
 
+    def test_missing_tier_identifier_blocks_t1_publication_lag_rule(self):
+        data = rows()
+        for row in data:
+            row.pop("tierIdentifier")
+        result = self.evaluate(data, sessions())
+        self.assertFalse(result["stable_row_pit_eligible"])
+        self.assertIn("tier_identifier_missing_or_mixed", result["rejection_reasons"])
+
     def test_mixed_tier_group_is_quarantined(self):
         data = rows()
         data[1]["tierIdentifier"] = "T2"
