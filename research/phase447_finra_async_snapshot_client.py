@@ -216,8 +216,19 @@ def parse_status(
     if not result_link:
         raise SnapshotContractError("completed async response has no resultLink")
     parsed_link = urlparse(result_link)
-    if parsed_link.scheme != "https" or not parsed_link.netloc.lower().endswith("amazonaws.com"):
-        raise SnapshotContractError("pre-signed resultLink must be an HTTPS AWS S3 URL")
+    host = (parsed_link.hostname or "").lower()
+    try:
+        port = parsed_link.port
+    except ValueError as exc:
+        raise SnapshotContractError("pre-signed resultLink has an invalid port") from exc
+    if (
+        parsed_link.scheme != "https"
+        or not host.endswith(".amazonaws.com")
+        or parsed_link.username is not None
+        or parsed_link.password is not None
+        or port not in (None, 443)
+    ):
+        raise SnapshotContractError("pre-signed resultLink must use an HTTPS AWS hostname")
     expires_raw = body.get("expires")
     if not expires_raw:
         raise SnapshotContractError("completed async response has no expires timestamp")
@@ -361,24 +372,29 @@ def retrieve_snapshot(
         raise ValueError("max_wait_seconds must be positive")
     owned_session = session is None
     session = session or requests.Session()
-    submitted_at = clock_fn()
+    run_started_at = clock_fn()
     auth_mode = "provided_bearer_token"
     token_expires_in = None
     try:
         if not token:
             token, token_expires_in = obtain_access_token(session, client_id, client_secret)
             auth_mode = "oauth_client_credentials"
+        auth_ready_at = clock_fn()
         auth_headers = {
             "Authorization": f"Bearer {token}",
             "Accept": "application/json",
             "Content-Type": "application/json",
         }
+        # Record the actual dataset-query submission time after OAuth, immediately
+        # before the POST; do not timestamp it before a potentially slow token exchange.
+        submitted_at = clock_fn()
         response = session.post(
             DATASET_URL,
             headers=auth_headers,
             json=build_async_payload(day),
             timeout=60,
         )
+        submission_accepted_at = clock_fn()
         submission = parse_submission(response.status_code, response.headers)
         completed, status_audit = poll_status(
             session,
@@ -391,6 +407,7 @@ def retrieve_snapshot(
         )
         # IMPORTANT: the pre-signed URL embeds authorization. Do not pass a
         # FINRA Authorization header on this GET (FINRA documents HTTP 400 otherwise).
+        result_download_started_at = clock_fn()
         result_response = session.get(completed["result_link"], timeout=120)
         records, raw_bytes = parse_result_json(result_response)
         downloaded_at = clock_fn()
@@ -412,8 +429,12 @@ def retrieve_snapshot(
             "auth_mode": auth_mode,
             "token_expires_in_seconds": token_expires_in,
             "settlement_date": day,
+            "run_started_at_utc": iso_utc(run_started_at),
+            "auth_ready_at_utc": iso_utc(auth_ready_at),
             "submitted_at_utc": iso_utc(submitted_at),
+            "submission_accepted_at_utc": iso_utc(submission_accepted_at),
             "status_checked_at_utc": status_audit["status_checked_at_utc"],
+            "result_download_started_at_utc": iso_utc(result_download_started_at),
             "downloaded_at_utc": iso_utc(downloaded_at),
             "request_id": request_id,
             "submission_tracking_id": submission.get("tracking_id"),
