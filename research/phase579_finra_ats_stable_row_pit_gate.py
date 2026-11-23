@@ -111,6 +111,7 @@ def classify_symbol_week(
     rows: Iterable[Mapping[str, Any]],
     sessions: Iterable[Mapping[str, Any]],
     security_master_records: Iterable[Mapping[str, Any]] = (),
+    session_calendar_complete: bool = False,
 ) -> dict[str, Any]:
     """Classify one symbol-week; revised or ambiguous rows fail closed.
 
@@ -125,6 +126,9 @@ def classify_symbol_week(
     The first executable session is the first supplied regular session whose
     session_date is strictly later than initialPublishedDate. The publication
     date itself is never used as an entry session.
+
+    The caller must attest that the supplied exchange-session calendar is complete
+    through the candidate entry date; otherwise no executable date is admitted.
 
     Security identity is separate from row PIT. A mapping is accepted only
     when its effective interval covers the report week, its record-known time
@@ -141,6 +145,14 @@ def classify_symbol_week(
     if not materialized:
         return {"status": "rejected", "reason": "no_rows", "stable_row_pit_eligible": False}
     calendar = _session_calendar(sessions)
+    if not session_calendar_complete:
+        return {
+            "status": "rejected",
+            "reason": "session_calendar_not_certified_complete",
+            "stable_row_pit_eligible": False,
+            "economic_test_eligible": False,
+            "signal_admitted": False,
+        }
 
     symbols = {str(x.get("issueSymbolIdentifier", "")).strip().upper() for x in materialized}
     weeks = set()
