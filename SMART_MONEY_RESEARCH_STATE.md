@@ -2112,3 +2112,18 @@ This section supersedes any older “in progress” status above where later com
 - **Price panel:** prior Phase 475 remains conditional: Massive Advanced, Sharadar SEP and CRSP are candidates only; no sample, license or source was admitted. The seven inactive names require terminal/corporate-action reconciliation; no dropping or provider mixing.
 - **Other sources:** Form 4 watermarks recovered; owner sidecar/crosswalk still has pending identity and zero eligible matches. Form 144 has 477 accessions / 3,360 detail rows, 238 bounded backfills and five acceptance reconciliations pending; zero eligible signals. CFTC remains at 3,043 rows with no new observations. Cboe options remains rights/PIT/coverage gated; MIDAS remains exchange market-structure context only.
 - **Research decision:** same-day-close Phase 20C is NO-GO for look-ahead. Phase 372 produced no performance result. New signals 0; incremental alpha none; new valid OOS/bootstrap/LOO 0. No model, universe, exposure, costs, holdout or production changes. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+
+---
+
+## Phase 600 — SEC Form 144 delayed capture and Form 4 cadence recheck (2026-11-24 17:14 UTC)
+
+- Actions: 8,110 total; latest 100 = 90 success / 10 failure; 0 in-progress / queued / waiting / requested. Branches 380; open PRs 72; workflows 96; research entries 495.
+- Form 144 natural schedule run [45437675674](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45437675674) completed both jobs. It appended 27 accession events / 53 feed observations, resolved 27 XMLs, added 32 acceptance reconciliations, and appended 130 new structured detail rows plus 59 backfill rows. Current ledger 514 accessions / 3,549 detail rows; 228 backfill accessions remain. First-seen interval is 05:00:47–16:29:37 UTC (11h28m50s), a bounded poll interval rather than exact public availability. Zero signal eligibility.
+- Four new Form 144 records match the 290-CIK candidate manifest (JD.com, Axon, Amazon, Verizon), but that manifest is not a historical F80 security master. No issuer-CIK overlap exists in the current 61-row Form 4 owner sidecar / 199-row transaction ledger.
+- Post-capture Phase 549: 183 formal plan dates across 91 dates; median plan-date-to-notice lag 183 days; 16 sell-to-cover/tax-withholding accessions; four Fermi negative-control notices totaling 2,253,270 proposed units. Descriptive only.
+- Form 4 latest natural run remains [45332760566](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45332760566) at 05:21 UTC; the 16:17 weekday slot is absent. Form 144's 16:29 scheduled event appears ~42 minutes after its 15:47 nominal slot; the 16:47 slot was not visible by cutoff. Issue #194 remains open; no dispatch/rerun/cron change.
+- FINRA: six files rejected (BCPC/TPC repeated), 12 extra rows, zero valid/eligible. CFTC: 3,043 rows, no new reports/revisions. No new signal, alpha, OOS, bootstrap or LOO result.
+- Databento OPRA remains conditional; IvyDB TradeFlow remains the leading direct-flow hypothesis; ORATS remains context-only. No sample/license/account/data purchase.
+- No universe, exposure, costs, parameters, holdout or production changes. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+- Full report: [Phase 600](research/PHASE600_SEC_FORM144_CAPTURE_RECOVERY_AND_FORM4_CADENCE_GAP_AUDIT_2026-11-24.md); addendum: [Phase 600 state](research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-24_PHASE600.md).
