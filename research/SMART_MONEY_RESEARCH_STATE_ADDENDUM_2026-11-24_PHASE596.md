@@ -1,0 +1,13 @@
+# Smart Money Research state addendum — Phase 596 (2026-11-24 13:45 UTC)
+
+Main HEAD before this addendum: `e2f8ba6a7c7ec183a5ec55708bf7ff422872134c`. Full audit: [Phase 596 — source-priority consistency and SEC schedule delivery](PHASE596_SMART_MONEY_SOURCE_PRIORITY_AND_SEC_SCHEDULE_DELIVERY_RECHECK_2026-11-24.md).
+
+- Actions preflight: 8,109 total runs; latest 100 = 90 success / 10 failure; zero in-progress, queued, waiting or requested. Schedule-filtered inventory = 59 runs. 380 branches, 72 open PRs and 96 workflow files.
+- Latest natural captures: Form 4 run 45332760566, state poll ended 05:22:13 UTC; Form 144 run 45330252226, state poll ended 05:01:16 UTC. Both jobs succeeded and artifacts remain available. No later scheduled run is present at the 13:45 UTC cutoff: eight expected Form 4 slots (06:17–13:17) and eight completed Form 144 slots (05:47–12:47) are absent. Issue [#194](https://github.com/jafelix81/NuevaEstrategia/issues/194) was reopened with exact evidence. No manual dispatch or cron change.
+- FINRA run 45339067236: six HTTP-200 CNMS files rejected for repeated BCPC/TPC rows (12 extra rows); no accepted raw observations. CFTC run 45338400329: 3,043 rows, no new report/revision. Both workflows completed successfully at job level; artifacts are unexpired.
+- Form 4: 516 new canonical accession events; 6,022 observation rows; 653 repeated same-feed occurrences are not separate filings. Bounded backfills added 24 transaction rows and 11 owner rows; 20 owner accessions and 2,273 transaction accessions remain pending; five descriptive crosswalk rows; zero signal-eligible matches. Form 144: 477 accessions / 3,360 detail rows; 238 backfills pending; zero signal-eligible headers.
+- Source priority correction: Phase 595's two-snapshot 13F accession join is schema/PIT feasibility only. It does not override Phase 22C's inadequate 335-name historical coverage (212/335 in 2016Q1, 246/335 in 2020Q1, 280/335 in 2024Q1) or Phase 386's disposition. Form 13F remains parked. Schedule 13D remains the first ownership-disclosure rebuild priority per Phase 555; 13G stays separate.
+- The 20,266-row legacy 13D/G panel remains quarantined after confirmed filer/subject misattribution. Phase 485/588 parser code is on main; Phase 588 regression passed 11/11. The bounded historical rebuild remains gated by maintainer confirmation of `SEC_USER_AGENT`; no secret was inspected, no SEC request was made.
+- New signals: 0. Incremental alpha: none. New valid OOS/bootstrap/LOO: 0. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen. No model, universe, parameter, exposure, cost, holdout or production change.
+- No workflow was dispatched, rerun, cancelled or duplicated.
+
