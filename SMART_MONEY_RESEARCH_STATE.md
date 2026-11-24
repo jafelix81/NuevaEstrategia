@@ -1,3 +1,17 @@
+# Current Smart Money Research Snapshot — 2026-11-24 (Phase 593)
+
+**Audit date:** 2026-11-24. **Main HEAD before this snapshot:** `b7ea5916ad6078baed88a20ca5b2a43a13d327c7`. Full report: [Phase 593 — FINRA Phase 20C PIT adjudication](research/PHASE593_FINRA_PHASE20C_PIT_ADJUDICATION_AND_SHORTFLOW_NO_GO_2026-11-24.md).
+
+- **Actions inventory:** 8,109 total runs; latest 100 = 90 success / 10 failure; 0 active / 0 queued. Branches: 380; open PRs: 72; workflow files: 96.
+- **SEC capture:** Form 4 run [45332760566](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45332760566) recovered both feed watermarks; 516 new accessions, 6,022 observations, 129 transaction rows and 61 owner-sidecar rows; bounded backfills appended 24 detail rows and 11 owner rows; no signal-eligible rows. Form 144 run [45330252226](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45330252226) added 118 accessions and 801 detail rows; cumulative 477 accessions / 3,360 detail rows; 238 backfills and five acceptance reconciliations remain unresolved; no signal-eligible rows.
+- **FINRA current capture:** run [45339067236](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45339067236) received six HTTP-200 CNMS files but rejected all six under the duplicate-symbol fail-closed gate. BCPC/TPC account for 12 extra rows; zero valid/first-seen/eligible rows. No raw volumes were persisted.
+- **Phase 20C adjudication:** the branch is 12 ahead / 596 behind main. The later artifact contains 1,382 historical CNMS files / 412,645 rows with zero duplicate (Date, Symbol) keys. However, the current Phase 20C return calculation uses signal-date close even though FINRA publishes the daily file after regular trading hours. The same-day-close test is look-ahead and is **NO-GO for promotion**. Its 12 pseudo-OOS date deltas are weak/unstable and all 95% intervals include zero; six final OOS signals remain sealed. Price inputs and effective-dated universe membership were not archived, so results are not fully reproducible.
+- **CFTC TFF:** run [45338400329](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45338400329) retained 3,043 rows with no new report/revision; zero signal-eligible historical rows.
+- **Decision:** no FINRA signal admitted; no incremental alpha demonstrated; no valid new OOS result. Do not merge or rerun the stale Phase 20C branch. Any successor must use next-session execution, frozen/hashed source and price data, effective-dated universe membership, identical exposure/costs, chronological validation, bootstrap/LOO and independent OOS.
+- **Frozen baseline:** `F80_TOP20_PARTIAL50_BASELINE_C20` unchanged. No universe, parameters, exposure, costs, holding-period policy or production changes. No workflow was dispatched or rerun.
+
+---
+
 # Current Smart Money Research Snapshot — 2026-11-24 (Phase 592)
 
 **Audit cutoff:** 2026-11-24 09:12 UTC. **Main HEAD at preflight:** `5347dfe5bb591e7c58a8e57680703bac1991597e`. Full report: [Phase 592 — Form 4 current-ledger purchase-cluster triage](research/PHASE592_FORM4_CURRENT_LEDGER_PURCHASE_CLUSTER_TRIAGE_2026-11-24.md).
