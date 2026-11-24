@@ -288,6 +288,11 @@ def source_mapping(records: list[dict]) -> tuple[dict[str, set[str]], dict[str, 
     return dict(mapping), dict(details)
 
 
+def incremental_mapped_tickers(baseline_unmapped: list[str], expanded_unmapped: list[str]) -> list[str]:
+    """Return baseline-unmapped names recovered by an expanded source union."""
+    return sorted(set(baseline_unmapped) - set(expanded_unmapped))
+
+
 def mapping_summary(mapping: dict[str, set[str]], universe: set[str]) -> dict:
     target = {t: ciks for t, ciks in mapping.items() if t in universe}
     conflicts = {t: sorted(ciks) for t, ciks in target.items() if len(ciks) > 1}
@@ -387,8 +392,9 @@ def run(output_dir: Path) -> dict:
     combined_summary = mapping_summary(dict(current_union), universe)
     # Incremental mappings are exactly the baseline-unmapped tickers recovered
     # by the expanded source union. Do not subtract the baseline mapping keys.
-    newly_mapped = sorted(set(baseline_summary["unmapped_tickers"]) -
-                          set(combined_summary["unmapped_tickers"]))
+    newly_mapped = incremental_mapped_tickers(
+        baseline_summary["unmapped_tickers"], combined_summary["unmapped_tickers"]
+    )
     still_unmapped = combined_summary["unmapped_tickers"]
     phase603_unmapped = set(TARGET_UNMAPPED_PHASE603)
     phase603_recovered = sorted(phase603_unmapped - set(still_unmapped))
