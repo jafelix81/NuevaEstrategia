@@ -254,7 +254,7 @@ def fetch_sec_bytes(url: str, user_agent: str, timeout: int = 60, retries: int =
             if error.code == 404 and allow_404:
                 return b"", 404
             last_error = error
-            if error.code not in (403, 408, 429, 500, 502, 503, 504):
+            if error.code not in (408, 429, 500, 502, 503, 504):
                 raise
             retry_after = error.headers.get("Retry-After") if error.headers else None
             try:
