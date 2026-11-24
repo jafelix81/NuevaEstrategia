@@ -1,3 +1,19 @@
+# Current Smart Money Research Snapshot — 2026-11-24 (Phase 591)
+
+**Audit cutoff:** 2026-11-24 08:37 UTC. **Main HEAD at preflight:** `101f5872aaa93b60031227c6c1010b23db030efc`. Full report: [Phase 591 — FINRA Reg SHO official schema, retention and license gate](research/PHASE591_FINRA_REGSHO_API_OFFICIAL_SCHEMA_RETENTION_AND_LICENSE_GATE_2026-11-24.md).
+
+- **Actions limitation:** specific run/job/artifact retrieval is available, but no repository-wide Actions run-list endpoint is exposed; no global active/queued assertion is made. The four inspected runs are complete and their artifacts were downloaded and checked.
+- **FINRA Reg SHO:** run [45339067236](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45339067236) returned HTTP 200 for six daily CNMS files but rejected all six. The downloaded artifact confirms repeated BCPC/TPC rows on all six dates, with overlapping facility sets and no exact raw-row duplicates. No raw volumes persisted; zero valid files and zero eligible observations. Keep Phase 469 fail-closed.
+- **Official Query API correction:** FINRA's official `otcMarket/regShoDaily` docs show facility-coded sample rows and the seven fields, but the dataset is rolling 12 months only. The mock metadata description inconsistently labels the facility field with one-letter market codes while the sample rows use NQTRF/NYTRF/NCTRF. No stable CUSIP/issuer/share-class identifier is documented. This is a recent reconciliation/prospective source, not a 4-year OOS source. `shortParQuantity` already includes short-exempt volume; do not add `shortExemptParQuantity` again. See [official dataset documentation](https://developer.finra.org/docs) and [Equity Data terms](https://developer.finra.org/specific-terms-equity-data).
+- **Workflow correction:** Phase 447 is hard-coded to `otcMarket/consolidatedShortInterest`; its OAuth pattern may be reused, but its retrieval workflow cannot query `regShoDaily` as-is. No new workflow or live request was made. FINRA Equity Data use is limited to non-commercial personal/professional use under the specific terms; confirm intended use and credential entitlement before querying.
+- **SEC Form 4:** run [45332760566](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45332760566) confirms both watermarks, 516 new accession events, 20 Form 4 pages, zero signal eligibility. Bounded transaction-detail backfill added 24 rows with 2,273 remaining; owner sidecar added 11 rows and now has 20 accessions pending. Public availability and transaction-line attribution remain uncertified.
+- **SEC Form 144:** run [45330252226](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45330252226) added 118 accessions and 801 detail rows; total 477 accessions / 3,360 rows; 238 backfill accessions and five acceptance reconciliations remain. Phase 549 still reports zero signal eligibility; Form 144 is proposed-sale notice only.
+- **CFTC TFF:** run [45338400329](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45338400329) found no new reports/revisions; 3,043 rows remain prospective-only.
+- **Branches:** `phase20c-finra-walkforward` is 12 ahead / 592 behind main; Phase 515 is 5/161, Phase 547 is 5/94, Phase 530 is 5/138 and Phase 548 is 2/94. None was merged or replayed.
+- **Research decision:** zero new signals; no incremental alpha or new OOS/bootstrap/LOO result. No model, universe, exposure, cost, holding-period, holdout or production change. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+
+---
+
 # Current Smart Money Research Snapshot — 2026-11-24 (Phase 590)
 
 **Audit cutoff:** 2026-11-24 07:51 UTC. **Main HEAD before this checkpoint:** `00d4ca975624c255133da4a5f2ce980df5783fee`. Full report: [Phase 590 — FINRA Reg SHO API facility-reconciliation feasibility](research/PHASE590_FINRA_REGSHO_API_FACILITY_RECONCILIATION_FEASIBILITY_2026-11-24.md).
