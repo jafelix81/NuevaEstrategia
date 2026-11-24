@@ -1,3 +1,15 @@
+# Current Smart Money Research Snapshot — 2026-11-24 (Phase 592)
+
+**Audit cutoff:** 2026-11-24 09:12 UTC. **Main HEAD at preflight:** `5347dfe5bb591e7c58a8e57680703bac1991597e`. Full report: [Phase 592 — Form 4 current-ledger purchase-cluster triage](research/PHASE592_FORM4_CURRENT_LEDGER_PURCHASE_CLUSTER_TRIAGE_2026-11-24.md).
+
+- **Actions inventory:** the repository Actions runs API is now retrievable: 8,109 total runs; latest 100 = 90 success / 10 failure; 0 active / 0 queued. Branches: 380; open PRs: 72; workflow files: 96. This supersedes Phase 591/590's statement that no repository-wide run-list endpoint was exposed.
+- **Latest run preflight:** Form 4 [45332760566](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45332760566), Form 144 [45330252226](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45330252226), FINRA Reg SHO [45339067236](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45339067236) and CFTC TFF [45338400329](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45338400329) are all complete. No active/queued duplicate was started.
+- **Form 4 event triage:** current transaction ledger has 129 transaction rows. Exact matching against the static frozen 335 snapshot yields 15 rows across SE, APO and UPST. UPST has two P/A purchase rows totaling 110,000 shares / approximately US$1.811M, but also four disposal rows and one code-J transfer; do not net these heterogeneous events. UPST remains the only in-snapshot purchase cluster and is not signal-eligible. HOS has two direct purchase filings by CEO/director Todd M. Hornbeck and director Benjamin M. Fink (249,300 shares / approximately US$1.247M), but HOS is outside the frozen snapshot. PICS has three director purchase filings (114,962 shares / approximately US$556.7k), also outside the snapshot. SE's matched rows are 10b5-1 sales; APO's matched row is a code-J transfer.
+- **PIT/identity:** no candidate has passed all public-availability, transaction-semantics, owner-line, security-identity and historical-universe gates. Form 4 code P and absence of a 10b5-1 flag do not prove open-market/discretionary buying. No forward-return or event study was run; new signals admitted: 0.
+- **Research decision:** `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen. No model, universe, exposure, cost, holdout, holding-period or production changes.
+
+---
+
 # Current Smart Money Research Snapshot — 2026-11-24 (Phase 591)
 
 **Audit cutoff:** 2026-11-24 08:37 UTC. **Main HEAD at preflight:** `101f5872aaa93b60031227c6c1010b23db030efc`. Full report: [Phase 591 — FINRA Reg SHO official schema, retention and license gate](research/PHASE591_FINRA_REGSHO_API_OFFICIAL_SCHEMA_RETENTION_AND_LICENSE_GATE_2026-11-24.md).
