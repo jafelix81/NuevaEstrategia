@@ -43,9 +43,31 @@ class Sec13DGHeaderIdentityTests(unittest.TestCase):
         self.assertTrue(result["subject_issuer_identity_verified"])
         self.assertFalse(result["signal_eligible"])
 
-    def test_accession_filer_mismatch_fails_closed(self):
+    def test_third_party_submitter_does_not_invalidate_filed_by_identity(self):
+        text = SEC_HEADER_FIXTURE.replace(
+            "ACCESSION NUMBER: 0000895421-24-000178",
+            "ACCESSION NUMBER: 0000000001-24-000178",
+        )
+        result = parse_subject_filer_identity(text, "0000000001-24-000178")
+        self.assertEqual(result["identity_status"], "VERIFIED_SUBJECT_AND_FILED_BY_CIKS")
+        self.assertEqual(result["accession_submitter_cik"], "0000000001")
+        self.assertEqual(result["filing_cik"], "0000895421")
+        self.assertFalse(result["accession_submitter_matches_filed_by"])
+        self.assertTrue(result["accession_matches_header"])
+        self.assertTrue(result["subject_issuer_identity_verified"])
+
+    def test_header_accession_mismatch_fails_closed(self):
         result = parse_subject_filer_identity(SEC_HEADER_FIXTURE, "0000000001-24-000178")
-        self.assertEqual(result["identity_status"], "ACCESSION_HEADER_FILER_MISMATCH")
+        self.assertEqual(result["identity_status"], "HEADER_ACCESSION_MISMATCH")
+        self.assertFalse(result["subject_issuer_identity_verified"])
+
+    def test_missing_header_accession_fails_closed(self):
+        text = SEC_HEADER_FIXTURE.replace(
+            "ACCESSION NUMBER: 0000895421-24-000178",
+            "",
+        )
+        result = parse_subject_filer_identity(text, "0000895421-24-000178")
+        self.assertEqual(result["identity_status"], "MISSING_OR_INVALID_HEADER_ACCESSION")
         self.assertFalse(result["subject_issuer_identity_verified"])
 
     def test_missing_subject_block_fails_closed(self):

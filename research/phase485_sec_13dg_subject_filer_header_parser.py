@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Fail-closed parser for SEC EDGAR Schedule 13D/G index-header identity blocks.
+"""Fail-closed parser for SEC EDGAR Schedule 13D/G complete-submission identity blocks.
 
-The SEC index header separates SUBJECT COMPANY from FILED BY. Never infer the
-subject issuer from the accession prefix, the queried submissions CIK, or a
-ticker mapping.
+SUBJECT COMPANY and FILED BY identify different roles. The accession prefix
+identifies the EDGAR submitting entity and can be a third-party filing agent;
+it must not be equated with the FILED BY CIK. The SEC-HEADER ACCESSION NUMBER
+is validated separately against the expected accession.
 """
 from __future__ import annotations
 
@@ -57,43 +58,57 @@ def _field(block: str, field_name: str) -> str | None:
 def parse_subject_filer_identity(header_text: str, accession: str) -> dict[str, Any]:
     accession = str(accession or "").strip()
     accession_match = ACCESSION_RE.fullmatch(accession)
-    accession_filer_cik = accession_match.group(1) if accession_match else None
+    accession_submitter_cik = accession_match.group(1) if accession_match else None
 
     header = _header_payload(str(header_text or ""))
     blocks = _identity_blocks(header)
     subject_block = blocks.get("SUBJECT COMPANY")
-    filer_block = blocks.get("FILED BY")
+    filed_by_block = blocks.get("FILED BY")
 
+    header_accession = _field(header, "ACCESSION NUMBER")
     subject_name = _field(subject_block, "COMPANY CONFORMED NAME") if subject_block else None
     subject_cik = _normalize_cik(_field(subject_block, "CENTRAL INDEX KEY")) if subject_block else None
-    filer_name = _field(filer_block, "COMPANY CONFORMED NAME") if filer_block else None
-    filer_cik = _normalize_cik(_field(filer_block, "CENTRAL INDEX KEY")) if filer_block else None
+    filed_by_name = _field(filed_by_block, "COMPANY CONFORMED NAME") if filed_by_block else None
+    filed_by_cik = _normalize_cik(_field(filed_by_block, "CENTRAL INDEX KEY")) if filed_by_block else None
+    header_accession_valid = bool(header_accession and ACCESSION_RE.fullmatch(header_accession))
 
     if subject_block is None:
         status = "NO_SUBJECT_COMPANY_BLOCK"
-    elif filer_block is None:
+    elif filed_by_block is None:
         status = "NO_FILED_BY_BLOCK"
     elif not subject_cik:
         status = "MISSING_OR_INVALID_SUBJECT_CIK"
-    elif not filer_cik:
-        status = "MISSING_OR_INVALID_FILER_CIK"
-    elif not accession_filer_cik:
+    elif not filed_by_cik:
+        status = "MISSING_OR_INVALID_FILED_BY_CIK"
+    elif not accession_match:
         status = "INVALID_OR_MISSING_ACCESSION"
-    elif filer_cik != accession_filer_cik:
-        status = "ACCESSION_HEADER_FILER_MISMATCH"
+    elif not header_accession_valid:
+        status = "MISSING_OR_INVALID_HEADER_ACCESSION"
+    elif header_accession != accession:
+        status = "HEADER_ACCESSION_MISMATCH"
     else:
-        status = "VERIFIED_SUBJECT_AND_FILER_CIKS"
+        status = "VERIFIED_SUBJECT_AND_FILED_BY_CIKS"
 
-    verified = status == "VERIFIED_SUBJECT_AND_FILER_CIKS"
+    verified = status == "VERIFIED_SUBJECT_AND_FILED_BY_CIKS"
+    submitter_matches_filed_by = bool(
+        accession_submitter_cik and filed_by_cik and accession_submitter_cik == filed_by_cik
+    )
     return {
         "accession": accession or None,
-        "accession_filer_cik": accession_filer_cik,
+        "header_accession": header_accession,
+        "accession_submitter_cik": accession_submitter_cik,
+        "accession_matches_header": bool(header_accession_valid and header_accession == accession),
+        "accession_submitter_matches_filed_by": submitter_matches_filed_by,
         "subject_issuer_cik": subject_cik,
         "subject_issuer_name": subject_name,
-        "filing_cik": filer_cik,
-        "filing_entity_name": filer_name,
+        "filed_by_cik": filed_by_cik,
+        "filed_by_entity_name": filed_by_name,
+        # Backward-compatible aliases: these identify the FILED BY block, not the EDGAR submitter.
+        "filing_cik": filed_by_cik,
+        "filing_entity_name": filed_by_name,
         "identity_status": status,
         "subject_issuer_identity_verified": verified,
+        "filed_by_identity_verified": verified,
         "ticker": None,
         "ticker_mapping_status": "NOT_ATTEMPTED",
         "signal_eligible": False,

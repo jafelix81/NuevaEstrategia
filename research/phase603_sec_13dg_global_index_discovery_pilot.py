@@ -46,9 +46,10 @@ OUTPUT_FIELDS = [
     "accession", "form", "filing_date", "index_row_count",
     "index_ciks", "index_company_names", "archive_path_ciks",
     "submission_path_count", "submission_url", "accession_filer_cik",
-    "header_subject_cik", "header_subject_name", "header_filer_cik",
-    "header_filer_name", "header_identity_status",
-    "header_filer_matches_accession", "header_subject_in_index_ciks",
+    "header_accession", "accession_submitter_cik", "header_subject_cik",
+    "header_subject_name", "header_filer_cik", "header_filer_name",
+    "header_identity_status", "header_accession_matches_expected",
+    "accession_submitter_matches_filed_by", "header_subject_in_index_ciks",
     "header_filer_in_index_ciks", "archive_path_matches_subject",
     "index_contains_both_header_roles", "subject_current_f80_tickers",
     "filer_current_f80_tickers", "subject_current_f80_from_non_f80_filer",
@@ -412,6 +413,7 @@ def fetch_submission_sample(sample: list[dict], cik_to_tickers: dict,
             "submission_path_count": len(group["filename_paths"]),
             "submission_url": url,
             "accession_filer_cik": group["accession_filer_cik"],
+            "accession_submitter_cik": group["accession_filer_cik"],
             "http_status": 0,
             "submission_sha256": "",
             "error": "",
@@ -427,27 +429,30 @@ def fetch_submission_sample(sample: list[dict], cik_to_tickers: dict,
             base["acceptance_datetime_raw"] = acceptance_datetime(raw) or ""
             parsed = parse_subject_filer_identity(raw.decode("utf-8", "replace"), group["accession"])
             subject_cik = parsed.get("subject_issuer_cik")
-            filer_cik = parsed.get("filing_cik")
-            filer_matches_accession = bool(filer_cik and filer_cik == group["accession_filer_cik"])
+            filed_by_cik = parsed.get("filed_by_cik") or parsed.get("filing_cik")
+            submitter_cik = parsed.get("accession_submitter_cik")
             subject_in_index = bool(subject_cik and subject_cik in index_ciks)
-            filer_in_index = bool(filer_cik and filer_cik in index_ciks)
+            filed_by_in_index = bool(filed_by_cik and filed_by_cik in index_ciks)
             archive_subject_match = bool(subject_cik and subject_cik in archive_ciks)
             subject_ticker = cik_to_tickers.get(subject_cik, "") if subject_cik else ""
-            filer_ticker = cik_to_tickers.get(filer_cik, "") if filer_cik else ""
+            filed_by_ticker = cik_to_tickers.get(filed_by_cik, "") if filed_by_cik else ""
             base.update({
+                "header_accession": parsed.get("header_accession") or "",
+                "accession_submitter_cik": submitter_cik or group["accession_filer_cik"],
                 "header_subject_cik": subject_cik or "",
                 "header_subject_name": parsed.get("subject_issuer_name") or "",
-                "header_filer_cik": filer_cik or "",
-                "header_filer_name": parsed.get("filing_entity_name") or "",
+                "header_filer_cik": filed_by_cik or "",
+                "header_filer_name": parsed.get("filed_by_entity_name") or parsed.get("filing_entity_name") or "",
                 "header_identity_status": parsed.get("identity_status", ""),
-                "header_filer_matches_accession": str(filer_matches_accession).lower(),
+                "header_accession_matches_expected": str(bool(parsed.get("accession_matches_header"))).lower(),
+                "accession_submitter_matches_filed_by": str(bool(parsed.get("accession_submitter_matches_filed_by"))).lower(),
                 "header_subject_in_index_ciks": str(subject_in_index).lower(),
-                "header_filer_in_index_ciks": str(filer_in_index).lower(),
+                "header_filer_in_index_ciks": str(filed_by_in_index).lower(),
                 "archive_path_matches_subject": str(archive_subject_match).lower(),
-                "index_contains_both_header_roles": str(subject_in_index and filer_in_index).lower(),
+                "index_contains_both_header_roles": str(subject_in_index and filed_by_in_index).lower(),
                 "subject_current_f80_tickers": subject_ticker,
-                "filer_current_f80_tickers": filer_ticker,
-                "subject_current_f80_from_non_f80_filer": str(bool(subject_ticker and not filer_ticker)).lower(),
+                "filer_current_f80_tickers": filed_by_ticker,
+                "subject_current_f80_from_non_f80_filer": str(bool(subject_ticker and not filed_by_ticker)).lower(),
             })
         except Exception as error:
             base["error"] = f"{type(error).__name__}:{str(error)[:240]}"
@@ -471,14 +476,15 @@ def summarize(records: list[dict], groups: list[dict], exact_duplicate_rows: int
     )
     status_counts = Counter(str(row.get("http_status", 0)) for row in rows)
     successful = [row for row in rows if row.get("http_status") == 200]
-    verified = [row for row in successful if row.get("header_identity_status") == "VERIFIED_SUBJECT_AND_FILER_CIKS"]
-    filer_accession = [row for row in verified if row.get("header_filer_matches_accession") == "true"]
+    verified = [row for row in successful if row.get("header_identity_status") == "VERIFIED_SUBJECT_AND_FILED_BY_CIKS"]
+    accession_header_matches = [row for row in verified if row.get("header_accession_matches_expected") == "true"]
+    submitter_filed_by_matches = [row for row in verified if row.get("accession_submitter_matches_filed_by") == "true"]
     subject_index = [row for row in verified if row.get("header_subject_in_index_ciks") == "true"]
-    filer_index = [row for row in verified if row.get("header_filer_in_index_ciks") == "true"]
+    filed_by_index = [row for row in verified if row.get("header_filer_in_index_ciks") == "true"]
     archive_subject = [row for row in verified if row.get("archive_path_matches_subject") == "true"]
     subject_f80 = [row for row in verified if row.get("subject_current_f80_tickers")]
     subject_f80_external_filer = [row for row in subject_f80 if not row.get("filer_current_f80_tickers")]
-    filer_f80 = [row for row in verified if row.get("filer_current_f80_tickers")]
+    filed_by_f80 = [row for row in verified if row.get("filer_current_f80_tickers")]
     index_path_mismatches = sum(row["index_cik"] != row["archive_path_cik"] for row in records)
     index_vs_accession_filer_differences = sum(row["index_cik"] != row["accession_filer_cik"] for row in records)
     candidate_f80_index = sum(group["any_index_cik_in_f80"] for group in groups)
@@ -490,9 +496,9 @@ def summarize(records: list[dict], groups: list[dict], exact_duplicate_rows: int
     elif len(successful) / len(sample) < 0.95:
         disposition = "INCONCLUSIVE_SUBMISSION_FETCH_COVERAGE"
     elif len(verified) / len(successful) < 0.95:
-        disposition = "INCONCLUSIVE_SUBJECT_FILER_HEADER_PARSE"
-    elif len(filer_accession) / len(verified) < 0.95:
-        disposition = "QUARANTINE_HEADER_FILER_ACCESSION_MISMATCH"
+        disposition = "INCONCLUSIVE_SUBJECT_FILED_BY_HEADER_PARSE"
+    elif len(accession_header_matches) / len(verified) < 0.95:
+        disposition = "QUARANTINE_HEADER_ACCESSION_MISMATCH"
     elif len(subject_index) / len(verified) < 0.95 or len(archive_subject) / len(verified) < 0.95:
         disposition = "QUARANTINE_INDEX_SUBJECT_IDENTITY_COVERAGE"
     else:
@@ -534,13 +540,14 @@ def summarize(records: list[dict], groups: list[dict], exact_duplicate_rows: int
         "submission_http_status_counts": dict(status_counts),
         "submission_http_200": len(successful),
         "header_identity_verified": len(verified),
-        "header_filer_matches_accession": len(filer_accession),
+        "header_accession_matches_expected": len(accession_header_matches),
+        "accession_submitter_matches_filed_by": len(submitter_filed_by_matches),
         "header_subject_in_index_ciks": len(subject_index),
-        "header_filer_in_index_ciks": len(filer_index),
+        "header_filer_in_index_ciks": len(filed_by_index),
         "archive_path_matches_subject": len(archive_subject),
         "current_f80_subject_matches": len(subject_f80),
         "current_f80_subject_matches_with_non_f80_filer": len(subject_f80_external_filer),
-        "current_f80_filer_matches": len(filer_f80),
+        "current_f80_filed_by_matches": len(filed_by_f80),
         "sec_user_agent_secret_present": secret_present,
         "sec_user_agent_secret_accepted": secret_accepted,
         "sec_user_agent_source": ua_source,
@@ -554,7 +561,8 @@ def summarize(records: list[dict], groups: list[dict], exact_duplicate_rows: int
         "production_changed": False,
         "notes": [
             "The index CIK, archive-path CIK and accession-prefix CIK are not assumed to be the same role.",
-            "The accession prefix identifies the submitting entity and can be a third-party filing agent; it is not used as the subject issuer.",
+            "The accession prefix identifies the EDGAR submitting entity and can be a third-party filing agent; it is not required to equal the FILED BY reporting-owner CIK.",
+            "The SEC-HEADER ACCESSION NUMBER is checked against the expected accession; FILED BY CIK is validated independently.",
             "All index rows for an accession are preserved and grouped; repeated accessions are not discarded as conflicts.",
             "The exact master-index filename is fetched as the complete submission text; SEC-HEADER SUBJECT COMPANY and FILED BY blocks are parsed separately.",
             "Current SEC ticker files are a discovery aid only and are not an effective-dated historical F80 security master.",
