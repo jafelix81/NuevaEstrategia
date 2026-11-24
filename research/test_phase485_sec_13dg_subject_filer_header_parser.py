@@ -70,6 +70,34 @@ FILED BY:
 </SEC-HEADER>"""
         result = parse_subject_filer_identity(text, "0000895421-24-000178")
         self.assertEqual(result["identity_status"], "MISSING_OR_INVALID_SUBJECT_CIK")
+        self.assertIsNone(result["subject_issuer_cik"])
+
+    def test_empty_subject_name_does_not_consume_next_field(self):
+        text = SEC_HEADER_FIXTURE.replace(
+            "COMPANY CONFORMED NAME: abrdn Global Infrastructure Income Fund",
+            "COMPANY CONFORMED NAME:",
+        )
+        result = parse_subject_filer_identity(text, "0000895421-24-000178")
+        self.assertIsNone(result["subject_issuer_name"])
+        self.assertEqual(result["subject_issuer_cik"], "0001793855")
+
+    def test_empty_filer_name_does_not_consume_next_field(self):
+        text = SEC_HEADER_FIXTURE.replace(
+            "COMPANY CONFORMED NAME: MORGAN STANLEY",
+            "COMPANY CONFORMED NAME:",
+        )
+        result = parse_subject_filer_identity(text, "0000895421-24-000178")
+        self.assertIsNone(result["filing_entity_name"])
+        self.assertEqual(result["filing_cik"], "0000895421")
+
+    def test_empty_subject_cik_does_not_consume_following_metadata(self):
+        text = SEC_HEADER_FIXTURE.replace(
+            "CENTRAL INDEX KEY: 0001793855",
+            "CENTRAL INDEX KEY:",
+        )
+        result = parse_subject_filer_identity(text, "0000895421-24-000178")
+        self.assertIsNone(result["subject_issuer_cik"])
+        self.assertEqual(result["identity_status"], "MISSING_OR_INVALID_SUBJECT_CIK")
 
     def test_invalid_accession_fails_closed(self):
         result = parse_subject_filer_identity(SEC_HEADER_FIXTURE, "000089542124000178")
