@@ -2127,3 +2127,12 @@ This section supersedes any older “in progress” status above where later com
 - Databento OPRA remains conditional; IvyDB TradeFlow remains the leading direct-flow hypothesis; ORATS remains context-only. No sample/license/account/data purchase.
 - No universe, exposure, costs, parameters, holdout or production changes. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
 - Full report: [Phase 600](research/PHASE600_SEC_FORM144_CAPTURE_RECOVERY_AND_FORM4_CADENCE_GAP_AUDIT_2026-11-24.md); addendum: [Phase 600 state](research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-24_PHASE600.md).
+
+
+## Phase 604 — SEC registered-fund ticker/CIK crosswalk (2026-11-24 23:00 UTC)
+
+- PASS: 9/9 official SEC files retrieved and parsed; 11/11 offline tests passed; [Actions run 45505786670](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45505786670), [artifact 14972004133](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45505786670/artifacts/14972004133).
+- Current discovery mapping: 300/335 from company ticker files; adding the SEC mutual-fund ticker/Series-Class crosswalk resolves 28 additional tickers (11 registrant CIKs), for 328/335 total and zero conflicts. 27 tickers keep the same CIK across all available snapshots in which they appear; QQQ is present in one snapshot only (2026). Seven remain unresolved: AVB, EA, EQR, LPRO, ROKU, WBD, WBS.
+- These are current discovery and annual-snapshot matches only: no effective-dated ticker history, historical F80 membership, exact public-availability clock, or signal eligibility. SEC_USER_AGENT secret env was empty, but the accepted Phase 401 contact fallback successfully fetched all nine files; no user intervention required for this run.
+- Full report: research/PHASE604_SEC_SERIES_CLASS_TICKER_CIK_CROSSWALK_AUDIT_2026-11-24.md; state addendum: research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-24_PHASE604.md.
+- No alpha/OOS/bootstrap/LOO result; no production or capital change. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen; options budget USD 0.
