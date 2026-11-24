@@ -37,6 +37,13 @@ class GlobalIndexPilotTests(unittest.TestCase):
         self.assertEqual(path_cik, "0001793855")
         self.assertEqual(accession, "0000895421-24-000178")
 
+    def test_parse_flat_master_index_path(self):
+        path_cik, accession = parse_index_path(
+            "edgar/data/1793855/0000895421-24-000178.txt"
+        )
+        self.assertEqual(path_cik, "0001793855")
+        self.assertEqual(accession, "0000895421-24-000178")
+
     def test_build_index_headers_url_uses_master_index_directory_not_filer_prefix(self):
         url = build_index_headers_url(
             "edgar/data/1793855/000089542124000178/0000895421-24-000178.txt",
@@ -45,6 +52,16 @@ class GlobalIndexPilotTests(unittest.TestCase):
         self.assertEqual(
             url,
             "https://www.sec.gov/Archives/edgar/data/1793855/000089542124000178/0000895421-24-000178-index-headers.html",
+        )
+
+    def test_build_index_headers_url_supports_flat_master_index_path(self):
+        url = build_index_headers_url(
+            "edgar/data/1793855/0000895421-24-000178.txt",
+            "0000895421-24-000178",
+        )
+        self.assertEqual(
+            url,
+            "https://www.sec.gov/Archives/edgar/data/1793855/0000895421-24-000178-index-headers.html",
         )
 
     def test_stratified_sample_is_deterministic_and_bounded_per_form_filer_stratum(self):
