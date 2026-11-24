@@ -85,6 +85,12 @@ Controls remain:
 5. **CFTC TFF:** keep accumulating natural prospective vintages only. The two currently captured prospective observations are insufficient for predictive testing; do not backfill feature history from the historical archive.
 6. **SEC MIDAS:** conditional market-structure/liquidity context, not a smart-money identity feed. Archive-link bytes, file integrity, exact coverage and historical first-public timestamps remain unverified.
 
+## 5A. Current Form 4 cross-feed coverage check
+
+A strict issuer-CIK join was run against the current Form 4 transaction ledger (`research/data/sec_form4_first_seen/transaction_details.csv`, 175 CSV rows: 60 filing-header rows and 115 transaction rows). **None of the 13 issuer CIKs in the 22 new Form 144 candidate-manifest matches appears in those current Form 4 rows.**
+
+This is a coverage limitation, not evidence that the proposed sales did not execute. The Form 4 ledger is still a small/incomplete prospective sample, and the Form 144 notices themselves are not execution confirmations. Do not infer that any issuer had no subsequent Form 4 activity outside the current ledger or beyond its capture window.
+
 ## 6. Research disposition
 
 The new Form 144 sample is useful for source quality, event classification and negative-control design. It does not establish a predictive selling signal. In particular, a cluster of notices is not a cluster of executed sales, and absence of remarks is not proof of discretionary intent.
