@@ -38,7 +38,7 @@ class Phase47Tests(unittest.TestCase):
             ["A1", "0", "", ""],
             ["A2", "1", "1", "RESTATEMENT"],
             ["A3", "1", "2", "NEW HOLDINGS ENTRIES"],
-            ["A4", "0", "", ""],
+            ["A4", "1", "1", "RESTATEMENT"],
         ]
         cover, amendment_meta, amendment_ok = build_amendment_map(
             self.coverpage_header, cover_rows, submissions
@@ -46,11 +46,13 @@ class Phase47Tests(unittest.TestCase):
         stats = amendment_meta["stats"]
         self.assertTrue(amendment_ok)
         self.assertEqual(len(cover), 4)
-        self.assertEqual(stats["amendment_rows"], 2)
+        self.assertEqual(stats["amendment_rows"], 3)
         self.assertEqual(stats["amendment_type_counts"], {
             "NEW HOLDINGS ENTRIES": 1,
-            "RESTATEMENT": 1,
+            "RESTATEMENT": 2,
         })
+        self.assertEqual(stats["form_type_amendment_discordance_rows"], 1)
+        self.assertEqual(stats["amendment_flag_mismatch_rows"], 0)
         self.assertEqual(meta["stats"]["manager_period_groups_with_multiple_submissions"], 1)
 
     def test_missing_amendment_number_or_type_fails_closed(self):

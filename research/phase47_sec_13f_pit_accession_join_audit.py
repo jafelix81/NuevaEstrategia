@@ -161,7 +161,12 @@ def build_submission_map(header: list[str], rows: list[list[str]]) -> tuple[dict
 def build_amendment_map(
     header: list[str], rows: list[list[str]], submissions: dict
 ) -> tuple[dict, dict, bool]:
-    """Join COVERPAGE amendment fields by accession and validate 13F-HR/A, 13F-NT/A."""
+    """Join COVERPAGE amendment fields by accession.
+
+    ISAMENDMENT is the primary amendment indicator. SUBMISSIONTYPE is a
+    separate EDGAR submission-type field and can remain 13F-HR even when the
+    cover page marks the filing as an amendment.
+    """
     ci = {
         "accession": idx(header, "ACCESSION_NUMBER"),
         "is_amendment": idx(header, "ISAMENDMENT", "IS_AMENDMENT"),
@@ -199,11 +204,12 @@ def build_amendment_map(
     missing_flag = 0
     missing_flag_amendment = 0
     missing_flag_non_amendment = 0
-    flag_mismatches = 0
-    flag_mismatch_samples = []
-    unexpected_metadata = 0
-    unexpected_metadata_samples = []
-    flag_values_by_submission_type = defaultdict(Counter)
+    form_type_amendment_discordance = 0
+    form_type_discordance_samples = []
+    amendment_flag_mismatches = 0
+    amendment_flag_mismatch_samples = []
+    metadata_only_amendments = 0
+    unknown_flag_values = Counter()
 
     truthy = {"1", "Y", "YES", "TRUE"}
     falsey = {"0", "N", "NO", "FALSE"}
@@ -211,31 +217,28 @@ def build_amendment_map(
         cover = coverpages.get(accession)
         if cover is None:
             continue
-        submission_is_amendment = submission["submission_type"].endswith("/A")
+        submission_type = submission["submission_type"]
+        submission_type_amendment = submission_type.endswith("/A")
         flag = cover["is_amendment"]
-        flag_values_by_submission_type[submission["submission_type"] or "<blank>"][flag or "<blank>"] += 1
+        number = cover["amendment_number"]
+        amendment_type = cover["amendment_type"]
+        flag_true = flag in truthy
+        flag_false = flag in falsey
+        metadata_present = bool(number or amendment_type)
+
         if not flag:
             missing_flag += 1
-            if submission_is_amendment:
+            if submission_type_amendment or metadata_present:
                 missing_flag_amendment += 1
             else:
                 missing_flag_non_amendment += 1
-        flag_is_amendment = flag in truthy
-        flag_is_false = flag in falsey
-        if (submission_is_amendment and flag_is_false) or (not submission_is_amendment and flag_is_amendment):
-            flag_mismatches += 1
-            if len(flag_mismatch_samples) < 10:
-                flag_mismatch_samples.append({
-                    "accession": accession,
-                    "submission_type": submission["submission_type"],
-                    "is_amendment_flag": flag,
-                    "amendment_number": cover["amendment_number"],
-                    "amendment_type": cover["amendment_type"],
-                })
+        elif not flag_true and not flag_false:
+            unknown_flag_values[flag] += 1
 
-        number = cover["amendment_number"]
-        amendment_type = cover["amendment_type"]
-        if submission_is_amendment:
+        # The cover-page checkbox is authoritative. The submission type is
+        # retained separately; a 13F-HR with ISAMENDMENT=Y is a valid pattern.
+        is_amendment = flag_true or submission_type_amendment or metadata_present
+        if is_amendment:
             amendment_rows += 1
             if not number:
                 missing_number += 1
@@ -245,16 +248,29 @@ def build_amendment_map(
                 missing_type += 1
             else:
                 amendment_type_counts[amendment_type] += 1
-        elif number or amendment_type:
-            unexpected_metadata += 1
-            if len(unexpected_metadata_samples) < 10:
-                unexpected_metadata_samples.append({
+
+        if flag_true and not submission_type_amendment:
+            form_type_amendment_discordance += 1
+            if len(form_type_discordance_samples) < 10:
+                form_type_discordance_samples.append({
                     "accession": accession,
-                    "submission_type": submission["submission_type"],
+                    "submission_type": submission_type,
                     "is_amendment_flag": flag,
                     "amendment_number": number,
                     "amendment_type": amendment_type,
                 })
+        if submission_type_amendment and flag_false:
+            amendment_flag_mismatches += 1
+            if len(amendment_flag_mismatch_samples) < 10:
+                amendment_flag_mismatch_samples.append({
+                    "accession": accession,
+                    "submission_type": submission_type,
+                    "is_amendment_flag": flag,
+                    "amendment_number": number,
+                    "amendment_type": amendment_type,
+                })
+        if metadata_present and not flag_true and not submission_type_amendment:
+            metadata_only_amendments += 1
 
     stats = {
         "coverpage_rows": len(rows),
@@ -272,13 +288,12 @@ def build_amendment_map(
         "amendment_flag_missing_rows": missing_flag,
         "amendment_flag_missing_amendment_rows": missing_flag_amendment,
         "amendment_flag_missing_non_amendment_rows": missing_flag_non_amendment,
-        "amendment_flag_values_by_submission_type": {
-            key: dict(sorted(values.items())) for key, values in sorted(flag_values_by_submission_type.items())
-        },
-        "amendment_flag_mismatch_rows": flag_mismatches,
-        "sample_amendment_flag_mismatches": flag_mismatch_samples,
-        "unexpected_amendment_metadata_rows": unexpected_metadata,
-        "sample_unexpected_amendment_metadata": unexpected_metadata_samples,
+        "amendment_flag_unknown_values": dict(sorted(unknown_flag_values.items())),
+        "form_type_amendment_discordance_rows": form_type_amendment_discordance,
+        "sample_form_type_amendment_discordance": form_type_discordance_samples,
+        "amendment_flag_mismatch_rows": amendment_flag_mismatches,
+        "sample_amendment_flag_mismatches": amendment_flag_mismatch_samples,
+        "metadata_only_amendment_rows": metadata_only_amendments,
     }
     ok = (
         duplicate_rows == 0
@@ -286,7 +301,8 @@ def build_amendment_map(
         and not extra_coverpage
         and missing_number == 0
         and missing_type == 0
-        and flag_mismatches == 0
+        and amendment_flag_mismatches == 0
+        and not unknown_flag_values
     )
     return coverpages, {"indices": ci, "stats": stats}, ok
 
