@@ -11,7 +11,9 @@ import re
 from typing import Any
 
 ACCESSION_RE = re.compile(r"^(\d{10})-\d{2}-\d{6}$")
-BLOCK_RE = re.compile(r"^\s*(SUBJECT COMPANY|FILED BY)\s*:\s*$", re.I | re.M)
+# Header block markers and field values are single-line records. Do not use
+# \s here: it includes newlines and can consume the next field when a value is blank.
+BLOCK_RE = re.compile(r"^[ \t]*(SUBJECT COMPANY|FILED BY)[ \t]*:[ \t]*\r?$", re.I | re.M)
 
 
 def _normalize_cik(value: str | None) -> str | None:
@@ -43,9 +45,13 @@ def _identity_blocks(header: str) -> dict[str, str]:
 
 
 def _field(block: str, field_name: str) -> str | None:
-    pattern = rf"^\s*{re.escape(field_name)}\s*:\s*(.*?)\s*$"
+    # A blank value must remain blank; never consume the next header line.
+    pattern = rf"^[ \t]*{re.escape(field_name)}[ \t]*:[ \t]*([^\r\n]*?)[ \t]*\r?$"
     match = re.search(pattern, block, re.I | re.M)
-    return match.group(1).strip() if match else None
+    if not match:
+        return None
+    value = match.group(1).strip()
+    return value or None
 
 
 def parse_subject_filer_identity(header_text: str, accession: str) -> dict[str, Any]:
