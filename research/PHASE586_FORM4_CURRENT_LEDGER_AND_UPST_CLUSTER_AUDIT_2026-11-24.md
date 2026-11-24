@@ -118,7 +118,7 @@ No forward returns were calculated. No event study, backtest, alpha, OOS, bootst
 
 ## 6. Other source gates and strategy protection
 
-- FINRA Short Interest remains conditional on authorized credentials/terms; the next scheduled release is 2026-11-24 for settlement 2026-11-13, published by 4:40 PM ET (2:40 PM Hermosillo). No request was initiated.
+- FINRA Short Interest remains conditional on authorized credentials/terms; the official [FINRA reporting calendar](https://www.finra.org/filing-reporting/regulatory-filing-systems/short-interest) lists 2026-11-24 for settlement 2026-11-13, and the [FINRA Developer Center](https://developer.finra.org/docs) says Consolidated Short Interest is available by 4:40 PM ET (2:40 PM Hermosillo) on publication day. No request was initiated.
 - FINRA ATS and Reg SHO remain subject to symbol identity, complete snapshots, and the post-merge production validation gates.
 - Cboe OPRA/options remains gated by written strategy-use authorization, exact 335-name/date coverage, and historical first-receipt/correction vintages.
 - SEC 13D/G and FTD remain gated by the repository's SEC_USER_AGENT secret and subject-issuer identity reconstruction.
