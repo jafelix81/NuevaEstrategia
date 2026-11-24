@@ -1,8 +1,8 @@
 import unittest
 
 from research.phase604_sec_series_class_ticker_cik_crosswalk_audit import (
-    mapping_summary, normalize_cik, normalize_ticker, parse_json_ticker_rows,
-    parse_series_class_csv, source_mapping,
+    incremental_mapped_tickers, mapping_summary, normalize_cik, normalize_ticker,
+    parse_json_ticker_rows, parse_series_class_csv, source_mapping,
 )
 
 
@@ -72,6 +72,28 @@ class Phase604CrosswalkTests(unittest.TestCase):
         summary = mapping_summary(mapping, {"QQQ"})
         self.assertEqual(summary["tickers_mapped"], 1)
         self.assertEqual(summary["conflicting_tickers"], {})
+
+    def test_series_class_parser_handles_tab_and_documented_header_aliases(self):
+        raw = (
+            b"SEC Investment Company Series and Class Report\\n"
+            b"Reporting File Number\\tCentral Index Key\\tSeries ID\\tClass ID\\tClass Contract Ticker Symbol\\n"
+            b"811-00001\\t12345\\tS000000001\\tC000000001\\tQQQ\\n"
+        )
+        rows, data_rows, header_index = parse_series_class_csv(
+            raw, "series_class_2026_csv", "2026-06-01"
+        )
+        self.assertEqual(header_index, 1)
+        self.assertEqual(data_rows, 1)
+        self.assertEqual(rows[0]["ticker"], "QQQ")
+        self.assertEqual(rows[0]["cik"], "0000012345")
+
+    def test_incremental_mapping_delta_recovers_only_newly_mapped_names(self):
+        baseline_unmapped = ["ARKK", "QQQ", "AVB", "EA"]
+        expanded_unmapped = ["AVB", "EA"]
+        self.assertEqual(
+            incremental_mapped_tickers(baseline_unmapped, expanded_unmapped),
+            ["ARKK", "QQQ"],
+        )
 
     def test_historical_snapshot_is_not_declared_effective_dated(self):
         snapshot = {"source": "series_class_2026_csv", "snapshot_date": "2026-06-01"}
