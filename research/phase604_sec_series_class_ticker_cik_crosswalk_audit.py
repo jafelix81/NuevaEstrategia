@@ -48,19 +48,19 @@ SEC_FILES = {
         "kind": "csv", "snapshot_date": "2025-06-02", "required": False,
     },
     "series_class_2024_csv": {
-        "url": "https://www.sec.gov/files/investment/data/other/investment-company-series-class-information/investment-company-series-class-2024.csv",
+        "url": "https://www.sec.gov/files/investment/data/other/investment-company-series-and-class-information/investment-company-series-class-2024.csv",
         "kind": "csv", "snapshot_date": "2024-06-05", "required": False,
     },
     "series_class_2020_csv": {
-        "url": "https://www.sec.gov/files/investment/data/other/investment-company-series-class-information/investment-company-series-class-2020.csv",
+        "url": "https://www.sec.gov/files/investment/data/other/investment-company-series-and-class-information/investment_company_series_class_2020.csv",
         "kind": "csv", "snapshot_date": "2020-07-13", "required": False,
     },
     "series_class_2016_csv": {
-        "url": "https://www.sec.gov/files/investment/data/other/investment-company-series-class-information/investment-company-series-class-2016.csv",
+        "url": "https://www.sec.gov/files/investment/data/other/investment-company-series-and-class-information/investment_company_series_class.csv",
         "kind": "csv", "snapshot_date": "2016-09-23", "required": False,
     },
     "series_class_2010_csv": {
-        "url": "https://www.sec.gov/files/investment/data/other/investment-company-series-class-information/investment-company-series-class-2010.csv",
+        "url": "https://www.sec.gov/files/investment/data/other/investment-company-series-and-class-information/investmentcompanyseriesclass2010.csv",
         "kind": "csv", "snapshot_date": "2010; exact update day not stated", "required": False,
     },
 }
@@ -206,21 +206,49 @@ def parse_json_ticker_rows(raw: bytes, source: str, snapshot_date: str) -> tuple
 
 
 def parse_series_class_csv(raw: bytes, source: str, snapshot_date: str) -> tuple[list[dict], int, int]:
+    """Parse SEC Series/Class CSVs across historical delimiter/header regimes.
+
+    SEC's download links have used multiple directory and filename conventions.
+    The CSV content also needs deterministic delimiter/header discovery: a
+    Sniffer guess from long text fields can select the wrong delimiter.
+    """
     text = raw.decode("utf-8-sig", "replace")
-    try:
-        dialect = csv.Sniffer().sniff(text[:10000], delimiters=",\t|")
-    except csv.Error:
-        dialect = csv.excel
-    rows = list(csv.reader(io.StringIO(text), dialect))
-    header_index = None
-    header = []
-    for i, row in enumerate(rows[:100]):
-        keys = [normalize_key(x) for x in row]
-        if "cik" in keys and ("classticker" in keys or "classcontracttickersymbol" in keys):
-            header_index, header = i, keys
-            break
-    if header_index is None:
-        raise ValueError("series_class_csv_header_with_CIK_and_Class_Ticker_not_found")
+    candidates = []
+    for delimiter in (",", "\\t", "|"):
+        rows = list(csv.reader(io.StringIO(text), delimiter=delimiter))
+        for i, row in enumerate(rows[:500]):
+            keys = [normalize_key(x) for x in row]
+            cik_positions = [
+                j for j, key in enumerate(keys)
+                if key in {"cik", "ciknumber", "centralindexkey", "centralindexkeycik"}
+                or key.endswith("registrantcik")
+            ]
+            ticker_positions = [
+                j for j, key in enumerate(keys)
+                if key in {"ticker", "symbol", "classticker", "classtickersymbol",
+                           "classcontractticker", "classcontracttickersymbol",
+                           "classsymbol", "contractticker"}
+                or ("ticker" in key and ("class" in key or "contract" in key))
+            ]
+            if cik_positions and ticker_positions:
+                candidates.append((len(row), -i, delimiter, rows, i, keys,
+                                   cik_positions[0], ticker_positions[0]))
+                break
+    if not candidates:
+        diagnostics = []
+        for delimiter in (",", "\\t", "|"):
+            rows = list(csv.reader(io.StringIO(text), delimiter=delimiter))
+            diagnostics.append({
+                "delimiter": repr(delimiter),
+                "first_rows": [row[:8] for row in rows[:4]],
+            })
+        raise ValueError(
+            "series_class_csv_header_not_found:" +
+            json.dumps(diagnostics, ensure_ascii=False, separators=(",", ":"))[:1800]
+        )
+
+    # Prefer the candidate with the most parsed columns, then the earliest header.
+    _, _, delimiter, rows, header_index, header, cik_index, ticker_index = max(candidates)
     index = {key: i for i, key in enumerate(header) if key}
 
     def get(row, aliases):
@@ -236,18 +264,16 @@ def parse_series_class_csv(raw: bytes, source: str, snapshot_date: str) -> tuple
         if not row or not any(str(x).strip() for x in row):
             continue
         data_rows += 1
-        cik = normalize_cik(get(row, ("cik",)))
-        ticker = normalize_ticker(get(row, (
-            "class_ticker", "class_contract_ticker_symbol", "ticker",
-        )))
+        cik = normalize_cik(row[cik_index] if cik_index < len(row) else "")
+        ticker = normalize_ticker(row[ticker_index] if ticker_index < len(row) else "")
         if not cik or not ticker:
             continue
         output.append({
             "source": source, "snapshot_date": snapshot_date, "ticker": ticker, "cik": cik,
-            "series_id": str(get(row, ("series_id",))),
-            "class_id": str(get(row, ("class_id",))),
-            "series_name": str(get(row, ("series_name",))),
-            "class_name": str(get(row, ("class_name",))),
+            "series_id": str(get(row, ("series_id", "seriesid"))),
+            "class_id": str(get(row, ("class_id", "classid"))),
+            "series_name": str(get(row, ("series_name", "seriesname"))),
+            "class_name": str(get(row, ("class_name", "classname"))),
             "status": str(get(row, ("class_status", "series_status", "status"))),
         })
     return output, data_rows, header_index
@@ -309,6 +335,9 @@ def run(output_dir: Path) -> dict:
             meta["target_mapping"] = mapping_summary(mapping, universe)
             meta["status"] = "PASS"
         except Exception as exc:
+            if isinstance(exc, HTTPError):
+                meta["http_status"] = exc.code
+                meta["http_error_reason"] = str(exc.reason)
             meta.update({"status": "FAIL", "error": f"{type(exc).__name__}:{exc}"})
             if spec["required"]:
                 required_failures.append(source)
@@ -356,9 +385,10 @@ def run(output_dir: Path) -> dict:
 
     baseline_summary = mapping_summary(dict(baseline_union), universe)
     combined_summary = mapping_summary(dict(current_union), universe)
-    newly_mapped = sorted((set(universe) - set(baseline_summary["unmapped_tickers"])) &
-                          (set(universe) - set(combined_summary["unmapped_tickers"])))
-    newly_mapped = sorted(set(newly_mapped) - set(baseline_union))
+    # Incremental mappings are exactly the baseline-unmapped tickers recovered
+    # by the expanded source union. Do not subtract the baseline mapping keys.
+    newly_mapped = sorted(set(baseline_summary["unmapped_tickers"]) -
+                          set(combined_summary["unmapped_tickers"]))
     still_unmapped = combined_summary["unmapped_tickers"]
     phase603_unmapped = set(TARGET_UNMAPPED_PHASE603)
     phase603_recovered = sorted(phase603_unmapped - set(still_unmapped))
