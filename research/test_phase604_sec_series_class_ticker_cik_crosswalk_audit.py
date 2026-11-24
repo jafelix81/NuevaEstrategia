@@ -30,9 +30,9 @@ class Phase604CrosswalkTests(unittest.TestCase):
 
     def test_parses_series_class_csv_after_optional_preamble(self):
         raw = (
-            b"SEC Investment Company Series and Class Report\\n"
-            b"Reporting File Number,CIK,Name of Investment Company,Series ID,Series Name,Class ID,Class Name,Class Ticker\\n"
-            b"811-00001,12345,Example Fund,S000000001,Example Series,C000000001,ETF Shares,QQQ\\n"
+            b"SEC Investment Company Series and Class Report\n"
+            b"Reporting File Number,CIK,Name of Investment Company,Series ID,Series Name,Class ID,Class Name,Class Ticker\n"
+            b"811-00001,12345,Example Fund,S000000001,Example Series,C000000001,ETF Shares,QQQ\n"
         )
         rows, data_rows, header_index = parse_series_class_csv(raw, "series_class_2026_csv", "2026-06-01")
         self.assertEqual(data_rows, 1)
@@ -42,8 +42,8 @@ class Phase604CrosswalkTests(unittest.TestCase):
 
     def test_blank_class_ticker_is_not_imputed(self):
         raw = (
-            b"CIK,Series ID,Class ID,Class Ticker\\n"
-            b"12345,S000000001,C000000001,\\n"
+            b"CIK,Series ID,Class ID,Class Ticker\n"
+            b"12345,S000000001,C000000001,\n"
         )
         rows, data_rows, _ = parse_series_class_csv(raw, "series_class_2026_csv", "2026-06-01")
         self.assertEqual(data_rows, 1)
