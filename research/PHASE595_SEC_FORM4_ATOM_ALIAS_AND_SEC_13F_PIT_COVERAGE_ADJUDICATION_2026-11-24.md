@@ -75,3 +75,14 @@ Comments were posted on [PR #6](https://github.com/jafelix81/NuevaEstrategia/pul
 - New signals admitted: 0. Incremental alpha demonstrated: none. New valid OOS/bootstrap/LOO results: 0.
 - `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen. No model, universe, exposure, costs, holdout, holding-period or production changes.
 - No workflow was dispatched, rerun, merged or cancelled.
+
+## 6. Persisted capture freshness at audit cutoff
+
+Current main-branch state files still point to these latest successful/persisted capture times as of 2026-11-24 12:35 UTC:
+
+- SEC Form 4: run `45332760566`, poll ended `2026-11-24T05:22:13Z`.
+- SEC Form 144: run `45330252226`, successful poll `2026-11-24T05:01:16Z`.
+- FINRA Reg SHO: run `45339067236`, poll completed `2026-11-24T06:15:25Z`; persistent file state remains empty because the six daily files were rejected.
+- CFTC TFF: last prospective capture `2026-11-21T03:17:36Z`; latest report date in the four tracked contracts remains `2026-11-17`.
+
+No later successful capture is reflected in these persistent state files. This alone does not establish that a scheduled workflow was disabled, missed or failed; the connected GitHub actions in this run do not expose a fresh repository-wide scheduled-run list or the workflow schedule definitions. No schedule was changed and no workflow was dispatched.
