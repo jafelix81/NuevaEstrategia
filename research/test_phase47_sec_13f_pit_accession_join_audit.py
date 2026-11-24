@@ -51,7 +51,7 @@ class Phase47Tests(unittest.TestCase):
             "NEW HOLDINGS ENTRIES": 1,
             "RESTATEMENT": 1,
         })
-        self.assertEqual(stats["manager_period_groups_with_multiple_submissions"], 0)
+        self.assertEqual(meta["stats"]["manager_period_groups_with_multiple_submissions"], 1)
 
     def test_missing_amendment_number_or_type_fails_closed(self):
         submissions, _, schema_ok = build_submission_map(
