@@ -75,9 +75,9 @@ class Phase604CrosswalkTests(unittest.TestCase):
 
     def test_series_class_parser_handles_tab_and_documented_header_aliases(self):
         raw = (
-            b"SEC Investment Company Series and Class Report\\n"
-            b"Reporting File Number\\tCentral Index Key\\tSeries ID\\tClass ID\\tClass Contract Ticker Symbol\\n"
-            b"811-00001\\t12345\\tS000000001\\tC000000001\\tQQQ\\n"
+            b"SEC Investment Company Series and Class Report\n"
+            b"Reporting File Number\tCentral Index Key\tSeries ID\tClass ID\tClass Contract Ticker Symbol\n"
+            b"811-00001\t12345\tS000000001\tC000000001\tQQQ\n"
         )
         rows, data_rows, header_index = parse_series_class_csv(
             raw, "series_class_2026_csv", "2026-06-01"
