@@ -214,7 +214,7 @@ def parse_series_class_csv(raw: bytes, source: str, snapshot_date: str) -> tuple
     """
     text = raw.decode("utf-8-sig", "replace")
     candidates = []
-    for delimiter in (",", "\\t", "|"):
+    for delimiter in (",", "\t", "|"):
         rows = list(csv.reader(io.StringIO(text), delimiter=delimiter))
         for i, row in enumerate(rows[:500]):
             keys = [normalize_key(x) for x in row]
@@ -236,7 +236,7 @@ def parse_series_class_csv(raw: bytes, source: str, snapshot_date: str) -> tuple
                 break
     if not candidates:
         diagnostics = []
-        for delimiter in (",", "\\t", "|"):
+        for delimiter in (",", "\t", "|"):
             rows = list(csv.reader(io.StringIO(text), delimiter=delimiter))
             diagnostics.append({
                 "delimiter": repr(delimiter),
