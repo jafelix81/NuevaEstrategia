@@ -77,6 +77,21 @@ class Phase47Tests(unittest.TestCase):
         self.assertFalse(amendment_ok)
         self.assertEqual(meta["stats"]["missing_coverpage_accessions"], 3)
 
+    def test_blank_is_amendment_flag_is_allowed_when_nullable(self):
+        submissions, _, _ = build_submission_map(self.submission_header, self.submission_rows)
+        cover_rows = [
+            ["A1", "", "", ""],
+            ["A2", "1", "1", "RESTATEMENT"],
+            ["A3", "1", "2", "NEW HOLDINGS ENTRIES"],
+            ["A4", "", "", ""],
+        ]
+        _, meta, amendment_ok = build_amendment_map(
+            self.coverpage_header, cover_rows, submissions
+        )
+        self.assertTrue(amendment_ok)
+        self.assertEqual(meta["stats"]["amendment_flag_missing_amendment_rows"], 0)
+        self.assertEqual(meta["stats"]["amendment_flag_missing_non_amendment_rows"], 2)
+
     def test_filing_lag_distribution_counts_submission_events(self):
         stats = distribution([45, 45, 50, 52])
         self.assertEqual(stats["n_submissions"], 4)

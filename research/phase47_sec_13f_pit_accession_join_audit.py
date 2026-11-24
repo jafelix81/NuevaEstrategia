@@ -197,8 +197,13 @@ def build_amendment_map(
     missing_number = 0
     missing_type = 0
     missing_flag = 0
+    missing_flag_amendment = 0
+    missing_flag_non_amendment = 0
     flag_mismatches = 0
+    flag_mismatch_samples = []
     unexpected_metadata = 0
+    unexpected_metadata_samples = []
+    flag_values_by_submission_type = defaultdict(Counter)
 
     truthy = {"1", "Y", "YES", "TRUE"}
     falsey = {"0", "N", "NO", "FALSE"}
@@ -208,12 +213,25 @@ def build_amendment_map(
             continue
         submission_is_amendment = submission["submission_type"].endswith("/A")
         flag = cover["is_amendment"]
+        flag_values_by_submission_type[submission["submission_type"] or "<blank>"][flag or "<blank>"] += 1
         if not flag:
             missing_flag += 1
+            if submission_is_amendment:
+                missing_flag_amendment += 1
+            else:
+                missing_flag_non_amendment += 1
         flag_is_amendment = flag in truthy
         flag_is_false = flag in falsey
         if (submission_is_amendment and flag_is_false) or (not submission_is_amendment and flag_is_amendment):
             flag_mismatches += 1
+            if len(flag_mismatch_samples) < 10:
+                flag_mismatch_samples.append({
+                    "accession": accession,
+                    "submission_type": submission["submission_type"],
+                    "is_amendment_flag": flag,
+                    "amendment_number": cover["amendment_number"],
+                    "amendment_type": cover["amendment_type"],
+                })
 
         number = cover["amendment_number"]
         amendment_type = cover["amendment_type"]
@@ -229,6 +247,14 @@ def build_amendment_map(
                 amendment_type_counts[amendment_type] += 1
         elif number or amendment_type:
             unexpected_metadata += 1
+            if len(unexpected_metadata_samples) < 10:
+                unexpected_metadata_samples.append({
+                    "accession": accession,
+                    "submission_type": submission["submission_type"],
+                    "is_amendment_flag": flag,
+                    "amendment_number": number,
+                    "amendment_type": amendment_type,
+                })
 
     stats = {
         "coverpage_rows": len(rows),
@@ -244,8 +270,15 @@ def build_amendment_map(
         "amendment_missing_number_rows": missing_number,
         "amendment_missing_type_rows": missing_type,
         "amendment_flag_missing_rows": missing_flag,
+        "amendment_flag_missing_amendment_rows": missing_flag_amendment,
+        "amendment_flag_missing_non_amendment_rows": missing_flag_non_amendment,
+        "amendment_flag_values_by_submission_type": {
+            key: dict(sorted(values.items())) for key, values in sorted(flag_values_by_submission_type.items())
+        },
         "amendment_flag_mismatch_rows": flag_mismatches,
+        "sample_amendment_flag_mismatches": flag_mismatch_samples,
         "unexpected_amendment_metadata_rows": unexpected_metadata,
+        "sample_unexpected_amendment_metadata": unexpected_metadata_samples,
     }
     ok = (
         duplicate_rows == 0
@@ -306,6 +339,7 @@ def audit_dataset(label: str, url: str, user_agent: str) -> tuple[dict, bool]:
     unique_cusips = set()
     unique_figi = set()
     unique_ciks = {meta["cik"] for meta in submissions.values() if meta["cik"]}
+    unique_ciks_with_holdings = set()
     accession_counts = Counter()
     nonpositive_value = 0
     missing_cusip = 0
@@ -320,6 +354,8 @@ def audit_dataset(label: str, url: str, user_agent: str) -> tuple[dict, bool]:
                 sample_unmatched.append(accession)
             continue
         joined += 1
+        if submissions[accession]["cik"]:
+            unique_ciks_with_holdings.add(submissions[accession]["cik"])
         cusip = row[ii["cusip"]].strip() if ii["cusip"] < len(row) else ""
         if not cusip:
             missing_cusip += 1
@@ -344,6 +380,8 @@ def audit_dataset(label: str, url: str, user_agent: str) -> tuple[dict, bool]:
         "missing_accession_rows": missing_accession,
         "sample_unmatched_accessions": sample_unmatched,
         "unique_ciks": len(unique_ciks),
+        "unique_ciks_all_submissions": len(unique_ciks),
+        "unique_ciks_with_holdings": len(unique_ciks_with_holdings),
         "unique_cusips": len(unique_cusips),
         "unique_figi": len(unique_figi),
         "missing_cusip_rows": missing_cusip,
