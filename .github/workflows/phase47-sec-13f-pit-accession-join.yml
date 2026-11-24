@@ -15,7 +15,13 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Run SEC 13F PIT accession join audit
+      - name: Compile and run offline regressions
+        run: |
+          python -m py_compile research/sec_user_agent.py research/phase47_sec_13f_pit_accession_join_audit.py research/test_phase47_sec_13f_pit_accession_join_audit.py
+          python -m unittest -v research.test_phase47_sec_13f_pit_accession_join_audit
+      - name: Run SEC 13F PIT accession and amendment audit
+        env:
+          SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
         run: python research/phase47_sec_13f_pit_accession_join_audit.py
       - name: Upload audit
         uses: actions/upload-artifact@v4
