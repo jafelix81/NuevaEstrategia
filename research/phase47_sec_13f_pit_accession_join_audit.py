@@ -18,7 +18,10 @@ from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 
-from research.sec_user_agent import resolve_sec_user_agent
+try:
+    from research.sec_user_agent import resolve_sec_user_agent
+except ModuleNotFoundError:
+    from sec_user_agent import resolve_sec_user_agent
 
 DATASETS = {
     "2018_q1": "https://www.sec.gov/files/structureddata/data/form-13f-data-sets/2018q1_form13f.zip",

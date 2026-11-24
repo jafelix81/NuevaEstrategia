@@ -1,7 +1,5 @@
 name: Phase 47 - SEC 13F PIT accession join audit
 on:
-  push:
-    branches: [phase47-sec-13f-pit-accession-join-audit]
   pull_request:
     branches: [main]
   workflow_dispatch:
