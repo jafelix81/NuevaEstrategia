@@ -105,6 +105,7 @@ def parse_index_path(path: str) -> tuple[str | None, str | None]:
 
 
 def build_index_headers_url(path: str, accession: str) -> str:
+    """Resolve the canonical accession-directory header URL from either index path form."""
     normalized = normalize_index_path(path)
     parts = normalized.split("/")
     if len(parts) < 4 or parts[0:2] != ["edgar", "data"]:
@@ -113,8 +114,14 @@ def build_index_headers_url(path: str, accession: str) -> str:
         raise ValueError("invalid_accession")
     if parse_index_path(path)[1] != accession:
         raise ValueError("master_index_path_accession_mismatch")
-    directory = "/".join(parts[:-1])
-    return f"https://www.sec.gov/Archives/{directory}/{accession}-index-headers.html"
+    archive_cik = normalize_cik(parts[2])
+    if not archive_cik:
+        raise ValueError("invalid_archive_path_cik")
+    accession_directory = accession.replace("-", "")
+    return (
+        f"https://www.sec.gov/Archives/edgar/data/{int(archive_cik)}/"
+        f"{accession_directory}/{accession}-index-headers.html"
+    )
 
 
 def parse_master_index(raw: bytes | str) -> tuple[list[dict], dict]:

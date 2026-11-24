@@ -61,7 +61,7 @@ class GlobalIndexPilotTests(unittest.TestCase):
         )
         self.assertEqual(
             url,
-            "https://www.sec.gov/Archives/edgar/data/1793855/0000895421-24-000178-index-headers.html",
+            "https://www.sec.gov/Archives/edgar/data/1793855/000089542124000178/0000895421-24-000178-index-headers.html",
         )
 
     def test_stratified_sample_is_deterministic_and_bounded_per_form_filer_stratum(self):

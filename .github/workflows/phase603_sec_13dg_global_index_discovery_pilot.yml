@@ -16,7 +16,7 @@ permissions:
 
 concurrency:
   group: phase603-sec-13dg-global-index-discovery-pilot
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   bounded-global-index-pilot:
