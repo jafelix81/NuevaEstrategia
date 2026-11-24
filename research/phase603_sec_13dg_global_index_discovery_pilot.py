@@ -36,7 +36,7 @@ MAX_PER_STRATUM = 25
 SEC_INTERVAL_SECONDS = 0.25
 OUTPUT_FIELDS = [
     "accession", "form", "filing_date", "index_company_name",
-    "index_filer_cik", "accession_filer_cik", "archive_path_cik",
+    "index_filer_cik", "accession_filer_cik", "archive_path_cik", "archive_path_format",
     "header_subject_cik", "header_subject_name", "header_filer_cik",
     "header_filer_name", "identity_status", "header_filer_matches_index",
     "header_filer_matches_accession", "archive_path_matches_subject",
@@ -69,24 +69,49 @@ def format_accession(digits: str) -> str | None:
     return f"{digits[:10]}-{digits[10:12]}-{digits[12:]}"
 
 
+def normalize_index_path(path: str) -> str:
+    value = str(path or "").strip()
+    match = re.search(r"(?:^|/)edgar/data/.*$", value, re.I)
+    return match.group(0).lstrip("/") if match else value.lstrip("/")
+
+
+def archive_path_format(path: str) -> str:
+    parts = normalize_index_path(path).split("/")
+    if len(parts) == 4:
+        return "flat_accession_file"
+    if len(parts) >= 5:
+        return "accession_directory"
+    return "unknown"
+
+
 def parse_index_path(path: str) -> tuple[str | None, str | None]:
-    """Return archive-path CIK and accession from the exact master-index path."""
-    parts = str(path or "").strip().split("/")
-    if len(parts) < 5 or parts[0:2] != ["edgar", "data"]:
+    """Return archive-path CIK and accession from flat or directory EDGAR index paths."""
+    normalized = normalize_index_path(path)
+    parts = normalized.split("/")
+    if len(parts) < 4 or parts[0:2] != ["edgar", "data"]:
         return None, None
     archive_cik = normalize_cik(parts[2])
-    accession = format_accession(parts[3])
+    accession = None
+    if len(parts) >= 5:
+        accession = format_accession(parts[3])
+    if not accession:
+        match = re.search(r"(?<!\d)(\d{10}-\d{2}-\d{6})(?!\d)", normalized)
+        if match:
+            accession = match.group(1)
+        else:
+            match = re.search(r"(?<!\d)(\d{18})(?!\d)", normalized)
+            accession = format_accession(match.group(1)) if match else None
     return archive_cik, accession
 
 
 def build_index_headers_url(path: str, accession: str) -> str:
-    parts = str(path or "").strip().split("/")
-    if len(parts) < 5 or parts[0:2] != ["edgar", "data"]:
+    normalized = normalize_index_path(path)
+    parts = normalized.split("/")
+    if len(parts) < 4 or parts[0:2] != ["edgar", "data"]:
         raise ValueError("invalid_master_index_archive_path")
     if not re.fullmatch(r"\d{10}-\d{2}-\d{6}", str(accession or "")):
         raise ValueError("invalid_accession")
-    path_accession = format_accession(parts[3])
-    if path_accession != accession:
+    if parse_index_path(path)[1] != accession:
         raise ValueError("master_index_path_accession_mismatch")
     directory = "/".join(parts[:-1])
     return f"https://www.sec.gov/Archives/{directory}/{accession}-index-headers.html"
@@ -128,6 +153,7 @@ def parse_master_index(raw: bytes | str) -> tuple[list[dict], dict]:
             "filing_date": filing_date,
             "filename_path": path,
             "archive_path_cik": archive_cik,
+            "archive_path_format": archive_path_format(path),
             "accession": accession,
             "accession_filer_cik": accession[:10],
         })
@@ -253,6 +279,7 @@ def fetch_header_sample(sample: list[dict], cik_to_ticker: dict, user_agent: str
             "index_filer_cik": row["index_filer_cik"],
             "accession_filer_cik": row["accession_filer_cik"],
             "archive_path_cik": row["archive_path_cik"],
+            "archive_path_format": row.get("archive_path_format", ""),
             "index_headers_url": url,
             "http_status": 0,
             "header_sha256": "",
@@ -302,6 +329,9 @@ def summarize(records: list[dict], invalid: dict, sample: list[dict], rows: list
               index_hash: str, tickers_hash: str, ua_source: str,
               secret_present: bool, secret_accepted: bool) -> dict:
     candidate_forms = Counter(row["form"] for row in records)
+    candidate_path_formats = Counter(row.get("archive_path_format", "unknown") for row in records)
+    index_accession_mismatches = sum(row["index_filer_cik"] != row["accession_filer_cik"] for row in records)
+    candidate_f80_filers = sum(row["index_filer_cik"] in set(cik_to_ticker) for row in records)
     sample_forms = Counter(row["form"] for row in sample)
     sample_strata = Counter(f'{row["form"]}|{"F80_FILER" if row["index_filer_cik"] in set(cik_to_ticker) else "NON_F80_FILER"}'
                             for row in sample)
@@ -316,6 +346,8 @@ def summarize(records: list[dict], invalid: dict, sample: list[dict], rows: list
     filer_f80 = [row for row in identity_verified if row.get("filer_current_f80_ticker")]
     if not sample:
         disposition = "NO_13DG_CANDIDATES_IN_QUARTER"
+    elif index_accession_mismatches:
+        disposition = "QUARANTINE_MASTER_INDEX_FILER_CIK_MISMATCH"
     elif len(successful) / len(sample) < 0.95:
         disposition = "INCONCLUSIVE_HEADER_FETCH_COVERAGE"
     elif len(identity_verified) / len(successful) < 0.95:
@@ -339,6 +371,9 @@ def summarize(records: list[dict], invalid: dict, sample: list[dict], rows: list
         "historical_f80_membership_verified": False,
         "candidate_accessions": len(records),
         "candidate_form_counts": dict(candidate_forms),
+        "candidate_archive_path_formats": dict(candidate_path_formats),
+        "candidate_index_filer_accession_prefix_mismatches": index_accession_mismatches,
+        "candidate_filer_current_f80_accessions": candidate_f80_filers,
         "invalid_master_index_rows": invalid,
         "sample_size": len(sample),
         "sample_form_counts": dict(sample_forms),
