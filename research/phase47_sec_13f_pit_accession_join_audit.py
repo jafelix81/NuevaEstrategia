@@ -78,26 +78,23 @@ def distribution(values: list[int]) -> dict:
 
 
 def build_submission_map(header: list[str], rows: list[list[str]]) -> tuple[dict, dict, bool]:
+    """Read submission identity and filing dates; amendment fields live in COVERPAGE."""
     si = {
         "accession": idx(header, "ACCESSION_NUMBER"),
         "filing": idx(header, "FILING_DATE"),
         "submission_type": idx(header, "SUBMISSIONTYPE", "SUBMISSION_TYPE"),
         "cik": idx(header, "CIK"),
         "report": idx(header, "PERIODOFREPORT", "PERIOD_OF_REPORT"),
-        "amendment_number": idx(header, "AMENDMENT_NUMBER", "AMENDMENTNUMBER"),
-        "amendment_type": idx(header, "AMENDMENTTYPE", "AMENDMENT_TYPE"),
     }
-    schema_ok = all(si[key] is not None for key in si)
-    if not schema_ok:
-        return {}, {"schema": si, "invalid_dates": len(rows)}, False
+    missing_fields = [key for key, value in si.items() if value is None]
+    if missing_fields:
+        return {}, {"indices": si, "stats": {
+            "submission_rows": len(rows), "missing_required_fields": missing_fields
+        }}, False
 
     submissions = {}
     duplicate_accessions = 0
     type_counts = Counter()
-    amendment_type_counts = Counter()
-    amendment_rows = 0
-    amendment_missing_number = 0
-    amendment_missing_type = 0
     invalid_dates = 0
     filing_before_report = 0
     lags_by_type = defaultdict(list)
@@ -116,19 +113,7 @@ def build_submission_map(header: list[str], rows: list[list[str]]) -> tuple[dict
         cik = row[si["cik"]].strip()
         report = row[si["report"]].strip()
         filing = row[si["filing"]].strip()
-        amendment_number = row[si["amendment_number"]].strip()
-        amendment_type = row[si["amendment_type"]].strip().upper()
-
         type_counts[submission_type or "<blank>"] += 1
-        is_amendment = submission_type.endswith("/A")
-        if is_amendment:
-            amendment_rows += 1
-            if not amendment_number:
-                amendment_missing_number += 1
-            if not amendment_type:
-                amendment_missing_type += 1
-            if amendment_type:
-                amendment_type_counts[amendment_type] += 1
 
         lag_days = None
         try:
@@ -149,44 +134,148 @@ def build_submission_map(header: list[str], rows: list[list[str]]) -> tuple[dict
             "report": report,
             "filing": filing,
             "submission_type": submission_type,
-            "amendment_number": amendment_number,
-            "amendment_type": amendment_type,
             "lag_days": lag_days,
         }
 
-    multi_filing_manager_periods = sum(1 for count in manager_period_counts.values() if count > 1)
     stats = {
         "submission_rows": len(rows),
         "submission_accessions": len(submissions),
         "duplicate_accession_rows": duplicate_accessions,
         "submission_type_counts": dict(sorted(type_counts.items())),
-        "amendment_rows": amendment_rows,
-        "amendment_type_counts": dict(sorted(amendment_type_counts.items())),
-        "amendment_missing_number_rows": amendment_missing_number,
-        "amendment_missing_type_rows": amendment_missing_type,
         "manager_period_groups": len(manager_period_counts),
-        "manager_period_groups_with_multiple_submissions": multi_filing_manager_periods,
-        "filing_lag_days": distribution([v["lag_days"] for v in submissions.values() if v["lag_days"] is not None]),
+        "manager_period_groups_with_multiple_submissions": sum(
+            1 for count in manager_period_counts.values() if count > 1
+        ),
+        "filing_lag_days": distribution(
+            [value["lag_days"] for value in submissions.values() if value["lag_days"] is not None]
+        ),
         "filing_lag_days_by_submission_type": {
             key: distribution(values) for key, values in sorted(lags_by_type.items())
         },
         "invalid_date_or_accession_rows": invalid_dates,
         "filing_before_report_submissions": filing_before_report,
     }
-    amendment_metadata_ok = amendment_missing_number == 0 and amendment_missing_type == 0
-    return submissions, {"indices": si, "stats": stats}, amendment_metadata_ok
+    return submissions, {"indices": si, "stats": stats}, True
+
+
+def build_amendment_map(
+    header: list[str], rows: list[list[str]], submissions: dict
+) -> tuple[dict, dict, bool]:
+    """Join COVERPAGE amendment fields by accession and validate 13F-HR/A, 13F-NT/A."""
+    ci = {
+        "accession": idx(header, "ACCESSION_NUMBER"),
+        "is_amendment": idx(header, "ISAMENDMENT", "IS_AMENDMENT"),
+        "amendment_number": idx(header, "AMENDMENTNO", "AMENDMENT_NUMBER", "AMENDMENTNUMBER"),
+        "amendment_type": idx(header, "AMENDMENTTYPE", "AMENDMENT_TYPE"),
+    }
+    missing_fields = [key for key, value in ci.items() if value is None]
+    if missing_fields:
+        return {}, {"indices": ci, "stats": {
+            "coverpage_rows": len(rows), "missing_required_fields": missing_fields
+        }}, False
+
+    coverpages = {}
+    duplicate_rows = 0
+    for row in rows:
+        accession = row[ci["accession"]].strip() if ci["accession"] < len(row) else ""
+        if not accession:
+            continue
+        if accession in coverpages:
+            duplicate_rows += 1
+            continue
+        coverpages[accession] = {
+            "is_amendment": row[ci["is_amendment"]].strip().upper(),
+            "amendment_number": row[ci["amendment_number"]].strip(),
+            "amendment_type": row[ci["amendment_type"]].strip().upper(),
+        }
+
+    missing_coverpage = sorted(set(submissions) - set(coverpages))
+    extra_coverpage = sorted(set(coverpages) - set(submissions))
+    amendment_rows = 0
+    amendment_type_counts = Counter()
+    amendment_number_counts = Counter()
+    missing_number = 0
+    missing_type = 0
+    missing_flag = 0
+    flag_mismatches = 0
+    unexpected_metadata = 0
+
+    truthy = {"1", "Y", "YES", "TRUE"}
+    falsey = {"0", "N", "NO", "FALSE"}
+    for accession, submission in submissions.items():
+        cover = coverpages.get(accession)
+        if cover is None:
+            continue
+        submission_is_amendment = submission["submission_type"].endswith("/A")
+        flag = cover["is_amendment"]
+        if not flag:
+            missing_flag += 1
+        flag_is_amendment = flag in truthy
+        flag_is_false = flag in falsey
+        if (submission_is_amendment and flag_is_false) or (not submission_is_amendment and flag_is_amendment):
+            flag_mismatches += 1
+
+        number = cover["amendment_number"]
+        amendment_type = cover["amendment_type"]
+        if submission_is_amendment:
+            amendment_rows += 1
+            if not number:
+                missing_number += 1
+            else:
+                amendment_number_counts[number] += 1
+            if not amendment_type:
+                missing_type += 1
+            else:
+                amendment_type_counts[amendment_type] += 1
+        elif number or amendment_type:
+            unexpected_metadata += 1
+
+    stats = {
+        "coverpage_rows": len(rows),
+        "coverpage_accessions": len(coverpages),
+        "duplicate_coverpage_rows": duplicate_rows,
+        "missing_coverpage_accessions": len(missing_coverpage),
+        "sample_missing_coverpage_accessions": missing_coverpage[:10],
+        "extra_coverpage_accessions": len(extra_coverpage),
+        "sample_extra_coverpage_accessions": extra_coverpage[:10],
+        "amendment_rows": amendment_rows,
+        "amendment_type_counts": dict(sorted(amendment_type_counts.items())),
+        "amendment_number_counts": dict(sorted(amendment_number_counts.items())),
+        "amendment_missing_number_rows": missing_number,
+        "amendment_missing_type_rows": missing_type,
+        "amendment_flag_missing_rows": missing_flag,
+        "amendment_flag_mismatch_rows": flag_mismatches,
+        "unexpected_amendment_metadata_rows": unexpected_metadata,
+    }
+    ok = (
+        duplicate_rows == 0
+        and not missing_coverpage
+        and not extra_coverpage
+        and missing_number == 0
+        and missing_type == 0
+        and flag_mismatches == 0
+    )
+    return coverpages, {"indices": ci, "stats": stats}, ok
 
 
 def audit_dataset(label: str, url: str, user_agent: str) -> tuple[dict, bool]:
     payload = download(url, user_agent)
     with zipfile.ZipFile(io.BytesIO(payload)) as archive:
         submission_name = next(name for name in archive.namelist() if name.upper().endswith("SUBMISSION.TSV"))
+        coverpage_name = next(name for name in archive.namelist() if name.upper().endswith("COVERPAGE.TSV"))
         infotable_name = next(name for name in archive.namelist() if name.upper().endswith("INFOTABLE.TSV"))
         submission_header, submission_rows = parse_tsv(archive, submission_name)
+        coverpage_header, coverpage_rows = parse_tsv(archive, coverpage_name)
         infotable_header, infotable_rows = parse_tsv(archive, infotable_name)
 
-    submissions, submission_meta, amendment_metadata_ok = build_submission_map(submission_header, submission_rows)
+    submissions, submission_meta, submission_schema_ok = build_submission_map(
+        submission_header, submission_rows
+    )
+    amendments, amendment_meta, amendment_ok = build_amendment_map(
+        coverpage_header, coverpage_rows, submissions
+    )
     si = submission_meta["indices"]
+    ci = amendment_meta["indices"]
     ii = {
         "accession": idx(infotable_header, "ACCESSION_NUMBER"),
         "cusip": idx(infotable_header, "CUSIP"),
@@ -199,11 +288,16 @@ def audit_dataset(label: str, url: str, user_agent: str) -> tuple[dict, bool]:
     }
     required_info = ("accession", "cusip", "value", "shares")
     info_schema_ok = all(ii[key] is not None for key in required_info)
-    if not info_schema_ok or not submissions:
+    schema_ok = submission_schema_ok and bool(amendment_meta["indices"].get("accession") is not None) and info_schema_ok
+
+    if not schema_ok or not submissions:
         return {
-            "schema": {"submission": si, "infotable": ii},
+            "sha256": hashlib.sha256(payload).hexdigest(),
+            "bytes": len(payload),
+            "schema": {"submission": si, "coverpage": ci, "infotable": ii},
             "schema_ok": False,
             "submission": submission_meta.get("stats", {}),
+            "amendment": amendment_meta.get("stats", {}),
             "stats": {"infotable_rows": len(infotable_rows)},
         }, False
 
@@ -241,10 +335,9 @@ def audit_dataset(label: str, url: str, user_agent: str) -> tuple[dict, bool]:
 
     multi_accessions = sum(1 for count in accession_counts.values() if count > 1)
     duplicate_rows = sum(count - 1 for count in accession_counts.values() if count > 1)
-    submission_stats = submission_meta["stats"]
     stats = {
-        "submission_rows": submission_stats["submission_rows"],
-        "submission_accessions": submission_stats["submission_accessions"],
+        **submission_meta["stats"],
+        **amendment_meta["stats"],
         "infotable_rows": len(infotable_rows),
         "joined_rows": joined,
         "join_rate": joined / len(infotable_rows) if infotable_rows else 0.0,
@@ -257,27 +350,26 @@ def audit_dataset(label: str, url: str, user_agent: str) -> tuple[dict, bool]:
         "negative_value_rows": nonpositive_value,
         "accessions_with_multiple_holdings": multi_accessions,
         "extra_rows_beyond_one_per_accession": duplicate_rows,
-        **submission_stats,
     }
     ok = (
-        info_schema_ok
+        schema_ok
+        and amendment_ok
         and missing_accession == 0
         and missing_cusip == 0
         and nonpositive_value == 0
-        and submission_stats["duplicate_accession_rows"] == 0
-        and submission_stats["invalid_date_or_accession_rows"] == 0
-        and submission_stats["filing_before_report_submissions"] == 0
-        and amendment_metadata_ok
+        and submission_meta["stats"]["duplicate_accession_rows"] == 0
+        and submission_meta["stats"]["invalid_date_or_accession_rows"] == 0
+        and submission_meta["stats"]["filing_before_report_submissions"] == 0
     )
     return {
         "sha256": hashlib.sha256(payload).hexdigest(),
         "bytes": len(payload),
-        "schema": {"submission": si, "infotable": ii},
-        "schema_ok": info_schema_ok and all(value is not None for value in si.values()),
+        "schema": {"submission": si, "coverpage": ci, "infotable": ii},
+        "schema_ok": schema_ok,
         "stats": stats,
         "clock_contract": {
             "source_clock": "FILING_DATE from SUBMISSION.tsv",
-            "precision": "date_only; exact EDGAR acceptance timestamp is not included in this dataset table",
+            "precision": "date_only; exact EDGAR acceptance timestamp is not included in the dataset table",
             "conservative_eligibility": "first full regular session strictly after FILING_DATE",
             "report_period_is_not_availability": True,
             "quarterly_dataset_publication_is_not_first_receipt": True,

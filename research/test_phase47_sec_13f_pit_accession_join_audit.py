@@ -5,49 +5,77 @@ import os
 import unittest
 from unittest.mock import patch
 
-from research.phase47_sec_13f_pit_accession_join_audit import build_submission_map, distribution
+from research.phase47_sec_13f_pit_accession_join_audit import (
+    build_amendment_map,
+    build_submission_map,
+    distribution,
+)
 from research.sec_user_agent import resolve_sec_user_agent
 
 
 class Phase47Tests(unittest.TestCase):
     def setUp(self):
-        self.header = [
-            "ACCESSION_NUMBER",
-            "FILING_DATE",
-            "SUBMISSIONTYPE",
-            "CIK",
-            "PERIODOFREPORT",
-            "AMENDMENT_NUMBER",
-            "AMENDMENTTYPE",
+        self.submission_header = [
+            "ACCESSION_NUMBER", "FILING_DATE", "SUBMISSIONTYPE", "CIK", "PERIODOFREPORT"
+        ]
+        self.coverpage_header = [
+            "ACCESSION_NUMBER", "ISAMENDMENT", "AMENDMENTNO", "AMENDMENTTYPE"
+        ]
+        self.submission_rows = [
+            ["A1", "15-MAY-2026", "13F-HR", "100", "31-MAR-2026"],
+            ["A2", "20-MAY-2026", "13F-HR/A", "100", "31-MAR-2026"],
+            ["A3", "22-MAY-2026", "13F-HR/A", "100", "31-MAR-2026"],
+            ["A4", "15-MAY-2026", "13F-NT", "200", "31-MAR-2026"],
         ]
 
-    def test_amendments_and_lags_are_counted_per_submission(self):
-        rows = [
-            ["A1", "15-MAY-2026", "13F-HR", "100", "31-MAR-2026", "", ""],
-            ["A2", "20-MAY-2026", "13F-HR/A", "100", "31-MAR-2026", "1", "RESTATEMENT"],
-            ["A3", "22-MAY-2026", "13F-HR/A", "100", "31-MAR-2026", "2", "NEW HOLDINGS ENTRIES"],
-            ["A4", "15-MAY-2026", "13F-NT", "200", "31-MAR-2026", "", ""],
+    def test_amendments_join_from_coverpage_and_lags_are_per_submission(self):
+        submissions, meta, schema_ok = build_submission_map(
+            self.submission_header, self.submission_rows
+        )
+        self.assertTrue(schema_ok)
+        self.assertEqual(meta["stats"]["filing_lag_days"]["n_submissions"], 4)
+        cover_rows = [
+            ["A1", "0", "", ""],
+            ["A2", "1", "1", "RESTATEMENT"],
+            ["A3", "1", "2", "NEW HOLDINGS ENTRIES"],
+            ["A4", "0", "", ""],
         ]
-        submissions, meta, amendment_ok = build_submission_map(self.header, rows)
-        stats = meta["stats"]
+        cover, amendment_meta, amendment_ok = build_amendment_map(
+            self.coverpage_header, cover_rows, submissions
+        )
+        stats = amendment_meta["stats"]
         self.assertTrue(amendment_ok)
-        self.assertEqual(len(submissions), 4)
+        self.assertEqual(len(cover), 4)
         self.assertEqual(stats["amendment_rows"], 2)
         self.assertEqual(stats["amendment_type_counts"], {
             "NEW HOLDINGS ENTRIES": 1,
             "RESTATEMENT": 1,
         })
-        self.assertEqual(stats["filing_lag_days"]["n_submissions"], 4)
-        self.assertEqual(stats["manager_period_groups_with_multiple_submissions"], 1)
+        self.assertEqual(stats["manager_period_groups_with_multiple_submissions"], 0)
 
     def test_missing_amendment_number_or_type_fails_closed(self):
-        rows = [
-            ["A1", "20-MAY-2026", "13F-HR/A", "100", "31-MAR-2026", "", ""],
-        ]
-        _, meta, amendment_ok = build_submission_map(self.header, rows)
+        submissions, _, schema_ok = build_submission_map(
+            self.submission_header, [self.submission_rows[1]]
+        )
+        self.assertTrue(schema_ok)
+        _, meta, amendment_ok = build_amendment_map(
+            self.coverpage_header,
+            [["A2", "1", "", ""]],
+            submissions,
+        )
         self.assertFalse(amendment_ok)
         self.assertEqual(meta["stats"]["amendment_missing_number_rows"], 1)
         self.assertEqual(meta["stats"]["amendment_missing_type_rows"], 1)
+
+    def test_missing_coverpage_accession_fails_closed(self):
+        submissions, _, _ = build_submission_map(self.submission_header, self.submission_rows)
+        _, meta, amendment_ok = build_amendment_map(
+            self.coverpage_header,
+            [["A1", "0", "", ""]],
+            submissions,
+        )
+        self.assertFalse(amendment_ok)
+        self.assertEqual(meta["stats"]["missing_coverpage_accessions"], 3)
 
     def test_filing_lag_distribution_counts_submission_events(self):
         stats = distribution([45, 45, 50, 52])
