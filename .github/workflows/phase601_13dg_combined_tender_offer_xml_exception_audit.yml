@@ -1,0 +1,51 @@
+name: Phase 601 - SEC 13D/G combined tender-offer XML exception adjudication
+
+on:
+  push:
+    branches:
+      - phase601-13dg-combined-tender-offer-xml-exception
+    paths:
+      - research/phase601_13dg_combined_tender_offer_xml_exception_audit.py
+      - research/test_phase601_13dg_combined_tender_offer_xml_exception_audit.py
+      - .github/workflows/phase601_13dg_combined_tender_offer_xml_exception_audit.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: phase601-13dg-combined-tender-offer-xml-exception
+  cancel-in-progress: false
+
+jobs:
+  adjudicate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run offline regression tests
+        run: python -m unittest research.test_phase601_13dg_combined_tender_offer_xml_exception_audit -v
+      - name: Download immutable Phase 84 source artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: phase84-13dg-role-aware-identity-validation
+          path: phase84_13dg_role_aware_identity
+          repository: jafelix81/NuevaEstrategia
+          run-id: 41914491120
+          github-token: ${{ github.token }}
+      - name: Re-adjudicate documented XML exception without SEC requests
+        run: >-
+          python -m research.phase601_13dg_combined_tender_offer_xml_exception_audit
+          --artifact-dir phase84_13dg_role_aware_identity
+          --out phase601_13dg_adjudication/summary.json
+      - name: Upload adjudication summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase601-13dg-combined-tender-offer-xml-exception-adjudication
+          path: phase601_13dg_adjudication/summary.json
+          if-no-files-found: error
+          retention-days: 90
