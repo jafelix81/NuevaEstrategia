@@ -184,13 +184,15 @@ def _resolve_manager(
         status = "INVALID_IDENTIFIER"
         resolved_cik = None
     elif explicit_cik:
-        resolved_cik = explicit_cik
         if len(mapped) == 1 and explicit_cik not in mapped:
+            resolved_cik = None
             status = "IDENTITY_CONFLICT"
-        elif len(mapped) > 1:
-            status = "EXPLICIT_CIK_FILE_NUMBER_AMBIGUOUS"
         else:
-            status = "EXPLICIT_CIK"
+            resolved_cik = explicit_cik
+            if len(mapped) > 1:
+                status = "EXPLICIT_CIK_FILE_NUMBER_AMBIGUOUS"
+            else:
+                status = "EXPLICIT_CIK"
     elif file_number and len(mapped) == 1:
         resolved_cik = next(iter(mapped))
         status = "RESOLVED_BY_FILE_NUMBER"
