@@ -1,0 +1,54 @@
+name: Phase 606 - SEC 13F manager-table live audit
+
+on:
+  push:
+    branches: [phase606-sec-13f-manager-table-live-audit]
+    paths:
+      - "research/phase606_sec_13f_manager_table_live_audit.py"
+      - "research/test_phase606_sec_13f_manager_table_live_audit.py"
+      - ".github/workflows/phase606_sec_13f_manager_table_live_audit.yml"
+  pull_request:
+    branches: [phase605-sec-13f-manager-relationship-graph-audit]
+    paths:
+      - "research/phase606_sec_13f_manager_table_live_audit.py"
+      - "research/test_phase606_sec_13f_manager_table_live_audit.py"
+      - ".github/workflows/phase606_sec_13f_manager_table_live_audit.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile and run offline regressions
+        run: |
+          python -m py_compile research/phase606_sec_13f_manager_table_live_audit.py research/test_phase606_sec_13f_manager_table_live_audit.py
+          python -m unittest -v research.test_phase606_sec_13f_manager_table_live_audit
+
+  bounded-live-sec-audit:
+    if: github.event_name == 'push'
+    needs: offline-regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Download and audit two public SEC 13F samples
+        env:
+          SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
+        run: python research/phase606_sec_13f_manager_table_live_audit.py
+      - name: Upload bounded audit result
+        if: always() && hashFiles('phase606_sec_13f_manager_table_live_audit.json') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase606-sec-13f-manager-table-live-audit
+          path: phase606_sec_13f_manager_table_live_audit.json
+          retention-days: 30
