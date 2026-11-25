@@ -30,7 +30,7 @@ permissions:
 
 concurrency:
   group: phase616-sec-13dg-global-index-sample
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   offline-regression:
