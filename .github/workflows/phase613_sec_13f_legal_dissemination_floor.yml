@@ -1,12 +1,6 @@
 name: Phase 613 - SEC 13F legal dissemination floor
 
 on:
-  push:
-    branches: [phase613-sec-13f-legal-dissemination-floor]
-    paths:
-      - ".github/workflows/phase613_sec_13f_legal_dissemination_floor.yml"
-      - "research/phase612_xnys_session_knowledge_clock.py"
-      - "research/test_phase612_xnys_session_knowledge_clock.py"
   pull_request:
     paths:
       - ".github/workflows/phase613_sec_13f_legal_dissemination_floor.yml"
