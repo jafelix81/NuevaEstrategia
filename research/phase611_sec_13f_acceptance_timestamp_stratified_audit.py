@@ -141,9 +141,9 @@ def select_stratified_samples(dataset: str, filers: dict, per_stratum: int = PER
         bins = min(per_stratum, len(rows))
         used_ciks: set[str] = set()
         for bin_ix in range(bins):
-            start = bin_ix * len(rows) // bins
-            end = (bin_ix + 1) * len(rows) // bins
-            candidates = rows[start:end]
+            start_ix = bin_ix * len(rows) // bins
+            end_ix = (bin_ix + 1) * len(rows) // bins
+            candidates = rows[start_ix:end_ix]
             candidates = sorted(
                 candidates,
                 key=lambda item: hashlib.sha256(
@@ -169,7 +169,14 @@ def select_stratified_samples(dataset: str, filers: dict, per_stratum: int = PER
                 "period_of_report_from_dataset": normalize_dataset_date(filer.get("report_period")),
                 "stratum": f"{form}|{report_type or 'UNKNOWN'}",
                 "date_bin": f"{bin_ix + 1}/{bins}",
-            })UBMISSION, not the first
+            })
+    return selected[:MAX_SAMPLE_PER_DATASET]
+
+
+def build_index_url(sample: dict) -> str:
+    accession = sample["accession"]
+    compact = accession.replace("-", "")
+    # The archive path uses the filing CIK from SUBMISSION, not the first
     # ten digits of accession; filing agents can make those differ.
     filer_cik_path = str(int(sample["filer_cik_from_dataset"]))
     return (
