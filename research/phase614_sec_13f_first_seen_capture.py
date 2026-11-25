@@ -77,8 +77,8 @@ EVENT_FIELDS = [
 
 PAGE_FIELDS = [
     "poll_run_id", "feed_name", "page_offset", "raw_entry_count",
-    "parsed_accession_occurrence_count", "response_bytes",
-    "response_received_at_utc", "raw_sha256", "feed_url",
+    "matching_form_entry_count", "parsed_accession_occurrence_count",
+    "response_bytes", "response_received_at_utc", "raw_sha256", "feed_url",
     "page_status", "error_type", "error",
 ]
 
@@ -174,6 +174,25 @@ def count_atom_entries(raw: bytes | str) -> int:
     return sum(1 for node in root.iter() if local_name(node.tag) == "entry")
 
 
+def count_matching_atom_entries(raw: bytes | str, feed_name: str) -> int:
+    """Count exact target-form entries while tolerating recognized prefix neighbors."""
+    if isinstance(raw, bytes):
+        raw = raw.decode("utf-8", "replace")
+    root = ETREE.fromstring(raw)
+    allowed = ALLOWED_FORMS[feed_name]
+    count = 0
+    for node in root.iter():
+        if local_name(node.tag) != "entry":
+            continue
+        title = child_text(node, "title") or ""
+        form = parse_form(node, title)
+        if not form:
+            raise ValueError(f"atom_entry_form_unparsed:{feed_name}")
+        if form in allowed:
+            count += 1
+    return count
+
+
 def parse_atom_feed(raw: bytes | str, feed_name: str, feed_url: str) -> list[dict]:
     if isinstance(raw, bytes):
         raw = raw.decode("utf-8", "replace")
@@ -219,24 +238,25 @@ def classify_event_interval(
     mode: str,
     poll_success: bool,
     previous_successful_poll_end: str | None,
-    feed_updated_utc: str | None,
     first_seen_upper_bound_utc: str | None,
 ) -> str:
+    """Bound collector observation between two complete feed snapshots.
+
+    Atom updated is deliberately excluded: it is an unverified feed field,
+    not a publication timestamp or a safe lower-bound clock.
+    """
     if mode != "schedule":
         return "MANUAL_DIAGNOSTIC"
     if not poll_success:
         return "POLL_INCOMPLETE_CANDIDATE_SUPPRESSED"
     lower = parse_utc(previous_successful_poll_end)
     upper = parse_utc(first_seen_upper_bound_utc)
-    updated = parse_utc(feed_updated_utc)
     if lower is None:
         return "NO_PRIOR_SUCCESSFUL_POLL"
-    if upper is None or updated is None:
-        return "FEED_OR_RECEIPT_TIMESTAMP_UNKNOWN"
-    if updated <= lower:
-        return "FEED_TIMESTAMP_NOT_AFTER_PREVIOUS_POLL"
-    if updated > upper:
-        return "FEED_TIMESTAMP_AFTER_FIRST_SEEN"
+    if upper is None:
+        return "RECEIPT_TIMESTAMP_UNKNOWN"
+    if upper <= lower:
+        return "INVALID_POLL_INTERVAL"
     return "BOUNDED_METADATA_ONLY"
 
 
@@ -252,25 +272,31 @@ def fetch_feed(
     run_id: str,
     poll_started_utc: str,
 ) -> dict:
-    """Fetch newest entries through accession or time boundary; fail closed on gaps."""
+    """Enumerate the complete current feed snapshot; never stop at an accession watermark."""
     prior = str(feed_state.get("latest_accession") or "").strip()
     previous_end = feed_state.get("last_successful_poll_end_utc")
     baseline = not prior and not previous_end
-    max_pages = 1 if mode != "schedule" or baseline else MAX_FEED_PAGES
+    # Scheduled polls must enumerate to a proven end-of-feed. A global accession
+    # watermark is not a safe ordering boundary when SEC indexes are corrected or
+    # late-indexed entries can appear behind it. Manual mode remains one-page only
+    # and is diagnostic/non-persistent.
+    max_pages = 1 if mode != "schedule" else MAX_FEED_PAGES
     offset = 0
     pages: list[dict] = []
     observations: list[dict] = []
     candidates: list[dict] = []
     seen_hashes: set[str] = set()
-    first_page_entries: list[dict] = []
-    boundary_found = baseline
-    boundary_type = "INITIAL_BASELINE" if baseline else ""
+    first_snapshot_entries: list[dict] = []
+    boundary_found = False
+    prior_watermark_found = False
+    boundary_type = ""
     page_error: dict = {}
 
     for page_index in range(max_pages):
         url = _page_url(base_url, offset)
         raw = None
         raw_count = ""
+        matching_count = ""
         try:
             raw = p401.fetch_bytes(url, sec=True, timeout=60, retries=4)
             received = now_utc()
@@ -279,25 +305,22 @@ def fetch_feed(
                 raise ValueError("repeated_page_hash_pagination_may_be_ignored")
             seen_hashes.add(digest)
             raw_count = count_atom_entries(raw)
+            matching_count = count_matching_atom_entries(raw, feed_name)
             parsed = parse_atom_feed(raw, feed_name, url)
-            if len(parsed) != raw_count:
+            if len(parsed) != matching_count:
                 raise ValueError(
                     f"atom_entry_parse_mismatch:{feed_name}:"
-                    f"raw_entries={raw_count}:parsed_accessions={len(parsed)}"
+                    f"matching_form_entries={matching_count}:parsed_accessions={len(parsed)}"
                 )
-            if page_index == 0:
-                first_page_entries = list(parsed)
-
-            updated_values = [parse_utc(item["feed_updated_utc"]) for item in parsed]
-            valid_updated = [x for x in updated_values if x is not None]
-            if any(a < b for a, b in zip(valid_updated, valid_updated[1:])):
-                raise ValueError("feed_updated_order_not_newest_first")
+            if not first_snapshot_entries and parsed:
+                first_snapshot_entries = list(parsed)
 
             pages.append({
                 "poll_run_id": str(run_id),
                 "feed_name": feed_name,
                 "page_offset": offset,
                 "raw_entry_count": raw_count,
+                "matching_form_entry_count": matching_count,
                 "parsed_accession_occurrence_count": len(parsed),
                 "response_bytes": len(raw),
                 "response_received_at_utc": received,
@@ -310,6 +333,7 @@ def fetch_feed(
 
             for item in parsed:
                 is_prior = bool(prior and item["accession"] == prior)
+                prior_watermark_found = prior_watermark_found or is_prior
                 updated = parse_utc(item["feed_updated_utc"])
                 lower = parse_utc(previous_end)
                 is_time_boundary = bool(lower and updated and updated <= lower)
@@ -322,41 +346,36 @@ def fetch_feed(
                     "_is_timestamp_boundary": is_time_boundary,
                 }
                 observations.append(occurrence)
-                if is_prior:
-                    boundary_found = True
-                    boundary_type = "ACCESSION"
-                    break
-                # Atom "updated" can be stale for a late-indexed filing. It is
-                # diagnostic only: it cannot prove that this accession was present
-                # during the prior poll. Only the prior accession watermark is a
-                # safe in-feed continuity boundary.
-                candidates.append(occurrence)
+                # The watermark is diagnostic only. Continue after it and retain
+                # any late-indexed accession that appears later in the snapshot.
+                if not is_prior:
+                    candidates.append(occurrence)
 
-            if baseline or boundary_found:
+            if mode != "schedule":
+                boundary_found = True
+                boundary_type = "MANUAL_SINGLE_PAGE_DIAGNOSTIC"
                 break
             if raw_count == 0:
-                if not prior:
-                    # With no accession watermark, an empty page proves that the
-                    # complete current feed was enumerated. A prior watermark that
-                    # disappeared is different: fail closed rather than infer a
-                    # boundary from timestamps that may be stale.
-                    boundary_found = True
-                    boundary_type = "EMPTY_NO_NEW_ENTRIES" if offset == 0 else "END_OF_FEED"
-                    break
-                page_error = {
-                    "error_type": "EmptyPageBeforeBoundary",
-                    "error": "Feed ended before the prior accession watermark.",
-                    "page_offset": offset,
-                }
-                break
-            if not prior and raw_count < PAGE_SIZE:
                 boundary_found = True
-                boundary_type = "END_OF_FEED"
+                boundary_type = (
+                    "INITIAL_BASELINE_EMPTY_SNAPSHOT" if baseline and offset == 0
+                    else "EMPTY_FEED_END_OF_SNAPSHOT"
+                )
+                break
+            if raw_count < PAGE_SIZE:
+                boundary_found = True
+                boundary_type = (
+                    "INITIAL_BASELINE_FULL_SNAPSHOT" if baseline
+                    else "FULL_SNAPSHOT_END_OF_FEED"
+                )
                 break
             if page_index + 1 >= max_pages:
                 page_error = {
                     "error_type": "PaginationLimitReached",
-                    "error": f"No prior accession or timestamp boundary within {max_pages} pages.",
+                    "error": (
+                        f"Could not prove end-of-feed within {max_pages} pages "
+                        f"({max_pages * PAGE_SIZE} raw entries)."
+                    ),
                     "page_offset": offset,
                 }
                 break
@@ -373,6 +392,7 @@ def fetch_feed(
                 "feed_name": feed_name,
                 "page_offset": offset,
                 "raw_entry_count": raw_count,
+                "matching_form_entry_count": matching_count,
                 "parsed_accession_occurrence_count": "",
                 "response_bytes": len(raw) if raw is not None else "",
                 "response_received_at_utc": now_utc(),
@@ -386,29 +406,30 @@ def fetch_feed(
 
     poll_success = bool(pages and not page_error and boundary_found)
     poll_interval_status = (
-        "INITIAL_BASELINE_NO_LOWER_BOUND" if baseline else
-        "POLL_BOUNDARY_FOUND" if poll_success else
+        "MANUAL_DIAGNOSTIC_ONLY" if mode != "schedule" else
+        "INITIAL_BASELINE_NO_LOWER_BOUND" if baseline and poll_success else
+        "FULL_SNAPSHOT_COMPLETE" if poll_success else
         "GAP_OR_FETCH_ERROR"
     )
     for item in observations:
         item["_poll_success"] = poll_success
         item["_poll_interval_status"] = poll_interval_status
         item["_event_interval_status"] = (
-            "PRIOR_ACCESSION_BOUNDARY" if item["_is_prior_accession_watermark"] else
-            "TIMESTAMP_BOUNDARY" if item["_is_timestamp_boundary"] else
+            "PRIOR_ACCESSION_SEEN_DIAGNOSTIC" if item["_is_prior_accession_watermark"] else
             classify_event_interval(
-                mode, poll_success, previous_end, item["feed_updated_utc"],
-                item["_page_received_at_utc"],
+                mode, poll_success, previous_end, item["_page_received_at_utc"],
             )
         )
-    new_latest = first_page_entries[0]["accession"] if first_page_entries else prior
-    latest_updated = first_page_entries[0]["feed_updated_utc"] if first_page_entries else ""
+    new_latest = first_snapshot_entries[0]["accession"] if first_snapshot_entries else prior
+    latest_updated = first_snapshot_entries[0]["feed_updated_utc"] if first_snapshot_entries else ""
     return {
         "feed_name": feed_name,
         "prior_watermark": prior,
+        "prior_watermark_found": prior_watermark_found,
         "previous_successful_poll_end_utc": previous_end or "",
         "boundary_found": boundary_found,
         "boundary_type": boundary_type,
+        "snapshot_complete": bool(mode == "schedule" and poll_success),
         "poll_success": poll_success,
         "poll_interval_status": poll_interval_status,
         "new_latest_accession": new_latest or prior,
@@ -421,7 +442,6 @@ def fetch_feed(
         "candidate_accession_occurrence_count": len(candidates),
         "candidate_accession_count": len({x["accession"] for x in candidates}),
     }
-
 
 def load_state() -> dict:
     if not STATE_PATH.exists():
@@ -486,8 +506,9 @@ def run_capture(mode: str, run_id: str, output_dir: Path) -> dict:
         page_rows.extend(result["page_observations"])
         feed_summaries[feed_name] = {
             key: result[key] for key in (
-                "prior_watermark", "previous_successful_poll_end_utc",
-                "boundary_found", "boundary_type", "poll_success",
+                "prior_watermark", "prior_watermark_found",
+                "previous_successful_poll_end_utc", "boundary_found",
+                "boundary_type", "snapshot_complete", "poll_success",
                 "poll_interval_status", "new_latest_accession",
                 "latest_feed_updated_utc", "raw_page_count",
                 "candidate_accession_occurrence_count",
@@ -525,7 +546,9 @@ def run_capture(mode: str, run_id: str, output_dir: Path) -> dict:
                 "is_preexisting_ledger_accession": accession in preexisting,
                 "canonical_event_emitted": False,
                 "candidate_suppressed_in_incomplete_poll": (
-                    not result["poll_success"] and not item["_is_prior_accession_watermark"]
+                    not result["poll_success"]
+                    and accession not in preexisting
+                    and not item["_is_prior_accession_watermark"]
                 ),
             }
             accession_rows.append(observation)
@@ -541,8 +564,7 @@ def run_capture(mode: str, run_id: str, output_dir: Path) -> dict:
             received = item["_page_received_at_utc"]
             interval_status = classify_event_interval(
                 mode, result["poll_success"],
-                feed_state.get("last_successful_poll_end_utc"),
-                item["feed_updated_utc"], received,
+                feed_state.get("last_successful_poll_end_utc"), received,
             )
             bounded = interval_status == "BOUNDED_METADATA_ONLY"
             try:
