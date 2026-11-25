@@ -206,6 +206,25 @@ class Phase614PaginationTests(unittest.TestCase):
         )
 
     def test_unclassified_atom_entry_fails_closed(self):
+        malformed = """
+        <entry>
+          <id>urn:tag:sec.gov,2008:accession-number=0000000001-26-000001</id>
+          <title>Unknown filing type</title>
+          <updated>2026-11-24T13:00:00Z</updated>
+          <summary>Filed: 2026-11-24</summary>
+        </entry>
+        """
+        with patch.object(p.p401, "fetch_bytes", return_value=feed(malformed)):
+            result = p.fetch_feed(
+                "13F-HR", "https://example.test/feed", {
+                    "latest_accession": "",
+                    "last_successful_poll_end_utc": "",
+                }, "schedule", "test-run", "2026-11-24T12:01:00Z",
+            )
+        self.assertFalse(result["poll_success"])
+        self.assertIn("atom_entry_form_unparsed", result["page_error"]["error"])
+
+    def test_unexpected_recognized_form_fails_closed(self):
         raw = feed(entry("0000000001-26-000001", "8-K", "2026-11-24T13:00:00Z"))
         with patch.object(p.p401, "fetch_bytes", return_value=raw):
             result = p.fetch_feed(
@@ -215,7 +234,7 @@ class Phase614PaginationTests(unittest.TestCase):
                 }, "schedule", "test-run", "2026-11-24T12:01:00Z",
             )
         self.assertFalse(result["poll_success"])
-        self.assertIn("atom_entry_form_unparsed", result["page_error"]["error"])
+        self.assertIn("unexpected_form_in_feed", result["page_error"]["error"])
 
     def test_fetch_scans_complete_snapshot_after_prior_accession(self):
         raw = feed(
@@ -334,7 +353,7 @@ class Phase614PaginationTests(unittest.TestCase):
                 }, "schedule", "test-run", "2026-11-24T12:01:00Z",
             )
         self.assertTrue(result["poll_success"])
-        self.assertEqual(result["boundary_type"], "FULL_SNAPSHOT_END_OF_FEED")
+        self.assertEqual(result["boundary_type"], "EMPTY_FEED_END_OF_SNAPSHOT")
         self.assertEqual(len(result["event_candidates"]), 100)
 
     def test_nonmonotonic_atom_updated_does_not_block_snapshot(self):
