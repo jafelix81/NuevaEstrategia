@@ -110,14 +110,55 @@ class Phase612Tests(unittest.TestCase):
         )
         self.assertEqual(out["first_completed_daily_bar_session"], "2026-07-06")
 
-    def test_weekend_knowledge_uses_next_session(self):
+    def test_weekend_first_seen_uses_next_session_without_backdating_filing_date(self):
         out = resolve_daily_knowledge_clock(
-            "2026-08-29T12:00:00-04:00",
-            "2026-08-31",
+            "2026-08-28T12:00:00-04:00",
+            "2026-08-28",
             "2026-08-29T16:00:00Z",
             CAL,
         )
         self.assertEqual(out["first_completed_daily_bar_session"], "2026-08-31")
+
+    def test_after_1730_first_seen_before_legal_filing_floor_is_not_backdated(self):
+        out = resolve_daily_knowledge_clock(
+            "2026-08-26T18:42:02-04:00",
+            "2026-08-27",
+            "2026-08-27T09:59:00Z",
+            CAL,
+        )
+        self.assertEqual(out["availability_mode"], "OBSERVED_FIRST_SEEN_BEFORE_LEGAL_FILING_FLOOR")
+        self.assertEqual(out["legal_filing_date_floor_utc"], "2026-08-27T10:00:00+00:00")
+        self.assertEqual(out["effective_knowledge_at_utc"], "2026-08-27T10:00:00+00:00")
+        self.assertEqual(out["first_completed_daily_bar_session"], "2026-08-27")
+        self.assertEqual(out["daily_bar_signal_earliest_next_open_session"], "2026-08-28")
+
+    def test_after_1730_first_seen_after_legal_filing_floor_is_preserved(self):
+        out = resolve_daily_knowledge_clock(
+            "2026-08-26T18:42:02-04:00",
+            "2026-08-27",
+            "2026-08-27T14:00:00Z",
+            CAL,
+        )
+        self.assertEqual(out["availability_mode"], "OBSERVED_FIRST_SEEN_MAX_ACCEPTED_AND_LEGAL_FLOOR")
+        self.assertEqual(out["effective_knowledge_at_utc"], "2026-08-27T14:00:00+00:00")
+
+    def test_after_1730_same_day_first_seen_is_quarantined(self):
+        with self.assertRaisesRegex(ValueError, "after_hours_13f_first_seen_before_next_business_day"):
+            resolve_daily_knowledge_clock(
+                "2026-08-26T18:42:02-04:00",
+                "2026-08-27",
+                "2026-08-26T23:45:00Z",
+                CAL,
+            )
+
+    def test_exact_1730_does_not_trigger_after_hours_quarantine(self):
+        out = resolve_daily_knowledge_clock(
+            "2026-08-26T17:30:00-04:00",
+            "2026-08-26",
+            "2026-08-26T21:31:00Z",
+            CAL,
+        )
+        self.assertEqual(out["effective_knowledge_at_utc"], "2026-08-26T21:31:00+00:00")
 
     def test_missing_collector_uses_end_of_legal_filing_date(self):
         out = resolve_daily_knowledge_clock(
@@ -127,6 +168,7 @@ class Phase612Tests(unittest.TestCase):
             CAL,
         )
         self.assertEqual(out["availability_mode"], "FILING_DATE_END_OF_DAY_FALLBACK")
+        self.assertEqual(out["legal_filing_date_floor_utc"], "2026-08-26T10:00:00+00:00")
         self.assertEqual(out["effective_knowledge_at_utc"], "2026-08-27T03:59:59+00:00")
         self.assertEqual(out["first_completed_daily_bar_session"], "2026-08-27")
         self.assertEqual(out["daily_bar_signal_earliest_next_open_session"], "2026-08-28")
