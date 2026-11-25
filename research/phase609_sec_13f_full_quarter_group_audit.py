@@ -6,10 +6,15 @@ import csv
 import hashlib
 import io
 import json
+import sys
 import zipfile
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from research.sec_user_agent import resolve_sec_user_agent
 from research.phase606_sec_13f_manager_table_live_audit import (
