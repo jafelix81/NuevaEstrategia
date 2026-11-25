@@ -30,7 +30,7 @@ Quarterly index windows are fixed before retrieval:
 - 2024 Q4 — straddles the 2024-09-30 13G change and 2024-12-18 mandatory structured-data transition.
 - 2026 Q3 — recent complete-quarter post-transition coverage.
 
-The SEC master index provides filer CIK, filer name, form, filing date and archive filename. The archive path is retained as a separate candidate CIK. The index filename—not a guessed filer-CIK path—is used to locate each accession's index-headers.html file. The existing Phase 485 parser then verifies SUBJECT COMPANY and FILED BY independently and cross-checks FILED BY against both the accession prefix and master-index filer CIK.
+The SEC master index provides filer CIK, filer name, form, filing date and archive filename. Its `Filename` field is a flat submission path (`edgar/data/{path_cik}/{accession}.txt`); the collector validates that source form, then derives the accession-number directory only for the index-headers URL. The archive-path CIK is retained as a separate candidate identity and is never substituted for the parsed SUBJECT COMPANY CIK or filer CIK. The existing Phase 485 parser then verifies SUBJECT COMPANY and FILED BY independently and cross-checks FILED BY against both the accession prefix and master-index filer CIK.
 
 ## 3. Preregistered bounded sample
 
