@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import gzip
 import json
 import re
 import time
@@ -20,9 +21,9 @@ except ModuleNotFoundError:
 
 SAMPLES = [
     {"label":"2018_unmatched_large_token","cik":"1325091","accession":"0001325091-18-000003"},
-    {"label":"2018_sequence_match_control","cik":"1683168","accession":"0001683168-18-000798"},
+    {"label":"2018_sequence_match_control","cik":"1692234","accession":"0000950123-18-000878"},
     {"label":"2018_duplicate_sequence","cik":"728889","accession":"0000728889-18-000299"},
-    {"label":"2026_unmatched_numeric","cik":"1951757","accession":"0001951757-26-001605"},
+    {"label":"2026_unmatched_numeric","cik":"1631353","accession":"0001951757-26-001605"},
     {"label":"2026_nonnumeric_reference","cik":"1828822","accession":"0001828822-26-000007"},
     {"label":"2026_duplicate_sequence","cik":"1890906","accession":"0001890906-26-000061"},
 ]
@@ -112,11 +113,14 @@ def summarize_source_xml(parsed_documents: list[dict]) -> dict:
 def request_bytes(url: str, user_agent: str, timeout: int = 60) -> bytes:
     req = urllib.request.Request(url, headers={
         "User-Agent": user_agent,
-        "Accept-Encoding": "gzip, deflate",
+        "Accept-Encoding": "identity",
         "Accept": "application/json,application/xml,text/xml,*/*",
     })
     with urllib.request.urlopen(req, timeout=timeout) as response:
-        return response.read()
+        payload = response.read()
+        if payload[:2] == b"\\x1f\\x8b":
+            payload = gzip.decompress(payload)
+        return payload
 
 
 def walk_xml_files(base_url: str, user_agent: str, depth: int = 0,
