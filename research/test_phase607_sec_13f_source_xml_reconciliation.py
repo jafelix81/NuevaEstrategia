@@ -1,6 +1,7 @@
 import unittest
 
 from research.phase607_sec_13f_source_xml_reconciliation import (
+    extract_xml_urls,
     parse_13f_xml,
     summarize_source_xml,
     tokenize_reference,
@@ -8,6 +9,15 @@ from research.phase607_sec_13f_source_xml_reconciliation import (
 
 
 class Phase607Tests(unittest.TestCase):
+    def test_index_html_extracts_only_xml_document_links(self):
+        html = b"""<html><a href="xslForm13F_X02/primary_doc.xml">primary_doc.xml</a>
+        <a href="xslForm13F_X02/infotable.xml">infotable.xml</a>
+        <a href="primary_doc.html">HTML</a></html>"""
+        urls = extract_xml_urls(html, "https://www.sec.gov/Archives/edgar/data/1/0001/0001-index.htm")
+        self.assertEqual(len(urls), 2)
+        self.assertTrue(any(url.endswith("primary_doc.xml") for url in urls))
+        self.assertTrue(any(url.endswith("infotable.xml") for url in urls))
+
     def test_reference_tokenizer_separates_zero_and_nonnumeric(self):
         out = tokenize_reference("1, 2 3,0,XXEC")
         self.assertEqual(out["numeric_tokens"], ["1", "2", "3"])

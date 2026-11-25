@@ -8,6 +8,8 @@ import json
 import re
 import time
 import urllib.request
+from html.parser import HTMLParser
+from urllib.parse import urljoin
 import xml.etree.ElementTree as ET
 from collections import Counter
 from datetime import datetime, timezone
@@ -123,38 +125,38 @@ def request_bytes(url: str, user_agent: str, timeout: int = 60) -> bytes:
         return payload
 
 
-def walk_xml_files(base_url: str, user_agent: str, depth: int = 0,
-                   seen: set[str] | None = None) -> list[str]:
-    if seen is None:
-        seen = set()
-    if depth > 2 or base_url in seen:
-        return []
-    seen.add(base_url)
-    payload = request_bytes(base_url.rstrip("/") + "/index.json", user_agent)
-    data = json.loads(payload.decode("utf-8"))
-    items = data.get("directory", {}).get("item", [])
-    found = []
-    for item in items:
-        name = str(item.get("name") or "")
-        kind = str(item.get("type") or "").lower()
-        if kind == "file" and name.lower().endswith(".xml"):
-            found.append(base_url.rstrip("/") + "/" + name)
-        elif kind == "dir" and depth < 2:
-            low = name.lower()
-            if low.startswith("xsl") or "13f" in low or "info" in low:
-                found.extend(walk_xml_files(base_url.rstrip("/") + "/" + name, user_agent, depth + 1, seen))
-        time.sleep(0.08)
-    return found
+class AnchorCollector(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.hrefs = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag.lower() == "a":
+            href = dict(attrs).get("href")
+            if href:
+                self.hrefs.append(href)
+
+
+def extract_xml_urls(index_html: bytes, index_url: str) -> list[str]:
+    parser = AnchorCollector()
+    parser.feed(index_html.decode("utf-8", errors="replace"))
+    urls = []
+    for href in parser.hrefs:
+        clean = href.split("?", 1)[0].lower()
+        if clean.endswith(".xml"):
+            urls.append(urljoin(index_url, href))
+    return sorted(set(urls))
 
 
 def audit_sample(sample: dict, user_agent: str) -> dict:
     accession_compact = sample["accession"].replace("-", "")
     base = f"https://www.sec.gov/Archives/edgar/data/{int(sample['cik'])}/{accession_compact}"
+    index_url = base + "/" + sample["accession"] + "-index.htm"
     try:
-        xml_urls = walk_xml_files(base, user_agent)
+        xml_urls = extract_xml_urls(request_bytes(index_url, user_agent), index_url)
     except Exception as exc:
         return {"label":sample["label"],"accession":sample["accession"],"status":"INDEX_FETCH_ERROR",
-                "error_type":type(exc).__name__,"error":str(exc)[:400],"index_url":base+"/index.json"}
+                "error_type":type(exc).__name__,"error":str(exc)[:400],"index_url":index_url}
     # Prefer primary / information-table files. Keep a small, bounded set.
     xml_urls = sorted(set(xml_urls), key=lambda u: (
         0 if "primary_doc" in u.lower() else 1 if "infotable" in u.lower() or "information" in u.lower() else 2,
@@ -179,7 +181,7 @@ def audit_sample(sample: dict, user_agent: str) -> dict:
     status = "PASS_SOURCE_XML_PARSED" if documents and (aggregate["manager_entry_rows"] or aggregate["info_table_rows"]) else "NO_RELEVANT_XML_PARSED"
     return {
         "label":sample["label"],"accession":sample["accession"],"cik":sample["cik"],
-        "status":status,"index_url":base+"/index.json","xml_urls_discovered":len(xml_urls),
+        "status":status,"index_url":index_url,"xml_urls_discovered":len(xml_urls),
         "documents":documents,"fetch_or_parse_errors":errors,"source_xml_summary":aggregate,
         "signal_eligible":False,
     }
