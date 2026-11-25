@@ -776,6 +776,7 @@ def run_backfill(
         if metadata.get("fetch_status") != "retrieved":
             summary["fetch_unresolved"] += 1
             continue
+        parsed = None
         try:
             parsed = parse_form4_details(metadata["xml"])
             rows = build_detail_rows(event, metadata, parsed)

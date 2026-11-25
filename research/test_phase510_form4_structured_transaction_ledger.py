@@ -294,7 +294,7 @@ class Phase510Tests(unittest.TestCase):
         parsed = p.parse_form4_details(XML_FOOTNOTE_LINKS)
         refs = parsed["transaction_rows"][0]["footnote_references"]
         self.assertEqual([item["footnote_id"] for item in refs], ["F3", "F4", "F5"])
-        self.assertIn("transactionamounts[1].transactionpriceshare[1]", refs[0]["xml_field_path"])
+        self.assertIn("transactionamounts[1].transactionpricepershare[1]", refs[0]["xml_field_path"])
         self.assertIn("ownershipnature[1].natureofownership[1]", refs[1]["xml_field_path"])
         self.assertIn("ownershipnature[1]", refs[2]["xml_field_path"])
         expected = [
@@ -381,6 +381,24 @@ class Phase510Tests(unittest.TestCase):
             )
             self.assertEqual(calls, [])
             self.assertEqual(summary["disposition"], "MANUAL_MODE_NO_FETCH_NO_PERSISTENCE")
+            self.assertFalse((root / "footnotes.csv").exists())
+
+    def test_parse_error_does_not_write_footnote_sidecar(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            evt = event()
+            events_path = root / "events.csv"
+            with events_path.open("w", newline="", encoding="utf-8") as handle:
+                writer = csv.DictWriter(handle, fieldnames=list(evt))
+                writer.writeheader()
+                writer.writerow(evt)
+            submission = b"<SEC-DOCUMENT>\\n<XML><notOwnershipDocument/></XML>\\n</SEC-DOCUMENT>"
+            summary = p.run_backfill(
+                "schedule", 1, root / "out", events_path, root / "details.csv",
+                lambda url: submission, root / "footnotes.csv",
+            )
+            self.assertEqual(summary["accessions_with_parse_error"], 1)
+            self.assertEqual(summary["footnote_reference_rows_appended"], 0)
             self.assertFalse((root / "footnotes.csv").exists())
 
     def test_footnote_sidecar_schema_mismatch_fails_closed(self):
