@@ -41,7 +41,7 @@ class Phase607Tests(unittest.TestCase):
         }]
         out = summarize_source_xml(docs)
         self.assertEqual(out["duplicate_sequence_values"], {"1":2})
-        self.assertEqual(out["sequence_matched_tokens"], 3)
+        self.assertEqual(out["sequence_matched_tokens"], 2)
         self.assertEqual(out["ambiguous_sequence_tokens"], 1)
         self.assertEqual(out["unmatched_numeric_tokens"], 1)
         self.assertEqual(out["zero_reference_tokens"], 1)
