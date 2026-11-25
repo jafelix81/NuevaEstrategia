@@ -160,21 +160,16 @@ def select_stratified_samples(dataset: str, filers: dict, per_stratum: int = PER
             selected.append({
                 "dataset": dataset,
                 "accession": accession,
-                "filer_cik": cik,
+                "filer_cik_from_dataset": cik,
                 "submission_type": form,
                 "report_type": report_type,
-                "filing_date_from_dataset": filer.get("filing_date"),
-                "period_of_report_from_dataset": filer.get("report_period"),
+                "filing_date_raw_from_dataset": filer.get("filing_date"),
+                "filing_date_from_dataset": normalize_dataset_date(filer.get("filing_date")),
+                "period_of_report_raw_from_dataset": filer.get("report_period"),
+                "period_of_report_from_dataset": normalize_dataset_date(filer.get("report_period")),
                 "stratum": f"{form}|{report_type or 'UNKNOWN'}",
                 "date_bin": f"{bin_ix + 1}/{bins}",
-            })
-    return selected[:MAX_SAMPLE_PER_DATASET]
-
-
-def build_index_url(sample: dict) -> str:
-    accession = sample["accession"]
-    compact = accession.replace("-", "")
-    # The archive path uses the filing CIK from SUBMISSION, not the first
+            })UBMISSION, not the first
     # ten digits of accession; filing agents can make those differ.
     filer_cik_path = str(int(sample["filer_cik_from_dataset"]))
     return (
