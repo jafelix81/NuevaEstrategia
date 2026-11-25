@@ -269,7 +269,7 @@ def audit_othermanager2(header: list[str], rows: list[list[str]], filers: dict,
     }
 
 
-def audit_infotable_references(header: list[str], rows: list[list[str]], filers: dict,
+def audit_infotable_references(header: list[str], rows, filers: dict,
                                included_sequences: dict[str, set[str]]) -> dict:
     accession_ix = index(header, "ACCESSION_NUMBER")
     line_ix = index(header, "INFOTABLE_SK", "INFO_TABLE_SK")
@@ -357,6 +357,15 @@ def download(url: str, user_agent: str) -> bytes:
         return response.read()
 
 
+def audit_infotable_member(payload: bytes, member: str, filers: dict,
+                            included_sequences: dict[str, set[str]]) -> dict:
+    with zipfile.ZipFile(io.BytesIO(payload)) as archive:
+        with archive.open(member) as raw:
+            reader = csv.reader(io.TextIOWrapper(raw, encoding="utf-8-sig", errors="replace", newline=""), delimiter="\\t")
+            header = next(reader, [])
+            return audit_infotable_references([x.strip() for x in header], reader, filers, included_sequences)
+
+
 def audit_dataset(label: str, url: str, user_agent: str) -> dict:
     payload = download(url, user_agent)
     with zipfile.ZipFile(io.BytesIO(payload)) as archive:
@@ -368,14 +377,13 @@ def audit_dataset(label: str, url: str, user_agent: str) -> dict:
         om_h, om_rows = read_table(archive, members["OTHERMANAGER"])
         om2_h, om2_rows = read_table(archive, members["OTHERMANAGER2"])
         sum_h, sum_rows = read_table(archive, members["SUMMARYPAGE"])
-        info_h, info_rows = read_table(archive, members["INFOTABLE"])
     context = build_filer_context(sub_h,sub_rows,cov_h,cov_rows)
     if not context.get("schema_ok"):
         return {"status":"BLOCKED_FILER_SCHEMA","sha256":hashlib.sha256(payload).hexdigest(),"bytes":len(payload),"filer_context":context}
     filers, mapping = context["filers"], context["file_number_to_ciks"]
     om = audit_othermanager(om_h,om_rows,filers,mapping)
     om2 = audit_othermanager2(om2_h,om2_rows,filers,mapping)
-    info = audit_infotable_references(info_h,info_rows,filers,
+    info = audit_infotable_member(payload,members["INFOTABLE"],filers,
         {k:set(v) for k,v in om2.get("sequences_by_accession",{}).items()})
     summary = audit_summarypage(sum_h,sum_rows,om2.get("rows_by_accession",{}))
     notices = {a for a,f in filers.items() if f["submission_type"] in {"13F-NT","13F-NT/A"} or f["report_type"] == "13F NOTICE"}
