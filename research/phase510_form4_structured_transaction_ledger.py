@@ -4,7 +4,10 @@ import argparse
 import csv
 import hashlib
 import json
+import os
 import re
+import shutil
+import tempfile
 import xml.etree.ElementTree as ET
 from datetime import date, datetime, timezone
 from decimal import Decimal, InvalidOperation
@@ -674,6 +677,7 @@ def build_footnote_reference_rows(event: dict, metadata: dict, parsed: dict) -> 
 
 
 def append_footnote_reference_rows(path: Path, rows: list[dict]) -> int:
+    """Atomically append references, with the accession marker committed last."""
     if not rows:
         return 0
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -688,14 +692,51 @@ def append_footnote_reference_rows(path: Path, rows: list[dict]) -> int:
                 row.get("footnote_ref_key", "") for row in reader
                 if row.get("footnote_ref_key")
             }
-    pending = [row for row in rows if row.get("footnote_ref_key") not in existing_keys]
+
+    pending: list[dict] = []
+    pending_keys: set[str] = set()
+    for row in rows:
+        key = str(row.get("footnote_ref_key") or "")
+        if not key or key in existing_keys or key in pending_keys:
+            continue
+        pending.append(row)
+        pending_keys.add(key)
     if not pending:
         return 0
-    with path.open("a", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=FOOTNOTE_REF_FIELDS, extrasaction="ignore")
-        if write_header:
-            writer.writeheader()
-        writer.writerows(pending)
+
+    # The completion marker is a commit record. Write it after every reference so
+    # an interrupted append cannot make a partial accession look complete.
+    pending = (
+        [row for row in pending if row.get("record_type") != "accession_parse_marker"]
+        + [row for row in pending if row.get("record_type") == "accession_parse_marker"]
+    )
+
+    # Stage the complete old ledger plus new rows in the same directory, fsync it,
+    # then replace atomically. A crash during serialization leaves the prior ledger
+    # intact rather than a truncated final CSV row.
+    fd, temporary_name = tempfile.mkstemp(
+        prefix=f".{path.name}.", suffix=".tmp", dir=str(path.parent), text=True
+    )
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8", newline="") as target:
+            if not write_header:
+                with path.open("r", encoding="utf-8-sig", newline="") as source:
+                    shutil.copyfileobj(source, target)
+            writer = csv.DictWriter(
+                target, fieldnames=FOOTNOTE_REF_FIELDS, extrasaction="ignore"
+            )
+            if write_header:
+                writer.writeheader()
+            writer.writerows(pending)
+            target.flush()
+            os.fsync(target.fileno())
+        os.replace(temporary_name, path)
+    except Exception:
+        try:
+            os.unlink(temporary_name)
+        except FileNotFoundError:
+            pass
+        raise
     return len(pending)
 
 
