@@ -1,0 +1,61 @@
+name: Phase 611 - SEC 13F stratified acceptance timestamp audit
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_live_audit:
+        description: "Run the bounded live SEC 13F timestamp sample"
+        required: true
+        default: false
+        type: boolean
+  push:
+    branches: [phase611-sec-13f-acceptance-timestamp-stratified-audit]
+    paths:
+      - "research/phase611_sec_13f_acceptance_timestamp_stratified_audit.py"
+      - "research/test_phase611_sec_13f_acceptance_timestamp_stratified_audit.py"
+      - ".github/workflows/phase611_sec_13f_acceptance_timestamp_stratified_audit.yml"
+  pull_request:
+    branches: [phase610-sec-13f-acceptance-timestamp-feasibility]
+    paths:
+      - "research/phase611_sec_13f_acceptance_timestamp_stratified_audit.py"
+      - "research/test_phase611_sec_13f_acceptance_timestamp_stratified_audit.py"
+      - ".github/workflows/phase611_sec_13f_acceptance_timestamp_stratified_audit.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile and run offline regressions
+        run: |
+          python -m py_compile research/phase611_sec_13f_acceptance_timestamp_stratified_audit.py research/test_phase611_sec_13f_acceptance_timestamp_stratified_audit.py
+          python -m unittest -v research.test_phase611_sec_13f_acceptance_timestamp_stratified_audit
+
+  bounded-live-timestamp-audit:
+    if: github.event_name == 'workflow_dispatch' && inputs.run_live_audit == true
+    needs: offline-regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Fetch stratified SEC 13F filing-detail pages
+        env:
+          SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
+        run: python research/phase611_sec_13f_acceptance_timestamp_stratified_audit.py
+      - name: Upload timestamp coverage result
+        if: always() && hashFiles('phase611_sec_13f_acceptance_timestamp_stratified_audit.json') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase611-sec-13f-acceptance-timestamp-stratified-audit
+          path: phase611_sec_13f_acceptance_timestamp_stratified_audit.json
+          retention-days: 30
