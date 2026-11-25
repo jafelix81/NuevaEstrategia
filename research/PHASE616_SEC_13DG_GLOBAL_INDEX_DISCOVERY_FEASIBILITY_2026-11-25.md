@@ -1,7 +1,7 @@
 # Phase 616 — SEC Schedule 13D/G global-index discovery feasibility and bounded identity sample
 
 **Audit date:** 2026-11-25  
-**Status:** offline implementation prepared; initial CI passed 25/25 tests in [Run 45582424995](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45582424995). Follow-up hardening adds quarter-stratified selection and a direct SEC_USER_AGENT expression; its PR validation is pending. The bounded live sample has not been dispatched.  
+**Status:** offline implementation and follow-up hardening validated. Final PR CI passed 27/27 tests on head `f4088647fa89f72f4ec7f72a4542e6cc7fd122d8` in [Run 45589384903](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45589384903). The live-sample job was skipped; no SEC request was made.  
 **Decision:** restore Schedule 13D subject-issuer discovery as the highest-priority free institutional-disclosure line; keep 13G separate as slower ownership-state context.
 
 ## 1. Why the source priority changes
@@ -67,7 +67,7 @@ No SEC request was made in this phase. PR validation is offline-only. No full hi
 
 ## 6. Acceptance and kill criteria
 
-The 44-row selection now explicitly includes quarter as a stratification dimension. All five preregistered quarters must be represented in both the input index rows and the selected sample; otherwise the sample fails before any header request.
+The 44-row selection explicitly includes quarter as a stratification dimension. All five preregistered quarters must be represented in both the input index rows and the selected sample; otherwise the sample fails before any header request. This control passed its dedicated positive and negative regression tests.
 
 PASS only if: 44/44 header identities verify; master-index filer equals accession-prefix filer; header FILED BY equals master-index filer; zero unresolved header retrievals or identity conflicts.
 
