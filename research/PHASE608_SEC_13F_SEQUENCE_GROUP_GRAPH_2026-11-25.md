@@ -1,6 +1,10 @@
 # Phase 608 — SEC 13F sequence-group graph parser
 
-**Status at branch creation:** implementation and offline regression pending.  
+<badge>CI: 11/11 offline regressions passed</badge>
+
+**Status:** group-aware structural parser implemented and tested.  
+**Run:** https://github.com/jafelix81/NuevaEstrategia/actions/runs/45532947764  
+**Artifact:** https://github.com/jafelix81/NuevaEstrategia/actions/runs/45532947764/artifacts/14985222973  
 **Basis:** source-confirmed Phase 607 XML evidence from six accessions.  
 **Scope:** group-aware parser for OTHERMANAGER2 member rows and INFOTABLE group references. No full-quarter live dataset rebuild.
 
@@ -10,7 +14,7 @@ Phase 607 established that SEQUENCENUMBER identifies a group, not a unique manag
 
 Phase 608 implements:
 - Accession → sequence group → member rows.
-- A stable row-level member key that preserves exact duplicate rows rather than silently dropping them.
+- A row-level member key that preserves exact duplicate rows rather than silently dropping them.
 - Member identity quality based on explicit CIK / Form 13F file number; names alone are not identity keys.
 - Position references attached to groups, with member count and attribution status.
 - Group-only attribution whenever the sequence group has multiple member rows.
@@ -21,9 +25,25 @@ Phase 608 implements:
 
 ## Regression coverage
 
-The fixtures cover the source-confirmed Allspring pattern (five member rows under sequence groups 1 and 2), a 12-member sequence group, unmatched numeric references, nonnumeric labels, zero sentinel, exact duplicate rows, and summary-page reconciliation.
+11 offline tests passed. Fixtures cover:
+- Allspring's five member rows under sequence groups 1 and 2.
+- A 12-member sequence group pattern.
+- Unmatched numeric references.
+- Nonnumeric labels and mixed numeric/text values.
+- Zero sentinel.
+- Exact duplicate member rows preserved and flagged.
+- Summary-page count reconciliation.
+- No name-only identity resolution.
 
-The parser is a pure transformation layer. It does not infer beneficial ownership, control, individual decision-maker, trading direction, or alpha.
+The CI structural demo produced five member rows, two groups, two multi-member groups, four matched group-reference tokens, two raw nonnumeric labels, one zero sentinel, and zero summary-page mismatches.
+
+## Phase 606 / 607 interpretation correction
+
+The repeated (ACCESSION_NUMBER, SEQUENCENUMBER) rows are not automatically duplicate data. Source XML proves that the same sequence number can be assigned to several member rows within one group. Therefore:
+- Sequence number is a group identifier, not an individual-manager key.
+- The 20 / 3 repeated sequence pairs in Phase 606 must be reclassified as group membership patterns unless exact member-row duplication is independently demonstrated.
+- Nonnumeric values such as “XXEC, INC.” and “Wellesley” are as-filed text values, not automatically malformed identifiers.
+- The group is the finest attribution unit supported by the field. A multi-member group cannot support individual-manager attribution.
 
 ## Limits and next gate
 
