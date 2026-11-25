@@ -2,7 +2,7 @@
 
 ## Audit cutoff
 
-2026-11-25 15:11 UTC. Main HEAD reviewed: `074e3596b6982308889ed33e614ec4e169005ee5`.
+2026-11-25 15:21 UTC. Main HEAD reviewed: `074e3596b6982308889ed33e614ec4e169005ee5`.
 
 Source run: [Phase 476 / run 45620008946](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45620008946). Both jobs completed successfully. The 4,107-byte artifact 15023279430 contains the compact poll summary and downstream Phase 510/525 summaries, but not the accession-occurrence ledger. The latter was therefore read directly from the main-branch Git blob (SHA `06ec9509fb4aba6c1f37d1aeea17d259fbaaea94`).
 
@@ -70,7 +70,7 @@ Six new tests cover:
 - missing issuer row with locator omitted;
 - persistence of all entity occurrences and issuer-canonical marking in the sidecar.
 
-The existing same-feed repeat counter remains for backward compatibility, but it is now interpreted as repeated accession/entity occurrences, not as evidence of a pagination defect. GitHub Actions PR validation is pending.
+The existing same-feed repeat counter remains for backward compatibility, but it is now interpreted as repeated accession/entity occurrences, not as evidence of a pagination defect. The first PR run exposed one test-fixture mistake (the initial-baseline fixture included a supposed watermark without a prior state); the fixture was corrected. Final PR validations [45644057878](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45644057878) and [45644162986](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45644162986) passed `py_compile` and all 69 offline tests. The live-capture job was skipped.
 
 ## Separate cadence issue
 
@@ -80,7 +80,7 @@ This phase does not fix the independently observed capture cadence. The current 
 
 - Phase 619 duplicate-occurrence hypothesis: **reclassified**. The observed repeats are expected multi-entity rows; no pagination defect was established.
 - Historical role reconstruction for the 74 occurrences from run 45620008946: **unresolved**, because titles were not persisted.
-- Future entity-level capture: **implemented, prospective validation pending**.
+- Future entity-level capture: **implemented, live prospective validation pending**.
 - Research-observation eligible rows: 0.
 - Signal-eligible rows: 0.
 - No event study, OOS, bootstrap or LOO run is justified by this metadata audit.
