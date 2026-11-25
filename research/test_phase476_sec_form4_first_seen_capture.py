@@ -281,7 +281,8 @@ class Phase476Tests(unittest.TestCase):
                  patch.object(p, "EVENTS_PATH", data_dir / "events.csv"), \
                  patch.object(p, "OBSERVATIONS_PATH", data_dir / "feed_observations.csv"), \
                  patch.object(p, "ACCESSION_OBSERVATIONS_PATH", data_dir / "accession_observations.csv"), \
-                 patch.object(p, "ENTITY_OBSERVATIONS_PATH", data_dir / "entity_observations.csv"), \
+                 patch.object(p, "ENTITY_OBSERVATIONS_PATH", data_dir / "entity_observations.csv"),
+                 patch.object(p, "ENTITY_DUPLICATE_AUDIT_PATH", data_dir / "entity_duplicate_audit.csv"), \
                  patch.object(p, "FEEDS", {"4": self.url}), \
                  patch.object(p.p401, "fetch_bytes", return_value=raw):
                 summary = p.run_capture("schedule", "baseline-run", output_dir)
@@ -311,7 +312,8 @@ class Phase476Tests(unittest.TestCase):
                  patch.object(p, "EVENTS_PATH", data_dir / "events.csv"), \
                  patch.object(p, "OBSERVATIONS_PATH", data_dir / "feed_observations.csv"), \
                  patch.object(p, "ACCESSION_OBSERVATIONS_PATH", data_dir / "accession_observations.csv"), \
-                 patch.object(p, "ENTITY_OBSERVATIONS_PATH", data_dir / "entity_observations.csv"), \
+                 patch.object(p, "ENTITY_OBSERVATIONS_PATH", data_dir / "entity_observations.csv"),
+                 patch.object(p, "ENTITY_DUPLICATE_AUDIT_PATH", data_dir / "entity_duplicate_audit.csv"), \
                  patch.object(p, "FEEDS", {"4": self.url}), \
                  patch.object(p.p401, "fetch_bytes", side_effect=[first, second]), \
                  patch.object(p, "now_utc", side_effect=[
@@ -344,7 +346,8 @@ class Phase476Tests(unittest.TestCase):
                  patch.object(p, "EVENTS_PATH", data_dir / "events.csv"), \
                  patch.object(p, "OBSERVATIONS_PATH", data_dir / "feed_observations.csv"), \
                  patch.object(p, "ACCESSION_OBSERVATIONS_PATH", data_dir / "accession_observations.csv"), \
-                 patch.object(p, "ENTITY_OBSERVATIONS_PATH", data_dir / "entity_observations.csv"), \
+                 patch.object(p, "ENTITY_OBSERVATIONS_PATH", data_dir / "entity_observations.csv"),
+                 patch.object(p, "ENTITY_DUPLICATE_AUDIT_PATH", data_dir / "entity_duplicate_audit.csv"), \
                  patch.object(p, "FEEDS", {"4": self.url}), \
                  patch.object(p.p401, "fetch_bytes", return_value=raw):
                 summary = p.run_capture("manual", "manual-run", output_dir)
@@ -376,7 +379,8 @@ class Phase476Tests(unittest.TestCase):
                  patch.object(p, "EVENTS_PATH", data_dir / "events.csv"), \
                  patch.object(p, "OBSERVATIONS_PATH", data_dir / "feed_observations.csv"), \
                  patch.object(p, "ACCESSION_OBSERVATIONS_PATH", data_dir / "accession_observations.csv"), \
-                 patch.object(p, "ENTITY_OBSERVATIONS_PATH", data_dir / "entity_observations.csv"), \
+                 patch.object(p, "ENTITY_OBSERVATIONS_PATH", data_dir / "entity_observations.csv"),
+                 patch.object(p, "ENTITY_DUPLICATE_AUDIT_PATH", data_dir / "entity_duplicate_audit.csv"), \
                  patch.object(p, "FEEDS", {"4": self.url}), \
                  patch.object(p, "MAX_FEED_PAGES", 1), \
                  patch.object(p.p401, "fetch_bytes", return_value=raw):
@@ -472,7 +476,8 @@ class Phase476Tests(unittest.TestCase):
                  patch.object(p, "EVENTS_PATH", data_dir / "events.csv"), \
                  patch.object(p, "OBSERVATIONS_PATH", data_dir / "feed_observations.csv"), \
                  patch.object(p, "ACCESSION_OBSERVATIONS_PATH", data_dir / "accession_observations.csv"), \
-                 patch.object(p, "ENTITY_OBSERVATIONS_PATH", data_dir / "entity_observations.csv"), \
+                 patch.object(p, "ENTITY_OBSERVATIONS_PATH", data_dir / "entity_observations.csv"),
+                 patch.object(p, "ENTITY_DUPLICATE_AUDIT_PATH", data_dir / "entity_duplicate_audit.csv"), \
                  patch.object(p, "FEEDS", {"4": self.url}), \
                  patch.object(p.p401, "fetch_bytes", side_effect=[raw, raw]):
                 p.run_capture("schedule", "baseline-run", output_dir)
@@ -535,7 +540,8 @@ class Phase476Tests(unittest.TestCase):
                  patch.object(p, "EVENTS_PATH", data_dir / "events.csv"), \
                  patch.object(p, "OBSERVATIONS_PATH", data_dir / "feed_observations.csv"), \
                  patch.object(p, "ACCESSION_OBSERVATIONS_PATH", data_dir / "accession_observations.csv"), \
-                 patch.object(p, "ENTITY_OBSERVATIONS_PATH", data_dir / "entity_observations.csv"), \
+                 patch.object(p, "ENTITY_OBSERVATIONS_PATH", data_dir / "entity_observations.csv"),
+                 patch.object(p, "ENTITY_DUPLICATE_AUDIT_PATH", data_dir / "entity_duplicate_audit.csv"), \
                  patch.object(p, "FEEDS", {"4": url4, "4A": url4a}), \
                  patch.object(p.p401, "fetch_bytes", side_effect=[feed4, feed4a]):
                 summary = p.run_capture("schedule", "duplicate-provenance-run", output_dir)
@@ -552,6 +558,13 @@ class Phase476Tests(unittest.TestCase):
             self.assertEqual(summary["feeds"]["4A"]["new_accession_count"], 1)
             self.assertEqual(summary["accession_observation_rows"], 5)
             self.assertEqual(summary["same_feed_duplicate_occurrences"], 1)
+            self.assertEqual(summary["same_feed_repeated_accession_occurrences"], 1)
+            self.assertEqual(summary["exact_duplicate_entity_observation_rows"], 1)
+            self.assertEqual(summary["exact_duplicate_entity_key_groups"], 1)
+            with (data_dir / "entity_duplicate_audit.csv").open(newline="", encoding="utf-8") as handle:
+                entity_audit = list(csv.DictReader(handle))
+            self.assertEqual(len(entity_audit), 5)
+            self.assertEqual(sum(row["is_exact_duplicate_entity_observation"] == "True" for row in entity_audit), 1)
             self.assertEqual(summary["cross_feed_duplicate_occurrences"], 1)
             self.assertEqual(summary["canonical_event_observation_rows"], 3)
             with (data_dir / "events.csv").open(newline="", encoding="utf-8") as handle:
@@ -736,7 +749,8 @@ class Phase476Tests(unittest.TestCase):
                  patch.object(p, "EVENTS_PATH", data_dir / "events.csv"), \
                  patch.object(p, "OBSERVATIONS_PATH", data_dir / "feed_observations.csv"), \
                  patch.object(p, "ACCESSION_OBSERVATIONS_PATH", data_dir / "accession_observations.csv"), \
-                 patch.object(p, "ENTITY_OBSERVATIONS_PATH", data_dir / "entity_observations.csv"), \
+                 patch.object(p, "ENTITY_OBSERVATIONS_PATH", data_dir / "entity_observations.csv"),
+                 patch.object(p, "ENTITY_DUPLICATE_AUDIT_PATH", data_dir / "entity_duplicate_audit.csv"), \
                  patch.object(p, "FEEDS", {"4": self.url}), \
                  patch.object(p.p401, "fetch_bytes", return_value=raw):
                 summary = p.run_capture("schedule", "entity-sidecar-run", output_dir)
@@ -752,6 +766,59 @@ class Phase476Tests(unittest.TestCase):
             self.assertEqual(canonical["feed_entity_cik"], "0000000003")
             self.assertEqual(canonical["canonical_entity_selection_status"], "ISSUER_ENTITY_SELECTED")
             self.assertTrue((output_dir / "entity_summary.json").exists())
+
+
+
+    def test_entity_duplicate_audit_separates_cross_page_repeat_from_distinct_entities(self):
+        rows = [
+            {"poll_run_id": "r", "observation_sequence": 1, "feed_name": "4", "accession": "A",
+             "form": "4", "feed_entity_role": "REPORTING", "feed_entity_cik": "0000000002",
+             "feed_entity_name": "Owner LLC", "feed_entity_status": "PARSED", "page_offset": 0,
+             "page_raw_sha256": "h1", "page_received_at_utc": "t1"},
+            {"poll_run_id": "r", "observation_sequence": 2, "feed_name": "4", "accession": "A",
+             "form": "4", "feed_entity_role": "ISSUER", "feed_entity_cik": "0000000003",
+             "feed_entity_name": "Issuer Inc.", "feed_entity_status": "PARSED", "page_offset": 100,
+             "page_raw_sha256": "h2", "page_received_at_utc": "t2"},
+            {"poll_run_id": "r", "observation_sequence": 3, "feed_name": "4", "accession": "B",
+             "form": "4", "feed_entity_role": "ISSUER", "feed_entity_cik": "0000000004",
+             "feed_entity_name": "Issuer Two Inc.", "feed_entity_status": "PARSED", "page_offset": 200,
+             "page_raw_sha256": "h3", "page_received_at_utc": "t3"},
+            {"poll_run_id": "r", "observation_sequence": 4, "feed_name": "4", "accession": "B",
+             "form": "4", "feed_entity_role": "REPORTING", "feed_entity_cik": "0000000005",
+             "feed_entity_name": "Owner Two LLC", "feed_entity_status": "PARSED", "page_offset": 200,
+             "page_raw_sha256": "h3", "page_received_at_utc": "t3"},
+            {"poll_run_id": "r", "observation_sequence": 5, "feed_name": "4", "accession": "B",
+             "form": "4", "feed_entity_role": "ISSUER", "feed_entity_cik": "0000000004",
+             "feed_entity_name": "  ISSUER TWO INC. ", "feed_entity_status": "PARSED", "page_offset": 300,
+             "page_raw_sha256": "h4", "page_received_at_utc": "t4"},
+        ]
+        audited, summary = p.audit_entity_observation_duplicates(rows)
+        self.assertEqual(summary["entity_duplicate_audit_rows"], 5)
+        self.assertEqual(summary["exact_duplicate_entity_observation_rows"], 1)
+        self.assertEqual(summary["exact_duplicate_entity_key_groups"], 1)
+        self.assertEqual(summary["exact_duplicate_entity_observation_rows_across_page_offsets"], 1)
+        self.assertEqual(summary["exact_duplicate_entity_key_groups_across_page_offsets"], 1)
+        self.assertEqual(summary["legitimate_multi_entity_accessions_split_across_pages"], 2)
+        duplicate = next(row for row in audited if row["observation_sequence"] == 5)
+        self.assertEqual(duplicate["is_exact_duplicate_entity_observation"], True)
+        self.assertEqual(duplicate["is_exact_duplicate_across_page_offsets"], True)
+        self.assertEqual(duplicate["first_entity_observation_sequence"], 3)
+
+    def test_entity_duplicate_audit_does_not_fuzzy_match_unparsed_entities(self):
+        rows = [
+            {"poll_run_id": "r", "observation_sequence": 1, "feed_name": "4", "accession": "C",
+             "form": "4", "feed_entity_role": "UNKNOWN", "feed_entity_cik": "",
+             "feed_entity_name": "", "feed_entity_status": "UNPARSED_TITLE", "page_offset": 0,
+             "page_raw_sha256": "h1", "page_received_at_utc": "t1"},
+            {"poll_run_id": "r", "observation_sequence": 2, "feed_name": "4", "accession": "C",
+             "form": "4", "feed_entity_role": "UNKNOWN", "feed_entity_cik": "",
+             "feed_entity_name": "", "feed_entity_status": "UNPARSED_TITLE", "page_offset": 100,
+             "page_raw_sha256": "h2", "page_received_at_utc": "t2"},
+        ]
+        audited, summary = p.audit_entity_observation_duplicates(rows)
+        self.assertEqual(summary["unkeyed_entity_observation_rows"], 2)
+        self.assertEqual(summary["exact_duplicate_entity_observation_rows"], 0)
+        self.assertTrue(all(row["entity_observation_key"] == "" for row in audited))
 
 if __name__ == "__main__":
     unittest.main()
