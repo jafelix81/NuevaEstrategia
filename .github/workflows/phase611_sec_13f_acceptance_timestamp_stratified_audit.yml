@@ -39,7 +39,7 @@ jobs:
           python -m unittest -v research.test_phase611_sec_13f_acceptance_timestamp_stratified_audit
 
   bounded-live-timestamp-audit:
-    if: github.event_name == 'workflow_dispatch' && inputs.run_live_audit == true
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.run_live_audit == true)
     needs: offline-regression
     runs-on: ubuntu-latest
     timeout-minutes: 30
