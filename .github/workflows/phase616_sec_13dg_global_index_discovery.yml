@@ -1,15 +1,6 @@
 name: Phase 616 - SEC 13D/G global-index bounded identity sample
 
 on:
-  push:
-    branches:
-      - phase616-sec-13dg-global-index-discovery-sample
-    paths:
-      - ".github/workflows/phase616_sec_13dg_global_index_discovery.yml"
-      - "research/phase616_sec_13dg_global_index_discovery.py"
-      - "research/test_phase616_sec_13dg_global_index_discovery.py"
-      - "research/PHASE616_SEC_13DG_GLOBAL_INDEX_DISCOVERY_FEASIBILITY_2026-11-25.md"
-      - "research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-25_PHASE616.md"
   pull_request:
     paths:
       - ".github/workflows/phase616_sec_13dg_global_index_discovery.yml"

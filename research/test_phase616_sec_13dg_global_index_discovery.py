@@ -10,6 +10,8 @@ from research.phase616_sec_13dg_global_index_discovery import (
     parse_master_index,
     stratified_sample,
     validate_user_agent,
+    QUARTERS,
+    TARGET_FORMS,
 )
 
 INDEX_FIXTURE = """Description: SEC Master Index
@@ -121,13 +123,14 @@ class Phase616IndexParserTests(unittest.TestCase):
                         "amendment": amendment,
                         "legal_regime": legal,
                         "schema_regime": schema,
+                        "source_quarter": "2024Q1",
                         "index_filer_accession_match": True,
                     }
                 )
-        sample_a = stratified_sample(rows, sample_size=8)
-        sample_b = stratified_sample(rows, sample_size=8)
+        sample_a = stratified_sample(rows, sample_size=8, required_quarters={"2024Q1"})
+        sample_b = stratified_sample(rows, sample_size=8, required_quarters={"2024Q1"})
         self.assertEqual([r["accession"] for r in sample_a], [r["accession"] for r in sample_b])
-        keys = {(r["form_family"], r["amendment"], r["legal_regime"], r["schema_regime"]) for r in sample_a}
+        keys = {(r["source_quarter"], r["form_family"], r["amendment"], r["legal_regime"], r["schema_regime"]) for r in sample_a}
         self.assertEqual(len(keys), 4)
 
     def test_sample_fails_if_global_index_coverage_is_too_small(self):
@@ -143,6 +146,7 @@ class Phase616IndexParserTests(unittest.TestCase):
                 "amendment": amendment,
                 "legal_regime": "POST_2024_02_05" if family == "13D" else "POST_2024_09_30",
                 "schema_regime": "MANDATORY_XML_FROM_2024_12_18",
+                "source_quarter": "2026Q3",
                 "index_filer_accession_match": True,
             }
             for i, (family, form, amendment) in enumerate(
@@ -155,7 +159,71 @@ class Phase616IndexParserTests(unittest.TestCase):
             )
         ]
         with self.assertRaises(ValueError):
-            stratified_sample(rows, sample_size=3)
+            stratified_sample(rows, sample_size=3, required_quarters={"2026Q3"})
+
+    def test_sample_includes_all_five_preregistered_quarters(self):
+        quarter_labels = [f"{year}Q{quarter}" for year, quarter in QUARTERS]
+        rows = []
+        accession_number = 1
+        for quarter in quarter_labels:
+            for family, amendment, form in [
+                ("13D", False, "SC 13D"),
+                ("13D", True, "SC 13D/A"),
+                ("13G", False, "SC 13G"),
+                ("13G", True, "SC 13G/A"),
+            ]:
+                legal = (
+                    "PRE_2024_02_05" if family == "13D" and quarter == "2023Q4"
+                    else "PRE_2024_09_30" if family == "13G" and quarter in {"2023Q4", "2024Q1", "2024Q3"}
+                    else "POST_2024_02_05" if family == "13D"
+                    else "POST_2024_09_30"
+                )
+                schema = (
+                    "VOLUNTARY_XML_2023_12_18_TO_2024_12_17"
+                    if quarter != "2026Q3"
+                    else "MANDATORY_XML_FROM_2024_12_18"
+                )
+                for _ in range(3):
+                    rows.append({
+                        "accession": f"0000000001-26-{accession_number:06d}",
+                        "form_family": family,
+                        "form": form,
+                        "amendment": amendment,
+                        "legal_regime": legal,
+                        "schema_regime": schema,
+                        "source_quarter": quarter,
+                        "index_filer_accession_match": True,
+                    })
+                    accession_number += 1
+        sample = stratified_sample(rows, sample_size=44)
+        self.assertEqual({r["source_quarter"] for r in sample}, set(quarter_labels))
+        self.assertEqual({r["form"] for r in sample}, TARGET_FORMS)
+
+    def test_sample_fails_if_a_preregistered_quarter_is_absent(self):
+        rows = []
+        accession_number = 1
+        for year, quarter in QUARTERS[:-1]:
+            label = f"{year}Q{quarter}"
+            for family, amendment, form in [
+                ("13D", False, "SC 13D"),
+                ("13D", True, "SC 13D/A"),
+                ("13G", False, "SC 13G"),
+                ("13G", True, "SC 13G/A"),
+            ]:
+                for _ in range(3):
+                    rows.append({
+                        "accession": f"0000000001-26-{accession_number:06d}",
+                        "form_family": family,
+                        "form": form,
+                        "amendment": amendment,
+                        "legal_regime": "POST_2024_02_05" if family == "13D" else "POST_2024_09_30",
+                        "schema_regime": "VOLUNTARY_XML_2023_12_18_TO_2024_12_17",
+                        "source_quarter": label,
+                        "index_filer_accession_match": True,
+                    })
+                    accession_number += 1
+        with self.assertRaises(ValueError):
+            stratified_sample(rows, sample_size=44)
 
     def test_filing_regime_boundaries_are_explicit(self):
         self.assertEqual(filing_regimes("SC 13D", date(2024, 2, 4))[1], "PRE_2024_02_05")

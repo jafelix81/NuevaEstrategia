@@ -35,11 +35,11 @@ The SEC master index provides filer CIK, filer name, form, filing date and archi
 ## 3. Preregistered bounded sample
 
 - 44 unique accessions selected deterministically from the global index.
-- Round-robin stratification by 13D/13G family, original/amendment, legal deadline regime and XML/schema regime.
+- Round-robin stratification by quarter, 13D/13G family, original/amendment, legal deadline regime and XML/schema regime. The sample must contain at least one accession from each of the five preregistered quarters; missing-quarter input or sample coverage fails closed.
 - Five quarterly index files only; no 20,266-row legacy-panel crawl.
 - Retrieve index-header documents only; no primary filing body, ownership tables, holdings, prices or returns.
 - Preserve each index file and header response with SHA-256 hashes and source URLs.
-- Require all four exact forms to appear at least once, plus 44/44 verified subject/filer identities, 44/44 index-filer/accession matches and 44/44 header-filer/index matches for PASS_HEADER_IDENTITY_ONLY.
+- Require all four exact forms and all five quarterly windows to appear in the 44-row sample, plus 44/44 verified subject/filer identities, 44/44 index-filer/accession matches and 44/44 header-filer/index matches for PASS_HEADER_IDENTITY_ONLY.
 - Archive-path CIK versus parsed subject CIK is reported as an independent diagnostic. A mismatch is quarantined for path analysis but does not replace or invalidate an otherwise verified header identity.
 - Any missing, malformed, conflicting or filer-mismatched record is quarantined. No ticker is inferred.
 
@@ -57,7 +57,7 @@ This is a parser/discovery feasibility sample, not a statistical coverage estima
 
 ## 5. Credential and execution safety
 
-The manual-only workflow passes the repository secret SEC_USER_AGENT to the collector and fails before the first request if it is missing or contains a placeholder. The secret value is never printed or stored. The connected GitHub interface cannot read or set secret values.
+The manual-only workflow passes the repository secret SEC_USER_AGENT directly to the collector (without a literal escape prefix) and fails before the first request if it is missing or contains a placeholder. The secret value is never printed or stored. The connected GitHub interface cannot read or set secret values.
 
 The user previously indicated that the SEC User-Agent may already have been configured. This code path now consumes the shared secret; PR #204's current scope only wires it into the separate FTD workflows, not this 13D/G workflow. If the secret already exists, no settings change is needed. After this PR is merged, the one-time workflow_dispatch input run_live_sample=true is required to run the 44-header sample. This environment cannot dispatch Actions workflows through the available GitHub GET interface, so that single dispatch must be initiated in GitHub by the repository maintainer.
 
@@ -66,6 +66,8 @@ The legacy Fase 49 workflow is not used by this phase: it still contains a place
 No SEC request was made in this phase. PR validation is offline-only. No full historical crawl, paid data, vendor contact, quote request or strategy change is authorized.
 
 ## 6. Acceptance and kill criteria
+
+The 44-row selection now explicitly includes quarter as a stratification dimension. All five preregistered quarters must be represented in both the input index rows and the selected sample; otherwise the sample fails before any header request.
 
 PASS only if: 44/44 header identities verify; master-index filer equals accession-prefix filer; header FILED BY equals master-index filer; zero unresolved header retrievals or identity conflicts.
 

@@ -210,11 +210,30 @@ def deduplicate_index_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return list(by_accession.values())
 
 
-def stratified_sample(rows: list[dict[str, Any]], sample_size: int = SAMPLE_SIZE) -> list[dict[str, Any]]:
+def stratified_sample(
+    rows: list[dict[str, Any]],
+    sample_size: int = SAMPLE_SIZE,
+    *,
+    required_quarters: set[str] | None = None,
+) -> list[dict[str, Any]]:
     eligible = [r for r in rows if r.get("index_filer_accession_match")]
-    buckets: dict[tuple[str, bool, str, str], list[dict[str, Any]]] = defaultdict(list)
+    expected_quarters = (
+        set(required_quarters)
+        if required_quarters is not None
+        else {f"{year}Q{quarter}" for year, quarter in QUARTERS}
+    )
+    observed_quarters = {str(r.get("source_quarter") or "") for r in eligible}
+    missing_source_quarters = expected_quarters - observed_quarters
+    if missing_source_quarters:
+        raise ValueError(
+            "Global index input is missing preregistered quarters: "
+            + ", ".join(sorted(missing_source_quarters))
+        )
+
+    buckets: dict[tuple[str, str, bool, str, str], list[dict[str, Any]]] = defaultdict(list)
     for row in eligible:
         key = (
+            str(row.get("source_quarter") or ""),
             row["form_family"],
             bool(row["amendment"]),
             row["legal_regime"],
@@ -251,8 +270,14 @@ def stratified_sample(rows: list[dict[str, Any]], sample_size: int = SAMPLE_SIZE
             "Stratified sample does not cover all four Schedule 13D/G forms: "
             + ", ".join(sorted(missing_forms))
         )
+    selected_quarters = {str(row.get("source_quarter") or "") for row in selected}
+    missing_sample_quarters = expected_quarters - selected_quarters
+    if missing_sample_quarters:
+        raise ValueError(
+            "Stratified sample does not represent every preregistered quarter: "
+            + ", ".join(sorted(missing_sample_quarters))
+        )
     return selected
-
 
 def sha256_bytes(raw: bytes) -> str:
     return hashlib.sha256(raw).hexdigest()
@@ -405,10 +430,20 @@ def run_live_sample(output_dir: Path, *, sample_size: int = SAMPLE_SIZE) -> dict
         results.append(result)
 
     verified = sum(r["identity_status"] == "VERIFIED_SUBJECT_AND_FILER" for r in results)
+    sample_quarters = sorted({str(r.get("source_quarter") or "") for r in sample})
+    sample_quarter_coverage_complete = set(sample_quarters) == {
+        f"{year}Q{quarter}" for year, quarter in QUARTERS
+    }
+    sample_form_coverage_complete = {r["form"] for r in sample} == TARGET_FORMS
+    sample_gate_complete = (
+        verified == sample_size
+        and sample_quarter_coverage_complete
+        and sample_form_coverage_complete
+    )
     summary = {
         "phase": 616,
         "audit_timestamp_utc": datetime.now(timezone.utc).isoformat(),
-        "status": "COMPLETE" if verified == sample_size else "QUARANTINED",
+        "status": "COMPLETE" if sample_gate_complete else "QUARANTINED",
         "quarterly_indexes": index_manifest,
         "target_forms": sorted(TARGET_FORMS),
         "global_index_target_rows": len(all_rows),
@@ -427,7 +462,9 @@ def run_live_sample(output_dir: Path, *, sample_size: int = SAMPLE_SIZE) -> dict
         "sample_index_filer_accession_mismatches": sum(
             not r.get("index_filer_accession_match") for r in results
         ),
-        "sample_form_coverage_complete": set(r["form"] for r in sample) == TARGET_FORMS,
+        "sample_form_coverage_complete": sample_form_coverage_complete,
+        "sample_quarters": sample_quarters,
+        "sample_quarter_coverage_complete": sample_quarter_coverage_complete,
         "header_index_filer_mismatches": sum(r.get("header_filer_index_match") is False for r in results),
         "archive_path_subject_mismatches": sum(r.get("archive_path_subject_match") is False for r in results),
         "header_errors": len(errors),
@@ -438,7 +475,7 @@ def run_live_sample(output_dir: Path, *, sample_size: int = SAMPLE_SIZE) -> dict
         "research_observation_eligible": False,
         "signal_eligible": False,
         "alpha_test_authorized": False,
-        "gate": "PASS_HEADER_IDENTITY_ONLY" if verified == sample_size else "FAIL",
+        "gate": "PASS_HEADER_IDENTITY_ONLY" if sample_gate_complete else "FAIL",
         "limitations": [
             "The SEC master index identifies the submitting filer; subject issuer comes only from the SEC-HEADER SUBJECT COMPANY block.",
             "Archive-path CIK is retained as an independent cross-check, never used as the subject identity.",
@@ -466,7 +503,7 @@ def run_live_sample(output_dir: Path, *, sample_size: int = SAMPLE_SIZE) -> dict
     (output_dir / "summary.json").write_text(
         json.dumps(summary, indent=2), encoding="utf-8"
     )
-    if verified != sample_size:
+    if not sample_gate_complete:
         raise RuntimeError(
             f"Bounded SEC 13D/G identity gate failed: {verified}/{sample_size} verified. "
             "Artifacts were written for review; no full crawl is authorized."
