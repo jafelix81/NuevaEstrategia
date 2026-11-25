@@ -44,7 +44,7 @@ class TextCollector(HTMLParser):
         self.parts: list[str] = []
 
     def handle_data(self, data: str) -> None:
-        value = re.sub(r"\\s+", " ", data or "").strip()
+        value = re.sub(r"\s+", " ", data or "").strip()
         if value:
             self.parts.append(value)
 
@@ -58,7 +58,7 @@ def extract_labeled_value(parts: list[str], label: str, pattern: str) -> str | N
                 if match:
                     return match.group(1)
     joined = " ".join(parts)
-    match = re.search(rf"{re.escape(label)}\\s*:?\\s*{pattern}", joined, re.IGNORECASE)
+    match = re.search(rf"{re.escape(label)}\s*:?\s*{pattern}", joined, re.IGNORECASE)
     return match.group(1) if match else None
 
 
@@ -67,15 +67,15 @@ def parse_filing_detail_html(payload: bytes) -> dict:
     parser.feed(payload.decode("utf-8", errors="replace"))
     joined = " ".join(parser.parts)
     accepted = extract_labeled_value(
-        parser.parts, "Accepted", r"(\\d{4}-\\d{2}-\\d{2}\\s+\\d{2}:\\d{2}:\\d{2})"
+        parser.parts, "Accepted", r"(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})"
     )
-    filing_date = extract_labeled_value(parser.parts, "Filing Date", r"(\\d{4}-\\d{2}-\\d{2})")
-    period = extract_labeled_value(parser.parts, "Period of Report", r"(\\d{4}-\\d{2}-\\d{2})")
-    accession_match = re.search(r"SEC Accession No\\.\\s*(\\d{10}-\\d{2}-\\d{6})", joined, re.IGNORECASE)
-    filer_match = re.search(r"\\(Filer\\)\\s*CIK:\\s*(\\d{10})", joined, re.IGNORECASE)
+    filing_date = extract_labeled_value(parser.parts, "Filing Date", r"(\d{4}-\d{2}-\d{2})")
+    period = extract_labeled_value(parser.parts, "Period of Report", r"(\d{4}-\d{2}-\d{2})")
+    accession_match = re.search(r"SEC Accession No\.\s*(\d{10}-\d{2}-\d{6})", joined, re.IGNORECASE)
+    filer_match = re.search(r"\(Filer\)\s*CIK:\s*(\d{10})", joined, re.IGNORECASE)
     if not filer_match:
-        filer_match = re.search(r"Filer\\s+CIK:\\s*(\\d{10})", joined, re.IGNORECASE)
-    form_match = re.search(r"Form\\s+(13F-HR/A|13F-HR|13F-NT/A|13F-NT)\\b", joined, re.IGNORECASE)
+        filer_match = re.search(r"Filer\s+CIK:\s*(\d{10})", joined, re.IGNORECASE)
+    form_match = re.search(r"Form\s+(13F-HR/A|13F-HR|13F-NT/A|13F-NT)\b", joined, re.IGNORECASE)
 
     accepted_utc = None
     clock_bucket = None
