@@ -79,6 +79,6 @@ The PR workflow compiled the collector and passed **33/33 offline tests** in [Ru
 
 ## 8. Decision
 
-**Phase 615 disposition: technical correction pending CI confirmation.** Do not use Phase 614 metadata as a research feature or signal. Do not run return tests, OOS tests, bootstrap or LOO until the 13F manager/security/F80 identity and public-availability gates are separately satisfied.
+**Phase 615 disposition: technical correction validated offline (33/33).** Do not use Phase 614 metadata as a research feature or signal. Do not run return tests, OOS tests, bootstrap or LOO until the 13F manager/security/F80 identity and public-availability gates are separately satisfied.
 
 `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen. No production, capital, exposure, universe or parameter changes. No paid data, vendor contact or quote request.
