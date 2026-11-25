@@ -18,8 +18,8 @@ class Phase611Tests(unittest.TestCase):
         <div>Dakota Wealth Management (Filer) CIK: 0001631353</div>
         </html>"""
         out = parse_filing_detail_html(html)
-        self.assertEqual(out["accession"], "0001951757-26-001605")
-        self.assertEqual(out["filer_cik"], "0001631353")
+        self.assertEqual(out["accession_from_page"], "0001951757-26-001605")
+        self.assertEqual(out["filer_cik_from_page"], "0001631353")
         self.assertEqual(out["form_type"], "13F-HR/A")
         self.assertEqual(out["accepted_at_et"], "2026-08-26 11:11:54")
         self.assertEqual(out["accepted_at_utc"], "2026-08-26T15:11:54+00:00")
@@ -78,7 +78,7 @@ class Phase611Tests(unittest.TestCase):
 
     def test_archive_path_uses_filer_cik_not_accession_prefix(self):
         sample = {
-            "filer_cik": "0001631353",
+            "filer_cik_from_dataset": "0001631353",
             "accession": "0001951757-26-001605",
         }
         url = build_index_url(sample)
