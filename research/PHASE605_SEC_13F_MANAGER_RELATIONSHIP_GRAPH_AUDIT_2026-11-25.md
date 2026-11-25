@@ -1,6 +1,6 @@
 # Phase 605 — SEC Form 13F role-aware manager relationship graph audit
 
-**Status: PASS — 17/17 offline synthetic regression tests passed.**  
+**Status: PASS — 18/18 offline synthetic regression tests passed.**  
 **Date:** 2026-11-24/25 UTC  
 **Branch:** phase605-sec-13f-manager-relationship-graph-audit  
 **Parent:** phase48-sec-13f-asof-amendment-state-machine  
@@ -51,7 +51,7 @@ The GitHub Actions workflow is deliberately offline-only for pull requests. It c
 - no name-based fallback;
 - missing notice roster;
 - forbidden notice holdings rows;
-- dangling and malformed sequence references;
+- invalid sequence keys, dangling and malformed sequence references;
 - duplicate OTHERMANAGER and OTHERMANAGER2 keys;
 - non-contiguous positive sequence numbers;
 - both relationship directions in a combination report;
