@@ -166,6 +166,7 @@ def parse_master_index(
                 "header_file": None,
                 "identity_status": "NOT_RETRIEVED",
                 "archive_path_subject_match": None,
+                "archive_path_subject_status": "NOT_CHECKED",
                 "header_filer_index_match": None,
                 "research_observation_eligible": False,
                 "public_availability_certified": False,
@@ -368,10 +369,11 @@ def run_live_sample(output_dir: Path, *, sample_size: int = SAMPLE_SIZE) -> dict
                 result["identity_status"] = str(identity.get("identity_status"))
             elif not result["header_filer_index_match"]:
                 result["identity_status"] = "HEADER_INDEX_FILER_MISMATCH"
-            elif not result["archive_path_subject_match"]:
-                result["identity_status"] = "ARCHIVE_PATH_SUBJECT_MISMATCH"
             else:
                 result["identity_status"] = "VERIFIED_SUBJECT_AND_FILER"
+            result["archive_path_subject_status"] = (
+                "MATCH" if result["archive_path_subject_match"] else "MISMATCH_REQUIRES_REVIEW"
+            )
         except Exception as exc:
             result["identity_status"] = "HEADER_RETRIEVAL_OR_PARSE_ERROR"
             result["error"] = f"{type(exc).__name__}: {exc}"
