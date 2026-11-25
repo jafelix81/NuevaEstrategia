@@ -1,0 +1,95 @@
+name: Phase 614 - SEC 13F first-seen prospective metadata capture
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/phase614_sec_13f_first_seen_capture.yml"
+      - "research/phase614_sec_13f_first_seen_capture.py"
+      - "research/test_phase614_sec_13f_first_seen_capture.py"
+      - "research/PHASE614_SEC_13F_FIRST_SEEN_FEED_CAPTURE_AUDIT_2026-11-25.md"
+      - "research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-25_PHASE614.md"
+  workflow_dispatch:
+    inputs:
+      run_live_capture:
+        description: "Explicitly run a one-shot SEC 13F Atom feed diagnostic (manual mode never persists state)"
+        required: true
+        type: boolean
+        default: false
+  schedule:
+    - cron: "41 * * * 1-5"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sec-13f-first-seen-capture
+  cancel-in-progress: false
+
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile and run offline regressions
+        run: |
+          python -m py_compile research/phase614_sec_13f_first_seen_capture.py research/test_phase614_sec_13f_first_seen_capture.py
+          python -m unittest -v research.test_phase614_sec_13f_first_seen_capture
+
+  live-capture:
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.run_live_capture == true)
+    needs: offline-regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile capture client
+        run: python -m py_compile research/phase614_sec_13f_first_seen_capture.py
+      - name: Capture SEC 13F first-seen Atom metadata
+        id: sec_capture
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          if [ "$EVENT_NAME" = "schedule" ]; then MODE=schedule; else MODE=manual; fi
+          python -u -m research.phase614_sec_13f_first_seen_capture --mode "$MODE" --run-id "$RUN_ID" --output phase614_output
+      - name: Commit append-only first-seen metadata
+        if: github.event_name == 'schedule'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add research/data/sec_13f_first_seen
+          if ! git diff --cached --quiet; then
+            git commit -m "[skip ci] SEC 13F first-seen metadata ${GITHUB_RUN_ID}"
+            git push
+          else
+            echo "No persistent SEC 13F metadata changes."
+          fi
+      - name: Upload compact poll summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase614-sec-13f-first-seen
+          path: phase614_output/
+          retention-days: 90
+          if-no-files-found: warn
+      - name: Fail after persistence if any SEC 13F feed is incomplete
+        if: always() && steps.sec_capture.outcome == 'success'
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          summary = json.loads(Path("phase614_output/poll_summary.json").read_text(encoding="utf-8"))
+          if not summary.get("all_feeds_successful", False):
+              failed = [
+                  name for name, feed in summary.get("feeds", {}).items()
+                  if not feed.get("poll_success", False)
+              ]
+              raise SystemExit("Incomplete SEC 13F feed poll(s); candidates remain suppressed: " + ", ".join(failed))
+          print("All SEC 13F feed watermarks and poll-continuity gates passed.")
+          PY
