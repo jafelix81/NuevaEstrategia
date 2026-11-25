@@ -330,7 +330,40 @@ class Phase510Tests(unittest.TestCase):
             path = Path(tmp) / "footnote_references.csv"
             self.assertEqual(p.append_footnote_reference_rows(path, sidecar_rows), 4)
             self.assertEqual(p.append_footnote_reference_rows(path, sidecar_rows), 0)
+            with path.open("r", newline="", encoding="utf-8") as handle:
+                stored = list(csv.DictReader(handle))
+            self.assertEqual(stored[-1]["record_type"], "accession_parse_marker")
+            self.assertEqual(
+                sum(row["record_type"] == "footnote_reference" for row in stored), 3
+            )
             self.assertIn(event()["accession"], p.read_completed_footnote_accessions(path))
+
+    def test_footnote_sidecar_recovers_partial_reference_append_without_marker(self):
+        parsed = p.parse_form4_details(XML_FOOTNOTE_LINKS)
+        metadata = {
+            "submission_sha256": "submission-hash",
+            "xml_sha256": "xml-hash",
+            "xml_source": "complete_submission",
+            "detail_retrieved_at_utc": "2026-11-23T07:48:52Z",
+        }
+        rows = p.build_footnote_reference_rows(event(), metadata, parsed)
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "footnote_references.csv"
+            # Simulate a prior interrupted append that left one complete reference
+            # row but no accession completion marker.
+            with path.open("w", newline="", encoding="utf-8") as handle:
+                writer = csv.DictWriter(handle, fieldnames=p.FOOTNOTE_REF_FIELDS)
+                writer.writeheader()
+                writer.writerow(rows[1])
+            self.assertNotIn(event()["accession"], p.read_completed_footnote_accessions(path))
+            self.assertEqual(p.append_footnote_reference_rows(path, rows), 3)
+            self.assertIn(event()["accession"], p.read_completed_footnote_accessions(path))
+            with path.open("r", newline="", encoding="utf-8") as handle:
+                stored = list(csv.DictReader(handle))
+            self.assertEqual(
+                sum(row["record_type"] == "footnote_reference" for row in stored), 3
+            )
+            self.assertEqual(stored[-1]["record_type"], "accession_parse_marker")
 
     def test_footnote_reference_backfill_reprocesses_existing_parsed_accessions(self):
         with tempfile.TemporaryDirectory() as tmp:
