@@ -117,6 +117,7 @@ class Phase616IndexParserTests(unittest.TestCase):
                     {
                         "accession": f"0000000001-26-{len(rows)+1:06d}",
                         "form_family": family,
+                        "form": f"SC {family}" + ("/A" if amendment else ""),
                         "amendment": amendment,
                         "legal_regime": legal,
                         "schema_regime": schema,
@@ -132,6 +133,29 @@ class Phase616IndexParserTests(unittest.TestCase):
     def test_sample_fails_if_global_index_coverage_is_too_small(self):
         with self.assertRaises(ValueError):
             stratified_sample([], sample_size=44)
+
+    def test_sample_fails_if_one_of_the_four_exact_forms_is_missing(self):
+        rows = [
+            {
+                "accession": f"0000000001-26-{i:06d}",
+                "form_family": family,
+                "form": form,
+                "amendment": amendment,
+                "legal_regime": "POST_2024_02_05" if family == "13D" else "POST_2024_09_30",
+                "schema_regime": "MANDATORY_XML_FROM_2024_12_18",
+                "index_filer_accession_match": True,
+            }
+            for i, (family, form, amendment) in enumerate(
+                [
+                    ("13D", "SC 13D", False),
+                    ("13D", "SC 13D/A", True),
+                    ("13G", "SC 13G", False),
+                ],
+                start=1,
+            )
+        ]
+        with self.assertRaises(ValueError):
+            stratified_sample(rows, sample_size=3)
 
     def test_filing_regime_boundaries_are_explicit(self):
         self.assertEqual(filing_regimes("SC 13D", date(2024, 2, 4))[1], "PRE_2024_02_05")
