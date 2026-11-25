@@ -1,0 +1,32 @@
+name: Phase 613 - SEC 13F legal dissemination floor
+
+on:
+  push:
+    branches: [phase613-sec-13f-legal-dissemination-floor]
+    paths:
+      - ".github/workflows/phase613_sec_13f_legal_dissemination_floor.yml"
+      - "research/phase612_xnys_session_knowledge_clock.py"
+      - "research/test_phase612_xnys_session_knowledge_clock.py"
+  pull_request:
+    paths:
+      - ".github/workflows/phase613_sec_13f_legal_dissemination_floor.yml"
+      - "research/phase612_xnys_session_knowledge_clock.py"
+      - "research/test_phase612_xnys_session_knowledge_clock.py"
+
+permissions:
+  contents: read
+
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned calendar dependency
+        run: python -m pip install exchange_calendars==4.13.1
+      - name: Compile and run point-in-time clock regressions
+        run: |
+          python -m py_compile research/phase612_xnys_session_knowledge_clock.py research/test_phase612_xnys_session_knowledge_clock.py
+          python -m unittest -v research.test_phase612_xnys_session_knowledge_clock
