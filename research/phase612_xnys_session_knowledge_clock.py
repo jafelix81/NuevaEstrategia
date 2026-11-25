@@ -78,6 +78,11 @@ def resolve_daily_knowledge_clock(
     accepted_utc = parse_aware_timestamp(accepted_at)
     filed = parse_filing_date(filing_date)
 
+    filing_date_floor_et = datetime.combine(
+        filed, time(6, 0), tzinfo=ET
+    )
+    filing_date_floor_utc = filing_date_floor_et.astimezone(timezone.utc)
+
     if collector_first_seen is not None:
         first_seen_utc = parse_aware_timestamp(collector_first_seen)
         accepted_et = accepted_utc.astimezone(ET)
@@ -91,10 +96,6 @@ def resolve_daily_knowledge_clock(
                 "after_hours_13f_first_seen_before_next_business_day_requires_review"
             )
 
-        filing_date_floor_et = datetime.combine(
-            filed, time(6, 0), tzinfo=ET
-        )
-        filing_date_floor_utc = filing_date_floor_et.astimezone(timezone.utc)
         effective = max(accepted_utc, first_seen_utc, filing_date_floor_utc)
         if first_seen_utc < filing_date_floor_utc:
             availability_mode = "OBSERVED_FIRST_SEEN_BEFORE_LEGAL_FILING_FLOOR"
@@ -105,8 +106,8 @@ def resolve_daily_knowledge_clock(
         filing_date_end_et = datetime.combine(
             filed, time(23, 59, 59), tzinfo=ET
         )
-        filing_date_floor_utc = filing_date_end_et.astimezone(timezone.utc)
-        effective = max(accepted_utc, filing_date_floor_utc)
+        filing_date_end_utc = filing_date_end_et.astimezone(timezone.utc)
+        effective = max(accepted_utc, filing_date_end_utc)
         availability_mode = "FILING_DATE_END_OF_DAY_FALLBACK"
         first_seen_value = None
 
