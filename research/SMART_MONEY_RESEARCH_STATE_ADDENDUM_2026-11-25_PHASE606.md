@@ -1,9 +1,12 @@
 # Smart Money Research state addendum — Phase 606 (2026-11-25 UTC)
 
-- Opened an isolated Phase 606 branch from Phase 605 after checking the latest Actions runs, jobs, artifacts, open PRs, branches and research state. No workflow was active at the cutoff.
-- Phase 605's latest run 45529146664 completed successfully; its job log confirms 18/18 synthetic tests. The report's workflow-description paragraph still says 16 tests; this is a documentation count discrepancy, not a failing test.
-- Phase 605 remains schema/parser-only. Its own report explicitly requires actual TSV cardinality validation before treating (ACCESSION_NUMBER, SEQUENCENUMBER) as the OTHERMANAGER2 logical key.
-- Phase 606 adds a bounded public SEC data audit for 2018 Q1 and 2026 Jun–Aug, with streamed INFOTABLE processing, actual key/cardinality counts, sequence-reference checks and SUMMARYPAGE reconciliation.
-- The live audit is deliberately isolated to a push-triggered research workflow on this branch. PR validation is offline-only. No production collector or baseline is touched.
-- Pending live result: research/phase606_sec_13f_manager_table_live_audit.json.
-- No signal, alpha, OOS, bootstrap or LOO result is claimed. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen; no data purchase or vendor contact; options budget USD 0.
+- Completed bounded live SEC Form 13F manager-table audit for 2018 Q1 and 2026 Jun–Aug. Both official ZIPs downloaded using the existing shared project contact fallback; no SEC_USER_AGENT secret was required.
+- Latest run 45531619890 completed successfully: offline regression and live audit jobs passed; 8/8 offline tests passed; artifact 14985386673 uploaded.
+- OTHERMANAGER2 has multiple rows per accession in both samples (472 and 607 accessions respectively). SUMMARYPAGE OTHERINCLUDEDMANAGERSCOUNT reconciles exactly in 5,017 / 10,036 compared rows. Thus ACCESSION_NUMBER alone is not a sufficient row-level key in the observed data.
+- Candidate (ACCESSION_NUMBER, SEQUENCENUMBER) has 20 duplicate pairs in 2018 Q1 and 3 in 2026 Jun–Aug; it is not yet globally unique.
+- INFOTABLE.OTHERMANAGER tokens predominantly match OTHERMANAGER2.SEQUENCENUMBER, not OTHERMANAGER.OTHERMANAGER_SK (zero matches to the latter). Zero values are a separate sentinel bucket.
+- Remaining reference exceptions: 160,897 unmatched + 10,070 malformed nonzero tokens in 2018; 107,348 unmatched + 82,824 malformed nonzero tokens in 2026. Some are nonnumeric filer-supplied values. No name-based repair is allowed.
+- Notice rosters are present for all 1,572 / 1,952 notice accessions in the samples; none of those accessions has INFOTABLE holding rows.
+- Phase 605's synthetic parser remains not admitted for live manager attribution until original EDGAR XML reconciles duplicate sequences, unmatched references and nonnumeric values.
+- Next gate: stratified original filing XML and information-table XML reconciliation for known exception accessions; then revise manager graph and notice/combination amendment state.
+- No alpha/OOS, production, capital or exposure change. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen; options budget USD 0.
