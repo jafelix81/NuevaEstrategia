@@ -37,7 +37,7 @@ QUARTERS = ((2023, 4), (2024, 1), (2024, 3), (2024, 4), (2026, 3))
 TARGET_FORMS = {"SC 13D", "SC 13D/A", "SC 13G", "SC 13G/A"}
 SAMPLE_SIZE = 44
 REQUEST_DELAY_SECONDS = 0.65
-ACCESSION_DIR_RE = re.compile(r"^edgar/data/(\d{1,10})/(\d{18})/([^/].*)$", re.I)
+MASTER_INDEX_FILE_RE = re.compile(r"^edgar/data/(\d{1,10})/((?:\d{10}-\d{2}-\d{6})|(?:\d{18}))\.txt$", re.I)
 EMAIL_RE = re.compile(r"[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}", re.I)
 ACCEPTANCE_RE = re.compile(r"<ACCEPTANCE-DATETIME>\s*(\d{14})", re.I)
 
@@ -95,17 +95,24 @@ def accession_from_compact(value: str) -> str:
 
 
 def build_index_header_url(filename: str, accession: str) -> tuple[str, str]:
+    """Map the flat master.idx submission path to its accession-directory header URL.
+
+    SEC master.idx filenames use edgar/data/{path_cik}/{accession}.txt. The
+    accession-number subdirectory exists in the archive URL, but is not part
+    of the master.idx Filename field; derive it from the validated accession.
+    """
     path = str(filename or "").strip().lstrip("/")
-    match = ACCESSION_DIR_RE.fullmatch(path)
+    match = MASTER_INDEX_FILE_RE.fullmatch(path)
     if not match:
-        raise ValueError(f"Index filename is not an exact EDGAR archive path: {filename!r}")
-    path_cik, compact, _primary = match.groups()
+        raise ValueError(f"Master-index Filename is not an exact EDGAR submission path: {filename!r}")
+    path_cik, accession_in_path = match.groups()
+    compact = accession_in_path.replace("-", "")
     expected = accession.replace("-", "")
-    if compact != expected:
-        raise ValueError("Accession directory does not match the parsed accession.")
-    directory = posixpath.dirname(path)
+    if not re.fullmatch(r"\d{18}", expected) or compact != expected:
+        raise ValueError("Master-index Filename accession does not match the parsed accession.")
     header_name = f"{accession}-index-headers.html"
-    return urljoin(SEC_ARCHIVES, f"{directory}/{header_name}"), normalize_cik(path_cik) or ""
+    header_path = f"edgar/data/{path_cik}/{compact}/{header_name}"
+    return urljoin(SEC_ARCHIVES, header_path), normalize_cik(path_cik) or ""
 
 
 def parse_master_index(
@@ -143,11 +150,11 @@ def parse_master_index(
             filed = datetime.strptime(filed_raw.strip(), "%Y-%m-%d").date()
         except ValueError as exc:
             raise ValueError(f"Invalid filing date at {index_url}:{line_number}") from exc
-        path_match = ACCESSION_DIR_RE.fullmatch(filename.strip().lstrip("/"))
+        path_match = MASTER_INDEX_FILE_RE.fullmatch(filename.strip().lstrip("/"))
         if not path_match:
-            raise ValueError(f"Invalid EDGAR archive path at {index_url}:{line_number}")
+            raise ValueError(f"Invalid SEC master-index Filename path at {index_url}:{line_number}")
         archive_path_cik = normalize_cik(path_match.group(1))
-        accession = accession_from_compact(path_match.group(2))
+        accession = accession_from_compact(path_match.group(2).replace("-", ""))
         header_url, checked_path_cik = build_index_header_url(filename, accession)
         if checked_path_cik != archive_path_cik:
             raise ValueError("Archive path CIK normalization conflict.")
