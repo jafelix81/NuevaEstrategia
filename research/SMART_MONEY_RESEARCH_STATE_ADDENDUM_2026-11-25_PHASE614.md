@@ -8,7 +8,7 @@
 - Uses the existing throttled SEC fetch helper. No filing XML, INFOTABLE holdings, paid data or raw market data are downloaded or persisted.
 - Bounded first-seen metadata remains ineligible for research features and signals until manager identity, security identity, historical F80 membership and public-availability gates pass.
 - The scheduled workflow is hourly on weekdays and becomes active only after merge. Manual live diagnostics require explicit \`run_live_capture=true\` and do not persist.
-- Final PR validation [Run 45554185580](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45554185580) passed 23/23 offline tests; the live-capture job was skipped as designed. No live SEC request was made in this phase.
+- Initial offline validation [Run 45554185580](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45554185580) passed 23/23 tests. After adding a fail-closed regression for a full 100-entry page followed by an empty page without a boundary, final validation [Run 45554609362](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45554609362) passed 24/24 tests; the live-capture job was skipped as designed. No live SEC request was made in this phase.
 
 Latest source status at preflight:
 - FINRA Reg SHO: 7/7 latest HTTP-200 daily files rejected for overlapping duplicate BCPC/TPC rows; 14 duplicate occurrences / 14 extra rows; zero accepted files or signals.
