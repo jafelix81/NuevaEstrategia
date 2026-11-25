@@ -11,15 +11,25 @@ from unittest.mock import patch
 from research import phase476_sec_form4_first_seen_capture as p
 
 
-def entry(accession: str, form: str = "4", updated: str = "2026-11-18T10:00:00-04:00"):
-    cik = accession.split("-")[0].lstrip("0") or "0"
+def entry(
+    accession: str,
+    form: str = "4",
+    updated: str = "2026-11-18T10:00:00-04:00",
+    entity_cik: str | None = None,
+    entity_name: str = "Test Reporting Owner",
+    entity_role: str = "Reporting",
+    link_cik: str | None = None,
+):
+    submitter_cik = accession.split("-")[0].zfill(10)
+    entity_cik = (entity_cik or submitter_cik).zfill(10)
+    link_cik = (link_cik or entity_cik).zfill(10)
     term = form
     return f"""
     <entry>
       <id>urn:tag:sec.gov,2008:accession-number={accession}</id>
-      <title>{form} - Test Reporting Owner (0000000001) (Reporting)</title>
+      <title>{form} - {entity_name} ({entity_cik}) ({entity_role})</title>
       <updated>{updated}</updated>
-      <link rel="alternate" href="https://www.sec.gov/Archives/edgar/data/{cik}/{accession.replace('-', '')}/{accession}-index.htm"/>
+      <link rel="alternate" href="https://www.sec.gov/Archives/edgar/data/{int(link_cik)}/{accession.replace('-', '')}/{accession}-index.htm"/>
       <summary type="html">&lt;b&gt;Filed:&lt;/b&gt; 2026-11-18 &lt;b&gt;AccNo:&lt;/b&gt; {accession}</summary>
       <category scheme="https://www.sec.gov/" label="form type" term="{term}"/>
     </entry>
@@ -271,6 +281,7 @@ class Phase476Tests(unittest.TestCase):
                  patch.object(p, "EVENTS_PATH", data_dir / "events.csv"), \
                  patch.object(p, "OBSERVATIONS_PATH", data_dir / "feed_observations.csv"), \
                  patch.object(p, "ACCESSION_OBSERVATIONS_PATH", data_dir / "accession_observations.csv"), \
+                 patch.object(p, "ENTITY_OBSERVATIONS_PATH", data_dir / "entity_observations.csv"), \
                  patch.object(p, "FEEDS", {"4": self.url}), \
                  patch.object(p.p401, "fetch_bytes", return_value=raw):
                 summary = p.run_capture("schedule", "baseline-run", output_dir)
@@ -300,6 +311,7 @@ class Phase476Tests(unittest.TestCase):
                  patch.object(p, "EVENTS_PATH", data_dir / "events.csv"), \
                  patch.object(p, "OBSERVATIONS_PATH", data_dir / "feed_observations.csv"), \
                  patch.object(p, "ACCESSION_OBSERVATIONS_PATH", data_dir / "accession_observations.csv"), \
+                 patch.object(p, "ENTITY_OBSERVATIONS_PATH", data_dir / "entity_observations.csv"), \
                  patch.object(p, "FEEDS", {"4": self.url}), \
                  patch.object(p.p401, "fetch_bytes", side_effect=[first, second]), \
                  patch.object(p, "now_utc", side_effect=[
@@ -332,6 +344,7 @@ class Phase476Tests(unittest.TestCase):
                  patch.object(p, "EVENTS_PATH", data_dir / "events.csv"), \
                  patch.object(p, "OBSERVATIONS_PATH", data_dir / "feed_observations.csv"), \
                  patch.object(p, "ACCESSION_OBSERVATIONS_PATH", data_dir / "accession_observations.csv"), \
+                 patch.object(p, "ENTITY_OBSERVATIONS_PATH", data_dir / "entity_observations.csv"), \
                  patch.object(p, "FEEDS", {"4": self.url}), \
                  patch.object(p.p401, "fetch_bytes", return_value=raw):
                 summary = p.run_capture("manual", "manual-run", output_dir)
@@ -363,6 +376,7 @@ class Phase476Tests(unittest.TestCase):
                  patch.object(p, "EVENTS_PATH", data_dir / "events.csv"), \
                  patch.object(p, "OBSERVATIONS_PATH", data_dir / "feed_observations.csv"), \
                  patch.object(p, "ACCESSION_OBSERVATIONS_PATH", data_dir / "accession_observations.csv"), \
+                 patch.object(p, "ENTITY_OBSERVATIONS_PATH", data_dir / "entity_observations.csv"), \
                  patch.object(p, "FEEDS", {"4": self.url}), \
                  patch.object(p, "MAX_FEED_PAGES", 1), \
                  patch.object(p.p401, "fetch_bytes", return_value=raw):
@@ -458,6 +472,7 @@ class Phase476Tests(unittest.TestCase):
                  patch.object(p, "EVENTS_PATH", data_dir / "events.csv"), \
                  patch.object(p, "OBSERVATIONS_PATH", data_dir / "feed_observations.csv"), \
                  patch.object(p, "ACCESSION_OBSERVATIONS_PATH", data_dir / "accession_observations.csv"), \
+                 patch.object(p, "ENTITY_OBSERVATIONS_PATH", data_dir / "entity_observations.csv"), \
                  patch.object(p, "FEEDS", {"4": self.url}), \
                  patch.object(p.p401, "fetch_bytes", side_effect=[raw, raw]):
                 p.run_capture("schedule", "baseline-run", output_dir)
@@ -520,6 +535,7 @@ class Phase476Tests(unittest.TestCase):
                  patch.object(p, "EVENTS_PATH", data_dir / "events.csv"), \
                  patch.object(p, "OBSERVATIONS_PATH", data_dir / "feed_observations.csv"), \
                  patch.object(p, "ACCESSION_OBSERVATIONS_PATH", data_dir / "accession_observations.csv"), \
+                 patch.object(p, "ENTITY_OBSERVATIONS_PATH", data_dir / "entity_observations.csv"), \
                  patch.object(p, "FEEDS", {"4": url4, "4A": url4a}), \
                  patch.object(p.p401, "fetch_bytes", side_effect=[feed4, feed4a]):
                 summary = p.run_capture("schedule", "duplicate-provenance-run", output_dir)
@@ -591,6 +607,151 @@ class Phase476Tests(unittest.TestCase):
         self.assertEqual(fetch.call_count, 21)
         self.assertIn("start=2000", fetch.call_args_list[-1].args[0])
 
+
+
+    def test_parse_feed_entity_role_and_accession_submitter_are_distinct(self):
+        accession = "0000000123-26-000005"
+        rows = p.parse_atom_feed(
+            feed(entry(
+                accession,
+                entity_cik="0000000456",
+                entity_name="Example Reporting Owner LLC",
+                entity_role="Reporting",
+            )),
+            "4",
+            self.url,
+        )
+        self.assertEqual(rows[0]["feed_entity_cik"], "0000000456")
+        self.assertEqual(rows[0]["feed_entity_name"], "Example Reporting Owner LLC")
+        self.assertEqual(rows[0]["feed_entity_role"], "REPORTING")
+        self.assertEqual(rows[0]["feed_entity_status"], "PARSED")
+        self.assertEqual(rows[0]["feed_path_cik_unverified"], "0000000456")
+        self.assertTrue(rows[0]["feed_path_entity_cik_match"])
+        self.assertEqual(p.accession_submitter_cik(accession), "0000000123")
+
+    @patch.object(p.p401, "fetch_bytes")
+    def test_multi_owner_accession_selects_issuer_and_preserves_all_entity_rows(self, fetch):
+        accession = "0000947871-26-001051"
+        raw = feed(
+            entry(accession, entity_cik="0001920574", entity_name="OrbiMed Capital GP IX LLC", entity_role="Reporting"),
+            entry(accession, entity_cik="0001808744", entity_name="OrbiMed Genesis GP LLC", entity_role="Reporting"),
+            entry(accession, entity_cik="0001739410", entity_name="Avenzo Therapeutics, Inc.", entity_role="Issuer"),
+            entry(accession, entity_cik="0001055951", entity_name="ORBIMED ADVISORS LLC", entity_role="Reporting"),
+            entry("0000000001-26-000099", entity_cik="0000000001", entity_name="Watermark Issuer", entity_role="Issuer"),
+        )
+        fetch.return_value = raw
+        result = p.fetch_feed(
+            "4", self.url,
+            {"latest_accession": "0000000001-26-000099", "last_successful_poll_end_utc": "2026-11-18T10:00:00Z"},
+            "schedule", "multi-owner-run",
+        )
+        self.assertTrue(result["poll_success"])
+        self.assertEqual(result["candidate_accession_count"], 1)
+        self.assertEqual(result["candidate_accession_occurrence_count"], 4)
+        self.assertEqual(len(result["event_rows"]), 1)
+        self.assertEqual(result["event_rows"][0]["accession"], accession)
+        self.assertEqual(result["event_rows"][0]["feed_path_cik_unverified"], "0001739410")
+        self.assertIn("/1739410/", result["event_rows"][0]["filing_url"])
+        self.assertEqual(result["multi_entity_accession_count"], 1)
+        self.assertEqual(result["issuer_entity_occurrence_count"], 1)
+        self.assertEqual(result["reporting_entity_occurrence_count"], 3)
+        self.assertEqual(result["unknown_entity_role_occurrence_count"], 0)
+        self.assertEqual(result["path_entity_cik_mismatch_occurrence_count"], 0)
+        self.assertEqual(result["quarantined_entity_accession_count"], 0)
+        issuer = next(row for row in result["accession_observations"] if row["feed_entity_role"] == "ISSUER")
+        self.assertTrue(issuer["_canonical_event_source"])
+        self.assertEqual(issuer["canonical_entity_selection_status"], "ISSUER_ENTITY_SELECTED")
+        self.assertFalse(next(row for row in result["accession_observations"] if row["feed_entity_role"] == "REPORTING")["_canonical_event_source"])
+
+    @patch.object(p.p401, "fetch_bytes")
+    def test_path_entity_cik_mismatch_quarantines_accession(self, fetch):
+        accession = "0000000001-26-000051"
+        raw = feed(
+            entry(accession, entity_cik="0000000001", entity_name="Issuer LLC", entity_role="Issuer", link_cik="0000000002"),
+            entry(accession, entity_cik="0000000003", entity_name="Reporting Owner LLC", entity_role="Reporting"),
+            entry("0000000001-26-000050", entity_cik="0000000001", entity_name="Watermark Issuer", entity_role="Issuer"),
+        )
+        fetch.return_value = raw
+        result = p.fetch_feed(
+            "4", self.url,
+            {"latest_accession": "0000000001-26-000050", "last_successful_poll_end_utc": "2026-11-18T10:00:00Z"},
+            "schedule", "path-mismatch-run",
+        )
+        self.assertTrue(result["poll_success"])
+        self.assertEqual(result["quarantined_entity_accession_count"], 1)
+        self.assertEqual(result["path_entity_cik_mismatch_occurrence_count"], 1)
+        self.assertEqual(result["event_rows"], [])
+        self.assertTrue(all(row["entity_identity_quarantined"] for row in result["accession_observations"] if row["accession"] == accession))
+        self.assertFalse(any(row["_canonical_event_source"] for row in result["accession_observations"] if row["accession"] == accession))
+
+    @patch.object(p.p401, "fetch_bytes")
+    def test_multiple_issuer_ciks_quarantine_accession(self, fetch):
+        accession = "0000000001-26-000061"
+        raw = feed(
+            entry(accession, entity_cik="0000000002", entity_name="Issuer A", entity_role="Issuer"),
+            entry(accession, entity_cik="0000000003", entity_name="Issuer B", entity_role="Issuer"),
+            entry("0000000001-26-000060", entity_cik="0000000001", entity_name="Watermark Issuer", entity_role="Issuer"),
+        )
+        fetch.return_value = raw
+        result = p.fetch_feed(
+            "4", self.url,
+            {"latest_accession": "0000000001-26-000060", "last_successful_poll_end_utc": "2026-11-18T10:00:00Z"},
+            "schedule", "multiple-issuer-run",
+        )
+        self.assertTrue(result["poll_success"])
+        self.assertEqual(result["quarantined_entity_accession_count"], 1)
+        self.assertEqual(result["event_rows"], [])
+        self.assertTrue(all(row["entity_identity_quarantined"] for row in result["accession_observations"] if row["accession"] == accession))
+
+    @patch.object(p.p401, "fetch_bytes")
+    def test_missing_issuer_row_emits_accession_without_owner_locator(self, fetch):
+        accession = "0000000001-26-000071"
+        raw = feed(
+            entry(accession, entity_cik="0000000007", entity_name="Reporting Owner LLC", entity_role="Reporting"),
+            entry("0000000001-26-000070", entity_cik="0000000001", entity_name="Watermark Issuer", entity_role="Issuer"),
+        )
+        fetch.return_value = raw
+        result = p.fetch_feed(
+            "4", self.url,
+            {"latest_accession": "0000000001-26-000070", "last_successful_poll_end_utc": "2026-11-18T10:00:00Z"},
+            "schedule", "missing-issuer-run",
+        )
+        self.assertEqual(len(result["event_rows"]), 1)
+        self.assertEqual(result["event_rows"][0]["filing_url"], "")
+        self.assertEqual(result["event_rows"][0]["feed_path_cik_unverified"], "")
+        self.assertEqual(result["accessions_without_issuer_entity_count"], 1)
+
+    def test_run_capture_persists_entity_occurrence_sidecar_and_marks_issuer_canonical(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            data_dir = root / "data"
+            output_dir = root / "output"
+            accession = "0000000001-26-000081"
+            raw = feed(
+                entry(accession, entity_cik="0000000002", entity_name="Reporting Owner LLC", entity_role="Reporting"),
+                entry(accession, entity_cik="0000000003", entity_name="Issuer Company Inc.", entity_role="Issuer"),
+            )
+            with patch.object(p, "DATA_DIR", data_dir), \
+                 patch.object(p, "STATE_PATH", data_dir / "state.json"), \
+                 patch.object(p, "EVENTS_PATH", data_dir / "events.csv"), \
+                 patch.object(p, "OBSERVATIONS_PATH", data_dir / "feed_observations.csv"), \
+                 patch.object(p, "ACCESSION_OBSERVATIONS_PATH", data_dir / "accession_observations.csv"), \
+                 patch.object(p, "ENTITY_OBSERVATIONS_PATH", data_dir / "entity_observations.csv"), \
+                 patch.object(p, "FEEDS", {"4": self.url}), \
+                 patch.object(p.p401, "fetch_bytes", return_value=raw):
+                summary = p.run_capture("schedule", "entity-sidecar-run", output_dir)
+            self.assertEqual(summary["new_event_rows"], 1)
+            self.assertEqual(summary["entity_observation_rows"], 2)
+            self.assertEqual(summary["multi_entity_accession_count"], 1)
+            self.assertEqual(summary["canonical_issuer_event_count"], 1)
+            with (data_dir / "entity_observations.csv").open(newline="", encoding="utf-8") as handle:
+                entities = list(csv.DictReader(handle))
+            self.assertEqual(len(entities), 2)
+            canonical = next(row for row in entities if row["canonical_event_emitted"] == "True")
+            self.assertEqual(canonical["feed_entity_role"], "ISSUER")
+            self.assertEqual(canonical["feed_entity_cik"], "0000000003")
+            self.assertEqual(canonical["canonical_entity_selection_status"], "ISSUER_ENTITY_SELECTED")
+            self.assertTrue((output_dir / "entity_summary.json").exists())
 
 if __name__ == "__main__":
     unittest.main()

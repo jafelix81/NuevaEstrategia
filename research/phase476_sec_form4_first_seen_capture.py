@@ -25,6 +25,7 @@ STATE_PATH = DATA_DIR / "state.json"
 EVENTS_PATH = DATA_DIR / "events.csv"
 OBSERVATIONS_PATH = DATA_DIR / "feed_observations.csv"
 ACCESSION_OBSERVATIONS_PATH = DATA_DIR / "accession_observations.csv"
+ENTITY_OBSERVATIONS_PATH = DATA_DIR / "entity_observations.csv"
 
 PAGE_SIZE = 100
 MAX_FEED_PAGES = 50  # 5,000 raw Atom entries; incomplete polls still fail closed
@@ -64,6 +65,17 @@ ACCESSION_OBSERVATION_FIELDS = [
     "is_duplicate_within_feed", "is_duplicate_across_feeds",
     "is_preexisting_ledger_accession", "canonical_event_emitted",
     "candidate_suppressed_in_incomplete_poll",
+]
+
+ENTITY_OBSERVATION_FIELDS = [
+    "poll_run_id", "observation_sequence", "feed_name", "accession", "form", "filing_date",
+    "feed_entity_cik", "feed_entity_name", "feed_entity_role", "feed_entity_status",
+    "feed_path_cik_unverified", "feed_path_entity_cik_match", "accession_submitter_cik",
+    "filing_url", "feed_updated_utc", "feed_url", "page_offset", "page_raw_sha256",
+    "page_received_at_utc", "is_prior_watermark", "poll_success", "poll_interval_status",
+    "event_interval_status", "entity_occurrence_count", "is_repeat_accession_occurrence",
+    "is_duplicate_across_feeds", "is_preexisting_ledger_accession", "canonical_event_source",
+    "canonical_event_emitted", "canonical_entity_selection_status", "entity_identity_quarantined",
 ]
 
 def now_utc() -> str:
@@ -136,6 +148,41 @@ def path_cik_from_url(url: str) -> str:
     return match.group(1).zfill(10)
 
 
+def parse_feed_entity(title: str) -> dict:
+    """Parse the entity row represented by one EDGAR ownership-feed entry.
+
+    The Atom feed can contain one row per entity on a single accession:
+    issuer plus each reporting owner.  Accession is filing grain; this
+    function preserves the distinct entity grain instead of treating
+    every repeated accession as a data-quality error.
+    """
+    text = re.sub(r"\s+", " ", str(title or "")).strip()
+    match = re.match(
+        r"^\s*(?:4/A|4)\s*-\s*(.*?)\s+\((\d{1,10})\)\s+\((Issuer|Reporting)\)\s*$",
+        text,
+        re.I,
+    )
+    if not match:
+        return {
+            "feed_entity_name": "",
+            "feed_entity_cik": "",
+            "feed_entity_role": "UNKNOWN",
+            "feed_entity_status": "UNPARSED_TITLE",
+        }
+    return {
+        "feed_entity_name": match.group(1).strip(),
+        "feed_entity_cik": match.group(2).zfill(10),
+        "feed_entity_role": match.group(3).upper(),
+        "feed_entity_status": "PARSED",
+    }
+
+
+def accession_submitter_cik(accession: str) -> str:
+    """Return the accession prefix CIK; SEC says this is the login CIK, not necessarily issuer."""
+    match = re.match(r"^(\d{10})-\d{2}-\d{6}$", str(accession or ""))
+    return match.group(1) if match else ""
+
+
 def count_atom_entries(raw: bytes | str) -> int:
     if isinstance(raw, bytes):
         raw = raw.decode("utf-8", "replace")
@@ -170,13 +217,22 @@ def parse_atom_feed(raw: bytes | str, feed_name: str, feed_url: str) -> list[dic
         if not accession:
             continue
         updated_dt = parse_utc(updated)
+        path_cik = path_cik_from_url(link)
+        entity = parse_feed_entity(title)
         entries.append({
             "accession": accession,
             "form": form,
             "feed_name": feed_name,
             "filing_date": filing_date_from_summary(summary),
             "filing_url": link,
-            "feed_path_cik_unverified": path_cik_from_url(link),
+            "feed_path_cik_unverified": path_cik,
+            "feed_entity_cik": entity["feed_entity_cik"],
+            "feed_entity_name": entity["feed_entity_name"],
+            "feed_entity_role": entity["feed_entity_role"],
+            "feed_entity_status": entity["feed_entity_status"],
+            "feed_path_entity_cik_match": bool(
+                path_cik and entity["feed_entity_cik"] and path_cik == entity["feed_entity_cik"]
+            ),
             "feed_updated_raw": updated,
             "feed_updated_utc": (
                 updated_dt.replace(microsecond=0).isoformat().replace("+00:00", "Z")
@@ -355,6 +411,71 @@ def fetch_feed(
         pages and page_error is None and (not prior or watermark_found)
     )
     poll_interval_status = classify_poll_interval(mode, prior, watermark_found, previous_end)
+    # Group all entity-level feed rows by accession.  EDGAR's owner=include
+    # feed can list the same submission once for the issuer and once per
+    # reporting owner; only the accession identifies the underlying filing.
+    entity_groups: dict[str, list[dict]] = {}
+    for item in accession_observations:
+        entity_groups.setdefault(item["accession"], []).append(item)
+
+    canonical_by_accession: dict[str, dict] = {}
+    entity_resolution: dict[str, dict] = {}
+    for accession, items in entity_groups.items():
+        if all(bool(item.get("_is_prior_watermark")) for item in items):
+            entity_resolution[accession] = {
+                "status": "PRIOR_WATERMARK_BOUNDARY",
+                "quarantined": False,
+                "canonical": None,
+            }
+            continue
+
+        parsed_items = [item for item in items if item.get("feed_entity_status") == "PARSED"]
+        path_mismatches = [
+            item for item in parsed_items
+            if not item.get("feed_path_entity_cik_match", False)
+        ]
+        issuer_items = [
+            item for item in parsed_items if item.get("feed_entity_role") == "ISSUER"
+        ]
+        issuer_ciks = {item.get("feed_entity_cik", "") for item in issuer_items if item.get("feed_entity_cik")}
+
+        if path_mismatches:
+            status = "QUARANTINED_PATH_CIK_ENTITY_CIK_MISMATCH"
+            quarantined = True
+            canonical = None
+        elif len(issuer_ciks) > 1:
+            status = "QUARANTINED_MULTIPLE_ISSUER_CIKS"
+            quarantined = True
+            canonical = None
+        elif issuer_items:
+            status = "ISSUER_ENTITY_SELECTED"
+            quarantined = False
+            canonical = issuer_items[0]
+        else:
+            status = "ISSUER_ENTITY_NOT_PRESENT_LOCATOR_OMITTED"
+            quarantined = False
+            canonical = items[0]
+
+        for item in items:
+            item["_entity_occurrence_count"] = len(items)
+            item["_canonical_entity_selection_status"] = status
+            item["_entity_identity_quarantined"] = quarantined
+            item["_canonical_event_source"] = bool(canonical is item)
+
+        if canonical is not None:
+            canonical_by_accession[accession] = canonical
+            entity_resolution[accession] = {
+                "status": status,
+                "quarantined": quarantined,
+                "canonical": canonical,
+            }
+        else:
+            entity_resolution[accession] = {
+                "status": status,
+                "quarantined": quarantined,
+                "canonical": None,
+            }
+
     accession_observation_rows = []
     for occurrence_index, item in enumerate(accession_observations, start=1):
         is_watermark = bool(item.get("_is_prior_watermark"))
@@ -376,6 +497,12 @@ def fetch_feed(
             "filing_date": item["filing_date"],
             "filing_url": item["filing_url"],
             "feed_path_cik_unverified": item["feed_path_cik_unverified"],
+            "feed_entity_cik": item.get("feed_entity_cik", ""),
+            "feed_entity_name": item.get("feed_entity_name", ""),
+            "feed_entity_role": item.get("feed_entity_role", "UNKNOWN"),
+            "feed_entity_status": item.get("feed_entity_status", "UNPARSED_TITLE"),
+            "feed_path_entity_cik_match": item.get("feed_path_entity_cik_match", False),
+            "accession_submitter_cik": accession_submitter_cik(item["accession"]),
             "feed_updated_raw": item["feed_updated_raw"],
             "feed_updated_utc": item["feed_updated_utc"],
             "feed_url": item["feed_url"],
@@ -391,6 +518,10 @@ def fetch_feed(
             "is_preexisting_ledger_accession": False,
             "canonical_event_emitted": False,
             "candidate_suppressed_in_incomplete_poll": (not poll_success and not is_watermark),
+            "_canonical_event_source": bool(item.get("_canonical_event_source", False)),
+            "entity_occurrence_count": item.get("_entity_occurrence_count", 1),
+            "canonical_entity_selection_status": item.get("_canonical_entity_selection_status", ""),
+            "entity_identity_quarantined": item.get("_entity_identity_quarantined", False),
         })
     new_latest = first_page_entries[0]["accession"] if first_page_entries else prior
     latest_updated = first_page_entries[0]["feed_updated_utc"] if first_page_entries else ""
@@ -398,22 +529,31 @@ def fetch_feed(
     candidate_event_count = len(combined)
     event_rows = []
     if poll_success:
-        for item in combined:
-            received = item["_page_received_at_utc"]
+        for accession, item in canonical_by_accession.items():
+            if entity_resolution[accession]["quarantined"]:
+                continue
+            # Without an explicit issuer row, preserve the accession-level
+            # event but never silently promote a reporting-owner URL/CIK as
+            # the issuer locator.
+            event_item = dict(item)
+            if entity_resolution[accession]["status"] == "ISSUER_ENTITY_NOT_PRESENT_LOCATOR_OMITTED":
+                event_item["filing_url"] = ""
+                event_item["feed_path_cik_unverified"] = ""
+            received = event_item["_page_received_at_utc"]
             event_interval_status = classify_interval(
                 mode, prior, watermark_found, previous_end,
-                item["feed_updated_utc"], received,
+                event_item["feed_updated_utc"], received,
             )
             bounded = event_interval_status == "BOUNDED_METADATA_ONLY"
             event_rows.append({
-                "accession": item["accession"],
-                "form": item["form"],
-                "feed_name": item["feed_name"],
-                "filing_date": item["filing_date"],
-                "filing_url": item["filing_url"],
-                "feed_path_cik_unverified": item["feed_path_cik_unverified"],
-                "feed_updated_raw": item["feed_updated_raw"],
-                "feed_updated_utc": item["feed_updated_utc"],
+                "accession": accession,
+                "form": event_item["form"],
+                "feed_name": event_item["feed_name"],
+                "filing_date": event_item["filing_date"],
+                "filing_url": event_item["filing_url"],
+                "feed_path_cik_unverified": event_item["feed_path_cik_unverified"],
+                "feed_updated_raw": event_item["feed_updated_raw"],
+                "feed_updated_utc": event_item["feed_updated_utc"],
                 "first_seen_at_utc": received,
                 "first_seen_poll_started_utc": "",
                 "first_seen_poll_ended_utc": "",
@@ -422,8 +562,8 @@ def fetch_feed(
                 "first_seen_interval_status": event_interval_status,
                 "first_seen_poll_run_id": run_id,
                 "capture_mode": mode,
-                "feed_page_offset": item["_page_offset"],
-                "feed_page_raw_sha256": item["_page_sha256"],
+                "feed_page_offset": event_item["_page_offset"],
+                "feed_page_raw_sha256": event_item["_page_sha256"],
                 "feed_page_received_at_utc": received,
                 "acceptance_datetime_utc": "",
                 "acceptance_clock_status": "NOT_FETCHED_METADATA_ONLY",
@@ -438,6 +578,42 @@ def fetch_feed(
                 "same_day_intraday_use_authorized": False,
                 "first_seen_is_upper_bound_not_exact_receipt": True,
             })
+
+    candidate_accessions = {row["accession"] for row in combined}
+    candidate_groups = {
+        accession: items for accession, items in entity_groups.items()
+        if accession in candidate_accessions
+    }
+    issuer_occurrences = sum(
+        1 for items in candidate_groups.values() for item in items
+        if item.get("feed_entity_role") == "ISSUER"
+    )
+    reporting_occurrences = sum(
+        1 for items in candidate_groups.values() for item in items
+        if item.get("feed_entity_role") == "REPORTING"
+    )
+    unknown_role_occurrences = sum(
+        1 for items in candidate_groups.values() for item in items
+        if item.get("feed_entity_role") not in {"ISSUER", "REPORTING"}
+    )
+    path_mismatch_occurrences = sum(
+        1 for items in candidate_groups.values() for item in items
+        if item.get("feed_entity_status") == "PARSED"
+        and not item.get("feed_path_entity_cik_match", False)
+    )
+    quarantined_accessions = sum(
+        1 for accession in candidate_accessions
+        if entity_resolution.get(accession, {}).get("quarantined", False)
+    )
+    accessions_without_issuer = sum(
+        1 for accession, items in candidate_groups.items()
+        if not any(item.get("feed_entity_role") == "ISSUER" for item in items)
+    )
+    canonical_issuer_events = sum(
+        1 for accession in candidate_accessions
+        if entity_resolution.get(accession, {}).get("status") == "ISSUER_ENTITY_SELECTED"
+        and accession in canonical_by_accession
+    )
 
     return {
         "feed_name": feed_name,
@@ -457,6 +633,15 @@ def fetch_feed(
         "suppressed_incomplete_poll_candidate_count": len({row["accession"] for row in combined}) if not poll_success else 0,
         "suppressed_incomplete_poll_candidate_occurrence_count": candidate_event_count if not poll_success else 0,
         "bounded_metadata_count": sum(1 for row in event_rows if row["event_metadata_interval_bounded"]),
+        "multi_entity_accession_count": sum(1 for items in candidate_groups.values() if len(items) > 1),
+        "issuer_entity_occurrence_count": issuer_occurrences,
+        "reporting_entity_occurrence_count": reporting_occurrences,
+        "unknown_entity_role_occurrence_count": unknown_role_occurrences,
+        "path_entity_cik_mismatch_occurrence_count": path_mismatch_occurrences,
+        "quarantined_entity_accession_count": quarantined_accessions,
+        "accessions_without_issuer_entity_count": accessions_without_issuer,
+        "canonical_issuer_event_count": canonical_issuer_events,
+        "max_entities_per_accession": max((len(items) for items in candidate_groups.values()), default=0),
     }
 
 
@@ -506,6 +691,7 @@ def run_capture(mode: str, run_id: str, output_dir: Path) -> dict:
     event_rows: list[dict] = []
     observation_rows: list[dict] = []
     accession_observation_rows: list[dict] = []
+    entity_observation_rows: list[dict] = []
     seen_accessions_this_poll: set[str] = set()
     feed_summaries: dict[str, dict] = {}
     feed_updates: dict[str, dict] = {}
@@ -519,7 +705,11 @@ def run_capture(mode: str, run_id: str, output_dir: Path) -> dict:
                 "new_latest_accession", "latest_feed_updated_utc", "raw_page_count",
                 "candidate_accession_count", "candidate_accession_occurrence_count",
                 "suppressed_incomplete_poll_candidate_count", "suppressed_incomplete_poll_candidate_occurrence_count",
-                "bounded_metadata_count", "page_error",
+                "bounded_metadata_count", "page_error", "multi_entity_accession_count",
+                "issuer_entity_occurrence_count", "reporting_entity_occurrence_count",
+                "unknown_entity_role_occurrence_count", "path_entity_cik_mismatch_occurrence_count",
+                "quarantined_entity_accession_count", "accessions_without_issuer_entity_count",
+                "canonical_issuer_event_count", "max_entities_per_accession",
             )
         }
         feed_summaries[feed_name]["new_accession_count"] = 0
@@ -537,6 +727,7 @@ def run_capture(mode: str, run_id: str, output_dir: Path) -> dict:
                 "observation_sequence": len(accession_observation_rows) + 1,
                 "is_duplicate_within_feed": duplicate_within_feed,
                 "is_duplicate_across_feeds": duplicate_across_feeds,
+                "is_repeat_accession_occurrence": duplicate_within_feed,
                 "is_preexisting_ledger_accession": accession in preexisting_accessions,
                 "canonical_event_emitted": False,
             }
@@ -557,12 +748,46 @@ def run_capture(mode: str, run_id: str, output_dir: Path) -> dict:
             for observation in feed_observation_rows:
                 if (
                     observation["accession"] == accession
+                    and observation.get("_canonical_event_source", False)
                     and not observation["is_prior_watermark"]
-                    and not observation["canonical_event_emitted"]
                     and observation["poll_success"]
                 ):
                     observation["canonical_event_emitted"] = True
                     break
+        for observation in feed_observation_rows:
+            entity_observation_rows.append({
+                "poll_run_id": observation["poll_run_id"],
+                "observation_sequence": observation["observation_sequence"],
+                "feed_name": observation["feed_name"],
+                "accession": observation["accession"],
+                "form": observation["form"],
+                "filing_date": observation["filing_date"],
+                "feed_entity_cik": observation.get("feed_entity_cik", ""),
+                "feed_entity_name": observation.get("feed_entity_name", ""),
+                "feed_entity_role": observation.get("feed_entity_role", "UNKNOWN"),
+                "feed_entity_status": observation.get("feed_entity_status", "UNPARSED_TITLE"),
+                "feed_path_cik_unverified": observation["feed_path_cik_unverified"],
+                "feed_path_entity_cik_match": observation.get("feed_path_entity_cik_match", False),
+                "accession_submitter_cik": observation.get("accession_submitter_cik", ""),
+                "filing_url": observation["filing_url"],
+                "feed_updated_utc": observation["feed_updated_utc"],
+                "feed_url": observation["feed_url"],
+                "page_offset": observation["page_offset"],
+                "page_raw_sha256": observation["page_raw_sha256"],
+                "page_received_at_utc": observation["page_received_at_utc"],
+                "is_prior_watermark": observation["is_prior_watermark"],
+                "poll_success": observation["poll_success"],
+                "poll_interval_status": observation["poll_interval_status"],
+                "event_interval_status": observation["event_interval_status"],
+                "entity_occurrence_count": observation.get("entity_occurrence_count", 1),
+                "is_repeat_accession_occurrence": observation["is_repeat_accession_occurrence"],
+                "is_duplicate_across_feeds": observation["is_duplicate_across_feeds"],
+                "is_preexisting_ledger_accession": observation["is_preexisting_ledger_accession"],
+                "canonical_event_source": observation.get("_canonical_event_source", False),
+                "canonical_event_emitted": observation["canonical_event_emitted"],
+                "canonical_entity_selection_status": observation.get("canonical_entity_selection_status", ""),
+                "entity_identity_quarantined": observation.get("entity_identity_quarantined", False),
+            })
         feed_summaries[feed_name]["new_accession_count"] = canonical_new_count
         feed_updates[feed_name] = result
 
@@ -574,12 +799,19 @@ def run_capture(mode: str, run_id: str, output_dir: Path) -> dict:
         append_csv(EVENTS_PATH, EVENT_FIELDS, event_rows)
         append_csv(OBSERVATIONS_PATH, OBSERVATION_FIELDS, observation_rows)
         append_csv(ACCESSION_OBSERVATIONS_PATH, ACCESSION_OBSERVATION_FIELDS, accession_observation_rows)
+        append_csv(ENTITY_OBSERVATIONS_PATH, ENTITY_OBSERVATION_FIELDS, entity_observation_rows)
         if accession_observation_rows and not state.get("accession_observation_ledger_started_utc"):
             state["accession_observation_ledger_started_utc"] = poll_started
             state["accession_observation_ledger_started_run_id"] = str(run_id)
         state["accession_observation_ledger_rows_appended"] = int(
             state.get("accession_observation_ledger_rows_appended", 0)
         ) + len(accession_observation_rows)
+        if entity_observation_rows and not state.get("entity_observation_ledger_started_utc"):
+            state["entity_observation_ledger_started_utc"] = poll_started
+            state["entity_observation_ledger_started_run_id"] = str(run_id)
+        state["entity_observation_ledger_rows_appended"] = int(
+            state.get("entity_observation_ledger_rows_appended", 0)
+        ) + len(entity_observation_rows)
         for feed_name, result in feed_updates.items():
             if result["poll_success"]:
                 state["feeds"][feed_name] = {
@@ -619,6 +851,16 @@ def run_capture(mode: str, run_id: str, output_dir: Path) -> dict:
             row["accession"] for row in accession_observation_rows if not row["is_prior_watermark"]
         }),
         "accession_observation_rows": len(accession_observation_rows),
+        "entity_observation_rows": len(entity_observation_rows),
+        "entity_observation_ledger_persisted": mode == "schedule",
+        "multi_entity_accession_count": sum(result["multi_entity_accession_count"] for result in feed_updates.values()),
+        "issuer_entity_occurrence_count": sum(result["issuer_entity_occurrence_count"] for result in feed_updates.values()),
+        "reporting_entity_occurrence_count": sum(result["reporting_entity_occurrence_count"] for result in feed_updates.values()),
+        "unknown_entity_role_occurrence_count": sum(result["unknown_entity_role_occurrence_count"] for result in feed_updates.values()),
+        "path_entity_cik_mismatch_occurrence_count": sum(result["path_entity_cik_mismatch_occurrence_count"] for result in feed_updates.values()),
+        "quarantined_entity_accession_count": sum(result["quarantined_entity_accession_count"] for result in feed_updates.values()),
+        "accessions_without_issuer_entity_count": sum(result["accessions_without_issuer_entity_count"] for result in feed_updates.values()),
+        "canonical_issuer_event_count": sum(result["canonical_issuer_event_count"] for result in feed_updates.values()),
         "same_feed_duplicate_occurrences": sum(
             1 for row in accession_observation_rows if row["is_duplicate_within_feed"]
         ),
@@ -653,6 +895,23 @@ def run_capture(mode: str, run_id: str, output_dir: Path) -> dict:
     output_dir.mkdir(parents=True, exist_ok=True)
     (output_dir / "poll_summary.json").write_text(
         json.dumps(summary, indent=2, sort_keys=True), encoding="utf-8"
+    )
+    entity_summary = {
+        "phase": PHASE,
+        "run_id": str(run_id),
+        "entity_observation_rows": len(entity_observation_rows),
+        "multi_entity_accession_count": summary["multi_entity_accession_count"],
+        "issuer_entity_occurrence_count": summary["issuer_entity_occurrence_count"],
+        "reporting_entity_occurrence_count": summary["reporting_entity_occurrence_count"],
+        "unknown_entity_role_occurrence_count": summary["unknown_entity_role_occurrence_count"],
+        "path_entity_cik_mismatch_occurrence_count": summary["path_entity_cik_mismatch_occurrence_count"],
+        "quarantined_entity_accession_count": summary["quarantined_entity_accession_count"],
+        "accessions_without_issuer_entity_count": summary["accessions_without_issuer_entity_count"],
+        "canonical_issuer_event_count": summary["canonical_issuer_event_count"],
+        "signal_eligible_rows": 0,
+    }
+    (output_dir / "entity_summary.json").write_text(
+        json.dumps(entity_summary, indent=2, sort_keys=True), encoding="utf-8"
     )
     print(json.dumps(summary, indent=2, sort_keys=True))
     return summary

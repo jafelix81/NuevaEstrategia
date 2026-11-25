@@ -14,6 +14,8 @@ on:
       - "research/test_phase525_form4_reporting_owner_identity.py"
       - "research/phase525_form144_form4_crosswalk.py"
       - "research/test_phase525_form144_form4_crosswalk.py"
+      - "research/PHASE623_FORM4_TRANSACTION_FOOTNOTE_REFERENCE_INTEGRITY_AUDIT_2026-11-25.md"
+      - "research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-25_PHASE623.md"
       - "research/PHASE525_SEC_FORM144_FORM4_MATCHED_EVENT_AND_OWNER_IDENTITY_AUDIT_2026-11-20.md"
       - "research/PHASE525_SEC_FORM144_FORM4_MATCHED_EVENT_AND_OWNER_IDENTITY_SUMMARY_2026-11-20.json"
       - "research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-20_PHASE525.md"
@@ -37,6 +39,8 @@ on:
       - "research/test_phase525_form4_reporting_owner_identity.py"
       - "research/phase525_form144_form4_crosswalk.py"
       - "research/test_phase525_form144_form4_crosswalk.py"
+      - "research/PHASE623_FORM4_TRANSACTION_FOOTNOTE_REFERENCE_INTEGRITY_AUDIT_2026-11-25.md"
+      - "research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-25_PHASE623.md"
       - "research/PHASE525_SEC_FORM144_FORM4_MATCHED_EVENT_AND_OWNER_IDENTITY_AUDIT_2026-11-20.md"
       - "research/PHASE525_SEC_FORM144_FORM4_MATCHED_EVENT_AND_OWNER_IDENTITY_SUMMARY_2026-11-20.json"
       - "research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-20_PHASE525.md"
@@ -91,6 +95,9 @@ jobs:
       - name: Backfill bounded Form 4 structured transaction details
         if: github.event_name == 'schedule'
         run: python -u -m research.phase510_form4_structured_transaction_ledger --mode schedule --limit 10 --output phase510_output
+      - name: Backfill transaction-linked Form 4 footnote references
+        if: github.event_name == 'schedule'
+        run: python -u -m research.phase510_form4_structured_transaction_ledger --mode schedule --limit 10 --footnote-reference-backfill --output phase510_footnote_output
       - name: Backfill filing-level Form 4 reporting-owner identity and remarks
         if: github.event_name == 'schedule'
         run: python -u -m research.phase525_form4_reporting_owner_identity --mode schedule --limit 10 --output phase525_output
@@ -117,6 +124,7 @@ jobs:
           path: |
             phase476_output/
             phase510_output/
+            phase510_footnote_output/
             phase525_output/
           retention-days: 90
           if-no-files-found: warn

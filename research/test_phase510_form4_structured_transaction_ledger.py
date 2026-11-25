@@ -75,6 +75,49 @@ XML = b"""<?xml version="1.0" encoding="UTF-8"?>
 </ownershipDocument>
 """
 
+XML_FOOTNOTE_LINKS = b"""<?xml version="1.0" encoding="UTF-8"?>
+<ownershipDocument>
+  <documentType>4</documentType>
+  <periodOfReport>2026-11-20</periodOfReport>
+  <issuer>
+    <issuerCik><value>0001647639</value></issuerCik>
+    <issuerName><value>Upstart Holdings, Inc.</value></issuerName>
+    <issuerTradingSymbol><value>UPST</value></issuerTradingSymbol>
+  </issuer>
+  <reportingOwner>
+    <reportingOwnerId><rptOwnerCik><value>0000000001</value></rptOwnerCik></reportingOwnerId>
+  </reportingOwner>
+  <nonDerivativeTable>
+    <nonDerivativeTransaction>
+      <securityTitle><value>Common Stock</value></securityTitle>
+      <transactionDate><value>2026-11-20</value></transactionDate>
+      <transactionCoding><transactionCode><value>P</value></transactionCode></transactionCoding>
+      <transactionAmounts>
+        <transactionShares><value>60000</value></transactionShares>
+        <transactionPricePerShare>
+          <value>15.8498</value>
+          <footnoteId id="F3"/>
+        </transactionPricePerShare>
+        <transactionAcquiredDisposedCode><value>A</value></transactionAcquiredDisposedCode>
+      </transactionAmounts>
+      <ownershipNature>
+        <directOrIndirectOwnership><value>I</value></directOrIndirectOwnership>
+        <natureOfOwnership>
+          <value>By trust</value>
+          <footnoteId id="F4"/>
+        </natureOfOwnership>
+        <footnoteId id="F5"/>
+      </ownershipNature>
+    </nonDerivativeTransaction>
+  </nonDerivativeTable>
+  <footnotes>
+    <footnote id="F3">Weighted average price across multiple purchases from 15.76 to 15.95.</footnote>
+    <footnote id="F4">Shares are held by the 2008 D&amp;T Girouard Revocable Trust.</footnote>
+    <footnote id="F5">A prior transfer between trusts was made for no consideration.</footnote>
+  </footnotes>
+</ownershipDocument>
+"""
+
 
 def event(accession="0000123456-26-000001", form="4", status="BOUNDED_METADATA_ONLY"):
     return {
@@ -222,12 +265,18 @@ class Phase510Tests(unittest.TestCase):
             def fake_fetch(url):
                 calls.append(url)
                 return submission
-            summary = p.run_backfill("schedule", 1, out, events_path, details_path, fake_fetch)
+            summary = p.run_backfill(
+                "schedule", 1, out, events_path, details_path, fake_fetch,
+                root / "footnote_references.csv",
+            )
             self.assertEqual(summary["attempted_accessions"], 1)
             self.assertEqual(summary["accessions_parsed"], 1)
             self.assertEqual(summary["remaining_bounded_accessions"], 0)
             self.assertEqual(len(calls), 1)
-            summary2 = p.run_backfill("schedule", 1, out, events_path, details_path, fake_fetch)
+            summary2 = p.run_backfill(
+                "schedule", 1, out, events_path, details_path, fake_fetch,
+                root / "footnote_references.csv",
+            )
             self.assertEqual(summary2["attempted_accessions"], 0)
 
     def test_manual_mode_never_fetches_or_persists(self):
@@ -239,6 +288,160 @@ class Phase510Tests(unittest.TestCase):
             self.assertEqual(calls, [])
             self.assertEqual(summary["disposition"], "MANUAL_MODE_NO_FETCH_NO_PERSISTENCE")
             self.assertFalse((root / "details.csv").exists())
+
+
+    def test_transaction_footnote_references_preserve_field_path_and_hash_mapping(self):
+        parsed = p.parse_form4_details(XML_FOOTNOTE_LINKS)
+        refs = parsed["transaction_rows"][0]["footnote_references"]
+        self.assertEqual([item["footnote_id"] for item in refs], ["F3", "F4", "F5"])
+        self.assertIn("transactionamounts[1].transactionpricepershare[1]", refs[0]["xml_field_path"])
+        self.assertIn("ownershipnature[1].natureofownership[1]", refs[1]["xml_field_path"])
+        self.assertIn("ownershipnature[1]", refs[2]["xml_field_path"])
+        expected = [
+            "Weighted average price across multiple purchases from 15.76 to 15.95.",
+            "Shares are held by the 2008 D&T Girouard Revocable Trust.",
+            "A prior transfer between trusts was made for no consideration.",
+        ]
+        import hashlib
+        self.assertEqual(
+            [item["footnote_text_sha256"] for item in refs],
+            [hashlib.sha256(text.encode("utf-8")).hexdigest() for text in expected],
+        )
+        self.assertTrue(all(item["reference_resolution_status"] == "RESOLVED" for item in refs))
+
+    def test_footnote_sidecar_links_refs_to_transaction_detail_and_is_idempotent(self):
+        parsed = p.parse_form4_details(XML_FOOTNOTE_LINKS)
+        metadata = {
+            "submission_sha256": "submission-hash",
+            "xml_sha256": "xml-hash",
+            "xml_source": "complete_submission",
+            "acceptance_datetime_utc": "2026-11-20T20:21:55Z",
+            "detail_retrieved_at_utc": "2026-11-23T07:48:52Z",
+        }
+        detail_rows = p.build_detail_rows(event(), metadata, parsed)
+        sidecar_rows = p.build_footnote_reference_rows(event(), metadata, parsed)
+        self.assertEqual(len(sidecar_rows), 4)
+        self.assertEqual(sidecar_rows[0]["record_type"], "accession_parse_marker")
+        self.assertEqual(sidecar_rows[0]["reference_resolution_status"], "PARSED_WITH_FOOTNOTE_REFERENCES")
+        tx_detail = next(row for row in detail_rows if row["detail_type"] == "transaction_row")
+        self.assertTrue(all(row["detail_row_key"] == tx_detail["detail_row_key"] for row in sidecar_rows[1:]))
+        self.assertEqual([row["footnote_id"] for row in sidecar_rows[1:]], ["F3", "F4", "F5"])
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "footnote_references.csv"
+            self.assertEqual(p.append_footnote_reference_rows(path, sidecar_rows), 4)
+            self.assertEqual(p.append_footnote_reference_rows(path, sidecar_rows), 0)
+            with path.open("r", newline="", encoding="utf-8") as handle:
+                stored = list(csv.DictReader(handle))
+            self.assertEqual(stored[-1]["record_type"], "accession_parse_marker")
+            self.assertEqual(
+                sum(row["record_type"] == "footnote_reference" for row in stored), 3
+            )
+            self.assertIn(event()["accession"], p.read_completed_footnote_accessions(path))
+
+    def test_footnote_sidecar_recovers_partial_reference_append_without_marker(self):
+        parsed = p.parse_form4_details(XML_FOOTNOTE_LINKS)
+        metadata = {
+            "submission_sha256": "submission-hash",
+            "xml_sha256": "xml-hash",
+            "xml_source": "complete_submission",
+            "detail_retrieved_at_utc": "2026-11-23T07:48:52Z",
+        }
+        rows = p.build_footnote_reference_rows(event(), metadata, parsed)
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "footnote_references.csv"
+            # Simulate a prior interrupted append that left one complete reference
+            # row but no accession completion marker.
+            with path.open("w", newline="", encoding="utf-8") as handle:
+                writer = csv.DictWriter(handle, fieldnames=p.FOOTNOTE_REF_FIELDS)
+                writer.writeheader()
+                writer.writerow(rows[1])
+            self.assertNotIn(event()["accession"], p.read_completed_footnote_accessions(path))
+            self.assertEqual(p.append_footnote_reference_rows(path, rows), 3)
+            self.assertIn(event()["accession"], p.read_completed_footnote_accessions(path))
+            with path.open("r", newline="", encoding="utf-8") as handle:
+                stored = list(csv.DictReader(handle))
+            self.assertEqual(
+                sum(row["record_type"] == "footnote_reference" for row in stored), 3
+            )
+            self.assertEqual(stored[-1]["record_type"], "accession_parse_marker")
+
+    def test_footnote_reference_backfill_reprocesses_existing_parsed_accessions(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            events_path = root / "events.csv"
+            details_path = root / "transaction_details.csv"
+            sidecar_path = root / "footnote_references.csv"
+            out = root / "out"
+            evt = event()
+            with events_path.open("w", newline="", encoding="utf-8") as handle:
+                writer = csv.DictWriter(handle, fieldnames=list(evt))
+                writer.writeheader()
+                writer.writerow(evt)
+            metadata = {
+                "detail_retrieved_at_utc": "2026-11-23T07:48:52Z",
+                "acceptance_datetime_utc": "2026-11-20T20:21:55Z",
+                "acceptance_clock_status": "PARSED_NOT_EXACT_PUBLIC_AVAILABILITY",
+                "submission_status": "retrieved",
+                "xml_source": "complete_submission",
+                "submission_sha256": "submission-hash",
+                "xml_sha256": "xml-hash",
+            }
+            p.append_detail_rows(details_path, p.build_detail_rows(evt, metadata, p.parse_form4_details(XML_FOOTNOTE_LINKS)))
+            submission = b"<SEC-DOCUMENT>\n<XML>" + XML_FOOTNOTE_LINKS + b"</XML>\n</SEC-DOCUMENT>"
+            calls = []
+            def fake_fetch(url):
+                calls.append(url)
+                return submission
+            summary = p.run_footnote_reference_backfill(
+                "schedule", 1, out, events_path, details_path, sidecar_path, fake_fetch
+            )
+            self.assertEqual(summary["attempted_accessions"], 1)
+            self.assertEqual(summary["accessions_parsed"], 1)
+            self.assertEqual(summary["footnote_reference_rows_appended"], 4)
+            self.assertEqual(summary["remaining_footnote_accessions"], 0)
+            self.assertEqual(len(calls), 1)
+            with details_path.open("r", newline="", encoding="utf-8") as handle:
+                self.assertEqual(len(list(csv.DictReader(handle))), len(p.build_detail_rows(evt, metadata, p.parse_form4_details(XML_FOOTNOTE_LINKS))))
+
+    def test_footnote_reference_backfill_manual_mode_never_fetches_or_persists(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            calls = []
+            summary = p.run_footnote_reference_backfill(
+                "manual", 10, root / "out", root / "events.csv",
+                root / "details.csv", root / "footnotes.csv",
+                lambda url: calls.append(url),
+            )
+            self.assertEqual(calls, [])
+            self.assertEqual(summary["disposition"], "MANUAL_MODE_NO_FETCH_NO_PERSISTENCE")
+            self.assertFalse((root / "footnotes.csv").exists())
+
+    def test_parse_error_does_not_write_footnote_sidecar(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            evt = event()
+            events_path = root / "events.csv"
+            with events_path.open("w", newline="", encoding="utf-8") as handle:
+                writer = csv.DictWriter(handle, fieldnames=list(evt))
+                writer.writeheader()
+                writer.writerow(evt)
+            submission = b"<SEC-DOCUMENT>\\n<XML><notOwnershipDocument/></XML>\\n</SEC-DOCUMENT>"
+            summary = p.run_backfill(
+                "schedule", 1, root / "out", events_path, root / "details.csv",
+                lambda url: submission, root / "footnotes.csv",
+            )
+            self.assertEqual(summary["accessions_with_parse_error"], 1)
+            self.assertEqual(summary["footnote_reference_rows_appended"], 0)
+            self.assertFalse((root / "footnotes.csv").exists())
+
+    def test_footnote_sidecar_schema_mismatch_fails_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "footnote_references.csv"
+            path.write_text("accession,footnote_id\n", encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "header_mismatch"):
+                p.append_footnote_reference_rows(path, [{
+                    "footnote_ref_key": "x", "accession": "0000123456-26-000001"
+                }])
 
 
 if __name__ == "__main__":
