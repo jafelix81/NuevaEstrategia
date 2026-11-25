@@ -8,6 +8,8 @@ on:
       - "research/test_phase614_sec_13f_first_seen_capture.py"
       - "research/PHASE614_SEC_13F_FIRST_SEEN_FEED_CAPTURE_AUDIT_2026-11-25.md"
       - "research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-25_PHASE614.md"
+      - "research/PHASE615_SEC_13F_FULL_SNAPSHOT_LATE_INDEX_SAFETY_AUDIT_2026-11-25.md"
+      - "research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-25_PHASE615.md"
   workflow_dispatch:
     inputs:
       run_live_capture:
