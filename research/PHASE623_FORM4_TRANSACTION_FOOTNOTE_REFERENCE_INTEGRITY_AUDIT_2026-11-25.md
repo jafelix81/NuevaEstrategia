@@ -41,9 +41,15 @@ New tests cover:
 - sidecar backfill of already-parsed accessions without changing the transaction ledger;
 - manual-mode no-fetch behavior and schema-mismatch fail-closed behavior.
 
+## Validation result
+
+- Final PR check [Run 45687169039](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45687169039) passed **75/75 offline regression tests**.
+- The live-capture job was skipped as designed for pull-request validation; no SEC feed or filing was fetched by CI.
+- The first attempt [Run 45687060727](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45687060727) failed one test-only XML field-path assertion (`transactionPricePerShare` spelling); the assertion was corrected in commit `907bef37`, and the full suite then passed.
+
 ## Research disposition
 
-- Footnote provenance: **implementation added; CI validation pending**.
+- Footnote provenance: **implementation added; 75/75 offline tests passed**.
 - Existing UPST/Form 144 crosswalk matches: descriptive only.
 - Historical F80 membership, exact public availability and transaction venue remain unresolved.
 - No transaction is promoted to research-observation or signal eligibility.
