@@ -303,8 +303,10 @@ def audit_infotable_references(header: list[str], rows, filers: dict,
         if not raw or raw.upper() in {"N/A","NA","NONE"}:
             continue
         rows_with_refs += 1
-        for token in raw.split(","):
+        for token in re.split(r"[,\\s]+", raw.strip()):
             token = token.strip()
+            if not token:
+                continue
             if token == "0":
                 zero_tokens += 1
                 continue
