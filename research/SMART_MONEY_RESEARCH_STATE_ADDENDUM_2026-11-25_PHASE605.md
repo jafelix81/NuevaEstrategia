@@ -1,6 +1,6 @@
 # Smart Money Research state addendum — Phase 605 (2026-11-25 UTC)
 
-- PASS: added a pure SEC 13F role-aware relationship parser; 17 synthetic offline regressions are included. The PR workflow is offline-only.
+- PASS: added a pure SEC 13F role-aware relationship parser; 18 synthetic offline regressions are included. The PR workflow is offline-only.
 - Official SEC schema distinguishes OTHERMANAGER (other managers reporting for this manager) from OTHERMANAGER2 (other managers included in this report). INFOTABLE.OTHERMANAGER sequence values join to OTHERMANAGER2.SEQUENCENUMBER within the same accession.
 - The parser preserves two directed edge types: filer → reporting manager, and reporting filer → included manager. Combination reports can carry both; the edges are not collapsed.
 - Form 13F file-number normalization accepts common formatting variants; CIK/file-number conflict, ambiguous file number, dangling line reference, missing notice roster, and notice-with-holdings anomalies are flagged. Names are not used as identity.
