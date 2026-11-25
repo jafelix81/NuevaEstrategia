@@ -270,6 +270,7 @@ def fetch_feed(
     for page_index in range(max_pages):
         url = _page_url(base_url, offset)
         raw = None
+        raw_count = ""
         try:
             raw = p401.fetch_bytes(url, sec=True, timeout=60, retries=4)
             received = now_utc()
@@ -279,6 +280,11 @@ def fetch_feed(
             seen_hashes.add(digest)
             raw_count = count_atom_entries(raw)
             parsed = parse_atom_feed(raw, feed_name, url)
+            if len(parsed) != raw_count:
+                raise ValueError(
+                    f"atom_entry_parse_mismatch:{feed_name}:"
+                    f"raw_entries={raw_count}:parsed_accessions={len(parsed)}"
+                )
             if page_index == 0:
                 first_page_entries = list(parsed)
 
@@ -366,7 +372,7 @@ def fetch_feed(
                 "poll_run_id": str(run_id),
                 "feed_name": feed_name,
                 "page_offset": offset,
-                "raw_entry_count": "",
+                "raw_entry_count": raw_count,
                 "parsed_accession_occurrence_count": "",
                 "response_bytes": len(raw) if raw is not None else "",
                 "response_received_at_utc": now_utc(),

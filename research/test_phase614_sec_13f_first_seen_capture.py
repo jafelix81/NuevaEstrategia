@@ -151,6 +151,29 @@ class Phase614IntervalTests(unittest.TestCase):
 
 
 class Phase614PaginationTests(unittest.TestCase):
+    def test_unparsed_atom_entry_fails_closed_without_advancing_watermark(self):
+        malformed = """
+        <entry>
+          <id>urn:tag:sec.gov,2008:accession-number=not-an-accession</id>
+          <title>13F-HR - Missing accession</title>
+          <updated>2026-11-24T13:00:00Z</updated>
+          <category scheme="https://www.sec.gov/" label="form type" term="13F-HR"/>
+          <summary>Filed: 2026-11-24</summary>
+        </entry>
+        """
+        raw = feed(malformed)
+        with patch.object(p.p401, "fetch_bytes", return_value=raw):
+            result = p.fetch_feed(
+                "13F-HR", "https://example.test/feed", {
+                    "latest_accession": "",
+                    "last_successful_poll_end_utc": "",
+                }, "schedule", "test-run", "2026-11-24T12:01:00Z",
+            )
+        self.assertFalse(result["poll_success"])
+        self.assertEqual(result["page_error"]["error_type"], "ValueError")
+        self.assertIn("atom_entry_parse_mismatch", result["page_error"]["error"])
+        self.assertEqual(result["event_candidates"], [])
+
     def test_fetch_stops_at_prior_accession_watermark(self):
         raw = feed(
             entry("0000000001-26-000003", "13F-HR", "2026-11-24T13:00:00Z"),
