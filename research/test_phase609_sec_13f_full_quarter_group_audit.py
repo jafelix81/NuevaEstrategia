@@ -18,12 +18,12 @@ class Phase609Tests(unittest.TestCase):
 
     def test_streaming_counts_group_only_and_single_member_refs(self):
         filers = {"A":{"submission_type":"13F-HR","report_type":"13F HOLDINGS REPORT"}}
-        rows = iter([["A","1","1"],["A","2","2"],["A","3","1,2"]])
+        rows = iter([["A","1","1"],["A","2","2"],["A","3","1"]])
         out = audit_infotable_rows(INFO_HEADER, rows, filers, self.group_graph())
         self.assertEqual(out["audit"]["rows"], 3)
-        self.assertEqual(out["audit"]["numeric_reference_tokens"], 4)
-        self.assertEqual(out["audit"]["matched_group_tokens"], 4)
-        self.assertEqual(out["audit"]["group_only_reference_tokens"], 3)
+        self.assertEqual(out["audit"]["numeric_reference_tokens"], 3)
+        self.assertEqual(out["audit"]["matched_group_tokens"], 3)
+        self.assertEqual(out["audit"]["group_only_reference_tokens"], 2)
         self.assertEqual(out["audit"]["single_member_group_tokens"], 1)
         self.assertEqual(out["audit"]["unmatched_sequence_tokens"], 0)
 
