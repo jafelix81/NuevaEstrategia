@@ -145,14 +145,38 @@ def first_full_session_after(filing_date: Any, sessions: list[Any]) -> str | Non
     return None
 
 
-def _prepare_events(events: list[dict], sessions: list[Any]) -> tuple[dict, list[dict]]:
+def _prepare_events(
+    events: list[dict], sessions: list[Any], as_of: date
+) -> tuple[dict, list[dict], list[dict]]:
+    """Filter to events knowable as of the requested session BEFORE chain checks.
+
+    This ordering is essential: future amendments/notices must not affect a
+    historical state, even by causing a future chain gap or validation error.
+    """
     calendar = _availability_map(sessions)
     prepared: dict[tuple[str, str], list[dict]] = defaultdict(list)
     notices: list[dict] = []
+    pending_calendar: list[dict] = []
     seen_accessions: set[str] = set()
 
     for raw in events:
         event = dict(raw)
+        filing_date = parse_date(event.get("filing_date"))
+        eligible = next((s for s in calendar if s > filing_date), None)
+
+        # A future event is invisible to this as-of query. Do not inspect its
+        # amendment type, accession uniqueness, manager, or holdings metadata.
+        if eligible is not None and eligible > as_of:
+            continue
+        if eligible is None:
+            if filing_date <= as_of:
+                pending_calendar.append({
+                    "accession": str(event.get("accession") or "").strip() or None,
+                    "filing_date": filing_date.isoformat(),
+                    "status": "PENDING_CALENDAR_COVERAGE",
+                })
+            continue
+
         accession = str(event.get("accession") or "").strip()
         if not accession:
             raise StateMachineError("missing_accession")
@@ -163,8 +187,6 @@ def _prepare_events(events: list[dict], sessions: list[Any]) -> tuple[dict, list
         kind, amendment_number, amendment_type = _event_kind(event)
         manager = normalize_cik(event.get("manager_cik"))
         report_period = parse_date(event.get("report_period")).isoformat()
-        filing_date = parse_date(event.get("filing_date"))
-        eligible = next((s for s in calendar if s > filing_date), None)
         prepared_event = {
             "accession": accession,
             "manager_cik": manager,
@@ -183,12 +205,14 @@ def _prepare_events(events: list[dict], sessions: list[Any]) -> tuple[dict, list
                 "manager_cik": manager,
                 "report_period": report_period,
                 "filing_date": filing_date.isoformat(),
-                "available_session": eligible.isoformat() if eligible else None,
+                "available_session": eligible.isoformat(),
                 "status": "NOTICE_ONLY_NOT_ZERO_HOLDINGS",
             })
         else:
             prepared[(manager, report_period)].append(prepared_event)
 
+    # Only the filings available by as_of participate in amendment-chain
+    # validation. Later filings cannot retroactively change a past state.
     for key, group in prepared.items():
         originals = [e for e in group if e["kind"] == "ORIGINAL"]
         if len(originals) != 1:
@@ -216,7 +240,7 @@ def _prepare_events(events: list[dict], sessions: list[Any]) -> tuple[dict, list
             raise StateMachineError(f"filing_date_order_conflict:{key[0]}:{key[1]}")
         prepared[key] = ordered
 
-    return prepared, notices
+    return prepared, notices, pending_calendar
 
 
 def reconstruct_as_of(
@@ -225,10 +249,11 @@ def reconstruct_as_of(
     sessions: list[Any],
     as_of_session: Any,
 ) -> dict:
-    """Reconstruct manager-period holdings known by a conservative session.
+    """Reconstruct only manager-period holdings available by as_of_session.
 
-    A RESTATEMENT replaces the full state. NEW HOLDINGS ENTRIES appends only
-    previously absent line keys. Overlaps are blocked rather than overwritten.
+    Future filings are filtered out before amendment validation so they cannot
+    leak into or invalidate an earlier state. A RESTATEMENT replaces the full
+    state; NEW HOLDINGS ENTRIES appends only previously absent line keys.
     13F-NT notices are returned separately and never become zero portfolios.
     """
     as_of = parse_date(as_of_session)
@@ -236,36 +261,17 @@ def reconstruct_as_of(
     if as_of not in calendar:
         raise StateMachineError("as_of_session_not_in_calendar")
 
-    groups, notices = _prepare_events(events, calendar)
+    groups, notices, pending_calendar = _prepare_events(events, calendar, as_of)
     results = []
     applied_total = 0
 
     for (manager, report_period), group in sorted(groups.items()):
-        available = [e for e in group if e["available_session"] and e["available_session"] <= as_of]
-        if not available:
-            calendar_truncated = any(
-                event["available_session"] is None and event["filing_date"] <= as_of
-                for event in group
-            )
-            results.append({
-                "manager_cik": manager,
-                "report_period": report_period,
-                "as_of_session": as_of.isoformat(),
-                "status": "PENDING_CALENDAR_COVERAGE" if calendar_truncated else "NOT_YET_AVAILABLE",
-                "holdings_count": 0,
-                "holdings": [],
-                "applied_accessions": [],
-            })
-            continue
-
         state: dict[tuple[str, ...], dict] = {}
         applied: list[str] = []
         last_amendment_number = 0
-        status = "PASS"
-        reason = None
 
         try:
-            for event in available:
+            for event in group:
                 accession = event["accession"]
                 rows = holdings_by_accession.get(accession)
                 if rows is None or len(rows) == 0:
@@ -305,8 +311,7 @@ def reconstruct_as_of(
                 "manager_cik": manager,
                 "report_period": report_period,
                 "as_of_session": as_of.isoformat(),
-                "status": status,
-                "reason": reason,
+                "status": "PASS",
                 "holdings_count": len(ordered_holdings),
                 "holdings": ordered_holdings,
                 "applied_accessions": applied,
@@ -325,18 +330,22 @@ def reconstruct_as_of(
                 "applied_accessions": applied,
             })
 
+    blocked = any(row["status"] == "BLOCKED" for row in results)
+    status = "BLOCKED" if blocked else (
+        "PENDING_CALENDAR_COVERAGE" if pending_calendar else "PASS"
+    )
     return {
-        "status": "PASS" if all(row["status"] in {"PASS", "NOT_YET_AVAILABLE", "PENDING_CALENDAR_COVERAGE"} for row in results) else "BLOCKED",
+        "status": status,
         "as_of_session": as_of.isoformat(),
         "manager_periods": results,
         "notices": notices,
+        "pending_calendar_events": pending_calendar,
         "summary": {
             "manager_period_groups": len(results),
             "pass_groups": sum(row["status"] == "PASS" for row in results),
-            "not_yet_available_groups": sum(row["status"] == "NOT_YET_AVAILABLE" for row in results),
-            "pending_calendar_coverage_groups": sum(row["status"] == "PENDING_CALENDAR_COVERAGE" for row in results),
             "blocked_groups": sum(row["status"] == "BLOCKED" for row in results),
             "notice_only_events": len(notices),
+            "pending_calendar_events": len(pending_calendar),
             "applied_accessions": applied_total,
             "signal_eligible": False,
         },
