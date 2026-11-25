@@ -61,10 +61,14 @@ def resolve_daily_knowledge_clock(
 ) -> dict:
     """Map a filing to conservative event and daily-bar clocks.
 
-    If a prospective collector first-seen timestamp exists, use the later of
-    EDGAR Accepted and collector first-seen. If it does not exist, use the end
-    of the legal Filing Date in ET as a conservative fallback; never backdate
-    to the report period or assume intraday observability.
+    If a prospective collector first-seen upper bound exists, use the
+    latest of EDGAR Accepted, that conservative upper bound, and 06:00 ET on
+    the official Filing Date. The filing-date floor prevents a feed timestamp
+    from backdating a filing into a prior legal filing day. For 13F accepted
+    after 17:30 ET, a same-day first-seen observation is rejected because SEC
+    guidance says ordinary after-hours submissions are not disseminated until
+    the next business day. If no first-seen exists, use the end of the legal
+    Filing Date in ET as a conservative fallback.
 
     A daily bar is complete only when its scheduled close is strictly later
     than effective knowledge time. A daily-bar-derived signal cannot execute
@@ -76,15 +80,33 @@ def resolve_daily_knowledge_clock(
 
     if collector_first_seen is not None:
         first_seen_utc = parse_aware_timestamp(collector_first_seen)
-        effective = max(accepted_utc, first_seen_utc)
-        availability_mode = "OBSERVED_FIRST_SEEN_MAX_ACCEPTED"
+        accepted_et = accepted_utc.astimezone(ET)
+        first_seen_et = first_seen_utc.astimezone(ET)
+
+        # Ordinary Form 13F submissions accepted after 17:30 ET are not
+        # disseminated until the next business day. A same-day first-seen
+        # observation is therefore contradictory and must be quarantined.
+        if accepted_et.time() > time(17, 30) and first_seen_et.date() <= accepted_et.date():
+            raise ValueError(
+                "after_hours_13f_first_seen_before_next_business_day_requires_review"
+            )
+
+        filing_date_floor_et = datetime.combine(
+            filed, time(6, 0), tzinfo=ET
+        )
+        filing_date_floor_utc = filing_date_floor_et.astimezone(timezone.utc)
+        effective = max(accepted_utc, first_seen_utc, filing_date_floor_utc)
+        if first_seen_utc < filing_date_floor_utc:
+            availability_mode = "OBSERVED_FIRST_SEEN_BEFORE_LEGAL_FILING_FLOOR"
+        else:
+            availability_mode = "OBSERVED_FIRST_SEEN_MAX_ACCEPTED_AND_LEGAL_FLOOR"
         first_seen_value = first_seen_utc.isoformat()
     else:
         filing_date_end_et = datetime.combine(
             filed, time(23, 59, 59), tzinfo=ET
         )
-        filing_date_end_utc = filing_date_end_et.astimezone(timezone.utc)
-        effective = max(accepted_utc, filing_date_end_utc)
+        filing_date_floor_utc = filing_date_end_et.astimezone(timezone.utc)
+        effective = max(accepted_utc, filing_date_floor_utc)
         availability_mode = "FILING_DATE_END_OF_DAY_FALLBACK"
         first_seen_value = None
 
@@ -115,6 +137,7 @@ def resolve_daily_knowledge_clock(
         "availability_mode": availability_mode,
         "accepted_at_utc": accepted_utc.isoformat(),
         "collector_first_seen_utc": first_seen_value,
+        "legal_filing_date_floor_utc": filing_date_floor_utc.isoformat(),
         "effective_knowledge_at_utc": effective.isoformat(),
         "first_event_only_open_session": first_open_session.date().isoformat(),
         "first_event_only_open_at_utc": _iso_utc(first_open_row["open"]),
