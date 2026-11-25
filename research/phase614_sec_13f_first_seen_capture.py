@@ -335,7 +335,7 @@ def fetch_feed(
                     # disappeared is different: fail closed rather than infer a
                     # boundary from timestamps that may be stale.
                     boundary_found = True
-                    boundary_type = "END_OF_FEED"
+                    boundary_type = "EMPTY_NO_NEW_ENTRIES" if offset == 0 else "END_OF_FEED"
                     break
                 page_error = {
                     "error_type": "EmptyPageBeforeBoundary",
