@@ -19,6 +19,7 @@ PARSER_VERSION = "phase510-v1"
 DATA_DIR = Path("research/data/sec_form4_first_seen")
 EVENTS_PATH = DATA_DIR / "events.csv"
 DETAILS_PATH = DATA_DIR / "transaction_details.csv"
+FOOTNOTE_REFS_PATH = DATA_DIR / "footnote_references.csv"
 DEFAULT_LIMIT = 10
 
 DETAIL_FIELDS = [
@@ -56,6 +57,18 @@ DETAIL_FIELDS = [
     "same_day_intraday_use_authorized", "security_identity_verified",
     "historical_f80_membership_verified", "owner_attribution_verified",
     "transaction_semantics_verified", "economic_event_new_trade_authorized",
+]
+
+FOOTNOTE_REF_FIELDS = [
+    "record_type", "footnote_ref_key", "accession", "form", "issuer_cik",
+    "issuer_name", "issuer_trading_symbol_normalized", "detail_row_key",
+    "table_type", "row_index", "reference_index", "footnote_id",
+    "xml_field_path", "reference_path", "footnote_text",
+    "footnote_text_sha256", "reference_resolution_status",
+    "submission_sha256", "xml_sha256", "xml_source",
+    "acceptance_datetime_utc", "first_seen_at_utc",
+    "first_seen_interval_upper_bound_utc", "detail_retrieved_at_utc",
+    "parser_version", "research_observation_eligible", "signal_eligible",
 ]
 
 FOOTNOTE_PATTERNS = {
@@ -155,17 +168,36 @@ def footnote_map(root: ET.Element) -> dict[str, str]:
     return result
 
 
+def row_footnote_references(row: ET.Element) -> list[dict]:
+    """Preserve every footnote reference and the XML field that contains it."""
+    references: list[dict] = []
+
+    def walk(node: ET.Element, parent_path: str) -> None:
+        sibling_counts: dict[str, int] = {}
+        for child in list(node):
+            tag = local_name(child.tag)
+            sibling_counts[tag] = sibling_counts.get(tag, 0) + 1
+            segment = f"{tag}[{sibling_counts[tag]}]"
+            reference_path = f"{parent_path}.{segment}" if parent_path else segment
+            if tag == "footnoteid":
+                value = str(child.attrib.get("id") or "").strip()
+                if not value:
+                    value = " ".join("".join(child.itertext()).split())
+                if value:
+                    references.append({
+                        "reference_index": len(references) + 1,
+                        "footnote_id": value,
+                        "xml_field_path": parent_path or "$row",
+                        "reference_path": reference_path,
+                    })
+            walk(child, reference_path)
+
+    walk(row, "")
+    return references
+
+
 def row_footnote_ids(row: ET.Element) -> list[str]:
-    found: set[str] = set()
-    for node in row.iter():
-        if local_name(node.tag) != "footnoteid":
-            continue
-        value = str(node.attrib.get("id") or "").strip()
-        if not value:
-            value = " ".join("".join(node.itertext()).split())
-        if value:
-            found.add(value)
-    return sorted(found)
+    return sorted({item["footnote_id"] for item in row_footnote_references(row)})
 
 
 def classify_footnotes(ids: list[str], footnotes: dict[str, str]) -> tuple[dict, list[str], int]:
@@ -224,8 +256,24 @@ def parse_form4_details(raw: bytes | str) -> dict:
     rows: list[dict] = []
     for table_type, source_rows in (("non_derivative", nonderivative), ("derivative", derivative)):
         for index, row in enumerate(source_rows, start=1):
-            ids = row_footnote_ids(row)
+            references = row_footnote_references(row)
+            ids = sorted({item["footnote_id"] for item in references})
             flags, hashes, unresolved = classify_footnotes(ids, footnotes)
+            enriched_references = []
+            for reference in references:
+                text_value_for_ref = footnotes.get(reference["footnote_id"])
+                text_hash = (
+                    hashlib.sha256(text_value_for_ref.encode("utf-8")).hexdigest()
+                    if text_value_for_ref is not None else ""
+                )
+                enriched_references.append({
+                    **reference,
+                    "footnote_text": text_value_for_ref or "",
+                    "footnote_text_sha256": text_hash,
+                    "reference_resolution_status": (
+                        "RESOLVED" if text_value_for_ref is not None else "UNRESOLVED_FOOTNOTE_ID"
+                    ),
+                })
             conversion = direct_child(row, "conversionOrExercisePrice")
             values = {
                 "table_type": table_type,
@@ -267,6 +315,9 @@ def parse_form4_details(raw: bytes | str) -> dict:
                 json.dumps(values, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
             ).hexdigest()
             values["transaction_fingerprint"] = fingerprint
+            # Kept outside the legacy detail-row fingerprint/schema. The append-only
+            # reference sidecar stores the ID-to-text-hash-to-XML-field relationship.
+            values["footnote_references"] = enriched_references
             rows.append(values)
 
     return {
@@ -379,6 +430,12 @@ def fetch_document(event: dict, fetcher=None) -> dict:
     }
 
 
+def transaction_detail_row_key(accession: str, transaction: dict) -> str:
+    return hashlib.sha256(
+        f"{accession}|{PARSER_VERSION}|{transaction['table_type']}|{transaction['row_index']}|{transaction['transaction_fingerprint']}".encode("utf-8")
+    ).hexdigest()
+
+
 def build_detail_rows(event: dict, metadata: dict, parsed: dict | None, parse_error: str = "") -> list[dict]:
     validate_event(event)
     accession = event["accession"]
@@ -450,9 +507,7 @@ def build_detail_rows(event: dict, metadata: dict, parsed: dict | None, parse_er
     if parsed is not None:
         for transaction in parsed["transaction_rows"]:
             payload = {"detail_type": "transaction_row", **common, **transaction}
-            payload["detail_row_key"] = hashlib.sha256(
-                f"{accession}|{PARSER_VERSION}|{transaction['table_type']}|{transaction['row_index']}|{transaction['transaction_fingerprint']}".encode("utf-8")
-            ).hexdigest()
+            payload["detail_row_key"] = transaction_detail_row_key(accession, transaction)
             rows.append(payload)
 
     return [{field: row.get(field) for field in DETAIL_FIELDS} for row in rows]
@@ -490,6 +545,23 @@ def read_completed_accessions(path: Path) -> set[str]:
         }
 
 
+def read_parsed_accessions(path: Path) -> set[str]:
+    if not path.exists() or path.stat().st_size == 0:
+        return set()
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        reader = csv.DictReader(handle)
+        if reader.fieldnames != DETAIL_FIELDS:
+            raise ValueError("form4_detail_ledger_header_mismatch")
+        return {
+            row.get("accession", "")
+            for row in reader
+            if row.get("detail_type") == "filing_header"
+            and row.get("parse_status") == "parsed"
+            and row.get("parser_version") == PARSER_VERSION
+            and row.get("accession")
+        }
+
+
 def append_detail_rows(path: Path, rows: list[dict]) -> int:
     if not rows:
         return 0
@@ -513,6 +585,139 @@ def append_detail_rows(path: Path, rows: list[dict]) -> int:
     return len(pending)
 
 
+def build_footnote_reference_rows(event: dict, metadata: dict, parsed: dict) -> list[dict]:
+    """Build an append-only, transaction-linked footnote reference ledger."""
+    accession = str(event.get("accession") or "")
+    references: list[dict] = []
+    for transaction in parsed.get("transaction_rows", []):
+        detail_key = transaction_detail_row_key(accession, transaction)
+        for reference in transaction.get("footnote_references", []):
+            payload = {
+                "record_type": "footnote_reference",
+                "accession": accession,
+                "form": event.get("form", ""),
+                "issuer_cik": parsed.get("issuer_cik") or "",
+                "issuer_name": parsed.get("issuer_name") or "",
+                "issuer_trading_symbol_normalized": parsed.get("issuer_trading_symbol_normalized") or "",
+                "detail_row_key": detail_key,
+                "table_type": transaction.get("table_type", ""),
+                "row_index": transaction.get("row_index", ""),
+                "reference_index": reference.get("reference_index", ""),
+                "footnote_id": reference.get("footnote_id", ""),
+                "xml_field_path": reference.get("xml_field_path", ""),
+                "reference_path": reference.get("reference_path", ""),
+                "footnote_text": reference.get("footnote_text", ""),
+                "footnote_text_sha256": reference.get("footnote_text_sha256", ""),
+                "reference_resolution_status": reference.get("reference_resolution_status", ""),
+                "submission_sha256": metadata.get("submission_sha256") or "",
+                "xml_sha256": metadata.get("xml_sha256") or "",
+                "xml_source": metadata.get("xml_source") or "",
+                "acceptance_datetime_utc": metadata.get("acceptance_datetime_utc") or "",
+                "first_seen_at_utc": event.get("first_seen_at_utc") or "",
+                "first_seen_interval_upper_bound_utc": (
+                    event.get("first_seen_interval_upper_bound_utc")
+                    or event.get("first_seen_at_utc") or ""
+                ),
+                "detail_retrieved_at_utc": metadata.get("detail_retrieved_at_utc") or "",
+                "parser_version": PARSER_VERSION,
+                "research_observation_eligible": False,
+                "signal_eligible": False,
+            }
+            key_material = "|".join((
+                accession, PARSER_VERSION, detail_key,
+                str(payload["reference_path"]), str(payload["footnote_id"]),
+                str(payload["footnote_text_sha256"]),
+            ))
+            payload["footnote_ref_key"] = hashlib.sha256(key_material.encode("utf-8")).hexdigest()
+            references.append({field: payload.get(field) for field in FOOTNOTE_REF_FIELDS})
+
+    marker_status = (
+        "PARSED_WITH_FOOTNOTE_REFERENCES" if references else "PARSED_NO_FOOTNOTE_REFERENCES"
+    )
+    marker_material = "|".join((
+        accession, PARSER_VERSION, "accession_parse_marker",
+        str(metadata.get("xml_sha256") or ""),
+    ))
+    marker = {
+        "record_type": "accession_parse_marker",
+        "footnote_ref_key": hashlib.sha256(marker_material.encode("utf-8")).hexdigest(),
+        "accession": accession,
+        "form": event.get("form", ""),
+        "issuer_cik": parsed.get("issuer_cik") or "",
+        "issuer_name": parsed.get("issuer_name") or "",
+        "issuer_trading_symbol_normalized": parsed.get("issuer_trading_symbol_normalized") or "",
+        "detail_row_key": "",
+        "table_type": "",
+        "row_index": "",
+        "reference_index": "",
+        "footnote_id": "",
+        "xml_field_path": "",
+        "reference_path": "",
+        "footnote_text": "",
+        "footnote_text_sha256": "",
+        "reference_resolution_status": marker_status,
+        "submission_sha256": metadata.get("submission_sha256") or "",
+        "xml_sha256": metadata.get("xml_sha256") or "",
+        "xml_source": metadata.get("xml_source") or "",
+        "acceptance_datetime_utc": metadata.get("acceptance_datetime_utc") or "",
+        "first_seen_at_utc": event.get("first_seen_at_utc") or "",
+        "first_seen_interval_upper_bound_utc": (
+            event.get("first_seen_interval_upper_bound_utc")
+            or event.get("first_seen_at_utc") or ""
+        ),
+        "detail_retrieved_at_utc": metadata.get("detail_retrieved_at_utc") or "",
+        "parser_version": PARSER_VERSION,
+        "research_observation_eligible": False,
+        "signal_eligible": False,
+    }
+    return [{field: marker.get(field) for field in FOOTNOTE_REF_FIELDS}, *references]
+
+
+def append_footnote_reference_rows(path: Path, rows: list[dict]) -> int:
+    if not rows:
+        return 0
+    path.parent.mkdir(parents=True, exist_ok=True)
+    existing_keys: set[str] = set()
+    write_header = not path.exists() or path.stat().st_size == 0
+    if not write_header:
+        with path.open("r", encoding="utf-8-sig", newline="") as handle:
+            reader = csv.DictReader(handle)
+            if reader.fieldnames != FOOTNOTE_REF_FIELDS:
+                raise ValueError("form4_footnote_reference_ledger_header_mismatch")
+            existing_keys = {
+                row.get("footnote_ref_key", "") for row in reader
+                if row.get("footnote_ref_key")
+            }
+    pending = [row for row in rows if row.get("footnote_ref_key") not in existing_keys]
+    if not pending:
+        return 0
+    with path.open("a", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=FOOTNOTE_REF_FIELDS, extrasaction="ignore")
+        if write_header:
+            writer.writeheader()
+        writer.writerows(pending)
+    return len(pending)
+
+
+def read_completed_footnote_accessions(path: Path) -> set[str]:
+    if not path.exists() or path.stat().st_size == 0:
+        return set()
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        reader = csv.DictReader(handle)
+        if reader.fieldnames != FOOTNOTE_REF_FIELDS:
+            raise ValueError("form4_footnote_reference_ledger_header_mismatch")
+        return {
+            row.get("accession", "")
+            for row in reader
+            if row.get("record_type") == "accession_parse_marker"
+            and row.get("parser_version") == PARSER_VERSION
+            and row.get("reference_resolution_status") in {
+                "PARSED_WITH_FOOTNOTE_REFERENCES", "PARSED_NO_FOOTNOTE_REFERENCES"
+            }
+            and row.get("accession")
+        }
+
+
 def run_backfill(
     mode: str,
     limit: int,
@@ -520,6 +725,7 @@ def run_backfill(
     events_path: Path = EVENTS_PATH,
     details_path: Path = DETAILS_PATH,
     fetcher=None,
+    footnote_refs_path: Path = FOOTNOTE_REFS_PATH,
 ) -> dict:
     if limit < 1 or limit > 50:
         raise ValueError("limit_must_be_between_1_and_50")
@@ -534,6 +740,8 @@ def run_backfill(
         "accessions_with_parse_error": 0,
         "fetch_unresolved": 0,
         "detail_rows_appended": 0,
+        "footnote_reference_rows_appended": 0,
+        "footnote_accessions_marked": 0,
         "remaining_bounded_accessions": 0,
         "signal_eligible_count": 0,
         "research_observation_eligible_count": 0,
@@ -577,6 +785,11 @@ def run_backfill(
             rows = build_detail_rows(event, metadata, None, parse_error=error)
             summary["accessions_with_parse_error"] += 1
         summary["detail_rows_appended"] += append_detail_rows(details_path, rows)
+        if parsed is not None:
+            footnote_rows = build_footnote_reference_rows(event, metadata, parsed)
+            appended_refs = append_footnote_reference_rows(footnote_refs_path, footnote_rows)
+            summary["footnote_reference_rows_appended"] += appended_refs
+            summary["footnote_accessions_marked"] += 1
         completed.add(event["accession"])
 
     summary["remaining_bounded_accessions"] = sum(
@@ -589,13 +802,104 @@ def run_backfill(
     return summary
 
 
+def run_footnote_reference_backfill(
+    mode: str,
+    limit: int,
+    output_dir: Path,
+    events_path: Path = EVENTS_PATH,
+    details_path: Path = DETAILS_PATH,
+    footnote_refs_path: Path = FOOTNOTE_REFS_PATH,
+    fetcher=None,
+) -> dict:
+    if limit < 1 or limit > 50:
+        raise ValueError("limit_must_be_between_1_and_50")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    summary = {
+        "phase": 623,
+        "parser_version": PARSER_VERSION,
+        "mode": mode,
+        "limit": limit,
+        "structured_accessions_seen": 0,
+        "footnote_accessions_pending": 0,
+        "attempted_accessions": 0,
+        "accessions_parsed": 0,
+        "fetch_unresolved": 0,
+        "parse_errors": 0,
+        "footnote_reference_rows_appended": 0,
+        "accessions_marked_with_no_references": 0,
+        "remaining_footnote_accessions": 0,
+        "research_observation_eligible_count": 0,
+        "signal_eligible_count": 0,
+        "raw_xml_persisted": False,
+    }
+    if mode != "schedule":
+        summary["disposition"] = "MANUAL_MODE_NO_FETCH_NO_PERSISTENCE"
+        (output_dir / "footnote_reference_summary.json").write_text(
+            json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
+        return summary
+
+    events = read_events(events_path)
+    event_by_accession = {row.get("accession"): row for row in events}
+    structured = read_parsed_accessions(details_path)
+    completed = read_completed_footnote_accessions(footnote_refs_path)
+    summary["structured_accessions_seen"] = len(structured)
+
+    candidates = []
+    for accession in structured:
+        if accession in completed:
+            continue
+        event = event_by_accession.get(accession)
+        if event is None:
+            continue
+        try:
+            validate_event(event)
+        except ValueError:
+            continue
+        candidates.append(event)
+    candidates.sort(key=lambda row: row.get("first_seen_at_utc", ""), reverse=True)
+    summary["footnote_accessions_pending"] = len(candidates)
+
+    for event in candidates[:limit]:
+        summary["attempted_accessions"] += 1
+        metadata = fetch_document(event, fetcher=fetcher)
+        if metadata.get("fetch_status") != "retrieved":
+            summary["fetch_unresolved"] += 1
+            continue
+        try:
+            parsed = parse_form4_details(metadata["xml"])
+            rows = build_footnote_reference_rows(event, metadata, parsed)
+        except Exception:
+            summary["parse_errors"] += 1
+            continue
+        appended = append_footnote_reference_rows(footnote_refs_path, rows)
+        summary["footnote_reference_rows_appended"] += appended
+        summary["accessions_parsed"] += 1
+        if rows[0]["reference_resolution_status"] == "PARSED_NO_FOOTNOTE_REFERENCES":
+            summary["accessions_marked_with_no_references"] += 1
+
+    completed_after = read_completed_footnote_accessions(footnote_refs_path)
+    summary["remaining_footnote_accessions"] = sum(
+        1 for accession in structured if accession not in completed_after
+    )
+    summary["disposition"] = "TRANSACTION_LINKED_FOOTNOTE_REFERENCES_CAPTURED_NON_SIGNAL"
+    (output_dir / "footnote_reference_summary.json").write_text(
+        json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    return summary
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", choices=["schedule", "manual"], required=True)
     parser.add_argument("--limit", type=int, default=DEFAULT_LIMIT)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--footnote-reference-backfill", action="store_true")
     args = parser.parse_args()
-    summary = run_backfill(args.mode, args.limit, args.output)
+    if args.footnote_reference_backfill:
+        summary = run_footnote_reference_backfill(args.mode, args.limit, args.output)
+    else:
+        summary = run_backfill(args.mode, args.limit, args.output)
     print(json.dumps(summary, indent=2, sort_keys=True))
 
 
