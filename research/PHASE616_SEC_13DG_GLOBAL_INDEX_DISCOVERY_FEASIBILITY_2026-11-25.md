@@ -1,7 +1,7 @@
 # Phase 616 — SEC Schedule 13D/G global-index discovery feasibility and bounded identity sample
 
 **Audit date:** 2026-11-25  
-**Status:** offline implementation prepared; bounded live sample not yet dispatched.  
+**Status:** offline implementation prepared and validated; bounded live sample not yet dispatched. The final offline CI passed 25/25 tests in [Run 45582424995](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45582424995); the live-sample job was correctly skipped.  
 **Decision:** restore Schedule 13D subject-issuer discovery as the highest-priority free institutional-disclosure line; keep 13G separate as slower ownership-state context.
 
 ## 1. Why the source priority changes
@@ -24,11 +24,11 @@ The new collector enumerates all filers from SEC quarterly master.idx files, the
 - SC 13G/A
 
 Quarterly index windows are fixed before retrieval:
-- 2023 Q4 — pre/post voluntary structured-data transition and pre-2024 13D deadline regime.
-- 2024 Q1 — post-2024-02-05 13D deadline regime, pre-2024-09-30 13G compliance regime.
-- 2024 Q3 — 13G pre-compliance regime.
-- 2024 Q4 — post-2024-09-30 13G regime and post-2024-12-18 mandatory structured-data transition.
-- 2026 Q3 — recent complete-quarter coverage.
+- 2023 Q4 — pre-2024 13D/13G deadline regimes; straddles the 2023-12-18 voluntary structured-data start.
+- 2024 Q1 — straddles the 2024-02-05 13D deadline change; remains pre-2024-09-30 for 13G.
+- 2024 Q3 — post-2024-02-05 13D regime and pre-2024-09-30 13G regime.
+- 2024 Q4 — straddles the 2024-09-30 13G change and 2024-12-18 mandatory structured-data transition.
+- 2026 Q3 — recent complete-quarter post-transition coverage.
 
 The SEC master index provides filer CIK, filer name, form, filing date and archive filename. The archive path is retained as a separate candidate CIK. The index filename—not a guessed filer-CIK path—is used to locate each accession's index-headers.html file. The existing Phase 485 parser then verifies SUBJECT COMPANY and FILED BY independently and cross-checks FILED BY against both the accession prefix and master-index filer CIK.
 
@@ -39,7 +39,7 @@ The SEC master index provides filer CIK, filer name, form, filing date and archi
 - Five quarterly index files only; no 20,266-row legacy-panel crawl.
 - Retrieve index-header documents only; no primary filing body, ownership tables, holdings, prices or returns.
 - Preserve each index file and header response with SHA-256 hashes and source URLs.
-- Require 44/44 verified subject/filer identities, 44/44 index-filer/accession matches and 44/44 header-filer/index matches for PASS_HEADER_IDENTITY_ONLY.
+- Require all four exact forms to appear at least once, plus 44/44 verified subject/filer identities, 44/44 index-filer/accession matches and 44/44 header-filer/index matches for PASS_HEADER_IDENTITY_ONLY.
 - Archive-path CIK versus parsed subject CIK is reported as an independent diagnostic. A mismatch is quarantined for path analysis but does not replace or invalidate an otherwise verified header identity.
 - Any missing, malformed, conflicting or filer-mismatched record is quarantined. No ticker is inferred.
 
