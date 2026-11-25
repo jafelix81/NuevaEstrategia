@@ -301,6 +301,11 @@ def _parse_othermanager2(
     filers: dict[str, dict],
     file_number_to_ciks: dict[str, set[str]],
 ) -> tuple[dict[str, dict[str, dict]], list[dict], dict]:
+    # SEC's PDF overview/table key notation is internally inconsistent here:
+    # it describes OTHERMANAGER2 as a list, includes SEQUENCENUMBER, and
+    # INFOTABLE.OTHERMANAGER references that sequence, but the PDF marks only
+    # ACCESSION_NUMBER as a key. Treat (accession, sequence) as a provisional
+    # logical join key; validate real TSV cardinality before production use.
     ix = {
         "accession": _index(header, "ACCESSION_NUMBER"),
         "sequence": _index(header, "SEQUENCENUMBER", "SEQUENCE_NUMBER"),
