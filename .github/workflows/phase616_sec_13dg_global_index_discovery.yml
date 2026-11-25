@@ -1,0 +1,63 @@
+name: Phase 616 - SEC 13D/G global-index bounded identity sample
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+    paths:
+      - ".github/workflows/phase616_sec_13dg_global_index_discovery.yml"
+      - "research/phase616_sec_13dg_global_index_discovery.py"
+      - "research/test_phase616_sec_13dg_global_index_discovery.py"
+      - "research/PHASE616_SEC_13DG_GLOBAL_INDEX_DISCOVERY_FEASIBILITY_2026-11-25.md"
+      - "research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-25_PHASE616.md"
+  workflow_dispatch:
+    inputs:
+      run_live_sample:
+        description: "Run the preregistered 44-accession SEC global-index/header sample"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase616-sec-13dg-global-index-sample
+  cancel-in-progress: true
+
+jobs:
+  offline-regression:
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile and run offline regressions
+        run: |
+          python -m py_compile research/phase616_sec_13dg_global_index_discovery.py research/test_phase616_sec_13dg_global_index_discovery.py research/phase485_sec_13dg_subject_filer_header_parser.py
+          python -m unittest -v research.test_phase616_sec_13dg_global_index_discovery research.test_phase485_sec_13dg_subject_filer_header_parser
+
+  live-sample:
+    if: github.event_name == 'workflow_dispatch' && inputs.run_live_sample == true
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run bounded global-index 13D/G sample
+        run: |
+          python -m py_compile research/phase616_sec_13dg_global_index_discovery.py
+          python research/phase616_sec_13dg_global_index_discovery.py --live-sample --output-dir phase616_sec_13dg_global_index_sample
+      - name: Upload bounded sample artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase616-sec-13dg-global-index-sample
+          path: phase616_sec_13dg_global_index_sample/
+          if-no-files-found: warn
+          retention-days: 30
