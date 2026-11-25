@@ -118,7 +118,7 @@ def request_bytes(url: str, user_agent: str, timeout: int = 60) -> bytes:
     })
     with urllib.request.urlopen(req, timeout=timeout) as response:
         payload = response.read()
-        if payload[:2] == b"\\x1f\\x8b":
+        if payload[:2] == b"\x1f\x8b":
             payload = gzip.decompress(payload)
         return payload
 
