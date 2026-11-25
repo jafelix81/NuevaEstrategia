@@ -1,0 +1,61 @@
+# Phase 48 — SEC 13F manager-period as-of amendment state machine
+
+**Status: PASS — 14/14 offline synthetic regression tests passed, including a future-event no-look-ahead guard.**  
+**Date:** 2026-11-24/25 UTC  
+**Workflow:** [GitHub Actions run 45520166105](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45520166105)  
+**Branch:** `phase48-sec-13f-asof-amendment-state-machine`  
+**Parent:** `phase47-sec-13f-pit-accession-join-audit`
+
+## Why this phase exists
+
+Phase 47 established accession-level SUBMISSION/COVERPAGE/INFOTABLE joins and found 294 / 406 amendments in the 2018 Q1 and 2026 Jun–Aug samples. It also established that amendment semantics differ:
+
+- `RESTATEMENT` replaces the previously reported portfolio state.
+- `NEW HOLDINGS` / `NEW HOLDINGS ENTRIES` adds entries to the previously reported state.
+- `13F-NT` / `13F-NT/A` is a notice and must not be interpreted as a zero-holdings portfolio.
+
+The Phase 47 audit did not yet implement a historical as-of portfolio state. A naïve concatenation would double-count restatements; treating every amendment as a replacement would drop new-holdings supplements; treating notices as zero positions would create false exits.
+
+## Implemented contract
+
+The new pure-Python module `research/phase48_sec_13f_asof_amendment_state_machine.py` provides:
+
+1. **Manager-period grouping:** normalized manager CIK plus report period.
+2. **Accession integrity:** duplicate accessions fail closed.
+3. **Amendment identity:** COVERPAGE `ISAMENDMENT`, amendment number and type are reconciled with `SUBMISSIONTYPE`; a `13F-HR` with `ISAMENDMENT=Y` is supported.
+4. **Chain integrity:** exactly one original is required; amendment numbers must be unique and contiguous from 1; unknown types and contradictory flags fail closed.
+5. **No-look-ahead filter:** future filings and notices are excluded before chain validation; a future amendment with a numbering gap or unknown type cannot invalidate an earlier as-of state.\n6. **Conservative daily availability:** a filing becomes eligible on the first supplied regular-session date strictly after `FILING_DATE`. Report period is never used as an availability clock. If the supplied calendar ends before a future session can be established, the result is `PENDING_CALENDAR_COVERAGE`, not silently treated as unavailable.
+7. **State semantics:** RESTATEMENT replaces the full state; NEW HOLDINGS ENTRIES appends previously absent line keys. Overlapping line keys are blocked rather than silently overwritten.
+8. **Line identity:** CUSIP, class, put/call, investment discretion, other-manager code and amount type are retained as separate dimensions. Duplicate line keys within an accession are blocked.
+9. **Notice separation:** 13F-NT records are returned as `NOTICE_ONLY_NOT_ZERO_HOLDINGS`; they never create an empty portfolio.
+10. **Auditability:** each successful manager-period state records applied accessions and a deterministic SHA-256 digest.
+
+The function accepts the session calendar explicitly. Production callers must supply a verified NYSE session calendar with sufficient forward coverage; the module does not guess holidays or sessions.
+
+## Offline regression result
+
+GitHub Actions [run 45520166105](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45520166105) completed successfully on 2026-11-25 00:42:39 UTC.
+
+- Python compilation passed.
+- **14/14 synthetic offline tests passed.** The preceding run exposed three stale test assertions that still expected future-event placeholders; the tests were updated to enforce the stricter no-look-ahead contract, and the final run passed.
+- No network request or SEC data download was performed.
+- The tests cover strict next-session availability; original → new-holdings supplement → restatement; same-day filing availability; future amendment/notice exclusion from earlier as-of states; 13F-NT notice separation; overlap rejection; missing payload; missing original; amendment-number gaps; duplicate line keys; multiple originals; truncated calendars; and unknown amendment types.
+
+The parent Phase 47 workflow was also hardened. [Run 45519613878](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45519613878) passed its seven offline tests, explicitly skipped the live SEC retrieval step, and recorded the offline-only execution. Live SEC retrieval now requires a manual `workflow_dispatch` with `run_live_sec_audit=true`.
+
+## Data and research limitations
+
+- This phase does **not** reconstruct the actual 2018 or 2026 SEC holdings panels. The tests are synthetic and establish code semantics only.
+- It does not yet parse the SEC OTHERMANAGER table or resolve 13F-NT relationships to managers whose holdings are reported by another filer.
+- It does not build an effective-dated CUSIP/FIGI-to-F80 security crosswalk. Phase 22C previously showed 2016Q1 coverage of only 212/335, 2020Q1 246/335 and 2024Q1 280/335; Phase 604 improves current ticker discovery but does not solve historical CUSIP identity.
+- It does not establish exact EDGAR acceptance timestamps. The daily clock remains first full regular session strictly after date-only FILING_DATE. Accession-specific acceptance timestamps are still required for more precise event timing.
+- It does not calculate institutional accumulation, trades, returns, predictive power, alpha, OOS, bootstrap or LOO.
+- 13F is delayed holdings disclosure, not order flow or proof of informed buying. Reported market value changes must not be confused with share accumulation.
+
+## Decision
+
+**PASS for synthetic amendment-state logic only. NOT ADMITTED for data, signal, or portfolio use.**
+
+Next data gate: extend the bounded SEC parser to preserve the OTHERMANAGER table and exact accession metadata; then select a small set of complete manager-period chains and compare the reconstructed states against the original EDGAR filings. Only after that should the historical CUSIP-to-F80 coverage gate be revisited.
+
+No SEC request, data purchase, vendor contact, portfolio test, production change or capital change was made. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen. Options budget remains USD 0.

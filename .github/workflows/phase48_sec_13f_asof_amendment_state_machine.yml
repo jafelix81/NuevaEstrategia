@@ -1,0 +1,23 @@
+name: Phase 48 - SEC 13F as-of amendment state machine
+on:
+  pull_request:
+    branches: [phase47-sec-13f-pit-accession-join-audit]
+    paths:
+      - "research/phase48_sec_13f_asof_amendment_state_machine.py"
+      - "research/test_phase48_sec_13f_asof_amendment_state_machine.py"
+      - ".github/workflows/phase48_sec_13f_asof_amendment_state_machine.yml"
+  workflow_dispatch:
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile and run offline regressions
+        run: |
+          python -m py_compile research/phase48_sec_13f_asof_amendment_state_machine.py research/test_phase48_sec_13f_asof_amendment_state_machine.py
+          python -m unittest -v research.test_phase48_sec_13f_asof_amendment_state_machine
+      - name: Record data-only disposition
+        run: echo "Synthetic state-machine validation only; no SEC requests, holdings backfill, security mapping, or alpha test."
