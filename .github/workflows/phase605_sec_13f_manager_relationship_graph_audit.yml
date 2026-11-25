@@ -1,0 +1,28 @@
+name: Phase 605 - SEC 13F manager relationship graph audit
+
+on:
+  pull_request:
+    branches: [phase48-sec-13f-asof-amendment-state-machine]
+    paths:
+      - "research/phase605_sec_13f_manager_relationship_graph_audit.py"
+      - "research/test_phase605_sec_13f_manager_relationship_graph_audit.py"
+      - ".github/workflows/phase605_sec_13f_manager_relationship_graph_audit.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile and run offline regressions
+        run: |
+          python -m py_compile research/phase605_sec_13f_manager_relationship_graph_audit.py research/test_phase605_sec_13f_manager_relationship_graph_audit.py
+          python -m unittest -v research.test_phase605_sec_13f_manager_relationship_graph_audit
+      - name: Record data-only disposition
+        run: echo "Synthetic role/edge validation only; no SEC requests, holdings backfill, security mapping, or alpha test."
