@@ -24,7 +24,7 @@ When a collector first-seen upper bound exists:
 - If the first-seen upper bound is earlier than 06:00 ET on the official Filing Date, the clock is floored at 06:00 ET on that date.
 - If a 13F is accepted after 17:30 ET and the collector claims first-seen on that same ET calendar date, the event is rejected for manual adjudication. Ordinary 13F submissions are not in the SEC's listed after-hours dissemination exceptions.
 - If no prospective first-seen exists, Phase 612's end-of-legal-Filing-Date fallback remains unchanged.
-- The first-seen timestamp remains an upper bound from a successful poll interval, not an exact public-release time.
+- The first-seen timestamp remains an upper bound from a successful poll interval, not an exact public-release time. The output now keeps `legal_filing_date_floor_utc` fixed at 06:00 ET and keeps the no-first-seen end-of-day fallback as a separate effective-knowledge rule.
 
 This rule is specific to Form 13F. Do not apply it to Form 4 or Form 144: their after-hours treatment is different.
 
@@ -51,7 +51,7 @@ Before implementation:
 - The latest persisted Form 144 poll was run 45523407949 (created 2026-11-25 01:07:48 UTC); both jobs succeeded and its three artifacts were present.
 - FINRA Reg SHO remains fail-closed; CFTC TFF remains context-only. No source was promoted.
 
-No workflow was rerun, manually dispatched, duplicated, or cancelled. The new Phase 613 workflow is offline-only: it does not call SEC, download filings, or modify capture state.
+The new Phase 613 workflow is pull-request-only and offline-only: it does not call SEC, download filings, or modify capture state. Initial checks [45545873463](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45545873463) and [45545895847](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45545895847) each completed 20/20 tests; the push trigger was removed afterward to avoid duplicate runs.
 
 ## 5. Research disposition
 
