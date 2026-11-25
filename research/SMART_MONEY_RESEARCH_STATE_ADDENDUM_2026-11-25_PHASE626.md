@@ -12,7 +12,7 @@ The existing `same_feed_duplicate_occurrences` field counts repeated accessions 
 
 A new branch proposes a separate append-only `entity_duplicate_audit.csv` with strict exact entity keys, cross-page duplicate flags, legitimate multi-entity cross-page counts and unkeyed rows. Existing ledgers remain unchanged. The old summary field is retained as a compatibility alias and paired with the clearer `same_feed_repeated_accession_occurrences`.
 
-Implementation is awaiting CI; no production rollout has occurred.
+Implementation passed offline CI (78/78 tests) in [Run 45724430616](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45724430616); the live-capture job was skipped. PR #240 remains Draft pending review and natural post-merge production validation. No production rollout has occurred.
 
 ## Other source priorities
 
