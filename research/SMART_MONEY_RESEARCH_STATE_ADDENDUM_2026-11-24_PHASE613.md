@@ -5,11 +5,11 @@
 **Base:** Phase 612 branch; no production merge.
 
 ## Completed
-- Added a legal Filing Date 06:00 ET floor to the observed 13F knowledge clock.
+- Added a legal Filing Date 06:00 ET floor to the observed 13F knowledge clock; kept that floor distinct from the no-first-seen end-of-day fallback.
 - Added a fail-closed guard for same-day first-seen observations after 17:30 ET acceptance.
 - Preserved the end-of-Filing-Date fallback when no prospective first-seen exists.
 - Kept the guard specific to 13F; Form 4/144 clocks are not changed.
-- Added offline regression coverage for after-hours, exact-cutoff, legal-floor, and weekend cases.
+- Added offline regression coverage for after-hours, exact-cutoff, legal-floor, and weekend cases (20/20 passed in both initial checks).
 
 ## Current source state
 - SEC 13F: historical accession/holdings joins are structurally viable, but effective-dated security identity and F80 historical coverage remain insufficient. No prospective 13F collector is present on main.
