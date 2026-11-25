@@ -64,7 +64,7 @@ class Phase605Tests(unittest.TestCase):
         self.assertEqual(result["status"], "PASS_ROLE_AWARE_RELATIONSHIP_INTEGRITY")
         self.assertEqual(edge["from_filer_cik"], "0000000100")
         self.assertEqual(edge["to_reporting_manager_cik"], "0000000200")
-        self.assertEqual(edge["relationship_type"], "NOTICE_FILER_TO_REPORTING_MANAGER")
+        self.assertEqual(edge["relationship_type"], "FILER_TO_REPORTING_MANAGER")
         self.assertEqual(edge["resolution_status"], "RESOLVED_BY_FILE_NUMBER")
         self.assertFalse(edge["name_used_for_identity"])
 
@@ -166,7 +166,7 @@ class Phase605Tests(unittest.TestCase):
         result = audit(submissions, cover, om, om2, info)
         self.assertEqual(
             result["othermanager_reporting_for_filer"]["edges"][0]["relationship_type"],
-            "NOTICE_FILER_TO_REPORTING_MANAGER"
+            "FILER_TO_REPORTING_MANAGER"
         )
         self.assertEqual(
             result["othermanager2_included_in_filing"]["edges"][0]["relationship_type"],
