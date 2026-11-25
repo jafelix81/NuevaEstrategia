@@ -123,7 +123,7 @@ class Phase612Tests(unittest.TestCase):
         out = resolve_daily_knowledge_clock(
             "2026-08-26T18:42:02-04:00",
             "2026-08-27",
-            "2026-08-26T23:45:00Z",
+            "2026-08-27T09:59:00Z",
             CAL,
         )
         self.assertEqual(out["availability_mode"], "OBSERVED_FIRST_SEEN_BEFORE_LEGAL_FILING_FLOOR")
