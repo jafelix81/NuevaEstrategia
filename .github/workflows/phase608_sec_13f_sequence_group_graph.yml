@@ -1,0 +1,40 @@
+name: Phase 608 - SEC 13F sequence-group graph
+
+on:
+  push:
+    branches: [phase608-sec-13f-sequence-group-graph]
+    paths:
+      - "research/phase608_sec_13f_sequence_group_graph.py"
+      - "research/test_phase608_sec_13f_sequence_group_graph.py"
+      - ".github/workflows/phase608_sec_13f_sequence_group_graph.yml"
+  pull_request:
+    branches: [phase607-sec-13f-source-xml-reconciliation]
+    paths:
+      - "research/phase608_sec_13f_sequence_group_graph.py"
+      - "research/test_phase608_sec_13f_sequence_group_graph.py"
+      - ".github/workflows/phase608_sec_13f_sequence_group_graph.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  offline-group-graph:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile, test, and build structural demo
+        run: |
+          python -m py_compile research/phase608_sec_13f_sequence_group_graph.py research/test_phase608_sec_13f_sequence_group_graph.py
+          python -m unittest -v research.test_phase608_sec_13f_sequence_group_graph
+          python research/phase608_sec_13f_sequence_group_graph.py
+      - name: Upload structural demo artifact
+        if: always() && hashFiles('phase608_sec_13f_sequence_group_graph_demo.json') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase608-sec-13f-sequence-group-graph-demo
+          path: phase608_sec_13f_sequence_group_graph_demo.json
+          retention-days: 30
