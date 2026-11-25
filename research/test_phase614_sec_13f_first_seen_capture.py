@@ -107,51 +107,63 @@ class Phase614AtomParserTests(unittest.TestCase):
 
 
 class Phase614IntervalTests(unittest.TestCase):
-    def test_bounded_metadata_requires_feed_update_inside_poll_interval(self):
+    def test_bounded_metadata_uses_complete_snapshot_receipt_interval(self):
         status = p.classify_event_interval(
             "schedule", True, "2026-11-24T12:00:00Z",
-            "2026-11-24T12:30:00Z", "2026-11-24T13:05:00Z",
+            "2026-11-24T13:05:00Z",
         )
         self.assertEqual(status, "BOUNDED_METADATA_ONLY")
 
-    def test_stale_feed_timestamp_is_not_backdated(self):
+    def test_stale_atom_updated_is_not_used_as_interval_lower_bound(self):
         status = p.classify_event_interval(
             "schedule", True, "2026-11-24T12:00:00Z",
-            "2026-11-24T11:59:59Z", "2026-11-24T13:05:00Z",
+            "2026-11-24T13:05:00Z",
         )
-        self.assertEqual(status, "FEED_TIMESTAMP_NOT_AFTER_PREVIOUS_POLL")
+        self.assertEqual(status, "BOUNDED_METADATA_ONLY")
 
-    def test_future_feed_timestamp_is_rejected(self):
+    def test_future_atom_updated_is_not_used_as_interval_upper_bound(self):
         status = p.classify_event_interval(
             "schedule", True, "2026-11-24T12:00:00Z",
-            "2026-11-24T13:06:00Z", "2026-11-24T13:05:00Z",
+            "2026-11-24T13:05:00Z",
         )
-        self.assertEqual(status, "FEED_TIMESTAMP_AFTER_FIRST_SEEN")
+        self.assertEqual(status, "BOUNDED_METADATA_ONLY")
 
     def test_missing_prior_successful_poll_is_baseline_only(self):
         status = p.classify_event_interval(
-            "schedule", True, None,
-            "2026-11-24T12:30:00Z", "2026-11-24T13:05:00Z",
+            "schedule", True, None, "2026-11-24T13:05:00Z",
         )
         self.assertEqual(status, "NO_PRIOR_SUCCESSFUL_POLL")
+
+    def test_missing_receipt_timestamp_is_not_bounded(self):
+        status = p.classify_event_interval(
+            "schedule", True, "2026-11-24T12:00:00Z", None,
+        )
+        self.assertEqual(status, "RECEIPT_TIMESTAMP_UNKNOWN")
+
+    def test_nonincreasing_poll_interval_is_not_bounded(self):
+        status = p.classify_event_interval(
+            "schedule", True, "2026-11-24T13:05:00Z",
+            "2026-11-24T13:05:00Z",
+        )
+        self.assertEqual(status, "INVALID_POLL_INTERVAL")
 
     def test_manual_capture_never_becomes_eligible(self):
         status = p.classify_event_interval(
             "manual", True, "2026-11-24T12:00:00Z",
-            "2026-11-24T12:30:00Z", "2026-11-24T13:05:00Z",
+            "2026-11-24T13:05:00Z",
         )
         self.assertEqual(status, "MANUAL_DIAGNOSTIC")
 
-    def test_incomplete_poll_suppresses_candidates(self):
+    def test_incomplete_snapshot_suppresses_candidates(self):
         status = p.classify_event_interval(
             "schedule", False, "2026-11-24T12:00:00Z",
-            "2026-11-24T12:30:00Z", "2026-11-24T13:05:00Z",
+            "2026-11-24T13:05:00Z",
         )
         self.assertEqual(status, "POLL_INCOMPLETE_CANDIDATE_SUPPRESSED")
 
 
 class Phase614PaginationTests(unittest.TestCase):
-    def test_unparsed_atom_entry_fails_closed_without_advancing_watermark(self):
+    def test_unparsed_target_form_entry_fails_closed(self):
         malformed = """
         <entry>
           <id>urn:tag:sec.gov,2008:accession-number=not-an-accession</id>
@@ -174,13 +186,44 @@ class Phase614PaginationTests(unittest.TestCase):
         self.assertIn("atom_entry_parse_mismatch", result["page_error"]["error"])
         self.assertEqual(result["event_candidates"], [])
 
-    def test_fetch_stops_at_prior_accession_watermark(self):
+    def test_prefix_neighbor_form_does_not_create_false_parse_failure(self):
+        raw = feed(
+            entry("0000000001-26-000002", "13F-HR/A", "2026-11-24T13:01:00Z"),
+            entry("0000000001-26-000001", "13F-HR", "2026-11-24T13:00:00Z"),
+        )
+        with patch.object(p.p401, "fetch_bytes", return_value=raw):
+            result = p.fetch_feed(
+                "13F-HR", "https://example.test/feed", {
+                    "latest_accession": "",
+                    "last_successful_poll_end_utc": "",
+                }, "schedule", "test-run", "2026-11-24T12:01:00Z",
+            )
+        self.assertTrue(result["poll_success"])
+        self.assertEqual(result["page_observations"][0]["raw_entry_count"], 2)
+        self.assertEqual(result["page_observations"][0]["matching_form_entry_count"], 1)
+        self.assertEqual(
+            [x["form"] for x in result["event_candidates"]], ["13F-HR"]
+        )
+
+    def test_unclassified_atom_entry_fails_closed(self):
+        raw = feed(entry("0000000001-26-000001", "8-K", "2026-11-24T13:00:00Z"))
+        with patch.object(p.p401, "fetch_bytes", return_value=raw):
+            result = p.fetch_feed(
+                "13F-HR", "https://example.test/feed", {
+                    "latest_accession": "",
+                    "last_successful_poll_end_utc": "",
+                }, "schedule", "test-run", "2026-11-24T12:01:00Z",
+            )
+        self.assertFalse(result["poll_success"])
+        self.assertIn("atom_entry_form_unparsed", result["page_error"]["error"])
+
+    def test_fetch_scans_complete_snapshot_after_prior_accession(self):
         raw = feed(
             entry("0000000001-26-000003", "13F-HR", "2026-11-24T13:00:00Z"),
-            entry("0000000001-26-000002", "13F-HR", "2026-11-24T12:30:00Z"),
-            entry("0000000001-26-000001", "13F-HR", "2026-11-24T11:00:00Z"),
+            entry("0000000001-26-000001", "13F-HR", "2026-11-24T12:30:00Z"),
+            entry("0000000002-26-000001", "13F-HR", "2026-11-24T11:00:00Z"),
         )
-        with patch.object(p.p401, "fetch_bytes", return_value=raw), patch.object(p.time, "sleep"):
+        with patch.object(p.p401, "fetch_bytes", return_value=raw):
             result = p.fetch_feed(
                 "13F-HR", "https://example.test/feed", {
                     "latest_accession": "0000000001-26-000001",
@@ -188,69 +231,94 @@ class Phase614PaginationTests(unittest.TestCase):
                 }, "schedule", "test-run", "2026-11-24T12:00:00Z",
             )
         self.assertTrue(result["poll_success"])
-        self.assertEqual(result["boundary_type"], "ACCESSION")
-        self.assertEqual(len(result["event_candidates"]), 2)
-
-    def test_stale_timestamp_does_not_stop_before_prior_accession(self):
-        raw = feed(
-            entry("0000000001-26-000003", "13F-HR", "2026-11-24T11:59:00Z"),
-            entry("0000000001-26-000002", "13F-HR", "2026-11-24T11:58:00Z"),
-            entry("0000000001-26-000001", "13F-HR", "2026-11-24T10:00:00Z"),
-        )
-        with patch.object(p.p401, "fetch_bytes", return_value=raw), patch.object(p.time, "sleep"):
-            result = p.fetch_feed(
-                "13F-HR", "https://example.test/feed", {
-                    "latest_accession": "0000000001-26-000001",
-                    "last_successful_poll_end_utc": "2026-11-24T12:00:00Z",
-                }, "schedule", "test-run", "2026-11-24T12:01:00Z",
-            )
-        self.assertTrue(result["poll_success"])
-        self.assertEqual(result["boundary_type"], "ACCESSION")
+        self.assertTrue(result["snapshot_complete"])
+        self.assertEqual(result["boundary_type"], "FULL_SNAPSHOT_END_OF_FEED")
+        self.assertTrue(result["prior_watermark_found"])
         self.assertEqual(
             [x["accession"] for x in result["event_candidates"]],
-            ["0000000001-26-000003", "0000000001-26-000002"],
+            ["0000000001-26-000003", "0000000002-26-000001"],
         )
-        self.assertTrue(result["accession_observations"][0]["_is_timestamp_boundary"])
 
-    def test_missing_boundary_fails_closed_at_page_limit(self):
-        raw = feed(entry("0000000001-26-000003", "13F-HR", "2026-11-24T13:00:00Z"))
-        with patch.object(p, "MAX_FEED_PAGES", 1), patch.object(p.p401, "fetch_bytes", return_value=raw), patch.object(p.time, "sleep"):
+    def test_late_indexed_accession_after_watermark_on_later_page_is_captured(self):
+        first_page = feed(*[
+            entry(f"0000000001-26-{i:06d}", "13F-HR", "2026-11-24T13:00:00Z")
+            for i in range(200, 100, -1)
+        ])
+        second_page = feed(
+            entry("0000000001-26-000100", "13F-HR", "2026-11-24T12:00:00Z"),
+            entry("0000000002-26-000001", "13F-HR", "2026-11-20T09:00:00Z"),
+        )
+        with patch.object(p, "MAX_FEED_PAGES", 2), patch.object(
+            p.p401, "fetch_bytes", side_effect=[first_page, second_page]
+        ), patch.object(p.time, "sleep"):
+            result = p.fetch_feed(
+                "13F-HR", "https://example.test/feed", {
+                    "latest_accession": "0000000001-26-000100",
+                    "last_successful_poll_end_utc": "2026-11-24T12:00:00Z",
+                }, "schedule", "test-run", "2026-11-24T13:01:00Z",
+            )
+        self.assertTrue(result["poll_success"])
+        self.assertTrue(result["prior_watermark_found"])
+        self.assertEqual(result["raw_page_count"], 2)
+        self.assertIn(
+            "0000000002-26-000001",
+            [x["accession"] for x in result["event_candidates"]],
+        )
+
+    def test_initial_baseline_enumerates_all_pages_before_setting_watermark(self):
+        first_page = feed(*[
+            entry(f"0000000001-26-{i:06d}", "13F-HR", "2026-11-24T13:00:00Z")
+            for i in range(200, 100, -1)
+        ])
+        second_page = feed(
+            entry("0000000002-26-000001", "13F-HR", "2026-11-24T12:00:00Z")
+        )
+        with patch.object(p, "MAX_FEED_PAGES", 2), patch.object(
+            p.p401, "fetch_bytes", side_effect=[first_page, second_page]
+        ), patch.object(p.time, "sleep"):
+            result = p.fetch_feed(
+                "13F-HR", "https://example.test/feed", {
+                    "latest_accession": "",
+                    "last_successful_poll_end_utc": "",
+                }, "schedule", "test-run", "2026-11-24T13:01:00Z",
+            )
+        self.assertTrue(result["poll_success"])
+        self.assertEqual(result["boundary_type"], "INITIAL_BASELINE_FULL_SNAPSHOT")
+        self.assertEqual(result["raw_page_count"], 2)
+        self.assertEqual(len(result["event_candidates"]), 101)
+        self.assertEqual(result["poll_interval_status"], "INITIAL_BASELINE_NO_LOWER_BOUND")
+
+    def test_missing_prior_accession_is_not_a_gap_after_complete_snapshot(self):
+        raw = feed(
+            entry("0000000001-26-000003", "13F-HR", "2026-11-24T13:00:00Z"),
+            entry("0000000001-26-000002", "13F-HR", "2026-11-24T12:30:00Z"),
+        )
+        with patch.object(p.p401, "fetch_bytes", return_value=raw):
+            result = p.fetch_feed(
+                "13F-HR", "https://example.test/feed", {
+                    "latest_accession": "0000000001-26-000001",
+                    "last_successful_poll_end_utc": "2026-11-24T12:00:00Z",
+                }, "schedule", "test-run", "2026-11-24T13:01:00Z",
+            )
+        self.assertTrue(result["poll_success"])
+        self.assertFalse(result["prior_watermark_found"])
+        self.assertEqual(result["boundary_type"], "FULL_SNAPSHOT_END_OF_FEED")
+        self.assertEqual(len(result["event_candidates"]), 2)
+
+    def test_empty_feed_is_a_complete_snapshot(self):
+        raw = feed()
+        with patch.object(p.p401, "fetch_bytes", return_value=raw):
             result = p.fetch_feed(
                 "13F-HR", "https://example.test/feed", {
                     "latest_accession": "0000000001-26-000001",
                     "last_successful_poll_end_utc": "2026-11-24T12:00:00Z",
                 }, "schedule", "test-run", "2026-11-24T12:01:00Z",
             )
-        self.assertFalse(result["poll_success"])
-        self.assertEqual(result["page_error"]["error_type"], "PaginationLimitReached")
-
-    def test_empty_feed_after_successful_empty_baseline_is_no_change(self):
-        raw = feed()
-        with patch.object(p.p401, "fetch_bytes", return_value=raw), patch.object(p.time, "sleep"):
-            result = p.fetch_feed(
-                "13F-HR", "https://example.test/feed", {
-                    "latest_accession": "",
-                    "last_successful_poll_end_utc": "2026-11-24T12:00:00Z",
-                }, "schedule", "test-run", "2026-11-24T12:01:00Z",
-            )
         self.assertTrue(result["poll_success"])
-        self.assertEqual(result["boundary_type"], "EMPTY_NO_NEW_ENTRIES")
+        self.assertEqual(result["boundary_type"], "EMPTY_FEED_END_OF_SNAPSHOT")
         self.assertEqual(result["event_candidates"], [])
 
-    def test_short_feed_after_empty_baseline_bounds_all_new_entries(self):
-        raw = feed(entry("0000000001-26-000003", "13F-HR", "2026-11-24T13:00:00Z"))
-        with patch.object(p.p401, "fetch_bytes", return_value=raw), patch.object(p.time, "sleep"):
-            result = p.fetch_feed(
-                "13F-HR", "https://example.test/feed", {
-                    "latest_accession": "",
-                    "last_successful_poll_end_utc": "2026-11-24T12:00:00Z",
-                }, "schedule", "test-run", "2026-11-24T12:01:00Z",
-            )
-        self.assertTrue(result["poll_success"])
-        self.assertEqual(result["boundary_type"], "END_OF_FEED")
-        self.assertEqual(len(result["event_candidates"]), 1)
-
-    def test_empty_page_after_full_feed_without_watermark_confirms_end_of_feed(self):
+    def test_empty_page_after_full_page_confirms_end_of_snapshot(self):
         full_page = feed(*[
             entry(f"0000000001-26-{i:06d}", "13F-HR", "2026-11-24T13:00:00Z")
             for i in range(100, 0, -1)
@@ -266,57 +334,77 @@ class Phase614PaginationTests(unittest.TestCase):
                 }, "schedule", "test-run", "2026-11-24T12:01:00Z",
             )
         self.assertTrue(result["poll_success"])
-        self.assertEqual(result["boundary_type"], "END_OF_FEED")
+        self.assertEqual(result["boundary_type"], "FULL_SNAPSHOT_END_OF_FEED")
         self.assertEqual(len(result["event_candidates"]), 100)
 
-    def test_unknown_timestamp_does_not_stop_before_prior_accession(self):
+    def test_nonmonotonic_atom_updated_does_not_block_snapshot(self):
         raw = feed(
-            entry("0000000001-26-000003", "13F-HR", "2026-11-24T13:00:00"),
-            entry("0000000001-26-000002", "13F-HR", "2026-11-24T11:58:00Z"),
-            entry("0000000001-26-000001", "13F-HR", "2026-11-24T10:00:00Z"),
+            entry("0000000001-26-000003", "13F-HR", "2026-11-24T13:00:00Z"),
+            entry("0000000001-26-000002", "13F-HR", "2026-11-24T11:00:00Z"),
+            entry("0000000001-26-000001", "13F-HR", "2026-11-24T12:00:00Z"),
         )
-        with patch.object(p.p401, "fetch_bytes", return_value=raw), patch.object(p.time, "sleep"):
+        with patch.object(p.p401, "fetch_bytes", return_value=raw):
             result = p.fetch_feed(
                 "13F-HR", "https://example.test/feed", {
                     "latest_accession": "0000000001-26-000001",
                     "last_successful_poll_end_utc": "2026-11-24T12:00:00Z",
-                }, "schedule", "test-run", "2026-11-24T12:01:00Z",
+                }, "schedule", "test-run", "2026-11-24T13:01:00Z",
             )
         self.assertTrue(result["poll_success"])
-        self.assertEqual(result["boundary_type"], "ACCESSION")
-        self.assertEqual(len(result["event_candidates"]), 2)
+        self.assertTrue(result["prior_watermark_found"])
+        self.assertEqual(result["boundary_type"], "FULL_SNAPSHOT_END_OF_FEED")
+
+    def test_unknown_atom_updated_does_not_block_snapshot(self):
+        raw = feed(
+            entry("0000000001-26-000003", "13F-HR", "2026-11-24T13:00:00"),
+            entry("0000000001-26-000001", "13F-HR", "2026-11-24T10:00:00Z"),
+        )
+        with patch.object(p.p401, "fetch_bytes", return_value=raw):
+            result = p.fetch_feed(
+                "13F-HR", "https://example.test/feed", {
+                    "latest_accession": "0000000001-26-000001",
+                    "last_successful_poll_end_utc": "2026-11-24T12:00:00Z",
+                }, "schedule", "test-run", "2026-11-24T13:01:00Z",
+            )
+        self.assertTrue(result["poll_success"])
         self.assertEqual(result["event_candidates"][0]["feed_updated_utc"], "")
 
-    def test_missing_prior_accession_at_end_of_feed_fails_closed(self):
-        first_page = feed(
-            entry("0000000001-26-000003", "13F-HR", "2026-11-24T13:00:00Z"),
-            entry("0000000001-26-000002", "13F-HR", "2026-11-24T12:30:00Z"),
-        )
-        empty_page = feed()
+    def test_pagination_limit_fails_closed_without_end_of_feed(self):
+        full_page = feed(*[
+            entry(f"0000000001-26-{i:06d}", "13F-HR", "2026-11-24T13:00:00Z")
+            for i in range(100, 0, -1)
+        ])
+        with patch.object(p, "MAX_FEED_PAGES", 1), patch.object(
+            p.p401, "fetch_bytes", return_value=full_page
+        ):
+            result = p.fetch_feed(
+                "13F-HR", "https://example.test/feed", {
+                    "latest_accession": "0000000001-26-000001",
+                    "last_successful_poll_end_utc": "2026-11-24T12:00:00Z",
+                }, "schedule", "test-run", "2026-11-24T13:01:00Z",
+            )
+        self.assertFalse(result["poll_success"])
+        self.assertFalse(result["snapshot_complete"])
+        self.assertEqual(result["page_error"]["error_type"], "PaginationLimitReached")
+
+    def test_repeated_page_hash_fails_closed(self):
+        full_page = feed(*[
+            entry(f"0000000001-26-{i:06d}", "13F-HR", "2026-11-24T13:00:00Z")
+            for i in range(100, 0, -1)
+        ])
         with patch.object(p, "MAX_FEED_PAGES", 2), patch.object(
-            p.p401, "fetch_bytes", side_effect=[first_page, empty_page]
+            p.p401, "fetch_bytes", return_value=full_page
         ), patch.object(p.time, "sleep"):
             result = p.fetch_feed(
                 "13F-HR", "https://example.test/feed", {
                     "latest_accession": "0000000001-26-000001",
                     "last_successful_poll_end_utc": "2026-11-24T12:00:00Z",
-                }, "schedule", "test-run", "2026-11-24T12:01:00Z",
-            )
-        self.assertFalse(result["poll_success"])
-        self.assertEqual(result["page_error"]["error_type"], "EmptyPageBeforeBoundary")
-        self.assertEqual(len(result["event_candidates"]), 2)
-
-    def test_repeated_page_hash_fails_closed(self):
-        raw = feed(entry("0000000001-26-000003", "13F-HR", "2026-11-24T13:00:00Z"))
-        with patch.object(p, "MAX_FEED_PAGES", 2), patch.object(p.p401, "fetch_bytes", return_value=raw), patch.object(p.time, "sleep"):
-            result = p.fetch_feed(
-                "13F-HR", "https://example.test/feed", {
-                    "latest_accession": "0000000001-26-000001",
-                    "last_successful_poll_end_utc": "2026-11-24T12:00:00Z",
-                }, "schedule", "test-run", "2026-11-24T12:01:00Z",
+                }, "schedule", "test-run", "2026-11-24T13:01:00Z",
             )
         self.assertFalse(result["poll_success"])
         self.assertIn("repeated_page_hash", result["page_error"]["error"])
+
+
 
 
 class Phase614PersistenceTests(unittest.TestCase):
@@ -370,8 +458,9 @@ class Phase614PersistenceTests(unittest.TestCase):
                 return {
                     "prior_watermark": feed_state["latest_accession"],
                     "previous_successful_poll_end_utc": feed_state["last_successful_poll_end_utc"],
-                    "boundary_found": True, "boundary_type": "ACCESSION",
-                    "poll_success": True, "poll_interval_status": "POLL_BOUNDARY_FOUND",
+                    "boundary_found": True, "boundary_type": "FULL_SNAPSHOT_END_OF_FEED",
+                    "prior_watermark_found": True, "snapshot_complete": True,
+                    "poll_success": True, "poll_interval_status": "FULL_SNAPSHOT_COMPLETE",
                     "new_latest_accession": acc, "latest_feed_updated_utc": "2026-11-24T12:30:00Z",
                     "event_candidates": [candidate(acc, form)],
                     "page_observations": [], "accession_observations": [],
