@@ -13,6 +13,7 @@ import html
 import json
 import re
 import time
+import unicodedata
 import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 from pathlib import Path
@@ -26,6 +27,7 @@ EVENTS_PATH = DATA_DIR / "events.csv"
 OBSERVATIONS_PATH = DATA_DIR / "feed_observations.csv"
 ACCESSION_OBSERVATIONS_PATH = DATA_DIR / "accession_observations.csv"
 ENTITY_OBSERVATIONS_PATH = DATA_DIR / "entity_observations.csv"
+ENTITY_DUPLICATE_AUDIT_PATH = DATA_DIR / "entity_duplicate_audit.csv"
 
 PAGE_SIZE = 100
 MAX_FEED_PAGES = 50  # 5,000 raw Atom entries; incomplete polls still fail closed
@@ -76,6 +78,15 @@ ENTITY_OBSERVATION_FIELDS = [
     "event_interval_status", "entity_occurrence_count", "is_repeat_accession_occurrence",
     "is_duplicate_across_feeds", "is_preexisting_ledger_accession", "canonical_event_source",
     "canonical_event_emitted", "canonical_entity_selection_status", "entity_identity_quarantined",
+]
+
+ENTITY_DUPLICATE_AUDIT_FIELDS = [
+    "poll_run_id", "observation_sequence", "feed_name", "accession", "form",
+    "entity_observation_key", "entity_key_status", "feed_entity_role", "feed_entity_cik",
+    "normalized_entity_name", "page_offset", "page_raw_sha256", "page_received_at_utc",
+    "is_prior_watermark", "is_exact_duplicate_entity_observation",
+    "first_entity_observation_sequence", "is_exact_duplicate_across_page_offsets",
+    "distinct_page_offset_count", "distinct_page_hash_count",
 ]
 
 def now_utc() -> str:
@@ -176,6 +187,106 @@ def parse_feed_entity(title: str) -> dict:
         "feed_entity_status": "PARSED",
     }
 
+
+
+def normalize_entity_name(value: str | None) -> str:
+    """Normalize display-name whitespace and Unicode without fuzzy matching."""
+    return " ".join(unicodedata.normalize("NFKC", str(value or "")).casefold().split())
+
+
+def audit_entity_observation_duplicates(rows: list[dict]) -> tuple[list[dict], dict]:
+    """Separate repeated accession occurrences from exact repeated entity rows.
+
+    The entity key is intentionally strict: feed, accession, role, CIK and
+    normalized name must all be present. Unparsed/partial rows are retained
+    in the audit sidecar but are not fuzzy-deduplicated.
+    """
+    key_groups: dict[str, list[dict]] = {}
+    accession_groups: dict[tuple[str, str], list[tuple[str, dict]]] = {}
+    audited: list[dict] = []
+    unkeyed = 0
+
+    for row in rows:
+        role = str(row.get("feed_entity_role", "") or "").strip().upper()
+        cik = str(row.get("feed_entity_cik", "") or "").strip().zfill(10)
+        name = normalize_entity_name(row.get("feed_entity_name", ""))
+        status = str(row.get("feed_entity_status", "") or "").strip().upper()
+        key_status = "KEYED_PARSED_ENTITY"
+        key = ""
+        if status == "PARSED" and role in {"ISSUER", "REPORTING"} and cik and name:
+            material = "|".join((str(row.get("feed_name", "")), str(row.get("accession", "")), role, cik, name))
+            key = hashlib.sha256(material.encode("utf-8")).hexdigest()
+        else:
+            key_status = "UNKEYED_UNPARSED_OR_INCOMPLETE_ENTITY"
+            unkeyed += 1
+
+        row_copy = {
+            "poll_run_id": row.get("poll_run_id", ""),
+            "observation_sequence": row.get("observation_sequence", ""),
+            "feed_name": row.get("feed_name", ""),
+            "accession": row.get("accession", ""),
+            "form": row.get("form", ""),
+            "entity_observation_key": key,
+            "entity_key_status": key_status,
+            "feed_entity_role": role,
+            "feed_entity_cik": cik if key else str(row.get("feed_entity_cik", "") or ""),
+            "normalized_entity_name": name,
+            "page_offset": row.get("page_offset", ""),
+            "page_raw_sha256": row.get("page_raw_sha256", ""),
+            "page_received_at_utc": row.get("page_received_at_utc", ""),
+            "is_prior_watermark": row.get("is_prior_watermark", False),
+        }
+        if key:
+            key_groups.setdefault(key, []).append(row_copy)
+            accession_groups.setdefault((row_copy["feed_name"], row_copy["accession"]), []).append((key, row_copy))
+        audited.append(row_copy)
+
+    exact_duplicate_rows = 0
+    exact_duplicate_groups = 0
+    exact_duplicate_rows_across_offsets = 0
+    duplicate_groups_across_offsets = 0
+    for key, group in key_groups.items():
+        if len(group) <= 1:
+            continue
+        exact_duplicate_groups += 1
+        exact_duplicate_rows += len(group) - 1
+        offsets = {str(item.get("page_offset", "")) for item in group}
+        hashes = {str(item.get("page_raw_sha256", "")) for item in group}
+        if len(offsets) > 1:
+            duplicate_groups_across_offsets += 1
+            exact_duplicate_rows_across_offsets += len(group) - 1
+        first_sequence = group[0].get("observation_sequence", "")
+        for index, item in enumerate(group):
+            item["is_exact_duplicate_entity_observation"] = index > 0
+            item["first_entity_observation_sequence"] = first_sequence
+            item["is_exact_duplicate_across_page_offsets"] = bool(index > 0 and len(offsets) > 1)
+            item["distinct_page_offset_count"] = len(offsets)
+            item["distinct_page_hash_count"] = len(hashes)
+
+    legitimate_multi_entity_split_accessions = 0
+    for _, entries in accession_groups.items():
+        distinct_keys = {key for key, _ in entries}
+        distinct_offsets = {str(row.get("page_offset", "")) for _, row in entries}
+        if len(distinct_keys) > 1 and len(distinct_offsets) > 1:
+            legitimate_multi_entity_split_accessions += 1
+
+    summary = {
+        "entity_duplicate_audit_rows": len(audited),
+        "keyed_entity_observation_rows": len(audited) - unkeyed,
+        "unkeyed_entity_observation_rows": unkeyed,
+        "exact_duplicate_entity_observation_rows": exact_duplicate_rows,
+        "exact_duplicate_entity_key_groups": exact_duplicate_groups,
+        "exact_duplicate_entity_observation_rows_across_page_offsets": exact_duplicate_rows_across_offsets,
+        "exact_duplicate_entity_key_groups_across_page_offsets": duplicate_groups_across_offsets,
+        "legitimate_multi_entity_accessions_split_across_pages": legitimate_multi_entity_split_accessions,
+    }
+    for item in audited:
+        item.setdefault("is_exact_duplicate_entity_observation", False)
+        item.setdefault("first_entity_observation_sequence", item.get("observation_sequence", ""))
+        item.setdefault("is_exact_duplicate_across_page_offsets", False)
+        item.setdefault("distinct_page_offset_count", 1 if item.get("entity_observation_key") else 0)
+        item.setdefault("distinct_page_hash_count", 1 if item.get("entity_observation_key") else 0)
+    return audited, summary
 
 def accession_submitter_cik(accession: str) -> str:
     """Return the accession prefix CIK; SEC says this is the login CIK, not necessarily issuer."""
@@ -791,6 +902,8 @@ def run_capture(mode: str, run_id: str, output_dir: Path) -> dict:
         feed_summaries[feed_name]["new_accession_count"] = canonical_new_count
         feed_updates[feed_name] = result
 
+    entity_duplicate_audit_rows, entity_duplicate_summary = audit_entity_observation_duplicates(entity_observation_rows)
+
     poll_ended = now_utc()
     for row in event_rows:
         row["first_seen_poll_ended_utc"] = poll_ended
@@ -800,6 +913,7 @@ def run_capture(mode: str, run_id: str, output_dir: Path) -> dict:
         append_csv(OBSERVATIONS_PATH, OBSERVATION_FIELDS, observation_rows)
         append_csv(ACCESSION_OBSERVATIONS_PATH, ACCESSION_OBSERVATION_FIELDS, accession_observation_rows)
         append_csv(ENTITY_OBSERVATIONS_PATH, ENTITY_OBSERVATION_FIELDS, entity_observation_rows)
+        append_csv(ENTITY_DUPLICATE_AUDIT_PATH, ENTITY_DUPLICATE_AUDIT_FIELDS, entity_duplicate_audit_rows)
         if accession_observation_rows and not state.get("accession_observation_ledger_started_utc"):
             state["accession_observation_ledger_started_utc"] = poll_started
             state["accession_observation_ledger_started_run_id"] = str(run_id)
@@ -853,6 +967,7 @@ def run_capture(mode: str, run_id: str, output_dir: Path) -> dict:
         "accession_observation_rows": len(accession_observation_rows),
         "entity_observation_rows": len(entity_observation_rows),
         "entity_observation_ledger_persisted": mode == "schedule",
+        "entity_duplicate_audit_ledger_persisted": mode == "schedule",
         "multi_entity_accession_count": sum(result["multi_entity_accession_count"] for result in feed_updates.values()),
         "issuer_entity_occurrence_count": sum(result["issuer_entity_occurrence_count"] for result in feed_updates.values()),
         "reporting_entity_occurrence_count": sum(result["reporting_entity_occurrence_count"] for result in feed_updates.values()),
@@ -861,9 +976,15 @@ def run_capture(mode: str, run_id: str, output_dir: Path) -> dict:
         "quarantined_entity_accession_count": sum(result["quarantined_entity_accession_count"] for result in feed_updates.values()),
         "accessions_without_issuer_entity_count": sum(result["accessions_without_issuer_entity_count"] for result in feed_updates.values()),
         "canonical_issuer_event_count": sum(result["canonical_issuer_event_count"] for result in feed_updates.values()),
+        # Legacy alias is retained for compatibility; this counts repeated accession
+        # occurrences, not exact duplicate entity rows.
+        "same_feed_repeated_accession_occurrences": sum(
+            1 for row in accession_observation_rows if row["is_duplicate_within_feed"]
+        ),
         "same_feed_duplicate_occurrences": sum(
             1 for row in accession_observation_rows if row["is_duplicate_within_feed"]
         ),
+        **entity_duplicate_summary,
         "cross_feed_duplicate_occurrences": sum(
             1 for row in accession_observation_rows if row["is_duplicate_across_feeds"]
         ),
@@ -900,6 +1021,7 @@ def run_capture(mode: str, run_id: str, output_dir: Path) -> dict:
         "phase": PHASE,
         "run_id": str(run_id),
         "entity_observation_rows": len(entity_observation_rows),
+        **entity_duplicate_summary,
         "multi_entity_accession_count": summary["multi_entity_accession_count"],
         "issuer_entity_occurrence_count": summary["issuer_entity_occurrence_count"],
         "reporting_entity_occurrence_count": summary["reporting_entity_occurrence_count"],
