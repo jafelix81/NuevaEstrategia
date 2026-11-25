@@ -1,7 +1,7 @@
 # Phase 626 — Form 4 accession-repeat vs exact entity-duplicate audit
 
 **Date:** 2026-11-25  
-**Status:** implementation proposed; awaiting pull-request CI and review  
+**Status:** offline regression passed 78/78; awaiting review and natural post-merge production validation  
 **Base:** main at `54c6e324b20e44307c9ed0244c70c9da3c8797fe`
 
 ## Production evidence reviewed
@@ -65,6 +65,9 @@ The old `same_feed_duplicate_occurrences` summary field remains as a compatibili
 - No manual dispatch, rerun, cron change, paid data or vendor contact.
 - `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen; options-data budget remains USD 0.
 
-## Acceptance gate
+## Validation and acceptance gate
 
-Do not merge until the Phase 476 workflow's offline regression passes on this branch. The first natural scheduled Form 4 capture after merge must confirm the new sidecar and the separate counts against live Atom data.
+- [Run 45724430616](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45724430616) passed the Phase 476 offline regression: **78 tests passed**.
+- The PR live-capture job was skipped as intended.
+- The first CI attempt failed on a test-fixture line-continuation syntax error; that was corrected before the successful full regression.
+- PR #240 remains Draft. Do not merge until reviewed. The first natural scheduled Form 4 capture after merge must confirm the new sidecar and separate counts against live Atom data.
