@@ -72,9 +72,12 @@ def parse_filing_detail_html(payload: bytes) -> dict:
     filing_date = extract_labeled_value(parser.parts, "Filing Date", r"(\d{4}-\d{2}-\d{2})")
     period = extract_labeled_value(parser.parts, "Period of Report", r"(\d{4}-\d{2}-\d{2})")
     accession_match = re.search(r"SEC Accession No\.\s*(\d{10}-\d{2}-\d{6})", joined, re.IGNORECASE)
-    filer_match = re.search(r"\(Filer\)\s*CIK:\s*(\d{10})", joined, re.IGNORECASE)
-    if not filer_match:
-        filer_match = re.search(r"Filer\s+CIK:\s*(\d{10})", joined, re.IGNORECASE)
+    filer_match = re.search(r"\(?Filer\)?\s*CIK:\s*0*(\d{1,10})", joined, re.IGNORECASE)
+    filer_cik_value = filer_match.group(1) if filer_match else None
+    if not filer_cik_value:
+        cik_candidates = re.findall(r"\bCIK:\s*0*(\d{1,10})", joined, re.IGNORECASE)
+        if len(cik_candidates) == 1:
+            filer_cik_value = cik_candidates[0]
     form_match = re.search(r"Form\s+(13F-HR/A|13F-HR|13F-NT/A|13F-NT)\b", joined, re.IGNORECASE)
 
     accepted_utc = None
@@ -98,7 +101,7 @@ def parse_filing_detail_html(payload: bytes) -> dict:
 
     return {
         "accession_from_page": accession_match.group(1) if accession_match else None,
-        "filer_cik_from_page": filer_match.group(1).zfill(10) if filer_match else None,
+        "filer_cik_from_page": filer_cik_value.zfill(10) if filer_cik_value else None,
         "form_type": form_match.group(1).upper() if form_match else None,
         "accepted_at_et": accepted,
         "accepted_at_utc": accepted_utc,
