@@ -58,6 +58,12 @@ ALLOWED_FORMS = {
     "13F-NT": {"13F-NT"},
     "13F-NT-A": {"13F-NT/A"},
 }
+RECOGNIZED_NEIGHBOR_FORMS = {
+    "13F-HR": {"13F-HR/A"},
+    "13F-HR-A": {"13F-HR"},
+    "13F-NT": {"13F-NT/A"},
+    "13F-NT-A": {"13F-NT"},
+}
 
 EVENT_FIELDS = [
     "accession", "form", "feed_name", "filing_date", "filing_url",
@@ -180,6 +186,7 @@ def count_matching_atom_entries(raw: bytes | str, feed_name: str) -> int:
         raw = raw.decode("utf-8", "replace")
     root = ETREE.fromstring(raw)
     allowed = ALLOWED_FORMS[feed_name]
+    neighbors = RECOGNIZED_NEIGHBOR_FORMS[feed_name]
     count = 0
     for node in root.iter():
         if local_name(node.tag) != "entry":
@@ -190,6 +197,8 @@ def count_matching_atom_entries(raw: bytes | str, feed_name: str) -> int:
             raise ValueError(f"atom_entry_form_unparsed:{feed_name}")
         if form in allowed:
             count += 1
+        elif form not in neighbors:
+            raise ValueError(f"unexpected_form_in_feed:{feed_name}:{form}")
     return count
 
 
