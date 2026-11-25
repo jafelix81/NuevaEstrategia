@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Prospective SEC Form 13F first-seen metadata capture.
 
-This collector polls the public EDGAR Latest Filings Atom feed for 13F-HR/A
-and 13F-NT families. It stores accession-level feed metadata, hashes and
+This collector polls the public EDGAR Latest Filings Atom feed for 13F-HR,
+13F-HR/A, 13F-NT and 13F-NT/A. It stores accession-level feed metadata, hashes and
 bounded poll intervals only. It does not download filing XML, reconstruct
 holdings, map securities, calculate returns or emit trading signals.
 """
@@ -329,7 +329,7 @@ def fetch_feed(
             if baseline or boundary_found:
                 break
             if raw_count == 0:
-                if not prior and previous_end:
+                if not prior and previous_end and offset == 0:
                     boundary_found = True
                     boundary_type = "EMPTY_NO_NEW_ENTRIES"
                     break
