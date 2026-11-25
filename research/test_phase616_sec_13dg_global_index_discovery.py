@@ -17,7 +17,7 @@ from research.phase616_sec_13dg_global_index_discovery import (
 INDEX_FIXTURE = """Description: SEC Master Index
 Last Data Received: 2026-11-24
 CIK|Company Name|Form Type|Date Filed|Filename
-895421|MORGAN STANLEY|SC 13G|2024-02-12|edgar/data/1793855/000089542124000178/0000895421-24-000178.txt
+895421|MORGAN STANLEY|SC 13G|2024-02-12|edgar/data/1793855/0000895421-24-000178.txt
 320193|APPLE INC|10-K|2024-02-01|edgar/data/320193/000032019324000001/aapl-20231230.htm
 789019|MICROSOFT CORP|SC 13D/A|2026-08-03|edgar/data/789019/000078901926000123/msft-13da.htm
 """
@@ -33,13 +33,31 @@ class Phase616IndexParserTests(unittest.TestCase):
 
     def test_header_url_uses_index_archive_path_not_accession_filer_prefix(self):
         url, path_cik = build_index_header_url(
-            "edgar/data/1793855/000089542124000178/0000895421-24-000178.txt",
+            "edgar/data/1793855/0000895421-24-000178.txt",
             "0000895421-24-000178",
         )
         self.assertIn("/data/1793855/000089542124000178/", url)
         self.assertTrue(url.endswith("0000895421-24-000178-index-headers.html"))
         self.assertEqual(path_cik, "0001793855")
         self.assertNotIn("/data/895421/", url)
+
+    def test_official_sec_flat_master_index_path_maps_to_accession_directory(self):
+        url, path_cik = build_index_header_url(
+            "edgar/data/1122304/0001193125-15-118890.txt",
+            "0001193125-15-118890",
+        )
+        self.assertEqual(
+            url,
+            "https://www.sec.gov/Archives/edgar/data/1122304/000119312515118890/0001193125-15-118890-index-headers.html",
+        )
+        self.assertEqual(path_cik, "0001122304")
+
+    def test_accession_directory_is_not_a_master_index_filename(self):
+        with self.assertRaises(ValueError):
+            build_index_header_url(
+                "edgar/data/1122304/000119312515118890/0001193125-15-118890.txt",
+                "0001193125-15-118890",
+            )
 
     def test_master_index_separates_filer_from_archive_path_cik(self):
         rows = parse_master_index(
@@ -67,8 +85,8 @@ class Phase616IndexParserTests(unittest.TestCase):
 
     def test_invalid_archive_path_fails_closed(self):
         bad = INDEX_FIXTURE.replace(
-            "edgar/data/1793855/000089542124000178/0000895421-24-000178.txt",
-            "edgar/data/895421/not-an-accession/0000895421-24-000178.txt",
+            "edgar/data/1793855/0000895421-24-000178.txt",
+            "edgar/data/895421/not-an-accession.txt",
         )
         with self.assertRaises(ValueError):
             parse_master_index(
@@ -88,7 +106,7 @@ class Phase616IndexParserTests(unittest.TestCase):
             "index_filer_cik": "0000895421",
             "form": "SC 13G",
             "filing_date": "2024-02-12",
-            "filename": "edgar/data/1793855/000089542124000178/0000895421-24-000178.txt",
+            "filename": "edgar/data/1793855/0000895421-24-000178.txt",
         }
         conflict = dict(row, form="SC 13D")
         with self.assertRaises(ValueError):
@@ -100,7 +118,7 @@ class Phase616IndexParserTests(unittest.TestCase):
             "index_filer_cik": "0000895421",
             "form": "SC 13G",
             "filing_date": "2024-02-12",
-            "filename": "edgar/data/1793855/000089542124000178/0000895421-24-000178.txt",
+            "filename": "edgar/data/1793855/0000895421-24-000178.txt",
         }
         result = deduplicate_index_rows([dict(row), dict(row)])
         self.assertEqual(len(result), 1)
