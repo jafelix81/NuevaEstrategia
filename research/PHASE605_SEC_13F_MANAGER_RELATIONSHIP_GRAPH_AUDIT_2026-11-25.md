@@ -12,8 +12,8 @@ Phase 48 correctly keeps 13F-NT / 13F-NT/A notices separate from holdings states
 
 The official SEC Form 13F Data Sets specification defines two distinct tables:
 
-- OTHERMANAGER: "other managers reporting for this manager"; key is ACCESSION_NUMBER + OTHERMANAGER_SK.
-- OTHERMANAGER2: "other managers included in this report"; key is ACCESSION_NUMBER + SEQUENCENUMBER.
+- OTHERMANAGER: "other managers reporting for this manager"; the SEC table definition marks ACCESSION_NUMBER + OTHERMANAGER_SK as its key.
+- OTHERMANAGER2: "other managers included in this report"; the table includes SEQUENCENUMBER, which is referenced by INFOTABLE.OTHERMANAGER. The SEC PDF's overview/table key notation marks only ACCESSION_NUMBER for OTHERMANAGER2, despite the one-to-many list and sequence-reference design. This is internally inconsistent; the parser uses (ACCESSION_NUMBER, SEQUENCENUMBER) as a provisional logical join key, pending validation against actual TSV cardinality and source XML.
 - INFOTABLE.OTHERMANAGER: sequence number(s) of included managers with whom discretion is shared.
 
 Official schema: https://www.sec.gov/files/form_13f.pdf (Sections 3 and 5.3, 5.6, 5.7).
@@ -68,6 +68,7 @@ Synthetic tests establish parser behavior only. They do not establish real-world
 - File-number-to-CIK resolution is only considered unique within the same bounded sample. A manager may not have a filing in that sample; unresolved file numbers must remain unresolved until a broader historical roster is built.
 - Form 13F file numbers are the SEC's 028- tracking identifiers. Names are not stable keys. Optional CIKs and file numbers must remain nullable.
 - The current parser does not reconstruct notice-amendment roster state across quarters. It preserves each accession's as-filed edges; a separate as-of amendment treatment is required before longitudinal graph use.
+- Form 13F does not report short positions, so these filings cannot provide net exposure. The SEC also warns that the quarterly structured extracts can contain inconsistencies and are not a substitute for the source filing.
 - The parser does not infer actual beneficial ownership, control, trade direction, or informed behavior from manager relationships.
 
 ## Decision
