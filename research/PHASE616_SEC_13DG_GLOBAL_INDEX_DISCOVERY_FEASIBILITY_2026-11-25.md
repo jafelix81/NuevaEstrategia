@@ -1,7 +1,7 @@
 # Phase 616 — SEC Schedule 13D/G global-index discovery feasibility and bounded identity sample
 
 **Audit date:** 2026-11-25  
-**Status:** offline implementation prepared and validated; bounded live sample not yet dispatched. The final offline CI passed 25/25 tests in [Run 45582424995](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45582424995); the live-sample job was correctly skipped.  
+**Status:** offline implementation prepared; initial CI passed 25/25 tests in [Run 45582424995](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45582424995). Follow-up hardening adds quarter-stratified selection and a direct SEC_USER_AGENT expression; its PR validation is pending. The bounded live sample has not been dispatched.  
 **Decision:** restore Schedule 13D subject-issuer discovery as the highest-priority free institutional-disclosure line; keep 13G separate as slower ownership-state context.
 
 ## 1. Why the source priority changes

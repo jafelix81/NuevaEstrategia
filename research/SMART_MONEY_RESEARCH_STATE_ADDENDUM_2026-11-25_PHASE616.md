@@ -9,5 +9,5 @@
 - The legacy Fase 49 workflow is not safe for this rebuild: it retains a placeholder User-Agent and queries the 335 F80 CIKs as filers. Do not dispatch it.
 - No live SEC request or historical crawl in this phase. No primary schedules, holdings, prices, returns or paid data. No alpha/OOS/bootstrap/LOO result.
 - Acceptance gate is 44/44 verified subject/filer headers plus filer-index/accession agreement and header-filer/index agreement. Archive-path CIK is a diagnostic, not an identity source; mismatches are reported separately.
-- Initial offline CI: 25/25 tests passed in Run 45582424995. Quarter-stratification regressions are added in the follow-up commit; the live-sample job remains skipped. A passing sample authorizes only the historical coverage/security-master audit, not a full crawl or return test.
+- Initial offline CI: 25/25 tests passed in Run 45582424995. Follow-up adds two quarter-stratification regressions; final PR validation is pending. The live-sample job remains skipped. A passing sample authorizes only the historical coverage/security-master audit, not a full crawl or return test.
 - F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen.

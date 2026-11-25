@@ -2,6 +2,7 @@ name: Phase 616 - SEC 13D/G global-index bounded identity sample
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, edited]
     paths:
       - ".github/workflows/phase616_sec_13dg_global_index_discovery.yml"
       - "research/phase616_sec_13dg_global_index_discovery.py"
@@ -42,7 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      SEC_USER_AGENT: \${{ secrets.SEC_USER_AGENT }}
+      SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
