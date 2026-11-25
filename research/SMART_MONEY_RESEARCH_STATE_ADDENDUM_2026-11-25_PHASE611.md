@@ -40,3 +40,8 @@ For a historical strategy replay, the eventual knowledge time must be conservati
 - No changes to `F80_TOP20_PARTIAL50_BASELINE_C20`.
 - No changes to capital, exposure, parameters or production.
 - Options and paid data budget remain USD 0.
+
+
+## Operational correction — Phase 611 live-download gate (2026-11-25)
+
+Review of the actual YAML and job logs found the prior condition unintentionally allowed push events to run the SEC live audit. The successful live sample in run 45535351139 was triggered by a push, not a manual dispatch. The condition has been corrected to explicit `workflow_dispatch` with `run_live_audit=true`; push and pull-request events now run offline tests only. A workflow-contract regression test was added. The 48/48 sample result is unchanged; no new SEC download was launched by this fix.

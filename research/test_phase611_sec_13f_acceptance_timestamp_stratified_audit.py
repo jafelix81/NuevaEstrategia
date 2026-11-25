@@ -1,4 +1,5 @@
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 from research.phase611_sec_13f_acceptance_timestamp_stratified_audit import (
@@ -166,6 +167,21 @@ class Phase611Tests(unittest.TestCase):
         self.assertTrue(out["checks"]["accession_matches"])
         self.assertEqual(out["status"], "PASS")
 
+
+
+    def test_live_sec_audit_requires_explicit_dispatch(self):
+        workflow_path = (
+            Path(__file__).resolve().parents[1]
+            / ".github"
+            / "workflows"
+            / "phase611_sec_13f_acceptance_timestamp_stratified_audit.yml"
+        )
+        workflow = workflow_path.read_text(encoding="utf-8")
+        self.assertIn(
+            "if: github.event_name == 'workflow_dispatch' && inputs.run_live_audit == true",
+            workflow,
+        )
+        self.assertNotIn("github.event_name == 'push' ||", workflow)
 
 if __name__ == "__main__":
     unittest.main()

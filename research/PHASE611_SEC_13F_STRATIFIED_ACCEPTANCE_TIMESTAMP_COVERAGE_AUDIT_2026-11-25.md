@@ -87,3 +87,10 @@ Official references:
 5. Only then construct point-in-time 13F ownership/persistence features and test incremental value versus frozen F80/LTM under chronological OOS, identical exposure and costs.
 
 **Baseline:** `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen. No production, universe, capital, exposure or parameter changes. Options/data-purchase budget remains USD 0.
+
+
+## Operational erratum — live workflow trigger (2026-11-25)
+
+A post-run review of the workflow YAML and Actions job logs found that the original live-job condition also allowed every branch push to run the bounded SEC download. This contradicted the intended dispatch-only control described above. Run [45535351139](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45535351139) was a `push` event and did execute the live SEC sample; the subsequent PR run [45535594622](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45535594622) correctly skipped the live job.
+
+**Correction:** the live job now runs only when `github.event_name == 'workflow_dispatch'` and `run_live_audit == true`. Push and pull-request events retain offline regression only. A regression test asserts this workflow contract. The already completed 48-page sample remains valid; no new live SEC run is initiated by this correction.
