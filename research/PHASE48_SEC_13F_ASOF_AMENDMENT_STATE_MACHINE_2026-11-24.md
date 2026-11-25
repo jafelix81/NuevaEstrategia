@@ -24,7 +24,7 @@ The new pure-Python module `research/phase48_sec_13f_asof_amendment_state_machin
 2. **Accession integrity:** duplicate accessions fail closed.
 3. **Amendment identity:** COVERPAGE `ISAMENDMENT`, amendment number and type are reconciled with `SUBMISSIONTYPE`; a `13F-HR` with `ISAMENDMENT=Y` is supported.
 4. **Chain integrity:** exactly one original is required; amendment numbers must be unique and contiguous from 1; unknown types and contradictory flags fail closed.
-5. **No-look-ahead filter:** future filings and notices are excluded before chain validation; a future amendment with a numbering gap or unknown type cannot invalidate an earlier as-of state. 6. **Conservative daily availability:** a filing becomes eligible on the first supplied regular-session date strictly after `FILING_DATE`. Report period is never used as an availability clock. If the supplied calendar ends before a future session can be established, the result is `PENDING_CALENDAR_COVERAGE`, not silently treated as unavailable.
+5. **No-look-ahead filter:** future filings and notices are excluded before chain validation; a future amendment with a numbering gap or unknown type cannot invalidate an earlier as-of state.\n6. **Conservative daily availability:** a filing becomes eligible on the first supplied regular-session date strictly after `FILING_DATE`. Report period is never used as an availability clock. If the supplied calendar ends before a future session can be established, the result is `PENDING_CALENDAR_COVERAGE`, not silently treated as unavailable.
 7. **State semantics:** RESTATEMENT replaces the full state; NEW HOLDINGS ENTRIES appends previously absent line keys. Overlapping line keys are blocked rather than silently overwritten.
 8. **Line identity:** CUSIP, class, put/call, investment discretion, other-manager code and amount type are retained as separate dimensions. Duplicate line keys within an accession are blocked.
 9. **Notice separation:** 13F-NT records are returned as `NOTICE_ONLY_NOT_ZERO_HOLDINGS`; they never create an empty portfolio.
@@ -37,7 +37,7 @@ The function accepts the session calendar explicitly. Production callers must su
 GitHub Actions [run 45520166105](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45520166105) completed successfully on 2026-11-25 00:42:39 UTC.
 
 - Python compilation passed.
-- **14/14 synthetic offline tests passed.**
+- **14/14 synthetic offline tests passed.** The preceding run exposed three stale test assertions that still expected future-event placeholders; the tests were updated to enforce the stricter no-look-ahead contract, and the final run passed.
 - No network request or SEC data download was performed.
 - The tests cover strict next-session availability; original → new-holdings supplement → restatement; same-day filing availability; future amendment/notice exclusion from earlier as-of states; 13F-NT notice separation; overlap rejection; missing payload; missing original; amendment-number gaps; duplicate line keys; multiple originals; truncated calendars; and unknown amendment types.
 
