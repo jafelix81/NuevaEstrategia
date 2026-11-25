@@ -2,7 +2,7 @@
 
 ## Current state
 
-- **Phase 611:** bounded SEC 13F timestamp feasibility audit PASS.
+- **Phase 611:** bounded SEC 13F timestamp feasibility audit PASS; 12/12 offline regression tests passed.
 - 2018 Q1: 6,570 accessions with cover pages; 24/24 stratified sample checks PASS.
 - 2026 Jun–Aug: 11,852 accessions with cover pages; 24/24 stratified sample checks PASS.
 - 48/48 filing-detail pages reconciled across accession, filer-CIK archive path, form, filing date, period of report, Accepted timestamp and SEC legal filing-date clock.
