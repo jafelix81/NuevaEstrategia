@@ -57,7 +57,8 @@ class Phase48Tests(unittest.TestCase):
         }
 
         before_original = reconstruct_as_of(events, holdings, SESSIONS, "2026-05-15")
-        self.assertEqual(before_original["manager_periods"][0]["status"], "NOT_YET_AVAILABLE")
+        self.assertEqual(before_original["manager_periods"], [])
+        self.assertEqual(before_original["summary"]["applied_accessions"], 0)
 
         after_original = reconstruct_as_of(events, holdings, SESSIONS, "2026-05-18")
         self.assertEqual(after_original["manager_periods"][0]["holdings_count"], 1)
@@ -86,7 +87,7 @@ class Phase48Tests(unittest.TestCase):
             "ADD1": [holding("222222222", 200, 2000)],
         }
         same_day = reconstruct_as_of(events, holdings, SESSIONS, "2026-05-15")
-        self.assertEqual(same_day["manager_periods"][0]["status"], "NOT_YET_AVAILABLE")
+        self.assertEqual(same_day["manager_periods"], [])
         next_session = reconstruct_as_of(events, holdings, SESSIONS, "2026-05-18")
         self.assertEqual(next_session["manager_periods"][0]["holdings_count"], 2)
 
@@ -148,7 +149,30 @@ class Phase48Tests(unittest.TestCase):
         short_sessions = ["2026-05-15", "2026-05-18"]
         events = [event("ORIG", "2026-05-18")]
         result = reconstruct_as_of(events, {"ORIG": [holding("111111111", 100, 1000)]}, short_sessions, "2026-05-18")
-        self.assertEqual(result["manager_periods"][0]["status"], "PENDING_CALENDAR_COVERAGE")
+        self.assertEqual(result["status"], "PENDING_CALENDAR_COVERAGE")
+        self.assertEqual(result["manager_periods"], [])
+        self.assertEqual(result["pending_calendar_events"][0]["status"], "PENDING_CALENDAR_COVERAGE")
+
+
+    def test_future_amendment_cannot_leak_into_or_block_prior_asof_state(self):
+        events = [
+            event("ORIG", "2026-05-15"),
+            # Future amendment has a number gap and unknown type. Neither may
+            # invalidate the original state before this filing is available.
+            event("FUTURE2", "2026-05-22", "13F-HR/A", "2", "FUTURE_UNKNOWN", "Y"),
+        ]
+        holdings = {"ORIG": [holding("111111111", 100, 1000)]}
+        result = reconstruct_as_of(events, holdings, SESSIONS, "2026-05-18")
+        group = result["manager_periods"][0]
+        self.assertEqual(group["status"], "PASS")
+        self.assertEqual(group["applied_accessions"], ["ORIG"])
+        self.assertEqual(group["holdings_count"], 1)
+
+    def test_future_13f_nt_notice_is_not_visible_before_available_session(self):
+        events = [event("NOTICE", "2026-05-20", "13F-NT", flag="")]
+        result = reconstruct_as_of(events, {}, SESSIONS, "2026-05-19")
+        self.assertEqual(result["notices"], [])
+        self.assertEqual(result["summary"]["notice_only_events"], 0)
 
     def test_unknown_amendment_type_fails_closed(self):
         events = [
