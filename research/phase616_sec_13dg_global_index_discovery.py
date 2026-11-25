@@ -53,6 +53,23 @@ def normalize_form(value: Any) -> str:
     return " ".join(str(value or "").strip().upper().split())
 
 
+def validate_user_agent(value: str | None) -> str:
+    ua = str(value or "").strip()
+    if not ua or not EMAIL_RE.search(ua):
+        raise RuntimeError(
+            "SEC_USER_AGENT is missing or does not contain a monitored contact email; "
+            "no SEC request was made."
+        )
+    lowered = ua.lower()
+    if any(token in lowered for token in ("example.com", "your-email", "replace-me", "placeholder")):
+        raise RuntimeError(
+            "SEC_USER_AGENT still contains a placeholder contact; no SEC request was made."
+        )
+    if len(ua) < 20:
+        raise RuntimeError("SEC_USER_AGENT is not descriptive enough; no SEC request was made.")
+    return ua
+
+
 def filing_regimes(form: str, filing_date: date) -> tuple[str, str, str, bool]:
     form = normalize_form(form)
     family = "13D" if "13D" in form else "13G"
