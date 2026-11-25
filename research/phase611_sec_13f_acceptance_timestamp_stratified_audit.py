@@ -97,8 +97,8 @@ def parse_filing_detail_html(payload: bytes) -> dict:
             accepted_utc = None
 
     return {
-        "accession": accession_match.group(1) if accession_match else None,
-        "filer_cik": filer_match.group(1) if filer_match else None,
+        "accession_from_page": accession_match.group(1) if accession_match else None,
+        "filer_cik_from_page": filer_match.group(1).zfill(10) if filer_match else None,
         "form_type": form_match.group(1).upper() if form_match else None,
         "accepted_at_et": accepted,
         "accepted_at_utc": accepted_utc,
@@ -110,6 +110,18 @@ def parse_filing_detail_html(payload: bytes) -> dict:
         "accepted_clock_bucket": clock_bucket,
         "accepted_on_weekend": weekend,
     }
+
+
+def normalize_dataset_date(value: object) -> str | None:
+    raw = str(value or "").strip()
+    if not raw:
+        return None
+    for fmt in ("%Y-%m-%d", "%d-%b-%Y", "%d-%b-%y"):
+        try:
+            return datetime.strptime(raw.upper(), fmt).date().isoformat()
+        except ValueError:
+            continue
+    return None
 
 
 def select_stratified_samples(dataset: str, filers: dict, per_stratum: int = PER_STRATUM) -> list[dict]:
@@ -161,7 +173,7 @@ def build_index_url(sample: dict) -> str:
     compact = accession.replace("-", "")
     # The archive path uses the filing CIK from SUBMISSION, not the first
     # ten digits of accession; filing agents can make those differ.
-    filer_cik_path = str(int(sample["filer_cik"]))
+    filer_cik_path = str(int(sample["filer_cik_from_dataset"]))
     return (
         f"https://www.sec.gov/Archives/edgar/data/{filer_cik_path}/"
         f"{compact}/{accession}-index.htm"
@@ -198,10 +210,11 @@ def audit_sample(sample: dict, user_agent: str) -> dict:
         payload, final_url, http_status = fetch_page(url, user_agent)
         parsed = parse_filing_detail_html(payload)
         checks = {
-            "accession_matches": parsed.get("accession") == sample["accession"],
-            "filer_cik_matches": parsed.get("filer_cik") == sample["filer_cik"],
+            "accession_matches": parsed.get("accession_from_page") == sample["accession"],
+            "filer_cik_matches": parsed.get("filer_cik_from_page") == sample["filer_cik_from_dataset"],
             "form_matches": parsed.get("form_type") == sample["submission_type"],
             "filing_date_matches": parsed.get("filing_date") == sample["filing_date_from_dataset"],
+            "period_of_report_matches": parsed.get("period_of_report") == sample["period_of_report_from_dataset"],
             "accepted_timestamp_present": bool(parsed.get("accepted_at_et")),
             "accepted_date_matches": parsed.get("accepted_date_matches_filing_date") is True,
         }
@@ -257,8 +270,6 @@ def audit_dataset(label: str, url: str, user_agent: str) -> dict:
     )
     results = []
     for sample in selected:
-        sample["filing_date_from_dataset"] = sample.pop("filing_date_from_dataset")
-        sample["period_of_report_from_dataset"] = sample.pop("period_of_report_from_dataset")
         # The exact collector's first-seen timestamp is not available historically.
         results.append(audit_sample(sample, user_agent))
         time.sleep(0.15)  # stay comfortably below SEC's published request-rate ceiling
