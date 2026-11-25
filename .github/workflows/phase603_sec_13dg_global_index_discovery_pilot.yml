@@ -1,0 +1,45 @@
+name: Phase 603 - SEC 13D/G global index subject discovery pilot
+
+on:
+  push:
+    branches:
+      - phase603-sec-13dg-global-index-discovery-pilot
+    paths:
+      - ".github/workflows/phase603_sec_13dg_global_index_discovery_pilot.yml"
+      - "research/phase603_sec_13dg_global_index_discovery_pilot.py"
+      - "research/test_phase603_sec_13dg_global_index_discovery_pilot.py"
+      - "research/phase485_sec_13dg_subject_filer_header_parser.py"
+      - "Nueva_Estrategia_Fase0_Descubrimiento.py"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase603-sec-13dg-global-index-discovery-pilot
+  cancel-in-progress: true
+
+jobs:
+  bounded-global-index-pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile and run offline regressions
+        run: |
+          python -m py_compile research/phase603_sec_13dg_global_index_discovery_pilot.py research/test_phase603_sec_13dg_global_index_discovery_pilot.py
+          python -m unittest -v research.test_phase603_sec_13dg_global_index_discovery_pilot research.test_phase485_sec_13dg_subject_filer_header_parser
+      - name: Bounded SEC quarterly-index discovery pilot
+        env:
+          SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
+        run: python -u -m research.phase603_sec_13dg_global_index_discovery_pilot --output phase603_output
+      - name: Upload bounded metadata and hashes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase603-sec-13dg-global-index-discovery-pilot
+          path: phase603_output/
+          retention-days: 90
+          if-no-files-found: error
