@@ -1,0 +1,54 @@
+name: Phase 607 - SEC 13F source XML reconciliation
+
+on:
+  push:
+    branches: [phase607-sec-13f-source-xml-reconciliation]
+    paths:
+      - "research/phase607_sec_13f_source_xml_reconciliation.py"
+      - "research/test_phase607_sec_13f_source_xml_reconciliation.py"
+      - ".github/workflows/phase607_sec_13f_source_xml_reconciliation.yml"
+  pull_request:
+    branches: [phase606-sec-13f-manager-table-live-audit]
+    paths:
+      - "research/phase607_sec_13f_source_xml_reconciliation.py"
+      - "research/test_phase607_sec_13f_source_xml_reconciliation.py"
+      - ".github/workflows/phase607_sec_13f_source_xml_reconciliation.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile and run offline regressions
+        run: |
+          python -m py_compile research/phase607_sec_13f_source_xml_reconciliation.py research/test_phase607_sec_13f_source_xml_reconciliation.py
+          python -m unittest -v research.test_phase607_sec_13f_source_xml_reconciliation
+
+  bounded-live-source-xml:
+    if: github.event_name == 'push'
+    needs: offline-regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Reconcile six original EDGAR source filings
+        env:
+          SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
+        run: python research/phase607_sec_13f_source_xml_reconciliation.py
+      - name: Upload bounded source XML result
+        if: always() && hashFiles('phase607_sec_13f_source_xml_reconciliation.json') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase607-sec-13f-source-xml-reconciliation
+          path: phase607_sec_13f_source_xml_reconciliation.json
+          retention-days: 30
