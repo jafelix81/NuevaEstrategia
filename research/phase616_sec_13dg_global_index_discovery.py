@@ -145,7 +145,7 @@ def parse_master_index(
         form = normalize_form(form_raw)
         if form not in TARGET_FORMS:
             continue
-        filer_cik = normalize_cik(cik_raw)
+        index_company_cik = normalize_cik(cik_raw)
         try:
             filed = datetime.strptime(filed_raw.strip(), "%Y-%m-%d").date()
         except ValueError as exc:
@@ -158,13 +158,13 @@ def parse_master_index(
         header_url, checked_path_cik = build_index_header_url(filename, accession)
         if checked_path_cik != archive_path_cik:
             raise ValueError("Archive path CIK normalization conflict.")
-        accession_filer_cik = accession[:10]
+        accession_submitter_cik = accession[:10]
         family, legal, schema, amendment = filing_regimes(form, filed)
         rows.append(
             {
                 "accession": accession,
-                "accession_filer_cik": accession_filer_cik,
-                "index_filer_cik": filer_cik,
+                "accession_submitter_cik": accession_submitter_cik,
+                "index_company_cik": index_company_cik,
                 "index_company_name": company_name.strip(),
                 "form": form,
                 "form_family": family,
@@ -180,7 +180,7 @@ def parse_master_index(
                 "index_sha256": index_sha256,
                 "index_row_sha256": hashlib.sha256(line.encode("utf-8")).hexdigest(),
                 "source_quarter": quarter,
-                "index_filer_accession_match": bool(filer_cik and filer_cik == accession_filer_cik),
+                "index_company_accession_prefix_match": bool(index_company_cik and index_company_cik == accession_submitter_cik),
                 "subject_issuer_cik": None,
                 "subject_issuer_name": None,
                 "filing_cik": None,
@@ -191,7 +191,8 @@ def parse_master_index(
                 "identity_status": "NOT_RETRIEVED",
                 "archive_path_subject_match": None,
                 "archive_path_subject_status": "NOT_CHECKED",
-                "header_filer_index_match": None,
+                "header_subject_index_match": None,
+                "header_filer_submitter_match": None,
                 "research_observation_eligible": False,
                 "public_availability_certified": False,
                 "signal_eligible": False,
@@ -210,7 +211,7 @@ def deduplicate_index_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
             by_accession[accession] = row
             continue
         prior = by_accession[accession]
-        keys = ("index_filer_cik", "form", "filing_date", "filename")
+        keys = ("index_company_cik", "form", "filing_date", "filename")
         if any(prior.get(key) != row.get(key) for key in keys):
             raise ValueError(f"Conflicting global-index rows for accession {accession}")
         prior["duplicate_index_occurrences"] += 1
@@ -223,7 +224,7 @@ def stratified_sample(
     *,
     required_quarters: set[str] | None = None,
 ) -> list[dict[str, Any]]:
-    eligible = [r for r in rows if r.get("index_filer_accession_match")]
+    eligible = [r for r in rows if r.get("index_company_cik")]
     expected_quarters = (
         set(required_quarters)
         if required_quarters is not None
@@ -414,17 +415,18 @@ def run_live_sample(output_dir: Path, *, sample_size: int = SAMPLE_SIZE) -> dict
                     "archive_path_subject_match": (
                         identity.get("subject_issuer_cik") == row.get("archive_path_cik")
                     ),
-                    "header_filer_index_match": (
-                        identity.get("filing_cik") == row.get("index_filer_cik")
+                    "header_subject_index_match": (
+                        identity.get("subject_issuer_cik") == row.get("index_company_cik")
+                    ),
+                    "header_filer_submitter_match": (
+                        identity.get("filing_cik") == row.get("accession_submitter_cik")
                     ),
                 }
             )
-            if not row.get("index_filer_accession_match"):
-                result["identity_status"] = "INDEX_FILER_ACCESSION_MISMATCH"
-            elif not identity.get("subject_issuer_identity_verified"):
+            if not identity.get("subject_issuer_identity_verified"):
                 result["identity_status"] = str(identity.get("identity_status"))
-            elif not result["header_filer_index_match"]:
-                result["identity_status"] = "HEADER_INDEX_FILER_MISMATCH"
+            elif not result["header_subject_index_match"]:
+                result["identity_status"] = "HEADER_SUBJECT_INDEX_COMPANY_MISMATCH"
             else:
                 result["identity_status"] = "VERIFIED_SUBJECT_AND_FILER"
             result["archive_path_subject_status"] = (
@@ -463,16 +465,17 @@ def run_live_sample(output_dir: Path, *, sample_size: int = SAMPLE_SIZE) -> dict
         "form_counts": {},
         "legal_regime_counts": {},
         "schema_regime_counts": {},
-        "global_index_filer_accession_mismatches": sum(
-            not r.get("index_filer_accession_match") for r in unique_rows
+        "global_index_company_accession_prefix_mismatches": sum(
+            not r.get("index_company_accession_prefix_match") for r in unique_rows
         ),
-        "sample_index_filer_accession_mismatches": sum(
-            not r.get("index_filer_accession_match") for r in results
+        "sample_index_company_accession_prefix_mismatches": sum(
+            not r.get("index_company_accession_prefix_match") for r in results
         ),
         "sample_form_coverage_complete": sample_form_coverage_complete,
         "sample_quarters": sample_quarters,
         "sample_quarter_coverage_complete": sample_quarter_coverage_complete,
-        "header_index_filer_mismatches": sum(r.get("header_filer_index_match") is False for r in results),
+        "header_subject_index_mismatches": sum(r.get("header_subject_index_match") is False for r in results),
+        "header_filer_submitter_mismatches": sum(r.get("header_filer_submitter_match") is False for r in results),
         "archive_path_subject_mismatches": sum(r.get("archive_path_subject_match") is False for r in results),
         "header_errors": len(errors),
         "errors_sample": errors[:20],
@@ -484,8 +487,9 @@ def run_live_sample(output_dir: Path, *, sample_size: int = SAMPLE_SIZE) -> dict
         "alpha_test_authorized": False,
         "gate": "PASS_HEADER_IDENTITY_ONLY" if sample_gate_complete else "FAIL",
         "limitations": [
-            "The SEC master index identifies the submitting filer; subject issuer comes only from the SEC-HEADER SUBJECT COMPANY block.",
-            "Archive-path CIK is retained as an independent cross-check, never used as the subject identity.",
+            "The SEC master-index CIK/company-name pair is a subject-company candidate and must match the SEC-HEADER SUBJECT COMPANY CIK.",
+            "FILED BY is a separate filing-entity identity. The accession prefix is an EDGAR login/submitter CIK and may belong to a third-party filing agent; it is not required to equal FILED BY or the master-index CIK.",
+            "Archive-path CIK is a retrieval locator and diagnostic only; it is never used as the subject identity.",
             "ACCEPTANCE-DATETIME is preserved for chronology only; it is not exact public availability.",
             "No primary schedule, holdings, ticker mapping, historical F80 membership, prices or returns are downloaded or inferred.",
             "The 44-accession sample is a parser/discovery feasibility gate, not a coverage estimate or alpha test.",
