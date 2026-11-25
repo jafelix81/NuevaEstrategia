@@ -1,0 +1,54 @@
+name: Phase 609 - SEC 13F full-quarter group audit
+
+on:
+  push:
+    branches: [phase609-sec-13f-full-quarter-group-audit]
+    paths:
+      - "research/phase609_sec_13f_full_quarter_group_audit.py"
+      - "research/test_phase609_sec_13f_full_quarter_group_audit.py"
+      - ".github/workflows/phase609_sec_13f_full_quarter_group_audit.yml"
+  pull_request:
+    branches: [phase608-sec-13f-sequence-group-graph]
+    paths:
+      - "research/phase609_sec_13f_full_quarter_group_audit.py"
+      - "research/test_phase609_sec_13f_full_quarter_group_audit.py"
+      - ".github/workflows/phase609_sec_13f_full_quarter_group_audit.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile and run offline regressions
+        run: |
+          python -m py_compile research/phase609_sec_13f_full_quarter_group_audit.py research/test_phase609_sec_13f_full_quarter_group_audit.py
+          python -m unittest -v research.test_phase609_sec_13f_full_quarter_group_audit
+
+  bounded-live-sec-audit:
+    if: github.event_name == 'push'
+    needs: offline-regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Download and audit 2018 Q1 and 2026 Jun-Aug SEC 13F data sets
+        env:
+          SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
+        run: python research/phase609_sec_13f_full_quarter_group_audit.py
+      - name: Upload full-quarter group audit result
+        if: always() && hashFiles('phase609_sec_13f_full_quarter_group_audit.json') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase609-sec-13f-full-quarter-group-audit
+          path: phase609_sec_13f_full_quarter_group_audit.json
+          retention-days: 30
