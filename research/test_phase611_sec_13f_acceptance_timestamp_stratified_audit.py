@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch
 
 from research.phase611_sec_13f_acceptance_timestamp_stratified_audit import (
     parse_filing_detail_html,
@@ -46,6 +47,50 @@ class Phase611Tests(unittest.TestCase):
         self.assertEqual(after_close["accepted_clock_bucket"], "AFTER_CLOSE_WEEKDAY")
         self.assertEqual(weekend["accepted_clock_bucket"], "WEEKEND")
         self.assertTrue(weekend["accepted_on_weekend"])
+
+    def test_after_1730_acceptance_rolls_to_next_sec_business_day(self):
+        out = parse_filing_detail_html(
+            b"<html>Accepted: 2026-08-10 18:42:02 Filing Date: 2026-08-11</html>"
+        )
+        self.assertTrue(out["accepted_after_1730_et"])
+        self.assertFalse(out["accepted_date_matches_filing_date"])
+        self.assertEqual(
+            out["filing_date_clock_reconciliation"],
+            "AFTER_1730_NEXT_SEC_BUSINESS_DAY",
+        )
+
+    def test_friday_after_1730_rolls_to_monday(self):
+        out = parse_filing_detail_html(
+            b"<html>Accepted: 2026-07-17 20:00:00 Filing Date: 2026-07-20</html>"
+        )
+        self.assertEqual(
+            out["filing_date_clock_reconciliation"],
+            "AFTER_1730_NEXT_SEC_BUSINESS_DAY",
+        )
+
+    def test_federal_holiday_rollover_is_respected(self):
+        out = parse_filing_detail_html(
+            b"<html>Accepted: 2026-12-24 20:00:00 Filing Date: 2026-12-28</html>"
+        )
+        self.assertEqual(
+            out["filing_date_clock_reconciliation"],
+            "AFTER_1730_NEXT_SEC_BUSINESS_DAY",
+        )
+
+    def test_before_cutoff_cannot_roll_to_next_filing_date(self):
+        out = parse_filing_detail_html(
+            b"<html>Accepted: 2026-08-26 17:00:00 Filing Date: 2026-08-27</html>"
+        )
+        self.assertEqual(out["filing_date_clock_reconciliation"], "MISMATCH")
+
+    def test_weekend_acceptance_is_not_valid(self):
+        out = parse_filing_detail_html(
+            b"<html>Accepted: 2026-08-29 10:00:00 Filing Date: 2026-08-31</html>"
+        )
+        self.assertEqual(
+            out["filing_date_clock_reconciliation"],
+            "INVALID_NON_BUSINESS_DAY_ACCEPTANCE",
+        )
 
     def test_missing_acceptance_is_not_imputed(self):
         out = parse_filing_detail_html(
@@ -112,7 +157,7 @@ class Phase611Tests(unittest.TestCase):
         Period of Report 2025-09-30
         </html>"""
         url = build_index_url(sample)
-        with unittest.mock.patch(
+        with patch(
             "research.phase611_sec_13f_acceptance_timestamp_stratified_audit.fetch_page",
             return_value=(html, url, 200),
         ):
