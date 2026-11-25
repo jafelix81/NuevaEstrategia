@@ -10,3 +10,5 @@
 - Phase 605's synthetic parser remains not admitted for live manager attribution until original EDGAR XML reconciles duplicate sequences, unmatched references and nonnumeric values.
 - Next gate: stratified original filing XML and information-table XML reconciliation for known exception accessions; then revise manager graph and notice/combination amendment state.
 - No alpha/OOS, production, capital or exposure change. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen; options budget USD 0.
+
+- **Source-XML correction from Phase 607/608:** repeated accession/sequence rows represent multiple members of a sequence group, not necessarily duplicate records. Nonnumeric Other Manager values can be as-filed labels (e.g. “XXEC, INC.”), not malformed identifiers. Use the group-aware model; do not use the individual-row key assumption from the initial Phase 606 interpretation.
