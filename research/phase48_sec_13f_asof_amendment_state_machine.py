@@ -243,11 +243,15 @@ def reconstruct_as_of(
     for (manager, report_period), group in sorted(groups.items()):
         available = [e for e in group if e["available_session"] and e["available_session"] <= as_of]
         if not available:
+            calendar_truncated = any(
+                event["available_session"] is None and event["filing_date"] <= as_of
+                for event in group
+            )
             results.append({
                 "manager_cik": manager,
                 "report_period": report_period,
                 "as_of_session": as_of.isoformat(),
-                "status": "NOT_YET_AVAILABLE",
+                "status": "PENDING_CALENDAR_COVERAGE" if calendar_truncated else "NOT_YET_AVAILABLE",
                 "holdings_count": 0,
                 "holdings": [],
                 "applied_accessions": [],
@@ -322,7 +326,7 @@ def reconstruct_as_of(
             })
 
     return {
-        "status": "PASS" if all(row["status"] in {"PASS", "NOT_YET_AVAILABLE"} for row in results) else "BLOCKED",
+        "status": "PASS" if all(row["status"] in {"PASS", "NOT_YET_AVAILABLE", "PENDING_CALENDAR_COVERAGE"} for row in results) else "BLOCKED",
         "as_of_session": as_of.isoformat(),
         "manager_periods": results,
         "notices": notices,
@@ -330,6 +334,7 @@ def reconstruct_as_of(
             "manager_period_groups": len(results),
             "pass_groups": sum(row["status"] == "PASS" for row in results),
             "not_yet_available_groups": sum(row["status"] == "NOT_YET_AVAILABLE" for row in results),
+            "pending_calendar_coverage_groups": sum(row["status"] == "PENDING_CALENDAR_COVERAGE" for row in results),
             "blocked_groups": sum(row["status"] == "BLOCKED" for row in results),
             "notice_only_events": len(notices),
             "applied_accessions": applied_total,
