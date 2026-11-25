@@ -61,17 +61,17 @@ class Phase606Tests(unittest.TestCase):
 
     def test_infotable_reference_key_hypotheses_are_compared(self):
         header = ["ACCESSION_NUMBER", "INFOTABLE_SK", "OTHERMANAGER"]
-        rows = [["A1", "1", "2811304,2,0,bad"]]
+        rows = [["A1", "1", "2811304, 2 3, 0, bad"]]
         filers = {"A1": {"submission_type": "13F-HR", "report_type": "13F HOLDINGS REPORT"}}
         out = audit_infotable_references(
             header, rows, filers,
-            {"A1": {"2"}},
+            {"A1": {"2", "3"}},
             {"A1": {"2811304"}},
         )
-        self.assertEqual(out["nonzero_manager_reference_tokens"], 2)
+        self.assertEqual(out["nonzero_manager_reference_tokens"], 3)
         self.assertEqual(out["zero_sentinel_tokens"], 1)
         self.assertEqual(out["matches_othermanager_sk_only"], 1)
-        self.assertEqual(out["matches_othermanager2_sequence_only"], 1)
+        self.assertEqual(out["matches_othermanager2_sequence_only"], 2)
         self.assertEqual(out["unmatched_to_either_table"], 0)
         self.assertEqual(out["malformed_nonzero_tokens"], 1)
 
