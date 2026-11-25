@@ -180,6 +180,7 @@ def audit_othermanager(header: list[str], rows: list[list[str]], filers: dict,
         return {"schema_ok": False, "missing_fields": missing, "rows": len(rows)}
     seen = set()
     counts = Counter()
+    keys_by_accession: dict[str, set[str]] = defaultdict(set)
     status = Counter()
     duplicate_keys = blank_accessions = orphan_accessions = invalid_keys = 0
     samples = []
@@ -196,6 +197,7 @@ def audit_othermanager(header: list[str], rows: list[list[str]], filers: dict,
         if pair in seen:
             duplicate_keys += 1
         seen.add(pair)
+        keys_by_accession[accession].add(key)
         if accession not in filers:
             orphan_accessions += 1
         status[resolve_manager_identity(cell(row, ix["cik"]), cell(row, ix["file_number"]), file_number_to_ciks)] += 1
@@ -209,6 +211,7 @@ def audit_othermanager(header: list[str], rows: list[list[str]], filers: dict,
         "invalid_surrogate_keys": invalid_keys, "orphan_accessions": orphan_accessions,
         "identity_resolution": dict(sorted(status.items())), "sample_keys": samples,
         "rows_by_accession": dict(counts),
+        "keys_by_accession": {k: sorted(v, key=int) for k,v in keys_by_accession.items()},
     }
 
 
@@ -230,6 +233,7 @@ def audit_othermanager2(header: list[str], rows: list[list[str]], filers: dict,
     status = Counter()
     duplicate_pairs = blank_accessions = orphan_accessions = invalid_sequences = 0
     samples = []
+    duplicate_pair_samples = []
     for row in rows:
         accession = cell(row, ix["accession"])
         raw_sequence = cell(row, ix["sequence"])
@@ -247,6 +251,8 @@ def audit_othermanager2(header: list[str], rows: list[list[str]], filers: dict,
         pair = (accession, str(sequence))
         if pair in seen_pairs:
             duplicate_pairs += 1
+            if len(duplicate_pair_samples) < 10:
+                duplicate_pair_samples.append({"accession": accession, "sequence_number": sequence})
         seen_pairs.add(pair)
         sequences[accession].add(str(sequence))
         if accession not in filers:
@@ -266,19 +272,22 @@ def audit_othermanager2(header: list[str], rows: list[list[str]], filers: dict,
         "blank_accessions": blank_accessions, "orphan_accessions": orphan_accessions,
         "identity_resolution": dict(sorted(status.items())), "sample_rows": samples,
         "rows_by_accession": dict(counts), "sequences_by_accession": {k: sorted(v, key=int) for k,v in sequences.items()},
+        "duplicate_pair_samples": duplicate_pair_samples,
     }
 
 
 def audit_infotable_references(header: list[str], rows, filers: dict,
-                               included_sequences: dict[str, set[str]]) -> dict:
+                               included_sequences: dict[str, set[str]],
+                               reporting_keys: dict[str, set[str]]) -> dict:
     accession_ix = index(header, "ACCESSION_NUMBER")
     line_ix = index(header, "INFOTABLE_SK", "INFO_TABLE_SK")
     manager_ix = index(header, "OTHERMANAGER", "OTHER_MANAGER")
     missing = [name for name,ix in (("ACCESSION_NUMBER",accession_ix),("INFOTABLE_SK",line_ix),("OTHERMANAGER",manager_ix)) if ix is None]
     if missing:
         return {"schema_ok": False, "missing_fields": missing}
-    total = joined = missing_accession = rows_with_refs = tokens = resolved = dangling = malformed = notice_rows = 0
-    dangling_sample, malformed_sample = [], []
+    total = joined = missing_accession = rows_with_refs = tokens = zero_tokens = malformed = notice_rows = 0
+    sequence_only = othermanager_sk_only = both_tables = unmatched = 0
+    unmatched_sample, malformed_sample, sk_only_sample, sequence_only_sample = [], [], [], []
     notice_accessions = {a for a,f in filers.items()
                          if f["submission_type"] in {"13F-NT","13F-NT/A"} or f["report_type"] == "13F NOTICE"}
     for row in rows:
@@ -296,25 +305,43 @@ def audit_infotable_references(header: list[str], rows, filers: dict,
         rows_with_refs += 1
         for token in raw.split(","):
             token = token.strip()
-            if not token.isdigit() or int(token) < 1:
+            if token == "0":
+                zero_tokens += 1
+                continue
+            if not token.isdigit():
                 malformed += 1
                 if len(malformed_sample) < 8:
                     malformed_sample.append({"accession": accession, "line": cell(row,line_ix), "token": token})
                 continue
             tokens += 1
-            if token in included_sequences.get(accession, set()):
-                resolved += 1
+            in_sequence = token in included_sequences.get(accession, set())
+            in_surrogate = token in reporting_keys.get(accession, set())
+            if in_sequence and in_surrogate:
+                both_tables += 1
+            elif in_sequence:
+                sequence_only += 1
+                if len(sequence_only_sample) < 8:
+                    sequence_only_sample.append({"accession": accession, "line": cell(row,line_ix), "token": token})
+            elif in_surrogate:
+                othermanager_sk_only += 1
+                if len(sk_only_sample) < 8:
+                    sk_only_sample.append({"accession": accession, "line": cell(row,line_ix), "token": token})
             else:
-                dangling += 1
-                if len(dangling_sample) < 8:
-                    dangling_sample.append({"accession": accession, "line": cell(row,line_ix), "sequence": int(token)})
+                unmatched += 1
+                if len(unmatched_sample) < 8:
+                    unmatched_sample.append({"accession": accession, "line": cell(row,line_ix), "token": token})
     return {
         "schema_ok": True, "rows": total, "joined_rows": joined,
         "missing_or_orphan_accession_rows": missing_accession, "rows_with_manager_refs": rows_with_refs,
-        "manager_reference_tokens": tokens, "resolved_sequence_tokens": resolved,
-        "dangling_sequence_tokens": dangling, "malformed_sequence_tokens": malformed,
+        "nonzero_manager_reference_tokens": tokens, "zero_sentinel_tokens": zero_tokens,
+        "matches_othermanager2_sequence_only": sequence_only,
+        "matches_othermanager_sk_only": othermanager_sk_only,
+        "matches_both_tables": both_tables, "unmatched_to_either_table": unmatched,
+        "malformed_nonzero_tokens": malformed,
         "notice_accession_holding_rows": notice_rows,
-        "sample_dangling": dangling_sample, "sample_malformed": malformed_sample,
+        "sample_othermanager_sk_only": sk_only_sample,
+        "sample_sequence_only": sequence_only_sample,
+        "sample_unmatched": unmatched_sample, "sample_malformed": malformed_sample,
     }
 
 
@@ -358,12 +385,13 @@ def download(url: str, user_agent: str) -> bytes:
 
 
 def audit_infotable_member(payload: bytes, member: str, filers: dict,
-                            included_sequences: dict[str, set[str]]) -> dict:
+                            included_sequences: dict[str, set[str]],
+                            reporting_keys: dict[str, set[str]]) -> dict:
     with zipfile.ZipFile(io.BytesIO(payload)) as archive:
         with archive.open(member) as raw:
             reader = csv.reader(io.TextIOWrapper(raw, encoding="utf-8-sig", errors="replace", newline=""), delimiter="\t")
             header = next(reader, [])
-            return audit_infotable_references([x.strip() for x in header], reader, filers, included_sequences)
+            return audit_infotable_references([x.strip() for x in header], reader, filers, included_sequences, reporting_keys)
 
 
 def audit_dataset(label: str, url: str, user_agent: str) -> dict:
@@ -384,12 +412,13 @@ def audit_dataset(label: str, url: str, user_agent: str) -> dict:
     om = audit_othermanager(om_h,om_rows,filers,mapping)
     om2 = audit_othermanager2(om2_h,om2_rows,filers,mapping)
     info = audit_infotable_member(payload,members["INFOTABLE"],filers,
-        {k:set(v) for k,v in om2.get("sequences_by_accession",{}).items()})
+        {k:set(v) for k,v in om2.get("sequences_by_accession",{}).items()},
+        {k:set(v) for k,v in om.get("keys_by_accession",{}).items()})
     summary = audit_summarypage(sum_h,sum_rows,om2.get("rows_by_accession",{}))
     notices = {a for a,f in filers.items() if f["submission_type"] in {"13F-NT","13F-NT/A"} or f["report_type"] == "13F NOTICE"}
     notice_without_roster = [a for a in notices if om.get("rows_by_accession",{}).get(a,0)==0]
     required_ok = all(x.get("schema_ok") for x in (om,om2,info,summary))
-    structural_ok = required_ok and om.get("duplicate_accession_sk_keys",0)==0 and om2.get("duplicate_accession_sequence_pairs",0)==0 and info.get("dangling_sequence_tokens",0)==0 and info.get("malformed_sequence_tokens",0)==0
+    structural_ok = required_ok and om.get("duplicate_accession_sk_keys",0)==0 and om2.get("duplicate_accession_sequence_pairs",0)==0 and info.get("unmatched_to_either_table",0)==0 and info.get("malformed_nonzero_tokens",0)==0 and summary.get("count_mismatches",0)==0
     if om2.get("accessions_with_multiple_rows",0):
         key_interpretation = "ACCESSION_NUMBER-only key notation is not unique in observed rows; (ACCESSION_NUMBER, SEQUENCENUMBER) is a candidate logical key, subject to source-filing reconciliation."
     else:
@@ -407,7 +436,7 @@ def audit_dataset(label: str, url: str, user_agent: str) -> dict:
         "status":"PASS_STRUCTURAL_COUNTS" if structural_ok else "REVIEW_STRUCTURAL_OR_IDENTITY_EXCEPTIONS",
         "source_url":url,"zip_bytes":len(payload),"zip_sha256":hashlib.sha256(payload).hexdigest(),
         "members":members,"filer_context":{k:v for k,v in context.items() if k not in {"filers","file_number_to_ciks"}},
-        "othermanager":{k:v for k,v in om.items() if k!="rows_by_accession"},
+        "othermanager":{k:v for k,v in om.items() if k not in {"rows_by_accession","keys_by_accession"}},
         "othermanager2":{k:v for k,v in om2.items() if k not in {"rows_by_accession","sequences_by_accession"}},
         "infotable_references":info,"summarypage_reconciliation":summary,
         "notice_controls":{"notice_accessions":len(notices),"notice_accessions_without_othermanager_roster":len(notice_without_roster),
