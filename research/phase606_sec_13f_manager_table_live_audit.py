@@ -361,7 +361,7 @@ def audit_infotable_member(payload: bytes, member: str, filers: dict,
                             included_sequences: dict[str, set[str]]) -> dict:
     with zipfile.ZipFile(io.BytesIO(payload)) as archive:
         with archive.open(member) as raw:
-            reader = csv.reader(io.TextIOWrapper(raw, encoding="utf-8-sig", errors="replace", newline=""), delimiter="\\t")
+            reader = csv.reader(io.TextIOWrapper(raw, encoding="utf-8-sig", errors="replace", newline=""), delimiter="\t")
             header = next(reader, [])
             return audit_infotable_references([x.strip() for x in header], reader, filers, included_sequences)
 
