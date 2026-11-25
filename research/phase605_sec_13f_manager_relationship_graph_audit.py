@@ -92,9 +92,11 @@ def _build_filer_index(
 
     submissions: dict[str, dict] = {}
     duplicate_submission_accessions = 0
+    blank_submission_accession_rows = 0
     for row in submission_rows:
         accession = _cell(row, si["accession"])
         if not accession:
+            blank_submission_accession_rows += 1
             continue
         if accession in submissions:
             duplicate_submission_accessions += 1
@@ -112,9 +114,11 @@ def _build_filer_index(
 
     coverpages: dict[str, dict] = {}
     duplicate_cover_accessions = 0
+    blank_coverpage_accession_rows = 0
     for row in coverpage_rows:
         accession = _cell(row, ci["accession"])
         if not accession:
+            blank_coverpage_accession_rows += 1
             continue
         if accession in coverpages:
             duplicate_cover_accessions += 1
@@ -151,7 +155,9 @@ def _build_filer_index(
         "coverpage_rows": len(coverpage_rows),
         "coverpage_accessions": len(coverpages),
         "duplicate_submission_accessions": duplicate_submission_accessions,
+        "blank_submission_accession_rows": blank_submission_accession_rows,
         "duplicate_coverpage_accessions": duplicate_cover_accessions,
+        "blank_coverpage_accession_rows": blank_coverpage_accession_rows,
         "missing_coverpage_accessions": len(missing_cover_accessions),
         "extra_coverpage_accessions": len(extra_cover_accessions),
         "invalid_filer_file_numbers": invalid_filer_file_numbers,
@@ -239,11 +245,13 @@ def _parse_othermanager(
     invalid_keys = 0
     orphans = 0
     missing_names = 0
+    blank_accessions = 0
     for row in rows:
         accession = _cell(row, ix["accession"])
         key = _cell(row, ix["key"])
         name = _cell(row, ix["name"])
         if not accession:
+            blank_accessions += 1
             continue
         if not key.isdigit():
             invalid_keys += 1
@@ -280,6 +288,7 @@ def _parse_othermanager(
         "edges": len(edges),
         "duplicate_accession_key_rows": duplicates,
         "invalid_key_rows": invalid_keys,
+        "blank_accession_rows": blank_accessions,
         "orphan_accession_rows": orphans,
         "missing_name_rows": missing_names,
         "schema_ok": True,
@@ -310,11 +319,13 @@ def _parse_othermanager2(
     invalid_sequences = 0
     orphans = 0
     missing_names = 0
+    blank_accessions = 0
     for row in rows:
         accession = _cell(row, ix["accession"])
         raw_sequence = _cell(row, ix["sequence"])
         name = _cell(row, ix["name"])
         if not accession:
+            blank_accessions += 1
             continue
         try:
             sequence = int(raw_sequence)
@@ -357,6 +368,7 @@ def _parse_othermanager2(
         "edges": len(edges),
         "duplicate_accession_sequence_rows": duplicates,
         "invalid_sequence_rows": invalid_sequences,
+        "blank_accession_rows": blank_accessions,
         "orphan_accession_rows": orphans,
         "missing_name_rows": missing_names,
         "schema_ok": True,
@@ -377,6 +389,7 @@ def _audit_infotable_references(
     seen_rows = set()
     orphan_rows = 0
     duplicate_rows = 0
+    blank_accessions = 0
     referenced_tokens = 0
     dangling = []
     malformed = []
@@ -384,6 +397,7 @@ def _audit_infotable_references(
     for row in rows:
         accession = _cell(row, accession_ix)
         if not accession:
+            blank_accessions += 1
             continue
         line_key = _cell(row, sequence_ix)
         if not line_key:
@@ -412,6 +426,7 @@ def _audit_infotable_references(
     return {
         "rows": len(rows),
         "duplicate_accession_line_rows": duplicate_rows,
+        "blank_accession_rows": blank_accessions,
         "orphan_accession_rows": orphan_rows,
         "referenced_sequence_tokens": referenced_tokens,
         "resolved_sequence_tokens": resolved,
@@ -490,15 +505,23 @@ def audit_manager_relationship_graph(
 
     duplicate_or_orphan = (
         filer_meta["duplicate_submission_accessions"]
+        + filer_meta["blank_submission_accession_rows"]
         + filer_meta["duplicate_coverpage_accessions"]
+        + filer_meta["blank_coverpage_accession_rows"]
+        + filer_meta["missing_coverpage_accessions"]
+        + filer_meta["extra_coverpage_accessions"]
         + othermanager_meta["duplicate_accession_key_rows"]
         + othermanager_meta["invalid_key_rows"]
+        + othermanager_meta["blank_accession_rows"]
         + othermanager_meta["orphan_accession_rows"]
         + othermanager_meta["missing_name_rows"]
         + othermanager2_meta["duplicate_accession_sequence_rows"]
+        + othermanager2_meta["invalid_sequence_rows"]
+        + othermanager2_meta["blank_accession_rows"]
         + othermanager2_meta["orphan_accession_rows"]
         + othermanager2_meta["missing_name_rows"]
         + info_meta["duplicate_accession_line_rows"]
+        + info_meta["blank_accession_rows"]
         + info_meta["orphan_accession_rows"]
     )
     reference_errors = info_meta["dangling_sequence_tokens"] + info_meta["malformed_sequence_tokens"]
