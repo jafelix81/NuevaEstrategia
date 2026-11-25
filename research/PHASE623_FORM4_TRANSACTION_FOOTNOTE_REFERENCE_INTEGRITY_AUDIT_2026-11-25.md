@@ -31,20 +31,32 @@ An accession marker records successful parsing even when no footnote references 
 
 The scheduled workflow runs the bounded sidecar backfill after the transaction-detail backfill, then persists it with the existing append-only data directory. Manual mode performs no fetch or persistence.
 
+## Phase 624 follow-on — atomic sidecar commit semantics
+
+A code review identified one remaining persistence risk: the accession completion marker was serialized before its reference rows. An interrupted CSV append could therefore leave a marker that made a partial sidecar appear complete.
+
+The append path now:
+- stages the existing ledger plus pending rows in a temporary file in the same directory;
+- writes all reference rows before the accession completion marker;
+- flushes and fsyncs the staged file, then atomically replaces the ledger;
+- deduplicates pending reference keys within a batch and preserves idempotent retries.
+
+A regression simulates a partial prior append containing a reference row but no completion marker. The retry appends only the missing references and marker, preserves exactly three reference rows, and leaves the marker last.
+
 ## Regression coverage
 
 New tests cover:
 - F3/F4/F5 reference ordering and XML field paths;
 - exact ID-to-text-hash mapping;
 - linkage to the existing transaction detail key;
-- append idempotency and accession completion markers;
+- append idempotency, partial-append recovery, marker-last ordering and atomic replacement;
 - sidecar backfill of already-parsed accessions without changing the transaction ledger;
 - manual-mode no-fetch behavior and schema-mismatch fail-closed behavior.
 
 ## Validation result
 
-- Final PR check [Run 45687169039](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45687169039) passed **75/75 offline regression tests**.
-- The live-capture job was skipped as designed for pull-request validation; no SEC feed or filing was fetched by CI.
+- The code/test validation [Run 45692977177](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45692977177) passed **76/76 offline regression tests** after Phase 624 atomic-commit hardening.
+- The live-capture job was skipped as designed for pull-request validation; no SEC feed or filing was fetched by CI. A documentation-only refresh of this audit is being revalidated separately.
 - The first attempt [Run 45687060727](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45687060727) failed one test-only XML field-path assertion (`transactionPricePerShare` spelling); the assertion was corrected in commit `907bef37`, and the full suite then passed.
 
 ## Research disposition
