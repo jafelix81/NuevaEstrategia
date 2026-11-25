@@ -244,6 +244,13 @@ def stratified_sample(rows: list[dict[str, Any]], sample_size: int = SAMPLE_SIZE
             f"Global index sample has only {len(selected)} eligible accessions; "
             f"{sample_size} required."
         )
+    present_forms = {str(row.get("form") or "") for row in selected}
+    missing_forms = TARGET_FORMS - present_forms
+    if missing_forms:
+        raise ValueError(
+            "Stratified sample does not cover all four Schedule 13D/G forms: "
+            + ", ".join(sorted(missing_forms))
+        )
     return selected
 
 
@@ -414,7 +421,13 @@ def run_live_sample(output_dir: Path, *, sample_size: int = SAMPLE_SIZE) -> dict
         "form_counts": {},
         "legal_regime_counts": {},
         "schema_regime_counts": {},
-        "index_filer_accession_mismatches": sum(not r.get("index_filer_accession_match") for r in results),
+        "global_index_filer_accession_mismatches": sum(
+            not r.get("index_filer_accession_match") for r in unique_rows
+        ),
+        "sample_index_filer_accession_mismatches": sum(
+            not r.get("index_filer_accession_match") for r in results
+        ),
+        "sample_form_coverage_complete": set(r["form"] for r in sample) == TARGET_FORMS,
         "header_index_filer_mismatches": sum(r.get("header_filer_index_match") is False for r in results),
         "archive_path_subject_mismatches": sum(r.get("archive_path_subject_match") is False for r in results),
         "header_errors": len(errors),
