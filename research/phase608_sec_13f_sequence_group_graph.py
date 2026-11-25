@@ -155,7 +155,13 @@ def attach_infotable_rows(group_graph: dict, header: list[str], rows: list[list[
     if missing:
         raise ValueError("missing_infotable_fields:" + ",".join(missing))
     groups = group_graph["groups"]
-    stats = Counter()
+    stats = Counter({
+        "infotable_rows": 0, "zero_sentinel_count": 0, "no_reference_rows": 0,
+        "zero_only_rows": 0, "nonnumeric_as_filed_rows": 0, "numeric_reference_rows": 0,
+        "numeric_reference_tokens": 0, "unmatched_sequence_tokens": 0,
+        "matched_group_tokens": 0, "group_only_reference_tokens": 0,
+        "single_member_group_tokens": 0,
+    })
     links = []
     nonnumeric_labels = Counter()
     unmatched_examples = []
