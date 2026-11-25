@@ -1,6 +1,6 @@
 # Phase 605 — SEC Form 13F role-aware manager relationship graph audit
 
-**Status: PASS — 16/16 offline synthetic regression tests passed.**  
+**Status: PASS — 17/17 offline synthetic regression tests passed.**  
 **Date:** 2026-11-24/25 UTC  
 **Branch:** phase605-sec-13f-manager-relationship-graph-audit  
 **Parent:** phase48-sec-13f-asof-amendment-state-machine  
@@ -27,7 +27,7 @@ Official FAQ: https://www.sec.gov/rules-regulations/staff-guidance/frequently-as
 The new pure-Python module research/phase605_sec_13f_manager_relationship_graph_audit.py:
 
 1. Builds the filing-manager CIK / Form 13F file-number crosswalk from SUBMISSION + COVERPAGE within the bounded sample.
-2. Keeps OTHERMANAGER as directed edge NOTICE_FILER_TO_REPORTING_MANAGER.
+2. Keeps OTHERMANAGER as directed edge FILER_TO_REPORTING_MANAGER.
 3. Keeps OTHERMANAGER2 as directed edge REPORTING_FILER_TO_INCLUDED_MANAGER.
 4. Joins INFOTABLE.OTHERMANAGER sequence tokens only to OTHERMANAGER2.SEQUENCENUMBER for the same accession.
 5. Normalizes common 13F file-number variants such as 028-04545, 28-4545, and 028 - 4545 to 028-04545.
@@ -43,7 +43,7 @@ A 13F Combination Report may carry both relationship directions. The parser pres
 The GitHub Actions workflow is deliberately offline-only for pull requests. It compiles the module and runs 16 synthetic regressions covering:
 
 - file-number normalization;
-- notice-filer → reporting-manager direction;
+- filer → reporting-manager direction;
 - reporting-filer → included-manager direction;
 - INFOTABLE sequence references, including multiple managers;
 - explicit CIK/file-number conflict;
