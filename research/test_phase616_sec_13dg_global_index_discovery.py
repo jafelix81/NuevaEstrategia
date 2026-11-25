@@ -17,7 +17,7 @@ from research.phase616_sec_13dg_global_index_discovery import (
 INDEX_FIXTURE = """Description: SEC Master Index
 Last Data Received: 2026-11-24
 CIK|Company Name|Form Type|Date Filed|Filename
-895421|MORGAN STANLEY|SC 13G|2024-02-12|edgar/data/1793855/0000895421-24-000178.txt
+1174922|WYNN RESORTS LTD|SC 13G|2023-02-14|edgar/data/1174922/0001193125-23-039159.txt
 320193|APPLE INC|10-K|2024-02-01|edgar/data/320193/0000320193-24-000001.txt
 789019|MICROSOFT CORP|SC 13D/A|2026-08-03|edgar/data/789019/0000789019-26-000123.txt
 """
@@ -59,20 +59,21 @@ class Phase616IndexParserTests(unittest.TestCase):
                 "0001193125-15-118890",
             )
 
-    def test_master_index_separates_filer_from_archive_path_cik(self):
+    def test_master_index_subject_candidate_is_separate_from_agent_prefix(self):
         rows = parse_master_index(
             INDEX_FIXTURE,
-            index_url="https://www.sec.gov/Archives/edgar/full-index/2024/QTR1/master.idx",
+            index_url="https://www.sec.gov/Archives/edgar/full-index/2023/QTR1/master.idx",
             index_sha256="a" * 64,
-            quarter="2024Q1",
+            quarter="2023Q1",
         )
         self.assertEqual(len(rows), 2)
         row = rows[0]
-        self.assertEqual(row["index_filer_cik"], "0000895421")
-        self.assertEqual(row["accession_filer_cik"], "0000895421")
-        self.assertEqual(row["archive_path_cik"], "0001793855")
+        self.assertEqual(row["index_company_cik"], "0001174922")
+        self.assertEqual(row["index_company_name"], "WYNN RESORTS LTD")
+        self.assertEqual(row["accession_submitter_cik"], "0001193125")
+        self.assertEqual(row["archive_path_cik"], "0001174922")
         self.assertIsNone(row["subject_issuer_cik"])
-        self.assertTrue(row["index_filer_accession_match"])
+        self.assertFalse(row["index_company_accession_prefix_match"])
 
     def test_master_index_filters_non_target_forms(self):
         rows = parse_master_index(
@@ -85,7 +86,7 @@ class Phase616IndexParserTests(unittest.TestCase):
 
     def test_invalid_archive_path_fails_closed(self):
         bad = INDEX_FIXTURE.replace(
-            "edgar/data/1793855/0000895421-24-000178.txt",
+            "edgar/data/1174922/0001193125-23-039159.txt",
             "edgar/data/895421/not-an-accession.txt",
         )
         with self.assertRaises(ValueError):
@@ -103,7 +104,7 @@ class Phase616IndexParserTests(unittest.TestCase):
     def test_conflicting_duplicate_accession_fails_closed(self):
         row = {
             "accession": "0000895421-24-000178",
-            "index_filer_cik": "0000895421",
+            "index_company_cik": "0001174922",
             "form": "SC 13G",
             "filing_date": "2024-02-12",
             "filename": "edgar/data/1793855/0000895421-24-000178.txt",
@@ -115,7 +116,7 @@ class Phase616IndexParserTests(unittest.TestCase):
     def test_identical_duplicate_accession_is_deduplicated(self):
         row = {
             "accession": "0000895421-24-000178",
-            "index_filer_cik": "0000895421",
+            "index_company_cik": "0001174922",
             "form": "SC 13G",
             "filing_date": "2024-02-12",
             "filename": "edgar/data/1793855/0000895421-24-000178.txt",
@@ -142,7 +143,8 @@ class Phase616IndexParserTests(unittest.TestCase):
                         "legal_regime": legal,
                         "schema_regime": schema,
                         "source_quarter": "2024Q1",
-                        "index_filer_accession_match": True,
+                        "index_company_cik": "0000000001",
+                        "index_company_accession_prefix_match": True,
                     }
                 )
         sample_a = stratified_sample(rows, sample_size=8, required_quarters={"2024Q1"})
@@ -150,6 +152,33 @@ class Phase616IndexParserTests(unittest.TestCase):
         self.assertEqual([r["accession"] for r in sample_a], [r["accession"] for r in sample_b])
         keys = {(r["source_quarter"], r["form_family"], r["amendment"], r["legal_regime"], r["schema_regime"]) for r in sample_a}
         self.assertEqual(len(keys), 4)
+
+    def test_stratified_sample_keeps_third_party_agent_prefix_mismatch(self):
+        rows = []
+        for i, (family, form, amendment) in enumerate(
+            [
+                ("13D", "SC 13D", False),
+                ("13D", "SC 13D/A", True),
+                ("13G", "SC 13G", False),
+                ("13G", "SC 13G/A", True),
+            ],
+            start=1,
+        ):
+            rows.append({
+                "accession": f"0001193125-26-{i:06d}",
+                "accession_submitter_cik": "0001193125",
+                "index_company_cik": "0000000002",
+                "index_company_accession_prefix_match": False,
+                "form_family": family,
+                "form": form,
+                "amendment": amendment,
+                "legal_regime": "POST_2024_02_05" if family == "13D" else "POST_2024_09_30",
+                "schema_regime": "MANDATORY_XML_FROM_2024_12_18",
+                "source_quarter": "2026Q3",
+            })
+        sample = stratified_sample(rows, sample_size=4, required_quarters={"2026Q3"})
+        self.assertEqual(len(sample), 4)
+        self.assertTrue(all(not row["index_company_accession_prefix_match"] for row in sample))
 
     def test_sample_fails_if_global_index_coverage_is_too_small(self):
         with self.assertRaises(ValueError):
@@ -165,7 +194,8 @@ class Phase616IndexParserTests(unittest.TestCase):
                 "legal_regime": "POST_2024_02_05" if family == "13D" else "POST_2024_09_30",
                 "schema_regime": "MANDATORY_XML_FROM_2024_12_18",
                 "source_quarter": "2026Q3",
-                "index_filer_accession_match": True,
+                "index_company_cik": "0000000001",
+                        "index_company_accession_prefix_match": True,
             }
             for i, (family, form, amendment) in enumerate(
                 [
@@ -210,7 +240,8 @@ class Phase616IndexParserTests(unittest.TestCase):
                         "legal_regime": legal,
                         "schema_regime": schema,
                         "source_quarter": quarter,
-                        "index_filer_accession_match": True,
+                        "index_company_cik": "0000000001",
+                        "index_company_accession_prefix_match": True,
                     })
                     accession_number += 1
         sample = stratified_sample(rows, sample_size=44)
@@ -237,7 +268,8 @@ class Phase616IndexParserTests(unittest.TestCase):
                         "legal_regime": "POST_2024_02_05" if family == "13D" else "POST_2024_09_30",
                         "schema_regime": "VOLUNTARY_XML_2023_12_18_TO_2024_12_17",
                         "source_quarter": label,
-                        "index_filer_accession_match": True,
+                        "index_company_cik": "0000000001",
+                        "index_company_accession_prefix_match": True,
                     })
                     accession_number += 1
         with self.assertRaises(ValueError):
