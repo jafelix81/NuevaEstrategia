@@ -168,6 +168,7 @@ class Phase612Tests(unittest.TestCase):
             CAL,
         )
         self.assertEqual(out["availability_mode"], "FILING_DATE_END_OF_DAY_FALLBACK")
+        self.assertEqual(out["legal_filing_date_floor_utc"], "2026-08-26T10:00:00+00:00")
         self.assertEqual(out["effective_knowledge_at_utc"], "2026-08-27T03:59:59+00:00")
         self.assertEqual(out["first_completed_daily_bar_session"], "2026-08-27")
         self.assertEqual(out["daily_bar_signal_earliest_next_open_session"], "2026-08-28")
