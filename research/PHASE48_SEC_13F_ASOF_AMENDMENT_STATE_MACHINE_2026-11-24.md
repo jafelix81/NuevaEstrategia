@@ -1,7 +1,8 @@
 # Phase 48 — SEC 13F manager-period as-of amendment state machine
 
-**Status:** implementation complete; awaiting GitHub Actions offline regression.  
-**Date:** 2026-11-24 UTC  
+**Status: PASS — 12/12 offline synthetic regression tests passed.**  
+**Date:** 2026-11-24/25 UTC  
+**Workflow:** [GitHub Actions run 45519938849](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45519938849)  
 **Branch:** `phase48-sec-13f-asof-amendment-state-machine`  
 **Parent:** `phase47-sec-13f-pit-accession-join-audit`
 
@@ -31,24 +32,16 @@ The new pure-Python module `research/phase48_sec_13f_asof_amendment_state_machin
 
 The function accepts the session calendar explicitly. Production callers must supply a verified NYSE session calendar with sufficient forward coverage; the module does not guess holidays or sessions.
 
-## Offline regression coverage
+## Offline regression result
 
-The test suite uses synthetic fixtures only. It covers:
+GitHub Actions [run 45519938849](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45519938849) completed successfully on 2026-11-25 00:40:51 UTC.
 
-- filing-date strict-next-session availability;
-- original → new-holdings supplement → restatement sequence;
-- same-day original/amendment availability only on the next full session;
-- 13F-NT notice separation;
-- overlapping new-holdings rows;
-- missing holdings payload;
-- amendment without original;
-- amendment-number gaps;
-- duplicate line keys;
-- multiple original submissions;
-- truncated session calendar;
-- unknown amendment type.
+- Python compilation passed.
+- **12/12 synthetic offline tests passed.**
+- No network request or SEC data download was performed.
+- The tests cover strict next-session availability; original → new-holdings supplement → restatement; same-day filing availability; 13F-NT notice separation; overlap rejection; missing payload; missing original; amendment-number gaps; duplicate line keys; multiple originals; truncated calendars; and unknown amendment types.
 
-No live SEC retrieval is part of this workflow. The Phase 47 workflow was also changed so pull-request validation is offline-only; bounded live SEC retrieval now requires an explicit `workflow_dispatch` with `run_live_sec_audit=true`. The existing project-contact fallback remains available for that explicit live path; the repository secret itself is not asserted to be configured.
+The parent Phase 47 workflow was also hardened. [Run 45519613878](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45519613878) passed its seven offline tests, explicitly skipped the live SEC retrieval step, and recorded the offline-only execution. Live SEC retrieval now requires a manual `workflow_dispatch` with `run_live_sec_audit=true`.
 
 ## Data and research limitations
 
@@ -61,7 +54,7 @@ No live SEC retrieval is part of this workflow. The Phase 47 workflow was also c
 
 ## Decision
 
-**PASS only for the synthetic amendment-state logic if CI succeeds. NOT ADMITTED for data, signal, or portfolio use.**
+**PASS for synthetic amendment-state logic only. NOT ADMITTED for data, signal, or portfolio use.**
 
 Next data gate: extend the bounded SEC parser to preserve the OTHERMANAGER table and exact accession metadata; then select a small set of complete manager-period chains and compare the reconstructed states against the original EDGAR filings. Only after that should the historical CUSIP-to-F80 coverage gate be revisited.
 
