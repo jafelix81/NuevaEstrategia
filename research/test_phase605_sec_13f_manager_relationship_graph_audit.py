@@ -159,6 +159,13 @@ class Phase605Tests(unittest.TestCase):
         self.assertEqual(result["infotable_sequence_references"]["resolved_sequence_tokens"], 1)
         self.assertEqual(result["infotable_sequence_references"]["dangling_sequence_tokens"], 0)
 
+    def test_invalid_included_manager_sequence_is_flagged(self):
+        submissions, cover, om, om2, info = base_inputs()
+        om2[0][1] = "zero"
+        result = audit(submissions, cover, om, om2, info)
+        self.assertEqual(result["othermanager2_included_in_filing"]["invalid_sequence_rows"], 1)
+        self.assertEqual(result["status"], "BLOCKED_RELATIONSHIP_OR_IDENTITY_EXCEPTIONS")
+
     def test_combination_report_preserves_both_relationship_directions(self):
         submissions, cover, om, om2, info = base_inputs()
         submissions[0][2] = "13F-HR"
