@@ -234,6 +234,7 @@ def _parse_othermanager(
     edges = []
     seen = set()
     duplicates = 0
+    invalid_keys = 0
     orphans = 0
     missing_names = 0
     for row in rows:
@@ -241,6 +242,9 @@ def _parse_othermanager(
         key = _cell(row, ix["key"])
         name = _cell(row, ix["name"])
         if not accession:
+            continue
+        if not key.isdigit():
+            invalid_keys += 1
             continue
         identity = (accession, key)
         if identity in seen:
@@ -264,7 +268,7 @@ def _parse_othermanager(
             "submission_type": filer["submission_type"],
             "from_filer_cik": filer["filer_cik"],
             "to_reporting_manager_cik": target["resolved_cik"],
-            "relationship_type": "NOTICE_FILER_TO_REPORTING_MANAGER",
+            "relationship_type": "FILER_TO_REPORTING_MANAGER",
             "other_manager_sk": key,
             "other_manager_name_as_filed": name,
             **target,
@@ -273,6 +277,7 @@ def _parse_othermanager(
         "rows": len(rows),
         "edges": len(edges),
         "duplicate_accession_key_rows": duplicates,
+        "invalid_key_rows": invalid_keys,
         "orphan_accession_rows": orphans,
         "missing_name_rows": missing_names,
         "schema_ok": True,
@@ -365,8 +370,8 @@ def _audit_infotable_references(
     accession_ix = _index(header, "ACCESSION_NUMBER")
     sequence_ix = _index(header, "INFOTABLE_SK", "INFOTABLE_SEQUENCE", "SEQUENCE")
     manager_ix = _index(header, "OTHERMANAGER", "OTHER_MANAGER")
-    if accession_ix is None or manager_ix is None:
-        raise ManagerGraphError("infotable_missing_accession_or_othermanager")
+    if accession_ix is None or sequence_ix is None or manager_ix is None:
+        raise ManagerGraphError("infotable_missing_accession_key_or_othermanager")
     seen_rows = set()
     orphan_rows = 0
     duplicate_rows = 0
@@ -378,7 +383,10 @@ def _audit_infotable_references(
         accession = _cell(row, accession_ix)
         if not accession:
             continue
-        line_key = _cell(row, sequence_ix) if sequence_ix is not None else str(len(seen_rows))
+        line_key = _cell(row, sequence_ix)
+        if not line_key:
+            malformed.append({"accession": accession, "line": None, "token": "<missing INFOTABLE_SK>"})
+            continue
         row_key = (accession, line_key)
         if row_key in seen_rows:
             duplicate_rows += 1
@@ -480,19 +488,24 @@ def audit_manager_relationship_graph(
 
     duplicate_or_orphan = (
         filer_meta["duplicate_submission_accessions"]
-        + filer_meta["duplicate_cover_accessions"]
+        + filer_meta["duplicate_coverpage_accessions"]
         + othermanager_meta["duplicate_accession_key_rows"]
+        + othermanager_meta["invalid_key_rows"]
         + othermanager_meta["orphan_accession_rows"]
+        + othermanager_meta["missing_name_rows"]
         + othermanager2_meta["duplicate_accession_sequence_rows"]
         + othermanager2_meta["orphan_accession_rows"]
+        + othermanager2_meta["missing_name_rows"]
         + info_meta["duplicate_accession_line_rows"]
         + info_meta["orphan_accession_rows"]
     )
     reference_errors = info_meta["dangling_sequence_tokens"] + info_meta["malformed_sequence_tokens"]
+    identity_format_errors = filer_meta["invalid_filer_file_numbers"]
     integrity_ok = (
         duplicate_or_orphan == 0
         and reference_errors == 0
         and identity_conflicts == 0
+        and identity_format_errors == 0
         and not report_type_discordance
         and not notice_without_roster
         and notice_with_holdings_rows == 0
@@ -507,7 +520,7 @@ def audit_manager_relationship_graph(
             "coverpage_required": ["ACCESSION_NUMBER", "FORM13FFILENUMBER", "REPORTTYPE", "FILINGMANAGER_NAME"],
             "othermanager_required": ["ACCESSION_NUMBER", "OTHERMANAGER_SK", "NAME"],
             "othermanager2_required": ["ACCESSION_NUMBER", "SEQUENCENUMBER", "NAME"],
-            "infotable_required": ["ACCESSION_NUMBER", "OTHERMANAGER"],
+            "infotable_required": ["ACCESSION_NUMBER", "INFOTABLE_SK", "OTHERMANAGER"],
         },
         "filer_index": filer_meta,
         "othermanager_reporting_for_filer": {
@@ -530,6 +543,7 @@ def audit_manager_relationship_graph(
             "edge_count": len(all_edges),
             "resolution_status_counts": dict(sorted(resolution_counts.items())),
             "unresolved_or_ambiguous_edges": unresolved,
+            "identity_complete": unresolved == 0 and identity_conflicts == 0 and filer_meta["file_numbers_with_multiple_ciks"] == 0,
             "identity_conflicts": identity_conflicts,
             "name_based_resolution_used": False,
             "file_number_to_cik_conflict_count": filer_meta["file_numbers_with_multiple_ciks"],
@@ -538,6 +552,7 @@ def audit_manager_relationship_graph(
         "integrity_controls": {
             "duplicate_or_orphan_rows": duplicate_or_orphan,
             "relationship_reference_errors": reference_errors,
+            "identity_format_errors": identity_format_errors,
             "integrity_ok": integrity_ok,
         },
         "interpretation": (
