@@ -56,7 +56,7 @@ New tests cover:
 ## Validation result
 
 - The code/test validation [Run 45692977177](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45692977177) passed **76/76 offline regression tests** after Phase 624 atomic-commit hardening.
-- The live-capture job was skipped as designed for pull-request validation; no SEC feed or filing was fetched by CI. A documentation-only refresh of this audit is being revalidated separately.
+- The live-capture job was skipped as designed for pull-request validation; no SEC feed or filing was fetched by CI. The audit refresh was revalidated in [Run 45693124109](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45693124109), which also passed 76/76 offline tests.
 - The first attempt [Run 45687060727](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45687060727) failed one test-only XML field-path assertion (`transactionPricePerShare` spelling); the assertion was corrected in commit `907bef37`, and the full suite then passed.
 
 ## Research disposition
