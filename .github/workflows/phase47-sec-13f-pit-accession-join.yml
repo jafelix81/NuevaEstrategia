@@ -3,6 +3,12 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      run_live_sec_audit:
+        description: "Explicitly download the bounded SEC 13F sample (leave false for offline validation)"
+        required: true
+        type: boolean
+        default: false
 jobs:
   audit:
     runs-on: ubuntu-latest
@@ -18,10 +24,15 @@ jobs:
           python -m py_compile research/sec_user_agent.py research/phase47_sec_13f_pit_accession_join_audit.py research/test_phase47_sec_13f_pit_accession_join_audit.py
           python -m unittest -v research.test_phase47_sec_13f_pit_accession_join_audit
       - name: Run SEC 13F PIT accession and amendment audit
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_live_sec_audit == true }}
         env:
           SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
         run: python research/phase47_sec_13f_pit_accession_join_audit.py
-      - name: Upload audit
+      - name: Record offline-only execution
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.run_live_sec_audit != true }}
+        run: echo "Offline validation only; live SEC retrieval requires an explicit workflow_dispatch confirmation."
+      - name: Upload audit when a live result exists
+        if: ${{ always() && hashFiles('sec_13f_pit_accession_join_audit.json') != '' }}
         uses: actions/upload-artifact@v4
         with:
           name: phase47-sec-13f-pit-accession-join-audit
