@@ -5,6 +5,7 @@ from research.phase611_sec_13f_acceptance_timestamp_stratified_audit import (
     select_stratified_samples,
     build_index_url,
     normalize_dataset_date,
+    audit_sample,
 )
 
 
@@ -34,15 +35,6 @@ class Phase611Tests(unittest.TestCase):
         self.assertEqual(normalize_dataset_date("31-DEC-2017"), "2017-12-31")
         self.assertEqual(normalize_dataset_date("2026-08-26"), "2026-08-26")
         self.assertIsNone(normalize_dataset_date("not-a-date"))
-
-    def test_short_filer_cik_is_zero_padded(self):
-        html = b"""<html>SEC Accession No. 0001534424-18-000046
-        Accepted: 2018-02-07 12:22:57 Filing Date: 2018-02-07
-        Form 13F-HR - Quarterly report
-        Example Manager (Filer) CIK: 1115419</html>"""
-        out = parse_filing_detail_html(html)
-        self.assertEqual(out["filer_cik_from_page"], "0001115419")
-        self.assertEqual(out["accession_from_page"], "0001534424-18-000046")
 
     def test_after_close_and_weekend_are_distinguished(self):
         after_close = parse_filing_detail_html(
@@ -100,6 +92,34 @@ class Phase611Tests(unittest.TestCase):
         url = build_index_url(sample)
         self.assertIn("/data/1631353/000195175726001605/", url)
         self.assertNotIn("/data/1951757/", url)
+
+
+    def test_filer_cik_is_verified_from_canonical_archive_path(self):
+        sample = {
+            "dataset": "2026_jun_jul_aug",
+            "accession": "0001951757-26-001605",
+            "filer_cik_from_dataset": "0001631353",
+            "submission_type": "13F-HR/A",
+            "report_type": "13F HOLDINGS",
+            "filing_date_from_dataset": "2026-08-26",
+            "period_of_report_from_dataset": "2025-09-30",
+        }
+        html = b"""<html>
+        Form 13F-HR/A - Quarterly report
+        SEC Accession No. 0001951757-26-001605
+        Filing Date 2026-08-26
+        Accepted 2026-08-26 11:11:54
+        Period of Report 2025-09-30
+        </html>"""
+        url = build_index_url(sample)
+        with unittest.mock.patch(
+            "research.phase611_sec_13f_acceptance_timestamp_stratified_audit.fetch_page",
+            return_value=(html, url, 200),
+        ):
+            out = audit_sample(sample, "test-agent")
+        self.assertTrue(out["checks"]["filer_cik_path_matches"])
+        self.assertTrue(out["checks"]["accession_matches"])
+        self.assertEqual(out["status"], "PASS")
 
 
 if __name__ == "__main__":
