@@ -33,7 +33,7 @@ The collector now records:
 - entries whose parsed form exactly matches the requested feed family;
 - successfully parsed accession occurrences.
 
-It fails closed only when an exact target-form entry cannot be parsed, or when an Atom entry's form cannot be classified. Recognized non-target forms are not mistaken for malformed target entries. Cross-feed duplicates remain visible and canonical events remain deduplicated by accession.
+It fails closed only when an exact target-form entry cannot be parsed, or when an Atom entry's form cannot be classified. Only the explicitly recognized adjacent form (for example, 13F-HR/A in the 13F-HR feed) is tolerated; an unclassifiable or unexpected recognized form fails closed. Cross-feed duplicates remain visible and canonical events remain deduplicated by accession.
 
 ## 4. Finding C — Atom updated is not a publication clock
 
