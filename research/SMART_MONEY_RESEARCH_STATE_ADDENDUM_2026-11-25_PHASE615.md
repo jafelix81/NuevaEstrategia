@@ -5,7 +5,7 @@
 
 - Phase 614's prior accession watermark is now diagnostic only; scheduled capture scans the complete current feed snapshot to a proven short/empty page and compares all accessions against the local append-only ledger.
 - The first scheduled baseline also enumerates the complete available snapshot before setting a watermark; baseline rows have no historical lower bound.
-- Recognized neighboring form types are counted separately from exact target-form entries. Unclassifiable entries and unparseable exact target-form entries fail closed.
+- Only explicitly recognized neighboring form types are tolerated and counted separately from exact target-form entries. Unclassifiable or unexpected recognized forms and unparseable exact target-form entries fail closed.
 - Atom `updated` is diagnostic only. It does not terminate pagination or establish an observation interval. A bounded collector interval is between two complete-snapshot poll receipts, not an exact public-release timestamp.
 - Scheduled scans are capped at 50 pages / 5,000 raw entries per form feed. A cap, repeated page, parsing failure or incomplete pagination suppresses candidates and does not advance that feed's successful state.
 - Manual mode remains one-page diagnostic-only and non-persistent. PR validation remains offline-only; scheduled capture starts only after merge to main.
