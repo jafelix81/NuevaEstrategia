@@ -9,7 +9,7 @@
 - Atom `updated` is diagnostic only. It does not terminate pagination or establish an observation interval. A bounded collector interval is between two complete-snapshot poll receipts, not an exact public-release timestamp.
 - Scheduled scans are capped at 50 pages / 5,000 raw entries per form feed. A cap, repeated page, parsing failure or incomplete pagination suppresses candidates and does not advance that feed's successful state.
 - Manual mode remains one-page diagnostic-only and non-persistent. PR validation remains offline-only; scheduled capture starts only after merge to main.
-- Offline tests added for late-indexed accessions after the old watermark, full baseline enumeration, form-prefix neighbors, timestamp non-monotonicity, and fail-closed pagination. CI result pending at the time this addendum was written.
+- Offline validation passed **33/33 tests** in [Run 45569631053](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45569631053); the live-capture job was skipped as designed.
 
 Source status at preflight:
 - FINRA Reg SHO: 7/7 HTTP-200 daily files rejected for overlapping duplicate BCPC/TPC rows; 14 duplicate extra rows; zero accepted files or eligible first-seen events.
