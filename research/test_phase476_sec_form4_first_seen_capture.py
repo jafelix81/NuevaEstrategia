@@ -791,17 +791,24 @@ class Phase476Tests(unittest.TestCase):
              "form": "4", "feed_entity_role": "ISSUER", "feed_entity_cik": "0000000004",
              "feed_entity_name": "  ISSUER TWO INC. ", "feed_entity_status": "PARSED", "page_offset": 300,
              "page_raw_sha256": "h4", "page_received_at_utc": "t4"},
+            {"poll_run_id": "r", "observation_sequence": 6, "feed_name": "4", "accession": "B",
+             "form": "4", "feed_entity_role": "ISSUER", "feed_entity_cik": "0000000004",
+             "feed_entity_name": "Issuer Two Inc.", "feed_entity_status": "PARSED", "page_offset": 300,
+             "page_raw_sha256": "h4", "page_received_at_utc": "t4"},
         ]
         audited, summary = p.audit_entity_observation_duplicates(rows)
-        self.assertEqual(summary["entity_duplicate_audit_rows"], 5)
-        self.assertEqual(summary["exact_duplicate_entity_observation_rows"], 1)
+        self.assertEqual(summary["entity_duplicate_audit_rows"], 6)
+        self.assertEqual(summary["exact_duplicate_entity_observation_rows"], 2)
         self.assertEqual(summary["exact_duplicate_entity_key_groups"], 1)
         self.assertEqual(summary["exact_duplicate_entity_observation_rows_across_page_offsets"], 1)
         self.assertEqual(summary["exact_duplicate_entity_key_groups_across_page_offsets"], 1)
         self.assertEqual(summary["legitimate_multi_entity_accessions_split_across_pages"], 2)
         duplicate = next(row for row in audited if row["observation_sequence"] == 5)
+        same_page_repeat = next(row for row in audited if row["observation_sequence"] == 6)
         self.assertEqual(duplicate["is_exact_duplicate_entity_observation"], True)
         self.assertEqual(duplicate["is_exact_duplicate_across_page_offsets"], True)
+        self.assertEqual(same_page_repeat["is_exact_duplicate_entity_observation"], True)
+        self.assertEqual(same_page_repeat["is_exact_duplicate_across_page_offsets"], False)
         self.assertEqual(duplicate["first_entity_observation_sequence"], 3)
 
     def test_entity_duplicate_audit_does_not_fuzzy_match_unparsed_entities(self):
