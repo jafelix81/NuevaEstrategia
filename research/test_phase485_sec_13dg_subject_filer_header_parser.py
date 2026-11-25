@@ -33,6 +33,27 @@ FILED BY:
 """
 
 
+SEC_HEADER_AGENT_FIXTURE = """
+<SEC-HEADER>0001193125-23-039159.hdr.sgml : 20230214
+<ACCEPTANCE-DATETIME>20230214161608
+ACCESSION NUMBER: 0001193125-23-039159
+CONFORMED SUBMISSION TYPE: SC 13G
+
+SUBJECT COMPANY:
+
+    COMPANY DATA:
+        COMPANY CONFORMED NAME: WYNN RESORTS LTD
+        CENTRAL INDEX KEY: 0001174922
+
+FILED BY:
+
+    COMPANY DATA:
+        COMPANY CONFORMED NAME: Jefferies Financial Group Inc.
+        CENTRAL INDEX KEY: 0000096223
+</SEC-HEADER>
+"""
+
+
 class Sec13DGHeaderIdentityTests(unittest.TestCase):
     def test_subject_and_filer_are_separated(self):
         result = parse_subject_filer_identity(SEC_HEADER_FIXTURE, "0000895421-24-000178")
@@ -43,10 +64,16 @@ class Sec13DGHeaderIdentityTests(unittest.TestCase):
         self.assertTrue(result["subject_issuer_identity_verified"])
         self.assertFalse(result["signal_eligible"])
 
-    def test_accession_filer_mismatch_fails_closed(self):
-        result = parse_subject_filer_identity(SEC_HEADER_FIXTURE, "0000000001-24-000178")
-        self.assertEqual(result["identity_status"], "ACCESSION_HEADER_FILER_MISMATCH")
-        self.assertFalse(result["subject_issuer_identity_verified"])
+    def test_third_party_agent_prefix_does_not_invalidate_filed_by_identity(self):
+        result = parse_subject_filer_identity(
+            SEC_HEADER_AGENT_FIXTURE,
+            "0001193125-23-039159",
+        )
+        self.assertEqual(result["accession_submitter_cik"], "0001193125")
+        self.assertEqual(result["subject_issuer_cik"], "0001174922")
+        self.assertEqual(result["filing_cik"], "0000096223")
+        self.assertTrue(result["subject_issuer_identity_verified"])
+        self.assertEqual(result["identity_status"], "VERIFIED_SUBJECT_AND_FILER_CIKS")
 
     def test_missing_subject_block_fails_closed(self):
         text = "<SEC-HEADER>FILED BY:\n CENTRAL INDEX KEY: 0000895421\n</SEC-HEADER>"
