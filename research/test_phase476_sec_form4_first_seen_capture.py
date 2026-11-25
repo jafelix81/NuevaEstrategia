@@ -281,7 +281,7 @@ class Phase476Tests(unittest.TestCase):
                  patch.object(p, "EVENTS_PATH", data_dir / "events.csv"), \
                  patch.object(p, "OBSERVATIONS_PATH", data_dir / "feed_observations.csv"), \
                  patch.object(p, "ACCESSION_OBSERVATIONS_PATH", data_dir / "accession_observations.csv"), \
-                 patch.object(p, "ENTITY_OBSERVATIONS_PATH", data_dir / "entity_observations.csv"),
+                 patch.object(p, "ENTITY_OBSERVATIONS_PATH", data_dir / "entity_observations.csv"), \
                  patch.object(p, "ENTITY_DUPLICATE_AUDIT_PATH", data_dir / "entity_duplicate_audit.csv"), \
                  patch.object(p, "FEEDS", {"4": self.url}), \
                  patch.object(p.p401, "fetch_bytes", return_value=raw):
@@ -312,7 +312,7 @@ class Phase476Tests(unittest.TestCase):
                  patch.object(p, "EVENTS_PATH", data_dir / "events.csv"), \
                  patch.object(p, "OBSERVATIONS_PATH", data_dir / "feed_observations.csv"), \
                  patch.object(p, "ACCESSION_OBSERVATIONS_PATH", data_dir / "accession_observations.csv"), \
-                 patch.object(p, "ENTITY_OBSERVATIONS_PATH", data_dir / "entity_observations.csv"),
+                 patch.object(p, "ENTITY_OBSERVATIONS_PATH", data_dir / "entity_observations.csv"), \
                  patch.object(p, "ENTITY_DUPLICATE_AUDIT_PATH", data_dir / "entity_duplicate_audit.csv"), \
                  patch.object(p, "FEEDS", {"4": self.url}), \
                  patch.object(p.p401, "fetch_bytes", side_effect=[first, second]), \
@@ -346,7 +346,7 @@ class Phase476Tests(unittest.TestCase):
                  patch.object(p, "EVENTS_PATH", data_dir / "events.csv"), \
                  patch.object(p, "OBSERVATIONS_PATH", data_dir / "feed_observations.csv"), \
                  patch.object(p, "ACCESSION_OBSERVATIONS_PATH", data_dir / "accession_observations.csv"), \
-                 patch.object(p, "ENTITY_OBSERVATIONS_PATH", data_dir / "entity_observations.csv"),
+                 patch.object(p, "ENTITY_OBSERVATIONS_PATH", data_dir / "entity_observations.csv"), \
                  patch.object(p, "ENTITY_DUPLICATE_AUDIT_PATH", data_dir / "entity_duplicate_audit.csv"), \
                  patch.object(p, "FEEDS", {"4": self.url}), \
                  patch.object(p.p401, "fetch_bytes", return_value=raw):
@@ -379,7 +379,7 @@ class Phase476Tests(unittest.TestCase):
                  patch.object(p, "EVENTS_PATH", data_dir / "events.csv"), \
                  patch.object(p, "OBSERVATIONS_PATH", data_dir / "feed_observations.csv"), \
                  patch.object(p, "ACCESSION_OBSERVATIONS_PATH", data_dir / "accession_observations.csv"), \
-                 patch.object(p, "ENTITY_OBSERVATIONS_PATH", data_dir / "entity_observations.csv"),
+                 patch.object(p, "ENTITY_OBSERVATIONS_PATH", data_dir / "entity_observations.csv"), \
                  patch.object(p, "ENTITY_DUPLICATE_AUDIT_PATH", data_dir / "entity_duplicate_audit.csv"), \
                  patch.object(p, "FEEDS", {"4": self.url}), \
                  patch.object(p, "MAX_FEED_PAGES", 1), \
@@ -476,7 +476,7 @@ class Phase476Tests(unittest.TestCase):
                  patch.object(p, "EVENTS_PATH", data_dir / "events.csv"), \
                  patch.object(p, "OBSERVATIONS_PATH", data_dir / "feed_observations.csv"), \
                  patch.object(p, "ACCESSION_OBSERVATIONS_PATH", data_dir / "accession_observations.csv"), \
-                 patch.object(p, "ENTITY_OBSERVATIONS_PATH", data_dir / "entity_observations.csv"),
+                 patch.object(p, "ENTITY_OBSERVATIONS_PATH", data_dir / "entity_observations.csv"), \
                  patch.object(p, "ENTITY_DUPLICATE_AUDIT_PATH", data_dir / "entity_duplicate_audit.csv"), \
                  patch.object(p, "FEEDS", {"4": self.url}), \
                  patch.object(p.p401, "fetch_bytes", side_effect=[raw, raw]):
@@ -540,7 +540,7 @@ class Phase476Tests(unittest.TestCase):
                  patch.object(p, "EVENTS_PATH", data_dir / "events.csv"), \
                  patch.object(p, "OBSERVATIONS_PATH", data_dir / "feed_observations.csv"), \
                  patch.object(p, "ACCESSION_OBSERVATIONS_PATH", data_dir / "accession_observations.csv"), \
-                 patch.object(p, "ENTITY_OBSERVATIONS_PATH", data_dir / "entity_observations.csv"),
+                 patch.object(p, "ENTITY_OBSERVATIONS_PATH", data_dir / "entity_observations.csv"), \
                  patch.object(p, "ENTITY_DUPLICATE_AUDIT_PATH", data_dir / "entity_duplicate_audit.csv"), \
                  patch.object(p, "FEEDS", {"4": url4, "4A": url4a}), \
                  patch.object(p.p401, "fetch_bytes", side_effect=[feed4, feed4a]):
@@ -749,7 +749,7 @@ class Phase476Tests(unittest.TestCase):
                  patch.object(p, "EVENTS_PATH", data_dir / "events.csv"), \
                  patch.object(p, "OBSERVATIONS_PATH", data_dir / "feed_observations.csv"), \
                  patch.object(p, "ACCESSION_OBSERVATIONS_PATH", data_dir / "accession_observations.csv"), \
-                 patch.object(p, "ENTITY_OBSERVATIONS_PATH", data_dir / "entity_observations.csv"),
+                 patch.object(p, "ENTITY_OBSERVATIONS_PATH", data_dir / "entity_observations.csv"), \
                  patch.object(p, "ENTITY_DUPLICATE_AUDIT_PATH", data_dir / "entity_duplicate_audit.csv"), \
                  patch.object(p, "FEEDS", {"4": self.url}), \
                  patch.object(p.p401, "fetch_bytes", return_value=raw):
