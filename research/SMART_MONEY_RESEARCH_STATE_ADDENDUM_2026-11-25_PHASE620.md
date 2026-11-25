@@ -1,6 +1,6 @@
 # Smart Money Research — state addendum, Phase 620
 
-**Cutoff:** 2026-11-25 15:11 UTC  
+**Cutoff:** 2026-11-25 15:21 UTC  
 **Main reviewed:** `074e3596b6982308889ed33e614ec4e169005ee5`  
 **Implementation branch:** `phase620-sec-form4-entity-aware-feed-dedup`
 
@@ -10,7 +10,7 @@
 - The 74 candidate feed occurrences comprise 36 accessions: 35 groups with two entity rows and one group with four. All repeated rows are within a page; no cross-page duplicate group was found.
 - The repeats represent issuer/reporting-owner entity rows for the same accession, not 38 extra filings. The four-row OrbiMed/Avenzo example is independently corroborated by public filing metadata.
 - The prior collector selected the first occurrence as the event locator, which could be a reporting owner. Phase 620 now selects the issuer row, preserves all entity occurrences in a separate append-only sidecar, omits the locator when issuer identity is missing, and quarantines path/title or multiple-issuer conflicts.
-- Six focused regression tests were added. PR CI is pending; no live capture was run.
+- Six focused regression tests were added. The initial PR run failed one test-fixture assertion; after correcting the initial-baseline fixture, [runs 45644057878](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45644057878) and [45644162986](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45644162986) passed `py_compile` and all 69 offline tests. The live-capture job was skipped.
 
 ## Limits
 
