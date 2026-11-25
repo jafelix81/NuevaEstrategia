@@ -252,16 +252,23 @@ def audit_entity_observation_duplicates(rows: list[dict]) -> tuple[list[dict], d
         exact_duplicate_rows += len(group) - 1
         offsets = {str(item.get("page_offset", "")) for item in group}
         hashes = {str(item.get("page_raw_sha256", "")) for item in group}
-        if len(offsets) > 1:
-            duplicate_groups_across_offsets += 1
-            exact_duplicate_rows_across_offsets += len(group) - 1
         first_sequence = group[0].get("observation_sequence", "")
+        prior_offsets: set[str] = set()
+        group_cross_page_duplicate = False
         for index, item in enumerate(group):
+            offset = str(item.get("page_offset", ""))
+            cross_page_duplicate = bool(index > 0 and offset not in prior_offsets and prior_offsets)
             item["is_exact_duplicate_entity_observation"] = index > 0
             item["first_entity_observation_sequence"] = first_sequence
-            item["is_exact_duplicate_across_page_offsets"] = bool(index > 0 and len(offsets) > 1)
+            item["is_exact_duplicate_across_page_offsets"] = cross_page_duplicate
             item["distinct_page_offset_count"] = len(offsets)
             item["distinct_page_hash_count"] = len(hashes)
+            if cross_page_duplicate:
+                exact_duplicate_rows_across_offsets += 1
+                group_cross_page_duplicate = True
+            prior_offsets.add(offset)
+        if group_cross_page_duplicate:
+            duplicate_groups_across_offsets += 1
 
     legitimate_multi_entity_split_accessions = 0
     for _, entries in accession_groups.items():
