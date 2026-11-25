@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Fail-closed parser for SEC EDGAR Schedule 13D/G index-header identity blocks.
 
-The SEC index header separates SUBJECT COMPANY from FILED BY. Never infer the
-subject issuer from the accession prefix, the queried submissions CIK, or a
-ticker mapping.
+The SEC index header separates SUBJECT COMPANY from FILED BY. The accession
+prefix is an EDGAR login/submitter CIK and may belong to a third-party filing
+agent; never equate it with either header identity.
 """
 from __future__ import annotations
 
@@ -57,7 +57,7 @@ def _field(block: str, field_name: str) -> str | None:
 def parse_subject_filer_identity(header_text: str, accession: str) -> dict[str, Any]:
     accession = str(accession or "").strip()
     accession_match = ACCESSION_RE.fullmatch(accession)
-    accession_filer_cik = accession_match.group(1) if accession_match else None
+    accession_submitter_cik = accession_match.group(1) if accession_match else None
 
     header = _header_payload(str(header_text or ""))
     blocks = _identity_blocks(header)
@@ -77,17 +77,15 @@ def parse_subject_filer_identity(header_text: str, accession: str) -> dict[str, 
         status = "MISSING_OR_INVALID_SUBJECT_CIK"
     elif not filer_cik:
         status = "MISSING_OR_INVALID_FILER_CIK"
-    elif not accession_filer_cik:
+    elif not accession_submitter_cik:
         status = "INVALID_OR_MISSING_ACCESSION"
-    elif filer_cik != accession_filer_cik:
-        status = "ACCESSION_HEADER_FILER_MISMATCH"
     else:
         status = "VERIFIED_SUBJECT_AND_FILER_CIKS"
 
     verified = status == "VERIFIED_SUBJECT_AND_FILER_CIKS"
     return {
         "accession": accession or None,
-        "accession_filer_cik": accession_filer_cik,
+        "accession_submitter_cik": accession_submitter_cik,
         "subject_issuer_cik": subject_cik,
         "subject_issuer_name": subject_name,
         "filing_cik": filer_cik,
