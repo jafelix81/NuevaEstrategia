@@ -266,7 +266,6 @@ def demo_fixture() -> dict:
         ["ALLSPRING","2","0001075869","028-04413","000104973","801-21122","Allspring Global Investments, LLC"],
         ["ALLSPRING","2","","","","","Allspring Global Investments, LLC reporting on behalf of SEI INVESTMENTS CO"],
         ["ALLSPRING","2","","","","","Allspring Global Investments, LLC reporting on behalf of UBS ASSET MANAGEMENT AMERICAS INC"],
-        ["XXEC","1","","","","",""],
     ]
     info_rows = [
         ["ALLSPRING","1","1"],["ALLSPRING","2","2"],["ALLSPRING","3","1,2"],
