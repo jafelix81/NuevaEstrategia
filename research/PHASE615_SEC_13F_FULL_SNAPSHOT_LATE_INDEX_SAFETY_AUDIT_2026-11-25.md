@@ -68,7 +68,7 @@ Tests now cover:
 - complete empty/short pages, pagination-cap failure and repeated-page detection;
 - manual non-persistence and the invariant that metadata observations never become research or signal rows.
 
-The PR workflow compiles the collector and runs the full offline regression module. The CI result will be recorded after GitHub Actions completes. No live SEC request is part of PR validation.
+The PR workflow compiled the collector and passed **33/33 offline tests** in [Run 45569631053](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45569631053). The live-capture job was skipped as designed; no live SEC request is part of PR validation.
 
 ## 7. Current source status
 
