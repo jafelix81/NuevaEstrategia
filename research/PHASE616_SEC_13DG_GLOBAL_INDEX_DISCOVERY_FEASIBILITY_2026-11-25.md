@@ -1,20 +1,20 @@
 # Phase 616 — SEC Schedule 13D/G global-index discovery feasibility and bounded identity sample
 
 **Audit date:** 2026-11-25  
-**Status:** offline implementation and follow-up hardening validated. Final PR CI passed 27/27 tests on head `f4088647fa89f72f4ec7f72a4542e6cc7fd122d8` in [Run 45589384903](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45589384903). The live-sample job was skipped; no SEC request was made.  
+**Status:** offline implementation and follow-up hardening validated. Latest Phase 616 combined regression passed 30/30 tests in [Run 45614747438](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45614747438); the standalone Phase 485 parser suite passed 11/11 in [Run 45614747273](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45614747273). Live-sample jobs were skipped; no SEC request was made.  
 **Decision:** restore Schedule 13D subject-issuer discovery as the highest-priority free institutional-disclosure line; keep 13G separate as slower ownership-state context.
 
 ## 1. Why the source priority changes
 
-Phase 596 and Phase 600 establish that the legacy 20,266-accession Schedule 13D/G panel is quarantined. The old discovery method queried submissions by the 335 F80 CIKs as filers. It can miss activist/reporting persons outside F80 whose filings name an F80 company as the subject issuer. It also constructed archive URLs from the filer CIK, which is unsafe for third-party filings.
+Phase 596 and Phase 600 establish that the legacy 20,266-accession Schedule 13D/G panel is quarantined. The legacy panel was scoped to the 335 F80 CIKs and did not independently reconcile the SEC index company CIK, SUBJECT COMPANY, FILED BY, accession submitter and archive path. That can exclude or misclassify filings involving third-party submitters and reporting persons outside F80; each identity must be retained separately and checked against the appropriate header block.
 
-The SEC header identities must remain separate. One repository example has accession prefix / FILED BY CIK 0000895421 (Morgan Stanley) and SUBJECT COMPANY CIK 0001793855; those happen to coincide for the filer and accession prefix in that filing. A separate SEC Schedule 13G example for Wynn Resorts shows accession prefix 0001193125, SUBJECT COMPANY CIK 0001174922, and FILED BY CIK 0000096223 (Jefferies) — three distinct identities ([SEC header example](https://www.sec.gov/Archives/edgar/data/1174922/000119312523039159/0001193125-23-039159-index-headers.html)). The SEC states that the accession prefix can be a third-party filing agent's CIK ([SEC accession-number guidance](https://www.sec.gov/about/webmaster-frequently-asked-questions)).
+The SEC header identities must remain separate. One repository example has accession prefix / FILED BY CIK 0000895421 (Morgan Stanley) and SUBJECT COMPANY CIK 0001793855; those happen to coincide for the filer and accession prefix in that filing. A separate SEC Schedule 13G example for Wynn Resorts shows accession prefix 0001193125, SUBJECT COMPANY CIK 0001174922, and FILED BY CIK 0000096223 (Jefferies) — three distinct identities ([SEC header example](https://www.sec.gov/Archives/edgar/data/1174922/000119312523039159/0001193125-23-039159-index-headers.html)). The SEC states that the accession prefix can be a third-party filing agent's CIK ([SEC accession-number guidance](https://www.sec.gov/about/webmaster-frequently-asked-questions)). The SEC index documentation describes its CIK/company-name, form, filing-date and filename fields; the CIK is therefore treated as a subject-company candidate, not assumed to be FILED BY ([SEC index documentation](https://www.sec.gov/search-filings/edgar-search-assistance/accessing-edgar-data)).
 
 Therefore the accession prefix is a submitter/login diagnostic, not a filer or subject identity. The master-index CIK/company-name pair is treated only as a subject-company candidate and must be verified against the SEC-HEADER SUBJECT COMPANY block. FILED BY remains a separate filing-entity identity. Archive-path CIK is a retrieval locator, not an identity substitute.
 
 ## 2. New discovery route
 
-The new collector enumerates all filers from SEC quarterly master.idx files, then filters exact forms:
+The new collector enumerates all indexed company entries from SEC quarterly master.idx files, then filters exact forms:
 - SC 13D
 - SC 13D/A
 - SC 13G
