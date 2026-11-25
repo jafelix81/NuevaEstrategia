@@ -18,7 +18,7 @@ import urllib.request
 import zipfile
 import io
 from collections import Counter, defaultdict
-from datetime import datetime, time as dt_time, timezone
+from datetime import date, datetime, time as dt_time, timedelta, timezone
 from html.parser import HTMLParser
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -62,6 +62,83 @@ def extract_labeled_value(parts: list[str], label: str, pattern: str) -> str | N
     return match.group(1) if match else None
 
 
+def observed_federal_holiday(day: date) -> date:
+    if day.weekday() == 5:
+        return day - timedelta(days=1)
+    if day.weekday() == 6:
+        return day + timedelta(days=1)
+    return day
+
+
+def nth_weekday(year: int, month: int, weekday: int, n: int) -> date:
+    first = date(year, month, 1)
+    offset = (weekday - first.weekday()) % 7
+    return first + timedelta(days=offset + 7 * (n - 1))
+
+
+def last_weekday(year: int, month: int, weekday: int) -> date:
+    if month == 12:
+        first_next = date(year + 1, 1, 1)
+    else:
+        first_next = date(year, month + 1, 1)
+    last = first_next - timedelta(days=1)
+    return last - timedelta(days=(last.weekday() - weekday) % 7)
+
+
+def federal_holidays(year: int) -> set[date]:
+    fixed = [
+        date(year, 1, 1),
+        date(year, 7, 4),
+        date(year, 11, 11),
+        date(year, 12, 25),
+    ]
+    if year >= 2021:
+        fixed.append(date(year, 6, 19))
+    observed = {observed_federal_holiday(day) for day in fixed}
+    variable = {
+        nth_weekday(year, 1, 0, 3),   # Birthday of Martin Luther King, Jr.
+        nth_weekday(year, 2, 0, 3),   # Washington's Birthday
+        last_weekday(year, 5, 0),     # Memorial Day
+        nth_weekday(year, 9, 0, 1),   # Labor Day
+        nth_weekday(year, 10, 0, 2),  # Columbus Day
+        nth_weekday(year, 11, 3, 4),  # Thanksgiving Day
+    }
+    return observed | variable
+
+
+def is_federal_holiday(day: date) -> bool:
+    return any(day in federal_holidays(year) for year in (day.year - 1, day.year, day.year + 1))
+
+
+def next_sec_business_day(day: date) -> date:
+    candidate = day + timedelta(days=1)
+    for _ in range(15):
+        if candidate.weekday() < 5 and not is_federal_holiday(candidate):
+            return candidate
+        candidate += timedelta(days=1)
+    raise RuntimeError("unable_to_resolve_next_sec_business_day")
+
+
+def reconcile_filing_date(accepted_at_et: str | None, filing_date: str | None) -> str | None:
+    if not accepted_at_et or not filing_date:
+        return None
+    try:
+        accepted = datetime.strptime(accepted_at_et, "%Y-%m-%d %H:%M:%S").replace(tzinfo=ET)
+        filed = date.fromisoformat(filing_date)
+    except ValueError:
+        return "INVALID_DATE"
+    accepted_day = accepted.date()
+    if accepted_day.weekday() >= 5 or is_federal_holiday(accepted_day):
+        return "INVALID_NON_BUSINESS_DAY_ACCEPTANCE"
+    if accepted.time() > dt_time(17, 30):
+        return (
+            "AFTER_1730_NEXT_SEC_BUSINESS_DAY"
+            if next_sec_business_day(accepted_day) == filed
+            else "MISMATCH"
+        )
+    return "SAME_DAY" if accepted_day == filed else "MISMATCH"
+
+
 def parse_filing_detail_html(payload: bytes) -> dict:
     parser = TextCollector()
     parser.feed(payload.decode("utf-8", errors="replace"))
@@ -83,11 +160,13 @@ def parse_filing_detail_html(payload: bytes) -> dict:
     accepted_utc = None
     clock_bucket = None
     weekend = None
+    accepted_after_1730 = None
     if accepted:
         try:
             accepted_dt = datetime.strptime(accepted, "%Y-%m-%d %H:%M:%S").replace(tzinfo=ET)
             accepted_utc = accepted_dt.astimezone(timezone.utc).isoformat()
             weekend = accepted_dt.weekday() >= 5
+            accepted_after_1730 = accepted_dt.time() > dt_time(17, 30)
             if weekend:
                 clock_bucket = "WEEKEND"
             elif accepted_dt.time() < dt_time(9, 30):
@@ -110,6 +189,8 @@ def parse_filing_detail_html(payload: bytes) -> dict:
         "accepted_date_matches_filing_date": (
             accepted[:10] == filing_date if accepted and filing_date else None
         ),
+        "filing_date_clock_reconciliation": reconcile_filing_date(accepted, filing_date),
+        "accepted_after_1730_et": accepted_after_1730,
         "accepted_clock_bucket": clock_bucket,
         "accepted_on_weekend": weekend,
     }
@@ -224,7 +305,9 @@ def audit_sample(sample: dict, user_agent: str) -> dict:
             "filing_date_matches": parsed.get("filing_date") == sample["filing_date_from_dataset"],
             "period_of_report_matches": parsed.get("period_of_report") == sample["period_of_report_from_dataset"],
             "accepted_timestamp_present": bool(parsed.get("accepted_at_et")),
-            "accepted_date_matches": parsed.get("accepted_date_matches_filing_date") is True,
+            "filing_date_clock_reconciles": parsed.get("filing_date_clock_reconciliation") in {
+                "SAME_DAY", "AFTER_1730_NEXT_SEC_BUSINESS_DAY"
+            },
         }
         mismatch = any(value is False for key, value in checks.items() if key != "accepted_timestamp_present")
         missing = any(value is None or value is False for value in checks.values())
@@ -289,6 +372,10 @@ def audit_dataset(label: str, url: str, user_agent: str) -> dict:
         if x.get("accepted_at_et")
     )
     weekend_count = sum(x.get("accepted_on_weekend") is True for x in results)
+    filing_clock_reconciliation_counts = Counter(
+        x.get("filing_date_clock_reconciliation") or "MISSING"
+        for x in results
+    )
     return {
         "status": "PASS_STRATIFIED_TIMESTAMP_SAMPLE" if results and counts["PASS"] == len(results) else "REVIEW_STRATIFIED_TIMESTAMP_SAMPLE",
         "source_url": url,
@@ -302,6 +389,7 @@ def audit_dataset(label: str, url: str, user_agent: str) -> dict:
         "sample_status_counts": dict(sorted(counts.items())),
         "accepted_clock_bucket_counts": dict(sorted(clocks.items())),
         "weekend_acceptances": weekend_count,
+        "filing_date_clock_reconciliation_counts": dict(sorted(filing_clock_reconciliation_counts.items())),
         "sample": results,
         "calendar_limit": "Weekend classification only. No XNYS holiday/session claim is made in this phase.",
         "availability_limit": "Historical EDGAR Accepted time is not historical collector first-seen time. Use max(accepted_at, collector_first_seen) when available; until then, do not backdate to period_of_report.",
