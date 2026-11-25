@@ -1,6 +1,12 @@
 name: Phase 605 - SEC 13F manager relationship graph audit
 
 on:
+  push:
+    branches: [phase605-sec-13f-manager-relationship-graph-audit]
+    paths:
+      - "research/phase605_sec_13f_manager_relationship_graph_audit.py"
+      - "research/test_phase605_sec_13f_manager_relationship_graph_audit.py"
+      - ".github/workflows/phase605_sec_13f_manager_relationship_graph_audit.yml"
   pull_request:
     branches: [phase48-sec-13f-asof-amendment-state-machine]
     paths:
