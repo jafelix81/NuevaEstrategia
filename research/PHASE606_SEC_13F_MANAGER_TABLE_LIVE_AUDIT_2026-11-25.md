@@ -1,3 +1,5 @@
+> **Phase 607 source-XML erratum:** Repeated (ACCESSION_NUMBER, SEQUENCENUMBER) rows are not automatically duplicate records. The source filings show that multiple manager/member rows intentionally share a sequence number, which identifies a group. The 20 / 3 repeated sequence pairs reported below are therefore group-membership patterns unless the member rows themselves are exact duplicates. Nonnumeric Other Manager values are as-filed labels (for example, “XXEC, INC.”), not automatically malformed identifiers. See Phase 607 and Phase 608.
+
 # Phase 606 — SEC Form 13F actual manager-table cardinality and reference audit
 
 **Status: REVIEW — actual SEC samples parsed; source-filing reconciliation still required.**  
