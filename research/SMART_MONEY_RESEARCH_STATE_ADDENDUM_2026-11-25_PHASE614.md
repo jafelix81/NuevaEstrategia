@@ -19,3 +19,8 @@ Latest source status at preflight:
 Current priority: begin prospective 13F first-seen accumulation after merge, then reconcile acceptance timestamps, amendment state, manager roles and effective-dated CUSIP/FIGI-to-F80 identity before any economic test.
 
 No alpha demonstrated. No OOS, bootstrap or LOO test run. No production or baseline change. \`F80_TOP20_PARTIAL50_BASELINE_C20\` remains frozen.
+
+
+## Pre-merge review correction (2026-11-25)
+
+A code review found that Atom `updated` could be mistaken for a continuity boundary. A late-indexed accession with a stale timestamp could be skipped while the poll still advanced its watermark. Phase 614 now uses only the prior accession as a pagination boundary; timestamps are diagnostic and can only downgrade eligibility. With no prior watermark, the feed is scanned to a proven end; if a prior watermark is missing, the poll fails closed. PR validation token permissions are read-only by default, with write scoped to the live-capture job. Four pagination regressions bring the suite to 26 tests. No live SEC feed was polled; the correction remains under PR review.

@@ -72,7 +72,7 @@ The metadata flags for manager identity, security identity, historical F80 membe
 
 Offline tests cover exact form-family filtering, accession extraction, timezone-aware feed timestamps, EST/EDT legal filing floors, watermark and timestamp boundaries, repeated-page detection, missing-boundary suppression, empty-feed baselines, manual non-persistence and the rule that bounded metadata never becomes a research/signal-eligible row.
 
-Initial validation passed 23/23 offline tests in [Run 45554185580](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45554185580). After adding a fail-closed regression for a full 100-entry page followed by an empty page without an accession/timestamp boundary, final validation [Run 45554609362](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45554609362) passed 24/24 offline tests. Earlier CI attempts caught and corrected an ElementTree/timezone alias collision and an exact-form fixture mismatch. The live-capture job was skipped as designed; no live SEC feed was polled and no current first-seen coverage claim is made. The collector will not produce prospective data until merged and its scheduled workflow runs.
+Initial validation passed 23/23 offline tests in [Run 45554185580](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45554185580). After adding a fail-closed regression for a full 100-entry page followed by an empty page without a prior accession watermark, final validation [Run 45554609362](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45554609362) passed 24/24 offline tests. A subsequent pre-merge code review found and corrected the stale-timestamp pagination issue documented in Section 7; the new 26-test validation is pending. Earlier CI attempts caught and corrected an ElementTree/timezone alias collision and an exact-form fixture mismatch. The live-capture job was skipped as designed; no live SEC feed was polled and no current first-seen coverage claim is made. The collector will not produce prospective data until merged and its scheduled workflow runs.
 
 Remaining gates after the first successful capture:
 
@@ -83,7 +83,15 @@ Remaining gates after the first successful capture:
 5. Complete historical CUSIP/FIGI-to-F80 identity and effective-dated universe coverage.
 6. Only then construct ownership-change features and compare them with frozen LTM/F80 using identical exposure, costs and chronological OOS discipline.
 
-## 7. Research disposition
+## 7. Pre-merge code-review erratum — timestamp boundary could drop late-indexed filings
+
+A post-implementation review found a data-loss edge case in the initial pagination logic. An Atom entry with an `updated` timestamp at or before the previous poll end was treated as a timestamp boundary even when its accession had never been observed. The poll could then be marked successful, advance the latest-accession watermark, and omit that accession plus older entries behind it. A feed timestamp is not proof that a record was present in the previous poll.
+
+The correction removes feed timestamps as pagination stop conditions. They remain diagnostic: a stale/unknown timestamp can make the event metadata-only and ineligible, but it cannot suppress the accession or advance the scan boundary. The scan now stops at the prior accession watermark. If there is no prior watermark, it enumerates through a proven end-of-feed; if a prior watermark exists but disappears before feed end, the poll fails closed and does not advance that feed's state.
+
+Added regressions cover (a) stale-timestamp entries before the actual prior accession, (b) a missing/naive timestamp before the prior accession, (c) full-page plus empty-page end-of-feed with no watermark, and (d) a missing prior accession watermark. The offline suite now contains 26 tests. The workflow's default token permission is also read-only; write permission is scoped to the live-capture job, keeping pull-request validation read-only.
+
+## 8. Research disposition
 
 - SEC 13F prospective metadata capture: implementation prepared; live operation pending merge.
 - 13F holdings/ownership signal: not admitted.

@@ -320,26 +320,30 @@ def fetch_feed(
                     boundary_found = True
                     boundary_type = "ACCESSION"
                     break
-                if is_time_boundary:
-                    boundary_found = True
-                    boundary_type = "TIMESTAMP"
-                    break
+                # Atom "updated" can be stale for a late-indexed filing. It is
+                # diagnostic only: it cannot prove that this accession was present
+                # during the prior poll. Only the prior accession watermark is a
+                # safe in-feed continuity boundary.
                 candidates.append(occurrence)
 
             if baseline or boundary_found:
                 break
             if raw_count == 0:
-                if not prior and previous_end and offset == 0:
+                if not prior:
+                    # With no accession watermark, an empty page proves that the
+                    # complete current feed was enumerated. A prior watermark that
+                    # disappeared is different: fail closed rather than infer a
+                    # boundary from timestamps that may be stale.
                     boundary_found = True
-                    boundary_type = "EMPTY_NO_NEW_ENTRIES"
+                    boundary_type = "END_OF_FEED"
                     break
                 page_error = {
                     "error_type": "EmptyPageBeforeBoundary",
-                    "error": "Feed ended before the prior accession or timestamp boundary.",
+                    "error": "Feed ended before the prior accession watermark.",
                     "page_offset": offset,
                 }
                 break
-            if not prior and previous_end and raw_count < PAGE_SIZE:
+            if not prior and raw_count < PAGE_SIZE:
                 boundary_found = True
                 boundary_type = "END_OF_FEED"
                 break
