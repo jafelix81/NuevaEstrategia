@@ -1,26 +1,29 @@
 {
-  "accession_observation_ledger_rows_appended": 7488,
+  "accession_observation_ledger_rows_appended": 8400,
   "accession_observation_ledger_started_run_id": "44440313382",
   "accession_observation_ledger_started_utc": "2026-11-19T01:54:11Z",
+  "entity_observation_ledger_rows_appended": 912,
+  "entity_observation_ledger_started_run_id": "45714679017",
+  "entity_observation_ledger_started_utc": "2026-11-25T22:36:50Z",
   "feeds": {
     "4": {
-      "last_poll_run_id": "45620008946",
+      "last_poll_run_id": "45714679017",
       "last_poll_status": "SUCCESS",
-      "last_successful_poll_end_utc": "2026-11-25T13:05:26Z",
-      "latest_accession": "0001333822-26-000007",
-      "latest_feed_updated_utc": "2026-11-25T13:01:51Z"
+      "last_successful_poll_end_utc": "2026-11-25T22:37:40Z",
+      "latest_accession": "0002135300-26-000006",
+      "latest_feed_updated_utc": "2026-11-25T22:36:04Z"
     },
     "4A": {
-      "last_poll_run_id": "45620008946",
+      "last_poll_run_id": "45714679017",
       "last_poll_status": "SUCCESS",
-      "last_successful_poll_end_utc": "2026-11-25T13:05:26Z",
-      "latest_accession": "0001628280-26-075849",
-      "latest_feed_updated_utc": "2026-11-25T01:40:59Z"
+      "last_successful_poll_end_utc": "2026-11-25T22:37:40Z",
+      "latest_accession": "0001437749-26-038296",
+      "latest_feed_updated_utc": "2026-11-25T21:23:20Z"
     }
   },
-  "last_poll_ended_utc": "2026-11-25T13:05:26Z",
-  "last_poll_run_id": "45620008946",
-  "last_poll_started_utc": "2026-11-25T13:05:24Z",
+  "last_poll_ended_utc": "2026-11-25T22:37:40Z",
+  "last_poll_run_id": "45714679017",
+  "last_poll_started_utc": "2026-11-25T22:36:50Z",
   "phase": 476,
   "schema_version": 1
 }
