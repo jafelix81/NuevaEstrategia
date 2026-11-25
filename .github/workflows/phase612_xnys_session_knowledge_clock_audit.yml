@@ -1,0 +1,63 @@
+name: Phase 612 - XNYS session and SEC 13F knowledge clock audit
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_calendar_audit:
+        description: "Run the deterministic XNYS calendar audit"
+        required: true
+        default: false
+        type: boolean
+  push:
+    branches: [phase612-xnys-session-knowledge-clock-audit]
+    paths:
+      - "research/phase612_xnys_session_knowledge_clock.py"
+      - "research/test_phase612_xnys_session_knowledge_clock.py"
+      - ".github/workflows/phase612_xnys_session_knowledge_clock_audit.yml"
+  pull_request:
+    branches: [phase611-sec-13f-acceptance-timestamp-stratified-audit]
+    paths:
+      - "research/phase612_xnys_session_knowledge_clock.py"
+      - "research/test_phase612_xnys_session_knowledge_clock.py"
+      - ".github/workflows/phase612_xnys_session_knowledge_clock_audit.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned calendar dependency
+        run: python -m pip install exchange_calendars==4.13.1
+      - name: Compile and run regressions
+        run: |
+          python -m py_compile research/phase612_xnys_session_knowledge_clock.py research/test_phase612_xnys_session_knowledge_clock.py
+          python -m unittest -v research.test_phase612_xnys_session_knowledge_clock
+
+  xnys-calendar-audit:
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.run_calendar_audit == true)
+    needs: offline-regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned calendar dependency
+        run: python -m pip install exchange_calendars==4.13.1
+      - name: Audit XNYS sessions and daily knowledge clocks
+        run: python research/phase612_xnys_session_knowledge_clock.py
+      - name: Upload calendar audit result
+        if: always() && hashFiles('phase612_xnys_session_knowledge_clock_audit.json') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase612-xnys-session-knowledge-clock-audit
+          path: phase612_xnys_session_knowledge_clock_audit.json
+          retention-days: 30
