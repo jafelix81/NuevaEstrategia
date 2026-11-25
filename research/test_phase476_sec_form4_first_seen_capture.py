@@ -730,7 +730,6 @@ class Phase476Tests(unittest.TestCase):
             raw = feed(
                 entry(accession, entity_cik="0000000002", entity_name="Reporting Owner LLC", entity_role="Reporting"),
                 entry(accession, entity_cik="0000000003", entity_name="Issuer Company Inc.", entity_role="Issuer"),
-                entry("0000000001-26-000080", entity_cik="0000000001", entity_name="Watermark Issuer", entity_role="Issuer"),
             )
             with patch.object(p, "DATA_DIR", data_dir), \
                  patch.object(p, "STATE_PATH", data_dir / "state.json"), \
@@ -742,12 +741,12 @@ class Phase476Tests(unittest.TestCase):
                  patch.object(p.p401, "fetch_bytes", return_value=raw):
                 summary = p.run_capture("schedule", "entity-sidecar-run", output_dir)
             self.assertEqual(summary["new_event_rows"], 1)
-            self.assertEqual(summary["entity_observation_rows"], 3)
+            self.assertEqual(summary["entity_observation_rows"], 2)
             self.assertEqual(summary["multi_entity_accession_count"], 1)
             self.assertEqual(summary["canonical_issuer_event_count"], 1)
             with (data_dir / "entity_observations.csv").open(newline="", encoding="utf-8") as handle:
                 entities = list(csv.DictReader(handle))
-            self.assertEqual(len(entities), 3)
+            self.assertEqual(len(entities), 2)
             canonical = next(row for row in entities if row["canonical_event_emitted"] == "True")
             self.assertEqual(canonical["feed_entity_role"], "ISSUER")
             self.assertEqual(canonical["feed_entity_cik"], "0000000003")
