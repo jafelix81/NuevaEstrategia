@@ -4,6 +4,7 @@ from research.phase611_sec_13f_acceptance_timestamp_stratified_audit import (
     parse_filing_detail_html,
     select_stratified_samples,
     build_index_url,
+    normalize_dataset_date,
 )
 
 
@@ -27,6 +28,21 @@ class Phase611Tests(unittest.TestCase):
         self.assertEqual(out["period_of_report"], "2025-09-30")
         self.assertEqual(out["accepted_clock_bucket"], "REGULAR_SESSION_CLOCK_WEEKDAY")
         self.assertFalse(out["accepted_on_weekend"])
+
+    def test_dataset_dates_are_normalized_from_sec_tsv_format(self):
+        self.assertEqual(normalize_dataset_date("07-FEB-2018"), "2018-02-07")
+        self.assertEqual(normalize_dataset_date("31-DEC-2017"), "2017-12-31")
+        self.assertEqual(normalize_dataset_date("2026-08-26"), "2026-08-26")
+        self.assertIsNone(normalize_dataset_date("not-a-date"))
+
+    def test_short_filer_cik_is_zero_padded(self):
+        html = b"""<html>SEC Accession No. 0001534424-18-000046
+        Accepted: 2018-02-07 12:22:57 Filing Date: 2018-02-07
+        Form 13F-HR - Quarterly report
+        Example Manager (Filer) CIK: 1115419</html>"""
+        out = parse_filing_detail_html(html)
+        self.assertEqual(out["filer_cik_from_page"], "0001115419")
+        self.assertEqual(out["accession_from_page"], "0001534424-18-000046")
 
     def test_after_close_and_weekend_are_distinguished(self):
         after_close = parse_filing_detail_html(
