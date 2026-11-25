@@ -59,21 +59,30 @@ class Phase606Tests(unittest.TestCase):
         out = audit_othermanager2(header, rows, {"A1": {}}, {})
         self.assertEqual(out["duplicate_accession_sequence_pairs"], 1)
 
-    def test_infotable_references_resolve_by_accession_and_sequence(self):
+    def test_infotable_reference_key_hypotheses_are_compared(self):
         header = ["ACCESSION_NUMBER", "INFOTABLE_SK", "OTHERMANAGER"]
-        rows = [
-            ["A1", "1", "1,2"],
-            ["A1", "2", "3"],
-            ["A1", "3", "bad"],
-            ["A2", "1", "1"],
-        ]
-        filers = {"A1": {"submission_type": "13F-HR", "report_type": "13F HOLDINGS REPORT"},
-                  "A2": {"submission_type": "13F-HR", "report_type": "13F HOLDINGS REPORT"}}
-        out = audit_infotable_references(header, rows, filers, {"A1": {"1", "2"}})
-        self.assertEqual(out["manager_reference_tokens"], 4)
-        self.assertEqual(out["resolved_sequence_tokens"], 2)
-        self.assertEqual(out["dangling_sequence_tokens"], 2)
-        self.assertEqual(out["malformed_sequence_tokens"], 1)
+        rows = [["A1", "1", "2811304,2,0,bad"]]
+        filers = {"A1": {"submission_type": "13F-HR", "report_type": "13F HOLDINGS REPORT"}}
+        out = audit_infotable_references(
+            header, rows, filers,
+            {"A1": {"2"}},
+            {"A1": {"2811304"}},
+        )
+        self.assertEqual(out["nonzero_manager_reference_tokens"], 2)
+        self.assertEqual(out["zero_sentinel_tokens"], 1)
+        self.assertEqual(out["matches_othermanager_sk_only"], 1)
+        self.assertEqual(out["matches_othermanager2_sequence_only"], 1)
+        self.assertEqual(out["unmatched_to_either_table"], 0)
+        self.assertEqual(out["malformed_nonzero_tokens"], 1)
+
+    def test_infotable_unmatched_reference_is_not_guessed(self):
+        header = ["ACCESSION_NUMBER", "INFOTABLE_SK", "OTHERMANAGER"]
+        rows = [["A1", "1", "999"]]
+        filers = {"A1": {"submission_type": "13F-HR", "report_type": "13F HOLDINGS REPORT"}}
+        out = audit_infotable_references(header, rows, filers, {"A1": {"1"}}, {"A1": {"2"}})
+        self.assertEqual(out["unmatched_to_either_table"], 1)
+        self.assertEqual(out["matches_othermanager_sk_only"], 0)
+        self.assertEqual(out["matches_othermanager2_sequence_only"], 0)
 
     def test_summary_page_count_is_reconciled_to_manager2_rows(self):
         header = ["ACCESSION_NUMBER", "OTHERINCLUDEDMANAGERSCOUNT"]
