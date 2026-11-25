@@ -1,6 +1,6 @@
 # Phase 611 — SEC 13F Stratified Acceptance-Timestamp Coverage Audit
 **Date:** 2026-11-25  
-**Status:** PASS — bounded timestamp-feasibility sample  
+**Status:** PASS — bounded timestamp-feasibility sample; 12/12 offline regression tests passed  
 **PR:** [#228](https://github.com/jafelix81/NuevaEstrategia/pull/228)  
 **Workflow:** [Run 45535351139](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45535351139)  
 **Artifact:** [14986657502](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45535351139/artifacts/14986657502)
