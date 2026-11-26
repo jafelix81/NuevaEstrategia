@@ -73,9 +73,9 @@ The two repeated symbols are excluded even though they are outside the frozen 33
 
 No prices were downloaded and no forward returns, alpha, OOS, bootstrap, LOO or portfolio tests were run. The Phase 649 price-rights gate remains unresolved. No paid data, quote requests, vendor contact or options-data acquisition occurred; the authorized data budget remains USD 0.
 
-## 6. Validation and next gate
+## 6. Validation and merge
 
-The PR workflow runs offline regression only; the live-capture job is schedule/dispatch-only and will not run on this PR. New tests cover:
+PR [#247](https://github.com/jafelix81/NuevaEstrategia/pull/247) was merged into main as commit `c7379f42ffffd631e8ce1bc3b9b3261871e3480d` after [Actions run 45895296971](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45895296971) completed successfully. The offline regression job passed **62/62 tests**. The live-capture job was correctly skipped because this was a pull-request event; no FINRA request or live capture was made. New tests cover:
 - partial parsing with unique symbols retained;
 - all rows for duplicate symbols quarantined;
 - no duplicate-volume aggregation;
@@ -83,6 +83,6 @@ The PR workflow runs offline regression only; the live-capture job is schedule/d
 - no research eligibility when no unique symbols remain;
 - research observations containing only unique symbols when partial data remain.
 
-After CI passes, the next natural FINRA capture may use the new parser. Historical files rejected by the old parser will not be retroactively promoted to first-seen observations.
+The next natural FINRA capture may use the merged parser. Historical files rejected by the old parser will not be retroactively promoted to first-seen observations.
 
 `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen. No universe, parameters, costs, exposure, capital or holding-period policy changed.
