@@ -207,7 +207,9 @@ def build_report(baseline_path: Path = BASELINE,
     events = prospective_russell_events(events_dir)
     results = []
     for event in events:
-        percentile = midrank_percentile(reference, event["leveraged_money_net_oi"])
+        value = Decimal(event["leveraged_money_net_oi"])
+        percentile = midrank_percentile(reference, value)
+        event["leveraged_money_net_oi"] = float(value)
         results.append({
             **event,
             "reference_percentile": float(percentile),
