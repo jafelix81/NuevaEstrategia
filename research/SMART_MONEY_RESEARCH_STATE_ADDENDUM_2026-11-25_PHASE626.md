@@ -10,9 +10,9 @@ Latest natural SEC Form 4 run reviewed: [45714679017](https://github.com/jafelix
 
 The existing `same_feed_duplicate_occurrences` field counts repeated accessions in a feed, not exact repeated entities. Production sidecar audit found 912 rows, 910 distinct entity keys and two exact repeated entity rows. The two repeated entity rows span offsets 1200 and 1300 for accession `0001193125-26-477834`; raw Atom page bodies are not retained, so the reason is unresolved.
 
-A new branch proposes a separate append-only `entity_duplicate_audit.csv` with strict exact entity keys, cross-page duplicate flags, legitimate multi-entity cross-page counts and unkeyed rows. Existing ledgers remain unchanged. The old summary field is retained as a compatibility alias and paired with the clearer `same_feed_repeated_accession_occurrences`.
+A new branch proposes a separate append-only `entity_duplicate_audit.csv` with strict exact entity keys requiring recognized feed, valid accession, nonzero numeric CIK and normalized name, cross-page duplicate flags, legitimate multi-entity cross-page counts and unkeyed rows. Existing ledgers remain unchanged. The old summary field is retained as a compatibility alias and paired with the clearer `same_feed_repeated_accession_occurrences`.
 
-Implementation passed offline CI (78/78 tests) in [Run 45724430616](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45724430616); the live-capture job was skipped. PR #240 remains Draft pending review and natural post-merge production validation. No production rollout has occurred.
+Implementation passed offline CI (80/80 tests) in [Run 45724430616](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45724430616); the live-capture job was skipped. PR #240 remains Draft pending review and natural post-merge production validation. No production rollout has occurred.
 
 ## Other source priorities
 
