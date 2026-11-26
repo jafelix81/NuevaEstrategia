@@ -10,9 +10,8 @@ import argparse
 import csv
 import hashlib
 import json
-import math
 import sys
-from datetime import datetime, timezone
+from datetime import datetime
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any
@@ -136,8 +135,7 @@ def prospective_russell_events(events_dir: Path = EVENTS) -> list[dict[str, Any]
         payload = json.loads(path.read_text(encoding="utf-8"))
         if payload.get("dataset_id") != "gpe5-46if":
             raise ValueError(f"unexpected CFTC dataset in {path.name}")
-        mode = payload.get("capture_mode")
-        if mode != "scheduled":
+        if payload.get("capture_mode") != "scheduled":
             continue
         for event in payload.get("events", []):
             if event.get("contract_code") != CONTRACT_CODE:
