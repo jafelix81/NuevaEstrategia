@@ -66,7 +66,7 @@ Both current observations are below the fixed 80th-percentile state. This is not
 
 1. Implement the Phase 646 calculation as a separate Russell-only reproducible script/test, preserving the fixed CSV and event-file hashes.
 2. Freeze a permitted, reproducible Russell-proxy adjusted-OHLC and VIX source before inspecting any forward outcome. If that source cannot be established without an unapproved purchase, leave the outcome study blocked.
-3. Continue actual first-receipt capture. The official CFTC release calendar currently lists the next report for 2026-11-30 at 3:30 p.m. ET; use the actual collector receipt and do not assume the announced semiweekly transition has reached TFF.
+3. Continue actual first-receipt capture. The [official CFTC release calendar](https://www.cftc.gov/MarketReports/CommitmentsofTraders/ReleaseSchedule/index.htm) currently lists the next report for 2026-11-30 at 3:30 p.m. ET. The [2026-10-27 semiweekly announcement](https://www.cftc.gov/PressRoom/PressReleases/9316-26) is a plan, not proof that TFF Futures Only has transitioned; use the actual collector receipt and observed report dates.
 4. Keep the two historical archive exceptions excluded and do not change the Phase 646 threshold or outcome definition.
 
 ## Frozen controls
