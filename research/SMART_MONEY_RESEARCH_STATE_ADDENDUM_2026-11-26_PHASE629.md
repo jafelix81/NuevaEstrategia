@@ -6,3 +6,6 @@
 - Form 144 natural run 45693004404 succeeded with 44 new events, 44 acceptance reconciliations, 723 cumulative accessions and 4,874 detail rows; public availability and signal eligibility remain uncertified.
 - Phase 616 PR #241 offline regression passed 30/30; live 44-header sample remains unrun and requires explicit dispatch after review.
 - No new alpha/OOS/bootstrap/LOO result. F80_TOP20_PARTIAL50_BASELINE_C20 remains frozen. Options-data budget USD 0.
+
+- Latest FINRA Reg SHO run 45550366574 returned seven HTTP-200 files (trade dates 2026-11-16 to 2026-11-24); all seven failed the duplicate-symbol gate. BCPC and TPC each recur with overlapping facility token sets (14 duplicate-symbol occurrences total); no raw volume was persisted and zero observations are eligible.
+- Latest CFTC TFF run 45550124780 found no new report/revision; 3,043 rows remain unchanged through report date 2026-11-17; zero historical rows are signal-eligible.
