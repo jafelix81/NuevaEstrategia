@@ -1,7 +1,7 @@
 # Phase 626 — Form 4 accession-repeat vs exact entity-duplicate audit
 
 **Date:** 2026-11-25  
-**Status:** offline regression passed 78/78; awaiting review and natural post-merge production validation  
+**Status:** offline regression passed 80/80; awaiting review and natural post-merge production validation  
 **Base:** main at `54c6e324b20e44307c9ed0244c70c9da3c8797fe`
 
 ## Production evidence reviewed
