@@ -34,7 +34,16 @@ A 404 remains quarantined. A 403 or retryable transport/rate-limit response stop
 
 The Phase 350 workflow now runs offline tests on pull-request updates and only repeats the full 44-reference retrieval on an explicit manual dispatch with `run_live_capture=true`. Phase 351 downloads the existing Phase 350 artifact and makes only the one targeted recovery request.
 
-## 4. Validation limits
+## 4. Recovery result — 2026-11-26 09:00 UTC
+
+- [Run 45787898552](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45787898552) passed all 11 offline recovery tests and completed exactly one SEC request.
+- The request used the manifest candidate archive-path CIK `769993`; SEC returned HTTP 404.
+- [Artifact 15101905659](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45787898552/artifacts/15101905659), SHA-256 `fb1d1b48759380bb64dfc37425afb42974d5aa1690223182c5d429eb42adb073`, records one target, one request, zero raw documents, zero validated references, and `NOT_FOUND`.
+- The prior subject-CIK path `723612` also returned HTTP 404 in Phase 350.
+- The child filing itself is independently visible as a 2025-11-10 Schedule 13G/A and its SEC primary document explicitly references `0000769993-25-000432` as `previousAccessionNumber`; the child identifies Avis Budget Group CIK `723612` and CUSIP `053774105`. This corroborates the child reference but does not establish that the parent accession is publicly retrievable.
+- No third archive-path guess will be attempted. The parent remains unresolved and quarantined because the manifest/index did not verify an alternate path and both evidence-based candidates returned 404.
+
+## 5. Validation limits
 
 This recovery is identity/lineage work only. Even if the 44th parent validates:
 - no first-publication timestamp is available;
