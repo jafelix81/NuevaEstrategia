@@ -39,21 +39,34 @@ SEC_USER_AGENT_EMAIL_RE = re.compile(r"[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}", r
 
 
 def configure_sec_user_agent() -> str:
-    """Use the repository secret for every live SEC request; fail closed if absent."""
-    user_agent = os.environ.get("SEC_USER_AGENT", "").strip()
-    if (
-        not user_agent
-        or not SEC_USER_AGENT_EMAIL_RE.search(user_agent)
-        or len(user_agent) < 20
-        or any(token in user_agent.lower() for token in (
-            "example.com", "your-email", "replace-me", "placeholder"
-        ))
-    ):
-        raise RuntimeError(
-            "SEC_USER_AGENT is missing or invalid; no SEC request was made."
+    """Prefer the repository secret; fall back to the established shared project contact."""
+    secret = os.environ.get("SEC_USER_AGENT", "").strip()
+
+    def valid(value: str) -> bool:
+        return bool(
+            value
+            and SEC_USER_AGENT_EMAIL_RE.search(value)
+            and len(value) >= 20
+            and not any(token in value.lower() for token in (
+                "example.com", "example.org", "your-email", "replace-me", "placeholder"
+            ))
         )
-    # Phase 614 reuses the Phase 401 transport helper. Override its legacy
-    # module constant only after validating the secret; never print the value.
+
+    if valid(secret):
+        user_agent = secret
+    else:
+        # Phase 401 is the existing Form 144 SEC transport and already carries
+        # the project's declared contact. Reuse that single source of truth
+        # when the optional repository secret is absent/invalid; do not invent
+        # a new identity and never print the User-Agent.
+        fallback = str(getattr(p401, "SEC_UA", "") or "").strip()
+        if not valid(fallback):
+            raise RuntimeError(
+                "SEC_USER_AGENT and shared project contact are missing or invalid; "
+                "no SEC request was made."
+            )
+        user_agent = fallback
+
     p401.SEC_UA = user_agent
     return user_agent
 

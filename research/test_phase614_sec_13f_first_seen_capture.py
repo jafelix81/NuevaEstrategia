@@ -513,27 +513,46 @@ class Phase614PersistenceTests(unittest.TestCase):
 
 
 class Phase614UserAgentTests(unittest.TestCase):
-    def test_missing_user_agent_fails_before_any_sec_request(self):
-        with patch.dict(os.environ, {}, clear=True):
-            with self.assertRaisesRegex(RuntimeError, "no SEC request was made"):
-                p.configure_sec_user_agent()
+    def test_missing_secret_uses_existing_shared_project_contact(self):
+        fallback = "NuevaEstrategia quantitative research fallback@example.net"
+        with (
+            patch.dict(os.environ, {}, clear=True),
+            patch.object(p.p401, "SEC_UA", fallback),
+        ):
+            result = p.configure_sec_user_agent()
+            self.assertEqual(result, fallback)
+            self.assertEqual(p.p401.SEC_UA, fallback)
 
-    def test_placeholder_user_agent_fails_closed(self):
-        with patch.dict(os.environ, {
-            "SEC_USER_AGENT": "NuevaEstrategia contact your-email@example.com"
-        }, clear=True):
-            with self.assertRaisesRegex(RuntimeError, "no SEC request was made"):
-                p.configure_sec_user_agent()
+    def test_placeholder_secret_uses_existing_shared_project_contact(self):
+        fallback = "NuevaEstrategia quantitative research fallback@example.net"
+        with (
+            patch.dict(os.environ, {
+                "SEC_USER_AGENT": "NuevaEstrategia contact your-email@example.com"
+            }, clear=True),
+            patch.object(p.p401, "SEC_UA", fallback),
+        ):
+            result = p.configure_sec_user_agent()
+            self.assertEqual(result, fallback)
+            self.assertEqual(p.p401.SEC_UA, fallback)
 
-    def test_valid_secret_is_applied_to_shared_sec_transport_without_logging(self):
-        user_agent = "NuevaEstrategia quantitative research test@example.org"
+    def test_valid_secret_overrides_shared_project_contact(self):
+        user_agent = "NuevaEstrategia quantitative research test@research.test"
+        fallback = "NuevaEstrategia quantitative research fallback@example.net"
         with (
             patch.dict(os.environ, {"SEC_USER_AGENT": user_agent}, clear=True),
-            patch.object(p.p401, "SEC_UA", "legacy-transport-value"),
+            patch.object(p.p401, "SEC_UA", fallback),
         ):
             result = p.configure_sec_user_agent()
             self.assertEqual(result, user_agent)
             self.assertEqual(p.p401.SEC_UA, user_agent)
+
+    def test_invalid_secret_and_invalid_fallback_fail_before_any_sec_request(self):
+        with (
+            patch.dict(os.environ, {"SEC_USER_AGENT": "placeholder"}, clear=True),
+            patch.object(p.p401, "SEC_UA", "also-placeholder"),
+        ):
+            with self.assertRaisesRegex(RuntimeError, "no SEC request was made"):
+                p.configure_sec_user_agent()
 
 
 if __name__ == "__main__":
