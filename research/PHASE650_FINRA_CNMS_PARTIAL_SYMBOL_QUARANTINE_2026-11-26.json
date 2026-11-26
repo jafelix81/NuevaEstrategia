@@ -1,0 +1,104 @@
+{
+  "phase": 650,
+  "audit_cutoff_utc": "2026-11-26T20:56:40Z",
+  "base_main_sha": "a218c79922628d34a87ee3fd59ea3d9c0576ac4c",
+  "source_run": {
+    "workflow_run_id": 45754121648,
+    "job_id": 139688634485,
+    "artifact_id": 15086513251,
+    "artifact_name": "phase469-finra-regsho-first-seen",
+    "artifact_sha256": "e7f8c2922c83cb9d2c24f1b08a8e6eacf78b99d4c8e4b5d356bc9f7e339fbdba",
+    "poll_started_utc": "2026-11-26T04:16:27.671121Z",
+    "poll_completed_utc": "2026-11-26T04:16:30.599130Z",
+    "mode": "schedule",
+    "trade_dates": [
+      {
+        "date": "2026-11-25",
+        "raw_sha256": "a937c851ee55f5dc35057aec341ea2153613bb1e03e304f23a09a2c3af5ad7d5",
+        "BCPC_market_sets": [["B","N","Q"],["N","Q"]],
+        "TPC_market_sets": [["B","N","Q"],["B","N","Q"]]
+      },
+      {
+        "date": "2026-11-24",
+        "raw_sha256": "2d0f0fa4ac41782efb8a9e6fef1f3914341dced7121c88ab76a6be5e7439ef7d",
+        "BCPC_market_sets": [["B","N","Q"],["Q"]],
+        "TPC_market_sets": [["B","N","Q"],["B","N","Q"]]
+      },
+      {
+        "date": "2026-11-23",
+        "raw_sha256": "9e39cc1024d6bee6134c8b2000d94aa42fcd59ac1412583ffef0b83518fb2e4c",
+        "BCPC_market_sets": [["B","N","Q"],["N","Q"]],
+        "TPC_market_sets": [["B","N","Q"],["B","N","Q"]]
+      },
+      {
+        "date": "2026-11-20",
+        "raw_sha256": "2bbe5cf33d35ae4cfa495afdb83585252a7c3189954a67f22842a8044c21e038",
+        "BCPC_market_sets": [["B","N","Q"],["N","Q"]],
+        "TPC_market_sets": [["B","N","Q"],["B","N","Q"]]
+      },
+      {
+        "date": "2026-11-19",
+        "raw_sha256": "bc9f18e06f2395719d948f6f57d721190bc1d488711254728f2ade4b2671830a",
+        "BCPC_market_sets": [["B","N","Q"],["Q"]],
+        "TPC_market_sets": [["B","N","Q"],["B","N","Q"]]
+      },
+      {
+        "date": "2026-11-18",
+        "raw_sha256": "394c60c50f9b71fc54c0216d6d261408b3fda3bac02d62ecd43c685e1c61cf38",
+        "BCPC_market_sets": [["B","N","Q"],["Q"]],
+        "TPC_market_sets": [["B","N","Q"],["B","N","Q"]]
+      },
+      {
+        "date": "2026-11-17",
+        "raw_sha256": "d37bd2a0fcfae4a0c1c81a03ddde4384f03367a6978799647a56b2a81c93e9a4",
+        "BCPC_market_sets": [["B","N","Q"],["Q"]],
+        "TPC_market_sets": [["B","N","Q"],["N","Q"]]
+      },
+      {
+        "date": "2026-11-16",
+        "raw_sha256": "cdf9e692aa314f564950b62dd98c6f1c42a701d1a81fd2d36703b0b5c26c9392",
+        "BCPC_market_sets": [["B","N","Q"],["Q"]],
+        "TPC_market_sets": [["B","N","Q"],["B","N","Q"]]
+      }
+    ]
+  },
+  "observed_diagnostics": {
+    "http_200_files": 8,
+    "prior_parser_valid_files": 0,
+    "prior_parser_invalid_files": 8,
+    "duplicate_diagnostic_files": 8,
+    "duplicate_symbol_date_groups": 16,
+    "duplicate_extra_rows": 16,
+    "exact_duplicate_rows": 0,
+    "rows_to_quarantine_under_new_policy": 32,
+    "symbols": ["BCPC","TPC"],
+    "all_duplicate_market_sets_overlap": true,
+    "raw_market_rows_persisted": false,
+    "volume_values_persisted": false
+  },
+  "frozen_335_snapshot_check": {
+    "source_commit": "1aa1b91f383ce9cef375a43e775c736a27356a5f",
+    "git_blob_sha1": "7edbd62b4fb34a6123276e4ce45cb3c1c62479c7",
+    "ticker_count": 335,
+    "BCPC_present": false,
+    "TPC_present": false,
+    "interpretation": "current frozen snapshot overlap only; not a historical security master"
+  },
+  "new_parser_policy": {
+    "disposition": "partial_file_unique_symbols_retained_duplicate_symbols_fully_quarantined",
+    "never_sum_composite_market_duplicate_rows": true,
+    "quarantine_all_rows_for_repeated_symbol": true,
+    "eligible_rows_require_at_least_one_retained_symbol": true,
+    "schema_version_marks_partial_quarantine": true,
+    "duplicate_diagnostics_retain_metadata_only": true,
+    "past_invalid_files_reclassified_as_first_seen": false
+  },
+  "research": {
+    "signal_eligible": false,
+    "return_test": false,
+    "oos": false,
+    "bootstrap": false,
+    "loo": false,
+    "f80_changed": false
+  }
+}

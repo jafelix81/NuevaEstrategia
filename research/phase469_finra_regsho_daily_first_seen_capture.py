@@ -129,6 +129,7 @@ def _duplicate_symbol_diagnostics(parsed_rows: list[dict[str, Any]]) -> dict[str
         "diagnostic_version": 1,
         "duplicate_symbol_count": len(symbols),
         "duplicate_extra_row_count": sum(item["row_count"] - 1 for item in symbols),
+        "quarantined_row_count": sum(item["row_count"] for item in symbols),
         "duplicate_symbols": symbols,
         "raw_rows_persisted": False,
         "volume_values_persisted": False,
@@ -145,8 +146,9 @@ def parse_finra_file(raw: bytes, requested_trade_date: date) -> dict[str, Any]:
     code per row; those are aggregated by (symbol, market).
 
     If any row carries a multi-facility list, the file is treated as
-    security-grain and duplicate symbols are rejected. This avoids summing an
-    already-consolidated row with another row for the same security.
+    security-grain. Every row for a duplicated symbol is quarantined, while
+    unique symbols remain available as a clearly marked partial panel. This
+    avoids summing overlapping or potentially multi-class rows.
     """
     if not isinstance(raw, bytes) or not raw:
         raise ValueError("file_empty")
@@ -232,13 +234,25 @@ def parse_finra_file(raw: bytes, requested_trade_date: date) -> dict[str, Any]:
         raise ValueError("trailer_count_mismatch")
 
     rows: list[dict[str, Any]] = []
+    duplicate_diagnostics = None
+    quarantined_symbol_count = 0
+    quarantined_row_count = 0
     if has_composite_market_list:
         # A comma-separated Market field denotes an already consolidated
-        # security row. Never aggregate its volumes with another row.
+        # security row. Never aggregate its volumes with another row. When a
+        # symbol repeats, exclude every row for that symbol rather than guess
+        # whether the rows are separate classes or overlapping aggregates.
         diagnostics = _duplicate_symbol_diagnostics(parsed_rows)
-        if diagnostics["duplicate_symbol_count"]:
-            raise FinraParseError("duplicate_symbol_in_consolidated_file", diagnostics)
-        for item in parsed_rows:
+        duplicate_diagnostics = diagnostics if diagnostics["duplicate_symbol_count"] else None
+        quarantined_symbol_count = diagnostics["duplicate_symbol_count"]
+        quarantined_row_count = diagnostics["quarantined_row_count"]
+        duplicate_symbols = {
+            item["symbol"] for item in diagnostics["duplicate_symbols"]
+        }
+        accepted_items = [
+            item for item in parsed_rows if item["symbol"] not in duplicate_symbols
+        ]
+        for item in accepted_items:
             symbol = item["symbol"]
             rows.append({
                 "symbol": symbol,
@@ -248,7 +262,11 @@ def parse_finra_file(raw: bytes, requested_trade_date: date) -> dict[str, Any]:
                 "total_volume": item["total_volume"],
                 "market": ",".join(sorted(item["markets"])),
             })
-        row_grain = "security_rows_with_market_lists"
+        row_grain = (
+            "security_rows_with_market_lists_partial_symbol_quarantine"
+            if quarantined_symbol_count
+            else "security_rows_with_market_lists"
+        )
     else:
         # Single-code rows can be facility-grain. Aggregate only when a
         # security appears in more than one distinct facility.
@@ -307,6 +325,9 @@ def parse_finra_file(raw: bytes, requested_trade_date: date) -> dict[str, Any]:
         "response_bytes": len(raw),
         "raw_sha256": hashlib.sha256(raw).hexdigest(),
         "schema_version": f"CNMSshvol:{header_signature}:{row_grain}",
+        "duplicate_diagnostics": duplicate_diagnostics,
+        "quarantined_symbol_count": quarantined_symbol_count,
+        "quarantined_row_count": quarantined_row_count,
         "header": normalised,
     }
 
@@ -321,7 +342,7 @@ def build_symbol_observations(parsed: dict[str, Any], file_event: dict[str, Any]
         raise ValueError("raw_file_hash_does_not_match_first_seen_manifest")
     if parsed.get("trade_date") != file_event.get("trade_date"):
         raise ValueError("raw_file_trade_date_does_not_match_manifest")
-    if parsed.get("row_count", 0) <= 0:
+    if parsed.get("symbol_count", 0) <= 0:
         return []
     required = ("poll_start_utc", "first_seen_utc", "poll_end_utc")
     if any(not file_event.get(key) for key in required):
@@ -483,7 +504,8 @@ def run_capture(
         "revisions": 0, "unchanged": 0, "not_available": 0,
         "http_errors": 0, "invalid_files": 0, "eligible_first_seen": 0,
         "duplicate_diagnostic_files": 0, "duplicate_symbol_count": 0,
-        "duplicate_extra_row_count": 0,
+        "duplicate_extra_row_count": 0, "partial_files": 0,
+        "quarantined_symbol_occurrences": 0, "quarantined_row_occurrences": 0,
     }
 
     for trade_date in trade_dates:
@@ -558,6 +580,31 @@ def run_capture(
                 row_count = parsed["row_count"]
                 symbol_count = parsed["symbol_count"]
                 schema_version = parsed["schema_version"]
+                diagnostics = parsed.get("duplicate_diagnostics")
+                if diagnostics:
+                    counts["partial_files"] += 1
+                    counts["duplicate_diagnostic_files"] += 1
+                    counts["duplicate_symbol_count"] += diagnostics["duplicate_symbol_count"]
+                    counts["duplicate_extra_row_count"] += diagnostics["duplicate_extra_row_count"]
+                    counts["quarantined_symbol_occurrences"] += diagnostics["duplicate_symbol_count"]
+                    counts["quarantined_row_occurrences"] += diagnostics["quarantined_row_count"]
+                    duplicate_diagnostics.append({
+                        "run_id": str(run_id), "mode": mode,
+                        "trade_date": trade_date.isoformat(),
+                        "poll_start_utc": start_iso, "poll_end_utc": end_iso,
+                        "raw_sha256": digest, "response_bytes": response_bytes,
+                        **diagnostics,
+                    })
+                    duplicate_diagnostic_rows.append({
+                        "run_id": str(run_id), "mode": mode,
+                        "trade_date": trade_date.isoformat(),
+                        "poll_start_utc": start_iso, "poll_end_utc": end_iso,
+                        "raw_sha256": digest, "response_bytes": response_bytes,
+                        "diagnostic_version": diagnostics["diagnostic_version"],
+                        "duplicate_symbol_count": diagnostics["duplicate_symbol_count"],
+                        "duplicate_extra_row_count": diagnostics["duplicate_extra_row_count"],
+                        "details_json": json.dumps(diagnostics, sort_keys=True, separators=(",", ":")),
+                    })
                 key = trade_date.isoformat()
                 previous = state["files"].get(key)
                 if previous is None:
@@ -566,14 +613,14 @@ def run_capture(
                     elif (
                         trade_date == ny_now.date()
                         and ny_now.time() >= time(16, 0)
-                        and parsed["row_count"] > 0
+                        and parsed["symbol_count"] > 0
                     ):
                         observation_kind = "first_seen"
                         eligible = True
                     elif (
                         trade_date < ny_now.date()
                         and ny_now.time() >= time(16, 0)
-                        and parsed["row_count"] > 0
+                        and parsed["symbol_count"] > 0
                         and _has_prior_scheduled_not_available(
                             data_dir / "polls.csv", trade_date, poll_start, run_id
                         )
@@ -612,6 +659,8 @@ def run_capture(
                             "row_count": row_count,
                             "symbol_count": symbol_count,
                             "schema_version": schema_version,
+                            "quarantined_symbol_count": parsed.get("quarantined_symbol_count", 0),
+                            "quarantined_row_count": parsed.get("quarantined_row_count", 0),
                         }
                 elif digest == previous.get("latest_sha256"):
                     observation_kind = "unchanged"
@@ -642,9 +691,15 @@ def run_capture(
                         previous["row_count"] = row_count
                         previous["symbol_count"] = symbol_count
                         previous["schema_version"] = schema_version
+                        previous["quarantined_symbol_count"] = parsed.get("quarantined_symbol_count", 0)
+                        previous["quarantined_row_count"] = parsed.get("quarantined_row_count", 0)
                 if eligible:
                     counts["eligible_first_seen"] += 1
-                poll_status = "valid_file"
+                poll_status = (
+                    "valid_file_partial_symbol_quarantine"
+                    if parsed.get("quarantined_symbol_count", 0)
+                    else "valid_file"
+                )
 
         poll_rows.append({
             "run_id": run_id, "mode": mode, "trade_date": trade_date.isoformat(),
@@ -674,6 +729,7 @@ def run_capture(
         "raw_market_data_persisted": False,
         "historical_first_seen_imputed": False,
         "revision_policy": "append_revision_event; preserve_original_first_seen; never_relabel_revision_as_first_seen",
+        "symbol_quarantine_policy": "exclude_all_rows_for_duplicate_symbols; retain_unique_symbols; never_sum_overlapping_composite_market_rows",
         "manual_mode_persists_state": False,
     }
     output_dir.mkdir(parents=True, exist_ok=True)
