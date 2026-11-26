@@ -3,7 +3,7 @@
 **Audit cutoff:** 2026-11-26 08:44 UTC  
 **Base main HEAD:** `38c558ab1b5beba1b483922945854531d091f6ac`  
 **Branch:** `phase635-sec-user-agent-shared-fallback-20261126`  
-**Disposition:** remove an avoidable operational dependency on a missing repository secret while retaining fail-closed SEC identification. No live SEC request or model test was run in this phase.
+**Disposition:** merged the fallback correction while retaining fail-closed SEC identification. Offline regression passed 37/37; no live SEC request or model test was run in this phase.
 
 ## 1. Actions preflight and artifact review
 
@@ -48,6 +48,8 @@ This is an operational transport correction only. It does not certify 13F filing
 - Options/data-purchase budget remains USD 0.
 - `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen. No universe, exposure, costs, parameters, holdout or production changes.
 
-## 5. Next validation
+## 5. Merge and next validation
 
-After this PR passes offline CI and is merged, the next naturally scheduled Phase 614 poll should confirm that the established project-contact fallback is applied without exposing it in logs and that all four SEC Atom feeds complete. Do not manually dispatch a duplicate poll.
+- [PR #243](https://github.com/jafelix81/NuevaEstrategia/pull/243) was merged into main as commit [`11c2f1a`](https://github.com/jafelix81/NuevaEstrategia/commit/11c2f1acb578784456bc30f82f131ed8fb858c32).
+- Hosted PR run [45786202161](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45786202161) passed **37/37 offline tests**. Its live-capture job was skipped as designed; no SEC request was made by that PR run.
+- The next naturally scheduled Phase 614 poll must confirm that the established project-contact fallback is applied without exposing it in logs and that all four SEC Atom feeds complete. Do not manually dispatch a duplicate poll.
