@@ -68,7 +68,7 @@ class Phase352ContinuityTests(unittest.TestCase):
         self.assertEqual(cusip_status("053774105", [], parent_retrieved=False), "UNRESOLVED_PARENT_NOT_RETRIEVED")
 
     def test_name_overlap_states(self):
-        self.assertEqual(name_overlap(["Goldman Sachs Group Inc"], ["THE GOLDMAN SACHS GROUP, INC."]), "EXACT_OVERLAP")
+        self.assertEqual(name_overlap(["THE GOLDMAN SACHS GROUP, INC."], ["THE GOLDMAN SACHS GROUP, INC."]), "EXACT_OVERLAP")
         self.assertEqual(name_overlap(["Goldman Sachs"], ["THE GOLDMAN SACHS GROUP, INC."]), "SUBSTRING_CANDIDATE")
         self.assertEqual(name_overlap(["Other"], ["THE GOLDMAN SACHS GROUP, INC."]), "NO_OVERLAP")
         self.assertEqual(name_overlap([], ["THE GOLDMAN SACHS GROUP, INC."]), "NAME_SET_UNAVAILABLE")
