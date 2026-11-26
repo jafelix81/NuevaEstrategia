@@ -24,7 +24,7 @@ REQUIRED = {
     "plan_adoption_dates_json", "mentions_10b5_1_in_remarks",
     "nothing_to_report_flag", "prior_sale_amount_numeric",
     "first_seen_interval_lower_bound_utc",
-    "first_seen_interval_upper_bound_utc", "first_seen_poll_run_id",
+    "first_seen_interval_upper_bound_utc", "first_seen_interval_status", "first_seen_poll_run_id",
     "submission_acceptance_utc", "remarks", "previous_accession",
 }
 
@@ -175,15 +175,37 @@ def summarize_rows(rows: list[dict[str, str]]) -> dict[str, Any]:
 
     interval_by_run: dict[str, list[float]] = {}
     acceptance_to_upper: list[float] = []
+    interval_status_counts: dict[str, int] = {}
+    initial_baseline_accessions: list[str] = []
+    malformed_interval_accessions: list[str] = []
+    research_eligible_invalid_interval_accessions: list[str] = []
     malformed_intervals = 0
     for row in headers:
         lower = parse_utc(row.get("first_seen_interval_lower_bound_utc"))
         upper = parse_utc(row.get("first_seen_interval_upper_bound_utc"))
+        status = str(row.get("first_seen_interval_status") or "").strip()
         run_id = str(row.get("first_seen_poll_run_id") or "missing")
-        if lower and upper and upper >= lower:
+        interval_status_counts[status or "MISSING"] = interval_status_counts.get(status or "MISSING", 0) + 1
+        research_eligible = truth(row.get("research_observation_eligible"))
+
+        if status == "BOUNDED_BY_SUCCESSIVE_SUCCESSFUL_POLLS" and lower and upper and upper >= lower:
             interval_by_run.setdefault(run_id, []).append((upper - lower).total_seconds() / 3600.0)
+        elif (
+            status == "INITIAL_BASELINE_NO_LOWER_BOUND"
+            and lower is None
+            and upper is not None
+            and run_id != "missing"
+            and not research_eligible
+        ):
+            # Expected bootstrap rows have a receipt upper bound but no prior
+            # successful poll. They are deliberately quarantined, not malformed.
+            initial_baseline_accessions.append(str(row.get("accession") or ""))
         else:
             malformed_intervals += 1
+            malformed_interval_accessions.append(str(row.get("accession") or ""))
+            if research_eligible:
+                research_eligible_invalid_interval_accessions.append(str(row.get("accession") or ""))
+
         acceptance = parse_utc(row.get("submission_acceptance_utc"))
         if acceptance and upper:
             acceptance_to_upper.append((upper - acceptance).total_seconds() / 3600.0)
@@ -238,7 +260,13 @@ def summarize_rows(rows: list[dict[str, str]]) -> dict[str, Any]:
             "research_observation_eligible_filing_headers": research_count,
             "public_availability_certified_filing_headers": public_count,
             "signal_eligible_filing_headers": signal_count,
+            "initial_baseline_no_lower_bound_filing_headers": len(initial_baseline_accessions),
+            "initial_baseline_no_lower_bound_accessions": sorted(initial_baseline_accessions),
             "malformed_or_missing_first_seen_intervals": malformed_intervals,
+            "malformed_first_seen_interval_accessions": sorted(malformed_interval_accessions),
+            "research_observation_eligible_with_invalid_first_seen_interval_filing_headers": len(research_eligible_invalid_interval_accessions),
+            "research_observation_eligible_with_invalid_first_seen_interval_accessions": sorted(research_eligible_invalid_interval_accessions),
+            "first_seen_interval_status_counts": dict(sorted(interval_status_counts.items())),
             "first_seen_interval_hours_by_poll_run": {
                 run: stats(values) for run, values in sorted(interval_by_run.items())
             },
@@ -248,13 +276,25 @@ def summarize_rows(rows: list[dict[str, str]]) -> dict[str, Any]:
             "nothing_to_report_consistency_mismatches": len(no_report_mismatches),
             "no_signal_admitted": signal_count == 0,
             "no_public_availability_claim": public_count == 0,
+            "expected_initial_baseline_rows_are_quarantined": all(
+                not truth(r.get("research_observation_eligible"))
+                for r in headers
+                if str(r.get("first_seen_interval_status") or "").strip() == "INITIAL_BASELINE_NO_LOWER_BOUND"
+            ),
+            "no_research_eligible_filing_has_an_invalid_first_seen_interval": not research_eligible_invalid_interval_accessions,
             "form144a_not_assumed_to_be_new_forward_sale": True,
             "no_returns_or_backtest_performed": True,
         },
     }
     result["disposition"] = (
         "DESCRIPTIVE_LEDGER_QUALITY_PASS_WITH_SEMANTIC_REVIEW_QUEUE"
-        if parse_errors == 0 and not no_report_mismatches and signal_count == 0
+        if (
+            parse_errors == 0
+            and not no_report_mismatches
+            and signal_count == 0
+            and malformed_intervals == 0
+            and not research_eligible_invalid_interval_accessions
+        )
         else "REVIEW_REQUIRED"
     )
     return result
