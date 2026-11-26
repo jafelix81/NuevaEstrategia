@@ -35,7 +35,7 @@ MAX_FEED_PAGES = 50
 PAGE_DELAY_SECONDS = 0.35
 ET_TZ = ZoneInfo("America/New_York")
 
-SEC_USER_AGENT_EMAIL_RE = re.compile(r"[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}", re.I)
+SEC_USER_AGENT_EMAIL_RE = re.compile(r"[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}", re.I)
 
 
 def configure_sec_user_agent() -> str:
