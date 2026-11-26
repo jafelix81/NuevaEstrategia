@@ -106,11 +106,17 @@ class TestPhase469Parser(unittest.TestCase):
             "20261117|ABC|120.5|2.5|300.0|B,Q,N",
             "20261117|XYZ|0|0|100|N",
         ]
-        with self.assertRaisesRegex(FinraParseError, "duplicate_symbol_in_consolidated_file") as caught:
-            parse_finra_file(file_bytes(rows=rows), date(2026, 11, 17))
-        diagnostic = caught.exception.diagnostics
+        parsed = parse_finra_file(file_bytes(rows=rows), date(2026, 11, 17))
+        diagnostic = parsed["duplicate_diagnostics"]
         self.assertEqual(diagnostic["duplicate_symbol_count"], 1)
         self.assertEqual(diagnostic["duplicate_extra_row_count"], 2)
+        self.assertEqual(diagnostic["quarantined_row_count"], 3)
+        self.assertEqual(parsed["quarantined_symbol_count"], 1)
+        self.assertEqual(parsed["quarantined_row_count"], 3)
+        self.assertEqual(parsed["row_count"], 4)
+        self.assertEqual(parsed["symbol_count"], 1)
+        self.assertEqual(parsed["rows"][0]["symbol"], "XYZ")
+        self.assertIn("partial_symbol_quarantine", parsed["row_grain"])
         item = diagnostic["duplicate_symbols"][0]
         self.assertEqual(item["symbol"], "ABC")
         self.assertEqual(item["row_count"], 3)
@@ -289,7 +295,7 @@ class TestPhase469Capture(unittest.TestCase):
             state = json.loads((root / "data" / "state.json").read_text())
             self.assertEqual(state["files"], {})
 
-    def test_duplicate_consolidated_capture_persists_diagnostic_but_not_state(self):
+    def test_duplicate_consolidated_capture_persists_diagnostic_and_quarantines_all_duplicate_symbols(self):
         payload = file_bytes(rows=[
             "20261117|ABC|120.5|2.5|300.0|B,Q,N",
             "20261117|ABC|10|0|50|D",
@@ -301,25 +307,54 @@ class TestPhase469Capture(unittest.TestCase):
                 output_dir=root / "out", lookback_days=1,
                 now_fn=self.fixed_now, fetcher=self.fetch_current_only(payload),
             )
-            self.assertEqual(summary["counts"]["invalid_files"], 1)
+            self.assertEqual(summary["counts"]["invalid_files"], 0)
+            self.assertEqual(summary["counts"]["valid_files"], 1)
+            self.assertEqual(summary["counts"]["partial_files"], 1)
             self.assertEqual(summary["counts"]["duplicate_diagnostic_files"], 1)
             self.assertEqual(summary["counts"]["duplicate_symbol_count"], 1)
             self.assertEqual(summary["counts"]["duplicate_extra_row_count"], 1)
+            self.assertEqual(summary["counts"]["quarantined_symbol_occurrences"], 1)
+            self.assertEqual(summary["counts"]["quarantined_row_occurrences"], 2)
             with (root / "data" / "polls.csv").open(newline="") as handle:
                 poll = next(csv.DictReader(handle))
-            self.assertEqual(poll["poll_status"], "invalid_file")
-            self.assertEqual(poll["error"], "duplicate_symbol_in_consolidated_file")
+            self.assertEqual(poll["poll_status"], "valid_file_partial_symbol_quarantine")
+            self.assertEqual(poll["symbol_count"], "0")
             state = json.loads((root / "data" / "state.json").read_text())
-            self.assertEqual(state["files"], {})
+            self.assertEqual(state["files"]["2026-11-17"]["first_seen_kind"], "bootstrap")
             with (root / "data" / "duplicate_diagnostics.csv").open(newline="") as handle:
                 diagnostic_row = next(csv.DictReader(handle))
             detail = json.loads(diagnostic_row["details_json"])
             self.assertEqual(detail["duplicate_symbol_count"], 1)
+            self.assertEqual(detail["quarantined_row_count"], 2)
             self.assertNotIn("120.5", diagnostic_row["details_json"])
             self.assertFalse(detail["raw_rows_persisted"])
             artifact_detail = json.loads((root / "out" / "duplicate_diagnostics.json").read_text())
             self.assertEqual(len(artifact_detail["diagnostics"]), 1)
             self.assertFalse(artifact_detail["raw_rows_persisted"])
+
+    def test_partial_capture_retains_only_unique_symbols_as_research_observations(self):
+        payload = file_bytes(rows=[
+            "20261117|ABC|120.5|2.5|300.0|B,Q,N",
+            "20261117|ABC|10|0|50|D",
+            "20261117|XYZ|0|0|100|N",
+        ])
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            summary = run_capture(
+                mode="schedule", run_id="partial-meta", data_dir=root / "data",
+                output_dir=root / "out", lookback_days=1,
+                now_fn=self.fixed_now, fetcher=self.fetch_current_only(payload),
+            )
+            self.assertEqual(summary["counts"]["partial_files"], 1)
+            self.assertEqual(summary["research_observation_eligible_count"], 1)
+            self.assertEqual(summary["signal_eligible_count"], 0)
+            with (root / "data" / "events.csv").open(newline="") as handle:
+                event = next(csv.DictReader(handle))
+            parsed = parse_finra_file(payload, date(2026, 11, 17))
+            observations = build_symbol_observations(parsed, event)
+            self.assertEqual([row["symbol"] for row in observations], ["XYZ"])
+            self.assertIn("partial_symbol_quarantine", observations[0]["schema_version"])
+            self.assertEqual(observations[0]["row_count"], 3)
 
     def test_old_date_first_capture_is_bootstrap_not_eligible(self):
         payload = file_bytes(day="20261116", rows=["20261116|ABC|1|0|2|N"])
