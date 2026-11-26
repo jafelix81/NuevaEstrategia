@@ -18,7 +18,7 @@ The historical CSV contains 3,035 rows across four index-futures contracts. Russ
 - 2018-09-25: archive page heading mismatch.
 - 2019-12-24: archive page returned HTTP 404.
 
-After these exclusions, the reference contains **480 unique, finite Russell observations**, from 2017-08-15 through 2026-11-03. No duplicate report dates, forward-fill or zero-fill were found. The historical rows remain `UNVERIFIED_ARCHIVE_PROXY` and are not historical signals or return observations.
+After these exclusions, the reference contains **480 unique, finite Russell observations**, from 2017-08-15 through 2026-11-03. No duplicate report dates were found; no forward-fill or zero-fill was applied. The historical rows remain `UNVERIFIED_ARCHIVE_PROXY` and are not historical signals or return observations.
 
 Both prospective events were first received after the conservative 2026-11-14 00:44:59Z knowledge bound. This validates the narrow Phase 646 use of the frozen snapshot as a reference distribution for subsequent prospective events; it does not certify the historical reports' original public-release timestamps.
 
