@@ -7,7 +7,6 @@ from datetime import date, datetime, timezone
 from pathlib import Path
 
 from research.phase469_finra_regsho_daily_first_seen_capture import (
-    FinraParseError,
     build_symbol_observations,
     candidate_trade_dates,
     parse_finra_file,
@@ -91,13 +90,18 @@ class TestPhase469Parser(unittest.TestCase):
         self.assertEqual(str(abc["total_volume"]), "300.0")
         self.assertEqual(abc["market"], "B,N,Q")
 
-    def test_consolidated_market_list_requires_unique_symbols(self):
+    def test_consolidated_market_list_quarantines_every_row_for_duplicate_symbol(self):
         rows = [
             "20261117|ABC|120.5|2.5|300.0|B,Q,N",
             "20261117|ABC|10|0|50|D",
         ]
-        with self.assertRaisesRegex(ValueError, "duplicate_symbol_in_consolidated_file"):
-            parse_finra_file(file_bytes(rows=rows), date(2026, 11, 17))
+        parsed = parse_finra_file(file_bytes(rows=rows), date(2026, 11, 17))
+        self.assertEqual(parsed["row_count"], 2)
+        self.assertEqual(parsed["symbol_count"], 0)
+        self.assertEqual(parsed["rows"], [])
+        self.assertEqual(parsed["quarantined_symbol_count"], 1)
+        self.assertEqual(parsed["quarantined_row_count"], 2)
+        self.assertIn("partial_symbol_quarantine", parsed["schema_version"])
 
     def test_consolidated_duplicate_emits_metadata_only_diagnostic(self):
         rows = [
