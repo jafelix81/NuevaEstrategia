@@ -15,6 +15,8 @@ from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 from zoneinfo import ZoneInfo
 
+from research.sec_user_agent import resolve_sec_user_agent
+
 SEC_BASE = "https://www.sec.gov/Archives/edgar/data/"
 PROJECT_URL = "https://github.com/jafelix81/NuevaEstrategia"
 
@@ -209,9 +211,19 @@ def write_json(path, payload):
 
 
 def run(args):
-    user_agent = args.user_agent or ""
-    if not user_agent.strip() or "@" not in user_agent:
-        raise ValueError("SEC_USER_AGENT must include a monitored contact email; store it as a GitHub Actions secret")
+    if args.user_agent and str(args.user_agent).strip():
+        user_agent = str(args.user_agent).strip()
+        if (
+            "@" not in user_agent
+            or "example.com" in user_agent.lower()
+            or "example.org" in user_agent.lower()
+            or "your-email" in user_agent.lower()
+            or "placeholder" in user_agent.lower()
+        ):
+            raise ValueError("Explicit SEC User-Agent is invalid; no SEC request was made")
+        user_agent_source = "explicit_cli_argument"
+    else:
+        user_agent, user_agent_source = resolve_sec_user_agent()
     manifest = load_manifest(args.manifest)
     out = Path(args.outdir)
     raw_dir = out / "parents"
@@ -353,6 +365,7 @@ def run(args):
         "retryable_stop": retryable,
         "stop_reason": stop_reason,
         "request_rate_per_second": args.requests_per_second,
+        "user_agent_source": user_agent_source,
         "new_sec_requests_made": True,
         "archive_path_cik_used_only_for_url": True,
         "immediate_predecessor_inference_performed": False,
