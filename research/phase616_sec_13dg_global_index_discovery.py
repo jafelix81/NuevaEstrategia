@@ -2,9 +2,11 @@
 """Bounded, global-index discovery and subject/filer validation for SEC 13D/G.
 
 This phase deliberately does not use the legacy F80-filer-only accession panel.
-The SEC master index CIK is treated as the filer; the archive path CIK is only
-a candidate identity; the SEC-HEADER SUBJECT COMPANY block is authoritative
-for subject-issuer identity. No ticker is inferred.
+The SEC master-index CIK/company-name pair is a candidate subject-company
+identity and must match the SEC-HEADER SUBJECT COMPANY block. The SEC-HEADER
+FILED BY block supplies the filing-entity identity. The accession prefix is
+an EDGAR login/submitter CIK; the archive-path CIK is a retrieval locator.
+Neither is used as a substitute for the header identities. No ticker is inferred.
 """
 from __future__ import annotations
 
