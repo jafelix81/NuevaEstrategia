@@ -827,5 +827,23 @@ class Phase476Tests(unittest.TestCase):
         self.assertEqual(summary["exact_duplicate_entity_observation_rows"], 0)
         self.assertTrue(all(row["entity_observation_key"] == "" for row in audited))
 
+    def test_entity_duplicate_audit_does_not_key_missing_or_invalid_cik(self):
+        rows = [
+            {"poll_run_id": "r", "observation_sequence": 1, "feed_name": "4", "accession": "D",
+             "form": "4", "feed_entity_role": "ISSUER", "feed_entity_cik": "",
+             "feed_entity_name": "Issuer Four Inc.", "feed_entity_status": "PARSED", "page_offset": 0,
+             "page_raw_sha256": "h1", "page_received_at_utc": "t1"},
+            {"poll_run_id": "r", "observation_sequence": 2, "feed_name": "4", "accession": "D",
+             "form": "4", "feed_entity_role": "ISSUER", "feed_entity_cik": "not-a-cik",
+             "feed_entity_name": "Issuer Four Inc.", "feed_entity_status": "PARSED", "page_offset": 100,
+             "page_raw_sha256": "h2", "page_received_at_utc": "t2"},
+        ]
+        audited, summary = p.audit_entity_observation_duplicates(rows)
+        self.assertEqual(summary["unkeyed_entity_observation_rows"], 2)
+        self.assertEqual(summary["exact_duplicate_entity_observation_rows"], 0)
+        self.assertTrue(all(row["entity_observation_key"] == "" for row in audited))
+        self.assertTrue(all(row["entity_key_status"] == "UNKEYED_UNPARSED_OR_INCOMPLETE_ENTITY" for row in audited))
+
+
 if __name__ == "__main__":
     unittest.main()
