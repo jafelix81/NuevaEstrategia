@@ -536,7 +536,7 @@ class Phase614UserAgentTests(unittest.TestCase):
             self.assertEqual(p.p401.SEC_UA, fallback)
 
     def test_valid_secret_overrides_shared_project_contact(self):
-        user_agent = "NuevaEstrategia quantitative research test@example.org"
+        user_agent = "NuevaEstrategia quantitative research test@research.test"
         fallback = "NuevaEstrategia quantitative research fallback@example.net"
         with (
             patch.dict(os.environ, {"SEC_USER_AGENT": user_agent}, clear=True),
