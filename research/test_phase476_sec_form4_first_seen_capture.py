@@ -771,27 +771,27 @@ class Phase476Tests(unittest.TestCase):
 
     def test_entity_duplicate_audit_separates_cross_page_repeat_from_distinct_entities(self):
         rows = [
-            {"poll_run_id": "r", "observation_sequence": 1, "feed_name": "4", "accession": "A",
+            {"poll_run_id": "r", "observation_sequence": 1, "feed_name": "4", "accession": "0000000001-26-000101",
              "form": "4", "feed_entity_role": "REPORTING", "feed_entity_cik": "0000000002",
              "feed_entity_name": "Owner LLC", "feed_entity_status": "PARSED", "page_offset": 0,
              "page_raw_sha256": "h1", "page_received_at_utc": "t1"},
-            {"poll_run_id": "r", "observation_sequence": 2, "feed_name": "4", "accession": "A",
+            {"poll_run_id": "r", "observation_sequence": 2, "feed_name": "4", "accession": "0000000001-26-000101",
              "form": "4", "feed_entity_role": "ISSUER", "feed_entity_cik": "0000000003",
              "feed_entity_name": "Issuer Inc.", "feed_entity_status": "PARSED", "page_offset": 100,
              "page_raw_sha256": "h2", "page_received_at_utc": "t2"},
-            {"poll_run_id": "r", "observation_sequence": 3, "feed_name": "4", "accession": "B",
+            {"poll_run_id": "r", "observation_sequence": 3, "feed_name": "4", "accession": "0000000001-26-000102",
              "form": "4", "feed_entity_role": "ISSUER", "feed_entity_cik": "0000000004",
              "feed_entity_name": "Issuer Two Inc.", "feed_entity_status": "PARSED", "page_offset": 200,
              "page_raw_sha256": "h3", "page_received_at_utc": "t3"},
-            {"poll_run_id": "r", "observation_sequence": 4, "feed_name": "4", "accession": "B",
+            {"poll_run_id": "r", "observation_sequence": 4, "feed_name": "4", "accession": "0000000001-26-000102",
              "form": "4", "feed_entity_role": "REPORTING", "feed_entity_cik": "0000000005",
              "feed_entity_name": "Owner Two LLC", "feed_entity_status": "PARSED", "page_offset": 200,
              "page_raw_sha256": "h3", "page_received_at_utc": "t3"},
-            {"poll_run_id": "r", "observation_sequence": 5, "feed_name": "4", "accession": "B",
+            {"poll_run_id": "r", "observation_sequence": 5, "feed_name": "4", "accession": "0000000001-26-000102",
              "form": "4", "feed_entity_role": "ISSUER", "feed_entity_cik": "0000000004",
              "feed_entity_name": "  ISSUER TWO INC. ", "feed_entity_status": "PARSED", "page_offset": 300,
              "page_raw_sha256": "h4", "page_received_at_utc": "t4"},
-            {"poll_run_id": "r", "observation_sequence": 6, "feed_name": "4", "accession": "B",
+            {"poll_run_id": "r", "observation_sequence": 6, "feed_name": "4", "accession": "0000000001-26-000102",
              "form": "4", "feed_entity_role": "ISSUER", "feed_entity_cik": "0000000004",
              "feed_entity_name": "Issuer Two Inc.", "feed_entity_status": "PARSED", "page_offset": 300,
              "page_raw_sha256": "h4", "page_received_at_utc": "t4"},
@@ -813,11 +813,11 @@ class Phase476Tests(unittest.TestCase):
 
     def test_entity_duplicate_audit_does_not_fuzzy_match_unparsed_entities(self):
         rows = [
-            {"poll_run_id": "r", "observation_sequence": 1, "feed_name": "4", "accession": "C",
+            {"poll_run_id": "r", "observation_sequence": 1, "feed_name": "4", "accession": "0000000001-26-000103",
              "form": "4", "feed_entity_role": "UNKNOWN", "feed_entity_cik": "",
              "feed_entity_name": "", "feed_entity_status": "UNPARSED_TITLE", "page_offset": 0,
              "page_raw_sha256": "h1", "page_received_at_utc": "t1"},
-            {"poll_run_id": "r", "observation_sequence": 2, "feed_name": "4", "accession": "C",
+            {"poll_run_id": "r", "observation_sequence": 2, "feed_name": "4", "accession": "0000000001-26-000103",
              "form": "4", "feed_entity_role": "UNKNOWN", "feed_entity_cik": "",
              "feed_entity_name": "", "feed_entity_status": "UNPARSED_TITLE", "page_offset": 100,
              "page_raw_sha256": "h2", "page_received_at_utc": "t2"},
@@ -827,13 +827,33 @@ class Phase476Tests(unittest.TestCase):
         self.assertEqual(summary["exact_duplicate_entity_observation_rows"], 0)
         self.assertTrue(all(row["entity_observation_key"] == "" for row in audited))
 
+    def test_entity_duplicate_audit_does_not_key_missing_feed_or_invalid_accession(self):
+        rows = [
+            {"poll_run_id": "r", "observation_sequence": 1, "feed_name": "", "accession": "0000000001-26-000105",
+             "form": "4", "feed_entity_role": "ISSUER", "feed_entity_cik": "0000000006",
+             "feed_entity_name": "Issuer Five Inc.", "feed_entity_status": "PARSED", "page_offset": 0,
+             "page_raw_sha256": "h1", "page_received_at_utc": "t1"},
+            {"poll_run_id": "r", "observation_sequence": 2, "feed_name": "4", "accession": "not-an-accession",
+             "form": "4", "feed_entity_role": "ISSUER", "feed_entity_cik": "0000000007",
+             "feed_entity_name": "Issuer Six Inc.", "feed_entity_status": "PARSED", "page_offset": 100,
+             "page_raw_sha256": "h2", "page_received_at_utc": "t2"},
+            {"poll_run_id": "r", "observation_sequence": 3, "feed_name": "unknown", "accession": "0000000001-26-000107",
+             "form": "4", "feed_entity_role": "ISSUER", "feed_entity_cik": "0000000008",
+             "feed_entity_name": "Issuer Seven Inc.", "feed_entity_status": "PARSED", "page_offset": 200,
+             "page_raw_sha256": "h3", "page_received_at_utc": "t3"},
+        ]
+        audited, summary = p.audit_entity_observation_duplicates(rows)
+        self.assertEqual(summary["unkeyed_entity_observation_rows"], 3)
+        self.assertEqual(summary["exact_duplicate_entity_observation_rows"], 0)
+        self.assertTrue(all(row["entity_observation_key"] == "" for row in audited))
+
     def test_entity_duplicate_audit_does_not_key_missing_or_invalid_cik(self):
         rows = [
-            {"poll_run_id": "r", "observation_sequence": 1, "feed_name": "4", "accession": "D",
+            {"poll_run_id": "r", "observation_sequence": 1, "feed_name": "4", "accession": "0000000001-26-000104",
              "form": "4", "feed_entity_role": "ISSUER", "feed_entity_cik": "",
              "feed_entity_name": "Issuer Four Inc.", "feed_entity_status": "PARSED", "page_offset": 0,
              "page_raw_sha256": "h1", "page_received_at_utc": "t1"},
-            {"poll_run_id": "r", "observation_sequence": 2, "feed_name": "4", "accession": "D",
+            {"poll_run_id": "r", "observation_sequence": 2, "feed_name": "4", "accession": "0000000001-26-000104",
              "form": "4", "feed_entity_role": "ISSUER", "feed_entity_cik": "not-a-cik",
              "feed_entity_name": "Issuer Four Inc.", "feed_entity_status": "PARSED", "page_offset": 100,
              "page_raw_sha256": "h2", "page_received_at_utc": "t2"},
