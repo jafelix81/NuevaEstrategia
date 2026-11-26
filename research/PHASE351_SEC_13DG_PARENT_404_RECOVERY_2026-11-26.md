@@ -36,12 +36,12 @@ The Phase 350 workflow now runs offline tests on pull-request updates and only r
 
 ## 4. Recovery result — 2026-11-26 09:00 UTC
 
-- [Run 45787898552](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45787898552) passed all 11 offline recovery tests and completed exactly one SEC request.
-- The request used the manifest candidate archive-path CIK `769993`; SEC returned HTTP 404.
-- [Artifact 15101905659](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45787898552/artifacts/15101905659), SHA-256 `fb1d1b48759380bb64dfc37425afb42974d5aa1690223182c5d429eb42adb073`, records one target, one request, zero raw documents, zero validated references, and `NOT_FOUND`.
+- [Run 45787898552](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45787898552) passed all 11 offline recovery tests and completed one SEC request.
+- A second one-request run, [45788572537](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45788572537), was inadvertently triggered by a report-only PR update because the original workflow path filter included the report. Both requests used the manifest candidate archive-path CIK `769993`; both returned HTTP 404. Neither saved raw data.
+- Artifacts: [15101905659](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45787898552/artifacts/15101905659), SHA-256 `fb1d1b48759380bb64dfc37425afb42974d5aa1690223182c5d429eb42adb073`; and [15100823459](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45788572537/artifacts/15100823459), SHA-256 `569ce4abf627c58f79e44491c9122dbe8d9ced85aad1f1b3727558af0fb29c2e`. Each records one target, one request, zero raw documents, zero validated references and `NOT_FOUND`.
 - The prior subject-CIK path `723612` also returned HTTP 404 in Phase 350.
 - The child filing itself is independently visible as a 2025-11-10 Schedule 13G/A and its SEC primary document explicitly references `0000769993-25-000432` as `previousAccessionNumber`; the child identifies Avis Budget Group CIK `723612` and CUSIP `053774105`. This corroborates the child reference but does not establish that the parent accession is publicly retrievable.
-- No third archive-path guess will be attempted. The parent remains unresolved and quarantined because the manifest/index did not verify an alternate path and both evidence-based candidates returned 404.
+- No third archive-path guess will be attempted. The Phase 351 workflow is now manual-dispatch-only with `run_live_recovery=false` by default, preventing report or code updates from generating more SEC requests. The parent remains unresolved and quarantined because both evidence-based candidates returned 404.
 
 ## 5. Validation limits
 
