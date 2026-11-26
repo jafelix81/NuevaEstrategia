@@ -12,4 +12,4 @@
 - **Actions preflight:** 8,354 total runs; latest 100 = 70 success, 18 failure, 12 cancelled; zero queued or in progress. 85 open PRs were reviewed. No existing workflow was dispatched or duplicated.
 - **Strategy:** `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen. No new alpha, OOS, bootstrap, LOO or portfolio evidence. No production strategy changes.
 
-**Phase 650 status:** code and tests prepared on `phase650-finra-cnms-partial-symbol-quarantine`; PR CI must pass before merge. The change is limited to FINRA source parsing and metadata diagnostics.
+**Phase 650 status:** merged into main via PR #247, merge commit `c7379f42ffffd631e8ce1bc3b9b3261871e3480d`. Run 45895296971 passed 62/62 offline tests; live-capture was skipped. The next scheduled FINRA poll is the first production validation; no manual poll was dispatched.
