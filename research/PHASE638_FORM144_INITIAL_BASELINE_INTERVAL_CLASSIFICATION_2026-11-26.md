@@ -32,7 +32,17 @@ This branch changes the Phase 516 audit to:
 
 Two regression tests cover (a) the expected baseline quarantine and (b) rejection of a baseline row incorrectly marked research eligible. Existing tests continue to cover timezone-aware bounds and the no-signal rule.
 
-## 3. Current Form 144 interpretation
+## 3. Implementation and validation
+
+PR [#244](https://github.com/jafelix81/NuevaEstrategia/pull/244) merged to `main` at commit `1c9f6bb0bcfadf6429c433c271f322e3cebd1309`.
+
+- [PR workflow run 45805390010](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45805390010) succeeded.
+- Phase 403 offline regression: **82/82 tests passed**.
+- Live-capture job was skipped for the pull-request event.
+- Re-running Phase 516 on the committed 815-header / 5,443-row ledger produced: 8 expected initial-baseline rows; 0 malformed intervals; 0 research-eligible rows with invalid intervals; 0 signal-eligible headers.
+- The descriptive quality-pass disposition was preserved.
+
+## 4. Current Form 144 interpretation
 
 The Phase 549 artifact remains descriptive:
 
@@ -43,7 +53,7 @@ The Phase 549 artifact remains descriptive:
 
 No return series, event study, alpha, chronological OOS, bootstrap, LOO or holdout test was run. No filing is admitted as a trading signal.
 
-## 4. Actions and cross-source preflight
+## 5. Actions and cross-source preflight
 
 At the cutoff, the Actions API showed zero in-progress and zero queued runs. The latest 40 runs were dominated by PR checks. The latest relevant PR check, [run 45788991215](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45788991215), passed the Phase 352 crosswalk (9/9 tests) and uploaded artifact [15101941929](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45788991215/artifacts/15101941929); it did not repeat live SEC retrieval.
 
@@ -56,7 +66,7 @@ The current workflow definitions retain schedules for Phase 476 (minute 17 weekd
 
 Other source gates remain unchanged: FINRA Reg SHO is quarantined for BCPC/TPC row-grain conflicts; CFTC TFF has 3,035 unverified archive rows plus only eight prospective contract observations across two report dates; SEC 13D/G has 43/44 parent documents retrieved with CUSIP continuity unresolved in five cases and missing in six.
 
-## 5. Strategy controls
+## 6. Strategy controls
 
 - `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
 - No universe, parameters, holding-period policy, exposure, costs, capital, production or holdout changes.
