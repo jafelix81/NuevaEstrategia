@@ -2,8 +2,8 @@
 
 **Audit cutoff:** 2026-11-26 19:23 UTC  
 **Base main HEAD:** `fd3c3e6c190e329a5f2ad69941edbe83bb2ca1a8`  
-**Branch:** `phase648-cftc-russell-reproducible-feature-pipeline`  
-**Disposition:** Phase 648 implementation complete; PR #246 offline validation passed 10/10 tests. Final run: [45883790689](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45883790689); artifact [15148398103](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45883790689/artifacts/15148398103).
+**Merged PR:** [#246](https://github.com/jafelix81/NuevaEstrategia/pull/246), merge commit `56db1fab18215cc951a4c87499727643336696d5`  
+**Disposition:** Phase 648 implementation complete; PR #246 offline validation passed 10/10 tests. Final post-documentation run: [45883866597](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45883866597); artifact [15148442172](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45883866597/artifacts/15148442172).
 
 ## Current state
 
@@ -20,7 +20,7 @@
 - Latest CFTC scheduled run [45753716471]: no new reports/revisions.
 - Latest FINRA Reg SHO scheduled run [45754121648]: eight files rejected by the BCPC/TPC integrity gate; zero rows admitted.
 - No manual dispatch, rerun, or duplicate poll.
-- Phase 648 is on PR #246, based directly on main; final offline workflow passed. The JSON artifact reproduces the two Phase 647 observations exactly.
+- Phase 648 PR #246 is merged into main. Final offline workflow passed; the JSON artifact reproduces the two Phase 647 observations exactly.
 
 ## Next gates
 
