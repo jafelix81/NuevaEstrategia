@@ -1,0 +1,73 @@
+{
+  "phase": 647,
+  "audit_cutoff_utc": "2026-11-26T18:18:00Z",
+  "preregistration": "PHASE646_CFTC_RUSSELL_FROZEN_ARCHIVE_REFERENCE_PREREGISTRATION_2026-11-26.md",
+  "source": {
+    "historical_backfill_blob_sha": "4711abbaeeb6107d1cb8f50a7c2e3627373b6d29",
+    "baseline_manifest_blob_sha": "9e58849093f2144ce8cfbf1d3e5efc626a1aa250",
+    "manifest_created_utc": "2026-11-13T23:03:38Z",
+    "conservative_mainline_knowledge_bound_utc": "2026-11-14T00:44:59Z",
+    "baseline_persistence_commit": "e88e553afc235916e37e9236e1890b714163c229",
+    "total_rows_all_contracts": 3035,
+    "russell_contract_code": "239742",
+    "raw_russell_rows": 482,
+    "excluded_report_dates": [
+      "2018-09-25",
+      "2019-12-24"
+    ],
+    "valid_reference_rows": 480,
+    "duplicate_report_dates": 0,
+    "first_report_date": "2017-08-15",
+    "last_report_date": "2026-11-03",
+    "all_values_finite": true
+  },
+  "feature": {
+    "name": "LM_NET_OI",
+    "formula": "(Leveraged Money long - Leveraged Money short) / open_interest_all",
+    "reference": "fixed 480-row Russell E-mini archive snapshot; never updated",
+    "percentile_formula": "(count(reference < current) + 0.5 * count(reference == current)) / 480",
+    "high_crowding_threshold": 0.8,
+    "reference_distribution": {
+      "min": -0.2740920504833739,
+      "mean": -0.08056829680547624,
+      "median": -0.08450861182830921,
+      "p80": -0.019809109079467587,
+      "p90": 0.02665750292096408,
+      "max": 0.1493583307317814,
+      "population_sd": 0.07920599833988147
+    }
+  },
+  "prospective_observations": [
+    {
+      "report_date": "2026-11-10",
+      "first_seen_utc": "2026-11-18T03:44:57Z",
+      "first_eligible_xnys_session": "2026-11-18",
+      "lm_net_oi": -0.10084298736199884,
+      "reference_values_below": 195,
+      "reference_ties": 0,
+      "percentile": 0.40625,
+      "high_crowding": false,
+      "event_file": "research/data/cftc_tff_prospective/events/20261118T034457Z_run44232546204.json"
+    },
+    {
+      "report_date": "2026-11-17",
+      "first_seen_utc": "2026-11-21T03:17:36Z",
+      "first_eligible_xnys_session": "2026-11-23",
+      "lm_net_oi": -0.09212581297718225,
+      "reference_values_below": 218,
+      "reference_ties": 0,
+      "percentile": 0.45416666666666666,
+      "high_crowding": false,
+      "event_file": "research/data/cftc_tff_prospective/events/20261121T031736Z_run44860341977.json"
+    }
+  ],
+  "disposition": "FEATURE_CONSTRUCTION_VALIDATED; BOTH_CURRENT_OBSERVATIONS_BELOW_FIXED_HIGH_CROWDING_THRESHOLD; NO_OUTCOME_TEST",
+  "price_outcomes_inspected": false,
+  "signal_admitted": false,
+  "alpha_test_performed": false,
+  "oos_performed": false,
+  "bootstrap_performed": false,
+  "loo_performed": false,
+  "f80_changed": false,
+  "options_budget_usd": 0
+}
