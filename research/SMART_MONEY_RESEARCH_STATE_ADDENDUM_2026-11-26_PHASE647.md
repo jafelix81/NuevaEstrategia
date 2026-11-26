@@ -1,7 +1,7 @@
 # Smart Money Research State Addendum — Phase 647
 
 **Audit cutoff:** 2026-11-26 18:18 UTC  
-**Phase 647 files:** report `8cfaa79` (subsequently clarified in `1e51932` and `d37bee0`); JSON `67a1a05` (subsequently extended in `24efc83`); state addendum initially committed as `e8a66188e8395a0a6bb9cbe642f9209562b6715f`; subsequent audit-trail corrections brought main to `3ba685bbf34cfb1e0f2a6089779c064b01910d48`.  
+**Phase 647 files:** report `8cfaa79` (subsequently clarified in `1e51932` and `d37bee0`); JSON `67a1a05` (subsequently extended in `24efc83`); state addendum initially committed as `e8a66188e8395a0a6bb9cbe642f9209562b6715f`; report/JSON corrections were committed in `1e51932`, `d37bee0` and `24efc83`; this addendum was then reconciled in `b5bf866`.  
 **Disposition:** Phase 646 preregistered Russell design now has a validated fixed-reference feature construction. Both currently observed Russell events are below the fixed high-crowding threshold. No outcome data or alpha test.
 
 ## Completed
