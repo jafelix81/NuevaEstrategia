@@ -14,7 +14,7 @@ class Phase351TargetTests(unittest.TestCase):
         return [{
             "child_accession": "0000886982-25-001416",
             "parent_accession": "0000769993-25-000432",
-            "parent_archive_path_cik_candidate": "00000723612",
+            "parent_archive_path_cik_candidate": "723612",
             "http_status": "404",
             "retrieval_status": "NOT_FOUND",
         }]
@@ -32,7 +32,7 @@ class Phase351TargetTests(unittest.TestCase):
     def test_single_404_selects_manifest_accession_prefix_candidate(self):
         target = build_recovery_target(self.prior(), self.manifest())
         self.assertEqual(target["alternate_archive_path_cik_candidate"], "0000769993")
-        self.assertEqual(target["subject_issuer_cik"], "00000723612")
+        self.assertEqual(target["subject_issuer_cik"], "0000723612")
         self.assertEqual(target["alternate_path_role"], "UNVERIFIED_MANIFEST_CANDIDATE_FROM_ACCESSION_PREFIX")
 
     def test_alternate_url_uses_only_candidate_as_locator(self):
@@ -62,7 +62,7 @@ class Phase351TargetTests(unittest.TestCase):
             build_recovery_target(self.prior(), rows)
 
     def test_candidate_must_differ_from_failed_subject_path(self):
-        prior = [{**self.prior()[0], "parent_archive_path_cik_candidate": "00000769993"}]
+        prior = [{**self.prior()[0], "parent_archive_path_cik_candidate": "723612"}]
         with self.assertRaisesRegex(ValueError, "not_distinct"):
             build_recovery_target(prior, self.manifest())
 
@@ -86,7 +86,7 @@ FILED BY:
     def target(self):
         return {
             "parent_accession": "0000769993-25-000432",
-            "subject_issuer_cik": "00000723612",
+            "subject_issuer_cik": "0000723612",
             "form_family": "13G",
             "child_acceptance_utc": "2025-11-10T17:16:36+00:00",
         }
