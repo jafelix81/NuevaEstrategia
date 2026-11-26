@@ -58,7 +58,8 @@ def build_recovery_target(prior_rows: list[dict], manifest_rows: list[dict]) -> 
         raise ValueError("missing_parent_subject_or_alternate_path_candidate")
     if candidate != accession_prefix:
         raise ValueError("manifest_alternate_candidate_not_accession_prefix")
-    if candidate == subject_cik:
+    prior_failed_path = normalize_cik(prior.get("parent_archive_path_cik_candidate"))
+    if candidate == subject_cik or (prior_failed_path and candidate == prior_failed_path):
         raise ValueError("alternate_path_candidate_not_distinct_from_failed_subject_path")
 
     return {
@@ -69,7 +70,7 @@ def build_recovery_target(prior_rows: list[dict], manifest_rows: list[dict]) -> 
         "child_acceptance_utc": str(expected.get("child_acceptance_utc") or ""),
         "alternate_archive_path_cik_candidate": candidate,
         "alternate_path_role": "UNVERIFIED_MANIFEST_CANDIDATE_FROM_ACCESSION_PREFIX",
-        "prior_failed_path_cik": normalize_cik(prior.get("parent_archive_path_cik_candidate")),
+        "prior_failed_path_cik": prior_failed_path,
         "prior_http_status": 404,
         "immediate_predecessor_claimed": False,
     }
