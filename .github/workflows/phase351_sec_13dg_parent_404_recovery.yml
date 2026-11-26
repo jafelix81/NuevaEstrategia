@@ -1,0 +1,77 @@
+name: Phase 351 - SEC 13D/G unresolved parent 404 recovery
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_live_recovery:
+        description: "Run the single unresolved SEC parent 404 recovery request"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: phase351-sec-13dg-parent-404-recovery
+  cancel-in-progress: false
+
+jobs:
+  recover-one-parent:
+    if: github.event_name == 'workflow_dispatch' && inputs.run_live_recovery == true
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Download immutable Phase 349 manifest artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p phase351_input/manifest
+          curl --fail --silent --show-error --location \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13992528474/zip \
+            -o phase351_input/phase349_manifest.zip
+          echo "5073e9f67f0bf3c83f5eb25f513fb231848d3bee2c806eaf8e84da57c02110ef  phase351_input/phase349_manifest.zip" | sha256sum --check
+          unzip -q phase351_input/phase349_manifest.zip -d phase351_input/manifest
+          test -s phase351_input/manifest/phase349_output/phase349_predecessor_target_manifest.csv
+      - name: Download completed Phase 350 artifact without repeating SEC requests
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p phase351_input/phase350
+          curl --fail --silent --show-error --location \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/15100039658/zip \
+            -o phase351_input/phase350/phase350_results.zip
+          echo "d1ad6a7110256cfe057729782b6c90e37d0729ced17b7f3e7e6b95c9203ff87d  phase351_input/phase350/phase350_results.zip" | sha256sum --check
+          unzip -q phase351_input/phase350/phase350_results.zip -d phase351_input/phase350
+          test -s phase351_input/phase350/phase350_parent_retrieval.csv
+      - name: Run Phase 351 offline recovery gates
+        run: |
+          python -m py_compile research/phase351_sec_13dg_parent_404_recovery.py research/test_phase351_sec_13dg_parent_404_recovery.py
+          python -m unittest -v research.test_phase351_sec_13dg_parent_404_recovery
+      - name: Recover only the single unresolved parent 404
+        env:
+          SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
+        run: |
+          python -u -m research.phase351_sec_13dg_parent_404_recovery \
+            --prior-results phase351_input/phase350/phase350_parent_retrieval.csv \
+            --manifest phase351_input/manifest/phase349_output/phase349_predecessor_target_manifest.csv \
+            --outdir phase351_output
+      - name: Upload one-row recovery result
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase351-sec-13dg-parent-404-recovery
+          path: phase351_output/
+          if-no-files-found: warn
+          retention-days: 90

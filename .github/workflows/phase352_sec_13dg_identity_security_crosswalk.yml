@@ -1,0 +1,77 @@
+name: Phase 352 - SEC 13D/G parent identity and CUSIP crosswalk
+
+on:
+  pull_request:
+    branches:
+      - phase347-13dg-cusip-integrity-audit
+    paths:
+      - .github/workflows/phase352_sec_13dg_identity_security_crosswalk.yml
+      - research/phase352_sec_13dg_identity_security_crosswalk.py
+      - research/test_phase352_sec_13dg_identity_security_crosswalk.py
+      - research/PHASE352_SEC_13DG_PARENT_IDENTITY_SECURITY_CROSSWALK_2026-11-26.md
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: phase352-sec-13dg-identity-security-crosswalk
+  cancel-in-progress: false
+
+jobs:
+  crosswalk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Download immutable Phase 349 manifest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p phase352_input/manifest
+          curl --fail --silent --show-error --location \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/13992528474/zip \
+            -o phase352_input/phase349_manifest.zip
+          echo "5073e9f67f0bf3c83f5eb25f513fb231848d3bee2c806eaf8e84da57c02110ef  phase352_input/phase349_manifest.zip" | sha256sum --check
+          unzip -q phase352_input/phase349_manifest.zip -d phase352_input/manifest
+          test -s phase352_input/manifest/phase349_output/phase349_predecessor_target_manifest.csv
+      - name: Download immutable Phase 350 parent submissions
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p phase352_input/phase350
+          curl --fail --silent --show-error --location \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/repos/jafelix81/NuevaEstrategia/actions/artifacts/15100039658/zip \
+            -o phase352_input/phase350/phase350_results.zip
+          echo "d1ad6a7110256cfe057729782b6c90e37d0729ced17b7f3e7e6b95c9203ff87d  phase352_input/phase350/phase350_results.zip" | sha256sum --check
+          unzip -q phase352_input/phase350/phase350_results.zip -d phase352_input/phase350
+          test -s phase352_input/phase350/phase350_parent_retrieval.csv
+          test -d phase352_input/phase350/parents
+      - name: Run Phase 352 offline parser tests
+        run: |
+          python -m py_compile research/phase352_sec_13dg_identity_security_crosswalk.py research/test_phase352_sec_13dg_identity_security_crosswalk.py
+          python -m unittest -v research.test_phase352_sec_13dg_identity_security_crosswalk
+      - name: Build parent identity and security crosswalk
+        run: |
+          python -u -m research.phase352_sec_13dg_identity_security_crosswalk \
+            --manifest phase352_input/manifest/phase349_output/phase349_predecessor_target_manifest.csv \
+            --parent-results phase352_input/phase350/phase350_parent_retrieval.csv \
+            --parents-dir phase352_input/phase350/parents \
+            --outdir phase352_output
+      - name: Upload Phase 352 crosswalk
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase352-sec-13dg-identity-security-crosswalk
+          path: phase352_output/
+          if-no-files-found: warn
+          retention-days: 90
