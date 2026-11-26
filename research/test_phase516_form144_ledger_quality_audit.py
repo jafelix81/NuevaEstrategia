@@ -5,7 +5,8 @@ from research.phase516_form144_ledger_quality_audit import summarize_rows
 
 def header(accession, *, plan="[]", remarks_10b5="False", nothing="Y",
            notice="2026-11-19", run="run-1", lower="2026-11-19T20:00:00Z",
-           upper="2026-11-19T22:00:00Z", remarks="", form="144"):
+           upper="2026-11-19T22:00:00Z", interval_status="BOUNDED_BY_SUCCESSIVE_SUCCESSFUL_POLLS",
+           remarks="", form="144"):
     return {
         "accession": accession, "form": form, "issuer_cik": "0000000001",
         "issuer_name": "Example Corp", "detail_section": "filing_header",
@@ -19,6 +20,7 @@ def header(accession, *, plan="[]", remarks_10b5="False", nothing="Y",
         "nothing_to_report_flag": nothing, "prior_sale_amount_numeric": "",
         "first_seen_interval_lower_bound_utc": lower,
         "first_seen_interval_upper_bound_utc": upper,
+        "first_seen_interval_status": interval_status,
         "first_seen_poll_run_id": run, "submission_acceptance_utc": "2026-11-19T21:00:00Z",
         "remarks": remarks, "previous_accession": "",
     }
@@ -95,6 +97,49 @@ class Phase516Tests(unittest.TestCase):
         interval = result["pit"]["first_seen_interval_hours_by_poll_run"]["run-1"]
         self.assertEqual(interval["median"], 2.0)
         self.assertEqual(result["pit"]["malformed_or_missing_first_seen_intervals"], 0)
+
+    def test_initial_baseline_no_lower_bound_is_expected_quarantine_not_malformed(self):
+        a = header(
+            "BASELINE",
+            lower="",
+            upper="2026-11-20T22:00:00Z",
+            interval_status="INITIAL_BASELINE_NO_LOWER_BOUND",
+        )
+        a["research_observation_eligible"] = "False"
+        result = summarize_rows([a])
+        pit = result["pit"]
+        self.assertEqual(pit["initial_baseline_no_lower_bound_filing_headers"], 1)
+        self.assertEqual(pit["initial_baseline_no_lower_bound_accessions"], ["BASELINE"])
+        self.assertEqual(pit["malformed_or_missing_first_seen_intervals"], 0)
+        self.assertEqual(
+            pit["research_observation_eligible_with_invalid_first_seen_interval_filing_headers"],
+            0,
+        )
+        self.assertTrue(result["controls"]["expected_initial_baseline_rows_are_quarantined"])
+        self.assertEqual(
+            result["disposition"],
+            "DESCRIPTIVE_LEDGER_QUALITY_PASS_WITH_SEMANTIC_REVIEW_QUEUE",
+        )
+
+    def test_research_eligible_initial_baseline_interval_is_rejected(self):
+        a = header(
+            "BAD-ELIGIBLE",
+            lower="",
+            upper="2026-11-20T22:00:00Z",
+            interval_status="INITIAL_BASELINE_NO_LOWER_BOUND",
+        )
+        result = summarize_rows([a])
+        pit = result["pit"]
+        self.assertEqual(pit["initial_baseline_no_lower_bound_filing_headers"], 0)
+        self.assertEqual(pit["malformed_or_missing_first_seen_intervals"], 1)
+        self.assertEqual(
+            pit["research_observation_eligible_with_invalid_first_seen_interval_filing_headers"],
+            1,
+        )
+        self.assertFalse(
+            result["controls"]["no_research_eligible_filing_has_an_invalid_first_seen_interval"]
+        )
+        self.assertEqual(result["disposition"], "REVIEW_REQUIRED")
 
     def test_no_signal_is_admitted_by_the_audit(self):
         a = header("A")
