@@ -207,6 +207,8 @@ def audit_entity_observation_duplicates(rows: list[dict]) -> tuple[list[dict], d
     unkeyed = 0
 
     for row in rows:
+        feed_name = str(row.get("feed_name", "") or "").strip()
+        accession = str(row.get("accession", "") or "").strip()
         role = str(row.get("feed_entity_role", "") or "").strip().upper()
         raw_cik = str(row.get("feed_entity_cik", "") or "").strip()
         cik = raw_cik.zfill(10) if re.fullmatch(r"\d{1,10}", raw_cik) and int(raw_cik) > 0 else ""
@@ -214,8 +216,15 @@ def audit_entity_observation_duplicates(rows: list[dict]) -> tuple[list[dict], d
         status = str(row.get("feed_entity_status", "") or "").strip().upper()
         key_status = "KEYED_PARSED_ENTITY"
         key = ""
-        if status == "PARSED" and role in {"ISSUER", "REPORTING"} and cik and name:
-            material = "|".join((str(row.get("feed_name", "")), str(row.get("accession", "")), role, cik, name))
+        if (
+            status == "PARSED"
+            and feed_name in {"4", "4A"}
+            and re.fullmatch(r"\d{10}-\d{2}-\d{6}", accession)
+            and role in {"ISSUER", "REPORTING"}
+            and cik
+            and name
+        ):
+            material = "|".join((feed_name, accession, role, cik, name))
             key = hashlib.sha256(material.encode("utf-8")).hexdigest()
         else:
             key_status = "UNKEYED_UNPARSED_OR_INCOMPLETE_ENTITY"
@@ -224,8 +233,8 @@ def audit_entity_observation_duplicates(rows: list[dict]) -> tuple[list[dict], d
         row_copy = {
             "poll_run_id": row.get("poll_run_id", ""),
             "observation_sequence": row.get("observation_sequence", ""),
-            "feed_name": row.get("feed_name", ""),
-            "accession": row.get("accession", ""),
+            "feed_name": feed_name,
+            "accession": accession,
             "form": row.get("form", ""),
             "entity_observation_key": key,
             "entity_key_status": key_status,
