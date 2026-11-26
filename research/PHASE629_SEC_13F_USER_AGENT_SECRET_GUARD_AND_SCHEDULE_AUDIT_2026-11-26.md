@@ -49,6 +49,13 @@ Both offline and live jobs succeeded; artifacts [15058663926](https://github.com
 - No unresolved acceptance reconciliations or source-hash mismatches in this run.
 - Public availability is not certified; zero signal-eligible rows.
 
+### FINRA Reg SHO and CFTC TFF
+
+The latest natural captures were also inspected.
+
+- FINRA Reg SHO run [45550366574](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45550366574), artifact [14992784656](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45550366574/artifacts/14992784656): seven HTTP-200 daily files for trade dates 2026-11-16 through 2026-11-24; all seven rejected. Each file contains two duplicate-symbol groups (BCPC and TPC), for 14 duplicate-symbol occurrences total. The rows are not exact duplicates; facility token sets overlap. No raw volumes were persisted and no observation is eligible.
+- CFTC TFF run [45550124780](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45550124780), artifact [14992729209](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45550124780/artifacts/14992729209): no new reports or revisions; 3,043 historical rows remain unchanged through report date 2026-11-17. Zero historical rows are signal-eligible under the current publication-vintage/cadence gate.
+
 ### SEC 13D/G — Phase 616
 
 PR [#241](https://github.com/jafelix81/NuevaEstrategia/pull/241) remains Draft. Latest offline run [45733913256](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45733913256) passed 30/30; live sample was skipped. The preregistered 44-header sample has not run.
