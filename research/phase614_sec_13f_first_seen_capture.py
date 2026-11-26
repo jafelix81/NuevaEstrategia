@@ -12,6 +12,7 @@ import argparse
 import csv
 import hashlib
 import html
+import os
 import json
 import re
 import time
@@ -33,6 +34,28 @@ PAGE_SIZE = 100
 MAX_FEED_PAGES = 50
 PAGE_DELAY_SECONDS = 0.35
 ET_TZ = ZoneInfo("America/New_York")
+
+SEC_USER_AGENT_EMAIL_RE = re.compile(r"[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}", re.I)
+
+
+def configure_sec_user_agent() -> str:
+    """Use the repository secret for every live SEC request; fail closed if absent."""
+    user_agent = os.environ.get("SEC_USER_AGENT", "").strip()
+    if (
+        not user_agent
+        or not SEC_USER_AGENT_EMAIL_RE.search(user_agent)
+        or len(user_agent) < 20
+        or any(token in user_agent.lower() for token in (
+            "example.com", "your-email", "replace-me", "placeholder"
+        ))
+    ):
+        raise RuntimeError(
+            "SEC_USER_AGENT is missing or invalid; no SEC request was made."
+        )
+    # Phase 614 reuses the Phase 401 transport helper. Override its legacy
+    # module constant only after validating the secret; never print the value.
+    p401.SEC_UA = user_agent
+    return user_agent
 
 FEEDS = {
     "13F-HR": (
@@ -711,6 +734,7 @@ def main() -> None:
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
+    configure_sec_user_agent()
     run_capture(args.mode, args.run_id, args.output)
 
 
