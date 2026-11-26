@@ -1,0 +1,84 @@
+{
+  "phase": 645,
+  "audit_cutoff_utc": "2026-11-26T17:45:00Z",
+  "main_head_at_audit_start": "e377c25e35f37d180ad860f889f4283127eb7ae6",
+  "source": "CFTC TFF Futures Only, contract code 239742 (CME Russell E-mini)",
+  "historical_archive": {
+    "report_date_rows": 482,
+    "valid_archive_pages": 480,
+    "excluded_archive_pages": 2,
+    "coverage_pct": 99.585062,
+    "excluded_dates": {
+      "2018-09-25": "archive heading mismatch: 2018-09-18",
+      "2019-12-24": "HTTP 404"
+    },
+    "archive_updated_lag_days": {
+      "median": 3,
+      "p90": 6,
+      "max": 50
+    },
+    "official_schedule_crosschecks_not_earlier": 23,
+    "official_schedule_crosschecks_total": 23,
+    "strict_historical_pit_certified": false
+  },
+  "prospective_vintages": [
+    {
+      "report_date": "2026-11-10",
+      "official_scheduled_release_et": "2026-11-16T15:30:00-05:00",
+      "first_seen_utc": "2026-11-18T03:44:57Z",
+      "first_seen_lag_seconds_after_scheduled_release": 112497,
+      "first_eligible_xnys_session": "2026-11-18",
+      "capture_run_id": "44232546204",
+      "contracts": 4,
+      "russell": {
+        "open_interest": 440576,
+        "asset_manager_net_oi_pct": 4.463021,
+        "dealer_net_oi_pct": 5.053158,
+        "leveraged_money_net_oi_pct": -10.084299
+      }
+    },
+    {
+      "report_date": "2026-11-17",
+      "official_scheduled_release_et": "2026-11-20T15:30:00-05:00",
+      "first_seen_utc": "2026-11-21T03:17:36Z",
+      "first_seen_lag_seconds_after_scheduled_release": 24456,
+      "first_eligible_xnys_session": "2026-11-23",
+      "capture_run_id": "44860341977",
+      "contracts": 4,
+      "russell": {
+        "open_interest": 459730,
+        "asset_manager_net_oi_pct": 6.671525,
+        "dealer_net_oi_pct": 2.711374,
+        "leveraged_money_net_oi_pct": -9.212581
+      }
+    }
+  ],
+  "russell_two_vintage_changes": {
+    "asset_manager_net_oi_pp": 2.208503,
+    "dealer_net_oi_pp": -2.341784,
+    "leveraged_money_net_oi_pp": 0.871717,
+    "open_interest_pct": 4.347491
+  },
+  "cftc_repository_inventory": {
+    "historical_archive_rows_all_contracts": 3035,
+    "prospective_observations_all_contracts": 8,
+    "prospective_report_date_clusters": 2,
+    "total_rows": 3043,
+    "signal_eligible_rows": 0
+  },
+  "latest_cftc_capture": {
+    "run_id": "45753716471",
+    "observed_at_utc": "2026-11-26T04:12:34Z",
+    "disposition": "NO_NEW_REPORTS_OR_REVISIONS_NO_STATE_CHANGE"
+  },
+  "next_official_release": {
+    "date": "2026-11-30",
+    "time_et": "15:30",
+    "reason": "Thanksgiving holiday delay"
+  },
+  "research_decision": "retain_as_conditional_macro_positioning_candidate; no_return_test_authorized",
+  "f80_changed": false,
+  "signals_admitted": 0,
+  "oos_bootstrap_loo_performed": false,
+  "options_data_budget_usd": 0
+}
