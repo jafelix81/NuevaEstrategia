@@ -208,7 +208,8 @@ def audit_entity_observation_duplicates(rows: list[dict]) -> tuple[list[dict], d
 
     for row in rows:
         role = str(row.get("feed_entity_role", "") or "").strip().upper()
-        cik = str(row.get("feed_entity_cik", "") or "").strip().zfill(10)
+        raw_cik = str(row.get("feed_entity_cik", "") or "").strip()
+        cik = raw_cik.zfill(10) if re.fullmatch(r"\\d{1,10}", raw_cik) and int(raw_cik) > 0 else ""
         name = normalize_entity_name(row.get("feed_entity_name", ""))
         status = str(row.get("feed_entity_status", "") or "").strip().upper()
         key_status = "KEYED_PARSED_ENTITY"
