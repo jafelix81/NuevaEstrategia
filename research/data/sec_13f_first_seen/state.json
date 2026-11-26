@@ -1,0 +1,38 @@
+{
+  "all_feeds_successful": true,
+  "feeds": {
+    "13F-HR": {
+      "last_poll_run_id": "45839454376",
+      "last_poll_status": "SUCCESS",
+      "last_successful_poll_end_utc": "2026-11-26T14:29:28Z",
+      "latest_accession": "0002137529-26-000004",
+      "latest_feed_updated_utc": "2026-11-25T19:52:38Z"
+    },
+    "13F-HR-A": {
+      "last_poll_run_id": "45839454376",
+      "last_poll_status": "SUCCESS",
+      "last_successful_poll_end_utc": "2026-11-26T14:29:28Z",
+      "latest_accession": "0002058426-26-000008",
+      "latest_feed_updated_utc": "2026-11-25T16:29:42Z"
+    },
+    "13F-NT": {
+      "last_poll_run_id": "45839454376",
+      "last_poll_status": "SUCCESS",
+      "last_successful_poll_end_utc": "2026-11-26T14:29:28Z",
+      "latest_accession": "0001761875-26-000007",
+      "latest_feed_updated_utc": "2026-11-25T02:18:25Z"
+    },
+    "13F-NT-A": {
+      "last_poll_run_id": "45839454376",
+      "last_poll_status": "SUCCESS",
+      "last_successful_poll_end_utc": "2026-11-26T14:29:28Z",
+      "latest_accession": "",
+      "latest_feed_updated_utc": ""
+    }
+  },
+  "last_poll_ended_utc": "2026-11-26T14:29:28Z",
+  "last_poll_run_id": "45839454376",
+  "last_poll_started_utc": "2026-11-26T14:29:24Z",
+  "phase": 614,
+  "schema_version": 1
+}
