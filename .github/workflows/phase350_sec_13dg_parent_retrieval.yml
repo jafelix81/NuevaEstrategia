@@ -8,6 +8,13 @@ on:
       - research/test_phase350_sec_13dg_parent_retrieval.py
       - research/PHASE350_SEC_13DG_PARENT_RETRIEVAL_2026-11-12.md
       - .github/workflows/phase350_sec_13dg_parent_retrieval.yml
+  workflow_dispatch:
+    inputs:
+      run_live_capture:
+        description: "Explicitly rerun the full 44-reference parent retrieval"
+        required: true
+        type: boolean
+        default: false
 
 permissions:
   actions: read
@@ -44,6 +51,7 @@ jobs:
       - name: Run Phase 350 offline parser and validation tests
         run: python -m unittest -v research.test_phase350_sec_13dg_parent_retrieval
       - name: Retrieve exact parent submissions from SEC Archives
+        if: github.event_name == 'workflow_dispatch' && inputs.run_live_capture == true
         env:
           SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
         run: |
@@ -52,7 +60,7 @@ jobs:
             --outdir phase350_output \
             --requests-per-second 2
       - name: Upload raw submissions and validation results
-        if: always()
+        if: always() && github.event_name == 'workflow_dispatch' && inputs.run_live_capture == true
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: phase350-sec-13dg-parent-retrieval
