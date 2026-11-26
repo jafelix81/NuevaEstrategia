@@ -3,7 +3,7 @@
 **Audit cutoff:** 2026-11-26 19:23 UTC  
 **Base main HEAD:** `fd3c3e6c190e329a5f2ad69941edbe83bb2ca1a8`  
 **Branch:** `phase648-cftc-russell-reproducible-feature-pipeline`  
-**Disposition:** implement a deterministic, offline-only reproduction of the Phase 646/647 Russell feature construction. This phase does not inspect price outcomes, fit a predictive model, admit a signal, or change F80.
+**Disposition:** completed on PR #246; offline CI passed 10/10 tests and produced the reproducible JSON artifact. This phase does not inspect price outcomes, fit a predictive model, admit a signal, or change F80.
 
 ## 1. Required preflight
 
@@ -80,11 +80,11 @@ Later first-seen Russell events are included automatically if they pass all gate
 - `.github/workflows/phase648_cftc_russell_feature_pipeline.yml`: offline PR validation and a JSON feature artifact; it makes no network requests to CFTC and has no write permission.
 - This report and the state addendum.
 
-The workflow is intentionally PR-triggered for these paths and can also be dispatched manually. It installs only the existing Phase 384 import dependency, runs offline tests, and emits a compact reproducible JSON artifact.
+The workflow is intentionally PR-triggered for these paths and can also be dispatched manually. It installs only the existing Phase 384 import dependency, runs offline tests, and emits a compact reproducible JSON artifact. Final validation: [Run 45883790689](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45883790689), job 140129369138, success; 10/10 tests passed. Artifact [15148398103](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45883790689/artifacts/15148398103) contains the reproduced feature summary. An initial run exposed a JSON serialization error for Decimal values after all tests passed; the value is now converted explicitly and the subsequent full run passed.
 
 ## 7. Acceptance and limitations
 
-**Current status:** implementation is on a dedicated branch; PR validation is pending at the time this report is authored. Do not describe Phase 648 as merged or CI-passed until GitHub reports the corresponding checks successful.
+**Acceptance:** PR #246 is open and mergeable; the final Phase 648 offline workflow completed successfully. The first run's serialization defect was fixed before the passing run. Merge is a code/documentation integration only and does not promote a signal.
 
 Even after CI passes, this is only reproducible feature construction. The sample still contains two prospective report-date observations. The Phase 646 training gate (52 matured observations with at least 20 high and 40 non-high) and evaluation gate (150 observations with at least 30 high and 100 non-high) remain unmet.
 
