@@ -25,7 +25,7 @@ The preliminary crosswalk found:
 | Invalid child CUSIP sentinel | 1 |
 | Parent accession unresolved | 1 |
 
-The 25/25 CIK result compares the parent's `FILED BY` entity with child reporting-person CIKs. It is a submitter proxy, not a complete reporting-person crosswalk. Likewise, the `FILED BY` name comparison is a proxy. Structured `reportingPersonName` tags are stronger; they are available in 21 documents and all 21 have at least one exact normalized name overlap with the child manifest.
+The 25/25 CIK result compares the parent's `FILED BY` entity with child reporting-person CIKs. It is a submitter proxy, not a complete reporting-person crosswalk. Likewise, the `FILED BY` name comparison is a proxy. Structured `reportingPersonName` tags are stronger; they are available in 21 documents and all 21 have at least one exact normalized name overlap with the child manifest. The parsed `FILED BY` CIK equals the accession prefix in only 21/43 documents, further confirming that accession prefix, archive-path CIK and reporting-person identity must remain separate fields.
 
 ## 2. CUSIP mismatches requiring separate security mapping
 
@@ -55,7 +55,14 @@ Phase 352 adds an offline parser and artifact workflow to reproduce:
 
 The workflow downloads the two immutable artifacts and does not contact SEC or any data vendor.
 
-## 4. Research disposition
+## 4. Reproducible run
+
+- [Phase 352 run 45788746680](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45788746680) completed successfully.
+- Offline parser regression: **9/9 tests passed**.
+- Artifact: [15101047906](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45788746680/artifacts/15101047906), SHA-256 `512412e6cbabdb6e409d4ffb53574f3847b19436fb33b5c857dc60fd05bd9146`.
+- The artifact reproduces 43 identity-pass parent rows and the counts above. No SEC request or vendor access occurred in Phase 352.
+
+## 5. Research disposition
 
 This improves lineage and security identity quality, but does not establish that the 13D/G disclosures predict returns.
 
