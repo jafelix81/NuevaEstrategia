@@ -1,5 +1,8 @@
+import os
 import unittest
+from unittest.mock import patch
 from datetime import datetime
+from research.sec_user_agent import resolve_sec_user_agent
 from research.phase350_sec_13dg_parent_retrieval import (
     build_archive_url, family_from_form, normalize_accession, parse_acceptance_utc,
     parse_sec_header, validate_parent_metadata,
@@ -77,6 +80,38 @@ FILED BY:
     def test_missing_acceptance_is_quarantined(self):
         parsed = parse_sec_header(self.header(acceptance=""))
         self.assertIn("parent_acceptance_missing", validate_parent_metadata(parsed, self.expected()))
+
+
+class Phase350SecUserAgentTests(unittest.TestCase):
+    def test_missing_secret_uses_established_project_contact(self):
+        with patch.dict(os.environ, {}, clear=True):
+            value, source = resolve_sec_user_agent()
+        self.assertIn("@", value)
+        self.assertEqual(source, "shared_project_contact_fallback")
+
+    def test_valid_secret_overrides_fallback(self):
+        secret = "NuevaEstrategia quantitative research test@research.test"
+        with patch.dict(os.environ, {"SEC_USER_AGENT": secret}, clear=True):
+            value, source = resolve_sec_user_agent()
+        self.assertEqual(value, secret)
+        self.assertEqual(source, "repository_secret")
+
+    def test_placeholder_secret_uses_fallback(self):
+        with patch.dict(os.environ, {
+            "SEC_USER_AGENT": "NuevaEstrategia contact your-email@example.com"
+        }, clear=True):
+            value, source = resolve_sec_user_agent()
+        self.assertIn("@", value)
+        self.assertEqual(source, "shared_project_contact_fallback")
+
+    def test_invalid_fallback_fails_closed(self):
+        with (
+            patch.dict(os.environ, {}, clear=True),
+            patch("research.sec_user_agent.SEC_USER_AGENT_FALLBACK", "placeholder"),
+        ):
+            with self.assertRaisesRegex(RuntimeError, "no_valid_sec_user_agent"):
+                resolve_sec_user_agent()
+
 
 if __name__ == "__main__":
     unittest.main()
