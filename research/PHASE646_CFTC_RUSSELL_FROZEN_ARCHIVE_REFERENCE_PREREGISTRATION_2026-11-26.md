@@ -26,10 +26,10 @@ Phase 645 reconciled the post-2017 Russell E-mini TFF contract code `239742`:
 - 482 API report-date rows from 2017-08-15 through 2026-11-03.
 - 480/482 archive pages passed the date/heading and retrieval audit.
 - Exclude 2018-09-25 (archive heading mismatch) and 2019-12-24 (archive page 404); do not fill either gap.
-- The baseline snapshot was created at **2026-11-13 23:03:38Z**, before either prospective event below.
+- The baseline manifest records snapshot creation at **2026-11-13 23:03:38Z**. The immutable baseline file was persisted to main in commit [e88e553](https://github.com/jafelix81/NuevaEstrategia/commit/e88e553afc235916e37e9236e1890b714163c229) at **2026-11-14 00:44:59Z**. Use the later mainline commit time as the conservative project-knowledge bound; it is before either prospective event below.
 - Two prospective Russell report vintages were first received at 2026-11-18 03:44:57Z (report date 2026-11-10) and 2026-11-21 03:17:36Z (report date 2026-11-17).
 
-The snapshot timestamp provides a defensible **project-knowledge time for the frozen snapshot as a whole**. This does not certify when each historical report was first published. The distinction permits a narrow use: historical values may define a fixed reference distribution for future observations received after 2026-11-13 23:03:38Z. Historical report dates must never be treated as historical signal-availability dates, and no historical return labels or backtest observations may be generated from them.
+The mainline persistence timestamp provides a defensible **project-knowledge bound for the frozen snapshot as a whole**. This does not certify when each historical report was first published. The distinction permits a narrow use: historical values may define a fixed reference distribution only for future observations received after 2026-11-14 00:44:59Z. Historical report dates must never be treated as historical signal-availability dates, and no historical return labels or backtest observations may be generated from them.
 
 This is a new Russell-only design. It does not amend Phase 387's explicit rule that its ES/NQ percentile reference must consist of prior prospectively first-seen weekly observations. The Phase 387 design, thresholds, sample gates, outcomes and holdout remain unchanged.
 
@@ -42,7 +42,7 @@ This is a new Russell-only design. It does not amend Phase 387's explicit rule t
 - Blob SHA: `4711abbaeeb6107d1cb8f50a7c2e3627373b6d29`
 - Manifest: `research/data/cftc_tff_prospective/baseline_manifest.json`
 - Manifest SHA: `9e58849093f2144ce8cfbf1d3e5efc626a1aa250`
-- Snapshot created: `2026-11-13T23:03:38Z`
+- Snapshot manifest created: `2026-11-13T23:03:38Z`\n- Conservative mainline knowledge bound: `2026-11-14T00:44:59Z` (commit `e88e553afc235916e37e9236e1890b714163c229`)
 - Russell reference observations: exactly 480 valid archive report dates after excluding the two exceptions above.
 
 The baseline snapshot is immutable for this study. Do not update it, backfill it with later revisions, or add later prospective observations to its empirical reference distribution.
