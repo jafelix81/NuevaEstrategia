@@ -237,8 +237,33 @@ def build_crosswalk(form144_rows: list[dict], form4_rows: list[dict], owner_rows
             "historical_f80_membership_verified": False,
         })
 
+    proposed_output = [row for row in output if row["form144_event_role"] == "PROPOSED_SALE"]
+    missing_form144_acceptance = [
+        row for row in proposed_output if not row["form144_acceptance_utc"]
+    ]
+    missing_form4_acceptance = [
+        row for row in proposed_output if not row["form4_acceptance_utc"]
+    ]
+    unresolved_acceptance = [
+        row for row in proposed_output
+        if row["availability_relation"] == "ACCEPTANCE_CLOCK_UNRESOLVED"
+    ]
+    acceptance_clock_audit = {
+        "proposed_sale_rows": len(proposed_output),
+        "missing_form144_acceptance_rows": len(missing_form144_acceptance),
+        "missing_form144_acceptance_accessions": sorted({
+            row["form144_accession"] for row in missing_form144_acceptance
+        }),
+        "missing_form4_acceptance_rows": len(missing_form4_acceptance),
+        "missing_form4_acceptance_accessions": sorted({
+            row["form4_accession"] for row in missing_form4_acceptance
+        }),
+        "unresolved_acceptance_clock_rows": len(unresolved_acceptance),
+    }
+
     summary = {
         "phase": PHASE,
+        "acceptance_clock_audit": acceptance_clock_audit,
         "form144_proposed_sale_rows": sum(1 for x in form144_rows if x.get("detail_section") == "securities_information" and x.get("parse_status") == "parsed"),
         "form144_prior_sale_rows": sum(1 for x in form144_rows if x.get("detail_section") == "securities_sold_in_past_3_months" and x.get("parse_status") == "parsed"),
         "form144_amendment_detail_rows_excluded": sum(1 for x in form144_rows if x.get("form") == "144/A"),

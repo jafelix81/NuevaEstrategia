@@ -65,6 +65,31 @@ class Phase525CrosswalkTests(unittest.TestCase):
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0]["form144_event_role"], "PRIOR_SALE_HISTORY")
 
+    def test_missing_form144_acceptance_is_counted_separately(self):
+        f144, f4, owners = fixtures()
+        f144[0]["submission_acceptance_utc"] = ""
+        rows, summary = build_crosswalk(f144, f4, owners)
+        audit = summary["acceptance_clock_audit"]
+        self.assertEqual(audit["proposed_sale_rows"], 1)
+        self.assertEqual(audit["missing_form144_acceptance_rows"], 1)
+        self.assertEqual(audit["missing_form144_acceptance_accessions"], ["144-A"])
+        self.assertEqual(audit["missing_form4_acceptance_rows"], 0)
+        self.assertEqual(audit["unresolved_acceptance_clock_rows"], 1)
+        proposed = next(x for x in rows if x["form144_event_role"] == "PROPOSED_SALE")
+        self.assertEqual(proposed["availability_relation"], "ACCEPTANCE_CLOCK_UNRESOLVED")
+
+    def test_missing_form4_acceptance_is_counted_separately(self):
+        f144, f4, owners = fixtures()
+        f4[0]["acceptance_datetime_utc"] = ""
+        rows, summary = build_crosswalk(f144, f4, owners)
+        audit = summary["acceptance_clock_audit"]
+        self.assertEqual(audit["missing_form144_acceptance_rows"], 0)
+        self.assertEqual(audit["missing_form4_acceptance_rows"], 1)
+        self.assertEqual(audit["missing_form4_acceptance_accessions"], ["4-A"])
+        self.assertEqual(audit["unresolved_acceptance_clock_rows"], 1)
+        proposed = next(x for x in rows if x["form144_event_role"] == "PROPOSED_SALE")
+        self.assertEqual(proposed["availability_relation"], "ACCEPTANCE_CLOCK_UNRESOLVED")
+
     def test_no_owner_sidecar_cannot_create_a_match(self):
         f144, f4, _ = fixtures()
         rows, summary = build_crosswalk(f144, f4, [])
