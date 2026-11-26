@@ -41,13 +41,18 @@ The Phase 349 manifest records `769993` as the alternate archive-path candidate,
 
 The child is also listed on the issuer's SEC-filings page as a Schedule 13G/A filed 2025-11-10; this corroborates the child filing's existence, not the parent archive path. No inference is made that the explicit reference is the immediate predecessor.
 
-## 3. Phase 351 targeted recovery
+## 3. Phase 351 targeted recovery — unresolved
 
-A separate Phase 351 workflow now attempts only the single unresolved HTTP-404 parent, using the manifest's alternate candidate `769993`. It reuses the immutable Phase 349 manifest and completed Phase 350 artifact, so it does not repeat the 43 successful SEC requests.
+A separate Phase 351 workflow reused the immutable Phase 349 manifest and completed Phase 350 artifact, so it did not repeat the 43 successful SEC requests.
 
-The Phase 350 workflow was also changed so pull-request updates run offline tests only. Repeating all 44 SEC requests now requires an explicit `workflow_dispatch` input `run_live_capture=true`.
+- [Run 45787898552](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45787898552) passed 11/11 offline tests and made exactly one SEC request.
+- The manifest's alternate archive-path candidate `769993` returned HTTP 404. The original subject-CIK path `723612` had also returned HTTP 404.
+- [Artifact 15101905659](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45787898552/artifacts/15101905659) records one target, one request, zero raw documents, zero valid references and `NOT_FOUND`.
+- The child filing is publicly visible and explicitly references the parent accession, but the parent itself was not found through either evidence-based archive path. The reference remains quarantined; no third locator guess will be attempted.
 
-Phase 351 will preserve the same controls:
+The Phase 350 workflow now runs offline tests only on pull-request updates. Repeating all 44 SEC requests requires an explicit `workflow_dispatch` input `run_live_capture=true`.
+
+The Phase 351 recovery preserved the same controls:
 - One targeted request only; no candidate fan-out.
 - 2 requests/second ceiling (only one request in this recovery).
 - Immediate stop on 403 or transient/rate-limit failure.
