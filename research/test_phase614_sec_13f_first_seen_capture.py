@@ -512,11 +512,6 @@ class Phase614PersistenceTests(unittest.TestCase):
             self.assertEqual(summary["signal_eligible_count"], 0)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
-
 class Phase614UserAgentTests(unittest.TestCase):
     def test_missing_user_agent_fails_before_any_sec_request(self):
         with patch.dict(os.environ, {}, clear=True):
@@ -532,8 +527,14 @@ class Phase614UserAgentTests(unittest.TestCase):
 
     def test_valid_secret_is_applied_to_shared_sec_transport_without_logging(self):
         user_agent = "NuevaEstrategia quantitative research test@example.org"
-        with patch.dict(os.environ, {"SEC_USER_AGENT": user_agent}, clear=True), \\
-             patch.object(p.p401, "SEC_UA", "legacy-transport-value"):
+        with (
+            patch.dict(os.environ, {"SEC_USER_AGENT": user_agent}, clear=True),
+            patch.object(p.p401, "SEC_UA", "legacy-transport-value"),
+        ):
             result = p.configure_sec_user_agent()
             self.assertEqual(result, user_agent)
             self.assertEqual(p.p401.SEC_UA, user_agent)
+
+
+if __name__ == "__main__":
+    unittest.main()
