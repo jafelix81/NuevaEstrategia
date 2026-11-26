@@ -60,6 +60,17 @@ class Phase403Tests(unittest.TestCase):
         self.assertEqual(rows[0]["form"], "144/A")
         self.assertEqual(rows[0]["accession"], "0000123456-24-000002")
 
+    def test_naive_atom_updated_timestamp_is_not_assumed_to_be_utc(self):
+        raw = SAMPLE_ATOM.replace(
+            "2026-11-14T18:30:00-05:00",
+            "2026-11-14T18:30:00",
+        )
+        rows = p403.parse_atom_feed(raw, "144", p403.FEEDS["144"])
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["feed_updated_raw"], "2026-11-14T18:30:00")
+        self.assertEqual(rows[0]["feed_updated_utc"], "")
+        self.assertIsNone(p403.parse_utc("2026-11-14T18:30:00"))
+
     def test_atom_response_classifier_is_diagnostic_and_does_not_retain_body(self):
         self.assertEqual(p403.classify_atom_response(None), "NO_RESPONSE")
         self.assertEqual(p403.classify_atom_response(b""), "EMPTY")
