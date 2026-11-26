@@ -19,7 +19,13 @@
     "duplicate_report_dates": 0,
     "first_report_date": "2017-08-15",
     "last_report_date": "2026-11-03",
-    "all_values_finite": true
+    "all_values_finite": true,
+    "finite_reference_values": 480,
+    "zero_values": 0,
+    "event_file_blob_shas": {
+      "research/data/cftc_tff_prospective/events/20261118T034457Z_run44232546204.json": "c9b8c21e0d7f4a14a367261f7212a816de70a79b",
+      "research/data/cftc_tff_prospective/events/20261121T031736Z_run44860341977.json": "f6a1a3cab8789e3921a5f93fd8ede1d6f390fd88"
+    }
   },
   "feature": {
     "name": "LM_NET_OI",
