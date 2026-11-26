@@ -61,8 +61,8 @@ class Phase351TargetTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "not_accession_prefix"):
             build_recovery_target(self.prior(), rows)
 
-    def test_candidate_must_differ_from_failed_subject_path(self):
-        prior = [{**self.prior()[0], "parent_archive_path_cik_candidate": "723612"}]
+    def test_candidate_must_differ_from_prior_failed_locator(self):
+        prior = [{**self.prior()[0], "parent_archive_path_cik_candidate": "769993"}]
         with self.assertRaisesRegex(ValueError, "not_distinct"):
             build_recovery_target(prior, self.manifest())
 
