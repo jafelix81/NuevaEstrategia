@@ -79,8 +79,10 @@ def parse_utc(value):
         dt = datetime.fromisoformat(str(value).strip().replace("Z", "+00:00"))
     except ValueError:
         return None
-    if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=timezone.utc)
+    if dt.tzinfo is None or dt.utcoffset() is None:
+        # Atom timestamps used for chronology must carry an explicit offset.
+        # Do not silently reinterpret a naive value as UTC.
+        return None
     return dt.astimezone(timezone.utc)
 
 def local_name(tag):
