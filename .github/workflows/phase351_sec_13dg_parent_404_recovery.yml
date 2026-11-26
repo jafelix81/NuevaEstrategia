@@ -1,14 +1,6 @@
 name: Phase 351 - SEC 13D/G unresolved parent 404 recovery
 
 on:
-  pull_request:
-    branches:
-      - phase347-13dg-cusip-integrity-audit
-    paths:
-      - .github/workflows/phase351_sec_13dg_parent_404_recovery.yml
-      - research/phase351_sec_13dg_parent_404_recovery.py
-      - research/test_phase351_sec_13dg_parent_404_recovery.py
-      - research/PHASE351_SEC_13DG_PARENT_404_RECOVERY_2026-11-26.md
   workflow_dispatch:
     inputs:
       run_live_recovery:
@@ -27,7 +19,7 @@ concurrency:
 
 jobs:
   recover-one-parent:
-    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.run_live_recovery == true)
+    if: github.event_name == 'workflow_dispatch' && inputs.run_live_recovery == true
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
