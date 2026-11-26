@@ -36,7 +36,7 @@ HIGH_THRESHOLD = Decimal("0.80")
 
 def git_blob_sha(path: Path) -> str:
     raw = path.read_bytes()
-    header = f"blob {len(raw)}\\0".encode("ascii")
+    header = f"blob {len(raw)}\0".encode("ascii")
     return hashlib.sha1(header + raw).hexdigest()
 
 
@@ -238,7 +238,7 @@ def main() -> int:
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
     report = build_report(args.baseline, args.manifest, args.events_dir)
-    rendered = json.dumps(report, indent=2, sort_keys=True) + "\\n"
+    rendered = json.dumps(report, indent=2, sort_keys=True) + "\n"
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(rendered, encoding="utf-8")
