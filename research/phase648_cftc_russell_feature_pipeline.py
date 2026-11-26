@@ -172,7 +172,7 @@ def prospective_russell_events(events_dir: Path = EVENTS) -> list[dict[str, Any]
                 "first_seen_utc": first_seen.isoformat().replace("+00:00", "Z"),
                 "source_row_sha256": event["current_row_sha256"],
                 "open_interest": int(oi),
-                "leveraged_money_net_oi": lm_net_oi,
+                "leveraged_money_net_oi": format(lm_net_oi, "f"),
             })
 
     events.sort(key=lambda item: (item["first_seen_utc"], item["report_date"]))
