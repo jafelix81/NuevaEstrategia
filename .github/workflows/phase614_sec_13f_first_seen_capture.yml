@@ -10,6 +10,8 @@ on:
       - "research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-25_PHASE614.md"
       - "research/PHASE615_SEC_13F_FULL_SNAPSHOT_LATE_INDEX_SAFETY_AUDIT_2026-11-25.md"
       - "research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-25_PHASE615.md"
+      - "research/PHASE629_SEC_13F_USER_AGENT_SECRET_GUARD_AND_SCHEDULE_AUDIT_2026-11-26.md"
+      - "research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-26_PHASE629.md"
   workflow_dispatch:
     inputs:
       run_live_capture:
@@ -57,6 +59,7 @@ jobs:
       - name: Capture SEC 13F first-seen Atom metadata
         id: sec_capture
         env:
+          SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
           EVENT_NAME: ${{ github.event_name }}
           RUN_ID: ${{ github.run_id }}
         run: |
