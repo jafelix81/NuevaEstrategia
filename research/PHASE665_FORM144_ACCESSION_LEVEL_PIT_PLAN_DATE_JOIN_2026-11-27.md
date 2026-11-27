@@ -82,6 +82,15 @@ The new standard-library audit script is `research/phase665_form144_accession_pi
 
 Fixture regressions cover repeated detail rows, event-only accessions, conflicting plan-date fields, cross-ledger PIT mismatches, malformed JSON and invalid boolean values. The PR workflow runs offline only and reproduces the actual committed-ledger totals; it performs no SEC requests.
 
+### CI validation
+
+[PR validation run 46025579803](https://github.com/jafelix81/NuevaEstrategia/actions/runs/46025579803) completed successfully:
+
+- **93 tests passed** across the existing Phase 403 offline regression suite and Phase 665 fixtures.
+- The actual committed-ledger join reproduced all expected accession counts and zero PIT mismatches.
+- Artifact [15212117265](https://github.com/jafelix81/NuevaEstrategia/actions/runs/46025579803/artifacts/15212117265) contains the machine-generated summary.
+- The live-capture job was skipped for the pull-request event; no SEC requests were made.
+
 ## 6. Research decision
 
 - Keep formal plan dates descriptive; do not treat them as trade signals.
