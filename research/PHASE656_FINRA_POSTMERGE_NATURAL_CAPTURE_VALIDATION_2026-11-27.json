@@ -1,0 +1,86 @@
+{
+  "phase": 656,
+  "audit_cutoff_utc": "2026-11-27T04:45:00Z",
+  "mainline_latest_observed_commit": "ea17538125256cf3098d7a4cc3845edb92c1ecb1",
+  "finra_run": {
+    "run_id": "45939887443",
+    "artifact_id": 15172510181,
+    "jobs": {
+      "offline_regression": "success",
+      "live_capture": "success"
+    },
+    "requested_trade_dates": [
+      "2026-11-26",
+      "2026-11-25",
+      "2026-11-24",
+      "2026-11-23",
+      "2026-11-20",
+      "2026-11-19",
+      "2026-11-18",
+      "2026-11-17"
+    ],
+    "counts": {
+      "http_200": 7,
+      "http_403_not_available": 1,
+      "valid_files": 7,
+      "partial_files": 7,
+      "duplicate_symbol_date_groups": 14,
+      "duplicate_symbols_per_date": 2,
+      "duplicate_extra_rows": 14,
+      "quarantined_row_occurrences": 28,
+      "exact_row_duplicates": 0,
+      "bootstrap": 7,
+      "first_seen": 0,
+      "late_first_seen": 0,
+      "research_observation_eligible": 0,
+      "signal_eligible": 0
+    },
+    "repeated_symbols": ["BCPC", "TPC"],
+    "retained_symbol_count_range": [12275, 12414],
+    "source_row_count_range": [12279, 12418],
+    "raw_market_data_persisted": false,
+    "historical_first_seen_imputed": false,
+    "symbol_quarantine_policy": "exclude_all_rows_for_duplicate_symbols; retain_unique_symbols; never_sum_overlapping_composite_market_rows"
+  },
+  "phase650": {
+    "pull_request": 247,
+    "merge_commit": "c7379f42ffffd631e8ce1bc3b9b3261871e3480d",
+    "offline_tests_passed": 62,
+    "offline_tests_total": 62,
+    "validation_run_id": "45895296971"
+  },
+  "form144_run": {
+    "run_id": "45940802895",
+    "feed_observation_rows_appended": 53,
+    "new_accessions": 0,
+    "backfilled_accessions": 10,
+    "detail_rows_appended": 58,
+    "ledger_accessions": 845,
+    "ledger_detail_rows": 5595,
+    "bounded_research_observation_headers": 807,
+    "backfill_remaining": 158,
+    "signal_eligible": 0
+  },
+  "form4_run": {
+    "run_id": "45917890802",
+    "accessions_parsed": 10,
+    "owner_rows_appended": 13,
+    "crosswalk_rows": 14,
+    "matched_form4_accessions": 12,
+    "signal_eligible_matches": 0
+  },
+  "form13f_run": {
+    "run_id": "45910142871",
+    "accession_observations": 29,
+    "new_accessions": 0,
+    "holdings_downloaded": false,
+    "signal_eligible": 0
+  },
+  "branches_censused": 407,
+  "frozen_baseline": "F80_TOP20_PARTIAL50_BASELINE_C20",
+  "new_signal_promoted": false,
+  "incremental_alpha_demonstrated": false,
+  "oos_bootstrap_loo_run": false,
+  "holdout_touched": false,
+  "data_budget_usd": 0
+}
