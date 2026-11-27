@@ -1,12 +1,12 @@
 {
   "phase": 670,
   "title": "SEC 13F Canada Life Q3 2026 primary-source and value-unit anomaly audit",
-  "audit_cutoff_utc": "2026-11-27T20:49:57Z",
+  "audit_cutoff_utc": "2026-11-27T20:59:00Z",
   "repository": "jafelix81/NuevaEstrategia",
   "base_branch": "main",
   "base_sha": "833ffe6057336de47a73dcc29628d44a191ef5a6",
   "preflight": {
-    "latest_actions_runs_reviewed": 20,
+    "latest_actions_runs_reviewed": 100,
     "active_or_queued_runs": 0,
     "latest_main_runs": [
       {
@@ -64,7 +64,12 @@
         "merge_sha": "833ffe6057336de47a73dcc29628d44a191ef5a6"
       }
     ],
-    "open_relevant_prs": "SEC 13F sequence/knowledge-clock PRs #221-#230 remain open; none was modified or merged in this phase."
+    "open_relevant_prs": "SEC 13F sequence/knowledge-clock PRs #221-#230 remain open; none was modified or merged in this phase.",
+    "latest_100_run_conclusions": {
+      "success": 78,
+      "failure": 18,
+      "cancelled": 4
+    }
   },
   "canada_life_base_filing": {
     "accession": "0001046192-26-000015",
@@ -140,10 +145,11 @@
       "signature date"
     ],
     "primary_unverified_fields": [
-      "official filing-index acceptance timestamp",
-      "row-level information table contents",
-      "row-level unit interpretation",
-      "explicit accession parent link to 0001046192-26-000015"
+      "official SEC filing-index acceptance timestamp",
+      "complete raw information-table XML bytes and SHA-256",
+      "full 806-row parse and row-level unit interpretation",
+      "explicit accession parent link in primary SEC document",
+      "first public availability timestamp"
     ],
     "feed_observation": {
       "run_id": 46026323554,
@@ -156,7 +162,78 @@
     "base_filing_candidate": "0001046192-26-000015",
     "base_relationship_status": "same filer and quarter; secondary index identifies it as the base; primary amendment document does not itself expose an explicit previous-accession field",
     "secondary_source": "https://disclosery.com/filings/0001046192-26-000018",
-    "unit_interpretation": "the 8,531,520 cover total is consistent with legacy-thousands scaling but cannot be confirmed for the 806 rows without the amendment information table"
+    "unit_interpretation": "the 8,531,520 cover total is consistent with legacy-thousands scaling but cannot be confirmed for the 806 rows without the amendment information table",
+    "information_table": {
+      "url": "https://www.sec.gov/Archives/edgar/data/1046192/000104619226000018/13F_Filing_Sep26.xml",
+      "sec_archive_file_discovered": true,
+      "indexed_primary_xml_rows_sampled": 4,
+      "declared_table_entry_total": 806,
+      "raw_bytes_retrieved": false,
+      "sha256": null,
+      "full_806_row_parse_completed": false,
+      "sample_rows": [
+        {
+          "ticker": "B",
+          "cusip": "06849F108",
+          "issuer": "BARRICK MNG CORP",
+          "filed_value": 71766,
+          "shares": 1764862,
+          "implied_price_as_filed": 0.0406638026,
+          "implied_price_x1000": 40.6638026089,
+          "close_2026_09_30": 40.67,
+          "scaled_deviation_pct": -0.0152,
+          "price_source": "https://stockanalysis.com/stocks/b/history/"
+        },
+        {
+          "ticker": "BBWI",
+          "cusip": "070830104",
+          "issuer": "BATH & BODY WORKS INC",
+          "filed_value": 2214,
+          "shares": 139134,
+          "implied_price_as_filed": 0.0159127172,
+          "implied_price_x1000": 15.9127172366,
+          "close_2026_09_30": 15.92,
+          "scaled_deviation_pct": -0.0457,
+          "price_source": "https://stockanalysis.com/stocks/bbwi/history/"
+        },
+        {
+          "ticker": "BLK",
+          "cusip": "09290D101",
+          "issuer": "BLACKROCK INC",
+          "filed_value": 111382,
+          "shares": 105330,
+          "implied_price_as_filed": 1.0574575135,
+          "implied_price_x1000": 1057.4575135,
+          "close_2026_09_30": 1058.29,
+          "scaled_deviation_pct": -0.0787,
+          "price_source": "https://www.tipranks.com/stocks/blk/historical-prices"
+        },
+        {
+          "ticker": "MRVL",
+          "cusip": "573874104",
+          "issuer": "MARVELL TECHNOLOGY INC",
+          "filed_value": 223843,
+          "shares": 848130,
+          "implied_price_as_filed": 0.2639253417,
+          "implied_price_x1000": 263.9253417,
+          "close_2026_09_30": 264.21,
+          "scaled_deviation_pct": -0.1077,
+          "price_source": "https://stockanalysis.com/stocks/mrvl/history/"
+        }
+      ],
+      "unit_interpretation": "Four purposively sampled ordinary common-stock rows from the SEC-indexed amendment XML independently support legacy-thousands scaling within 0.11% of same-date closes; this is not a full 806-row audit and no values are normalized."
+    },
+    "acceptance_time_secondary_corroboration": {
+      "secondary_source": "https://disclosery.com/filings/0001046192-26-000018",
+      "secondary_accepted_utc": "2026-11-27T15:10:56Z",
+      "secondary_ingested_utc": "2026-11-27T15:11:30Z",
+      "sec_atom_feed_updated_utc": "2026-11-27T15:10:56Z",
+      "timestamp_match": true,
+      "primary_sec_acceptance_index_verified": false,
+      "first_public_availability_certified": false,
+      "parent_accession_secondary_link": "0001046192-26-000015",
+      "primary_parent_accession_verified": false
+    }
   },
   "unit_rule": {
     "effective_date": "2023-01-03",
@@ -164,24 +241,29 @@
     "official_source": "https://www.sec.gov/filergroup/announcements-old/edgar-release-2241",
     "base_report_disposition": "STRONG_PRIMARY_ROW_LEVEL_EVIDENCE_OF_LEGACY_THOUSANDS",
     "rationale": "Two ordinary-share rows have raw implied prices near USD 0.25-0.33, while multiplying filed values by 1,000 produces implied prices within 0.14% of same-date closes. The filing's rendered table header says nearest dollar.",
-    "amendment_disposition": "COVER_SUMMARY_CONSISTENT_WITH_LEGACY_THOUSANDS; ROW_LEVEL_NOT_VERIFIED",
+    "amendment_disposition": "Four SEC-indexed ordinary common-stock rows corroborate legacy-thousands scaling within 0.11%; full 806-row normalization is not yet verified and automatic rescaling remains prohibited.",
     "automatic_rescaling": "prohibited"
   },
   "research_decision": {
-    "code": "PRIMARY_BASE_REPORT_UNIT_ANOMALY_STRONGLY_CONFIRMED_ADDITIVE_AMENDMENT_PRIMARY_CLASSIFIED_NO_SIGNAL_PROMOTION",
+    "code": "PRIMARY_BASE_AND_AMENDMENT_SAMPLE_UNIT_ANOMALY_STRONGLY_CORROBORATED_ADDITIVE_AMENDMENT_PRIMARY_CLASSIFIED_NO_SIGNAL_PROMOTION",
     "implications": [
       "The Canada Life Q3 2026 base 13F table is almost certainly expressed in legacy thousands despite the post-2023 nearest-dollar rule and the rendered nearest-dollar header.",
       "The 13F-HR/A is primary-verified as NEW HOLDINGS with 806 entries, not a restatement and not a trade tape.",
       "The amendment's 8,531,520 summary total is consistent with the same scale issue, but the amendment information table has not been retrieved and must not be normalized yet.",
       "Quarter-end holdings become usable only after the applicable filing is public; no position may be backdated to 2026-09-30 for a live signal.",
-      "The feed updated timestamp is metadata evidence, not a certified SEC acceptance or public-availability timestamp."
+      "The feed updated timestamp is metadata evidence, not a certified SEC acceptance or public-availability timestamp.",
+      "The amendment's SEC-hosted information-table XML is publicly indexed; four ordinary common-stock row samples reproduce same-date closes within 0.11% after multiplying filed values by 1,000.",
+      "The four-row amendment sample does not establish that every one of the 806 entries uses the same scale; the raw XML bytes, SHA-256 and full-table parse remain outstanding.",
+      "A secondary filing-chain source reports EDGAR acceptance at 2026-11-27T15:10:56Z, matching the SEC Atom feed updated timestamp, but the primary SEC index and first-public-availability time are not yet verified."
     ],
     "next_gates": [
-      "Retrieve and hash the amendment's full information-table XML and official filing index.",
-      "Reconcile all 806 rows by CUSIP, class, put/call, shares/principal, discretion and other-manager assignment against the original quarter-end filing.",
-      "Build a deterministic filing-level unit detector with explicit exclusions for options, debt, ADRs, splits, non-US securities and stale CUSIPs.",
-      "Primary-verify the ten remaining BI Asset Management amendments; do not extrapolate the four already verified.",
-      "Preserve raw values and filing vintages; store any normalized value separately with rule version and evidence."
+      "Retrieve and SHA-256 hash the complete SEC amendment information-table XML and official filing index.",
+      "Parse and reconcile all 806 rows against the original Q3 2026 table by CUSIP, class, put/call, quantity, discretion and other-manager assignment.",
+      "Verify the exact parent accession and official acceptance/index clock from SEC primary records; preserve a separate first-public-availability bound.",
+      "Build a deterministic fail-closed unit detector that preserves original values and records any normalized values separately with rule version and row evidence.",
+      "Validate the detector on Canada Life, four already verified BI value-unit restatements, and a broader control sample.",
+      "Primary-verify the ten remaining BI amendments.",
+      "Continue 13D/G and FINRA gates on their existing schedules; do not duplicate or manually dispatch scheduled captures."
     ]
   },
   "controls": {
@@ -233,6 +315,36 @@
       "type": "market_data_crosscheck",
       "url": "https://www.statmuse.com/money/ask/amazon-stock-price-september-2026",
       "use": "AMZN 2026-09-30 closing price"
+    },
+    {
+      "type": "official_SEC_information_table",
+      "url": "https://www.sec.gov/Archives/edgar/data/1046192/000104619226000018/13F_Filing_Sep26.xml",
+      "use": "Four sample row values and quantities exposed by the SEC-indexed primary XML; full raw bytes not downloaded or hashed"
+    },
+    {
+      "type": "secondary_market_prices",
+      "url": "https://stockanalysis.com/stocks/b/history/",
+      "use": "2026-09-30 close used only for B unit-scale validation"
+    },
+    {
+      "type": "secondary_market_prices",
+      "url": "https://stockanalysis.com/stocks/bbwi/history/",
+      "use": "2026-09-30 close used only for BBWI unit-scale validation"
+    },
+    {
+      "type": "secondary_market_prices",
+      "url": "https://www.tipranks.com/stocks/blk/historical-prices",
+      "use": "2026-09-30 close used only for BLK unit-scale validation"
+    },
+    {
+      "type": "secondary_market_prices",
+      "url": "https://stockanalysis.com/stocks/mrvl/history/",
+      "use": "2026-09-30 close used only for MRVL unit-scale validation"
+    },
+    {
+      "type": "secondary_filing_index",
+      "url": "https://disclosery.com/filings/0001046192-26-000018",
+      "use": "Secondary acceptance and ingestion timestamp corroboration and base-filing chain; not primary SEC verification"
     }
   ]
 }
