@@ -45,6 +45,10 @@ def write_csv(path: Path, rows: list[dict[str, str]], fields: list[str]) -> None
 
 
 class Phase665Tests(unittest.TestCase):
+    def read_rows(self, path: Path) -> list[dict[str, str]]:
+        with path.open(encoding="utf-8", newline="") as handle:
+            return list(csv.DictReader(handle))
+
     def setUp(self) -> None:
         self.tmp = tempfile.TemporaryDirectory()
         self.root = Path(self.tmp.name)
@@ -78,14 +82,14 @@ class Phase665Tests(unittest.TestCase):
         self.assertEqual(summary["integrity"]["crossledger_pit_mismatches"], 0)
 
     def test_conflicting_plan_dates_within_accession_fail_closed(self) -> None:
-        rows = list(csv.DictReader(self.details_path.open(encoding="utf-8")))
+        rows = self.read_rows(self.details_path)
         rows[1]["plan_adoption_dates_json"] = json.dumps(["06/03/2026"])
         write_csv(self.details_path, rows, list(rows[0]))
         with self.assertRaisesRegex(ValueError, "inconsistent_plan_adoption_dates_json"):
             build_summary(self.events_path, self.details_path)
 
     def test_crossledger_pit_mismatch_fails_closed(self) -> None:
-        rows = list(csv.DictReader(self.events_path.open(encoding="utf-8")))
+        rows = self.read_rows(self.events_path)
         rows[0]["research_observation_eligible"] = "False"
         write_csv(self.events_path, rows, ["accession", *PIT_FIELDS])
         with self.assertRaisesRegex(ValueError, "crossledger_pit_mismatch"):
@@ -93,7 +97,9 @@ class Phase665Tests(unittest.TestCase):
 
     def test_invalid_boolean_fails_closed(self) -> None:
         rows = list(csv.DictReader(self.details_path.open(encoding="utf-8")))
-        rows[0]["signal_eligible"] = "unknown"
+        for row in rows:
+            if row["accession"] == "A":
+                row["signal_eligible"] = "unknown"
         write_csv(self.details_path, rows, list(rows[0]))
         with self.assertRaisesRegex(ValueError, "invalid_boolean_signal_eligible"):
             build_summary(self.events_path, self.details_path)
