@@ -13,3 +13,4 @@
 - No return data, event study, alpha, chronological OOS, bootstrap, LOO or holdout was used. No signal promoted. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen. No vendor contact or purchase; data budget USD 0.
 
 See `research/PHASE665_FORM144_ACCESSION_LEVEL_PIT_PLAN_DATE_JOIN_2026-11-27.md` and the companion JSON summary.
+- PR [#254](https://github.com/jafelix81/NuevaEstrategia/pull/254) merged into `main` as `d7e02134a4604063c197758b35c20edd51521d4b`. Validation [run 46025579803](https://github.com/jafelix81/NuevaEstrategia/actions/runs/46025579803) passed **93 tests** and reproduced the committed-ledger join; artifact [15212117265](https://github.com/jafelix81/NuevaEstrategia/actions/runs/46025579803/artifacts/15212117265). Live capture was skipped for the PR event.
