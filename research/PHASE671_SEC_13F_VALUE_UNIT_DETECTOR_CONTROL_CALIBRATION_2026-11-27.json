@@ -1,0 +1,177 @@
+{
+  "phase": 671,
+  "title": "SEC Form 13F value-unit detector control calibration",
+  "date": "2026-11-27",
+  "repository_base_commit": "521cc3ff59aae222fe32c519fc024425bce6a777",
+  "purpose": "Retrospective data-integrity classification only; not a trading feature.",
+  "positive_anomaly_control": {
+    "cik": "0001046192",
+    "accession": "0001046192-26-000018",
+    "report_date": "2026-09-30",
+    "primary_cover_url": "https://www.sec.gov/Archives/edgar/data/1046192/000104619226000018/primary_doc.xml",
+    "primary_table_url": "https://www.sec.gov/Archives/edgar/data/1046192/000104619226000018/13F_Filing_Sep26.xml",
+    "declared_entries": 806,
+    "raw_xml_downloaded": false,
+    "sha256": null,
+    "rows": [
+      {
+        "ticker": "B",
+        "cusip": "06849F108",
+        "value": 71766,
+        "shares": 1764862,
+        "price": 40.67,
+        "price_source": "https://stockanalysis.com/stocks/b/history/"
+      },
+      {
+        "ticker": "BBWI",
+        "cusip": "070830104",
+        "value": 2214,
+        "shares": 139134,
+        "price": 15.92,
+        "price_source": "https://stockanalysis.com/stocks/bbwi/history/"
+      },
+      {
+        "ticker": "BLK",
+        "cusip": "09290D101",
+        "value": 111382,
+        "shares": 105330,
+        "price": 1058.29,
+        "price_source": "https://www.tipranks.com/stocks/blk/historical-prices"
+      },
+      {
+        "ticker": "MRVL",
+        "cusip": "573874104",
+        "value": 223843,
+        "shares": 848130,
+        "price": 264.21,
+        "price_source": "https://stockanalysis.com/stocks/mrvl/history/"
+      }
+    ],
+    "expected_classification": "LEGACY_THOUSANDS_CANDIDATE",
+    "maximum_scaled_abs_deviation_pct": 0.1077
+  },
+  "negative_control": {
+    "cik": "0001665446",
+    "manager": "HOME FEDERAL BANK OF TENNESSEE",
+    "accession": "0001665446-26-000004",
+    "report_date": "2026-09-30",
+    "primary_cover_url": "https://www.sec.gov/Archives/edgar/data/1665446/000166544626000004/primary_doc.xml",
+    "primary_table_url": "https://www.sec.gov/Archives/edgar/data/1665446/000166544626000004/xslForm13F_X02/13F_09.30.2026.xml",
+    "table_entries": 178,
+    "summary_value": 465253420,
+    "raw_xml_downloaded": false,
+    "sha256": null,
+    "rows": [
+      {
+        "ticker": "AAPL",
+        "cusip": "037833100",
+        "value": 9869714,
+        "shares": 29637,
+        "price": 333.02,
+        "price_source": "https://finance.yahoo.com/quote/AAPL/history/"
+      },
+      {
+        "ticker": "AMZN",
+        "cusip": "023135106",
+        "value": 338096,
+        "shares": 1357,
+        "price": 249.15,
+        "price_source": "https://finance.yahoo.com/quote/AMZN/history/"
+      },
+      {
+        "ticker": "MSFT",
+        "cusip": "594918104",
+        "value": 7341139,
+        "shares": 14313,
+        "price": 512.9,
+        "price_source": "https://finance.yahoo.com/quote/MSFT/history/"
+      },
+      {
+        "ticker": "NVDA",
+        "cusip": "67066G104",
+        "value": 1224116,
+        "shares": 5360,
+        "price": 228.38,
+        "price_source": "https://finance.yahoo.com/quote/NVDA/history/"
+      },
+      {
+        "ticker": "AVGO",
+        "cusip": "11135F101",
+        "value": 823542,
+        "shares": 2345,
+        "price": 351.19,
+        "price_source": "https://stockanalysis.com/stocks/avgo/history/"
+      }
+    ],
+    "expected_classification": "NEAREST_DOLLAR_CANDIDATE",
+    "maximum_abs_deviation_pct": 0.0001761
+  },
+  "sparse_control": {
+    "cik": "0001046192",
+    "accession": "0001046192-26-000015",
+    "report_date": "2026-09-30",
+    "rows": [
+      {
+        "ticker": "AAPL",
+        "cusip": "037833100",
+        "value": 3812648,
+        "shares": 11461129,
+        "price": 333.02
+      },
+      {
+        "ticker": "AMZN",
+        "cusip": "023135106",
+        "value": 1997269,
+        "shares": 8026987,
+        "price": 249.15
+      }
+    ],
+    "expected_classification": "INSUFFICIENT_EVIDENCE"
+  },
+  "detector": {
+    "module": "research/phase671_13f_value_unit_detector.py",
+    "test_module": "research/test_phase671_13f_value_unit_detector.py",
+    "minimum_unique_cusips": 4,
+    "candidate_scales": [
+      1,
+      1000
+    ],
+    "relative_error_tolerance": 0.005,
+    "minimum_consensus_fraction": 0.8,
+    "normalization_applied": false,
+    "production_parser_integrated": false,
+    "trading_signal_eligible": false,
+    "conflicting_duplicate_cusip_policy": "Quarantine the entire CUSIP if duplicate rows carry inconsistent reference prices; do not allow later rows to reintroduce it."
+  },
+  "controls": {
+    "quarter_end_price_only_used_for_retrospective_unit_integrity": true,
+    "first_public_availability_certified": false,
+    "outcomes_accessed": false,
+    "oos_run": false,
+    "bootstrap_loo_run": false,
+    "holdout_accessed": false,
+    "f80_changed": false,
+    "data_spend_usd": 0
+  },
+  "next_gates": [
+    "Retrieve and SHA-256 hash the complete Canada Life amendment XML via the established SEC User-Agent path.",
+    "Parse and reconcile all 806 entries against the base filing.",
+    "Expand to at least 20 independent positive and negative filing controls spanning multiple post-2023 quarters.",
+    "Only then consider production integration, with human-approved normalization and immutable as-filed values."
+  ],
+  "sources": [
+    "https://www.sec.gov/Archives/edgar/data/1046192/000104619226000018/primary_doc.xml",
+    "https://www.sec.gov/Archives/edgar/data/1046192/000104619226000018/13F_Filing_Sep26.xml",
+    "https://www.sec.gov/Archives/edgar/data/1665446/000166544626000004/primary_doc.xml",
+    "https://www.sec.gov/Archives/edgar/data/1665446/000166544626000004/xslForm13F_X02/13F_09.30.2026.xml",
+    "https://www.sec.gov/info/edgar/forms/form13f.pdf"
+  ],
+  "validation": {
+    "offline_unittest_count": 10,
+    "workflow": ".github/workflows/phase671_13f_value_unit_detector.yml",
+    "pull_request_trigger": true,
+    "push_to_main_trigger": true,
+    "external_network_used": false,
+    "secrets_used": false
+  }
+}

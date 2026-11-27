@@ -1,0 +1,40 @@
+name: Phase 671 SEC 13F value-unit detector offline controls
+
+on:
+  push:
+    paths:
+      - 'research/phase671_13f_value_unit_detector.py'
+      - 'research/test_phase671_13f_value_unit_detector.py'
+      - '.github/workflows/phase671_13f_value_unit_detector.yml'
+  pull_request:
+    paths:
+      - 'research/phase671_13f_value_unit_detector.py'
+      - 'research/test_phase671_13f_value_unit_detector.py'
+      - '.github/workflows/phase671_13f_value_unit_detector.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compile detector
+        run: python -m py_compile research/phase671_13f_value_unit_detector.py
+      - name: Run offline unit tests
+        run: |
+          set -o pipefail
+          python -m unittest discover -s research -p 'test_phase671_13f_value_unit_detector.py' -v 2>&1 | tee phase671_test_output.txt
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase671-13f-unit-detector-tests
+          path: phase671_test_output.txt
+          if-no-files-found: warn
+          retention-days: 30
