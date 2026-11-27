@@ -35,6 +35,23 @@ DUPLICATE_DIAGNOSTIC_FIELDS = [
     "raw_sha256", "response_bytes", "diagnostic_version",
     "duplicate_symbol_count", "duplicate_extra_row_count", "details_json",
 ]
+SYMBOL_OBSERVATION_FIELDS = [
+    "run_id", "trade_date", "observation_kind", "symbol",
+    "short_volume", "short_exempt_volume", "total_volume",
+    "short_ratio", "short_exempt_ratio", "market",
+    "row_grain", "market_encoding", "source_row_count", "source_row_hashes_json",
+    "poll_start_utc", "first_seen_interval_lower_bound_utc",
+    "first_seen_interval_upper_bound_utc", "first_seen_utc", "poll_end_utc",
+    "first_seen_is_upper_bound_not_exact_receipt", "http_status",
+    "raw_sha256", "response_bytes", "row_count", "symbol_count",
+    "schema_version", "url", "universe_snapshot_commit",
+    "universe_snapshot_sha256", "universe_snapshot_ticker_count",
+    "research_observation_eligible", "signal_eligible",
+]
+FROZEN_UNIVERSE_COMMIT = "1aa1b91f383ce9cef375a43e775c736a27356a5"
+FROZEN_UNIVERSE_SHA256 = "f850655a22a8843dad90e9562b3152b9ca064560586109022b5bfd205a003dda"
+FROZEN_UNIVERSE_TICKER_COUNT = 335
+DEFAULT_UNIVERSE_FILE = "research/data/finra_regsho_daily_first_seen/frozen_universe_335_tickers.csv"
 REQUIRED_HEADERS = {
     "date": "date",
     "symbol": "symbol",
@@ -261,6 +278,10 @@ def parse_finra_file(raw: bytes, requested_trade_date: date) -> dict[str, Any]:
                 "short_exempt_volume": item["short_exempt_volume"],
                 "total_volume": item["total_volume"],
                 "market": ",".join(sorted(item["markets"])),
+                "source_row_count": 1,
+                "source_row_hashes_json": json.dumps(
+                    [item["raw_row_sha256"]], separators=(",", ":")
+                ),
             })
         row_grain = (
             "security_rows_with_market_lists_partial_symbol_quarantine"
@@ -286,12 +307,14 @@ def parse_finra_file(raw: bytes, requested_trade_date: date) -> dict[str, Any]:
                     "short_exempt_volume": Decimal("0"),
                     "total_volume": Decimal("0"),
                     "markets": set(),
+                    "source_row_hashes": [],
                 },
             )
             aggregate["short_volume"] += item["short_volume"]
             aggregate["short_exempt_volume"] += item["short_exempt_volume"]
             aggregate["total_volume"] += item["total_volume"]
             aggregate["markets"].add(market)
+            aggregate["source_row_hashes"].append(item["raw_row_sha256"])
         for symbol, values in aggregates.items():
             rows.append({
                 "symbol": symbol,
@@ -300,6 +323,10 @@ def parse_finra_file(raw: bytes, requested_trade_date: date) -> dict[str, Any]:
                 "short_exempt_volume": values["short_exempt_volume"],
                 "total_volume": values["total_volume"],
                 "market": ",".join(sorted(values["markets"])),
+                "source_row_count": len(values["source_row_hashes"]),
+                "source_row_hashes_json": json.dumps(
+                    values["source_row_hashes"], separators=(",", ":")
+                ),
             })
         row_grain = (
             "facility_rows_aggregated"
@@ -331,8 +358,18 @@ def parse_finra_file(raw: bytes, requested_trade_date: date) -> dict[str, Any]:
         "header": normalised,
     }
 
-def build_symbol_observations(parsed: dict[str, Any], file_event: dict[str, Any]) -> list[dict[str, Any]]:
-    """Expand a hash-verified file event into one aggregated row per symbol."""
+def build_symbol_observations(
+    parsed: dict[str, Any],
+    file_event: dict[str, Any],
+    symbol_universe: set[str] | None = None,
+    universe_snapshot_commit: str | None = None,
+    universe_snapshot_sha256: str | None = None,
+) -> list[dict[str, Any]]:
+    """Expand an eligible first-seen file into volume-bearing symbol observations.
+
+    The poll interval is retained as the conservative first-seen bound. The
+    upper bound is not represented as the exact FINRA public release time.
+    """
     if not file_event.get("research_observation_eligible"):
         return []
     observation_kind = file_event.get("observation_kind")
@@ -347,21 +384,143 @@ def build_symbol_observations(parsed: dict[str, Any], file_event: dict[str, Any]
     required = ("poll_start_utc", "first_seen_utc", "poll_end_utc")
     if any(not file_event.get(key) for key in required):
         raise ValueError("first_seen_poll_clock_incomplete")
-    return [
-        {
-            "symbol": row["symbol"],
+
+    observations: list[dict[str, Any]] = []
+    for row in parsed["rows"]:
+        symbol = str(row["symbol"]).strip().upper()
+        if symbol_universe is not None and symbol not in symbol_universe:
+            continue
+        short_volume = Decimal(str(row["short_volume"]))
+        short_exempt_volume = Decimal(str(row["short_exempt_volume"]))
+        total_volume = Decimal(str(row["total_volume"]))
+        short_ratio = format(short_volume / total_volume, "f") if total_volume > 0 else ""
+        short_exempt_ratio = (
+            format(short_exempt_volume / total_volume, "f") if total_volume > 0 else ""
+        )
+        observations.append({
+            "run_id": file_event.get("run_id", ""),
             "trade_date": parsed["trade_date"],
+            "observation_kind": observation_kind,
+            "symbol": symbol,
+            "short_volume": format(short_volume, "f"),
+            "short_exempt_volume": format(short_exempt_volume, "f"),
+            "total_volume": format(total_volume, "f"),
+            "short_ratio": short_ratio,
+            "short_exempt_ratio": short_exempt_ratio,
+            "market": row["market"],
+            "row_grain": parsed.get("row_grain", ""),
+            "market_encoding": parsed.get("market_encoding", ""),
+            "source_row_count": row.get("source_row_count", 1),
+            "source_row_hashes_json": row.get("source_row_hashes_json", "[]"),
             "poll_start_utc": file_event["poll_start_utc"],
+            "first_seen_interval_lower_bound_utc": file_event["poll_start_utc"],
+            "first_seen_interval_upper_bound_utc": file_event["poll_end_utc"],
             "first_seen_utc": file_event["first_seen_utc"],
             "poll_end_utc": file_event["poll_end_utc"],
-            "http_status": 200,
+            "first_seen_is_upper_bound_not_exact_receipt": True,
+            "http_status": file_event.get("http_status", 200),
             "raw_sha256": parsed["raw_sha256"],
-            "row_count": parsed["row_count"],
-            "schema_version": parsed["schema_version"],
-            "observation_kind": observation_kind,
-        }
-        for row in parsed["rows"]
-    ]
+            "response_bytes": parsed.get("response_bytes", ""),
+            "row_count": parsed.get("row_count", ""),
+            "symbol_count": parsed.get("symbol_count", ""),
+            "schema_version": parsed.get("schema_version", ""),
+            "url": file_event.get("url", ""),
+            "universe_snapshot_commit": universe_snapshot_commit or "",
+            "universe_snapshot_sha256": universe_snapshot_sha256 or "",
+            "universe_snapshot_ticker_count": (
+                len(symbol_universe) if universe_snapshot_sha256 else ""
+            ),
+            "research_observation_eligible": True,
+            "signal_eligible": False,
+        })
+    return observations
+
+
+def load_symbol_universe(path: str | Path = DEFAULT_UNIVERSE_FILE) -> set[str]:
+    """Load the immutable 335-symbol filter and verify its exact source hash."""
+    raw = Path(path).read_bytes()
+    digest = hashlib.sha256(raw).hexdigest()
+    if digest != FROZEN_UNIVERSE_SHA256:
+        raise ValueError("frozen_universe_sha256_mismatch")
+    try:
+        rows = list(csv.DictReader(raw.decode("utf-8-sig").splitlines()))
+    except (UnicodeDecodeError, csv.Error):
+        raise ValueError("frozen_universe_csv_invalid") from None
+    if not rows or set(rows[0]) != {"Ticker"}:
+        raise ValueError("frozen_universe_header_invalid")
+    tickers = [str(row.get("Ticker", "")).strip().upper() for row in rows]
+    if any(not ticker for ticker in tickers):
+        raise ValueError("frozen_universe_blank_ticker")
+    if len(tickers) != FROZEN_UNIVERSE_TICKER_COUNT:
+        raise ValueError("frozen_universe_count_mismatch")
+    if len(set(tickers)) != FROZEN_UNIVERSE_TICKER_COUNT:
+        raise ValueError("frozen_universe_duplicate_ticker")
+    return set(tickers)
+
+
+def _csv_cell(value: Any) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, bool):
+        return "True" if value else "False"
+    if isinstance(value, Decimal):
+        return format(value, "f")
+    return str(value)
+
+
+def _symbol_observation_key(row: dict[str, Any]) -> tuple[str, str, str]:
+    return (
+        _csv_cell(row.get("trade_date")),
+        _csv_cell(row.get("symbol")).upper(),
+        _csv_cell(row.get("raw_sha256")).lower(),
+    )
+
+
+def _symbol_observation_core(row: dict[str, Any]) -> tuple[str, ...]:
+    fields = (
+        "trade_date", "symbol", "short_volume", "short_exempt_volume",
+        "total_volume", "short_ratio", "short_exempt_ratio", "market",
+        "row_grain", "market_encoding", "source_row_count",
+        "source_row_hashes_json", "raw_sha256", "response_bytes",
+        "row_count", "symbol_count", "schema_version", "url",
+        "universe_snapshot_commit", "universe_snapshot_sha256",
+        "universe_snapshot_ticker_count",
+    )
+    return tuple(_csv_cell(row.get(field)) for field in fields)
+
+
+def _append_unique_symbol_observations(
+    path: Path,
+    fields: list[str],
+    rows: list[dict[str, Any]],
+) -> tuple[int, int]:
+    """Append idempotently by trade-date/symbol/file-hash; fail on data conflicts."""
+    existing: dict[tuple[str, str, str], dict[str, str]] = {}
+    if path.exists():
+        with path.open("r", encoding="utf-8", newline="") as handle:
+            reader = csv.DictReader(handle)
+            if reader.fieldnames != fields:
+                raise ValueError("symbol_observation_ledger_header_mismatch")
+            for old in reader:
+                key = _symbol_observation_key(old)
+                if key in existing and _symbol_observation_core(existing[key]) != _symbol_observation_core(old):
+                    raise ValueError("symbol_observation_existing_duplicate_conflict")
+                existing[key] = old
+
+    append_rows: list[dict[str, str]] = []
+    skipped = 0
+    for row in rows:
+        normalized = {field: _csv_cell(row.get(field)) for field in fields}
+        key = _symbol_observation_key(normalized)
+        if key in existing:
+            if _symbol_observation_core(existing[key]) != _symbol_observation_core(normalized):
+                raise ValueError("symbol_observation_retry_conflict")
+            skipped += 1
+            continue
+        existing[key] = normalized
+        append_rows.append(normalized)
+    _append_csv(path, fields, append_rows)
+    return len(append_rows), skipped
 
 
 def _fetch_http(url: str, timeout: int = 30) -> tuple[int | None, bytes, str]:
@@ -480,6 +639,9 @@ def run_capture(
     lookback_days: int = 10,
     now_fn: Callable[[], datetime] | None = None,
     fetcher: Callable[[str], tuple[int | None, bytes, str]] | None = None,
+    symbol_universe: set[str] | None = None,
+    universe_snapshot_commit: str | None = None,
+    universe_snapshot_sha256: str | None = None,
 ) -> dict[str, Any]:
     if mode not in {"schedule", "manual"}:
         raise ValueError("mode_invalid")
@@ -498,6 +660,7 @@ def run_capture(
     event_rows: list[dict[str, Any]] = []
     duplicate_diagnostic_rows: list[dict[str, Any]] = []
     duplicate_diagnostics: list[dict[str, Any]] = []
+    symbol_observation_rows: list[dict[str, Any]] = []
     counts = {
         "http_200": 0, "valid_files": 0, "first_seen": 0,
         "late_first_seen": 0, "bootstrap": 0,
@@ -649,6 +812,13 @@ def run_capture(
                         "research_observation_eligible": eligible,
                         "signal_eligible": False, "url": url,
                     })
+                    if eligible:
+                        symbol_observation_rows.extend(
+                            build_symbol_observations(
+                                parsed, event_rows[-1], symbol_universe,
+                                universe_snapshot_commit, universe_snapshot_sha256,
+                            )
+                        )
                     if mode == "schedule":
                         state["files"][key] = {
                             "first_seen_utc": end_iso,
@@ -713,6 +883,17 @@ def run_capture(
             "signal_eligible": False, "url": url,
         })
 
+    symbol_panel_rows_appended = 0
+    symbol_panel_rows_skipped_existing = 0
+    symbol_panel_path = data_dir / "symbol_observations.csv"
+    if mode == "schedule" and symbol_observation_rows:
+        (
+            symbol_panel_rows_appended,
+            symbol_panel_rows_skipped_existing,
+        ) = _append_unique_symbol_observations(
+            symbol_panel_path, SYMBOL_OBSERVATION_FIELDS, symbol_observation_rows
+        )
+
     run_end = now_fn()
     summary = {
         "phase": 469,
@@ -727,6 +908,25 @@ def run_capture(
         "research_observation_eligible_count": counts["eligible_first_seen"],
         "signal_eligible_count": 0,
         "raw_market_data_persisted": False,
+        "raw_source_payload_persisted": False,
+        "symbol_volume_panel_persisted": symbol_panel_path.exists(),
+        "symbol_volume_panel_rows_appended": symbol_panel_rows_appended,
+        "symbol_volume_panel_rows_skipped_existing": symbol_panel_rows_skipped_existing,
+        "symbol_volume_panel_scope": (
+            "all_non_quarantined_symbols" if symbol_universe is None
+            else "exact_static_335_ticker_snapshot"
+            if universe_snapshot_sha256 == FROZEN_UNIVERSE_SHA256
+            and len(symbol_universe) == FROZEN_UNIVERSE_TICKER_COUNT
+            else "explicit_custom_symbol_filter"
+        ),
+        "symbol_volume_panel_universe_ticker_count": (
+            len(symbol_universe) if symbol_universe is not None else None
+        ),
+        "symbol_volume_panel_universe_snapshot_commit": universe_snapshot_commit or None,
+        "symbol_volume_panel_universe_snapshot_sha256": universe_snapshot_sha256 or None,
+        "symbol_volume_panel_clock_policy": (
+            "poll_start_to_poll_end_interval; first_seen_utc_is_conservative_upper_bound_not_exact_public_release"
+        ),
         "historical_first_seen_imputed": False,
         "revision_policy": "append_revision_event; preserve_original_first_seen; never_relabel_revision_as_first_seen",
         "symbol_quarantine_policy": "exclude_all_rows_for_duplicate_symbols; retain_unique_symbols; never_sum_overlapping_composite_market_rows",
@@ -761,10 +961,15 @@ def main() -> None:
     parser.add_argument("--data-dir", default="research/data/finra_regsho_daily_first_seen")
     parser.add_argument("--output", default="phase469_output")
     parser.add_argument("--lookback-days", type=int, default=10)
+    parser.add_argument("--universe-file", default=DEFAULT_UNIVERSE_FILE)
     args = parser.parse_args()
+    symbol_universe = load_symbol_universe(args.universe_file)
     result = run_capture(
         mode=args.mode, run_id=args.run_id, data_dir=args.data_dir,
         output_dir=args.output, lookback_days=args.lookback_days,
+        symbol_universe=symbol_universe,
+        universe_snapshot_commit=FROZEN_UNIVERSE_COMMIT,
+        universe_snapshot_sha256=FROZEN_UNIVERSE_SHA256,
     )
     print(json.dumps(result, indent=2, sort_keys=True))
 

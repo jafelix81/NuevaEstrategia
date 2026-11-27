@@ -6,6 +6,11 @@ on:
     paths:
       - ".github/workflows/phase469_finra_regsho_daily_first_seen_capture.yml"
       - "research/phase469_finra_regsho_daily_first_seen_capture.py"
+      - "research/data/finra_regsho_daily_first_seen/frozen_universe_335_tickers.csv"
+      - "research/data/finra_regsho_daily_first_seen/symbol_observations.csv"
+      - "research/PHASE661_FINRA_FIRST_SEEN_SYMBOL_VOLUME_PANEL_2026-11-27.md"
+      - "research/PHASE661_FINRA_FIRST_SEEN_SYMBOL_VOLUME_PANEL_2026-11-27.json"
+      - "research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-27_PHASE661.md"
       - "research/test_phase469_finra_regsho_daily_first_seen_capture.py"
       - "research/phase468_finra_flow_pit_labeler.py"
       - "research/test_phase468_finra_flow_pit_labeler.py"
@@ -18,6 +23,11 @@ on:
     paths:
       - ".github/workflows/phase469_finra_regsho_daily_first_seen_capture.yml"
       - "research/phase469_finra_regsho_daily_first_seen_capture.py"
+      - "research/data/finra_regsho_daily_first_seen/frozen_universe_335_tickers.csv"
+      - "research/data/finra_regsho_daily_first_seen/symbol_observations.csv"
+      - "research/PHASE661_FINRA_FIRST_SEEN_SYMBOL_VOLUME_PANEL_2026-11-27.md"
+      - "research/PHASE661_FINRA_FIRST_SEEN_SYMBOL_VOLUME_PANEL_2026-11-27.json"
+      - "research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-27_PHASE661.md"
       - "research/test_phase469_finra_regsho_daily_first_seen_capture.py"
       - "research/phase468_finra_flow_pit_labeler.py"
       - "research/test_phase468_finra_flow_pit_labeler.py"
