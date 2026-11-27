@@ -1,0 +1,110 @@
+{
+  "phase": 654,
+  "audit_cutoff_utc": "2026-11-27T00:58:00Z",
+  "main_head_before_documentation": "5275278627941034a25c1a157524eee75b37f859",
+  "form4_run": {
+    "run_id": 45917890802,
+    "event": "schedule",
+    "conclusion": "success",
+    "offline_tests_passed": 82,
+    "live_capture_success": true,
+    "artifact_id": 15163420232,
+    "artifact_sha256": "882aac1184a258162e9ac1b16e4d116f157211f6daf578e97206452ed47311f6",
+    "new_accessions": 0,
+    "new_canonical_events": 0,
+    "accession_observation_rows": 2,
+    "entity_observation_rows": 2,
+    "duplicate_entity_groups": 0,
+    "structured_accessions_backfilled": 10,
+    "transaction_detail_rows_appended": 53,
+    "transaction_backfill_footnote_reference_rows": 206,
+    "dedicated_footnote_accessions_processed": 10,
+    "dedicated_footnote_reference_rows_appended": 29,
+    "owner_accessions_processed": 10,
+    "owner_rows_appended": 13,
+    "single_owner_accessions": 9,
+    "multi_owner_accessions": 1,
+    "bounded_owner_accessions_remaining": 20,
+    "public_availability_certified": false,
+    "raw_filing_xml_downloaded": false,
+    "raw_transaction_rows_stored": false
+  },
+  "crosswalk": {
+    "total_rows": 14,
+    "proposed_sale_matches": 13,
+    "prior_sale_history_matches": 1,
+    "distinct_form4_accessions": 12,
+    "multi_owner_accessions_quarantined": 8,
+    "form4_accessions_without_single_owner_identity": 10,
+    "unresolved_form144_acceptance_rows": 2,
+    "signal_eligible_matches": 0,
+    "historical_f80_membership_verified": false,
+    "execution_intraday_time_known": false,
+    "alpha_test_authorized": false,
+    "proposed_sale_transaction_date_before_form144_first_seen_upper_calendar_date": 10,
+    "proposed_sale_transaction_date_same_calendar_date_as_form144_first_seen_upper": 3,
+    "proposed_sale_rows_with_exercise_or_tax_context": 2,
+    "proposed_sale_rows_without_specific_remarks_flags": 11
+  },
+  "sec13f_run": {
+    "run_id": 45910142871,
+    "conclusion": "success",
+    "artifact_id": 15159084837,
+    "artifact_sha256": "5eb48cb2e4245e27c77ccc975552d85909c107eb0eeb2e9be87f784c709e70fb",
+    "accession_observations": 29,
+    "new_accessions": 0,
+    "feed_count": 4,
+    "page_observations": 4,
+    "holdings_downloaded": false,
+    "research_eligible": 0,
+    "signal_eligible": 0
+  },
+  "form144_latest_run": {
+    "run_id": 45906061652,
+    "conclusion": "success",
+    "accessions": 835,
+    "detail_rows": 5537,
+    "bounded_intervals": 807,
+    "initial_baselines_without_lower_bound": 18,
+    "backfill_accessions_remaining": 168,
+    "signal_eligible": 0
+  },
+  "finra": {
+    "phase650_pr": 247,
+    "merge_commit": "c7379f42ffffd631e8ce1bc3b9b3261871e3480d",
+    "latest_natural_premerge_run_id": 45754121648,
+    "latest_postmerge_pr_ci_run_id": 45895296971,
+    "pr_ci_offline_tests_passed": 62,
+    "pr_ci_live_capture": "skipped",
+    "schedule_cron": "30 22,23 * * 1-5",
+    "postmerge_natural_slots_absent_utc": [
+      "2026-11-26T22:30:00Z",
+      "2026-11-26T23:30:00Z"
+    ],
+    "administrative_workflow_enabled_state_verified": false
+  },
+  "repository_preflight": {
+    "actions_total": 8358,
+    "latest_100": {
+      "success": 73,
+      "failure": 17,
+      "cancelled": 10
+    },
+    "in_progress": 0,
+    "queued": 0,
+    "branches": 407,
+    "open_pull_requests": 85,
+    "main_head": "5275278627941034a25c1a157524eee75b37f859"
+  },
+  "strategy": {
+    "baseline": "F80_TOP20_PARTIAL50_BASELINE_C20",
+    "frozen": true,
+    "incremental_alpha_demonstrated": false,
+    "new_oos": false,
+    "bootstrap": false,
+    "loo": false,
+    "holdout_touched": false,
+    "production_changed": false,
+    "options_data_spend_usd": 0
+  }
+}
