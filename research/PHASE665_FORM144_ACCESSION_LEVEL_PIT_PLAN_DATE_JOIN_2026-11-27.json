@@ -1,0 +1,105 @@
+{
+  "phase": 665,
+  "audit_cutoff_utc": "2026-11-27T15:22:13Z",
+  "source_commit": "f875be29d740f7ac8dc861d8dae607e13eb34b44",
+  "source_run": {
+    "id": 46015828465,
+    "url": "https://github.com/jafelix81/NuevaEstrategia/actions/runs/46015828465",
+    "conclusion": "success",
+    "poll_artifact_id": 15206147627,
+    "post_capture_10b5_artifact_id": 15205892828
+  },
+  "source_files": {
+    "events": {
+      "path": "research/data/sec_form144_first_seen/events.csv",
+      "git_blob_sha": "6083364c45bc88ce369d11cf0806c276563bef1f",
+      "rows": 1003,
+      "unique_accessions": 1003
+    },
+    "sale_details": {
+      "path": "research/data/sec_form144_first_seen/sale_details.csv",
+      "git_blob_sha": "27eb199b2107d1322ae1817d27aa6cb8089eaa5f",
+      "rows": 5651,
+      "unique_accessions": 855
+    }
+  },
+  "accession_join": {
+    "detail_accessions_matched_to_event_ledger": 855,
+    "detail_accessions_missing_from_event_ledger": 0,
+    "event_accessions_without_structured_details": 148,
+    "pit_fields_compared": [
+      "research_observation_eligible",
+      "public_availability_certified",
+      "signal_eligible",
+      "first_seen_interval_status",
+      "first_seen_interval_lower_bound_utc",
+      "first_seen_interval_upper_bound_utc"
+    ],
+    "pit_field_mismatches": 0,
+    "detail_consistency_fields_checked": [
+      "plan_adoption_dates_json",
+      "form",
+      "issuer_cik",
+      "issuer_name",
+      "seller_name",
+      "notice_date_iso",
+      "remarks",
+      "mentions_10b5_1_in_remarks",
+      "research_observation_eligible",
+      "public_availability_certified",
+      "signal_eligible",
+      "first_seen_interval_status",
+      "first_seen_interval_lower_bound_utc",
+      "first_seen_interval_upper_bound_utc"
+    ],
+    "detail_consistency_conflicts": 0
+  },
+  "counts": {
+    "structured_detail_accessions": 855,
+    "research_observation_eligible_accessions": 807,
+    "initial_baseline_no_lower_bound_accessions": 48,
+    "formal_plan_date_accessions": 322,
+    "formal_plan_date_and_research_observation_eligible_accessions": 290,
+    "formal_plan_date_and_initial_baseline_accessions": 32,
+    "research_observation_eligible_without_plan_date": 517,
+    "initial_baseline_without_plan_date": 16,
+    "distinct_formal_plan_adoption_dates": 134,
+    "formal_plan_date_accessions_by_form": {
+      "144": 320,
+      "144/A": 2
+    },
+    "formal_plan_date_accessions_by_pit_status": {
+      "BOUNDED_BY_SUCCESSIVE_SUCCESSFUL_POLLS": 290,
+      "INITIAL_BASELINE_NO_LOWER_BOUND": 32
+    },
+    "public_availability_certified_accessions": 0,
+    "signal_eligible_accessions": 0
+  },
+  "rates_pct": {
+    "formal_plan_date_accessions_within_all_structured_details": 37.66,
+    "plan_date_accessions_within_research_observation_eligible": 35.94,
+    "research_observation_eligible_share_of_plan_date_cohort": 90.06,
+    "baseline_share_of_plan_date_cohort": 9.94
+  },
+  "interpretation": {
+    "exact_accession_level_plan_date_pit_intersection_resolved": true,
+    "denominator_is_structured_detail_accessions_only": true,
+    "event_only_accessions_have_unknown_plan_date_status": true,
+    "research_observation_eligibility_is_not_public_availability_or_signal_eligibility": true,
+    "form144_is_proposed_sale_notice_not_execution_confirmation": true
+  },
+  "controls": {
+    "return_data_inspected": false,
+    "event_study_run": false,
+    "alpha_test_run": false,
+    "chronological_oos_run": false,
+    "bootstrap_run": false,
+    "loo_run": false,
+    "holdout_used": false,
+    "signal_admitted": false,
+    "f80_top20_partial50_baseline_c20_frozen": true,
+    "vendor_contact": false,
+    "data_purchase": false,
+    "data_budget_usd": 0
+  }
+}
