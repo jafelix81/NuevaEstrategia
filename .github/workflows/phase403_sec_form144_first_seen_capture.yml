@@ -94,7 +94,7 @@ jobs:
           PY
 
       - name: Upload reproducible Phase 665 accession-level join
-        if: always()
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: phase665-form144-accession-pit-join
