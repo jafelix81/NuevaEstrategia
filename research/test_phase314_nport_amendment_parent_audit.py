@@ -119,6 +119,25 @@ class Phase314ParentAuditTests(unittest.TestCase):
         self.assertEqual(classify_parent_matches([wrong_series])[0], "NO_METADATA_PARENT_CANDIDATE")
         self.assertEqual(classify_parent_matches([candidate, dict(candidate, accession="other")])[0], "AMBIGUOUS_METADATA_PARENT_CANDIDATES")
 
+    def test_candidate_selection_uses_registrant_cik_not_accession_prefix(self):
+        # EDGAR accession prefixes identify the submitting entity/agent and
+        # must not be substituted for the registrant CIK in the master index.
+        valid_registrant = {
+            "cik":"811030","quarter":"2022Q3","form_type":"NPORT-P",
+            "filing_date":"2022-09-28","accession":"0001145549-22-059179",
+        }
+        misleading_accession_prefix = {
+            "cik":"1145549","quarter":"2022Q3","form_type":"NPORT-P",
+            "filing_date":"2022-09-28","accession":"0000811030-22-000001",
+        }
+        selected = select_candidates(
+            [misleading_accession_prefix, valid_registrant], "2022-10-03"
+        )
+        self.assertEqual(
+            [row["accession"] for row in selected],
+            ["0001145549-22-059179"],
+        )
+
     def test_candidate_selection_is_scoped_to_exact_registrant_quarter_form_and_date(self):
         rows = [
             {"cik":"811030","quarter":"2022Q3","form_type":"NPORT-P","filing_date":"2022-09-28","accession":"a"},
