@@ -38,3 +38,12 @@ A new fail-closed retrospective classifier is proposed in \`research/phase671_13
 3. Expand the detector control cohort to at least 20 independent positive and negative filings across multiple post-2023 quarters.
 4. Only then consider production integration; preserve immutable as-filed values and require human approval for normalization.
 5. Continue FINRA, Form 4, 13D/G and CFTC work independently. No signal is promoted from this audit.
+
+
+## Final integration result
+
+- PR #260 merged at 2026-11-27 21:07:34 UTC; main commit \`fe5ba9a6669df28efbe089f93b47dcd2953a1cca\`.
+- PR run [46068196735](https://github.com/jafelix81/NuevaEstrategia/actions/runs/46068196735) and main push run [46068223960](https://github.com/jafelix81/NuevaEstrategia/actions/runs/46068223960) both succeeded.
+- Detector compiled and all 10/10 offline unit tests passed in both runs.
+- Main artifact [15232075831](https://github.com/jafelix81/NuevaEstrategia/actions/runs/46068223960/artifacts/15232075831) saved the test output.
+- No active workflows remained after the push run completed.
