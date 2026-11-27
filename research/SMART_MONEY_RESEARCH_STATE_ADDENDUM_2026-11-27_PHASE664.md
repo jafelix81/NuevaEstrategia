@@ -10,3 +10,5 @@
 - Phase 664 is an offline code/measurement correction only. No return or alpha test, chronological OOS, bootstrap, LOO or holdout was run. No signal promoted. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen; no vendor contact or paid data, USD 0.
 
 See `research/PHASE664_FORM144_PLAN_DENOMINATOR_PIT_SCOPE_CORRECTION_2026-11-27.md` and its JSON summary.
+
+- Phase 664 merged as [PR #253](https://github.com/jafelix81/NuevaEstrategia/pull/253), commit [d6f8c56](https://github.com/jafelix81/NuevaEstrategia/commit/d6f8c56a1fd1e2c5d5d789f17db9dd298d9fae9f); run [46020688094](https://github.com/jafelix81/NuevaEstrategia/actions/runs/46020688094) passed 87/87 offline tests and skipped live capture. The refresh artifact [15207743218](https://github.com/jafelix81/NuevaEstrategia/actions/runs/46020688094/artifacts/15207743218) confirms the corrected denominator label and separate PIT counts.
