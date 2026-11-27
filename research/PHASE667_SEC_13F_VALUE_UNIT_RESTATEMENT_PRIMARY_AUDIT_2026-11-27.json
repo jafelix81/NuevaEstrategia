@@ -151,5 +151,31 @@
     "For each amendment, compare original and amended information tables by CUSIP, class, put/call, share/principal amount and discretion; do not infer value-only from amendmentType alone.",
     "Store original and amended filing vintages separately; preserve public-availability times and unit/schema metadata.",
     "Scan other managers' post-2023 amendments for the same legacy-thousands error before using portfolio value weights."
-  ]
+  ],
+  "artifact_inspection": {
+    "artifact_id": 15212890251,
+    "compressed_size_bytes": 873,
+    "archive_contents": [
+      {
+        "path": "poll_summary.json",
+        "uncompressed_size_bytes": 3456
+      }
+    ],
+    "live_job_log": {
+      "all_four_feeds_successful": true,
+      "page_errors": 0,
+      "persistent_write": true,
+      "new_accessions": 15,
+      "metadata_observation_eligible": 15,
+      "research_observation_eligible": 0,
+      "signal_eligible": 0,
+      "public_availability_certified": false,
+      "filing_xml_or_text_downloaded": false,
+      "holdings_rows_downloaded": false,
+      "raw_transaction_rows_persisted": false,
+      "same_feed_duplicates": 0,
+      "cross_feed_duplicates": 0
+    },
+    "artifact_scope": "Poll summary only; no raw filings, XML/text submissions, information tables or holdings rows were downloaded or stored by this capture."
+  }
 }
