@@ -1,0 +1,45 @@
+name: Phase 604 - SEC series-class ticker CIK crosswalk audit
+
+on:
+  push:
+    branches:
+      - phase604-sec-series-class-ticker-cik-crosswalk-audit
+    paths:
+      - ".github/workflows/phase604_sec_series_class_ticker_cik_crosswalk_audit.yml"
+      - "research/phase604_sec_series_class_ticker_cik_crosswalk_audit.py"
+      - "research/test_phase604_sec_series_class_ticker_cik_crosswalk_audit.py"
+      - "Nueva_Estrategia_Fase0_Descubrimiento.py"
+      - "research/phase401_form144a_full_parent_identity_census.py"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase604-sec-series-class-ticker-cik-crosswalk-audit
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile and run offline regressions
+        run: |
+          python -m py_compile research/phase604_sec_series_class_ticker_cik_crosswalk_audit.py research/test_phase604_sec_series_class_ticker_cik_crosswalk_audit.py
+          python -m unittest -v research.test_phase604_sec_series_class_ticker_cik_crosswalk_audit
+      - name: Download official SEC mapping snapshots and audit F80
+        env:
+          SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
+        run: python -u -m research.phase604_sec_series_class_ticker_cik_crosswalk_audit --output phase604_output
+      - name: Upload mapping rows, hashes and audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase604-sec-series-class-ticker-cik-crosswalk-audit
+          path: phase604_output/
+          retention-days: 90
+          if-no-files-found: error
