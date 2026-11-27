@@ -11,7 +11,8 @@
     "form_counts": {
       "4": 138,
       "4/A": 2
-    }
+    },
+    "sha256": "607e284c57f1646880200b8ac6b8107a0fde6fd04fb7df7139bdb9e0a4c64481"
   },
   "transaction_codes": {
     "P": {
@@ -179,5 +180,12 @@
     "f80_top20_partial50_baseline_c20_frozen": true,
     "paid_data_or_vendor_contact": false,
     "data_budget_usd": 0
+  },
+  "workflow_validation": {
+    "run_id": 45951477508,
+    "conclusion": "success",
+    "regression_tests": "7/7",
+    "artifact_id": 15177475287,
+    "artifact_zip_sha256": "b8c5d82dabf42b0ebe2d30855c7c13ea778afddae496d0b9775da15aca913f68"
   }
 }
