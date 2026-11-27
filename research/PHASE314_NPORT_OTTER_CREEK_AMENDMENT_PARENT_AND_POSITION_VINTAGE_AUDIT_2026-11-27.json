@@ -1,0 +1,92 @@
+{
+  "phase": 314,
+  "audit_cutoff_utc": "2026-11-27T13:20:12Z",
+  "workflow_run_id": 46006090277,
+  "workflow_status": "success",
+  "artifact_id": 15201951527,
+  "tests": {
+    "passed": 9,
+    "failed": 0
+  },
+  "candidate_originals": {
+    "expected": 25,
+    "downloaded": 25,
+    "hashed": 25,
+    "series_identity_match": 25,
+    "class_identity_match": 25,
+    "report_date_counts": {
+      "2022-05-31": 2,
+      "2022-06-30": 17,
+      "2022-07-31": 6
+    }
+  },
+  "amendment": {
+    "accession": "0001145549-22-060851",
+    "form": "NPORT-P/A",
+    "registrant_cik": "0000811030",
+    "report_date": "2022-07-31",
+    "filing_date": "2022-10-03",
+    "series_id": "S000043717",
+    "short_rows": 20
+  },
+  "parent_candidate": {
+    "accession": "0001145549-22-059178",
+    "form": "NPORT-P",
+    "filing_date": "2022-09-28",
+    "report_date": "2022-07-31",
+    "registrant_cik": "0000811030",
+    "series_id": "S000043717",
+    "class_ids": [
+      "C000135565",
+      "C000135566"
+    ],
+    "short_rows": 20,
+    "raw_sha256": "bf72bdb691f7058cb52879610297d6dfde17ff00f718ba09910cde592ba4d433",
+    "linkage_status": "UNIQUE_METADATA_PARENT_CANDIDATE_NOT_AUTHORITATIVE",
+    "authoritative_parent_link": false
+  },
+  "original_vs_amendment": {
+    "original_short_rows": 20,
+    "amendment_short_rows": 20,
+    "unchanged": 20,
+    "modified": 0,
+    "added": 0,
+    "removed": 0
+  },
+  "same_series_2023_control": {
+    "accession": "0001145549-23-060491",
+    "report_date": "2023-07-31",
+    "filing_date": "2023-09-29",
+    "short_rows": 27,
+    "comparison_to_2022": {
+      "unchanged": 0,
+      "modified": 4,
+      "added": 23,
+      "removed": 16
+    }
+  },
+  "report_to_filing_lag_days": {
+    "2022_original": 59,
+    "2022_amendment": 64,
+    "2023_control": 60
+  },
+  "controls": {
+    "holdings_are_not_trades": true,
+    "acceptance_is_not_first_public_receipt": true,
+    "prevalence_estimated": false,
+    "security_master_complete": false,
+    "universe_coverage_measured": false,
+    "return_test": false,
+    "alpha_test": false,
+    "oos": false,
+    "bootstrap": false,
+    "loo": false,
+    "holdout_used": false,
+    "f80_frozen": true,
+    "production_changed": false,
+    "vendor_contact": false,
+    "data_purchase": false,
+    "budget_usd": 0
+  },
+  "disposition": "KEEP_AS_SLOW_POSITIONING_CONTEXT_ONLY_NO_SIGNAL_PROMOTION"
+}
