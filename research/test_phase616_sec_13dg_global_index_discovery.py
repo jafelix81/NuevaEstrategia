@@ -292,6 +292,8 @@ class Phase616IndexParserTests(unittest.TestCase):
             validate_user_agent("")
         with self.assertRaises(RuntimeError):
             validate_user_agent("NuevaEstrategia research research@example.com")
+        with self.assertRaises(RuntimeError):
+            validate_user_agent("NuevaEstrategia research research@example.org")
         self.assertEqual(
             validate_user_agent("NuevaEstrategia research analyst@domain.mx"),
             "NuevaEstrategia research analyst@domain.mx",
