@@ -1,0 +1,158 @@
+{
+  "phase": 672,
+  "audit_cutoff_utc": "2026-11-27T23:58:00Z",
+  "main_head": "51330608dbd06074df375ee42b2fb3b6fac7ef63",
+  "actions": {
+    "total_runs": 8399,
+    "latest_100": {
+      "success": 80,
+      "failure": 16,
+      "cancelled": 4
+    },
+    "active": 0,
+    "queued": 0,
+    "branches": 420,
+    "open_prs": 85
+  },
+  "runs": {
+    "form144": {
+      "id": 46079844681,
+      "artifact_id": 15237161039,
+      "new_accessions": 101,
+      "unique_issuers": 80,
+      "bounded_first_seen": 101,
+      "research_observation_eligible": 101,
+      "public_availability_certified": 0,
+      "static_candidate_manifest_matches": 12,
+      "historical_f80_membership_verified": 0,
+      "signal_eligible": 0,
+      "new_detail_rows": 588,
+      "backfill_accessions": 10,
+      "backfill_detail_rows": 75,
+      "total_accessions": 966,
+      "total_detail_rows": 6314,
+      "total_research_observation_eligible": 908,
+      "initial_baseline_no_lower_bound": 58,
+      "formal_plan_date_accessions": 385,
+      "formal_plan_date_pct_all_accessions": 39.86,
+      "formal_plan_date_pit_overlap": "NOT_COMPUTED_NO_ACCESSION_LEVEL_PIT_JOIN",
+      "source_hash_matches": 6314,
+      "source_hash_mismatches": 0,
+      "remarks_nonempty": 32,
+      "remarks_tax": 5,
+      "remarks_trust": 9,
+      "remarks_compensation_or_vesting": 10,
+      "explicit_10b5_1_free_text_mentions_in_new_cohort": 0
+    },
+    "form4": {
+      "id": 46057111964,
+      "artifact_id": 15226433611,
+      "new_accessions": 94,
+      "entity_observations": 201,
+      "detail_accessions_parsed": 10,
+      "detail_rows_appended": 21,
+      "transaction_rows": 11,
+      "transaction_codes": {
+        "A/A": 7,
+        "P/A": 2,
+        "S/D": 2
+      },
+      "footnote_reference_rows_appended": 50,
+      "footnote_accessions_pending": 40,
+      "research_eligible": 0,
+      "signal_eligible": 0,
+      "descriptive_crosswalk": {
+        "proposed_sale_matches": 16,
+        "form4_accessions": 15,
+        "issuers": 11,
+        "signal_eligible": 0,
+        "stale_relative_to_form144_run": 46079844681
+      },
+      "negative_control": {
+        "accession": "0001193125-26-479131",
+        "issuer": "Agora, Inc.",
+        "symbol": "API",
+        "transaction_dates": [
+          "2026-11-24",
+          "2026-11-25"
+        ],
+        "ads": [
+          35911,
+          36697
+        ],
+        "total_ads": 72608,
+        "weighted_average_price": 3.1907398565,
+        "gross_value_usd": 231673.2395,
+        "underlying_class_a_shares": 290432,
+        "rule_10b5_1_plan_adoption_date": "2026-06-15",
+        "reporting_person": "Zhao Bin",
+        "vehicle": "YY TZ Limited",
+        "public_availability_certified": false,
+        "security_identity_verified": false,
+        "owner_attribution_verified": false,
+        "economic_event_new_trade_authorized": false,
+        "research_eligible": false,
+        "signal_eligible": false
+      }
+    },
+    "sec13f": {
+      "id": 46084129349,
+      "artifact_id": 15237828087,
+      "new_accessions": 4,
+      "forms": [
+        "13F-HR"
+      ],
+      "accessions": [
+        "0001717977-26-000005",
+        "0002037081-26-000013",
+        "0002037081-26-000012",
+        "0002037081-26-000009"
+      ],
+      "metadata_observation_eligible": 4,
+      "research_observation_eligible": 0,
+      "holdings_downloaded": false,
+      "signal_eligible": 0
+    },
+    "finra": {
+      "id": 45939887443,
+      "artifact_id": 15172510181,
+      "http_200_files": 7,
+      "not_available_files": 1,
+      "http_errors": 0,
+      "duplicate_symbol_occurrences": 14,
+      "quarantined_row_occurrences": 28,
+      "eligible_first_seen": 0,
+      "signal_eligible": 0,
+      "post_phase661_natural_capture": false,
+      "phase661_merge_commit": "00016c90b3452e1de060f413f4ea446a1b37449f"
+    },
+    "cftc": {
+      "id": 45939298160,
+      "artifact_id": 15171064679,
+      "total_rows": 3043,
+      "historical_archive_proxy_rows": 3035,
+      "prospective_rows": 8,
+      "prospective_report_date_clusters": 2,
+      "signal_eligible_historical_rows": 0,
+      "next_official_release_date": "2026-11-30"
+    },
+    "sec13dg": {
+      "id": 45988473657,
+      "event": "pull_request",
+      "offline_tests": "success",
+      "live_sample": "skipped",
+      "artifact_count": 0,
+      "global_sample_executed": false
+    }
+  },
+  "decision": {
+    "new_signals": 0,
+    "incremental_alpha_demonstrated": false,
+    "new_oos": 0,
+    "bootstrap": 0,
+    "loo": 0,
+    "holdout_touched": false,
+    "f80_frozen": true,
+    "data_spend_usd": 0
+  }
+}
