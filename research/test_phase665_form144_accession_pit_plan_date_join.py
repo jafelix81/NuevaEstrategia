@@ -98,6 +98,14 @@ class Phase665Tests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "invalid_boolean_signal_eligible"):
             build_summary(self.events_path, self.details_path)
 
+    def test_invalid_plan_date_value_fails_closed(self) -> None:
+        rows = list(csv.DictReader(self.details_path.open(encoding="utf-8")))
+        rows[0]["plan_adoption_dates_json"] = json.dumps(["2026-99-99"])
+        rows[1]["plan_adoption_dates_json"] = json.dumps(["2026-99-99"])
+        write_csv(self.details_path, rows, list(rows[0]))
+        with self.assertRaisesRegex(ValueError, "invalid_plan_adoption_date"):
+            build_summary(self.events_path, self.details_path)
+
     def test_malformed_plan_date_json_fails_closed(self) -> None:
         rows = list(csv.DictReader(self.details_path.open(encoding="utf-8")))
         rows[0]["plan_adoption_dates_json"] = "{not-json"
