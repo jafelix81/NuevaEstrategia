@@ -79,3 +79,10 @@ The Phase 403 workflow passes the Phase 516 summary to Phase 549 in both offline
 - No vendor contact or data purchase; budget remains USD 0.
 
 **Next gate:** preserve accession-level PIT status alongside the Form 144 detail ledger, then compute the exact plan-date/PIT intersection. Even after that join, a Form 144 notice remains a proposed sale, and no signal is admitted without a separate execution/availability and incremental-OOS test.
+
+## 6. CI integration
+
+- [PR #253](https://github.com/jafelix81/NuevaEstrategia/pull/253) merged into `main` as [commit d6f8c56](https://github.com/jafelix81/NuevaEstrategia/commit/d6f8c56a1fd1e2c5d5d789f17db9dd298d9fae9f).
+- [GitHub Actions run 46020688094](https://github.com/jafelix81/NuevaEstrategia/actions/runs/46020688094): **87/87 offline regression tests passed**; the live-capture job was skipped for the pull-request event.
+- The generated [Phase 560 refresh artifact 15207743218](https://github.com/jafelix81/NuevaEstrategia/actions/runs/46020688094/artifacts/15207743218) confirms 37.66% under the corrected all-accession field and separately reports 807 PIT-eligible / 48 baseline-no-lower-bound accessions, with the plan-date/PIT overlap explicitly null.
+- No scheduled/live capture was launched by this PR.
