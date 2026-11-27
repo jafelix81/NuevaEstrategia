@@ -91,7 +91,33 @@ Fixture regressions cover repeated detail rows, event-only accessions, conflicti
 - Artifact [15212117265](https://github.com/jafelix81/NuevaEstrategia/actions/runs/46025579803/artifacts/15212117265) contains the machine-generated summary.
 - The live-capture job was skipped for the pull-request event; no SEC requests were made.
 
-## 6. Research decision
+## 6. Supplemental audit: the 148 event-only backlog accessions
+
+A separate exact join of `events.csv` to `feed_observations.csv`, excluding the 855 accessions already present in `sale_details.csv`, shows that the pending detail backlog is not currently a usable candidate-issuer PIT cohort.
+
+| Backlog classification | Accessions |
+|---|---:|
+| Total event-only accessions | 148 |
+| Form 144 | 138 |
+| Form 144/A | 10 |
+| Initial baseline, no lower bound | 94 |
+| Possible feed-window gap | 50 |
+| Bounded research-observation eligible | 4 |
+| Static candidate-manifest issuer matches | 26 |
+| Signal eligible | 0 |
+| Public-availability certified | 0 |
+
+The 26 candidate-manifest matches span 16 issuer names, but **none** is research-observation eligible and none has historical F80 membership verified. Their PIT states are:
+
+- 12 initial-baseline records: 7 have two feed observations and 5 have six. Later repeated observations do not create a missing pre-first-seen lower bound.
+- 14 possible-feed-gap records: 13 have one feed observation and one has two. The recorded gap remains unresolved; the repeated observation does not certify a complete prior feed window.
+- The four bounded records are all non-candidate-manifest matches.
+
+The pending 148 accessions account for 502 rows in `feed_observations.csv`. The full feed-observation ledger contains 2,381 rows across 1,003 accessions; its Git blob is `7580b566bafdd6b293c5901bc9f8ade30c09ecb2`.
+
+**Interpretation:** structured-detail backfill alone will not repair PIT eligibility for the 26 static candidate-manifest matches. The binding issue is missing historical lower-bound/complete-feed evidence, not only missing parsed sale details. The candidate-manifest flag is a static CIK crosswalk, not proof of historical F80 membership.
+
+## 7. Research decision
 
 - Keep formal plan dates descriptive; do not treat them as trade signals.
 - Keep the 148 event-only accessions outside the plan-date denominator until detail backfill.
