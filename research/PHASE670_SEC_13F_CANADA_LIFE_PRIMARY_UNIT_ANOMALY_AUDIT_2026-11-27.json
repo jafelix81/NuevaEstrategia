@@ -1,0 +1,238 @@
+{
+  "phase": 670,
+  "title": "SEC 13F Canada Life Q3 2026 primary-source and value-unit anomaly audit",
+  "audit_cutoff_utc": "2026-11-27T20:49:57Z",
+  "repository": "jafelix81/NuevaEstrategia",
+  "base_branch": "main",
+  "base_sha": "833ffe6057336de47a73dcc29628d44a191ef5a6",
+  "preflight": {
+    "latest_actions_runs_reviewed": 20,
+    "active_or_queued_runs": 0,
+    "latest_main_runs": [
+      {
+        "run_id": 46057111964,
+        "workflow": "Phase 476 - SEC Form 4 first-seen prospective metadata capture",
+        "event": "schedule",
+        "status": "success",
+        "artifact_id": 15226433611,
+        "artifact_bytes": 5979,
+        "observation": "94 new bounded accession metadata events; no research-eligible or signal-eligible rows"
+      },
+      {
+        "run_id": 46026323554,
+        "workflow": "Phase 614 - SEC 13F first-seen prospective metadata capture",
+        "event": "schedule",
+        "status": "success",
+        "artifact_id": 15212890251,
+        "artifact_bytes": 873,
+        "observation": "15 new 13F-HR/A metadata accessions; zero research-eligible and zero signal-eligible; artifact contains poll_summary.json only"
+      }
+    ],
+    "phase616_run": {
+      "run_id": 45988473657,
+      "event": "pull_request",
+      "offline_regression": "success",
+      "live_sample": "skipped",
+      "reason": "live sample requires workflow_dispatch with run_live_sample=true"
+    },
+    "phase469_run": {
+      "run_id": 45978861267,
+      "event": "pull_request",
+      "offline_regression": "success",
+      "live_capture": "skipped",
+      "reason": "live capture requires schedule or workflow_dispatch"
+    },
+    "merged_prs": [
+      {
+        "number": 255,
+        "phase": 666,
+        "merge_sha": "ef52fecfcc8711bd457fdcc805b27485fd897df4"
+      },
+      {
+        "number": 256,
+        "phase": 667,
+        "merge_sha": "1a33991eb31fefc406ff8382ab7585ed8eee7794"
+      },
+      {
+        "number": 257,
+        "phase": 668,
+        "merge_sha": "193a246959ac053c3c020fe9ca7b9b2ea66b3925"
+      },
+      {
+        "number": 258,
+        "phase": 669,
+        "merge_sha": "833ffe6057336de47a73dcc29628d44a191ef5a6"
+      }
+    ],
+    "open_relevant_prs": "SEC 13F sequence/knowledge-clock PRs #221-#230 remain open; none was modified or merged in this phase."
+  },
+  "canada_life_base_filing": {
+    "accession": "0001046192-26-000015",
+    "cik": "0001046192",
+    "manager": "CANADA LIFE ASSURANCE Co",
+    "form": "13F-HR",
+    "report_period": "2026-09-30",
+    "filing_date": "2026-11-13",
+    "sec_index_accepted_display": "2026-11-13 13:01:18",
+    "sec_index_timezone": "not stated on rendered index page; do not relabel as UTC",
+    "table_entry_total": 1785,
+    "table_value_total_as_filed": 61098083,
+    "summary_label": "round to nearest dollar",
+    "sources": {
+      "filing_index": "https://www.sec.gov/Archives/edgar/data/1046192/000104619226000015/0001046192-26-000015-index.html",
+      "primary_cover": "https://www.sec.gov/Archives/edgar/data/1046192/000104619226000015/xslForm13F_X02/primary_doc.xml",
+      "information_table": "https://www.sec.gov/Archives/edgar/data/1046192/000104619226000015/xslForm13F_X02/13F_Filing_Sep26.xml"
+    }
+  },
+  "row_level_unit_checks": [
+    {
+      "ticker": "AAPL",
+      "cusip": "037833100",
+      "filed_value": 3812648,
+      "shares": 11461129,
+      "filed_implied_price_usd": 0.3326590251,
+      "implied_price_if_legacy_thousands_usd": 332.6590251,
+      "close_2026_09_30_usd": 333.02,
+      "scaled_implied_vs_close_pct": -0.108394,
+      "source_price": "https://finance.yahoo.com/quote/AAPL/history/"
+    },
+    {
+      "ticker": "AMZN",
+      "cusip": "023135106",
+      "filed_value": 1997269,
+      "shares": 8026987,
+      "filed_implied_price_usd": 0.2488192643,
+      "implied_price_if_legacy_thousands_usd": 248.8192643,
+      "close_2026_09_30_usd": 249.15,
+      "scaled_implied_vs_close_pct": -0.132746,
+      "source_price": "https://www.statmuse.com/money/ask/amazon-stock-price-september-2026"
+    }
+  ],
+  "canada_life_additive_amendment": {
+    "accession": "0001046192-26-000018",
+    "cik": "0001046192",
+    "manager": "CANADA LIFE ASSURANCE Co",
+    "form": "13F-HR/A",
+    "report_period": "2026-09-30",
+    "is_amendment": true,
+    "amendment_number": 1,
+    "amendment_type": "NEW HOLDINGS",
+    "report_type": "13F COMBINATION REPORT",
+    "table_entry_total": 806,
+    "table_value_total_as_filed": 8531520,
+    "signature_date": "2026-11-27",
+    "included_manager": {
+      "name": "Keyridge Asset Management Ltd",
+      "cik": "0001427274"
+    },
+    "primary_document": "https://www.sec.gov/Archives/edgar/data/1046192/000104619226000018/primary_doc.xml",
+    "primary_verified_fields": [
+      "accession identity",
+      "CIK",
+      "manager name",
+      "period of report",
+      "amendment flag",
+      "amendment number",
+      "NEW HOLDINGS type",
+      "combination report type",
+      "806 table entries",
+      "8,531,520 summary value total",
+      "signature date"
+    ],
+    "primary_unverified_fields": [
+      "official filing-index acceptance timestamp",
+      "row-level information table contents",
+      "row-level unit interpretation",
+      "explicit accession parent link to 0001046192-26-000015"
+    ],
+    "feed_observation": {
+      "run_id": 46026323554,
+      "feed_updated_raw": "2026-11-27T10:10:56-05:00",
+      "feed_updated_utc": "2026-11-27T15:10:56Z",
+      "page_received_at_utc": "2026-11-27T15:36:23Z",
+      "event_interval_status": "BOUNDED_METADATA_ONLY",
+      "public_availability_certified": false
+    },
+    "base_filing_candidate": "0001046192-26-000015",
+    "base_relationship_status": "same filer and quarter; secondary index identifies it as the base; primary amendment document does not itself expose an explicit previous-accession field",
+    "secondary_source": "https://disclosery.com/filings/0001046192-26-000018",
+    "unit_interpretation": "the 8,531,520 cover total is consistent with legacy-thousands scaling but cannot be confirmed for the 806 rows without the amendment information table"
+  },
+  "unit_rule": {
+    "effective_date": "2023-01-03",
+    "required_value_unit": "nearest dollar",
+    "official_source": "https://www.sec.gov/filergroup/announcements-old/edgar-release-2241",
+    "base_report_disposition": "STRONG_PRIMARY_ROW_LEVEL_EVIDENCE_OF_LEGACY_THOUSANDS",
+    "rationale": "Two ordinary-share rows have raw implied prices near USD 0.25-0.33, while multiplying filed values by 1,000 produces implied prices within 0.14% of same-date closes. The filing's rendered table header says nearest dollar.",
+    "amendment_disposition": "COVER_SUMMARY_CONSISTENT_WITH_LEGACY_THOUSANDS; ROW_LEVEL_NOT_VERIFIED",
+    "automatic_rescaling": "prohibited"
+  },
+  "research_decision": {
+    "code": "PRIMARY_BASE_REPORT_UNIT_ANOMALY_STRONGLY_CONFIRMED_ADDITIVE_AMENDMENT_PRIMARY_CLASSIFIED_NO_SIGNAL_PROMOTION",
+    "implications": [
+      "The Canada Life Q3 2026 base 13F table is almost certainly expressed in legacy thousands despite the post-2023 nearest-dollar rule and the rendered nearest-dollar header.",
+      "The 13F-HR/A is primary-verified as NEW HOLDINGS with 806 entries, not a restatement and not a trade tape.",
+      "The amendment's 8,531,520 summary total is consistent with the same scale issue, but the amendment information table has not been retrieved and must not be normalized yet.",
+      "Quarter-end holdings become usable only after the applicable filing is public; no position may be backdated to 2026-09-30 for a live signal.",
+      "The feed updated timestamp is metadata evidence, not a certified SEC acceptance or public-availability timestamp."
+    ],
+    "next_gates": [
+      "Retrieve and hash the amendment's full information-table XML and official filing index.",
+      "Reconcile all 806 rows by CUSIP, class, put/call, shares/principal, discretion and other-manager assignment against the original quarter-end filing.",
+      "Build a deterministic filing-level unit detector with explicit exclusions for options, debt, ADRs, splits, non-US securities and stale CUSIPs.",
+      "Primary-verify the ten remaining BI Asset Management amendments; do not extrapolate the four already verified.",
+      "Preserve raw values and filing vintages; store any normalized value separately with rule version and evidence."
+    ]
+  },
+  "controls": {
+    "contemporaneous_prices_used_only_for_unit_validation": true,
+    "post_event_returns_inspected": false,
+    "event_study_run": false,
+    "oos_run": false,
+    "bootstrap_run": false,
+    "loo_run": false,
+    "holdout_touched": false,
+    "baseline_changed": false,
+    "new_signal_promoted": false,
+    "data_purchased": false,
+    "data_spend_usd": 0,
+    "frozen_baseline": "F80_TOP20_PARTIAL50_BASELINE_C20"
+  },
+  "sources": [
+    {
+      "type": "official_SEC",
+      "url": "https://www.sec.gov/Archives/edgar/data/1046192/000104619226000015/0001046192-26-000015-index.html",
+      "use": "base filing identity, form, filing date, displayed acceptance time and report period"
+    },
+    {
+      "type": "official_SEC",
+      "url": "https://www.sec.gov/Archives/edgar/data/1046192/000104619226000015/xslForm13F_X02/primary_doc.xml",
+      "use": "base filing cover summary: 1,785 entries and 61,098,083 value total"
+    },
+    {
+      "type": "official_SEC",
+      "url": "https://www.sec.gov/Archives/edgar/data/1046192/000104619226000015/xslForm13F_X02/13F_Filing_Sep26.xml",
+      "use": "base information-table values and shares for AAPL and AMZN"
+    },
+    {
+      "type": "official_SEC",
+      "url": "https://www.sec.gov/Archives/edgar/data/1046192/000104619226000018/primary_doc.xml",
+      "use": "amendment identity, NEW HOLDINGS type, 806 entries and summary value total"
+    },
+    {
+      "type": "official_SEC",
+      "url": "https://www.sec.gov/filergroup/announcements-old/edgar-release-2241",
+      "use": "nearest-dollar unit rule effective 2023-01-03"
+    },
+    {
+      "type": "market_data_crosscheck",
+      "url": "https://finance.yahoo.com/quote/AAPL/history/",
+      "use": "AAPL 2026-09-30 closing price"
+    },
+    {
+      "type": "market_data_crosscheck",
+      "url": "https://www.statmuse.com/money/ask/amazon-stock-price-september-2026",
+      "use": "AMZN 2026-09-30 closing price"
+    }
+  ]
+}
