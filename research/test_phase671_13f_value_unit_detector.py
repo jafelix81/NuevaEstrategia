@@ -115,6 +115,17 @@ class Form13FValueUnitDetectorTests(unittest.TestCase):
         self.assertEqual(result["excluded_rows_by_reason"]["invalid_cusip"], 1)
         self.assertEqual(result["excluded_rows_by_reason"]["invalid_or_nonpositive_numeric"], 1)
 
+
+    def test_conflicting_duplicate_cusip_is_quarantined_permanently(self):
+        sample = CANADA_LIFE_AMENDMENT + [
+            row("06849F108", 35883, 882431, "41.00"),
+            row("06849F108", 35883, 882431, "40.67"),
+        ]
+        result = audit_value_scale(sample, report_date=REPORT_DATE)
+        self.assertEqual(result["eligible_unique_cusips"], 3)
+        self.assertEqual(result["status"], "INSUFFICIENT_EVIDENCE")
+        self.assertEqual(result["excluded_rows_by_reason"]["duplicate_cusip_price_conflict"], 3)
+
     def test_invalid_thresholds_rejected(self):
         with self.assertRaises(ValueError):
             audit_value_scale(CANADA_LIFE_AMENDMENT, report_date=REPORT_DATE,
