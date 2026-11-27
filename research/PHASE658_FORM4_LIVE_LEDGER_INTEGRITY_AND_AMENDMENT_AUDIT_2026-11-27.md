@@ -107,3 +107,15 @@ All **276/276** transaction rows remain ineligible under the current ledger flag
     python -m research.phase658_form4_transaction_integrity_audit --transactions research/data/sec_form4_first_seen/transaction_details.csv --output-dir phase658_output
 
 The Phase 658 workflow is offline-only. It makes no SEC requests and downloads no market data.
+
+
+## Validation
+
+The offline workflow [45951477508](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45951477508) completed successfully:
+
+- **7/7 regression tests passed**.
+- Current-ledger recomputation returned 140 filing headers and 276 transaction rows.
+- It reproduced 1 chronology anomaly, 1 extreme-price review, 10 stale-disclosure rows and 2 amendment-lineage gaps.
+- Zero signal-eligible rows.
+- Artifact [15177475287](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45951477508/artifacts/15177475287), ZIP SHA-256: b8c5d82dabf42b0ebe2d30855c7c13ea778afddae496d0b9775da15aca913f68.
+
