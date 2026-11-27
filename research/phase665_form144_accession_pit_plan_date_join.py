@@ -10,6 +10,7 @@ import csv
 import hashlib
 import json
 from collections import Counter, defaultdict
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -78,8 +79,22 @@ def parse_plan_dates(raw: str, accession: str) -> list[str]:
         raise ValueError(f"invalid_plan_adoption_dates_json:{accession}") from exc
     if not isinstance(value, list):
         raise ValueError(f"plan_adoption_dates_not_list:{accession}")
-    dates = sorted({str(item).strip() for item in value if str(item).strip()})
-    return dates
+    dates: list[str] = []
+    for item in value:
+        if not isinstance(item, str):
+            raise ValueError(f"plan_adoption_date_not_string:{accession}")
+        parsed = False
+        for fmt in ("%m/%d/%Y", "%Y-%m-%d"):
+            try:
+                datetime.strptime(item.strip(), fmt)
+                parsed = True
+                break
+            except ValueError:
+                continue
+        if not parsed:
+            raise ValueError(f"invalid_plan_adoption_date:{accession}:{item!r}")
+        dates.append(item.strip())
+    return sorted(set(dates))
 
 
 def sha256_file(path: Path) -> str:
@@ -96,7 +111,6 @@ def build_summary(events_path: Path, details_path: Path) -> dict[str, Any]:
     events = group_by_accession(event_rows)
     details = group_by_accession(detail_rows)
 
-    detail_pit_conflicts = 0
     crossledger_mismatches: list[dict[str, str]] = []
     plan_date_accessions = 0
     plan_date_pit_overlap = 0
@@ -156,8 +170,6 @@ def build_summary(events_path: Path, details_path: Path) -> dict[str, Any]:
             if status == "INITIAL_BASELINE_NO_LOWER_BOUND":
                 plan_date_baseline += 1
 
-    if detail_pit_conflicts:
-        raise ValueError("unexpected_detail_pit_conflicts")
     if crossledger_mismatches:
         sample = crossledger_mismatches[:5]
         raise ValueError(f"crossledger_pit_mismatch:{sample!r}")
