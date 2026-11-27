@@ -21,3 +21,8 @@
 ## Next gate
 
 Build verified original-accession/amendment state linkage and persistent source-anomaly flags without rewriting raw SEC values. Continue to require exact public-availability bounds, historical security identity/F80 membership, owner attribution and rights-cleared prices before testing any insider hypothesis.
+
+
+## Validation
+
+Phase 658 offline workflow 45951477508 passed 7/7 tests and reproduced 1 chronology anomaly, 1 extreme-price review, 10 stale-disclosure rows and 2 amendment-lineage gaps. Artifact: 15177475287. No live SEC request or market-data request was made.
