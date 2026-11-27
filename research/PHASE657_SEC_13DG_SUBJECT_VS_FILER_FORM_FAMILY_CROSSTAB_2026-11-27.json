@@ -1,0 +1,94 @@
+{
+  "phase": 657,
+  "audit_cutoff_utc": "2026-11-27T05:13:00Z",
+  "source": {
+    "phase": 603,
+    "workflow_run_id": 45493730680,
+    "artifact_id": 14966963205,
+    "artifact_zip_sha256": "e7f7cfdee99744258f61079c9f9f720114f07a715345a99531392b56b81918e6",
+    "sample_csv_sha256": "6850653ec5b8be716f475417efa9c736b7891d742a66c08c04df0524b6b6c3ce",
+    "sample_size": 147,
+    "selection": "deliberately stratified by form and current-F80 index-presence; not representative"
+  },
+  "classification": {
+    "subject_match": "subject_current_f80_tickers non-empty",
+    "filer_match": "filer_current_f80_tickers non-empty",
+    "both": "both role-specific ticker fields non-empty",
+    "subject_only": "subject match and no filer match",
+    "filer_only": "filer match and no subject match"
+  },
+  "counts_by_form": {
+    "SC 13D": {
+      "sample_rows": 27,
+      "subject_match": 6,
+      "filer_match": 1,
+      "both": 0,
+      "subject_only": 6,
+      "filer_only": 1
+    },
+    "SC 13D/A": {
+      "sample_rows": 40,
+      "subject_match": 10,
+      "filer_match": 10,
+      "both": 0,
+      "subject_only": 10,
+      "filer_only": 10
+    },
+    "SC 13G": {
+      "sample_rows": 40,
+      "subject_match": 4,
+      "filer_match": 17,
+      "both": 1,
+      "subject_only": 3,
+      "filer_only": 16
+    },
+    "SC 13G/A": {
+      "sample_rows": 40,
+      "subject_match": 4,
+      "filer_match": 17,
+      "both": 1,
+      "subject_only": 3,
+      "filer_only": 16
+    }
+  },
+  "totals": {
+    "sample_rows": 147,
+    "subject_match": 24,
+    "filer_match": 45,
+    "both": 2,
+    "subject_only": 22,
+    "filer_only": 43,
+    "subject_only_13d_family": 16,
+    "subject_only_13g_family": 6,
+    "filer_only_13g_family": 32,
+    "both_13d_family": 0,
+    "both_13g_family": 2
+  },
+  "current_f80_mapping_in_phase603_artifact": {
+    "frozen_tickers": 335,
+    "mapped_tickers": 300,
+    "unique_ciks": 299,
+    "unmapped_tickers": 35,
+    "historical_membership_verified": false
+  },
+  "interpretation": {
+    "first_priority": "issuer-side SC 13D initial filings and separate SC 13D/A state changes",
+    "secondary_context": "SC 13G and SC 13G/A ownership-state panel; not a directional signal by definition",
+    "filer_only_rows_are_issuer_events": false,
+    "prevalence_estimate": false,
+    "predictive_edge_demonstrated": false
+  },
+  "controls": {
+    "f80_top20_partial50_baseline_c20_frozen": true,
+    "signal_promoted": false,
+    "incremental_alpha_demonstrated": false,
+    "prices_or_forward_returns_inspected": false,
+    "event_study_run": false,
+    "oos_run": false,
+    "bootstrap_run": false,
+    "loo_run": false,
+    "holdout_touched": false,
+    "paid_data_or_vendor_contact": false,
+    "data_budget_usd": 0
+  }
+}
