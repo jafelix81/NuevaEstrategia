@@ -39,3 +39,7 @@ This phase only resolves transport configuration. It does not retrieve SEC data 
 ## 5. Next gate
 
 After this PR's offline regression passes, the remaining operation is one bounded maintainer-initiated workflow dispatch with `run_live_sample=true`. The existing Phase 616 workflow is intentionally manual-only; the available GitHub integration can inspect runs and artifacts but cannot dispatch workflows. Do not run the legacy F80-filer-only Phase 49 workflow.
+
+## 6. Merge
+
+- PR [#252](https://github.com/jafelix81/NuevaEstrategia/pull/252) passed hosted regression and was squash-merged into `main` as commit [`8a095a8`](https://github.com/jafelix81/NuevaEstrategia/commit/8a095a8675f28c29da923254d6c809d06f294b1c).
