@@ -61,35 +61,133 @@
       "gift_or_donation_mention": 0
     },
     "repeated_issuer_clusters": [
-      {"symbol":"PRE","issuer":"Prenetics Global Ltd","accessions":3,"transaction_rows":8},
-      {"symbol":"PICS","issuer":"PicS N.V.","accessions":3,"transaction_rows":3},
-      {"symbol":"TROX","issuer":"Tronox Holdings plc","accessions":3,"transaction_rows":3},
-      {"symbol":"ACON","issuer":"Aclarion, Inc.","accessions":2,"transaction_rows":2},
-      {"symbol":"ESEA","issuer":"EUROSEAS LTD.","accessions":2,"transaction_rows":4},
-      {"symbol":"GROV","issuer":"Grove Collaborative Holdings, Inc.","accessions":2,"transaction_rows":7},
-      {"symbol":"HOS","issuer":"HORNBECK OFFSHORE SERVICES, INC.","accessions":2,"transaction_rows":2},
-      {"symbol":"SEI","issuer":"Solaris Energy Infrastructure, Inc.","accessions":2,"transaction_rows":4},
-      {"symbol":"UPST","issuer":"Upstart Holdings, Inc.","accessions":2,"transaction_rows":2},
-      {"symbol":"UXIN","issuer":"Uxin Ltd","accessions":2,"transaction_rows":2}
+      {
+        "accessions": 3,
+        "issuer": "PicS N.V.",
+        "symbol": "PICS",
+        "transaction_rows": 3
+      },
+      {
+        "accessions": 3,
+        "issuer": "Prenetics Global Ltd",
+        "symbol": "PRE",
+        "transaction_rows": 8
+      },
+      {
+        "accessions": 3,
+        "issuer": "Solaris Energy Infrastructure, Inc.",
+        "symbol": "SEI",
+        "transaction_rows": 4
+      },
+      {
+        "accessions": 3,
+        "issuer": "Tronox Holdings plc",
+        "symbol": "TROX",
+        "transaction_rows": 3
+      },
+      {
+        "accessions": 2,
+        "issuer": "Aclarion, Inc.",
+        "symbol": "ACON",
+        "transaction_rows": 2
+      },
+      {
+        "accessions": 2,
+        "issuer": "EUROSEAS LTD.",
+        "symbol": "ESEA",
+        "transaction_rows": 4
+      },
+      {
+        "accessions": 2,
+        "issuer": "Grove Collaborative Holdings, Inc.",
+        "symbol": "GROV",
+        "transaction_rows": 7
+      },
+      {
+        "accessions": 2,
+        "issuer": "HORNBECK OFFSHORE SERVICES, INC.",
+        "symbol": "HOS",
+        "transaction_rows": 2
+      },
+      {
+        "accessions": 2,
+        "issuer": "Upstart Holdings, Inc.",
+        "symbol": "UPST",
+        "transaction_rows": 2
+      },
+      {
+        "accessions": 2,
+        "issuer": "Uxin Ltd",
+        "symbol": "UXIN",
+        "transaction_rows": 2
+      }
     ]
   },
   "static_f80_exact_symbol_intersection": {
     "snapshot_tickers": 335,
     "purchase_accessions": 3,
     "transaction_rows": 11,
-    "symbols": ["TEAM","UPST"],
-    "by_symbol": [
-      {"symbol":"TEAM","issuer":"Atlassian Corp","accessions":1,"transaction_rows":9,"shares":"13400","filing_level_10b5_1_flags":["yes"],"owner_sidecar_complete_accessions":1},
-      {"symbol":"UPST","issuer":"Upstart Holdings, Inc.","accessions":2,"transaction_rows":2,"shares":"110000","filing_level_10b5_1_flags":["no"],"owner_sidecar_complete_accessions":2}
+    "symbols": [
+      "TEAM",
+      "UPST"
     ],
-    "non_10b5_flagged_symbols": ["UPST"],
-    "affirmative_10b5_flagged_symbols": ["TEAM"],
+    "by_symbol": [
+      {
+        "symbol": "TEAM",
+        "issuer": "Atlassian Corp",
+        "accessions": 1,
+        "transaction_rows": 9,
+        "shares": "13400",
+        "filing_level_10b5_1_flags": [
+          "yes"
+        ],
+        "owner_sidecar_complete_accessions": 1
+      },
+      {
+        "symbol": "UPST",
+        "issuer": "Upstart Holdings, Inc.",
+        "accessions": 2,
+        "transaction_rows": 2,
+        "shares": "110000",
+        "filing_level_10b5_1_flags": [
+          "no"
+        ],
+        "owner_sidecar_complete_accessions": 2
+      }
+    ],
+    "non_10b5_flagged_symbols": [
+      "UPST"
+    ],
+    "affirmative_10b5_flagged_symbols": [
+      "TEAM"
+    ],
     "historical_f80_membership_verified": false
   },
   "purchase_accessions_missing_owner_sidecar": [
-    {"accession":"0001436425-26-000080","symbol":"HBCP","issuer":"HOME BANCORP, INC.","filing_date":"2026-11-25","transaction_rows":1,"in_static_f80_snapshot":false},
-    {"accession":"0001510281-26-000479","symbol":"ECF","issuer":"ELLSWORTH GROWTH & INCOME FUND LTD","filing_date":"2026-11-25","transaction_rows":1,"in_static_f80_snapshot":false},
-    {"accession":"0001628280-26-076025","symbol":"BG","issuer":"Bunge Global SA","filing_date":"2026-11-25","transaction_rows":1,"in_static_f80_snapshot":false}
+    {
+      "accession": "0001436425-26-000080",
+      "symbol": "HBCP",
+      "issuer": "HOME BANCORP, INC.",
+      "filing_date": "2026-11-25",
+      "transaction_rows": 1,
+      "in_static_f80_snapshot": false
+    },
+    {
+      "accession": "0001510281-26-000479",
+      "symbol": "ECF",
+      "issuer": "ELLSWORTH GROWTH & INCOME FUND LTD",
+      "filing_date": "2026-11-25",
+      "transaction_rows": 1,
+      "in_static_f80_snapshot": false
+    },
+    {
+      "accession": "0001628280-26-076025",
+      "symbol": "BG",
+      "issuer": "Bunge Global SA",
+      "filing_date": "2026-11-25",
+      "transaction_rows": 1,
+      "in_static_f80_snapshot": false
+    }
   ],
   "eligibility_true_counts": {
     "research_observation_eligible": 0,
