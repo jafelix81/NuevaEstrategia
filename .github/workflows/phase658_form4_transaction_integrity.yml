@@ -1,0 +1,46 @@
+name: Phase 658 - SEC Form 4 live-ledger integrity audit
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - ".github/workflows/phase658_form4_transaction_integrity.yml"
+      - "research/phase658_form4_transaction_integrity_audit.py"
+      - "research/test_phase658_form4_transaction_integrity_audit.py"
+      - "research/PHASE658_FORM4_LIVE_LEDGER_INTEGRITY_AND_AMENDMENT_AUDIT_2026-11-27.md"
+      - "research/PHASE658_FORM4_LIVE_LEDGER_INTEGRITY_AND_AMENDMENT_AUDIT_2026-11-27.json"
+      - "research/data/sec_form4_first_seen/transaction_details.csv"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase658-form4-live-ledger-integrity
+  cancel-in-progress: true
+
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile and run offline tests
+        run: |
+          python -m py_compile research/phase658_form4_transaction_integrity_audit.py research/test_phase658_form4_transaction_integrity_audit.py
+          python -m unittest -v research.test_phase658_form4_transaction_integrity_audit
+      - name: Recompute current-ledger integrity audit
+        run: |
+          python -m research.phase658_form4_transaction_integrity_audit \
+            --transactions research/data/sec_form4_first_seen/transaction_details.csv \
+            --output-dir phase658_output
+      - name: Upload offline audit artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase658-form4-integrity-audit
+          path: phase658_output/
+          if-no-files-found: error
+          retention-days: 30
