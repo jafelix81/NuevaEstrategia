@@ -6,6 +6,7 @@ from research.phase549_form144_10b5_plan_polarity_audit import (
     classify_remarks_10b5,
     has_plan_termination,
     has_sell_to_cover_tax_context,
+    build_summary,
     summarize_form144,
     summarize_form4,
 )
@@ -73,6 +74,67 @@ class Phase549Form144PlanPolarityTests(unittest.TestCase):
         self.assertEqual(summary["accessions"], 1)
         self.assertEqual(summary["formal_plan_date_accessions"], 1)
         self.assertEqual(summary["plan_date_lag_days"]["n"], 1)
+
+
+    def test_form144_plan_percentage_is_explicitly_all_accessions(self):
+        common = {
+            "form": "144", "issuer_cik": "1", "issuer_name": "Issuer",
+            "seller_name": "Seller", "notice_date_iso": "2026-11-19",
+            "mentions_10b5_1_in_remarks": "False", "remarks": "",
+            "proposed_units_numeric": "", "detail_section": "filing_header",
+        }
+        planned = dict(common, accession="A1", plan_adoption_dates_json='["05/18/2026"]')
+        unplanned = dict(common, accession="A2", plan_adoption_dates_json="[]")
+        summary = summarize_form144([planned, unplanned])
+        self.assertEqual(summary["formal_plan_date_pct_of_all_accessions"], 50.0)
+        self.assertEqual(
+            summary["formal_plan_date_pct_denominator_scope"],
+            "all_accessions_in_structured_ledger_not_point_in_time_filtered",
+        )
+        self.assertNotIn("formal_plan_date_pct_of_bounded_accessions", summary)
+
+    def test_pit_context_does_not_infer_plan_date_overlap(self):
+        row = {
+            "accession": "A1", "form": "144", "issuer_cik": "1", "issuer_name": "Issuer",
+            "seller_name": "Seller", "notice_date_iso": "2026-11-19",
+            "plan_adoption_dates_json": '["05/18/2026"]',
+            "mentions_10b5_1_in_remarks": "False", "remarks": "",
+            "proposed_units_numeric": "", "detail_section": "filing_header",
+        }
+        pit = {
+            "filing_count": 1,
+            "pit": {
+                "initial_baseline_no_lower_bound_filing_headers": 1,
+                "research_observation_eligible_filing_headers": 0,
+                "public_availability_certified_filing_headers": 0,
+                "signal_eligible_filing_headers": 0,
+            },
+        }
+        summary = build_summary([row], [{"accession": "F1", "aff10b5one_filing_flag": "yes"}], pit)
+        context = summary["pit_eligibility_context"]
+        self.assertEqual(context["filing_count"], 1)
+        self.assertIsNone(context["formal_plan_date_overlap_with_research_observation_eligible_accessions"])
+        self.assertEqual(context["formal_plan_date_overlap_status"], "NOT_COMPUTED_NO_ACCESSION_LEVEL_PIT_JOIN")
+
+    def test_pit_summary_count_mismatch_fails_closed(self):
+        row = {
+            "accession": "A1", "form": "144", "issuer_cik": "1", "issuer_name": "Issuer",
+            "seller_name": "Seller", "notice_date_iso": "2026-11-19",
+            "plan_adoption_dates_json": "[]",
+            "mentions_10b5_1_in_remarks": "False", "remarks": "",
+            "proposed_units_numeric": "", "detail_section": "filing_header",
+        }
+        pit = {
+            "filing_count": 2,
+            "pit": {
+                "initial_baseline_no_lower_bound_filing_headers": 1,
+                "research_observation_eligible_filing_headers": 1,
+                "public_availability_certified_filing_headers": 0,
+                "signal_eligible_filing_headers": 0,
+            },
+        }
+        with self.assertRaisesRegex(ValueError, "pit_summary_filing_count_mismatch"):
+            build_summary([row], [{"accession": "F1", "aff10b5one_filing_flag": "yes"}], pit)
 
     def test_form4_aff10b5one_is_counted_once_per_accession(self):
         rows = [
