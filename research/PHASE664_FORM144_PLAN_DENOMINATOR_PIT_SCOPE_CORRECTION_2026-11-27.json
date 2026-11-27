@@ -85,5 +85,14 @@
     "vendor_contact": false,
     "data_purchase": false,
     "data_budget_usd": 0
+  },
+  "validation": {
+    "pull_request": 253,
+    "merged": true,
+    "merge_commit": "d6f8c56a1fd1e2c5d5d789f17db9dd298d9fae9f",
+    "workflow_run": 46020688094,
+    "offline_regression_tests_passed": 87,
+    "live_capture_job": "skipped",
+    "artifact_id": 15207743218
   }
 }
