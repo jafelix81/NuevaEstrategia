@@ -1,0 +1,88 @@
+{
+  "phase": 512,
+  "audit_date_utc": "2026-11-20",
+  "source": "CFTC TFF Futures Only static archive",
+  "parent_run_id": "43499455469",
+  "parent_artifact_id": 14074090576,
+  "parent_artifact_zip_sha256": "f74850aed35d7ed885f33de892895d6bbc755edbd7d4546340427d28468ceb9b",
+  "parent_summary_json_sha256": "36c75bb5fd5ea4d47fe6ec4f5add84fb81dd8e9c6b3a884691fd20ba666f94f0",
+  "population": {
+    "all_report_dates": 1065,
+    "pre_first_contemporaneous_backcast_dates": 214,
+    "post_launch_report_dates": 851,
+    "archive_pages_retrieved": 846,
+    "archive_pages_failed": 5,
+    "heading_mismatches": 1,
+    "updated_before_report_date": 2,
+    "pass_phase380_weak_rule": 843
+  },
+  "publication_conflicts": [
+    {
+      "report_date": "2012-07-03",
+      "archive_updated_date": "2012-07-03",
+      "expected_publication_date": "2012-07-06",
+      "basis": "CFTC standard Friday release; no Friday holiday exception"
+    },
+    {
+      "report_date": "2012-09-04",
+      "archive_updated_date": "2012-09-04",
+      "expected_publication_date": "2012-09-07",
+      "basis": "CFTC standard Friday release; no Friday holiday exception"
+    },
+    {
+      "report_date": "2015-06-16",
+      "archive_updated_date": "2015-06-16",
+      "expected_publication_date": "2015-06-19",
+      "basis": "CFTC standard Friday release; official notice confirms report was already published by June 22 and revised June 23"
+    },
+    {
+      "report_date": "2018-12-18",
+      "archive_updated_date": "2018-12-20",
+      "expected_publication_date": "2018-12-21",
+      "basis": "CFTC notice states publication remained Friday as usual"
+    },
+    {
+      "report_date": "2021-03-23",
+      "archive_updated_date": "2021-03-25",
+      "expected_publication_date": "2021-03-26",
+      "basis": "CFTC standard Friday release; no Friday holiday exception"
+    },
+    {
+      "report_date": "2021-05-04",
+      "archive_updated_date": "2021-05-06",
+      "expected_publication_date": "2021-05-07",
+      "basis": "CFTC standard Friday release; no Friday holiday exception"
+    }
+  ],
+  "unresolved_additional": [
+    {
+      "report_date": "2014-12-30",
+      "archive_updated_date": "2015-01-03",
+      "reason": "Holiday-adjusted publication date for this exact report not independently established; excluded from six confirmed/standard-schedule conflicts"
+    }
+  ],
+  "disposition": {
+    "historical_updated_date_pit_gate": "FAIL",
+    "historical_alpha_or_backtest_authorized": false,
+    "prospective_first_receipt_collection": "CONTINUE",
+    "smart_money_identity_claim": "NOT_SUPPORTED",
+    "f80_changed": false,
+    "production_changed": false
+  },
+  "no_raw_positions_or_trader_ids_committed": true,
+  "no_returns_or_backtests_run": true,
+  "latest_dataset_reconciliation": {
+    "run_id": "44648241623",
+    "artifact_id": 14589078987,
+    "dataset_id": "gpe5-46if",
+    "retrieved_rows": 47420,
+    "schema_fields": 90,
+    "distinct_report_dates": 1066,
+    "first_report_date": "2006-06-13",
+    "last_report_date": "2026-11-10",
+    "phase380_archive_census_report_dates": 1065,
+    "phase380_archive_last_report_date": "2026-11-03",
+    "count_difference_explanation": "The full dataset audit is one weekly report newer than the Phase 380 archive census; not evidence of a missing historical report date.",
+    "pit_effect": "No change; archive Updated remains unsafe as a global availability bound."
+  }
+}
