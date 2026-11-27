@@ -1,0 +1,89 @@
+{
+  "phase": 664,
+  "audit_cutoff_utc": "2026-11-27T14:26:12Z",
+  "source_run": {
+    "id": 46015828465,
+    "url": "https://github.com/jafelix81/NuevaEstrategia/actions/runs/46015828465",
+    "conclusion": "success",
+    "poll_artifact_id": 15206147627,
+    "post_capture_10b5_artifact_id": 15205892828
+  },
+  "capture": {
+    "poll_status": "complete",
+    "new_accessions": 0,
+    "new_feed_entries": 0,
+    "new_events": 0,
+    "feed_observation_rows_appended": 53,
+    "possible_feed_window_gap": false,
+    "ledger_accessions": 855,
+    "ledger_detail_rows": 5651,
+    "backfill_accessions_parsed": 10,
+    "backfill_detail_rows_appended": 56,
+    "remaining_backfill_accessions": 148,
+    "source_hash_match_rows": 5651,
+    "source_hash_mismatch_rows": 0,
+    "source_hash_not_comparable_rows": 0
+  },
+  "pit": {
+    "initial_baseline_no_lower_bound_accessions": 48,
+    "research_observation_eligible_accessions": 807,
+    "public_availability_certified_accessions": 0,
+    "signal_eligible_accessions": 0,
+    "first_seen_is_poll_receipt_upper_bound": true
+  },
+  "denominator_correction": {
+    "prior_field": "formal_plan_date_pct_of_bounded_accessions",
+    "actual_numerator": 322,
+    "actual_denominator_all_accessions": 855,
+    "actual_percentage": 37.66,
+    "corrected_field": "formal_plan_date_pct_of_all_accessions",
+    "corrected_denominator_scope": "all_accessions_in_structured_ledger_not_point_in_time_filtered",
+    "plan_date_overlap_with_807_research_observation_eligible_accessions": null,
+    "overlap_status": "NOT_COMPUTED_NO_ACCESSION_LEVEL_PIT_JOIN",
+    "do_not_compute_322_divided_by_807": true
+  },
+  "plan_dates": {
+    "formal_plan_date_accessions": 322,
+    "distinct_plan_adoption_dates": 134,
+    "lag_days": {
+      "n": 322,
+      "min": 0,
+      "p25": 97,
+      "median": 181,
+      "p75": 272,
+      "max": 1687
+    },
+    "dates_before_notice": 321,
+    "dates_same_as_notice": 1,
+    "dates_after_notice": 0
+  },
+  "remarks_polarity": {
+    "positive_explicit": 24,
+    "negative_explicit": 4,
+    "ambiguous_mention": 3,
+    "no_mention": 824
+  },
+  "negative_control": {
+    "issuer": "Fermi Inc.",
+    "issuer_cik": "0002071778",
+    "notice_date": "2026-11-19",
+    "accession_count": 4,
+    "proposed_units_sum": "2253270",
+    "formal_plan_date_present": false,
+    "classification": "NEGATIVE_EXPLICIT_SELL_TO_COVER_TAX_WITHHOLDING"
+  },
+  "controls": {
+    "form144_is_proposed_sale_notice_not_execution": true,
+    "formal_plan_date_is_not_signal_availability": true,
+    "alpha_test": false,
+    "oos_test": false,
+    "bootstrap": false,
+    "loo": false,
+    "holdout_used": false,
+    "f80_frozen": true,
+    "production_changed": false,
+    "vendor_contact": false,
+    "data_purchase": false,
+    "data_budget_usd": 0
+  }
+}
