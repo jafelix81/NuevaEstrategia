@@ -1,0 +1,193 @@
+{
+  "phase": 669,
+  "title": "SEC Form 4 November 27 live capture and Form 144 crosswalk audit",
+  "repository": "jafelix81/NuevaEstrategia",
+  "source_run": {
+    "id": 46057111964,
+    "workflow": "Phase 476 - SEC Form 4 first-seen prospective metadata capture",
+    "event": "schedule",
+    "branch": "main",
+    "created_at_utc": "2026-11-27T19:30:02Z",
+    "completed_at_utc": "2026-11-27T19:30:58Z",
+    "jobs": [
+      {
+        "name": "offline-regression",
+        "conclusion": "success",
+        "tests": 82
+      },
+      {
+        "name": "live-capture",
+        "conclusion": "success"
+      }
+    ],
+    "artifact": {
+      "id": 15226433611,
+      "name": "phase476-sec-form4-first-seen",
+      "zip_size_bytes": 5979,
+      "uncompressed_size_bytes": 20104,
+      "file_count": 7,
+      "contains_raw_xml": false,
+      "url": "https://github.com/jafelix81/NuevaEstrategia/actions/runs/46057111964/artifacts/15226433611"
+    }
+  },
+  "preflight": {
+    "latest_50_actions_runs_checked": true,
+    "active_or_queued_runs": 0,
+    "branches_and_open_prs_checked": true,
+    "phase666_pr255_merged": true,
+    "phase667_pr256_merged": true,
+    "phase668_pr257_merged": true,
+    "merge_order": [
+      255,
+      256,
+      257
+    ],
+    "main_head_sha": "193a246959ac053c3c020fe9ca7b9b2ea66b3925",
+    "merge_commits": {
+      "pr255": "ef52fecfcc8711bd457fdcc805b27485fd897df4",
+      "pr256": "1a33991eb31fefc406ff8382ab7585ed8eee7794",
+      "pr257": "193a246959ac053c3c020fe9ca7b9b2ea66b3925"
+    }
+  },
+  "poll": {
+    "all_feeds_successful": true,
+    "poll_started_utc": "2026-11-27T19:30:15Z",
+    "poll_ended_utc": "2026-11-27T19:30:46Z",
+    "feed_count": 2,
+    "new_accession_count": 94,
+    "unique_candidate_accessions": 94,
+    "bounded_metadata_rows": 94,
+    "canonical_issuer_events": 94,
+    "accession_observation_rows": 201,
+    "entity_observation_rows": 201,
+    "issuer_entity_occurrences": 96,
+    "reporting_entity_occurrences": 103,
+    "same_feed_repeated_accession_occurrences": 105,
+    "exact_duplicate_entity_key_groups_across_page_offsets": 4,
+    "exact_duplicate_entity_observation_rows_across_page_offsets": 4,
+    "legitimate_multi_entity_accessions_split_across_pages": 2,
+    "path_entity_cik_mismatches": 0,
+    "unkeyed_entity_rows": 0,
+    "unknown_entity_roles": 0,
+    "quarantined_accessions": 0,
+    "feeds": {
+      "4": {
+        "accession_observations": 200,
+        "new_accessions": 94,
+        "raw_pages": 15,
+        "prior_watermark": "0001477932-26-007320",
+        "latest_feed_updated_utc": "2026-11-27T19:29:19Z",
+        "interval_status": "POLL_WATERMARK_BOUNDED"
+      },
+      "4A": {
+        "accession_observations": 1,
+        "new_accessions": 0,
+        "raw_pages": 1,
+        "prior_watermark": "0001437749-26-038296",
+        "interval_status": "POLL_WATERMARK_BOUNDED"
+      }
+    },
+    "public_availability_certified": false,
+    "raw_transaction_rows_stored": false,
+    "research_observation_eligible_rows": 0,
+    "signal_eligible_rows": 0,
+    "alpha_test_authorized": false
+  },
+  "structured_backfills": {
+    "transaction_details": {
+      "attempted_accessions": 10,
+      "parsed_accessions": 10,
+      "parse_errors": 0,
+      "detail_rows_appended": 21,
+      "footnote_reference_rows_appended": 30,
+      "remaining_bounded_accessions": 3468,
+      "research_observation_eligible": 0,
+      "signal_eligible": 0
+    },
+    "footnote_reference_backfill": {
+      "attempted_accessions": 10,
+      "parsed_accessions": 10,
+      "parse_errors": 0,
+      "footnote_reference_rows_appended": 50,
+      "remaining_footnote_accessions": 40,
+      "structured_accessions_seen": 160,
+      "research_observation_eligible": 0,
+      "signal_eligible": 0
+    },
+    "reporting_owner_identity": {
+      "attempted_accessions": 10,
+      "parsed_accessions": 10,
+      "parse_errors": 0,
+      "owner_rows_appended": 10,
+      "single_owner_accessions": 10,
+      "multi_owner_accessions": 0,
+      "no_owner_accessions": 0,
+      "remaining_bounded_accessions": 20,
+      "transaction_line_attribution_verified": false,
+      "signal_eligible": 0
+    }
+  },
+  "form144_form4_crosswalk": {
+    "disposition": "DESCRIPTIVE_CROSSWALK_ONLY_NO_SIGNAL",
+    "crosswalk_rows": 16,
+    "matched_proposed_sale_rows": 16,
+    "unique_form4_accessions": 15,
+    "distinct_issuer_ciks": 11,
+    "distinct_owner_ciks": 15,
+    "form4_sale_disposition_rows": 89,
+    "form144_proposed_sale_rows": 864,
+    "form144_proposed_sale_rows_considered": 856,
+    "form144_prior_sale_rows": 2399,
+    "form144_prior_sale_rows_considered": 2383,
+    "matched_prior_sales": 0,
+    "form144_amendment_detail_rows_excluded": 45,
+    "ambiguous_transaction_reuse_quarantined": 3,
+    "multi_owner_accessions_quarantined": 8,
+    "form4_accessions_without_single_owner_identity": 29,
+    "missing_form144_acceptance_rows": 2,
+    "rows_where_form144_acceptance_precedes_form4_acceptance": 14,
+    "execution_intraday_time_known": false,
+    "transaction_codes": [
+      "S"
+    ],
+    "acquired_disposed_codes": [
+      "D"
+    ],
+    "remarks_context": {
+      "no_specific_remarks_flag": 14,
+      "exercise_or_tax_context_mentioned": 2,
+      "rule_10b5_1_mention_flagged": 0,
+      "open_market_mention_flagged": 0
+    },
+    "signal_eligible_matches": 0,
+    "historical_f80_membership_verified": false
+  },
+  "decision": "CAPTURE_SUCCESS_DESCRIPTIVE_ONLY_NO_SIGNAL_PROMOTION",
+  "interpretation": [
+    "The 94 new accession events are bounded first-seen metadata, not 94 verified economic transactions.",
+    "The 201 entity rows preserve reporting-entity and issuer-entity occurrences; page-offset repeats are audited separately from legitimate multi-entity accessions.",
+    "The 16 Form 144/Form 4 matches are proposed-sale-to-reported-disposition crosswalk candidates. Filing acceptance order does not reveal the actual intraday execution time.",
+    "Two Form 144 acceptance clocks are unresolved, three ambiguous transaction-reuse candidates and eight multi-owner accessions are quarantined, and historical F80 membership is not verified.",
+    "The crosswalk is descriptive only; no match is promoted to a predictive signal."
+  ],
+  "controls": {
+    "prices_or_post_event_returns_inspected": false,
+    "event_study_run": false,
+    "chronological_oos_run": false,
+    "bootstrap_run": false,
+    "loo_run": false,
+    "holdout_touched": false,
+    "baseline_changed": false,
+    "data_purchased": false,
+    "spend_usd": 0,
+    "baseline": "F80_TOP20_PARTIAL50_BASELINE_C20",
+    "baseline_status": "FROZEN"
+  },
+  "next_gates": [
+    "Continue natural Form 4 polling and bounded backfills; current queue shows 3,468 bounded accessions for structured detail, 40 for footnote references, and 20 for owner identity.",
+    "Do not infer execution timing from Form 144/Form 4 acceptance timestamps; obtain exact execution-time evidence only where the source actually supplies it.",
+    "Revisit the 16 descriptive matches only after transaction-line ownership, clock, economic-context and historical F80 membership gates are satisfied.",
+    "FINRA Phase 469 has no post-Phase-661 natural live capture in the reviewed latest 50 runs; its schedule is 22:30 and 23:30 UTC on weekdays, so no duplicate poll was started before that window.",
+    "Keep SEC 13F amendment-vintage work separate from this Form 4 capture; PRs #255–#257 are now integrated in order, but the Canada Life accession remains secondary-only until its amendment XML and primary acceptance record are retrieved."
+  ]
+}
