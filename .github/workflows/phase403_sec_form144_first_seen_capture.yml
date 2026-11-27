@@ -34,6 +34,11 @@ on:
       - "research/phase549_form144_10b5_plan_polarity_audit.py"
       - "research/test_phase549_form144_10b5_plan_polarity_audit.py"
       - "research/test_phase565_form144_post_capture_10b5_audit.py"
+      - "research/phase665_form144_accession_pit_plan_date_join.py"
+      - "research/test_phase665_form144_accession_pit_plan_date_join.py"
+      - "research/PHASE665_FORM144_ACCESSION_LEVEL_PIT_PLAN_DATE_JOIN_2026-11-27.md"
+      - "research/PHASE665_FORM144_ACCESSION_LEVEL_PIT_PLAN_DATE_JOIN_2026-11-27.json"
+      - "research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-27_PHASE665.md"
   workflow_dispatch:
   schedule:
     - cron: "47 * * * *"
@@ -55,13 +60,47 @@ jobs:
           python-version: "3.11"
       - name: Compile and run offline regressions
         run: |
-          python -m py_compile research/phase401_form144a_full_parent_identity_census.py research/phase403_sec_form144_first_seen_capture.py research/phase454_form144_event_ledger_schema_migration.py research/test_phase454_form144_event_ledger_schema_migration.py research/phase464_form144_first_production_capture_audit.py research/test_phase464_form144_first_production_capture_audit.py research/test_phase465_sec_atom_pagination.py research/phase509_form144_structured_detail_parser.py research/test_phase509_form144_structured_detail_parser.py research/phase516_form144_ledger_quality_audit.py research/test_phase516_form144_ledger_quality_audit.py research/phase549_form144_10b5_plan_polarity_audit.py research/test_phase549_form144_10b5_plan_polarity_audit.py research/test_phase565_form144_post_capture_10b5_audit.py
-          python -m unittest -v research.test_phase403_sec_form144_first_seen_capture research.test_phase454_form144_event_ledger_schema_migration research.test_phase464_form144_first_production_capture_audit research.test_phase465_sec_atom_pagination research.test_phase509_form144_structured_detail_parser research.test_phase516_form144_ledger_quality_audit research.test_phase549_form144_10b5_plan_polarity_audit research.test_phase565_form144_post_capture_10b5_audit
+          python -m py_compile research/phase401_form144a_full_parent_identity_census.py research/phase403_sec_form144_first_seen_capture.py research/phase454_form144_event_ledger_schema_migration.py research/test_phase454_form144_event_ledger_schema_migration.py research/phase464_form144_first_production_capture_audit.py research/test_phase464_form144_first_production_capture_audit.py research/test_phase465_sec_atom_pagination.py research/phase509_form144_structured_detail_parser.py research/test_phase509_form144_structured_detail_parser.py research/phase516_form144_ledger_quality_audit.py research/test_phase516_form144_ledger_quality_audit.py research/phase549_form144_10b5_plan_polarity_audit.py research/test_phase549_form144_10b5_plan_polarity_audit.py research/test_phase565_form144_post_capture_10b5_audit.py research/phase665_form144_accession_pit_plan_date_join.py research/test_phase665_form144_accession_pit_plan_date_join.py
+          python -m unittest -v research.test_phase403_sec_form144_first_seen_capture research.test_phase454_form144_event_ledger_schema_migration research.test_phase464_form144_first_production_capture_audit research.test_phase465_sec_atom_pagination research.test_phase509_form144_structured_detail_parser research.test_phase516_form144_ledger_quality_audit research.test_phase549_form144_10b5_plan_polarity_audit research.test_phase565_form144_post_capture_10b5_audit research.test_phase665_form144_accession_pit_plan_date_join
           python -m research.phase516_form144_ledger_quality_audit --input research/data/sec_form144_first_seen/sale_details.csv --output phase516_output/summary.json
           python -m research.phase516_form144_ledger_quality_audit --input research/data/sec_form144_first_seen/sale_details.csv --output phase403_output/phase516_post_capture_summary.json
           python -c "import json; from pathlib import Path; p=Path('phase403_output/phase516_post_capture_summary.json'); d=json.loads(p.read_text()); assert d['filing_count'] > 0 and d['row_count'] >= d['filing_count']; assert 'pit' in d and 'signal_eligible_filing_headers' in d['pit']; print('Phase 550 output-path/schema smoke test passed')"
           python -m research.phase549_form144_10b5_plan_polarity_audit --pit-summary phase403_output/phase516_post_capture_summary.json --output phase560_output/summary.json
+          python -m research.phase665_form144_accession_pit_plan_date_join --output phase665_output/summary.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          summary = json.loads(Path("phase665_output/summary.json").read_text())
+          expected = {
+              "structured_detail_accessions": 855,
+              "research_observation_eligible_accessions": 807,
+              "initial_baseline_no_lower_bound_accessions": 48,
+              "formal_plan_date_accessions": 322,
+              "formal_plan_date_and_research_observation_eligible_accessions": 290,
+              "formal_plan_date_and_initial_baseline_accessions": 32,
+              "public_availability_certified_accessions": 0,
+              "signal_eligible_accessions": 0,
+              "event_accessions_without_structured_details": 148,
+              "structured_detail_accessions_without_event": 0,
+          }
+          for key, value in expected.items():
+              assert summary["counts"][key] == value, (key, summary["counts"][key], value)
+          assert summary["source_files"]["events"]["rows"] == 1003
+          assert summary["source_files"]["events"]["unique_accessions"] == 1003
+          assert summary["source_files"]["sale_details"]["rows"] == 5651
+          assert summary["integrity"]["crossledger_pit_mismatches"] == 0
+          assert summary["controls"]["signal_admitted"] is False
+          print("Phase 665 actual-ledger reconciliation passed")
+          PY
 
+      - name: Upload reproducible Phase 665 accession-level join
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase665-form144-accession-pit-join
+          path: phase665_output/summary.json
+          retention-days: 90
+          if-no-files-found: warn
       - name: Upload Phase 560 descriptive 10b5-1 refresh
         if: always()
         uses: actions/upload-artifact@v4
@@ -84,7 +123,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Compile capture and migration clients
-        run: python -m py_compile research/phase403_sec_form144_first_seen_capture.py research/phase454_form144_event_ledger_schema_migration.py research/phase509_form144_structured_detail_parser.py research/phase516_form144_ledger_quality_audit.py research/phase549_form144_10b5_plan_polarity_audit.py
+        run: python -m py_compile research/phase403_sec_form144_first_seen_capture.py research/phase454_form144_event_ledger_schema_migration.py research/phase509_form144_structured_detail_parser.py research/phase516_form144_ledger_quality_audit.py research/phase549_form144_10b5_plan_polarity_audit.py research/phase665_form144_accession_pit_plan_date_join.py research/test_phase665_form144_accession_pit_plan_date_join.py
       - name: Migrate append-only event ledger schema
         run: python -m research.phase454_form144_event_ledger_schema_migration --path research/data/sec_form144_first_seen/events.csv --output phase403_output/schema_migration.json
       - name: Run SEC Latest Filings capture
