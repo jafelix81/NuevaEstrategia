@@ -1,0 +1,64 @@
+name: Phase 660 - SEC Form 4 P-code cohort and frozen F80 gate
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+    paths:
+      - ".github/workflows/phase660_form4_purchase_cohort_f80_gate.yml"
+      - "research/phase660_form4_purchase_cohort_f80_gate.py"
+      - "research/test_phase660_form4_purchase_cohort_f80_gate.py"
+      - "research/PHASE660_FORM4_PURCHASE_COHORT_F80_GATE_2026-11-27.md"
+      - "research/PHASE660_FORM4_PURCHASE_COHORT_F80_GATE_2026-11-27.json"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase660-form4-purchase-cohort-f80-gate
+  cancel-in-progress: true
+
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Recover immutable input snapshots
+        run: |
+          mkdir -p phase660_input
+          git show a27340c1866b5e44f2638eb4dc3e0cbd1617b7ea:research/data/sec_form4_first_seen/transaction_details.csv > phase660_input/transaction_details.csv
+          git show a27340c1866b5e44f2638eb4dc3e0cbd1617b7ea:research/data/sec_form4_first_seen/reporting_owners.csv > phase660_input/reporting_owners.csv
+          git show 1aa1b91f383ce9cef375a43e775c736a27356a5:research/phase44_frozen_universe_335_tickers.csv > phase660_input/frozen_universe_335_tickers.csv
+          test "$(git hash-object phase660_input/transaction_details.csv)" = "f3ca95feb6f56e43eaac46a5fca4f66a73783a51"
+          test "$(git hash-object phase660_input/reporting_owners.csv)" = "9017a22a48e53be0299d85a9a850db0449e6918b"
+          test "$(git hash-object phase660_input/frozen_universe_335_tickers.csv)" = "7edbd62b4fb34a6123276e4ce45cb3c1c62479c7"
+      - name: Compile and run offline regressions
+        run: |
+          python -m py_compile research/phase660_form4_purchase_cohort_f80_gate.py research/test_phase660_form4_purchase_cohort_f80_gate.py
+          python -m unittest -v research.test_phase660_form4_purchase_cohort_f80_gate
+      - name: Recompute immutable cohort audit
+        run: |
+          python -m research.phase660_form4_purchase_cohort_f80_gate \
+            --transactions phase660_input/transaction_details.csv \
+            --owners phase660_input/reporting_owners.csv \
+            --universe phase660_input/frozen_universe_335_tickers.csv \
+            --output phase660_output/summary.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          expected = json.loads(Path("research/PHASE660_FORM4_PURCHASE_COHORT_F80_GATE_2026-11-27.json").read_text())
+          actual = json.loads(Path("phase660_output/summary.json").read_text())
+          assert actual == expected, "Recomputed Phase 660 summary differs from committed audit"
+          print("Phase 660 immutable cohort summary matches.")
+          PY
+      - name: Upload reproducible audit artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase660-form4-purchase-cohort-f80-gate
+          path: phase660_output/summary.json
+          if-no-files-found: error
+          retention-days: 30
