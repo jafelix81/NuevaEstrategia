@@ -99,3 +99,13 @@ Ten offline regression tests cover both scale classes, sparse and mixed samples,
 3. Add at least 20 independent positive and negative filing controls spanning several post-2023 quarters, including mixed/exception cases.
 4. Only then consider production integration; keep normalization human-approved and preserve as-filed values.
 5. Continue FINRA, Form 4, 13D/G and CFTC research independently; no signal is promoted from this unit audit.
+
+
+## Validation and integration
+
+- [PR #260](https://github.com/jafelix81/NuevaEstrategia/pull/260) merged on 2026-11-27 at 21:07:34 UTC.
+- Main integration commit: \`fe5ba9a6669df28efbe089f93b47dcd2953a1cca\`.
+- Pull-request regression run [46068196735](https://github.com/jafelix81/NuevaEstrategia/actions/runs/46068196735): success.
+- Main push regression run [46068223960](https://github.com/jafelix81/NuevaEstrategia/actions/runs/46068223960): success.
+- Both runs compiled the detector and passed all 10 unittest cases.
+- [Main-run test artifact](https://github.com/jafelix81/NuevaEstrategia/actions/runs/46068223960/artifacts/15232075831), SHA-256 \`c6db06b425193f819feb2c3cb156b40c4f0947f4d3a0a6009bc764d8c615d94e\`.
