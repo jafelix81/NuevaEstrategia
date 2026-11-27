@@ -1,0 +1,184 @@
+{
+  "phase": 655,
+  "audit_cutoff_utc": "2026-11-27T02:37:00Z",
+  "main_head_before_documentation": "4833e40c4b5b38fab7e6fcafa1610571b891ebbb",
+  "preflight": {
+    "actions_latest_100": {
+      "success": 73,
+      "failure": 17,
+      "cancelled": 10
+    },
+    "active_or_queued": 0,
+    "open_pull_requests": 85,
+    "branches_last_full_census": 407,
+    "latest_form4_run": 45917890802,
+    "latest_13f_run": 45910142871,
+    "latest_form144_run": 45906061652,
+    "finra_phase650_pr_validation_run": 45895296971,
+    "pr199": {
+      "state": "open",
+      "draft": true,
+      "merged": false
+    }
+  },
+  "inputs": {
+    "universe_path": "research/phase44_frozen_universe_335_tickers.csv",
+    "universe_source_commit": "1aa1b91f383ce9cef375a43e775c736a27356a5",
+    "universe_git_blob_sha1": "7edbd62b4fb34a6123276e4ce45cb3c1c62479c7",
+    "universe_sha256": "f850655a22a8843dad90e9562b3152b9ca064560586109022b5bfd205a003dda",
+    "transaction_details_blob_sha1": "a314421b76333f050a3228071025e448ac8ca840",
+    "reporting_owners_blob_sha1": "1dea0f28d44e4d0a2a76ac2c24bddb916747fcf0",
+    "footnote_references_blob_sha1": "941a7cb2342ce063ac4f912d184f86cce52f905e"
+  },
+  "live_ledger": {
+    "all_detail_records": 416,
+    "transaction_rows": 276,
+    "distinct_issuer_symbols": 98,
+    "exact_symbol_overlap_rows": 41,
+    "overlap_accessions": 21,
+    "overlap_symbols": [
+      "AAPL",
+      "ANET",
+      "APO",
+      "BLK",
+      "CVX",
+      "DELL",
+      "LITE",
+      "LYV",
+      "SE",
+      "SYK",
+      "TEAM",
+      "UPST"
+    ],
+    "accessions_by_symbol": {
+      "AAPL": 1,
+      "ANET": 1,
+      "APO": 1,
+      "BLK": 1,
+      "CVX": 1,
+      "DELL": 2,
+      "LITE": 1,
+      "LYV": 4,
+      "SE": 1,
+      "SYK": 1,
+      "TEAM": 1,
+      "UPST": 6
+    },
+    "overlap_owner_sidecar_complete": 13,
+    "overlap_owner_sidecar_missing": 8,
+    "transaction_code_counts": {
+      "S": 20,
+      "P": 11,
+      "J": 2,
+      "M": 2,
+      "F": 5,
+      "G": 1
+    },
+    "aff10b5_one_line_counts": {
+      "yes": 26,
+      "no": 15
+    },
+    "nonexclusive_footnote_flag_line_counts": {
+      "rule_10b5_1_mention": 26,
+      "compensation_or_vesting_mention": 10,
+      "tax_or_withholding_mention": 8,
+      "trust_mention": 14,
+      "gift_or_donation_mention": 1
+    },
+    "all_41_rows_false_for": [
+      "research_observation_eligible",
+      "signal_eligible",
+      "public_availability_certified",
+      "security_identity_verified",
+      "historical_f80_membership_verified",
+      "owner_attribution_verified",
+      "transaction_semantics_verified",
+      "economic_event_new_trade_authorized"
+    ]
+  },
+  "upst_cluster": {
+    "issuer": "Upstart Holdings, Inc.",
+    "ticker": "UPST",
+    "issuer_level_clusters": 1,
+    "accessions": 2,
+    "owners": [
+      {
+        "name": "Paul Gu",
+        "role": "CEO and director",
+        "accession": "0001832812-26-000016",
+        "transaction_date": "2026-11-19",
+        "code": "P",
+        "shares": 50000,
+        "weighted_average_price": 17.2013,
+        "reference_value": 860065,
+        "ownership": "Indirect by Gu Qiao Family Trust",
+        "aff10b5one": false,
+        "acceptance_utc": "2026-11-21T01:22:19Z",
+        "price_range": [
+          17.1959,
+          17.39
+        ]
+      },
+      {
+        "name": "Dave Girouard",
+        "role": "Director and 10% owner",
+        "accession": "0001832805-26-000011",
+        "transaction_date": "2026-11-20",
+        "code": "P",
+        "shares": 60000,
+        "weighted_average_price": 15.8498,
+        "reference_value": 950988,
+        "ownership": "Indirect by 2008 D&T Girouard Revocable Trust",
+        "aff10b5one": false,
+        "acceptance_utc": "2026-11-21T01:21:55Z",
+        "price_range": [
+          15.76,
+          15.95
+        ]
+      }
+    ],
+    "combined_shares": 110000,
+    "combined_reference_value": 1811053,
+    "collector_interval_lower_utc": "2026-11-21T00:51:03Z",
+    "collector_interval_upper_utc": "2026-11-23T07:48:52Z",
+    "conservative_first_session": "2026-11-23",
+    "daily_bar_first_completed_session": "2026-11-23",
+    "next_executable_session_under_daily_bar_rule": "2026-11-24",
+    "code_P_semantics": "Open market or private purchase; execution venue unresolved",
+    "signal_eligible": false,
+    "return_test_performed": false
+  },
+  "negative_controls": {
+    "SE": {
+      "accessions": 1,
+      "transaction_lines": 7,
+      "owner": "Wang Yanjun",
+      "role": "CCO and General Counsel",
+      "aff10b5one": true,
+      "disposition": "planned-trading negative control"
+    },
+    "TEAM": {
+      "accessions": 1,
+      "transaction_lines": 9,
+      "owner": "Michael Cannon-Brookes",
+      "aff10b5one": true,
+      "plan_adoption_date": "2026-08-09",
+      "ownership": "CBC Co Pty Ltd as trustee for Cannon-Brookes Head Trust",
+      "disposition": "planned-trading negative control"
+    }
+  },
+  "strategy": {
+    "baseline": "F80_TOP20_PARTIAL50_BASELINE_C20",
+    "frozen": true,
+    "new_signal_promoted": false,
+    "incremental_alpha_demonstrated": false,
+    "new_oos": false,
+    "bootstrap": false,
+    "loo": false,
+    "holdout_touched": false,
+    "production_changed": false,
+    "price_data_downloaded": false,
+    "vendor_contacted": false,
+    "data_budget_usd": 0
+  }
+}
