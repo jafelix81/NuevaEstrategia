@@ -60,3 +60,9 @@ No prices or post-event returns were inspected. No event study, OOS, bootstrap o
 - Machine-readable audit: `PHASE667_SEC_13F_VALUE_UNIT_RESTATEMENT_PRIMARY_AUDIT_2026-11-27.json`
 - State addendum: `SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-27_PHASE667.md`
 - Parent Phase 666 audit remains immutable in PR #255.
+
+## 7. Source-run logs and artifact contents
+
+I downloaded and inspected artifact [15212890251](https://github.com/jafelix81/NuevaEstrategia/actions/runs/46026323554/artifacts/15212890251). The 873-byte ZIP contains exactly one file, `poll_summary.json` (3,456 uncompressed bytes). The live job log confirms all four feeds completed with full-snapshot boundaries, zero page errors, zero same-feed or cross-feed duplicates, and a successful append-only metadata write.
+
+The artifact reports 15 new accessions and 15 bounded metadata observations, but research eligible = 0 and signal eligible = 0. It explicitly records `filing_xml_or_text_downloaded=false`, `holdings_rows_downloaded=false`, `raw_transaction_rows_persisted=false`, and `public_availability_certified=false`. Thus the capture artifact itself does not contain the primary filings or holdings; the four primary XML verifications in this phase came from separate SEC filing-document sources. This distinction is retained in the audit.
