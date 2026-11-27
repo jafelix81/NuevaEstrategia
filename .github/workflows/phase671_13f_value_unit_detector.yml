@@ -1,6 +1,11 @@
 name: Phase 671 SEC 13F value-unit detector offline controls
 
 on:
+  push:
+    paths:
+      - 'research/phase671_13f_value_unit_detector.py'
+      - 'research/test_phase671_13f_value_unit_detector.py'
+      - '.github/workflows/phase671_13f_value_unit_detector.yml'
   pull_request:
     paths:
       - 'research/phase671_13f_value_unit_detector.py'
