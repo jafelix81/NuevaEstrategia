@@ -60,7 +60,7 @@ jobs:
           python -m research.phase516_form144_ledger_quality_audit --input research/data/sec_form144_first_seen/sale_details.csv --output phase516_output/summary.json
           python -m research.phase516_form144_ledger_quality_audit --input research/data/sec_form144_first_seen/sale_details.csv --output phase403_output/phase516_post_capture_summary.json
           python -c "import json; from pathlib import Path; p=Path('phase403_output/phase516_post_capture_summary.json'); d=json.loads(p.read_text()); assert d['filing_count'] > 0 and d['row_count'] >= d['filing_count']; assert 'pit' in d and 'signal_eligible_filing_headers' in d['pit']; print('Phase 550 output-path/schema smoke test passed')"
-          python -m research.phase549_form144_10b5_plan_polarity_audit --output phase560_output/summary.json
+          python -m research.phase549_form144_10b5_plan_polarity_audit --pit-summary phase403_output/phase516_post_capture_summary.json --output phase560_output/summary.json
 
       - name: Upload Phase 560 descriptive 10b5-1 refresh
         if: always()
@@ -112,8 +112,8 @@ jobs:
         id: post_capture_10b5
         if: steps.post_capture_quality.outcome == 'success'
         run: |
-          python -m research.phase549_form144_10b5_plan_polarity_audit --output phase403_output/phase549_post_capture_summary.json
-          python -c "import json; from pathlib import Path; p=Path('phase403_output'); d=json.loads((p/'phase549_post_capture_summary.json').read_text()); q=json.loads((p/'phase516_post_capture_summary.json').read_text()); f=d['form144']; assert f['accessions'] == q['filing_count']; assert f['detail_rows'] == q['row_count']; assert d['controls']['signal_admitted'] is False; print('Phase 565 post-capture 10b5-1 reconciliation passed')"
+          python -m research.phase549_form144_10b5_plan_polarity_audit --pit-summary phase403_output/phase516_post_capture_summary.json --output phase403_output/phase549_post_capture_summary.json
+          python -c "import json; from pathlib import Path; p=Path('phase403_output'); d=json.loads((p/'phase549_post_capture_summary.json').read_text()); q=json.loads((p/'phase516_post_capture_summary.json').read_text()); f=d['form144']; pit=d['pit_eligibility_context']; assert f['accessions'] == q['filing_count']; assert f['detail_rows'] == q['row_count']; assert pit['filing_count'] == q['filing_count']; assert pit['formal_plan_date_overlap_status'] == 'NOT_COMPUTED_NO_ACCESSION_LEVEL_PIT_JOIN'; assert d['controls']['signal_admitted'] is False; print('Phase 565 post-capture 10b5-1 and PIT-scope reconciliation passed')"
       - name: Upload post-capture Form 144 10b5-1 audit
         if: always() && steps.post_capture_10b5.outcome == 'success'
         uses: actions/upload-artifact@v4

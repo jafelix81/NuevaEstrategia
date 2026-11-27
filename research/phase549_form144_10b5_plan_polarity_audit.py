@@ -249,7 +249,8 @@ def summarize_form144(rows: list[dict[str, str]]) -> dict[str, Any]:
         "forms_by_accession": dict(sorted(forms.items())),
         "formal_plan_date_accessions": plan_accessions,
         "formal_plan_date_accessions_by_form": dict(sorted(plan_by_form.items())),
-        "formal_plan_date_pct_of_bounded_accessions": round(100 * plan_accessions / len(grouped), 2) if grouped else None,
+        "formal_plan_date_pct_of_all_accessions": round(100 * plan_accessions / len(grouped), 2) if grouped else None,
+        "formal_plan_date_pct_denominator_scope": "all_accessions_in_structured_ledger_not_point_in_time_filtered",
         "distinct_plan_adoption_dates": len(plan_dates_all),
         "plan_date_lag_days": _quantiles(lags),
         "plan_dates_before_notice": sum(value > 0 for value in lags),
@@ -299,13 +300,58 @@ def summarize_form4(rows: list[dict[str, str]]) -> dict[str, Any]:
     }
 
 
-def build_summary(form144_rows: list[dict[str, str]], form4_rows: list[dict[str, str]]) -> dict[str, Any]:
+def summarize_pit_eligibility_context(pit_summary: dict[str, Any] | None, ledger_accessions: int) -> dict[str, Any]:
+    if pit_summary is None:
+        return {"available": False, "status": "PIT_SUMMARY_NOT_SUPPLIED"}
+
+    if int(pit_summary.get("filing_count", -1)) != ledger_accessions:
+        raise ValueError("pit_summary_filing_count_mismatch")
+
+    pit = pit_summary.get("pit")
+    if not isinstance(pit, dict):
+        raise ValueError("pit_summary_missing_pit_object")
+
+    def count(name: str) -> int:
+        value = pit.get(name)
+        if not isinstance(value, int) or value < 0:
+            raise ValueError(f"invalid_pit_count:{name}")
+        return value
+
+    baseline = count("initial_baseline_no_lower_bound_filing_headers")
+    research_eligible = count("research_observation_eligible_filing_headers")
+    public_certified = count("public_availability_certified_filing_headers")
+    signal_eligible = count("signal_eligible_filing_headers")
+    if baseline + research_eligible > ledger_accessions:
+        raise ValueError("pit_status_counts_exceed_ledger")
+
+    return {
+        "available": True,
+        "status": "PIT_COUNTS_RECONCILED_NO_ACCESSION_LEVEL_PLAN_DATE_JOIN",
+        "filing_count": ledger_accessions,
+        "initial_baseline_no_lower_bound_accessions": baseline,
+        "research_observation_eligible_accessions": research_eligible,
+        "public_availability_certified_accessions": public_certified,
+        "signal_eligible_accessions": signal_eligible,
+        "other_or_unclassified_accessions": ledger_accessions - baseline - research_eligible,
+        "formal_plan_date_overlap_with_research_observation_eligible_accessions": None,
+        "formal_plan_date_overlap_status": "NOT_COMPUTED_NO_ACCESSION_LEVEL_PIT_JOIN",
+    }
+
+
+def build_summary(
+    form144_rows: list[dict[str, str]],
+    form4_rows: list[dict[str, str]],
+    pit_summary: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    form144_summary = summarize_form144(form144_rows)
+    pit_context = summarize_pit_eligibility_context(pit_summary, form144_summary["accessions"])
     return {
         "phase": 549,
         "audit_cutoff_utc": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "disposition": "FORMAL_PLAN_DATE_PRIMARY; REMARKS_POLARITY_REQUIRED; NEGATIVE_CONTROL_FOUND; NO_ALPHA",
-        "form144": summarize_form144(form144_rows),
+        "form144": form144_summary,
         "form4": summarize_form4(form4_rows),
+        "pit_eligibility_context": pit_context,
         "controls": {
             "raw_remarks_presence_flag_is_not_polarity": True,
             "formal_plan_date_is_not_signal_availability_time": True,
@@ -327,6 +373,7 @@ def main() -> None:
     parser.add_argument("--form144", type=Path, default=FORM144_DEFAULT)
     parser.add_argument("--form4", type=Path, default=FORM4_DEFAULT)
     parser.add_argument("--output", type=Path, default=None)
+    parser.add_argument("--pit-summary", type=Path, default=None)
     args = parser.parse_args()
 
     form144_rows = _read_csv(args.form144, {
@@ -335,7 +382,8 @@ def main() -> None:
         "detail_section", "proposed_units_numeric",
     })
     form4_rows = _read_csv(args.form4, {"accession", "aff10b5one_filing_flag"})
-    summary = build_summary(form144_rows, form4_rows)
+    pit_summary = json.loads(args.pit_summary.read_text(encoding="utf-8")) if args.pit_summary else None
+    summary = build_summary(form144_rows, form4_rows, pit_summary)
     rendered = json.dumps(summary, indent=2, sort_keys=True) + "\n"
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)

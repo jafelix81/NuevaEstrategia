@@ -28,6 +28,11 @@ class Phase565PostCapture10b5WorkflowTests(unittest.TestCase):
         self.assertIn("path: phase403_output/phase549_post_capture_summary.json", self.text)
         self.assertIn("if: always() && steps.post_capture_10b5.outcome == 'success'", self.text)
 
+    def test_classifier_receives_pit_summary_without_inventing_overlap(self):
+        self.assertIn("--pit-summary phase403_output/phase516_post_capture_summary.json", self.text)
+        self.assertIn("formal_plan_date_overlap_status", self.text)
+        self.assertIn("NOT_COMPUTED_NO_ACCESSION_LEVEL_PIT_JOIN", self.text)
+
     def test_live_job_compiles_the_classifier(self):
         live_compile = self.text.split("- name: Compile capture and migration clients", 1)[1].split(
             "- name: Migrate append-only event ledger schema", 1
