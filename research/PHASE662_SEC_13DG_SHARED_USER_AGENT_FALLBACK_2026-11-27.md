@@ -22,7 +22,9 @@ This was inconsistent with the established SEC transport resolver already adopte
 
 ## 3. Regression coverage
 
-Four tests cover missing-secret fallback, placeholder-secret fallback, valid-secret precedence, and fail-closed behavior when both values are invalid. The existing validation tests remain in place. No real SEC request is made by these tests.
+The hosted Phase 616 PR workflow [run 45988359829](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45988359829) completed successfully: **34/34 combined Phase 616 + Phase 485 tests passed**. The offline job succeeded and the live-sample job was skipped as designed for a pull-request event; no artifact or SEC request was expected.
+
+Four new tests cover missing-secret fallback, placeholder-secret fallback, valid-secret precedence, and fail-closed behavior when both values are invalid. The existing validation tests remain in place.
 
 ## 4. Research controls
 
