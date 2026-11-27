@@ -115,5 +115,62 @@
     "artifact_id": 15212117265,
     "artifact_url": "https://github.com/jafelix81/NuevaEstrategia/actions/runs/46025579803/artifacts/15212117265",
     "live_capture": "skipped_for_pull_request_no_sec_requests"
+  },
+  "event_only_backlog_audit": {
+    "source_file": {
+      "path": "research/data/sec_form144_first_seen/feed_observations.csv",
+      "git_blob_sha": "7580b566bafdd6b293c5901bc9f8ade30c09ecb2",
+      "rows": 2381,
+      "unique_accessions": 1003
+    },
+    "event_only_accessions": {
+      "total": 148,
+      "feed_observation_rows": 502,
+      "by_form": {
+        "144": 138,
+        "144/A": 10
+      },
+      "by_first_seen_status": {
+        "INITIAL_BASELINE_NO_LOWER_BOUND": 94,
+        "POSSIBLE_FEED_WINDOW_GAP": 50,
+        "BOUNDED_BY_SUCCESSIVE_SUCCESSFUL_POLLS": 4
+      },
+      "research_observation_eligible": 4,
+      "public_availability_certified": 0,
+      "signal_eligible": 0
+    },
+    "static_candidate_manifest_matches": {
+      "accessions": 26,
+      "unique_issuer_names": 16,
+      "historical_f80_membership_verified": 0,
+      "research_observation_eligible": 0,
+      "public_availability_certified": 0,
+      "signal_eligible": 0,
+      "by_first_seen_status": {
+        "INITIAL_BASELINE_NO_LOWER_BOUND": 12,
+        "POSSIBLE_FEED_WINDOW_GAP": 14,
+        "BOUNDED_BY_SUCCESSIVE_SUCCESSFUL_POLLS": 0
+      },
+      "baseline_feed_observation_counts": {
+        "2": 7,
+        "6": 5
+      },
+      "possible_gap_feed_observation_counts": {
+        "1": 13,
+        "2": 1
+      }
+    },
+    "noncandidate_bounded_accessions": {
+      "count": 4,
+      "feed_observation_counts": {
+        "4": 4
+      }
+    },
+    "interpretation": {
+      "candidate_issuer_match_is_static_candidate_manifest_cik_match_not_historical_f80_membership": true,
+      "later_repeated_observations_do_not_repair_initial_baseline_lower_bound": true,
+      "repeated_observations_do_not_clear_possible_feed_window_gap": true,
+      "structured_detail_backfill_alone_does_not_make_candidate_matches_pit_eligible": true
+    }
   }
 }
