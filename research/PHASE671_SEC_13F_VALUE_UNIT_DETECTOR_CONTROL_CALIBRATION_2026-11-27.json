@@ -140,7 +140,8 @@
     "minimum_consensus_fraction": 0.8,
     "normalization_applied": false,
     "production_parser_integrated": false,
-    "trading_signal_eligible": false
+    "trading_signal_eligible": false,
+    "conflicting_duplicate_cusip_policy": "Quarantine the entire CUSIP if duplicate rows carry inconsistent reference prices; do not allow later rows to reintroduce it."
   },
   "controls": {
     "quarter_end_price_only_used_for_retrospective_unit_integrity": true,
@@ -164,5 +165,13 @@
     "https://www.sec.gov/Archives/edgar/data/1665446/000166544626000004/primary_doc.xml",
     "https://www.sec.gov/Archives/edgar/data/1665446/000166544626000004/xslForm13F_X02/13F_09.30.2026.xml",
     "https://www.sec.gov/info/edgar/forms/form13f.pdf"
-  ]
+  ],
+  "validation": {
+    "offline_unittest_count": 10,
+    "workflow": ".github/workflows/phase671_13f_value_unit_detector.yml",
+    "pull_request_trigger": true,
+    "push_to_main_trigger": true,
+    "external_network_used": false,
+    "secrets_used": false
+  }
 }
