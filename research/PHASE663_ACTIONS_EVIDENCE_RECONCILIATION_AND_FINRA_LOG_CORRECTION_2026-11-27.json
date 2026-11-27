@@ -1,0 +1,108 @@
+{
+  "phase": 663,
+  "audit_cutoff_utc": "2026-11-27T12:13:00Z",
+  "main_commit": "0dee2a2264f46a376acd6cf14542faf471973b68",
+  "merged_prs": [
+    {
+      "pr": 248,
+      "phase": 658,
+      "merge_commit": "597909f2265628011fa0d2708809ee78957c7b31",
+      "run_id": 45951568842,
+      "artifact_id": 15177630455,
+      "tests": "7/7"
+    },
+    {
+      "pr": 249,
+      "phase": 659,
+      "merge_commit": "84820fbaeb5506c542f1f5385f212263e4547c78",
+      "run_id": 45958047426,
+      "artifact_id": 15179597528,
+      "tests": "6/6"
+    },
+    {
+      "pr": 250,
+      "phase": 660,
+      "merge_commit": "0dee2a2264f46a376acd6cf14542faf471973b68",
+      "run_id": 45977030482,
+      "artifact_id": 15188150476,
+      "tests": "6/6"
+    }
+  ],
+  "finra_run": {
+    "run_id": 45939887443,
+    "job_id": 140311565034,
+    "artifact_id": 15172510181,
+    "requested_trade_dates": [
+      "2026-11-26",
+      "2026-11-25",
+      "2026-11-24",
+      "2026-11-23",
+      "2026-11-20",
+      "2026-11-19",
+      "2026-11-18",
+      "2026-11-17"
+    ],
+    "counts": {
+      "http_200": 7,
+      "http_errors": 0,
+      "not_available": 1,
+      "valid_files": 7,
+      "partial_files": 7,
+      "bootstrap": 7,
+      "duplicate_diagnostic_files": 7,
+      "duplicate_symbol_count": 14,
+      "duplicate_extra_row_count": 14,
+      "quarantined_row_occurrences": 28,
+      "first_seen": 0,
+      "late_first_seen": 0,
+      "research_observation_eligible_count": 0,
+      "signal_eligible_count": 0
+    },
+    "correction": "The raw job summary does not show HTTP 403; one file is not_available and its status code is not established."
+  },
+  "form4_run": {
+    "run_id": 45976055356,
+    "artifact_id": 15186742638,
+    "new_accessions": 0,
+    "new_event_rows": 0,
+    "transaction_detail_rows_appended": 48,
+    "linked_footnote_reference_rows_appended": 65,
+    "separate_footnote_reference_rows_appended": 60,
+    "owner_rows_appended": 10,
+    "form144_proposed_sale_matches": 16,
+    "matched_form4_accessions": 15,
+    "unresolved_form144_acceptance_clock_rows": 2,
+    "signal_eligible_rows": 0
+  },
+  "phase661": {
+    "run_id": 45978861267,
+    "offline_tests": "65/65",
+    "live_capture": "skipped_on_pr"
+  },
+  "phase662": {
+    "run_id": 45988359829,
+    "offline_tests": "34/34",
+    "live_sample": "skipped_on_pr"
+  },
+  "live_gates": {
+    "finra_post_phase661_natural_capture_pending": true,
+    "sec_13dg_manual_dispatch_pending": true
+  },
+  "limitations": {
+    "repository_wide_actions_run_listing_available": false,
+    "all_scheduled_workflows_idle_verified": false
+  },
+  "controls": {
+    "f80_top20_partial50_baseline_c20_frozen": true,
+    "prices_or_forward_returns_inspected": false,
+    "event_study": false,
+    "oos": false,
+    "bootstrap": false,
+    "loo": false,
+    "holdout_touched": false,
+    "production_or_strategy_changed": false,
+    "vendor_contacted": false,
+    "paid_data_purchased": false,
+    "data_budget_usd": 0
+  }
+}
