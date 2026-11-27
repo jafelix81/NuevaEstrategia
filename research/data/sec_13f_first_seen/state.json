@@ -2,37 +2,37 @@
   "all_feeds_successful": true,
   "feeds": {
     "13F-HR": {
-      "last_poll_run_id": "46026323554",
+      "last_poll_run_id": "46084129349",
       "last_poll_status": "SUCCESS",
-      "last_successful_poll_end_utc": "2026-11-27T15:36:28Z",
-      "latest_accession": "0002137529-26-000004",
-      "latest_feed_updated_utc": "2026-11-25T19:52:38Z"
+      "last_successful_poll_end_utc": "2026-11-27T23:44:25Z",
+      "latest_accession": "0001717977-26-000005",
+      "latest_feed_updated_utc": "2026-11-27T19:32:31Z"
     },
     "13F-HR-A": {
-      "last_poll_run_id": "46026323554",
+      "last_poll_run_id": "46084129349",
       "last_poll_status": "SUCCESS",
-      "last_successful_poll_end_utc": "2026-11-27T15:36:28Z",
+      "last_successful_poll_end_utc": "2026-11-27T23:44:25Z",
       "latest_accession": "0001046192-26-000018",
       "latest_feed_updated_utc": "2026-11-27T15:10:56Z"
     },
     "13F-NT": {
-      "last_poll_run_id": "46026323554",
+      "last_poll_run_id": "46084129349",
       "last_poll_status": "SUCCESS",
-      "last_successful_poll_end_utc": "2026-11-27T15:36:28Z",
+      "last_successful_poll_end_utc": "2026-11-27T23:44:25Z",
       "latest_accession": "0001761875-26-000007",
       "latest_feed_updated_utc": "2026-11-25T02:18:25Z"
     },
     "13F-NT-A": {
-      "last_poll_run_id": "46026323554",
+      "last_poll_run_id": "46084129349",
       "last_poll_status": "SUCCESS",
-      "last_successful_poll_end_utc": "2026-11-27T15:36:28Z",
+      "last_successful_poll_end_utc": "2026-11-27T23:44:25Z",
       "latest_accession": "",
       "latest_feed_updated_utc": ""
     }
   },
-  "last_poll_ended_utc": "2026-11-27T15:36:28Z",
-  "last_poll_run_id": "46026323554",
-  "last_poll_started_utc": "2026-11-27T15:36:07Z",
+  "last_poll_ended_utc": "2026-11-27T23:44:25Z",
+  "last_poll_run_id": "46084129349",
+  "last_poll_started_utc": "2026-11-27T23:44:23Z",
   "phase": 614,
   "schema_version": 1
 }
