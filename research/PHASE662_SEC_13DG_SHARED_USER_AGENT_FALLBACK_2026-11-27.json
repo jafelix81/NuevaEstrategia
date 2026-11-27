@@ -28,5 +28,13 @@
   "vendor_contacted": false,
   "data_purchased": false,
   "data_budget_usd": 0,
-  "disposition": "TRANSPORT_CONFIGURATION_FIX_NO_RESEARCH_SIGNAL"
+  "disposition": "TRANSPORT_CONFIGURATION_FIX_VALIDATED_NO_RESEARCH_SIGNAL",
+  "validation": {
+    "run_id": 45988359829,
+    "offline_tests_passed": 34,
+    "offline_tests_failed": 0,
+    "offline_job": "success",
+    "live_sample_job": "skipped_pull_request_event",
+    "artifacts": []
+  }
 }
