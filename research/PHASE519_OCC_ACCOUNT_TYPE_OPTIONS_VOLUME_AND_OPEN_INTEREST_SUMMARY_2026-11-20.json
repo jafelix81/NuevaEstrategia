@@ -1,0 +1,69 @@
+{
+  "phase": 519,
+  "date": "2026-11-20",
+  "main_head_preflight": "2f50cd7d92ca08b2d0c27aaa0baff6e4debf3a19",
+  "source": "Options Clearing Corporation (OCC) Volume Query / Volume by Account Type / Open Interest",
+  "disposition": "CONDITIONAL_ACCOUNT_TYPE_OPTIONS_PARTICIPATION_SOURCE; AUTOMATED_PUBLIC_WEBSITE_ACCESS_BLOCKED_PENDING_LICENSE",
+  "evidence": {
+    "history_months": 24,
+    "volume_query_fields": [
+      "quantity",
+      "underlying_symbol",
+      "options_symbol",
+      "account_type_C_F_M",
+      "call_put_P_C",
+      "exchange",
+      "activity_date",
+      "series_contract_date"
+    ],
+    "account_type_values": {
+      "C": "Customer",
+      "F": "Firm",
+      "M": "Market Maker"
+    },
+    "volume_query_granularities": [
+      "daily",
+      "weekly",
+      "monthly"
+    ],
+    "volume_by_account_type_granularities": [
+      "daily",
+      "weekly",
+      "monthly",
+      "yearly",
+      "rolling_12_months"
+    ],
+    "open_interest": "daily report and batch-processing route; exact release timestamp and current full record layout not verified"
+  },
+  "limitations": [
+    "C/F/M are clearing categories, not beneficial-owner identities or verified institutional traders",
+    "No buyer/seller aggressor side in Volume Query record layout",
+    "No opening/closing designation in Volume Query record layout",
+    "Open-interest changes cannot be attributed to C/F/M without additional evidence",
+    "No exact first-public timestamp or correction-vintage policy verified",
+    "No coverage audit against historical 335-name F80 universe",
+    "No effective-dated security/series crosswalk audit"
+  ],
+  "access_gate": {
+    "website_terms_updated": "2025-02-05",
+    "prohibits_automated_systems": true,
+    "written_license_or_permission_required_before_automated_collector": true,
+    "data_subscriber_terms_reviewed": true,
+    "sample_downloaded": false,
+    "automated_request_attempted": false
+  },
+  "research": {
+    "signal_admitted": false,
+    "backtest_run": false,
+    "oos_run": false,
+    "bootstrap_run": false,
+    "loo_run": false,
+    "baseline_changed": false,
+    "baseline": "F80_TOP20_PARTIAL50_BASELINE_C20"
+  },
+  "active_workflow_not_duplicated": {
+    "run_id": 44698665308,
+    "status_at_audit": "in_progress",
+    "branch": "phase518-finra-t1-production-window-extension"
+  }
+}
