@@ -1,0 +1,14 @@
+# Smart Money Research state addendum — Phase 672 (2026-11-27)
+
+- Main HEAD at cutoff: `51330608dbd06074df375ee42b2fb3b6fac7ef63`; latest 100 Actions = 80 success / 16 failure / 4 cancelled; 0 active/queued; 420 branches; 85 open PRs.
+- Form 144 run [46079844681](https://github.com/jafelix81/NuevaEstrategia/actions/runs/46079844681): 101 new bounded accessions / 80 issuers; 12 static candidate-manifest CIK matches but 0 verified historical F80 members; 0 certified public-availability clocks and 0 signals. Cumulative structured ledger 966 accessions / 6,314 rows; 908 collector-bounded observations; 58 initial baselines. Source hashes 6,314/6,314 match. Formal plan dates 385/966 (39.86%), but accession-level PIT overlap is not computed.
+- Form 4 run [46057111964](https://github.com/jafelix81/NuevaEstrategia/actions/runs/46057111964): 94 new accessions / 201 entity observations; 10 detail accessions parsed, 21 rows (11 transactions), 50 footnote references; 0 eligible signals. Agora accession `0001193125-26-479131` has two code-P acquisitions totaling 72,608 ADS under a Rule 10b5-1 plan adopted 2026-06-15. Treat as one plan cluster and a negative control, not discretionary “smart money”.
+- The existing 16-row Form 144/Form 4 crosswalk predates the 22:59 UTC Form 144 capture and must be refreshed before it is described as current.
+- SEC 13F run [46084129349](https://github.com/jafelix81/NuevaEstrategia/actions/runs/46084129349): four new 13F-HR metadata observations; no holdings downloaded; 0 research/signal eligible.
+- FINRA [45939887443](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45939887443) is pre-Phase-661. Phase 661 is merged, but no post-merge natural capture was visible by 23:58 UTC. Wait for the next scheduled poll; do not dispatch or infer a missed schedule from the current delay.
+- CFTC [45939298160](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45939298160): 3,043 rows, 3,035 archive proxies, eight prospective rows across two report dates, zero signal-eligible history; next official release 2026-11-30.
+- SEC 13D/G [45988473657](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45988473657): PR-only validation; live sample skipped. Global sample remains behind the manual `run_live_sample=true` gate.
+- Source priority remains 13D/G identity/PIT sample, prospective Form 4 enrichment, FINRA ATS revision-vintage/identity resolution, post-Phase-661 Reg SHO capture, CFTC prospective accumulation, and options only after lawful-use/coverage gates. N-PORT aggregate share-balance growth remains killed.
+- No new signal, alpha, OOS, bootstrap or LOO; holdout untouched. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen. Data spend USD 0.
+
+Full audit: [Phase 672](PHASE672_SEC_FIRST_SEEN_CAPTURE_RECONCILIATION_AND_FORM4_10B5_NEGATIVE_CONTROL_2026-11-27.md).
