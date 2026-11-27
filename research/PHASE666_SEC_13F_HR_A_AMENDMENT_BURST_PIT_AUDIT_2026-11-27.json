@@ -1,0 +1,236 @@
+{
+  "phase": 666,
+  "audit_cutoff_utc": "2026-11-27T16:36:57Z",
+  "repository": "jafelix81/NuevaEstrategia",
+  "base_main_sha": "6919a03ca2da8da4b6a428c29e088531cba300f9",
+  "source_run": {
+    "id": 46026323554,
+    "workflow": "Phase 614 - SEC 13F first-seen prospective metadata capture",
+    "jobs": [
+      {
+        "name": "offline-regression",
+        "conclusion": "success"
+      },
+      {
+        "name": "live-capture",
+        "conclusion": "success"
+      }
+    ],
+    "artifact_id": 15212890251,
+    "artifact_name": "phase614-sec-13f-first-seen",
+    "all_four_feeds_successful": true,
+    "poll_started_utc": "2026-11-27T15:36:07Z",
+    "poll_ended_utc": "2026-11-27T15:36:28Z"
+  },
+  "preflight": {
+    "latest_30_actions_runs_checked": true,
+    "active_or_queued_runs_in_latest_30": 0,
+    "open_prs_and_branches_checked": true
+  },
+  "poll_observations": {
+    "total": 44,
+    "by_feed": {
+      "13F-HR": 18,
+      "13F-HR-A": 24,
+      "13F-NT": 2,
+      "13F-NT-A": 0
+    },
+    "unique_accessions": 44,
+    "new_canonical_events": 15
+  },
+  "cohort_common": {
+    "form": "13F-HR/A",
+    "filing_date": "2026-11-27",
+    "page_received_at_utc": "2026-11-27T15:36:23Z",
+    "previous_successful_poll_end_utc": "2026-11-27T05:22:19Z",
+    "first_seen_interval_seconds": 36844,
+    "first_seen_interval_status": "BOUNDED_METADATA_ONLY",
+    "legal_filing_date_floor_utc": "2026-11-27T11:00:00Z",
+    "conservative_knowledge_upper_bound_utc": "2026-11-27T15:36:23Z",
+    "edgar_acceptance_retrieved": false,
+    "feed_updated_is_verified_acceptance": false
+  },
+  "gates": {
+    "metadata_observation_eligible": 15,
+    "manager_identity_verified": 0,
+    "security_identity_verified": 0,
+    "historical_f80_membership_verified": 0,
+    "public_availability_certified": 0,
+    "research_observation_eligible": 0,
+    "signal_eligible": 0
+  },
+  "new_events": [
+    {
+      "accession": "0001046192-26-000018",
+      "feed_path_cik_unverified": "0001046192",
+      "feed_updated_utc": "2026-11-27T15:10:56Z",
+      "secondary_manager_mapping": "Canada Life Assurance Co (unverified for this accession)",
+      "report_period": "unknown",
+      "amendment_type": "unadjudicated"
+    },
+    {
+      "accession": "0001778131-26-000010",
+      "feed_path_cik_unverified": "0001778131",
+      "feed_updated_utc": "2026-11-27T11:51:20Z",
+      "secondary_manager_mapping": "BI Asset Management Fondsmaeglerselskab A/S (secondary index only)",
+      "report_period": "2023-03-31",
+      "amendment_type": "unadjudicated",
+      "original_accession": null,
+      "secondary_accepted_time_matches_feed_updated": true
+    },
+    {
+      "accession": "0001778131-26-000011",
+      "feed_path_cik_unverified": "0001778131",
+      "feed_updated_utc": "2026-11-27T11:56:47Z",
+      "secondary_manager_mapping": "BI Asset Management Fondsmaeglerselskab A/S (secondary index only)",
+      "report_period": "2023-06-30",
+      "amendment_type": "unadjudicated",
+      "original_accession": null,
+      "secondary_accepted_time_matches_feed_updated": true
+    },
+    {
+      "accession": "0001778131-26-000012",
+      "feed_path_cik_unverified": "0001778131",
+      "feed_updated_utc": "2026-11-27T11:59:37Z",
+      "secondary_manager_mapping": "BI Asset Management Fondsmaeglerselskab A/S (secondary index only)",
+      "report_period": "2023-09-30",
+      "amendment_type": "unadjudicated",
+      "original_accession": null,
+      "secondary_accepted_time_matches_feed_updated": true
+    },
+    {
+      "accession": "0001778131-26-000013",
+      "feed_path_cik_unverified": "0001778131",
+      "feed_updated_utc": "2026-11-27T12:01:53Z",
+      "secondary_manager_mapping": "BI Asset Management Fondsmaeglerselskab A/S (secondary index only)",
+      "report_period": "2023-12-31",
+      "amendment_type": "unadjudicated",
+      "original_accession": null,
+      "secondary_accepted_time_matches_feed_updated": true
+    },
+    {
+      "accession": "0001778131-26-000014",
+      "feed_path_cik_unverified": "0001778131",
+      "feed_updated_utc": "2026-11-27T12:03:47Z",
+      "secondary_manager_mapping": "BI Asset Management Fondsmaeglerselskab A/S (secondary index only)",
+      "report_period": "2024-03-31",
+      "amendment_type": "unadjudicated",
+      "original_accession": null,
+      "secondary_accepted_time_matches_feed_updated": true
+    },
+    {
+      "accession": "0001778131-26-000015",
+      "feed_path_cik_unverified": "0001778131",
+      "feed_updated_utc": "2026-11-27T12:06:11Z",
+      "secondary_manager_mapping": "BI Asset Management Fondsmaeglerselskab A/S (secondary index only)",
+      "report_period": "2024-06-30",
+      "amendment_type": "unadjudicated",
+      "original_accession": null,
+      "secondary_accepted_time_matches_feed_updated": true
+    },
+    {
+      "accession": "0001778131-26-000016",
+      "feed_path_cik_unverified": "0001778131",
+      "feed_updated_utc": "2026-11-27T12:08:52Z",
+      "secondary_manager_mapping": "BI Asset Management Fondsmaeglerselskab A/S (secondary index only)",
+      "report_period": "2024-09-30",
+      "amendment_type": "unadjudicated",
+      "original_accession": null,
+      "secondary_accepted_time_matches_feed_updated": true
+    },
+    {
+      "accession": "0001778131-26-000017",
+      "feed_path_cik_unverified": "0001778131",
+      "feed_updated_utc": "2026-11-27T12:11:05Z",
+      "secondary_manager_mapping": "BI Asset Management Fondsmaeglerselskab A/S (secondary index only)",
+      "report_period": "2024-12-31",
+      "amendment_type": "unadjudicated",
+      "original_accession": null,
+      "secondary_accepted_time_matches_feed_updated": true
+    },
+    {
+      "accession": "0001778131-26-000018",
+      "feed_path_cik_unverified": "0001778131",
+      "feed_updated_utc": "2026-11-27T12:19:02Z",
+      "secondary_manager_mapping": "BI Asset Management Fondsmaeglerselskab A/S (secondary index only)",
+      "report_period": "2025-03-31",
+      "amendment_type": "unadjudicated",
+      "original_accession": null,
+      "secondary_accepted_time_matches_feed_updated": true
+    },
+    {
+      "accession": "0001778131-26-000019",
+      "feed_path_cik_unverified": "0001778131",
+      "feed_updated_utc": "2026-11-27T12:20:57Z",
+      "secondary_manager_mapping": "BI Asset Management Fondsmaeglerselskab A/S (secondary index only)",
+      "report_period": "2025-06-30",
+      "amendment_type": "unadjudicated",
+      "original_accession": null,
+      "secondary_accepted_time_matches_feed_updated": true
+    },
+    {
+      "accession": "0001778131-26-000020",
+      "feed_path_cik_unverified": "0001778131",
+      "feed_updated_utc": "2026-11-27T12:22:50Z",
+      "secondary_manager_mapping": "BI Asset Management Fondsmaeglerselskab A/S (secondary index only)",
+      "report_period": "2025-09-30",
+      "amendment_type": "unadjudicated",
+      "original_accession": null,
+      "secondary_accepted_time_matches_feed_updated": true
+    },
+    {
+      "accession": "0001778131-26-000021",
+      "feed_path_cik_unverified": "0001778131",
+      "feed_updated_utc": "2026-11-27T12:29:28Z",
+      "secondary_manager_mapping": "BI Asset Management Fondsmaeglerselskab A/S (secondary index only)",
+      "report_period": "2025-12-31",
+      "amendment_type": "unadjudicated",
+      "original_accession": null,
+      "secondary_accepted_time_matches_feed_updated": true
+    },
+    {
+      "accession": "0001778131-26-000022",
+      "feed_path_cik_unverified": "0001778131",
+      "feed_updated_utc": "2026-11-27T12:38:00Z",
+      "secondary_manager_mapping": "BI Asset Management Fondsmaeglerselskab A/S (secondary index only)",
+      "report_period": "2026-06-30",
+      "amendment_type": "restatement_confirmed_by_secondary_filing_page",
+      "original_accession": "0001778131-26-000007",
+      "secondary_accepted_time_matches_feed_updated": true
+    },
+    {
+      "accession": "0001778131-26-000023",
+      "feed_path_cik_unverified": "0001778131",
+      "feed_updated_utc": "2026-11-27T12:47:23Z",
+      "secondary_manager_mapping": "BI Asset Management Fondsmaeglerselskab A/S (secondary index only)",
+      "report_period": "2026-09-30",
+      "amendment_type": "restatement_confirmed_by_secondary_filing_page",
+      "original_accession": "0001778131-26-000008",
+      "secondary_accepted_time_matches_feed_updated": true
+    }
+  ],
+  "secondary_crosscheck": {
+    "source": "Disclosery EDGAR-derived index; secondary, not primary SEC",
+    "bi_filings_with_period_and_acceptance_time": 14,
+    "feed_updated_matches_secondary_acceptance": 14,
+    "restatements_individually_confirmed": 2,
+    "other_amendment_types_adjudicated": 0,
+    "urls": [
+      "https://disclosery.com/funds/bi-asset-management-fondsmaeglerselskab-a-s-1778131?page=2",
+      "https://disclosery.com/filings/0001778131-26-000022",
+      "https://disclosery.com/filings/0001778131-26-000023"
+    ]
+  },
+  "decision": "KEEP_METADATA_ONLY_NO_PROMOTION",
+  "interpretation": "A concentrated single-filer-candidate amendment batch across 14 historical quarters; not 14 independent manager signals and not 14 current trades.",
+  "strategy": {
+    "baseline": "F80_TOP20_PARTIAL50_BASELINE_C20",
+    "status": "frozen",
+    "signals_promoted": 0,
+    "oos_run": false,
+    "bootstrap_run": false,
+    "loo_run": false,
+    "holdout_touched": false,
+    "data_spend_usd": 0
+  }
+}
