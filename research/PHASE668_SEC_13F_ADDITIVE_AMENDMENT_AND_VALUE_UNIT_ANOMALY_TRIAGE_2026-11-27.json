@@ -1,0 +1,263 @@
+{
+  "phase": 668,
+  "title": "SEC 13F additive amendment and post-2023 value-unit anomaly triage",
+  "audit_cutoff_utc": "2026-11-27T18:40:00Z",
+  "repository": "jafelix81/NuevaEstrategia",
+  "parent_phase": 667,
+  "parent_branch": "phase667-sec-13f-value-unit-restatement-primary-audit",
+  "parent_head_sha": "733f4c5e3f20401f1876b03d1bac2d572cc47bfd",
+  "preflight": {
+    "default_branch": "main",
+    "main_head_sha": "6919a03ca2da8da4b6a428c29e088531cba300f9",
+    "latest_actions_run_id": 46026323554,
+    "latest_actions_run_status": "completed_success",
+    "latest_actions_jobs_completed": 2,
+    "active_or_queued_runs_in_latest_100": 0,
+    "latest_artifact_id": 15212890251,
+    "latest_artifact_bytes": 873,
+    "latest_artifact_scope": "poll_summary.json only; no filing XML/text or holdings rows",
+    "pr255": {
+      "state": "open_draft",
+      "head": "aa224aba02bf7f04273a18e3f7d6c8cf6bc5ddc0",
+      "base": "main"
+    },
+    "pr256": {
+      "state": "open_draft",
+      "head": "733f4c5e3f20401f1876b03d1bac2d572cc47bfd",
+      "base": "phase666-sec-13f-amendment-burst-pit-audit"
+    },
+    "active_runs": 0
+  },
+  "cohort_reconciliation": {
+    "phase666_new_events": 15,
+    "bi_asset_management_candidate_events": 14,
+    "canada_life_candidate_events": 1,
+    "all_15_metadata_only_in_repository_ledger": true,
+    "research_eligible": 0,
+    "signal_eligible": 0,
+    "public_availability_certified_in_repository_ledger": 0
+  },
+  "bi_asset_management": {
+    "cik": "0001778131",
+    "manager": "BI Asset Management Fondsmaeglerselskab A/S",
+    "accession_count": 14,
+    "secondary_index_amendment_type_for_all_14": "RESTATEMENT",
+    "primary_sec_verified_count": 4,
+    "primary_sec_verified_value_unit_only_count": 4,
+    "secondary_only_unadjudicated_count": 10,
+    "note": "The ten secondary-only classifications are triage evidence only. Do not promote them to verified SEC facts or assume value-unit-only without primary document and information-table comparison.",
+    "accessions": [
+      {
+        "accession": "0001778131-26-000010",
+        "period": "2023-03-31",
+        "rows": 753,
+        "secondary_total_usd": 3770446713,
+        "secondary_accepted_utc": "2026-11-27T11:51:20Z",
+        "secondary_classification": "RESTATEMENT"
+      },
+      {
+        "accession": "0001778131-26-000011",
+        "period": "2023-06-30",
+        "rows": 738,
+        "secondary_total_usd": 4219933838,
+        "secondary_accepted_utc": "2026-11-27T11:56:47Z",
+        "secondary_classification": "RESTATEMENT"
+      },
+      {
+        "accession": "0001778131-26-000012",
+        "period": "2023-09-30",
+        "rows": 742,
+        "secondary_total_usd": 4302204316,
+        "secondary_accepted_utc": "2026-11-27T11:59:37Z",
+        "secondary_classification": "RESTATEMENT"
+      },
+      {
+        "accession": "0001778131-26-000013",
+        "period": "2023-12-31",
+        "rows": 735,
+        "secondary_total_usd": 4706321653,
+        "secondary_accepted_utc": "2026-11-27T12:01:53Z",
+        "secondary_classification": "RESTATEMENT"
+      },
+      {
+        "accession": "0001778131-26-000014",
+        "period": "2024-03-31",
+        "rows": 720,
+        "secondary_total_usd": 5304192255,
+        "secondary_accepted_utc": "2026-11-27T12:03:47Z",
+        "secondary_classification": "RESTATEMENT"
+      },
+      {
+        "accession": "0001778131-26-000015",
+        "period": "2024-06-30",
+        "rows": 632,
+        "secondary_total_usd": 6110977672,
+        "secondary_accepted_utc": "2026-11-27T12:06:11Z",
+        "secondary_classification": "RESTATEMENT"
+      },
+      {
+        "accession": "0001778131-26-000016",
+        "period": "2024-09-30",
+        "rows": 571,
+        "secondary_total_usd": 5771551978,
+        "secondary_accepted_utc": "2026-11-27T12:08:52Z",
+        "secondary_classification": "RESTATEMENT"
+      },
+      {
+        "accession": "0001778131-26-000017",
+        "period": "2024-12-31",
+        "rows": 747,
+        "secondary_total_usd": 9482619629,
+        "secondary_accepted_utc": "2026-11-27T12:11:05Z",
+        "secondary_classification": "RESTATEMENT"
+      },
+      {
+        "accession": "0001778131-26-000018",
+        "period": "2025-03-31",
+        "rows": 909,
+        "secondary_total_usd": 8880262178,
+        "secondary_accepted_utc": "2026-11-27T12:19:02Z",
+        "secondary_classification": "RESTATEMENT",
+        "primary_sec_verified": true
+      },
+      {
+        "accession": "0001778131-26-000019",
+        "period": "2025-06-30",
+        "rows": 739,
+        "secondary_total_usd": 10159030009,
+        "secondary_accepted_utc": "2026-11-27T12:20:57Z",
+        "secondary_classification": "RESTATEMENT"
+      },
+      {
+        "accession": "0001778131-26-000020",
+        "period": "2025-09-30",
+        "rows": 700,
+        "secondary_total_usd": 11074662650,
+        "secondary_accepted_utc": "2026-11-27T12:22:50Z",
+        "secondary_classification": "RESTATEMENT"
+      },
+      {
+        "accession": "0001778131-26-000021",
+        "period": "2025-12-31",
+        "rows": 654,
+        "secondary_total_usd": 11329049373,
+        "secondary_accepted_utc": "2026-11-27T12:29:28Z",
+        "secondary_classification": "RESTATEMENT",
+        "primary_sec_verified": true
+      },
+      {
+        "accession": "0001778131-26-000022",
+        "period": "2026-06-30",
+        "rows": 706,
+        "secondary_total_usd": 12608161670,
+        "secondary_accepted_utc": "2026-11-27T12:38:00Z",
+        "secondary_classification": "RESTATEMENT",
+        "primary_sec_verified": true
+      },
+      {
+        "accession": "0001778131-26-000023",
+        "period": "2026-09-30",
+        "rows": 746,
+        "secondary_total_usd": 13148604808,
+        "secondary_accepted_utc": "2026-11-27T12:47:23Z",
+        "secondary_classification": "RESTATEMENT",
+        "primary_sec_verified": true
+      }
+    ]
+  },
+  "canada_life_additive_amendment": {
+    "accession": "0001046192-26-000018",
+    "path_cik_candidate": "0001046192",
+    "secondary_identity": "CANADA LIFE ASSURANCE Co",
+    "identity_status": "secondary_only_pending_primary_SEC_verification",
+    "form": "13F-HR/A",
+    "report_period": "2026-09-30",
+    "secondary_amendment_type": "NEW HOLDINGS",
+    "secondary_report_type": "combination report",
+    "rows": 806,
+    "secondary_cover_value_total_usd": 8531520000,
+    "secondary_rows_value_unit_interpretation": "thousands_detected_and_multiplied_by_1000",
+    "secondary_accepted_utc": "2026-11-27T15:10:56Z",
+    "repository_feed_updated_utc": "2026-11-27T15:10:56Z",
+    "timestamp_match": true,
+    "base_accession": "0001046192-26-000015",
+    "base_filing_date": "2026-11-13",
+    "base_accepted_utc_secondary": "2026-11-13T18:01:18Z",
+    "interpretation": "A supplemental holdings amendment according to the secondary index, not a restatement and not evidence of 806 trades. The holdings remain a quarter-end snapshot; the supplement's information becomes usable no earlier than its own public-availability time.",
+    "primary_sec_verified": false,
+    "row_level_raw_sec_xml_retrieved": false,
+    "research_eligible": false,
+    "signal_eligible": false
+  },
+  "unit_rule": {
+    "official_rule_change_date": "2023-01-03",
+    "official_rule": "Form 13F Appendix B changed the value unit from thousands to nearest dollar.",
+    "official_sec_release": "https://www.sec.gov/filergroup/announcements-old/edgar-release-2241",
+    "official_form_13f_data_sets": "https://www.sec.gov/data-research/sec-markets-data/form-13f-data-sets",
+    "key_implication": "The filing-date rule is the legal expected convention, but it is not sufficient as a data-quality check. A filing can still appear to use legacy thousands and must be independently flagged rather than silently normalized.",
+    "secondary_method_source": "https://disclosery.com/methods/value-unit",
+    "secondary_source_claim": "For 2026-06-01 through 2026-08-31, the secondary source reports 365 post-2023 filings (3.7%) and 154,638 rows still read as thousands after implied-price checks.",
+    "secondary_statistic_independently_verified": false,
+    "proposed_detector": "Use CUSIP-specific implied price = filed value / shares for eligible common-share rows; compare against contemporaneous reference-price distributions with robust medians and wide bands. Exclude options, principal amounts, ADR ratio mismatches, splits, stale/mismatched CUSIPs and unresolvable classes. Require a filing-level majority/consistency threshold; never auto-correct ambiguous rows.",
+    "proposed_disposition": "Preserve raw filed values, inferred unit, rule version, reference price, ratio, row eligibility and correction decision separately. Do not overwrite raw values."
+  },
+  "research_decision": {
+    "code": "SECONDARY_TRIAGE_ONLY_NO_SIGNAL_PROMOTION",
+    "why": [
+      "The Canada Life amendment is classified as NEW HOLDINGS only by a secondary index; primary SEC header and XML have not been retrieved in this phase.",
+      "A new-holdings amendment supplements a quarter-end report; it does not identify when positions were traded.",
+      "All 14 BI amendments are classified as RESTATEMENT by the secondary index, but only four are primary verified and only those four explicitly state value-unit-only correction with no other information changed.",
+      "The 2023-01-03 rule establishes the expected unit but cannot prove every filer complied."
+    ],
+    "next_gates": [
+      "Primary-verify accession 0001046192-26-000018 and its base filing 0001046192-26-000015; inspect cover page, amendment type, XML schema, information table and acceptance time.",
+      "Primary-verify the remaining ten BI filings; do not infer value-only from RESTATEMENT.",
+      "Build a deterministic implied-price unit anomaly detector and validate it on known correct/incorrect filings, including ADRs, options, principal amounts, splits and non-US securities.",
+      "Diff all original/amended information tables by CUSIP, class, put/call, amount, amount type, discretion, manager and value.",
+      "Keep filing vintage and public-availability clock separate from report period."
+    ]
+  },
+  "controls": {
+    "prices_or_post_event_returns_inspected": false,
+    "event_study_run": false,
+    "oos_run": false,
+    "bootstrap_run": false,
+    "loo_run": false,
+    "holdout_touched": false,
+    "baseline_changed": false,
+    "data_purchased": false,
+    "data_spend_usd": 0
+  },
+  "sources": [
+    {
+      "type": "official_SEC",
+      "url": "https://www.sec.gov/filergroup/announcements-old/edgar-release-2241",
+      "use": "2023-01-03 value-unit rule"
+    },
+    {
+      "type": "official_SEC",
+      "url": "https://www.sec.gov/data-research/sec-markets-data/form-13f-data-sets",
+      "use": "historical 13F data-set coverage"
+    },
+    {
+      "type": "secondary_triage",
+      "url": "https://disclosery.com/filings/0001046192-26-000018",
+      "use": "Canada Life additive amendment, 806 rows, secondary unit interpretation and timestamp"
+    },
+    {
+      "type": "secondary_triage",
+      "url": "https://disclosery.com/filings/0001778131-26-000010",
+      "use": "BI Q1 2023 restatement triage"
+    },
+    {
+      "type": "secondary_methodology",
+      "url": "https://disclosery.com/methods/value-unit",
+      "use": "implied-price unit detection methodology and reported coverage estimate"
+    },
+    {
+      "type": "repository_primary_audit",
+      "url": "https://github.com/jafelix81/NuevaEstrategia/blob/phase667-sec-13f-value-unit-restatement-primary-audit/research/PHASE667_SEC_13F_VALUE_UNIT_RESTATEMENT_PRIMARY_AUDIT_2026-11-27.md",
+      "use": "four BI filings primary-verified in Phase667"
+    }
+  ]
+}
