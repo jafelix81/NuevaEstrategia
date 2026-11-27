@@ -1,0 +1,79 @@
+{
+  "phase": 661,
+  "title": "FINRA first-seen symbol-volume panel persistence",
+  "audit_cutoff_utc": "2026-11-27T10:02:00Z",
+  "base_main_sha": "a27340c1866b5e44f2638eb4dc3e0cbd1617b7ea",
+  "branch": "phase661-finra-first-seen-symbol-volume-panel",
+  "pull_request": 251,
+  "prior_natural_capture": {
+    "run_id": 45939887443,
+    "conclusion": "success",
+    "valid_files": 7,
+    "bootstrap_files": 7,
+    "http_403_files": 1,
+    "first_seen": 0,
+    "late_first_seen": 0,
+    "research_eligible": 0,
+    "symbol_volume_rows_persisted": 0,
+    "artifact_id": 15172510181,
+    "artifact_size_bytes": 1985
+  },
+  "frozen_symbol_filter": {
+    "ticker_count": 335,
+    "source_commit": "1aa1b91f383ce9cef375a43e775c736a27356a5",
+    "sha256": "f850655a22a8843dad90e9562b3152b9ca064560586109022b5bfd205a003dda",
+    "interpretation": "exact static symbol filter only; not historical F80 membership"
+  },
+  "panel": {
+    "path": "research/data/finra_regsho_daily_first_seen/symbol_observations.csv",
+    "rows_permitted_only_for": [
+      "first_seen",
+      "late_first_seen"
+    ],
+    "metrics": [
+      "short_volume",
+      "short_exempt_volume",
+      "total_volume",
+      "short_ratio",
+      "short_exempt_ratio"
+    ],
+    "provenance": [
+      "raw_sha256",
+      "source_row_hashes_json",
+      "schema_version",
+      "row_grain",
+      "market_encoding",
+      "url",
+      "poll_start_utc",
+      "first_seen_interval_lower_bound_utc",
+      "first_seen_interval_upper_bound_utc"
+    ],
+    "idempotency_key": [
+      "trade_date",
+      "symbol",
+      "raw_sha256"
+    ],
+    "duplicate_policy": "exclude all rows for any duplicated symbol; retain unique symbols in partial file",
+    "bootstrap_manual_unchanged_revision_rows_persisted": false,
+    "raw_source_bytes_persisted": false,
+    "first_seen_upper_bound_not_exact_public_release": true,
+    "signal_eligible": false
+  },
+  "validation": {
+    "run_id": 45978706947,
+    "offline_tests_passed": 65,
+    "offline_tests_failed": 0,
+    "offline_job": "success",
+    "live_capture_job": "skipped_pull_request_event",
+    "artifacts": []
+  },
+  "next_step": "After merge, wait for the next natural scheduled poll; do not dispatch manually.",
+  "research_decision": "DATA_PIPELINE_REPAIR_NO_ALPHA_EVIDENCE",
+  "strategy": "F80_TOP20_PARTIAL50_BASELINE_C20",
+  "strategy_frozen": true,
+  "price_or_forward_returns_inspected": false,
+  "oos_bootstrap_loo_run": false,
+  "vendor_contacted": false,
+  "data_purchased": false,
+  "data_budget_usd": 0
+}
