@@ -1,0 +1,225 @@
+{
+  "phase": 660,
+  "audit_cutoff_utc": "2026-11-27T09:45:00Z",
+  "source": {
+    "main_commit": "a27340c1866b5e44f2638eb4dc3e0cbd1617b7ea",
+    "transaction_details_blob_sha1": "f3ca95feb6f56e43eaac46a5fca4f66a73783a51",
+    "reporting_owners_blob_sha1": "9017a22a48e53be0299d85a9a850db0449e6918b",
+    "frozen_universe_commit": "1aa1b91f383ce9cef375a43e775c736a27356a5",
+    "frozen_universe_blob_sha1": "7edbd62b4fb34a6123276e4ce45cb3c1c62479c7",
+    "frozen_universe_sha256": "f850655a22a8843dad90e9562b3152b9ca064560586109022b5bfd205a003dda",
+    "universe_ticker_count": 335
+  },
+  "latest_capture": {
+    "run_id": 45976055356,
+    "artifact_id": 15186742638,
+    "status": "success",
+    "new_accessions": 0,
+    "new_event_rows": 0,
+    "transaction_detail_rows_appended": 48,
+    "linked_footnote_reference_rows_appended": 65,
+    "separate_footnote_reference_rows_appended": 60,
+    "owner_rows_appended": 10,
+    "form144_proposed_sale_matches": 16,
+    "matched_form4_accessions": 15,
+    "signal_eligible_matches": 0
+  },
+  "live_ledger": {
+    "all_detail_records": 464,
+    "transaction_rows": 314,
+    "distinct_transaction_accessions": 150,
+    "reporting_owner_rows": 147,
+    "reporting_owner_accessions": 130
+  },
+  "purchase_code_p": {
+    "transaction_rows": 89,
+    "accessions": 59,
+    "symbol_values_including_na": 45,
+    "non_na_symbol_values": 44,
+    "filing_date_min": "2026-11-19",
+    "filing_date_max": "2026-11-25",
+    "filing_level_10b5_1": {
+      "yes_accessions": 3,
+      "no_accessions": 56,
+      "yes_rows": 11,
+      "no_rows": 78
+    },
+    "owner_sidecar": {
+      "complete_accessions": 56,
+      "missing_accessions": 3
+    },
+    "multi_owner_accessions": 4,
+    "footnote_keyword_accessions": {
+      "open_market_mention": 0,
+      "private_purchase_or_placement_mention": 0,
+      "rule_10b5_1_mention": 1,
+      "option_or_cashless_mention": 1,
+      "trust_mention": 4,
+      "compensation_or_vesting_mention": 3,
+      "employee_plan_mention": 0,
+      "tax_or_withholding_mention": 0,
+      "gift_or_donation_mention": 0
+    },
+    "repeated_issuer_clusters": [
+      {
+        "accessions": 3,
+        "issuer": "PicS N.V.",
+        "symbol": "PICS",
+        "transaction_rows": 3
+      },
+      {
+        "accessions": 3,
+        "issuer": "Prenetics Global Ltd",
+        "symbol": "PRE",
+        "transaction_rows": 8
+      },
+      {
+        "accessions": 3,
+        "issuer": "Solaris Energy Infrastructure, Inc.",
+        "symbol": "SEI",
+        "transaction_rows": 4
+      },
+      {
+        "accessions": 3,
+        "issuer": "Tronox Holdings plc",
+        "symbol": "TROX",
+        "transaction_rows": 3
+      },
+      {
+        "accessions": 2,
+        "issuer": "Aclarion, Inc.",
+        "symbol": "ACON",
+        "transaction_rows": 2
+      },
+      {
+        "accessions": 2,
+        "issuer": "EUROSEAS LTD.",
+        "symbol": "ESEA",
+        "transaction_rows": 4
+      },
+      {
+        "accessions": 2,
+        "issuer": "Grove Collaborative Holdings, Inc.",
+        "symbol": "GROV",
+        "transaction_rows": 7
+      },
+      {
+        "accessions": 2,
+        "issuer": "HORNBECK OFFSHORE SERVICES, INC.",
+        "symbol": "HOS",
+        "transaction_rows": 2
+      },
+      {
+        "accessions": 2,
+        "issuer": "Upstart Holdings, Inc.",
+        "symbol": "UPST",
+        "transaction_rows": 2
+      },
+      {
+        "accessions": 2,
+        "issuer": "Uxin Ltd",
+        "symbol": "UXIN",
+        "transaction_rows": 2
+      }
+    ]
+  },
+  "static_f80_exact_symbol_intersection": {
+    "snapshot_tickers": 335,
+    "purchase_accessions": 3,
+    "transaction_rows": 11,
+    "symbols": [
+      "TEAM",
+      "UPST"
+    ],
+    "by_symbol": [
+      {
+        "symbol": "TEAM",
+        "issuer": "Atlassian Corp",
+        "accessions": 1,
+        "transaction_rows": 9,
+        "shares": "13400",
+        "filing_level_10b5_1_flags": [
+          "yes"
+        ],
+        "owner_sidecar_complete_accessions": 1
+      },
+      {
+        "symbol": "UPST",
+        "issuer": "Upstart Holdings, Inc.",
+        "accessions": 2,
+        "transaction_rows": 2,
+        "shares": "110000",
+        "filing_level_10b5_1_flags": [
+          "no"
+        ],
+        "owner_sidecar_complete_accessions": 2
+      }
+    ],
+    "non_10b5_flagged_symbols": [
+      "UPST"
+    ],
+    "affirmative_10b5_flagged_symbols": [
+      "TEAM"
+    ],
+    "historical_f80_membership_verified": false
+  },
+  "purchase_accessions_missing_owner_sidecar": [
+    {
+      "accession": "0001436425-26-000080",
+      "symbol": "HBCP",
+      "issuer": "HOME BANCORP, INC.",
+      "filing_date": "2026-11-25",
+      "transaction_rows": 1,
+      "in_static_f80_snapshot": false
+    },
+    {
+      "accession": "0001510281-26-000479",
+      "symbol": "ECF",
+      "issuer": "ELLSWORTH GROWTH & INCOME FUND LTD",
+      "filing_date": "2026-11-25",
+      "transaction_rows": 1,
+      "in_static_f80_snapshot": false
+    },
+    {
+      "accession": "0001628280-26-076025",
+      "symbol": "BG",
+      "issuer": "Bunge Global SA",
+      "filing_date": "2026-11-25",
+      "transaction_rows": 1,
+      "in_static_f80_snapshot": false
+    }
+  ],
+  "eligibility_true_counts": {
+    "research_observation_eligible": 0,
+    "signal_eligible": 0,
+    "public_availability_certified": 0,
+    "same_day_intraday_use_authorized": 0,
+    "security_identity_verified": 0,
+    "historical_f80_membership_verified": 0,
+    "owner_attribution_verified": 0,
+    "transaction_semantics_verified": 0,
+    "economic_event_new_trade_authorized": 0
+  },
+  "decision": {
+    "disposition": "P_CODE_CONTEXT_ONLY_NO_PROMOTION",
+    "non_10b5_flagged_f80_issuer_clusters": 1,
+    "affirmative_10b5_flagged_f80_issuer_clusters": 1,
+    "upst_is_one_issuer_cluster_not_two_independent_issuer_observations": true,
+    "code_p_execution_venue_resolved": false,
+    "incremental_alpha_demonstrated": false,
+    "new_signal_promoted": false
+  },
+  "controls": {
+    "price_or_forward_return_data_inspected_in_phase660": false,
+    "event_study_run": false,
+    "oos_run": false,
+    "bootstrap_run": false,
+    "loo_run": false,
+    "holdout_touched": false,
+    "f80_top20_partial50_baseline_c20_frozen": true,
+    "production_or_strategy_changed": false,
+    "vendor_contacted": false,
+    "paid_data_purchased": false,
+    "data_budget_usd": 0
+  }
+}
