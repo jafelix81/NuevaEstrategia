@@ -1,0 +1,155 @@
+{
+  "phase": 667,
+  "audit_cutoff_utc": "2026-11-27T17:12:03Z",
+  "repository": "jafelix81/NuevaEstrategia",
+  "parent_phase": 666,
+  "parent_branch": "phase666-sec-13f-amendment-burst-pit-audit",
+  "parent_head_sha": "aa224aba02bf7f04273a18e3f7d6c8cf6bc5ddc0",
+  "source_run": {
+    "id": 46026323554,
+    "workflow": "Phase 614 - SEC 13F first-seen prospective metadata capture",
+    "conclusion": "success",
+    "artifact_id": 15212890251
+  },
+  "preflight": {
+    "latest_40_actions_runs_checked": true,
+    "active_or_queued_runs": 0,
+    "open_pr_255_checked": true,
+    "pr_255_state": "open draft",
+    "pr_255_head_sha": "aa224aba02bf7f04273a18e3f7d6c8cf6bc5ddc0",
+    "base_main_sha": "6919a03ca2da8da4b6a428c29e088531cba300f9"
+  },
+  "cohort": {
+    "new_canonical_events": 15,
+    "accessions_with_path_cik_candidate_0001778131": 14,
+    "other_candidate_accessions": 1,
+    "first_seen_receipt_utc": "2026-11-27T15:36:23Z",
+    "previous_successful_poll_end_utc": "2026-11-27T05:22:19Z",
+    "first_seen_interval_seconds": 36844,
+    "manager_identity_verified_in_phase666": 0,
+    "security_identity_verified": 0,
+    "historical_f80_membership_verified": 0,
+    "public_availability_certified_in_phase666": 0
+  },
+  "primary_sec_audit": {
+    "primary_filings_verified": 4,
+    "cohort_size": 14,
+    "primary_verification_fraction": 0.2857142857,
+    "filings": [
+      {
+        "accession": "0001778131-26-000018",
+        "period": "2025-03-31",
+        "table_entry_total": 909,
+        "table_value_total_usd": 8880262178,
+        "source_url": "https://www.sec.gov/Archives/edgar/data/1778131/000177813126000018/primary_doc.xml",
+        "primary_fields": [
+          "submissionType=13F-HR/A",
+          "CIK=0001778131",
+          "filingManager=BI Asset Management Fondsmaeglerselskab A/S",
+          "amendmentType=RESTATEMENT",
+          "amendmentNo=1",
+          "value-column and summary-total correction from thousands to nearest dollar",
+          "no other report information changed"
+        ]
+      },
+      {
+        "accession": "0001778131-26-000021",
+        "period": "2025-12-31",
+        "table_entry_total": 654,
+        "table_value_total_usd": 11329049373,
+        "source_url": "https://www.sec.gov/Archives/edgar/data/1778131/000177813126000021/primary_doc.xml",
+        "primary_fields": [
+          "submissionType=13F-HR/A",
+          "CIK=0001778131",
+          "filingManager=BI Asset Management Fondsmaeglerselskab A/S",
+          "amendmentType=RESTATEMENT",
+          "amendmentNo=1",
+          "value-column and summary-total correction from thousands to nearest dollar",
+          "no other report information changed"
+        ]
+      },
+      {
+        "accession": "0001778131-26-000022",
+        "period": "2026-06-30",
+        "table_entry_total": 706,
+        "table_value_total_usd": 12608161670,
+        "source_url": "https://www.sec.gov/Archives/edgar/data/1778131/000177813126000022/primary_doc.xml",
+        "primary_fields": [
+          "submissionType=13F-HR/A",
+          "CIK=0001778131",
+          "filingManager=BI Asset Management Fondsmaeglerselskab A/S",
+          "amendmentType=RESTATEMENT",
+          "amendmentNo=1",
+          "value-column and summary-total correction from thousands to nearest dollar",
+          "no other report information changed"
+        ]
+      },
+      {
+        "accession": "0001778131-26-000023",
+        "period": "2026-09-30",
+        "table_entry_total": 746,
+        "table_value_total_usd": 13148604808,
+        "source_url": "https://www.sec.gov/Archives/edgar/data/1778131/000177813126000023/primary_doc.xml",
+        "primary_fields": [
+          "submissionType=13F-HR/A",
+          "CIK=0001778131",
+          "filingManager=BI Asset Management Fondsmaeglerselskab A/S",
+          "amendmentType=RESTATEMENT",
+          "amendmentNo=1",
+          "value-column and summary-total correction from thousands to nearest dollar",
+          "no other report information changed"
+        ]
+      }
+    ],
+    "common_filer": "BI Asset Management Fondsmaeglerselskab A/S",
+    "common_cik": "0001778131",
+    "common_13f_file_number": "028-20206",
+    "common_amendment_type": "RESTATEMENT",
+    "common_amendment_number": 1,
+    "common_additional_information": "The amendment restates the entire report to correct Column 4 (Value) and the Information Table Value Total from values inadvertently reported in thousands of dollars to nearest-dollar values; no other report information has changed.",
+    "remaining_same_candidate_accessions_primary_unadjudicated": 10,
+    "other_candidate_accession": "0001046192-26-000018",
+    "other_candidate_identity_status": "unverified"
+  },
+  "rule_context": {
+    "edgar_release": "EDGAR Release 22.4.1",
+    "effective_date": "2023-01-03",
+    "change": "Form 13F Appendix B changed the value unit from thousands to nearest dollar.",
+    "official_url": "https://www.sec.gov/filergroup/announcements-old/edgar-release-2241",
+    "legacy_faq_url": "https://www.sec.gov/files/divisions/investment/13ffaq.htm",
+    "legacy_faq_note": "The older FAQ still displays Column 4 as Value (x1000); the dated 2022 release note documents the January 3, 2023 schema/instruction change. Pipelines must key normalization to filing vintage/schema version, not the legacy FAQ alone."
+  },
+  "q3_2026_example": {
+    "original_accession_secondary_chain": "0001778131-26-000008",
+    "amendment_accession": "0001778131-26-000023",
+    "report_period": "2026-09-30",
+    "original_table_entry_total": 746,
+    "original_table_value_total_as_reported": 13148608,
+    "amended_table_entry_total": 746,
+    "amended_table_value_total_nearest_dollar": 13148604808,
+    "interpretation": "Entry count is unchanged; the value total changes by approximately 1,000x, consistent with the declared unit correction. Original-parent linkage remains secondary-index-only; no full XML row-by-row diff was performed."
+  },
+  "decision": "CLASSIFY_AS_VALUE_UNIT_RESTATEMENT_NOT_NEW_POSITION_SIGNAL",
+  "eligibility": {
+    "research_observation_eligible": 0,
+    "signal_eligible": 0,
+    "historical_f80_membership_verified": 0
+  },
+  "controls": {
+    "prices_or_post_event_returns_inspected": false,
+    "event_study_run": false,
+    "oos_run": false,
+    "bootstrap_run": false,
+    "loo_run": false,
+    "holdout_touched": false,
+    "baseline_changed": false,
+    "data_spend_usd": 0
+  },
+  "next_steps": [
+    "Primary-verify the remaining 10 candidate-CIK filings and the 0001046192 accession.",
+    "Build a general 13F-HR/A amendment taxonomy: value-unit-only, restatement with position changes, add-only, other/unclear.",
+    "For each amendment, compare original and amended information tables by CUSIP, class, put/call, share/principal amount and discretion; do not infer value-only from amendmentType alone.",
+    "Store original and amended filing vintages separately; preserve public-availability times and unit/schema metadata.",
+    "Scan other managers' post-2023 amendments for the same legacy-thousands error before using portfolio value weights."
+  ]
+}
