@@ -36,5 +36,8 @@
     "offline_job": "success",
     "live_sample_job": "skipped_pull_request_event",
     "artifacts": []
-  }
+  },
+  "pull_request": 252,
+  "merged": true,
+  "merge_commit_sha": "8a095a8675f28c29da923254d6c809d06f294b1c"
 }
