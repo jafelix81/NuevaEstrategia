@@ -1,7 +1,30 @@
 # Smart Money Research — current state (2026-11-12 UTC)
 
-**Active research branch:** `phase308-sec-rss-prospective-capture`  
-**PR chain:** #14 stacked on #13; both open and unmerged.  
+**Active research branch:** `phase313-nport-sgml-header-identity-correction`  
+**Latest completed research:** Phase 313 N-PORT SGML header identity correction.  
+**Open PR:** [#17 — Phase 313](https://github.com/jafelix81/NuevaEstrategia/pull/17), based on Phase 312. PRs #13–#16 also remain open and unmerged; 14 PRs are currently open in total.
+
+## Latest verified research — Phase 313
+
+- GitHub Actions [run 43160004366](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43160004366) completed successfully. It passed 8/8 offline regression tests and re-read all 56 Phase 312 raw submissions, verifying 56/56 original SHA-256 hashes. [Artifact 13916694212](https://github.com/jafelix81/NuevaEstrategia/actions/runs/43160004366/artifacts/13916694212).
+- Root cause: SEC N-PORT submission headers use unclosed SGML tags. Phase 312's closing-tag regex missed header identifiers and incorrectly labeled 53 records XML_ONLY. Corrected Phase 313 result: series 53 MATCH / 3 MISSING_BOTH; classes 53 MATCH / 3 MISSING_BOTH; zero mismatches. The three missing-ID cases remain fund/CIK/name-level only.
+- The 56-filing Phase 312 sample contains 176 sign-concordant short rows, all in two filings: 20 Otter Creek Long/Short Opportunity Fund rows in a 2022 NPORT-P/A and 156 Saba Capital Income & Opportunities Fund II rows in a 2025 NPORT-P. The report-to-filing lags are 64 and 60 calendar days. This is a small deterministic QA sample, not a representative prevalence sample.
+- Those 176 rows contain 173 unique CUSIPs, 173 unique ISINs and 20 reported tickers. A direct string comparison against the preserved legacy 335-ticker list yields 6 matches and 14 non-matches; the 156 rows without tickers remain unknown. This is not PIT security coverage.
+- Three CUSIPs occur in both sampled filings (NVIDIA, Tesla and Watsco), but these are different funds and report dates; do not interpret them as one fund's position persistence.
+- SEC N-PORT is still a delayed registered-fund holdings snapshot, not trade flow. Public data sets are quarterly; only the third month of each fiscal quarter is public under the current regime. The 2024 monthly-public amendments were delayed to 2027/2028, and the February 2026 proposal is not an effective rule. No first-public timestamp or broad-universe security mapping is admitted.
+- Next: resolve the original parent of the Otter Creek 2022 NPORT-P/A by scanning 2022 Q3 NPORT-P filings for registrant CIK 811030, report date 2022-07-31 and series S000043717. Then expand the stratified sample and build an effective-dated CUSIP/ISIN-to-security crosswalk before any event study.
+- The first Phase 313 workflow attempt (43159947904) failed only because the cross-run artifact token expression was escaped. The expression was corrected; run 43160004366 passed. No new SEC request was made in either Phase 313 run.
+- The Phase 310 purposive positive-control filings remain separate from the Phase 312 sample and must not be mixed into a prevalence estimate. Phase 21C's earlier Form 4 alpha hypothesis remains killed; no signal has been promoted.
+
+## Strategy and governance
+
+- `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen.
+- No production, universe, capital, parameter or holdout changes.
+- No return/alpha test, bootstrap, LOO or chronological OOS test has been run for N-PORT.
+- No vendor contact, data purchase or email was made.
+- Phase 312 PR #16 and Phase 311 PR #15 remain open/unmerged. Phase 313 PR #17 is open/unmerged. No PR was merged.
+
+## Historical audit trail
 
 ## Latest verified research — Phase 309 (2026-11-12 03:01 UTC)
 
