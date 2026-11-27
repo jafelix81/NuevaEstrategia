@@ -101,5 +101,19 @@
     "vendor_contact": false,
     "data_purchase": false,
     "data_budget_usd": 0
+  },
+  "validation": {
+    "pr": 254,
+    "pr_url": "https://github.com/jafelix81/NuevaEstrategia/pull/254",
+    "merged": true,
+    "merge_commit_sha": "d7e02134a4604063c197758b35c20edd51521d4b",
+    "workflow_run_id": 46025579803,
+    "workflow_run_url": "https://github.com/jafelix81/NuevaEstrategia/actions/runs/46025579803",
+    "conclusion": "success",
+    "tests_passed": 93,
+    "actual_ledger_reconciliation": "passed",
+    "artifact_id": 15212117265,
+    "artifact_url": "https://github.com/jafelix81/NuevaEstrategia/actions/runs/46025579803/artifacts/15212117265",
+    "live_capture": "skipped_for_pull_request_no_sec_requests"
   }
 }
