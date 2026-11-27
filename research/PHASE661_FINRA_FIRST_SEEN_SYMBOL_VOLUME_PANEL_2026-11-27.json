@@ -65,9 +65,10 @@
     "offline_tests_failed": 0,
     "offline_job": "success",
     "live_capture_job": "skipped_pull_request_event",
-    "artifacts": []
+    "artifacts": [],
+    "final_run_id": 45978861267
   },
-  "next_step": "After merge, wait for the next natural scheduled poll; do not dispatch manually.",
+  "next_step": "Wait for the next natural scheduled FINRA poll on main; do not dispatch manually.",
   "research_decision": "DATA_PIPELINE_REPAIR_NO_ALPHA_EVIDENCE",
   "strategy": "F80_TOP20_PARTIAL50_BASELINE_C20",
   "strategy_frozen": true,
@@ -75,5 +76,9 @@
   "oos_bootstrap_loo_run": false,
   "vendor_contacted": false,
   "data_purchased": false,
-  "data_budget_usd": 0
+  "data_budget_usd": 0,
+  "merged": true,
+  "merged_commit_sha": "00016c90b3452e1de060f413f4ea446a1b37449f",
+  "merged_at_utc": "2026-11-27T10:03:57Z",
+  "production_panel_populated": false
 }
