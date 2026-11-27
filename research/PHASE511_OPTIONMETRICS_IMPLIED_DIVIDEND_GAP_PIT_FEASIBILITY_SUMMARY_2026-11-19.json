@@ -1,0 +1,64 @@
+{
+  "phase": 511,
+  "date": "2026-11-19",
+  "source": "OptionMetrics IvyDB Implied Dividend",
+  "classification": "option-implied forward fundamental / dividend-risk hypothesis; not direct smart-money identity",
+  "status": "CONDITIONAL_RESEARCH_CANDIDATE_HISTORICAL_PIT_NOT_CERTIFIED",
+  "advertised_history_start": "2018-01-01",
+  "public_product_launch": "2024-10-02",
+  "delivery": "nightly FTP (exact first-ready timestamp unverified)",
+  "universe": "US optionable dividend-paying single-name securities and ETFs",
+  "output_keys": [
+    "SecurityID",
+    "projected ex-date"
+  ],
+  "outputs": [
+    "annualized implied dividend yield",
+    "annualized implied dividend amount"
+  ],
+  "vendor_paper": {
+    "sample_start": "2018-03",
+    "sample_end": "2026-01",
+    "long_short_spread_monthly_bps": 54,
+    "annualized_spread_pct_approx": 6.5,
+    "industry_neutral_sharpe": 0.71,
+    "industry_neutral_max_drawdown_pct": -8.6,
+    "ff6_annualized_alpha_pct": 3.94,
+    "ff6_monthly_alpha_pct": 0.3286,
+    "ff6_t_stat": 1.48,
+    "statistically_significant_at_conventional_levels": false,
+    "vendor_authored": true,
+    "independent_holdout_verified": false,
+    "net_costs_verified": false
+  },
+  "methodology": {
+    "model": "Cox-Ross-Rubinstein American binomial tree",
+    "paired_options": "same-strike call/put; OTM call / ITM put",
+    "minimum_dte": 60,
+    "minimum_matched_strikes": 5,
+    "minimum_bid_usd": 0.1,
+    "maximum_strikes_per_maturity": 10,
+    "aggregation": "median",
+    "smoothing": "Kalman/Gaussian filter; exact causal specification unresolved",
+    "horizon": "90-day interpolation",
+    "realized_yield": "previous four quarters divided by current price"
+  },
+  "pit": {
+    "historical_2018_to_2024": "retrospective unless original vintages or independent reconstruction verified",
+    "actual_first_delivery_timestamps": "not publicly documented",
+    "correction_policy": "not verified",
+    "filter_lookahead": "one-sided versus two-sided unresolved",
+    "strict_pit_admission": false
+  },
+  "data_gates": {
+    "f80_335_name_overlap": "unverified",
+    "delisted_coverage": "unverified",
+    "securityid_crosswalk": "required",
+    "pricing_and_license": "quote required",
+    "sample_downloaded": false
+  },
+  "tests_authorized": false,
+  "data_purchased": false,
+  "vendor_contacted": false,
+  "f80_changed": false
+}
