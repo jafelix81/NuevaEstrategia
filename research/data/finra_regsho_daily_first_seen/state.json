@@ -1,6 +1,91 @@
 {
-  "files": {},
-  "last_poll_completed_utc": "2026-11-26T04:16:30.599130Z",
-  "last_run_id": "45754121648",
+  "files": {
+    "2026-11-17": {
+      "first_seen_kind": "bootstrap",
+      "first_seen_sha256": "d37bd2a0fcfae4a0c1c81a03ddde4384f03367a6978799647a56b2a81c93e9a4",
+      "first_seen_utc": "2026-11-27T04:26:03.461005Z",
+      "last_seen_utc": "2026-11-27T04:26:03.461005Z",
+      "latest_sha256": "d37bd2a0fcfae4a0c1c81a03ddde4384f03367a6978799647a56b2a81c93e9a4",
+      "quarantined_row_count": 4,
+      "quarantined_symbol_count": 2,
+      "row_count": 12279,
+      "schema_version": "CNMSshvol:4d0d154d54dec41e:security_rows_with_market_lists_partial_symbol_quarantine",
+      "symbol_count": 12275
+    },
+    "2026-11-18": {
+      "first_seen_kind": "bootstrap",
+      "first_seen_sha256": "394c60c50f9b71fc54c0216d6d261408b3fda3bac02d62ecd43c685e1c61cf38",
+      "first_seen_utc": "2026-11-27T04:26:03.304565Z",
+      "last_seen_utc": "2026-11-27T04:26:03.304565Z",
+      "latest_sha256": "394c60c50f9b71fc54c0216d6d261408b3fda3bac02d62ecd43c685e1c61cf38",
+      "quarantined_row_count": 4,
+      "quarantined_symbol_count": 2,
+      "row_count": 12300,
+      "schema_version": "CNMSshvol:4d0d154d54dec41e:security_rows_with_market_lists_partial_symbol_quarantine",
+      "symbol_count": 12296
+    },
+    "2026-11-19": {
+      "first_seen_kind": "bootstrap",
+      "first_seen_sha256": "bc9f18e06f2395719d948f6f57d721190bc1d488711254728f2ade4b2671830a",
+      "first_seen_utc": "2026-11-27T04:26:03.108808Z",
+      "last_seen_utc": "2026-11-27T04:26:03.108808Z",
+      "latest_sha256": "bc9f18e06f2395719d948f6f57d721190bc1d488711254728f2ade4b2671830a",
+      "quarantined_row_count": 4,
+      "quarantined_symbol_count": 2,
+      "row_count": 12314,
+      "schema_version": "CNMSshvol:4d0d154d54dec41e:security_rows_with_market_lists_partial_symbol_quarantine",
+      "symbol_count": 12310
+    },
+    "2026-11-20": {
+      "first_seen_kind": "bootstrap",
+      "first_seen_sha256": "2bbe5cf33d35ae4cfa495afdb83585252a7c3189954a67f22842a8044c21e038",
+      "first_seen_utc": "2026-11-27T04:26:02.937775Z",
+      "last_seen_utc": "2026-11-27T04:26:02.937775Z",
+      "latest_sha256": "2bbe5cf33d35ae4cfa495afdb83585252a7c3189954a67f22842a8044c21e038",
+      "quarantined_row_count": 4,
+      "quarantined_symbol_count": 2,
+      "row_count": 12414,
+      "schema_version": "CNMSshvol:4d0d154d54dec41e:security_rows_with_market_lists_partial_symbol_quarantine",
+      "symbol_count": 12410
+    },
+    "2026-11-23": {
+      "first_seen_kind": "bootstrap",
+      "first_seen_sha256": "9e39cc1024d6bee6134c8b2000d94aa42fcd59ac1412583ffef0b83518fb2e4c",
+      "first_seen_utc": "2026-11-27T04:26:02.733150Z",
+      "last_seen_utc": "2026-11-27T04:26:02.733150Z",
+      "latest_sha256": "9e39cc1024d6bee6134c8b2000d94aa42fcd59ac1412583ffef0b83518fb2e4c",
+      "quarantined_row_count": 4,
+      "quarantined_symbol_count": 2,
+      "row_count": 12418,
+      "schema_version": "CNMSshvol:4d0d154d54dec41e:security_rows_with_market_lists_partial_symbol_quarantine",
+      "symbol_count": 12414
+    },
+    "2026-11-24": {
+      "first_seen_kind": "bootstrap",
+      "first_seen_sha256": "2d0f0fa4ac41782efb8a9e6fef1f3914341dced7121c88ab76a6be5e7439ef7d",
+      "first_seen_utc": "2026-11-27T04:26:02.561622Z",
+      "last_seen_utc": "2026-11-27T04:26:02.561622Z",
+      "latest_sha256": "2d0f0fa4ac41782efb8a9e6fef1f3914341dced7121c88ab76a6be5e7439ef7d",
+      "quarantined_row_count": 4,
+      "quarantined_symbol_count": 2,
+      "row_count": 12355,
+      "schema_version": "CNMSshvol:4d0d154d54dec41e:security_rows_with_market_lists_partial_symbol_quarantine",
+      "symbol_count": 12351
+    },
+    "2026-11-25": {
+      "first_seen_kind": "bootstrap",
+      "first_seen_sha256": "a937c851ee55f5dc35057aec341ea2153613bb1e03e304f23a09a2c3af5ad7d5",
+      "first_seen_utc": "2026-11-27T04:26:02.329883Z",
+      "last_seen_utc": "2026-11-27T04:26:02.329883Z",
+      "latest_sha256": "a937c851ee55f5dc35057aec341ea2153613bb1e03e304f23a09a2c3af5ad7d5",
+      "quarantined_row_count": 4,
+      "quarantined_symbol_count": 2,
+      "row_count": 12376,
+      "schema_version": "CNMSshvol:4d0d154d54dec41e:security_rows_with_market_lists_partial_symbol_quarantine",
+      "symbol_count": 12372
+    }
+  },
+  "last_poll_completed_utc": "2026-11-27T04:26:03.573705Z",
+  "last_run_id": "45939887443",
   "version": 1
 }
