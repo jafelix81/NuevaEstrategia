@@ -1,0 +1,183 @@
+{
+  "phase": 658,
+  "audit_cutoff_utc": "2026-11-27T05:22:19Z",
+  "source": {
+    "main_sha": "642045a8177e514ea700857b00a5e38c90d90609",
+    "path": "research/data/sec_form4_first_seen/transaction_details.csv",
+    "git_blob_sha1": "a314421b76333f050a3228071025e448ac8ca840",
+    "filing_headers": 140,
+    "transaction_rows": 276,
+    "unique_issuer_symbol_strings": 98,
+    "form_counts": {
+      "4": 138,
+      "4/A": 2
+    }
+  },
+  "transaction_codes": {
+    "P": {
+      "rows": 86,
+      "accessions": 56,
+      "symbols": 42,
+      "ten_b5_yes_rows": 11,
+      "ten_b5_no_rows": 75
+    },
+    "S": {
+      "rows": 63,
+      "accessions": 33,
+      "symbols": 27,
+      "ten_b5_yes_rows": 30,
+      "ten_b5_no_rows": 33
+    },
+    "A": {
+      "rows": 66,
+      "accessions": 29,
+      "symbols": 17,
+      "ten_b5_yes_rows": 0,
+      "ten_b5_no_rows": 66
+    },
+    "M": {
+      "rows": 30,
+      "accessions": 11,
+      "symbols": 9,
+      "ten_b5_yes_rows": 4,
+      "ten_b5_no_rows": 26
+    },
+    "F": {
+      "rows": 7,
+      "accessions": 7,
+      "symbols": 4,
+      "ten_b5_yes_rows": 0,
+      "ten_b5_no_rows": 7
+    },
+    "G": {
+      "rows": 7,
+      "accessions": 6,
+      "symbols": 6,
+      "ten_b5_yes_rows": 0,
+      "ten_b5_no_rows": 7
+    },
+    "J": {
+      "rows": 9,
+      "accessions": 8,
+      "symbols": 6,
+      "ten_b5_yes_rows": 0,
+      "ten_b5_no_rows": 9
+    },
+    "X": {
+      "rows": 2,
+      "accessions": 1,
+      "symbols": 1,
+      "ten_b5_yes_rows": 0,
+      "ten_b5_no_rows": 2
+    },
+    "C": {
+      "rows": 6,
+      "accessions": 3,
+      "symbols": 1,
+      "ten_b5_yes_rows": 0,
+      "ten_b5_no_rows": 6
+    }
+  },
+  "owner_attribution_status_rows": {
+    "FILING_GRAIN_ONLY_SINGLE_OWNER": 261,
+    "QUARANTINED_MULTI_OWNER_NO_LINE_LINK": 15
+  },
+  "eligibility_true_rows": {
+    "research_observation_eligible": 0,
+    "signal_eligible": 0,
+    "public_availability_certified": 0,
+    "same_day_intraday_use_authorized": 0,
+    "security_identity_verified": 0,
+    "historical_f80_membership_verified": 0,
+    "owner_attribution_verified": 0,
+    "transaction_semantics_verified": 0,
+    "economic_event_new_trade_authorized": 0
+  },
+  "diagnostics": {
+    "late_disclosure_threshold_calendar_days": 30,
+    "extreme_price_review_threshold_usd_per_share": 10000,
+    "transaction_date_precedes_period_of_report_rows": 1,
+    "extreme_price_review_rows": 1,
+    "filing_lag_over_30_days_rows": 10,
+    "filing_lag_over_30_days_accessions": 4,
+    "amendments_without_stored_previous_accession": 2,
+    "amendment_transaction_rows": 5
+  },
+  "manual_adjudications": [
+    {
+      "accession": "0002125667-26-000005",
+      "symbol": "SHMD",
+      "classification": "SOURCE_DOCUMENT_CHRONOLOGY_AND_PRICE_INCONSISTENCY",
+      "transaction_date": "2006-11-25",
+      "period_of_report": "2026-11-24",
+      "filing_date": "2026-11-25",
+      "days_before_period_of_report": 7304,
+      "shares": 60000,
+      "price_per_share_usd": 1731429,
+      "transaction_code": "P",
+      "sec_primary_document": "https://www.sec.gov/Archives/edgar/data/1987240/000212566726000005/xslF345X06/primary_doc.xml"
+    },
+    {
+      "accession": "0001104659-26-130067",
+      "symbol": "N/A",
+      "classification": "FORM4A_FINAL_NAV_VALUE_UPDATE_NOT_A_SECOND_TRADE",
+      "filing_date": "2026-11-19",
+      "period_of_report": "2026-09-01",
+      "original_filing_date": "2026-09-03",
+      "reporting_owner_count": 5,
+      "transaction_code": "P",
+      "shares": "207178.32",
+      "price_per_share_usd": "26.47",
+      "combined_investment_usd": 5484010,
+      "sec_primary_document": "https://www.sec.gov/Archives/edgar/data/1626970/000110465926130067/xslF345X06/tm2630207-1_4aseq1.xml"
+    },
+    {
+      "accession": "0001493152-26-053612",
+      "symbol": "TRON",
+      "classification": "FORM4A_REPORTING_PERSON_UPDATE_NO_NEW_ECONOMIC_EVENT",
+      "filing_date": "2026-11-23",
+      "period_of_report": "2025-08-27",
+      "original_filing_date": "2026-04-08",
+      "reporting_owner_count": 2,
+      "transaction_rows": 4,
+      "transaction_codes": [
+        "A",
+        "M"
+      ],
+      "sec_primary_document": "https://www.sec.gov/Archives/edgar/data/1956744/000149315226053612/xslF345X06/ownership.xml"
+    },
+    {
+      "accession": "0001493152-26-053593",
+      "symbol": "BNAI",
+      "classification": "STALE_FORM4_GRANTS_AND_OPTION_EXERCISE_NOT_OPEN_MARKET_TRADE",
+      "filing_date": "2026-11-20",
+      "period_of_report": "2025-05-09",
+      "transaction_codes": [
+        "A",
+        "M"
+      ],
+      "filing_lag_days": [
+        560,
+        485,
+        192,
+        192
+      ],
+      "sec_primary_document": "https://www.sec.gov/Archives/edgar/data/1838163/000149315226053593/xslF345X06/ownership.xml"
+    }
+  ],
+  "controls": {
+    "raw_source_rows_deleted": false,
+    "market_price_series_downloaded": false,
+    "forward_returns_inspected": false,
+    "event_study_run": false,
+    "oos_run": false,
+    "bootstrap_run": false,
+    "loo_run": false,
+    "holdout_touched": false,
+    "signal_promoted": false,
+    "incremental_alpha_demonstrated": false,
+    "f80_top20_partial50_baseline_c20_frozen": true,
+    "paid_data_or_vendor_contact": false,
+    "data_budget_usd": 0
+  }
+}
