@@ -172,6 +172,17 @@
     "pull_request_trigger": true,
     "push_to_main_trigger": true,
     "external_network_used": false,
-    "secrets_used": false
+    "secrets_used": false,
+    "pr_number": 260,
+    "merged": true,
+    "merged_at_utc": "2026-11-27T21:07:34Z",
+    "main_commit_sha": "fe5ba9a6669df28efbe089f93b47dcd2953a1cca",
+    "pull_request_run_id": 46068196735,
+    "main_push_run_id": 46068223960,
+    "tests_passed": 10,
+    "tests_failed": 0,
+    "main_artifact_id": 15232075831,
+    "main_artifact_sha256": "c6db06b425193f819feb2c3cb156b40c4f0947f4d3a0a6009bc764d8c615d94e",
+    "result": "success"
   }
 }
