@@ -11,6 +11,7 @@ from research.phase469_finra_regsho_daily_first_seen_capture import (
     candidate_trade_dates,
     parse_finra_file,
     run_capture,
+    load_symbol_universe,
 )
 
 HEADER = "Date|Symbol|ShortVolume|Short Exempt Volume|TotalVolume|Market"
@@ -229,6 +230,19 @@ class TestPhase469Capture(unittest.TestCase):
             )
             self.assertEqual(summary["research_observation_eligible_count"], 1)
             self.assertEqual(summary["signal_eligible_count"], 0)
+            self.assertEqual(summary["symbol_volume_panel_rows_appended"], 2)
+            self.assertTrue(summary["symbol_volume_panel_persisted"])
+            self.assertFalse(summary["raw_market_data_persisted"])
+            with (root / "data" / "symbol_observations.csv").open(newline="") as handle:
+                panel = list(csv.DictReader(handle))
+            self.assertEqual({row["symbol"] for row in panel}, {"ABC", "XYZ"})
+            abc = next(row for row in panel if row["symbol"] == "ABC")
+            self.assertEqual(abc["short_volume"], "120.5")
+            self.assertEqual(abc["short_exempt_volume"], "2.5")
+            self.assertEqual(abc["total_volume"], "300.0")
+            self.assertAlmostEqual(float(abc["short_ratio"]), 120.5 / 300.0)
+            self.assertEqual(abc["first_seen_is_upper_bound_not_exact_receipt"], "True")
+            self.assertEqual(abc["signal_eligible"], "False")
             state = json.loads((root / "data" / "state.json").read_text())
             event = state["files"]["2026-11-17"]
             self.assertEqual(event["first_seen_kind"], "first_seen")
@@ -275,6 +289,12 @@ class TestPhase469Capture(unittest.TestCase):
             self.assertEqual(len(expanded), 1)
             self.assertEqual(expanded[0]["observation_kind"], "late_first_seen")
             self.assertEqual(expanded[0]["first_seen_utc"], late_event["first_seen_utc"])
+            self.assertEqual(expanded[0]["short_volume"], "120.5")
+            with (root / "data" / "symbol_observations.csv").open(newline="") as handle:
+                panel = list(csv.DictReader(handle))
+            self.assertEqual(len(panel), 1)
+            self.assertEqual(panel[0]["observation_kind"], "late_first_seen")
+            self.assertEqual(panel[0]["symbol"], "ABC")
 
     def test_invalid_http_200_records_hash_and_size_without_advancing_state(self):
         bad_payload = file_bytes(rows=[
@@ -359,6 +379,11 @@ class TestPhase469Capture(unittest.TestCase):
             self.assertEqual([row["symbol"] for row in observations], ["XYZ"])
             self.assertIn("partial_symbol_quarantine", observations[0]["schema_version"])
             self.assertEqual(observations[0]["row_count"], 3)
+            with (root / "data" / "symbol_observations.csv").open(newline="") as handle:
+                panel = list(csv.DictReader(handle))
+            self.assertEqual([row["symbol"] for row in panel], ["XYZ"])
+            self.assertEqual(panel[0]["short_volume"], "0")
+            self.assertEqual(panel[0]["total_volume"], "100")
 
     def test_old_date_first_capture_is_bootstrap_not_eligible(self):
         payload = file_bytes(day="20261116", rows=["20261116|ABC|1|0|2|N"])
@@ -374,6 +399,8 @@ class TestPhase469Capture(unittest.TestCase):
                 now_fn=self.fixed_now, fetcher=fetch,
             )
             self.assertEqual(summary["research_observation_eligible_count"], 0)
+            self.assertEqual(summary["symbol_volume_panel_rows_appended"], 0)
+            self.assertFalse((root / "data" / "symbol_observations.csv").exists())
             state = json.loads((root / "data" / "state.json").read_text())
             self.assertEqual(state["files"]["2026-11-16"]["first_seen_kind"], "bootstrap")
 
@@ -388,6 +415,7 @@ class TestPhase469Capture(unittest.TestCase):
             )
             self.assertEqual(summary["research_observation_eligible_count"], 0)
             self.assertFalse((root / "data" / "state.json").exists())
+            self.assertFalse((root / "data" / "symbol_observations.csv").exists())
 
     def test_revision_preserves_original_first_seen_and_is_not_eligible(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -445,7 +473,11 @@ class TestPhase469Capture(unittest.TestCase):
         expanded = build_symbol_observations(parsed, event)
         self.assertEqual([x["symbol"] for x in expanded], ["ABC", "XYZ"])
         self.assertTrue(all(x["observation_kind"] == "first_seen" for x in expanded))
-        self.assertNotIn("short_volume", expanded[0])
+        self.assertEqual(expanded[0]["short_volume"], "120.5")
+        self.assertEqual(expanded[0]["total_volume"], "300.0")
+        self.assertAlmostEqual(float(expanded[0]["short_ratio"]), 120.5 / 300.0)
+        self.assertEqual(expanded[0]["source_row_count"], 1)
+        self.assertEqual(len(json.loads(expanded[0]["source_row_hashes_json"])), 1)
         with self.assertRaisesRegex(ValueError, "hash_does_not_match"):
             build_symbol_observations(parsed, {**event, "raw_sha256": "0" * 64})
 
@@ -458,6 +490,51 @@ class TestPhase469Capture(unittest.TestCase):
         }
         self.assertEqual(build_symbol_observations(parsed, event), [])
 
+
+
+    def test_symbol_panel_is_idempotent_if_process_retries_before_state_checkpoint(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            payload = file_bytes()
+            first = run_capture(
+                mode="schedule", run_id="retry-a", data_dir=root / "data",
+                output_dir=root / "out-a", lookback_days=1,
+                now_fn=self.fixed_now, fetcher=self.fetch_current_only(payload),
+            )
+            self.assertEqual(first["symbol_volume_panel_rows_appended"], 2)
+            (root / "data" / "state.json").unlink()
+            self.now = datetime(2026, 11, 17, 22, 31, tzinfo=timezone.utc)
+            second = run_capture(
+                mode="schedule", run_id="retry-b", data_dir=root / "data",
+                output_dir=root / "out-b", lookback_days=1,
+                now_fn=self.fixed_now, fetcher=self.fetch_current_only(payload),
+            )
+            self.assertEqual(second["symbol_volume_panel_rows_appended"], 0)
+            self.assertEqual(second["symbol_volume_panel_rows_skipped_existing"], 2)
+            with (root / "data" / "symbol_observations.csv").open(newline="") as handle:
+                panel = list(csv.DictReader(handle))
+            self.assertEqual(len(panel), 2)
+            self.assertEqual(panel[0]["run_id"], "retry-a")
+
+    def test_symbol_panel_respects_explicit_universe_filter(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            summary = run_capture(
+                mode="schedule", run_id="universe-filter", data_dir=root / "data",
+                output_dir=root / "out", lookback_days=1,
+                now_fn=self.fixed_now, fetcher=self.fetch_current_only(file_bytes()),
+                symbol_universe={"ABC"},
+            )
+            self.assertEqual(summary["symbol_volume_panel_scope"], "explicit_custom_symbol_filter")
+            with (root / "data" / "symbol_observations.csv").open(newline="") as handle:
+                panel = list(csv.DictReader(handle))
+            self.assertEqual([row["symbol"] for row in panel], ["ABC"])
+
+    def test_exact_frozen_universe_snapshot_is_hash_verified(self):
+        tickers = load_symbol_universe()
+        self.assertEqual(len(tickers), 335)
+        self.assertIn("UPST", tickers)
+        self.assertIn("TEAM", tickers)
 
 if __name__ == "__main__":
     unittest.main()
