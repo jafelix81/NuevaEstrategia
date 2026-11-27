@@ -76,6 +76,7 @@ def audit_value_scale(
 
     excluded: dict[str, int] = {}
     grouped: dict[str, dict[str, Decimal]] = {}
+    conflicted_cusips: set[str] = set()
     source_rows = 0
 
     def exclude(reason: str) -> None:
@@ -112,6 +113,10 @@ def audit_value_scale(
             exclude("invalid_or_nonpositive_numeric")
             continue
 
+        if cusip in conflicted_cusips:
+            exclude("duplicate_cusip_price_conflict")
+            continue
+
         current = grouped.get(cusip)
         if current is None:
             grouped[cusip] = {
@@ -122,7 +127,9 @@ def audit_value_scale(
         else:
             if current["reference_price"] != price:
                 exclude("duplicate_cusip_price_conflict")
+                exclude("duplicate_cusip_price_conflict")
                 del grouped[cusip]
+                conflicted_cusips.add(cusip)
                 continue
             current["value"] += value
             current["shares"] += shares
