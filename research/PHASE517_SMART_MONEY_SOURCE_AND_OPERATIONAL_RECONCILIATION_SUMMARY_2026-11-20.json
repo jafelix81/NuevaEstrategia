@@ -1,0 +1,151 @@
+{
+  "phase": 517,
+  "audit_cutoff_utc": "2026-11-20T06:52:00Z",
+  "main_head": "2f50cd7d92ca08b2d0c27aaa0baff6e4debf3a19",
+  "preflight": {
+    "latest_runs_inspected": 100,
+    "success": 77,
+    "failure": 22,
+    "cancelled": 1,
+    "active": 0,
+    "queued": 0,
+    "branches_inspected": 100,
+    "open_prs": 61,
+    "manual_dispatches": 0,
+    "manual_reruns": 0
+  },
+  "finra_regsho": {
+    "latest_scheduled_run": 44669121290,
+    "run_head_sha": "8850828f",
+    "predates_phase515_merge": true,
+    "http_200": 8,
+    "valid_files": 0,
+    "invalid_files": 8,
+    "invalid_reason": "market_code_invalid",
+    "eligible_first_seen": 0,
+    "research_observation_eligible": 0,
+    "signal_eligible": 0,
+    "raw_market_rows_persisted": false,
+    "phase515_pr": 168,
+    "phase515_merge_commit": "cca5224c0980d6b0765b203ea618a335d9b88510",
+    "phase515_ci_run": 44674320007,
+    "phase515_offline_tests": 59,
+    "phase515_live_job": "skipped",
+    "post_merge_live_validation": "pending_existing_schedule"
+  },
+  "sec_form144": {
+    "latest_scheduled_run": 44662324343,
+    "feeds_complete": true,
+    "pagination_complete": true,
+    "feed_observation_rows": 103,
+    "new_accession_xml_blocks": 70,
+    "new_detail_rows": 542,
+    "bounded_backfill_accessions": 10,
+    "bounded_backfill_rows": 54,
+    "ledger_accessions": 80,
+    "ledger_rows": 596,
+    "issuer_ciks": 61,
+    "hash_matches": 596,
+    "hash_mismatches": 0,
+    "remaining_backfill_accessions": 368,
+    "public_availability_certified": 0,
+    "signal_eligible": 0,
+    "phase516_pr": 169,
+    "phase516_merge_commit": "c23bdd734f3cef1c8ead0d974c081a0093e1b067",
+    "phase516_ci_run": 44680495072,
+    "offline_tests": 64,
+    "live_job": "skipped"
+  },
+  "sec_form4": {
+    "latest_scheduled_run": 44656159115,
+    "new_form4_accessions": 457,
+    "new_form4a_accessions": 0,
+    "bounded_backfill_accessions": 10,
+    "detail_rows": 22,
+    "parse_errors": 0,
+    "remaining_backfill_accessions": 1190,
+    "comparable_original_xml_hashes": 0,
+    "public_availability_certified": 0,
+    "signal_eligible": 0
+  },
+  "cftc_tff": {
+    "latest_scheduled_run": 44668300202,
+    "rows": 3039,
+    "new_reports_or_revisions": 0,
+    "archive_updated_pit": "rejected",
+    "prospective_only": true,
+    "signal_eligible": 0
+  },
+  "finra_t1_ats": {
+    "weeks": 209,
+    "full_rows": 10917933,
+    "pages": 2292,
+    "revision_stable_symbol_week_pct": 98.633996,
+    "stable_share_volume_pct": 96.943175,
+    "date_level_clock_pass_weeks": 209,
+    "security_master_f80_gate": false,
+    "semantic_class": "ATS/firm venue concentration, not investor concentration"
+  },
+  "sec_13dg": {
+    "legacy_rows": 20266,
+    "accessions": 20266,
+    "stored_issuer_cik_equals_accession_filer_cik_rows": 10085,
+    "collision_pct": 49.76,
+    "subject_identity_verified_rows": 0,
+    "panel_disposition": "QUARANTINED",
+    "phase485_header_parser_available": true,
+    "full_rebuild_complete": false,
+    "human_action_required": "Configure SEC_USER_AGENT Actions secret with project identifier and monitored contact email before retrying PR #37 exact-parent retrieval",
+    "prior_attempt_run": 43327053770,
+    "http_403_requests": 1,
+    "parent_documents_retrieved": 0,
+    "parent_targets": 44
+  },
+  "finra_short_interest": {
+    "pr": 159,
+    "complete_snapshot_proven": false,
+    "async_live_credential_gate": "pending",
+    "human_action_required": "Authorized credentials and usage rights; one-settlement validation only"
+  },
+  "options": {
+    "optionmetrics_tradeflow": "conditional",
+    "implied_dividend_gap": "conditional",
+    "historical_methodology_vintages_verified": false,
+    "business_use_license_verified": false,
+    "data_purchase": false
+  },
+  "controls": {
+    "signals_admitted": 0,
+    "backtests": 0,
+    "event_studies": 0,
+    "oos_tests": 0,
+    "bootstrap_tests": 0,
+    "loo_tests": 0,
+    "f80_frozen": true,
+    "production_changed": false
+  },
+  "schedule_recheck": {
+    "cutoff_utc": "2026-11-20T06:52:00Z",
+    "total_schedule_events_in_inventory": 36,
+    "phase476_form4": {
+      "schedule_runs": 5,
+      "last_run": 44656159115,
+      "last_run_utc": "2026-11-20T01:47:28Z",
+      "configured_cron": "17 * * * 1-5",
+      "later_schedule_event_present": false
+    },
+    "phase403_form144": {
+      "schedule_runs": 16,
+      "last_run": 44662324343,
+      "last_run_utc": "2026-11-20T02:39:13Z",
+      "configured_cron": "47 * * * *",
+      "later_schedule_event_present": false
+    },
+    "latest_active_or_queued_runs": 0,
+    "workflow_enabled_state_readable_via_connector": false,
+    "issue136_reopened_at_utc": "2026-11-20T06:58:06Z",
+    "human_action": "Confirm both workflows are enabled on main and inspect schedule failures/paused state; do not manually dispatch or rerun until checked",
+    "no_cron_change": true,
+    "no_manual_dispatch": true
+  }
+}
