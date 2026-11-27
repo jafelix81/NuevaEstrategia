@@ -1,0 +1,190 @@
+{
+  "schema_version": "1.0",
+  "phase": 659,
+  "audit_date": "2026-11-27",
+  "purpose": "Append-only, source-verified links from the two Form 4/A accessions in the current live ledger to their original Form 4 filings. This sidecar does not rewrite transaction_details.csv or certify historical public availability.",
+  "records": [
+    {
+      "amendment_accession": "0001104659-26-130067",
+      "original_accession": "0001104659-26-105049",
+      "issuer_cik": "0001954360",
+      "issuer_name": "Crescent Private Credit Income Corp",
+      "issuer_symbol": "N/A",
+      "period_of_report": "2026-09-01",
+      "original_filing_date": "2026-09-03",
+      "amendment_filing_date": "2026-11-19",
+      "original_owner_ciks": [
+        "0001626970",
+        "0002081892",
+        "0002081893",
+        "0002097963",
+        "0002098163"
+      ],
+      "amendment_owner_ciks": [
+        "0001626970",
+        "0002081892",
+        "0002081893",
+        "0002097963",
+        "0002098163"
+      ],
+      "lineage_classification": "FINAL_NAV_VALUE_UPDATE_SAME_UNDERLYING_INVESTMENT",
+      "amendment_purpose": "The original Form 4 states that share count, price and post-transaction ownership were estimates because the issuer NAV calculation was not final. The Form 4/A states that it reports final transaction information following definitive NAV calculation for the same 2026-09-01 investment.",
+      "original_transaction_rows": [
+        {
+          "table_type": "non_derivative",
+          "row_index": "1",
+          "security_title": "Class I Common Stock, par value $0.01 per share",
+          "transaction_date": "2026-09-01",
+          "transaction_code": "P",
+          "shares": "208279.91",
+          "price": "26.33",
+          "acquired_disposed_code": "A"
+        }
+      ],
+      "amendment_transaction_rows": [
+        {
+          "table_type": "non_derivative",
+          "row_index": "1",
+          "security_title": "Class I Common Stock, par value $0.01 per share",
+          "transaction_date": "2026-09-01",
+          "transaction_code": "P",
+          "shares": "207178.32",
+          "price": "26.47",
+          "acquired_disposed_code": "A"
+        }
+      ],
+      "reported_combined_investment_usd": "5484010",
+      "new_economic_event": false,
+      "signal_eligible": false,
+      "original_index_url": "https://www.sec.gov/Archives/edgar/data/2097963/000110465926105049/0001104659-26-105049-index.htm",
+      "original_xml_url": "https://www.sec.gov/Archives/edgar/data/2097963/000110465926105049/tm2624773-2_4seq1.xml",
+      "amendment_xml_url": "https://www.sec.gov/Archives/edgar/data/2098163/000110465926130067/tm2630207-1_4aseq1.xml",
+      "source_evidence": "SEC original and amended ownership XMLs identify the same issuer, report date, five reporting persons, security and transaction date. The original values were estimates; the amendment supplies final NAV-based values. P is open-market or private purchase and does not identify execution venue."
+    },
+    {
+      "amendment_accession": "0001493152-26-053612",
+      "original_accession": "0001493152-26-015786",
+      "issuer_cik": "0001956744",
+      "issuer_name": "Tron Inc.",
+      "issuer_symbol": "TRON",
+      "period_of_report": "2025-08-27",
+      "original_filing_date": "2026-04-08",
+      "amendment_filing_date": "2026-11-23",
+      "original_owner_ciks": [
+        "0002075156"
+      ],
+      "amendment_owner_ciks": [
+        "0002075156",
+        "0002075159"
+      ],
+      "lineage_classification": "JOINT_REPORTING_PERSON_ADDED_NO_TRANSACTION_CHANGE",
+      "amendment_purpose": "The Form 4/A states it is filed solely to add Bravemorning Ltd as a joint reporting person and that no other changes are made to the original Form 4.",
+      "original_transaction_rows": [
+        {
+          "table_type": "non_derivative",
+          "row_index": "1",
+          "security_title": "Common Stock",
+          "transaction_date": "2025-08-27",
+          "transaction_code": "A",
+          "shares": "220000000",
+          "price": "0.5",
+          "acquired_disposed_code": "A"
+        },
+        {
+          "table_type": "non_derivative",
+          "row_index": "2",
+          "security_title": "Common Stock",
+          "transaction_date": "2026-04-02",
+          "transaction_code": "A",
+          "shares": "200000000",
+          "price": "0.5",
+          "acquired_disposed_code": "A"
+        },
+        {
+          "table_type": "derivative",
+          "row_index": "1",
+          "security_title": "Common Stock Purchase Warrants",
+          "transaction_date": "2025-08-27",
+          "transaction_code": "M",
+          "shares": "220000000",
+          "price": "0",
+          "acquired_disposed_code": "D",
+          "exercise_date": "2025-06-16",
+          "expiration_date": "2027-06-16",
+          "underlying_security_title": "Common Stock",
+          "underlying_shares": "220000000"
+        },
+        {
+          "table_type": "derivative",
+          "row_index": "2",
+          "security_title": "Series B Convertible Preferred Stock",
+          "transaction_date": "2026-04-02",
+          "transaction_code": "M",
+          "shares": "200000000",
+          "price": "0",
+          "acquired_disposed_code": "D",
+          "exercise_date": "2025-06-16",
+          "expiration_date": "",
+          "underlying_security_title": "Common Stock",
+          "underlying_shares": "200000000"
+        }
+      ],
+      "amendment_transaction_rows": [
+        {
+          "table_type": "non_derivative",
+          "row_index": "1",
+          "security_title": "Common Stock",
+          "transaction_date": "2025-08-27",
+          "transaction_code": "A",
+          "shares": "220000000",
+          "price": "0.5",
+          "acquired_disposed_code": "A"
+        },
+        {
+          "table_type": "non_derivative",
+          "row_index": "2",
+          "security_title": "Common Stock",
+          "transaction_date": "2026-04-02",
+          "transaction_code": "A",
+          "shares": "200000000",
+          "price": "0.5",
+          "acquired_disposed_code": "A"
+        },
+        {
+          "table_type": "derivative",
+          "row_index": "1",
+          "security_title": "Common Stock Purchase Warrants",
+          "transaction_date": "2025-08-27",
+          "transaction_code": "M",
+          "shares": "220000000",
+          "price": "0",
+          "acquired_disposed_code": "D",
+          "exercise_date": "2025-06-16",
+          "expiration_date": "2027-06-16",
+          "underlying_security_title": "Common Stock",
+          "underlying_shares": "220000000"
+        },
+        {
+          "table_type": "derivative",
+          "row_index": "2",
+          "security_title": "Series B Convertible Preferred Stock",
+          "transaction_date": "2026-04-02",
+          "transaction_code": "M",
+          "shares": "200000000",
+          "price": "0",
+          "acquired_disposed_code": "D",
+          "exercise_date": "2025-06-16",
+          "expiration_date": "",
+          "underlying_security_title": "Common Stock",
+          "underlying_shares": "200000000"
+        }
+      ],
+      "new_economic_event": false,
+      "signal_eligible": false,
+      "original_index_url": "https://www.sec.gov/Archives/edgar/data/2075156/000149315226015786/0001493152-26-015786-index.htm",
+      "original_xml_url": "https://www.sec.gov/Archives/edgar/data/2075156/000149315226015786/ownership.xml",
+      "amendment_xml_url": "https://www.sec.gov/Archives/edgar/data/2075156/000149315226053612/ownership.xml",
+      "source_evidence": "The SEC original XML reports Sun Weike as the sole reporting owner and the four A/M rows listed here. The amended XML adds Bravemorning Ltd as a joint reporting person and expressly says no other changes are made. The rows describe award/issuance and exercise/conversion events associated with a PIPE financed in TRX, not open-market purchases."
+    }
+  ]
+}
