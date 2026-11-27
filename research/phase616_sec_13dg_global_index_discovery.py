@@ -64,7 +64,7 @@ def validate_user_agent(value: str | None) -> str:
             "no SEC request was made."
         )
     lowered = ua.lower()
-    if any(token in lowered for token in ("example.com", "your-email", "replace-me", "placeholder")):
+    if any(token in lowered for token in ("example.com", "example.org", "your-email", "replace-me", "placeholder")):
         raise RuntimeError(
             "SEC_USER_AGENT still contains a placeholder contact; no SEC request was made."
         )
