@@ -1,9 +1,14 @@
+import os
 import unittest
 from datetime import date
+from unittest.mock import patch
+
+from research import phase401_form144a_full_parent_identity_census as p401
 
 from research.phase616_sec_13dg_global_index_discovery import (
     accession_from_compact,
     build_index_header_url,
+    configure_user_agent,
     deduplicate_index_rows,
     filing_regimes,
     normalize_cik,
@@ -287,10 +292,47 @@ class Phase616IndexParserTests(unittest.TestCase):
             validate_user_agent("")
         with self.assertRaises(RuntimeError):
             validate_user_agent("NuevaEstrategia research research@example.com")
+        with self.assertRaises(RuntimeError):
+            validate_user_agent("NuevaEstrategia research research@example.org")
         self.assertEqual(
             validate_user_agent("NuevaEstrategia research analyst@domain.mx"),
             "NuevaEstrategia research analyst@domain.mx",
         )
+
+    def test_missing_secret_uses_existing_shared_project_contact(self):
+        fallback = "NuevaEstrategia quantitative research fallback@example.net"
+        with (
+            patch.dict(os.environ, {}, clear=True),
+            patch.object(p401, "SEC_UA", fallback),
+        ):
+            self.assertEqual(configure_user_agent(), fallback)
+
+    def test_placeholder_secret_uses_existing_shared_project_contact(self):
+        fallback = "NuevaEstrategia quantitative research fallback@example.net"
+        with (
+            patch.dict(os.environ, {
+                "SEC_USER_AGENT": "NuevaEstrategia contact your-email@example.com"
+            }, clear=True),
+            patch.object(p401, "SEC_UA", fallback),
+        ):
+            self.assertEqual(configure_user_agent(), fallback)
+
+    def test_valid_secret_overrides_shared_project_contact(self):
+        secret = "NuevaEstrategia quantitative research analyst@domain.mx"
+        fallback = "NuevaEstrategia quantitative research fallback@example.net"
+        with (
+            patch.dict(os.environ, {"SEC_USER_AGENT": secret}, clear=True),
+            patch.object(p401, "SEC_UA", fallback),
+        ):
+            self.assertEqual(configure_user_agent(), secret)
+
+    def test_invalid_secret_and_invalid_fallback_fail_before_any_request(self):
+        with (
+            patch.dict(os.environ, {"SEC_USER_AGENT": "placeholder"}, clear=True),
+            patch.object(p401, "SEC_UA", "also-placeholder"),
+        ):
+            with self.assertRaisesRegex(RuntimeError, "no SEC request was made"):
+                configure_user_agent()
 
 
 if __name__ == "__main__":

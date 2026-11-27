@@ -33,6 +33,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from research.phase485_sec_13dg_subject_filer_header_parser import (  # noqa: E402
     parse_subject_filer_identity,
 )
+from research import phase401_form144a_full_parent_identity_census as p401  # noqa: E402
 
 SEC_ARCHIVES = "https://www.sec.gov/Archives/"
 QUARTERS = ((2023, 4), (2024, 1), (2024, 3), (2024, 4), (2026, 3))
@@ -63,7 +64,7 @@ def validate_user_agent(value: str | None) -> str:
             "no SEC request was made."
         )
     lowered = ua.lower()
-    if any(token in lowered for token in ("example.com", "your-email", "replace-me", "placeholder")):
+    if any(token in lowered for token in ("example.com", "example.org", "your-email", "replace-me", "placeholder")):
         raise RuntimeError(
             "SEC_USER_AGENT still contains a placeholder contact; no SEC request was made."
         )
@@ -354,8 +355,24 @@ def write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
         writer.writerows(rows)
 
 
+def configure_user_agent() -> str:
+    """Prefer SEC_USER_AGENT; reuse the already-established Phase 401 project contact otherwise."""
+    secret = os.environ.get("SEC_USER_AGENT", "").strip()
+    try:
+        return validate_user_agent(secret)
+    except RuntimeError:
+        fallback = str(getattr(p401, "SEC_UA", "") or "").strip()
+        try:
+            return validate_user_agent(fallback)
+        except RuntimeError:
+            raise RuntimeError(
+                "SEC_USER_AGENT and shared project contact are missing or invalid; "
+                "no SEC request was made."
+            ) from None
+
+
 def run_live_sample(output_dir: Path, *, sample_size: int = SAMPLE_SIZE) -> dict[str, Any]:
-    user_agent = validate_user_agent(os.environ.get("SEC_USER_AGENT"))
+    user_agent = configure_user_agent()
     output_dir.mkdir(parents=True, exist_ok=True)
     index_dir = output_dir / "indexes"
     header_dir = output_dir / "headers"
