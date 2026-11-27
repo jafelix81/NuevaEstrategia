@@ -2,7 +2,7 @@
 
 **Audit cutoff:** 2026-11-27 10:02 UTC  
 **Base:** `main` at `a27340c1866b5e44f2638eb4dc3e0cbd1617b7ea`  
-**Disposition:** implementation and offline validation complete in draft PR #251; production capture remains pending merge and the next natural scheduled poll.
+**Disposition:** merged into `main` as commit `00016c90b3452e1de060f413f4ea446a1b37449f`; production capture awaits the next natural scheduled poll.
 
 ## 1. Why this phase was necessary
 
@@ -39,7 +39,7 @@ The static filter is an exact copy of the 335-ticker reference from commit `1aa1
 
 ## 4. Validation
 
-[PR validation run 45978706947](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45978706947):
+[Final PR validation run 45978861267](https://github.com/jafelix81/NuevaEstrategia/actions/runs/45978861267):
 
 - offline regression: **65 tests passed**;
 - live-capture job: correctly skipped for a pull-request event;
@@ -49,7 +49,7 @@ Tests cover volume persistence, partial-symbol quarantine, first-seen and late-f
 
 ## 5. Next natural capture
 
-After merge, the next scheduled FINRA poll is the first opportunity for production rows. It should check 2026-11-26 for a possible `late_first_seen` only if the prior scheduled 403 is present in the persistent poll ledger, and 2026-11-27 for same-day `first_seen` after 16:00 New York time. Neither event is assumed in advance. No manual dispatch is needed.
+The next scheduled FINRA poll is the first opportunity for production rows. It should check 2026-11-26 for a possible `late_first_seen` only if the prior scheduled 403 is present in the persistent poll ledger, and 2026-11-27 for same-day `first_seen` after 16:00 New York time. Neither event is assumed in advance. No manual dispatch is needed.
 
 ## 6. Research status
 
