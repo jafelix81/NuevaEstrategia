@@ -59,7 +59,7 @@ This is a same-quarter negative control showing that post-2023 filings can and d
 File: \`research/phase671_13f_value_unit_detector.py\`
 
 - Eligible rows: ordinary common stock (\`COM\` or \`COMMON STOCK\`), \`SH\` amounts, no put/call flag, valid 9-character CUSIP, positive value/shares/reference price, and exact report-date/reference-date match.
-- Duplicate CUSIPs are aggregated so separate discretion rows do not overweight the same security. Conflicting reference prices are excluded.
+- Duplicate CUSIPs are aggregated so separate discretion rows do not overweight the same security. If duplicate rows for one CUSIP carry conflicting reference prices, the entire CUSIP is permanently quarantined for that filing sample; later rows cannot reintroduce it.
 - Minimum evidence: 4 unique CUSIPs.
 - Candidate scales: 1 and 1,000.
 - Candidate requires at least 80% of eligible CUSIPs within 0.5% relative price error and median absolute relative error no greater than 0.5%.
@@ -79,7 +79,7 @@ Expected classifications:
 | Canada Life base report | 2 | \`INSUFFICIENT_EVIDENCE\` |
 | Mixed-scale synthetic sample | 4 | \`MIXED_OR_UNRESOLVED\` |
 
-Regression tests also cover options, PRN amounts, non-common classes, reference-date mismatch, duplicate CUSIPs, invalid values, invalid thresholds and source immutability.
+Ten offline regression tests cover both scale classes, sparse and mixed samples, options, PRN amounts, non-common classes, reference-date mismatch, duplicate aggregation, conflicting-duplicate quarantine, invalid values, invalid thresholds and source immutability. The workflow runs on pull requests and on the merge push to main.
 
 ## Point-in-time and strategy controls
 
