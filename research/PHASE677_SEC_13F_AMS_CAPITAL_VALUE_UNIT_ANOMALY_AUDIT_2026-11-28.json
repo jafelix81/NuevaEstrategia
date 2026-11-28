@@ -1,0 +1,189 @@
+{
+  "phase": 677,
+  "title": "SEC 13F AMS Capital Q3 2026 value-unit anomaly primary-table audit",
+  "date": "2026-11-28",
+  "repository_base_commit": "2a0d92463cc8a9b5915b673aa61e4f7d2cebba3f",
+  "purpose": "Retrospective data-integrity classification only; not a trading feature.",
+  "filing": {
+    "cik": "0001717977",
+    "manager": "AMS Capital Ltda",
+    "accession": "0001717977-26-000005",
+    "form": "13F-HR",
+    "filing_date": "2026-11-27",
+    "accepted_et": "2026-11-27 14:32:31",
+    "report_date": "2026-09-30",
+    "declared_entries": 15,
+    "declared_value_total_as_filed": 289276,
+    "summary_rounding_label": "round to nearest dollar",
+    "sec_index_url": "https://www.sec.gov/Archives/edgar/data/1717977/000171797726000005/0001717977-26-000005-index.html",
+    "sec_primary_cover_rendered_url": "https://www.sec.gov/Archives/edgar/data/1717977/000171797726000005/xslForm13F_X02/primary_doc.xml",
+    "sec_primary_information_table_rendered_url": "https://www.sec.gov/Archives/edgar/data/1717977/000171797726000005/xslForm13F_X02/FILEAMS09302026V1.xml",
+    "raw_submission_xml_downloaded": false,
+    "raw_information_table_xml_downloaded": false,
+    "raw_xml_sha256": null
+  },
+  "primary_table_reconciliation": {
+    "information_table_rows_rendered": 15,
+    "sum_of_all_as_filed_row_values": 289276,
+    "cover_page_total_matches_raw_row_sum": true,
+    "candidate_scaled_sum_if_all_rows_share_same_unit": 289276000,
+    "full_15_row_scale_verified": false
+  },
+  "detector": {
+    "module": "research/phase671_13f_value_unit_detector.py",
+    "report_date": "2026-09-30",
+    "eligible_unique_cusips": 7,
+    "minimum_unique_cusips": 4,
+    "allowed_title_classes": [
+      "COM",
+      "COMMON STOCK"
+    ],
+    "share_type": "SH",
+    "put_call_required_blank": true,
+    "candidate_scales": [
+      1,
+      1000
+    ],
+    "relative_error_tolerance": 0.005,
+    "minimum_consensus_fraction": 0.8,
+    "candidate_scores": {
+      "1": {
+        "median_abs_relative_error_pct": 99.89999949677507,
+        "consensus_fraction": 0,
+        "rows_within_0_5_pct": 0
+      },
+      "1000": {
+        "median_abs_relative_error_pct": 0.0023374564728118052,
+        "consensus_fraction": 1,
+        "rows_within_0_5_pct": 7
+      }
+    },
+    "status": "LEGACY_THOUSANDS_CANDIDATE",
+    "scale_factor_candidate": 1000,
+    "rows": [
+      {
+        "ticker": "AMZN",
+        "cusip": "023135106",
+        "title_of_class": "COM",
+        "value": 38015,
+        "shares": 152578,
+        "reference_price_usd": 249.15,
+        "implied_price_x1000": 249.15125378494935,
+        "absolute_relative_error_pct": 0.0005032249445369175,
+        "price_source": "https://finance.yahoo.com/quote/AMZN/history/"
+      },
+      {
+        "ticker": "FICO",
+        "cusip": "303250104",
+        "title_of_class": "COM",
+        "value": 9544,
+        "shares": 16109,
+        "reference_price_usd": 592.47,
+        "implied_price_x1000": 592.463840089391,
+        "absolute_relative_error_pct": 0.001039700003202526,
+        "price_source": "https://uk.finance.yahoo.com/quote/FICO/history/"
+      },
+      {
+        "ticker": "MSFT",
+        "cusip": "594918104",
+        "title_of_class": "COM",
+        "value": 25021,
+        "shares": 48783,
+        "reference_price_usd": 512.9,
+        "implied_price_x1000": 512.9040854395998,
+        "absolute_relative_error_pct": 0.0007965372587070974,
+        "price_source": "https://es.finance.yahoo.com/quote/MSFT/history/"
+      },
+      {
+        "ticker": "SPGI",
+        "cusip": "78409V104",
+        "title_of_class": "COM",
+        "value": 11532,
+        "shares": 29233,
+        "reference_price_usd": 394.47,
+        "implied_price_x1000": 394.4856839872747,
+        "absolute_relative_error_pct": 0.003975964528257769,
+        "price_source": "https://au.finance.yahoo.com/quote/SPGI/history/"
+      },
+      {
+        "ticker": "TDG",
+        "cusip": "893641100",
+        "title_of_class": "COM",
+        "value": 8043,
+        "shares": 7429,
+        "reference_price_usd": 1082.6,
+        "implied_price_x1000": 1082.6490779378112,
+        "absolute_relative_error_pct": 0.004533339904977396,
+        "price_source": "https://finance.yahoo.com/quote/TDG/history/"
+      },
+      {
+        "ticker": "V",
+        "cusip": "92826C839",
+        "title_of_class": "COM",
+        "value": 11250,
+        "shares": 31309,
+        "reference_price_usd": 359.33,
+        "implied_price_x1000": 359.32160081765625,
+        "absolute_relative_error_pct": 0.0023374564728118052,
+        "price_source": "https://es.finance.yahoo.com/quote/V/history/"
+      },
+      {
+        "ticker": "Q",
+        "cusip": "74743L100",
+        "title_of_class": "COMMON STOCK",
+        "value": 6800,
+        "shares": 54082,
+        "reference_price_usd": 125.74,
+        "implied_price_x1000": 125.73499500758108,
+        "absolute_relative_error_pct": 0.003980429790773066,
+        "price_source": "https://finance.yahoo.com/quote/Q/history/"
+      }
+    ]
+  },
+  "limitations": {
+    "secondary_price_references_used_for_integrity_screen_only": true,
+    "prices_are_same_report_date_unadjusted_closes": true,
+    "price_provider_is_not_a_production_approved_historical_panel": true,
+    "raw_xml_and_sha256_missing": true,
+    "all_15_rows_not_price_checked": true,
+    "no_causal_or_intentionality_claim": true,
+    "no_public_availability_certification_for_strategy_use": true
+  },
+  "controls": {
+    "normalization_applied": false,
+    "source_values_mutated": false,
+    "production_parser_integrated": false,
+    "holdings_admitted_to_research_signal": false,
+    "trading_signal_eligible": false,
+    "return_data_used": false,
+    "event_study_run": false,
+    "chronological_oos_run": false,
+    "bootstrap_run": false,
+    "loo_run": false,
+    "holdout_used": false,
+    "f80_top20_partial50_baseline_c20_frozen": true,
+    "vendor_contact": false,
+    "data_purchase": false,
+    "data_spend_usd": 0
+  },
+  "sources": [
+    "https://www.sec.gov/Archives/edgar/data/1717977/000171797726000005/0001717977-26-000005-index.html",
+    "https://www.sec.gov/Archives/edgar/data/1717977/000171797726000005/xslForm13F_X02/primary_doc.xml",
+    "https://www.sec.gov/Archives/edgar/data/1717977/000171797726000005/xslForm13F_X02/FILEAMS09302026V1.xml",
+    "https://www.sec.gov/rules-regulations/staff-guidance/frequently-asked-questions-about-form-13f",
+    "https://finance.yahoo.com/quote/AMZN/history/",
+    "https://uk.finance.yahoo.com/quote/FICO/history/",
+    "https://es.finance.yahoo.com/quote/MSFT/history/",
+    "https://au.finance.yahoo.com/quote/SPGI/history/",
+    "https://finance.yahoo.com/quote/TDG/history/",
+    "https://es.finance.yahoo.com/quote/V/history/",
+    "https://finance.yahoo.com/quote/Q/history/"
+  ],
+  "next_gates": [
+    "Retrieve the complete raw SEC information-table XML using the authorized SEC_USER_AGENT workflow and calculate SHA-256.",
+    "Parse and reconcile all 15 information-table entries against the raw XML and cover-page totals.",
+    "Validate all rows against same-date, security-matched, independently sourced prices; retain raw values and reference provenance.",
+    "Expand the detector's positive/negative controls to at least 20 independent managers and multiple post-2023 quarters.",
+    "Do not normalize any source value or integrate the detector into production without an explicit review and immutable as-filed storage."
+  ]
+}
