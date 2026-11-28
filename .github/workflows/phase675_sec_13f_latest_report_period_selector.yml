@@ -8,6 +8,7 @@ on:
       - "research/test_phase48_sec_13f_asof_amendment_state_machine.py"
       - "research/PHASE675_SEC_13F_LATE_REPORT_PERIOD_SELECTION_REGRESSION_2026-11-27.md"
       - "research/PHASE675_SEC_13F_LATE_REPORT_PERIOD_SELECTION_REGRESSION_2026-11-27.json"
+      - "research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-27_PHASE675.md"
 
 permissions:
   contents: read

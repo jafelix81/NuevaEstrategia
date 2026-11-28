@@ -242,7 +242,7 @@ class Phase48Tests(unittest.TestCase):
         self.assertEqual(manager_state["latest_holdings_period"], "2026-09-30")
         self.assertEqual(manager_state["applied_accessions"], ["IRON-Q3"])
         self.assertEqual(manager_state["available_report_periods"], [
-            "2025-12-31", "2026-03-31", "2026-06-30", "2026-09-30"
+            "2026-09-30", "2026-06-30", "2026-03-31", "2025-12-31"
         ])
         self.assertFalse(selected["summary"]["signal_eligible"])
 
