@@ -1,6 +1,6 @@
 # Current Smart Money Research Snapshot — 2026-11-28 (Phase 684)
 
-**Audit cutoff:** 2026-11-28 UTC. **Main HEAD after Phase 684 report/addendum:** `162ceefec78b8b6a79415f1f80b6859c13caf5ba`. Full report: [Phase 684 — Smart Money source reconciliation and FINRA rights-hold enforcement](research/PHASE684_SMART_MONEY_SOURCE_RECONCILIATION_AND_FINRA_RIGHTS_HOLD_ENFORCEMENT_2026-11-28.md).
+**Audit cutoff:** 2026-11-28 UTC. **Main HEAD immediately before this state refresh:** `aa7b9d3ece6e1b15e483bcc11483cff7590a6798`. Full report: [Phase 684 — Smart Money source reconciliation and FINRA rights-hold enforcement](research/PHASE684_SMART_MONEY_SOURCE_RECONCILIATION_AND_FINRA_RIGHTS_HOLD_ENFORCEMENT_2026-11-28.md).
 
 - **Repository preflight:** 8,409 Actions runs total; latest 100 = 80 success / 16 failure / 4 cancelled; 0 active / 0 queued. 86 open PRs. No duplicate dispatch or rerun.
 - **Form 144:** run [46155351208](https://github.com/jafelix81/NuevaEstrategia/actions/runs/46155351208) succeeded. 52 feed-observation rows appended (poll observations, not new accessions); canonical event ledger remains 1,104 accessions. Ten existing accessions gained 49 detail rows. Structured ledger: 986 accessions / 6,409 rows; 118 pending. Formal plan dates: 391; public availability certified: 0; signal eligible: 0.
