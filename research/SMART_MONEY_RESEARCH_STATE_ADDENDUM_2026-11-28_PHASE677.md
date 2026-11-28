@@ -1,12 +1,13 @@
 # Smart Money Research — state addendum (Phase 677)
 
 **Updated:** 2026-11-28 UTC  
-**Main HEAD at audit preflight:** `2a0d92463cc8a9b5915b673aa61e4f7d2cebba3f`
+**Main HEAD at audit preflight:** `2a0d92463cc8a9b5915b673aa61e4f7d2cebba3f`  
+**Phase 677 integration:** PR [#263](https://github.com/jafelix81/NuevaEstrategia/pull/263) merged at 2026-11-28 03:51:59 UTC; merge commit `c854cb04797ad60611c5df5156d16f8a6fd0f199`.
 
 ## Repository and Actions preflight
 
 - Latest 100 Actions runs: 79 success / 17 failure / 4 cancelled; 0 active and 0 queued among the returned 100; 8,405 total runs.
-- Branch census: 422; open PRs: 86.
+- Branch census before Phase 677: 422; open PRs before Phase 677: 86. Phase 677 added one branch and one PR, then merged the PR; the branch remains.
 - Latest run [46099559273](https://github.com/jafelix81/NuevaEstrategia/actions/runs/46099559273) (Phase 476 Form 4) completed both offline and live-capture jobs successfully; its artifact is [15244348107](https://github.com/jafelix81/NuevaEstrategia/actions/runs/46099559273/artifacts/15244348107).
 - Phase 675 PR #262 remains draft and based on draft PR #230; its latest offline validation [46092535366](https://github.com/jafelix81/NuevaEstrategia/actions/runs/46092535366) passed. Do not merge the selector until the Phase 612/613 dependency chain is reconciled.
 
