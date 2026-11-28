@@ -64,7 +64,7 @@ A secondary rendering of one IronOak filing shows a legacy “(thousands)” lab
 ## 4. Next work
 
 1. Download and hash the primary submission and information-table XMLs for AMS Capital accession 0001717977-26-000005; run the Phase 671 unit detector without modifying as-filed values.
-2. Download and hash the three IronOak primary submissions and information tables, then reconcile report periods, filing types, entry counts, values and units.
+2. Download and hash the four primary submissions and information tables (three IronOak, one AMS Capital), then reconcile report periods, filing types, entry counts, values and units.
 3. Add an explicit late-original filing class to the 13F event ledger, separate from restatement and new-holdings amendments.
 4. Add a regression proving that the latest filing timestamp does not necessarily identify the latest reporting-period portfolio.
 5. Keep every late filing's original first-seen timestamp and report period; never backfill the holdings into an earlier strategy information set.
