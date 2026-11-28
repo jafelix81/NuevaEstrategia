@@ -1,0 +1,36 @@
+# Smart Money Research state addendum — Phase 505 (2026-11-19)
+
+- Preflight main HEAD: `cbbaaf886b7aac27b0eb0276e5cf24087a4c73f0`; 7,894 Actions runs total; latest 100 inspected; no active/queued runs; first 100 branches inspected; 56 open PRs. PR #158 (Phase 504) merged at 17:51:55 UTC. No workflow was dispatched, rerun, cancelled, or duplicated.
+- Latest CI: Phase 500 run [44534689780](https://github.com/jafelix81/NuevaEstrategia/actions/runs/44534689780) passed 46 offline tests; live capture skipped. Its prior attempt failed one Form 144 response-classifier fixture and was corrected.
+- **New Phase 505 finding:** FINRA Consolidated Short Interest is a conditional historical positioning source that can complement, but must not be conflated with, daily Reg SHO short-sale volume. It is an aggregate snapshot of outstanding short positions, not an identity or directional-intent feed.
+- FINRA Developer Center documents dataset `otcMarket/consolidatedShortInterest`, fields for current/previous short position, changes, average daily volume, days-to-cover, split flag and revision flag, and availability by 4:40 PM ET on the publication date.
+- FINRA's current reporting calendar remains twice monthly. The November 13, 2026 settlement is due November 17 at 6:00 PM ET and published November 24. Use actual first receipt, not settlement date or nominal publication time, as the PIT clock.
+- FINRA's January 2023 API release note described five years of launch history and all-exchange data as of June 2022. June 2022 is the conservative all-exchange coverage regime; current earliest date, per-symbol coverage, inactive/delisted securities and the exact 335-name universe remain unverified. Pre-June-2022 history is not certified as all-exchange complete.
+- **Rulemaking correction:** SR-FINRA-2026-012 proposed weekly reporting, arranged-financing coverage and final reports for deleted symbols, but the SEC marks it **WITHDRAWN on 2026-08-05**. Do not assume weekly short-interest data or the proposed expanded fields became effective.
+- FINRA explicitly states that daily short-sale volume and outstanding short interest are different measures. Same-day opened/closed short sales may appear in daily volume but not short interest; an open position may remain in short interest after its opening flow has passed. Never sum daily short volume into short interest or label it as open-position accumulation.
+- Access gate: FINRA's fee page lists Public credentials at $0/month with a 10 GB monthly cap; individual accounts are not intended for commercial use. Organization credentials are listed at $1,650/month. No credential was created, no paid subscription activated, no purchase made, and no raw data downloaded or committed. Confirm use rights before any firm/commercial access.
+- **Preregistered hypotheses only:** short-position change; days-to-cover/crowding; daily Reg SHO flow versus the next published short-interest change; persistence versus acceleration; crowding/squeeze-risk interaction; revision sensitivity. Control for LTM/F80, prior returns/momentum, realized volatility, liquidity/size, events, sector and market regime. Do not infer beneficial-owner identity or assume either a bullish or bearish sign.
+- Historical PIT is publication-calendar-bounded, not vintage-certified: current archive rows and `revisionFlag` do not reconstruct every original first-published file. A prospective first-receipt and revision ledger is required. First eligible execution is the first regular-session open strictly after actual validated receipt.
+- Latest operations: Form 144 run 44521745535 remains partial (zero new events; 144 parse error; 144/A empty/possible gap); Form 4 run 44505739718 recorded 18 metadata events but zero research-eligible/signal-eligible rows; FINRA run 44453548570 predates Phase 495 and rejected eight HTTP-200 files under the old duplicate-symbol rule; Phase 495 offline validation run 44456658463 passed but live capture was skipped; CFTC run 44453066854 retained 3,039 rows with no new report/revision.
+- Next gates: (1) confirm API credential and business-use rights; (2) audit current earliest date, settlement-cycle completeness and exact 335-name/delisted coverage; (3) map effective-dated security identity and corporate actions; (4) capture the November 24 publication prospectively with actual receipt and revision vintages if access is authorized; (5) validate the next scheduled live Reg SHO capture under the Phase 495 parser; (6) only then test incremental value versus frozen LTM/F80 with identical exposure/costs and chronological OOS, bootstrap, LOO and multiplicity controls.
+- No backtest, event study, OOS, bootstrap, LOO or alpha test was run. Signals admitted: **0**.
+- `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen: universe, parameters, holding period, exposure, costs, holdout and production unchanged.
+
+See:
+- `research/PHASE505_FINRA_CONSOLIDATED_SHORT_INTEREST_PIT_FEASIBILITY_2026-11-19.md`
+- `research/PHASE505_FINRA_CONSOLIDATED_SHORT_INTEREST_PIT_FEASIBILITY_SUMMARY_2026-11-19.json`
+
+## Phase 506 — FINRA short-interest cross-phase reconciliation (2026-11-19)
+
+- Corrected Phase 505 after reviewing existing Phases 445–447 and the original Phase 31 artifact. FINRA Consolidated Short Interest is **not a newly discovered source**. The old Phase 31 panel remains **incomplete and unusable as retrieved**.
+- Phase 446 proves 102/102 successful synchronous settlement pulls returned exactly the 5,000-row cap; four additional requests failed; zero snapshots were proven complete. The 9,420 retained feature rows / 98 observed A–D symbols are not frozen-universe coverage and cannot support zero inference.
+- Phase 445's structural-zero rule remains valid only for a complete settlement snapshot plus effective-dated proof that a security was active/in scope. Phase 446 shows the Phase 31 snapshots do not meet the completeness condition.
+- Phase 447 already contains the asynchronous client and manual-only one-settlement workflow; 14/14 synthetic tests passed. Its only recorded live attempt, run 44007662531, failed at the credential guard and made zero FINRA/FIP requests. No later live validation was found in the latest 100 Actions runs through 44534689780.
+- Required human action: configure an authorized `FINRA_CLIENT_ID` + `FINRA_CLIENT_SECRET` pair or `FINRA_ACCESS_TOKEN` as GitHub Actions secrets, subject to the correct personal/non-commercial versus organization/commercial usage terms. Then use the existing Phase 447 manual workflow for exactly one settlement date. Do not launch the 106-date batch until the live result reconciles exactly to `Record-Total`.
+- Phase 505 remains a calendar/schema/PIT audit only. It does not re-admit Phase 31 or authorize a return test. No data downloaded, no alpha/OOS/bootstrap/LOO, no signal admission, no F80 or production change.
+- Main HEAD at preflight: `cbbaaf886b7aac27b0eb0276e5cf24087a4c73f0`; PR #159 remains draft/open pending this correction and review. No workflows were dispatched or duplicated.
+
+See also:
+- `research/PHASE445_FINRA_SHORT_INTEREST_ZERO_VS_MISSING_SEMANTICS_AUDIT_2026-11-17.md`
+- `research/PHASE446_FINRA_SHORT_INTEREST_ARTIFACT_TRUNCATION_AUDIT_2026-11-17.md`
+- `research/PHASE447_FINRA_ASYNC_SHORT_INTEREST_SNAPSHOT_RETRIEVAL_CONTRACT_2026-11-17.md`
