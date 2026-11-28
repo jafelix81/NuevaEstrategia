@@ -1,0 +1,43 @@
+name: Phase 602 - SEC Form 4 conservative retrieval-clock audit
+
+on:
+  push:
+    branches:
+      - phase602-form4-conservative-retrieval-clock-audit
+    paths:
+      - research/phase602_form4_conservative_retrieval_clock_audit.py
+      - research/test_phase602_form4_conservative_retrieval_clock_audit.py
+      - research/PHASE602_FORM4_CONSERVATIVE_RETRIEVAL_CLOCK_AUDIT_2026-11-24.md
+      - .github/workflows/phase602_form4_conservative_retrieval_clock_audit.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase602-form4-conservative-retrieval-clock-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compile and run offline regressions
+        run: |
+          python -m py_compile research/phase602_form4_conservative_retrieval_clock_audit.py research/test_phase602_form4_conservative_retrieval_clock_audit.py
+          python -m unittest -v research.test_phase602_form4_conservative_retrieval_clock_audit
+      - name: Audit committed Form 4 and Form 144 ledgers without network access
+        run: |
+          python -m research.phase602_form4_conservative_retrieval_clock_audit --output phase602_output/summary.json
+      - name: Upload Phase 602 summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase602-form4-conservative-retrieval-clock-audit
+          path: phase602_output/summary.json
+          if-no-files-found: error
+          retention-days: 90
