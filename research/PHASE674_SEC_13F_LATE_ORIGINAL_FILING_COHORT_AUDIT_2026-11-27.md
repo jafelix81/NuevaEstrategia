@@ -26,7 +26,7 @@ The primary SEC cover-page XML for AMS Capital's Q3 2026 filing reports `tableEn
 
 ## 2. Material finding: filing date is not reporting period
 
-IronOak submitted three original 13F-HR reports on 2026-11-27 for earlier quarter ends:
+IronOak submitted three original 13F-HR reports on 2026-11-27 for earlier quarter ends; AMS Capital submitted one original Q3 2026 13F-HR on the same date:
 
 | Reporting period | Standard SEC deadline benchmark | Filing date | Calendar days after benchmark |
 |---|---|---|---:|
@@ -37,7 +37,7 @@ IronOak submitted three original 13F-HR reports on 2026-11-27 for earlier quarte
 
 The SEC Form 13F FAQ (Question 25, updated 2026-03-06) specifies the 45-day reporting rule and explicitly moves the Q4 2025 deadline to 2026-02-17 because February 14 fell on Saturday and February 16 was a federal holiday. The same FAQ lists 2026-05-15 and 2026-08-14 as the Q1 and Q2 deadlines. Relative to the standard SEC deadline benchmarks, the filing dates are 283, 196 and 105 calendar days later for IronOak's Q4 2025, Q1 2026 and Q2 2026 reports, and 11 days later for AMS Capital's Q3 2026 report. This is a calendar-lateness classification, not a legal conclusion that either filer was obligated to file each report by those dates: Form 13F's threshold-triggered initial filing obligation depends on when the manager first met the $100 million threshold, and that trigger history has not been adjudicated here.
 
-These are original 13F-HR reports, not 13F-HR/A amendments. The Q3 2026 original report for the same filer (accession 0002037081-26-000003, period 2026-09-30) had already been filed on 2026-11-06. Consequently, a filing-date sort would make the older Q4 2025, Q1 2026 and Q2 2026 reports appear newer than the Q3 2026 portfolio snapshot.
+These are original 13F-HR reports, not 13F-HR/A amendments. IronOak's Q3 2026 original report (accession 0002037081-26-000003, period 2026-09-30) had already been filed on 2026-11-06. Consequently, a filing-date sort would make the older Q4 2025, Q1 2026 and Q2 2026 reports appear newer than the Q3 2026 portfolio snapshot.
 
 **Modeling implication:** preserve at least two independent clocks for every 13F filing:
 - `period_of_report`: the portfolio measurement date;
