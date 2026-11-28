@@ -19,7 +19,7 @@ Phase 614 run [46084129349](https://github.com/jafelix81/NuevaEstrategia/actions
 
 ## Validation status
 - PR #262 created as draft, stacked on PR #230's Phase 613 branch.
-- GitHub Actions offline regression: pending at state-file creation; no pass is claimed until the run completes.
+- GitHub Actions [run 46092474064](https://github.com/jafelix81/NuevaEstrategia/actions/runs/46092474064): success; 22/22 tests passed. The first two attempts exposed and then corrected a test-fixture ordering assertion (ascending expectation vs descending selector output).
 - No live SEC capture or holdings download was run.
 
 ## Other source state

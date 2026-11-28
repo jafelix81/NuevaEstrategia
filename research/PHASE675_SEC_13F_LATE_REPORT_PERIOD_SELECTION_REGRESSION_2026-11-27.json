@@ -5,7 +5,7 @@
   "execution_date_utc": "2026-11-28",
   "branch": "phase675-13f-latest-report-period-selector",
   "base_branch": "phase613-sec-13f-legal-dissemination-floor",
-  "disposition": "OFFLINE_SELECTOR_ADDED_ACTIONS_VALIDATION_PENDING",
+  "disposition": "OFFLINE_SELECTOR_ADDED_ACTIONS_PASSED",
   "source_context": {
     "source_run_id": 46084129349,
     "new_metadata_accessions": 4,
@@ -43,7 +43,12 @@
       "calendar_gap_blocks_latest_period_selection",
       "duplicate_manager_report_period_input_fails_closed"
     ],
-    "github_actions_status": "PENDING"
+    "github_actions_status": "SUCCESS",
+    "total": 22,
+    "passed": 22,
+    "failed": 0,
+    "github_actions_run_id": 46092474064,
+    "github_actions_url": "https://github.com/jafelix81/NuevaEstrategia/actions/runs/46092474064"
   },
   "research_controls": {
     "signal_eligible": false,

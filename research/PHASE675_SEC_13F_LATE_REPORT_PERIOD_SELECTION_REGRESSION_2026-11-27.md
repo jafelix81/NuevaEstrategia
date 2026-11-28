@@ -3,7 +3,7 @@
 **Research date:** 2026-11-27 local (UTC execution: 2026-11-28)  
 **Branch:** \`phase675-13f-latest-report-period-selector\`  
 **Base branch:** \`phase613-sec-13f-legal-dissemination-floor\`  
-**Disposition:** offline state-selection control added; GitHub Actions validation pending. No holdings or signals admitted.
+**Disposition:** offline state-selection control added; GitHub Actions passed all 22 tests. No holdings or signals admitted.
 
 ## 1. Motivation
 
@@ -48,7 +48,7 @@ Fixtures are synthetic and test ordering/semantics only; they do not imply that 
 
 ## 4. Validation and scope
 
-The PR workflow compiles the state-machine module and runs the complete Phase 48 test suite, including the eight new cases. The workflow result is pending at the time this report was authored; no test pass is claimed until GitHub Actions reports success.
+The PR workflow compiled the state-machine module and ran the complete Phase 48 test suite. GitHub Actions run [46092474064](https://github.com/jafelix81/NuevaEstrategia/actions/runs/46092474064) completed successfully: 22 tests passed, including all eight new cases. The two earlier attempts failed only because the first expected list order was written ascending while the selector intentionally returns descending report-period order; that assertion was corrected and the final run passed.
 
 No SEC request or filing download was performed. Phase 614's latest run (46084129349) captured four bounded metadata observations but zero XML or holdings rows. No CUSIP/ticker mapping, value-unit normalization, return test, OOS test, bootstrap, LOO or holdout use was performed.
 
