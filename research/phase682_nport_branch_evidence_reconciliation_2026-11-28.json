@@ -1,0 +1,115 @@
+{
+  "phase": 682,
+  "audit_cutoff_utc": "2026-11-28",
+  "main_base_sha": "d2045f02e8a924689503dd84cc5229ea99128a7f",
+  "source_branch": {
+    "pr": 17,
+    "state": "open",
+    "merged": false,
+    "base": "phase312-nport-raw-stratified-sample",
+    "head": "phase313-nport-sgml-header-identity-correction",
+    "head_sha": "7bc80f1aa7fca411389a4682abdb2adc2b645282",
+    "ahead_of_main": 1168,
+    "behind_main": 712,
+    "merge_base": "dc99c7289340983241b031beba7c68c3ba35f0dc",
+    "merge_as_unit": false
+  },
+  "phase313": {
+    "run_id": 43160004366,
+    "artifact_id": 13916694212,
+    "tests": {
+      "passed": 8,
+      "failed": 0
+    },
+    "raw_submissions": 56,
+    "raw_hashes_verified": 56,
+    "series_identity_matches": 53,
+    "class_identity_matches": 53,
+    "series_class_mismatches": 0,
+    "missing_both_series_class": 3,
+    "short_rows": 176,
+    "filings_with_short_rows": 2,
+    "unique_cusips": 173,
+    "unique_isins": 173,
+    "reported_tickers": 20,
+    "ticker_string_matches_frozen_335": 6,
+    "ticker_string_nonmatches": 14,
+    "no_ticker_rows_unknown": 156
+  },
+  "phase314": {
+    "run_id": 46006090277,
+    "run_commit": "a54975865e75c250dda011de9ab2626ab60de576",
+    "artifact_id": 15201951527,
+    "tests": {
+      "passed": 9,
+      "failed": 0
+    },
+    "candidate_originals": {
+      "expected": 25,
+      "downloaded": 25,
+      "hashed": 25,
+      "series_identity_matches": 25,
+      "class_identity_matches": 25
+    },
+    "amendment": {
+      "accession": "0001145549-22-060851",
+      "report_date": "2022-07-31",
+      "filing_date": "2022-10-03",
+      "series_id": "S000043717",
+      "short_rows": 20
+    },
+    "parent_candidate": {
+      "accession": "0001145549-22-059178",
+      "filing_date": "2022-09-28",
+      "linkage_status": "UNIQUE_METADATA_PARENT_CANDIDATE_NOT_AUTHORITATIVE",
+      "authoritative_parent_link": false
+    },
+    "original_vs_amendment": {
+      "unchanged": 20,
+      "modified": 0,
+      "added": 0,
+      "removed": 0
+    },
+    "same_series_2023_control": {
+      "accession": "0001145549-23-060491",
+      "report_date": "2023-07-31",
+      "short_rows": 27,
+      "comparison_to_2022": {
+        "unchanged": 0,
+        "modified": 4,
+        "added": 23,
+        "removed": 16
+      }
+    },
+    "report_to_filing_lag_days": {
+      "original_2022": 59,
+      "amendment_2022": 64,
+      "control_2023": 60
+    }
+  },
+  "admission": {
+    "nport_role": "conditional_slow_registered_fund_positioning_context",
+    "first_public_receipt": "not_established",
+    "effective_dated_security_master": "not_established",
+    "broad_universe_coverage": "not_measured",
+    "representative_prevalence": "not_estimated",
+    "return_test": false,
+    "alpha_test": false,
+    "oos": false,
+    "bootstrap": false,
+    "loo": false,
+    "holdout_used": false
+  },
+  "controls": {
+    "f80_frozen": true,
+    "production_changed": false,
+    "universe_changed": false,
+    "parameters_changed": false,
+    "costs_changed": false,
+    "exposure_changed": false,
+    "vendor_contact": false,
+    "data_purchase": false,
+    "budget_usd": 0
+  },
+  "decision": "CONSOLIDATE_PHASE313_314_EVIDENCE_NO_NPORT_SIGNAL_ADMISSION"
+}
