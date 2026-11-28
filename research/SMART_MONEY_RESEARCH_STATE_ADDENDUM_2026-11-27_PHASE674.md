@@ -7,7 +7,7 @@
 - Phase 673 merged via PR #261, commit `221f3aa9433fc66837c2093e2db685a9845d56d1`.
 - Phase 403's offline regression no longer hard-codes stale Phase 665 row counts. It uses structural ledger invariants and includes Phase 525 crosswalk tests.
 - Phase 403 now recomputes the accession-level Phase 665 PIT/plan-date join and refreshes the descriptive Phase 525 Form 144/Form 4 crosswalk after each successful live Form 144 capture.
-- PR validation run 46088870898 passed offline regression. It did not run live capture; the first post-merge scheduled run remains the operational confirmation.
+- PR validation run 46088870898 passed offline regression. It did not run live capture. At 2026-11-28 00:47:51 UTC, no post-merge scheduled Phase 403 run was visible yet; no manual dispatch or rerun was made. Treat the first natural post-merge run as pending, not as a disabled schedule.
 
 ## Form 144
 
