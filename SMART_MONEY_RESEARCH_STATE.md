@@ -1,3 +1,20 @@
+# Current Smart Money Research Snapshot — 2026-11-28 (Phase 684)
+
+**Audit cutoff:** 2026-11-28 UTC. **Main HEAD after Phase 684 report/addendum:** `162ceefec78b8b6a79415f1f80b6859c13caf5ba`. Full report: [Phase 684 — Smart Money source reconciliation and FINRA rights-hold enforcement](research/PHASE684_SMART_MONEY_SOURCE_RECONCILIATION_AND_FINRA_RIGHTS_HOLD_ENFORCEMENT_2026-11-28.md).
+
+- **Repository preflight:** 8,409 Actions runs total; latest 100 = 80 success / 16 failure / 4 cancelled; 0 active / 0 queued. 86 open PRs. No duplicate dispatch or rerun.
+- **Form 144:** run [46155351208](https://github.com/jafelix81/NuevaEstrategia/actions/runs/46155351208) succeeded. 52 feed-observation rows appended (poll observations, not new accessions); canonical event ledger remains 1,104 accessions. Ten existing accessions gained 49 detail rows. Structured ledger: 986 accessions / 6,409 rows; 118 pending. Formal plan dates: 391; public availability certified: 0; signal eligible: 0.
+- **Form 4:** run [46099559273](https://github.com/jafelix81/NuevaEstrategia/actions/runs/46099559273) captured 156 bounded metadata accessions. Entity reconciliation: 149 single-reporting-owner filings and seven multi-owner filings; the 156 are not 156 verified trades. Research/signal eligible: 0. Refreshed Form 144/Form 4 crosswalk: 17 proposed-sale matches / 16 Form 4 accessions / 12 issuers / 16 owners; two Form 144 acceptance clocks unresolved; zero signal-eligible matches.
+- **FINRA Reg SHO:** run [46105917821](https://github.com/jafelix81/NuevaEstrategia/actions/runs/46105917821) retained 327 unique-symbol observations for one date after duplicate-symbol quarantine; zero signal-eligible rows. Under Phase 683, the scheduled direct-CDN workflow was paused in commit `066380e1e3c018aab9fcf02113f4d8076402add2`; manual live capture now requires explicit rights-clearance acknowledgement. This is a conservative contract-risk hold, not a legal finding of breach.
+- **CFTC TFF:** run [46105422375](https://github.com/jafelix81/NuevaEstrategia/actions/runs/46105422375) retains 3,043 rows; no new signal-eligible history.
+- **SEC 13F:** latest natural capture [46084129349](https://github.com/jafelix81/NuevaEstrategia/actions/runs/46084129349) found four new metadata accessions; no holdings downloaded and zero research/signal rows. PR #262 remains draft stacked on #230.
+- **SEC 13D/G:** Phase 603's 147/147 header-identity pilot is a discovery result only. Phase 616's 44-accession/five-quarter live sample remains skipped; PR #219 is draft and manual dispatch with `run_live_sample=true` plus `SEC_USER_AGENT` remains a prerequisite.
+- **Other sources:** SEC MIDAS catalog spans 2012 Q1–2026 Q3 but lacks certified per-quarter release clocks and permanent IDs; OCC Volume Query coverage is 96.27% on two recent dates but only 24 months and lacks buy/sell/open/close semantics; SEC FTD lacks a historical active-universe/zero-vs-inactive bridge; paid OPRA sources remain outside the USD 0 budget; N-PORT short-position rows are sparse and poorly mapped.
+- **Phase 20C:** no-go because signal-date-close entry is not executable after the post-close FINRA release. Branch is 12 ahead / 828 behind main; not merged or rerun.
+- **Decision:** zero new signals promoted; no incremental alpha, new OOS, bootstrap or LOO demonstrated. Holdout untouched. `F80_TOP20_PARTIAL50_BASELINE_C20` remains frozen. No universe, parameters, exposure, costs, capital or holding-period policy changed. Paid data spend: USD 0.
+
+---
+
 # Current Smart Money Research Snapshot — 2026-11-27 (Phase 655)
 
 **Audit cutoff:** 2026-11-27 02:37 UTC. **Main HEAD after Phase 655 documentation:** `59438e6fc9c74c1096d8a408a6dc00ac657972be`. Full report: [Phase 655 — Form 4 live-ledger overlap and UPST purchase-cluster audit](research/PHASE655_FORM4_LIVE_LEDGER_OVERLAP_AND_UPST_PURCHASE_CLUSTER_AUDIT_2026-11-27.md).
