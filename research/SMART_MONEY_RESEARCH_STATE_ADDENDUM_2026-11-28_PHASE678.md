@@ -7,6 +7,7 @@
 
 - Latest-20 Actions preflight: 0 active/queued runs; no duplicate workflow dispatched.
 - Scheduled run [46105917821](https://github.com/jafelix81/NuevaEstrategia/actions/runs/46105917821) passed both jobs. Offline regression: 65/65 tests. Live capture succeeded.
+- **Schedule drift:** Phase 469 declares weekday polls at 22:30 and 23:30 UTC, while this run started at 04:05:39 UTC on 2026-11-28. The run payload does not identify which nominal slot triggered it; the observed start is about 4h35–5h35 later. No manual dispatch/rerun occurred. This is a capture-cadence risk, not a source-publication timestamp.
 - The run appended 327 unique symbol rows for trade date 2026-11-27 against the frozen 335-ticker snapshot (97.61% observed-row coverage). Eight names had no row in the source file; this is not classified as delisting or zero volume.
 - One date-level first-seen event is research-observation eligible; all 327 rows remain signal-ineligible. The stored first-seen timestamp is a conservative poll-interval upper bound, not exact release time.
 - Duplicate diagnostics: 14 symbols / 28 quarantined row occurrences across seven files. Ambiguous duplicate symbols remain fully excluded.
