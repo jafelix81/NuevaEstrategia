@@ -1,0 +1,93 @@
+{
+  "phase": 683,
+  "audit_date_utc": "2026-11-28",
+  "main_base_sha": "1192a6c28a3da86ee84109497857a5a0bc8cd8d4",
+  "decision": "FINRA_CDN_REGSHO_RIGHTS_HOLD_PENDING_WRITTEN_SCOPE_CLARIFICATION_OR_API_MIGRATION",
+  "legal_scope": {
+    "finra_website_terms_url": "https://www.finra.org/terms-of-use",
+    "last_modified": "2023-11-09",
+    "terms": {
+      "noncommercial_personal_professional_use_only": true,
+      "database_creation_restricted_except_specific_terms": true,
+      "bulk_copying_scraping_harvesting_restricted": true,
+      "predictive_analytics_and_trade_prediction_restricted": true
+    },
+    "cdn_path": "https://cdn.finra.org/equity/regsho/daily/CNMSshvol{yyyymmdd}.txt",
+    "cdn_scope_expressly_named_in_terms": false,
+    "scope_disposition": "UNRESOLVED_CONTRACT_SCOPE_MATERIAL_RISK_NO_LEGAL_CONCLUSION"
+  },
+  "current_collector": {
+    "script": "research/phase469_finra_regsho_daily_first_seen_capture.py",
+    "workflow": ".github/workflows/phase469_finra_regsho_daily_first_seen_capture.yml",
+    "storage": "research/data/finra_regsho_daily_first_seen/",
+    "uses_finra_query_api": false,
+    "persists_append_only_poll_and_symbol_database": true,
+    "persists_raw_source_bytes": false,
+    "persists_source_hashes": true,
+    "predictive_research_branch": "phase20c-finra-walkforward",
+    "predictive_use_hold": true
+  },
+  "latest_run": {
+    "run_id": 46105917821,
+    "url": "https://github.com/jafelix81/NuevaEstrategia/actions/runs/46105917821",
+    "status": "completed",
+    "conclusion": "success",
+    "symbol_rows_appended": 327,
+    "duplicate_symbol_count": 14,
+    "quarantined_row_occurrences": 28,
+    "signal_eligible_count": 0,
+    "raw_payload_persisted": false
+  },
+  "query_api_alternative": {
+    "terms_url": "https://developer.finra.org/terms-and-conditions",
+    "terms_last_updated": "2026-03-19",
+    "equity_specific_terms_url": "https://developer.finra.org/specific-terms-equity-data",
+    "internal_use": "non-commercial personal or professional",
+    "derivative_data_permitted": true,
+    "redistribution": "restricted; no further redistribution by end users",
+    "api_dataset": "otcMarket/regShoDaily",
+    "api_docs_url": "https://developer.finra.org/docs/api-explorer/query_api-equity-reg_sho_daily_short_sale_volume",
+    "history": "rolling_12_months_only",
+    "public_credential_available": true,
+    "public_credential_fee_usd": 0,
+    "public_credential_monthly_download_cap_gb": 10,
+    "individuals_can_create_public_credentials": true,
+    "requires_user_acceptance_and_credential_provisioning": true,
+    "activated": false
+  },
+  "preflight": {
+    "latest_100_actions_runs_inspected": true,
+    "active_runs": 0,
+    "queued_runs": 0,
+    "latest_source_runs_checked": [
+      46110032075,
+      46105917821,
+      46105422375,
+      46099559273,
+      46084129349
+    ],
+    "jobs_logs_artifacts_inspected": true,
+    "duplicate_run_started": false,
+    "workflow_dispatch": false,
+    "workflow_rerun": false,
+    "workflow_schedule_changed": false,
+    "code_changed": false,
+    "branch_merged": false,
+    "credentials_changed": false,
+    "vendor_contact": false,
+    "data_purchase": false
+  },
+  "strategy": {
+    "signals_promoted": 0,
+    "incremental_alpha_demonstrated": false,
+    "new_oos_bootstrap_loo": false,
+    "f80_frozen": true,
+    "production_changed": false,
+    "spend_usd": 0
+  },
+  "human_gate": {
+    "option_a": "Obtain written FINRA clarification/permission for CDN automated capture, persistent database storage and predictive analytics use.",
+    "option_b": "Account holder reviews and accepts current FINRA API Terms and provisions a free Public credential; then migrate to Query API after schema/PIT validation.",
+    "no_secret_shared_in_chat": true
+  }
+}
