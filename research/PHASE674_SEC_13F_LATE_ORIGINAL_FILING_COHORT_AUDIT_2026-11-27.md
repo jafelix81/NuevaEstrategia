@@ -24,13 +24,13 @@ The feed-updated timestamps above are the SEC Atom feed's recorded update values
 
 IronOak submitted three original 13F-HR reports on 2026-11-27 for earlier quarter ends:
 
-| Reporting period | SEC deadline | Filing date | Calendar days after deadline |
+| Reporting period | Standard SEC deadline benchmark | Filing date | Calendar days after benchmark |
 |---|---|---|---:|
 | 2025-12-31 (Q4 2025) | 2026-02-17 | 2026-11-27 | 283 |
 | 2026-03-31 (Q1 2026) | 2026-05-15 | 2026-11-27 | 196 |
 | 2026-06-30 (Q2 2026) | 2026-08-14 | 2026-11-27 | 105 |
 
-The SEC Form 13F FAQ (Question 25, updated 2026-03-06) specifies the 45-day reporting rule and explicitly moves the Q4 2025 deadline to 2026-02-17 because February 14 fell on Saturday and February 16 was a federal holiday. The same FAQ lists 2026-05-15 and 2026-08-14 as the Q1 and Q2 deadlines. The three reports were therefore substantially late.
+The SEC Form 13F FAQ (Question 25, updated 2026-03-06) specifies the 45-day reporting rule and explicitly moves the Q4 2025 deadline to 2026-02-17 because February 14 fell on Saturday and February 16 was a federal holiday. The same FAQ lists 2026-05-15 and 2026-08-14 as the Q1 and Q2 deadlines. Relative to the standard SEC deadline benchmarks, the filing dates are 283, 196 and 105 calendar days later. This is a calendar-lateness classification, not a legal conclusion that the filer was obligated to file each report by those dates: Form 13F's threshold-triggered initial filing obligation depends on when the manager first met the $100 million threshold, and that trigger history has not been adjudicated here.
 
 These are original 13F-HR reports, not 13F-HR/A amendments. The Q3 2026 original report for the same filer (accession 0002037081-26-000003, period 2026-09-30) had already been filed on 2026-11-06. Consequently, a filing-date sort would make the older Q4 2025, Q1 2026 and Q2 2026 reports appear newer than the Q3 2026 portfolio snapshot.
 
