@@ -1,0 +1,69 @@
+{
+  "phase": 548,
+  "title": "SEC MIDAS methodology, off-exchange scope and PIT reclassification",
+  "audit_cutoff_utc": "2026-11-21T16:51:00Z",
+  "base_main_sha": "cb9aab722f905e2df54e349091e42ae7d9bf243a",
+  "disposition": {
+    "sec_midas": "conditional_public_exchange_market_structure_liquidity_state_candidate",
+    "sec_midas_off_exchange_hypothesis": "killed_scope_mismatch",
+    "sec_midas_smart_money_identity": "not_supported",
+    "cboe_options_strategy_use": "blocked_pending_separate_written_executed_license",
+    "alpha_test_authorized": false
+  },
+  "sec_midas": {
+    "catalog_span": "2012-Q1_to_2026-Q3",
+    "quarterly_files": 59,
+    "securities_advertised": ">4800",
+    "daily_observation_fields": true,
+    "off_exchange_metrics_in_public_files": false,
+    "hidden_volume_exchange_feed_coverage": "8_of_13",
+    "hidden_volume_denominator_excludes": [
+      "NYSE",
+      "Amex",
+      "CHX",
+      "NSX"
+    ],
+    "continuous_market_window_et": "09:35-16:00",
+    "crsp_universe_update_lag_weeks": "3-4",
+    "methodology_breaks": [
+      "2014-01 odd-lot SIP reconciliation",
+      "2017-05-01 NYSE Ultrabook to NYSE Integrated Feed",
+      "2025-11-03 four-tier round-lot definition"
+    ],
+    "historical_first_public_timestamps": "unverified",
+    "exact_frozen_335_coverage": "unverified",
+    "historical_inactive_delisted_identity": "unverified",
+    "zip_payload_integrity": "not_downloaded_or_validated"
+  },
+  "actions_preflight": {
+    "latest_100": {
+      "success": 88,
+      "failure": 11,
+      "cancelled": 1,
+      "active_or_queued": 0
+    },
+    "main_head": "cb9aab722f905e2df54e349091e42ae7d9bf243a",
+    "pr_200": "open_draft_mergeable",
+    "latest_form144_run": 44886726541,
+    "form144_missing_slots_utc": [
+      "2026-11-21T09:47Z",
+      "2026-11-21T10:47Z",
+      "2026-11-21T11:47Z",
+      "2026-11-21T12:47Z",
+      "2026-11-21T13:47Z",
+      "2026-11-21T14:47Z",
+      "2026-11-21T15:47Z",
+      "2026-11-21T16:47Z"
+    ],
+    "latest_finra_phase539_pr_run": 44868239322,
+    "finra_live_capture_skipped": true,
+    "latest_cftc_run": 44860341977,
+    "latest_form4_run": 44846461134
+  },
+  "frozen_baseline": "F80_TOP20_PARTIAL50_BASELINE_C20",
+  "new_signals_admitted": 0,
+  "new_backtests": 0,
+  "new_oos": 0,
+  "bootstrap_or_loo": 0,
+  "production_changes": 0
+}
