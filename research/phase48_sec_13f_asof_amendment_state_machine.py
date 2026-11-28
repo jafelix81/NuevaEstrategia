@@ -350,3 +350,179 @@ def reconstruct_as_of(
             "signal_eligible": False,
         },
     }
+
+
+def select_latest_holdings_period(reconstruction: dict) -> dict:
+    """Select each manager's latest *reported period* from an as-of reconstruction.
+
+    Filing date/order is deliberately not used to choose the latest portfolio
+    snapshot. Late originals or amendments for an older report period remain
+    in the historical panel but cannot displace a newer report-period state.
+
+    A blocked newest period never falls back to an older portfolio and presents
+    it as current. A newer 13F-NT notice is retained as a notice-only freshness
+    warning; it is never converted into a zero-holdings portfolio. Older blocked
+    periods are surfaced as historical gaps because change features cannot be
+    computed safely across them.
+    """
+    if not isinstance(reconstruction, dict):
+        raise StateMachineError("invalid_reconstruction_payload")
+
+    as_of = parse_date(reconstruction.get("as_of_session"))
+    manager_period_rows = reconstruction.get("manager_periods")
+    notices = reconstruction.get("notices")
+    pending_calendar = reconstruction.get("pending_calendar_events", [])
+
+    if not isinstance(manager_period_rows, list):
+        raise StateMachineError("invalid_manager_periods_payload")
+    if not isinstance(notices, list):
+        raise StateMachineError("invalid_notices_payload")
+    if not isinstance(pending_calendar, list):
+        raise StateMachineError("invalid_pending_calendar_payload")
+
+    by_manager: dict[str, list[dict]] = defaultdict(list)
+    seen_periods: set[tuple[str, str]] = set()
+    for raw in manager_period_rows:
+        if not isinstance(raw, dict):
+            raise StateMachineError("invalid_manager_period_row")
+        manager = normalize_cik(raw.get("manager_cik"))
+        period = parse_date(raw.get("report_period")).isoformat()
+        key = (manager, period)
+        if key in seen_periods:
+            raise StateMachineError(f"duplicate_manager_report_period:{manager}:{period}")
+        seen_periods.add(key)
+        row = dict(raw)
+        row["manager_cik"] = manager
+        row["report_period"] = period
+        by_manager[manager].append(row)
+
+    notices_by_manager: dict[str, list[dict]] = defaultdict(list)
+    for raw in notices:
+        if not isinstance(raw, dict):
+            raise StateMachineError("invalid_notice_row")
+        manager = normalize_cik(raw.get("manager_cik"))
+        period = parse_date(raw.get("report_period")).isoformat()
+        notice = dict(raw)
+        notice["manager_cik"] = manager
+        notice["report_period"] = period
+        notices_by_manager[manager].append(notice)
+
+    manager_states: list[dict] = []
+    all_managers = sorted(set(by_manager) | set(notices_by_manager))
+    for manager in all_managers:
+        periods = sorted(
+            by_manager.get(manager, []),
+            key=lambda row: parse_date(row["report_period"]),
+            reverse=True,
+        )
+        manager_notices = sorted(
+            notices_by_manager.get(manager, []),
+            key=lambda row: parse_date(row["report_period"]),
+        )
+
+        if not periods:
+            manager_states.append({
+                "manager_cik": manager,
+                "as_of_session": as_of.isoformat(),
+                "latest_holdings_period": None,
+                "status": "NOTICE_ONLY_NO_PUBLIC_HOLDINGS",
+                "holdings_count": 0,
+                "holdings": [],
+                "applied_accessions": [],
+                "notice_periods": [row["report_period"] for row in manager_notices],
+                "historical_gap_periods": [],
+                "signal_eligible": False,
+            })
+            continue
+
+        latest = periods[0]
+        latest_period = latest["report_period"]
+        newer_notices = [
+            row["report_period"]
+            for row in manager_notices
+            if parse_date(row["report_period"]) > parse_date(latest_period)
+        ]
+        historical_gaps = [
+            row["report_period"]
+            for row in periods[1:]
+            if str(row.get("status") or "").upper() != "PASS"
+        ]
+
+        if str(latest.get("status") or "").upper() != "PASS":
+            manager_status = "BLOCKED_NO_FALLBACK"
+            holdings = []
+            holdings_count = 0
+            reason = str(latest.get("reason") or "latest_report_period_not_reconstructed")
+        else:
+            holdings = latest.get("holdings")
+            holdings_count = latest.get("holdings_count")
+            if not isinstance(holdings, list) or holdings_count != len(holdings):
+                manager_status = "BLOCKED_NO_FALLBACK"
+                holdings = []
+                holdings_count = 0
+                reason = "latest_report_period_holdings_count_mismatch"
+            else:
+                reason = None
+                if newer_notices:
+                    manager_status = "NOTICE_AFTER_LATEST_HOLDINGS"
+                elif historical_gaps:
+                    manager_status = "PASS_WITH_HISTORICAL_GAPS"
+                else:
+                    manager_status = "PASS"
+
+        state = {
+            "manager_cik": manager,
+            "as_of_session": as_of.isoformat(),
+            "latest_holdings_period": latest_period,
+            "status": manager_status,
+            "holdings_count": holdings_count,
+            "holdings": holdings,
+            "applied_accessions": list(latest.get("applied_accessions") or []),
+            "last_amendment_number": latest.get("last_amendment_number"),
+            "newer_notice_periods": newer_notices,
+            "historical_gap_periods": historical_gaps,
+            "available_report_periods": [row["report_period"] for row in periods],
+            "signal_eligible": False,
+        }
+        if reason:
+            state["reason"] = reason
+        manager_states.append(state)
+
+    blocked_latest = sum(row["status"] == "BLOCKED_NO_FALLBACK" for row in manager_states)
+    notice_after_latest = sum(row["status"] == "NOTICE_AFTER_LATEST_HOLDINGS" for row in manager_states)
+    historical_gaps = sum(bool(row["historical_gap_periods"]) for row in manager_states)
+    if blocked_latest:
+        overall_status = "BLOCKED"
+    elif pending_calendar:
+        overall_status = "PENDING_CALENDAR_COVERAGE"
+    elif notice_after_latest:
+        overall_status = "NOTICE_AFTER_LATEST_HOLDINGS"
+    elif historical_gaps:
+        overall_status = "HISTORICAL_GAPS"
+    elif not manager_states:
+        overall_status = "NO_HOLDINGS_AVAILABLE"
+    elif all(row["status"] == "NOTICE_ONLY_NO_PUBLIC_HOLDINGS" for row in manager_states):
+        overall_status = "NOTICE_ONLY_NO_PUBLIC_HOLDINGS"
+    else:
+        overall_status = "PASS"
+
+    return {
+        "status": overall_status,
+        "as_of_session": as_of.isoformat(),
+        "selection_basis": "MAX_REPORT_PERIOD; filing_date_not_used",
+        "managers": manager_states,
+        "pending_calendar_events": pending_calendar,
+        "summary": {
+            "manager_count": len(manager_states),
+            "latest_snapshot_count": sum(
+                row["latest_holdings_period"] is not None
+                and row["status"] != "BLOCKED_NO_FALLBACK"
+                for row in manager_states
+            ),
+            "blocked_latest_count": blocked_latest,
+            "notice_after_latest_count": notice_after_latest,
+            "historical_gap_manager_count": historical_gaps,
+            "pending_calendar_event_count": len(pending_calendar),
+            "signal_eligible": False,
+        },
+    }

@@ -1,0 +1,27 @@
+name: Phase 675 - SEC 13F latest report-period selection
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/phase675_sec_13f_latest_report_period_selector.yml"
+      - "research/phase48_sec_13f_asof_amendment_state_machine.py"
+      - "research/test_phase48_sec_13f_asof_amendment_state_machine.py"
+      - "research/PHASE675_SEC_13F_LATE_REPORT_PERIOD_SELECTION_REGRESSION_2026-11-27.md"
+      - "research/PHASE675_SEC_13F_LATE_REPORT_PERIOD_SELECTION_REGRESSION_2026-11-27.json"
+      - "research/SMART_MONEY_RESEARCH_STATE_ADDENDUM_2026-11-27_PHASE675.md"
+
+permissions:
+  contents: read
+
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile and run SEC 13F as-of state regressions
+        run: |
+          python -m py_compile research/phase48_sec_13f_asof_amendment_state_machine.py research/test_phase48_sec_13f_asof_amendment_state_machine.py
+          python -m unittest -v research.test_phase48_sec_13f_asof_amendment_state_machine
