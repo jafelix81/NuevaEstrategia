@@ -17,7 +17,7 @@ The previous Form 144/Form 4 crosswalk was stale after the 101-accession live ca
 
 ## SEC 13F
 
-Phase 614 run 46084129349 added four bounded metadata observations, but downloaded no XML or holdings and admitted no research/signal observations. Three accessions are original IronOak Wealth LLC filings for Q4 2025, Q1 2026 and Q2 2026 submitted on 2026-11-27, respectively 283, 196 and 105 calendar days after their SEC deadlines. One accession (0001717977-26-000005) remains unresolved.
+Phase 614 run 46084129349 added four bounded metadata observations, but downloaded no XML or holdings and admitted no research/signal observations. Three accessions are original IronOak Wealth LLC filings for Q4 2025, Q1 2026 and Q2 2026 submitted on 2026-11-27, respectively 283, 196 and 105 calendar days after the standard SEC deadline benchmarks. This is not a legal conclusion about the filer's obligation for each period; its threshold-trigger history has not been adjudicated. One accession (0001717977-26-000005) remains unresolved.
 
 Keep reporting period and first-seen/public-availability as separate clocks. A late original report must not be treated as a current-quarter portfolio change. No holdings or units were normalized.
 
