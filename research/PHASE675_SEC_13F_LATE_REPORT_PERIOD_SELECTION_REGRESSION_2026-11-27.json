@@ -1,0 +1,59 @@
+{
+  "phase": 675,
+  "title": "SEC 13F late-filing and latest report-period selection regression",
+  "research_date_local": "2026-11-27",
+  "execution_date_utc": "2026-11-28",
+  "branch": "phase675-13f-latest-report-period-selector",
+  "base_branch": "phase613-sec-13f-legal-dissemination-floor",
+  "disposition": "OFFLINE_SELECTOR_ADDED_ACTIONS_VALIDATION_PENDING",
+  "source_context": {
+    "source_run_id": 46084129349,
+    "new_metadata_accessions": 4,
+    "holdings_xml_downloaded": 0,
+    "holdings_rows_downloaded": 0,
+    "ironoak_late_original_report_periods": [
+      "2025-12-31",
+      "2026-03-31",
+      "2026-06-30"
+    ],
+    "ironoak_latest_known_report_period": "2026-09-30",
+    "late_filings_date": "2026-11-27",
+    "newer_period_filing_date": "2026-11-06",
+    "ams_capital_report_period": "2026-09-30"
+  },
+  "implementation": {
+    "function": "select_latest_holdings_period",
+    "module": "research/phase48_sec_13f_asof_amendment_state_machine.py",
+    "selection_key": "report_period",
+    "filing_date_used_as_selection_key": false,
+    "blocked_latest_fallback": false,
+    "notice_treated_as_zero_portfolio": false,
+    "historical_gaps_preserved": true,
+    "pending_calendar_preserved": true
+  },
+  "tests": {
+    "added": 8,
+    "names": [
+      "late_originals_for_older_periods_do_not_displace_latest_report_period",
+      "late_restatement_of_older_period_updates_history_not_latest_snapshot",
+      "blocked_latest_period_never_falls_back_to_older_holdings",
+      "newer_13f_nt_notice_warns_without_becoming_zero_portfolio",
+      "older_blocked_period_is_a_historical_gap_not_a_newer_snapshot",
+      "notice_without_any_public_holdings_is_not_a_zero_portfolio",
+      "calendar_gap_blocks_latest_period_selection",
+      "duplicate_manager_report_period_input_fails_closed"
+    ],
+    "github_actions_status": "PENDING"
+  },
+  "research_controls": {
+    "signal_eligible": false,
+    "alpha_claim": false,
+    "return_test": false,
+    "oos_test": false,
+    "bootstrap": false,
+    "loo": false,
+    "holdout_used": false,
+    "strategy_changed": false,
+    "data_spend_usd": 0
+  }
+}
