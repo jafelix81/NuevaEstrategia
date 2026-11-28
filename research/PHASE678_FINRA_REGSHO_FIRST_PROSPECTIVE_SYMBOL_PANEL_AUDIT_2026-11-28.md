@@ -11,6 +11,7 @@
 - Offline regression ran **65 tests**, all passing.
 - The poll requested trade dates 2026-11-27, 11-26, 11-25, 11-24, 11-23, 11-20, 11-19 and 11-18. Only the 2026-11-27 file generated a new first-seen event in this run; historical observations were not backdated or promoted.
 - The run committed the append-only panel to `main`. The resulting HEAD is the commit above.
+- **Schedule drift:** the workflow declares weekday polls at 22:30 and 23:30 UTC, but this scheduled run started at 04:05:39 UTC on 2026-11-28. The run record does not expose which nominal slot generated it, so the observed start is roughly 4h35–5h35 later than those slots. No manual dispatch or rerun occurred. Treat this as a real capture-cadence risk; the poll interval does not certify the file's actual publication time.
 
 ## 2. First-seen symbol panel
 
