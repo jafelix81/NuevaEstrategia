@@ -1,0 +1,137 @@
+{
+  "phase": 676,
+  "audit_cutoff_utc": "2026-11-28T02:46:00Z",
+  "repository": "jafelix81/NuevaEstrategia",
+  "main_head": "5a85dcc2ff90d92c277f8544642d4c69e4b7e97d",
+  "actions": {
+    "total_runs": 8405,
+    "latest_100": {
+      "success": 79,
+      "failure": 17,
+      "cancelled": 4,
+      "active": 0
+    }
+  },
+  "repository_inventory": {
+    "branches": 422,
+    "open_pull_requests": 86
+  },
+  "form4_run": {
+    "run_id": 46099559273,
+    "conclusion": "success",
+    "artifact_id": 15244348107,
+    "new_unique_accessions": 156,
+    "canonical_issuer_events": 156,
+    "form4a_new_accessions": 0,
+    "atom_updated_latest_utc": "2026-11-28T02:32:43Z",
+    "page_received_upper_bound_utc": "2026-11-28T02:45:03Z",
+    "bounded_metadata_only": 156,
+    "public_availability_certified": 0,
+    "research_observation_eligible": 0,
+    "signal_eligible": 0,
+    "xml_or_text_downloaded_by_collector": false
+  },
+  "entity_reconciliation": {
+    "entity_observations_total": 353,
+    "candidate_entity_occurrences": 351,
+    "watermark_boundary_observations": 2,
+    "unique_accessions": 156,
+    "issuer_rows": 156,
+    "reporting_owner_occurrences": 195,
+    "distinct_issuer_ciks": 86,
+    "distinct_reporting_owner_ciks": 180,
+    "one_reporting_owner_filings": 149,
+    "multiple_reporting_owner_filings": 7,
+    "missing_issuer": 0,
+    "multiple_issuer_cik_accessions": 0,
+    "unknown_roles": 0,
+    "quarantined_accessions": 0,
+    "path_entity_cik_mismatches": 0,
+    "exact_duplicate_entity_key_groups": 0,
+    "legitimate_multi_entity_accessions_split_across_pages": 2,
+    "accession_prefix_equals_issuer_cik": 36
+  },
+  "backfills": {
+    "transaction_details": {
+      "accessions_parsed": 10,
+      "rows_appended": 32,
+      "parse_errors": 0,
+      "remaining_bounded_accessions": 3614
+    },
+    "owner_identity": {
+      "accessions_parsed": 10,
+      "owner_rows_appended": 12,
+      "single_owner_accessions": 9,
+      "multi_owner_accessions": 1,
+      "parse_errors": 0,
+      "remaining_bounded_accessions": 20,
+      "transaction_line_attribution_verified": false
+    },
+    "footnotes": {
+      "accessions_parsed": 10,
+      "references_appended": 29,
+      "parse_errors": 0,
+      "remaining_accessions": 30
+    }
+  },
+  "crosswalk": {
+    "proposed_sale_matches": 17,
+    "distinct_form4_accessions": 16,
+    "distinct_issuers": 12,
+    "distinct_reporting_owners": 16,
+    "form4_sale_rows_considered": 96,
+    "multi_owner_accessions_quarantined": 9,
+    "ambiguous_transaction_reuse_quarantined": 3,
+    "missing_form144_acceptance_clocks": 2,
+    "signal_eligible_matches": 0,
+    "historical_f80_membership_verified": false,
+    "intraday_execution_time_known": false
+  },
+  "other_sources": {
+    "sec_13f": {
+      "run_id": 46084129349,
+      "new_metadata_accessions": 4,
+      "holdings_downloaded": false,
+      "signal_eligible": 0
+    },
+    "finra_regsho": {
+      "run_id": 45939887443,
+      "http200_files": 7,
+      "duplicate_symbols": 14,
+      "quarantined_row_occurrences": 28,
+      "eligible_first_seen": 0
+    },
+    "cftc_tff": {
+      "run_id": 45939298160,
+      "total_rows": 3043,
+      "new_reports_or_revisions": 0,
+      "signal_eligible_historical_rows": 0
+    },
+    "sec_13dg": {
+      "run_id": 45988473657,
+      "offline_regression": "success",
+      "live_sample": "skipped"
+    },
+    "options": {
+      "new_actions_run_in_latest_100": false,
+      "license_and_vintage_gates": "unresolved"
+    }
+  },
+  "phase675": {
+    "pr": 262,
+    "draft": true,
+    "base_pr": 230,
+    "latest_validation_tests_passed": 22,
+    "merged": false
+  },
+  "strategy": {
+    "baseline": "F80_TOP20_PARTIAL50_BASELINE_C20",
+    "frozen": true,
+    "new_signals": 0,
+    "alpha_incremental_demonstrated": false,
+    "oos_results": 0,
+    "bootstrap_loo_results": 0,
+    "holdout_used": false,
+    "data_spend_usd": 0
+  }
+}
