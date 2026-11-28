@@ -1,0 +1,243 @@
+{
+  "phase": 680,
+  "audit_date_utc": "2026-11-28",
+  "repository_base_head": "32f993f6a2846e4022e10de4059ccf7f032d9c43",
+  "filing": {
+    "cik": "0001717977",
+    "accession": "0001717977-26-000005",
+    "form": "13F-HR",
+    "filed_date": "2026-11-27",
+    "accepted_et": "2026-11-27 14:32:31",
+    "report_date": "2026-09-30",
+    "manager": "AMS Capital Ltda",
+    "information_table_entry_total": 15,
+    "cover_page_value_total_usd": 289276,
+    "cover_page_value_total_unit": "nearest dollar",
+    "information_table_row_value_sum_usd": 289276,
+    "filing_detail_url": "https://www.sec.gov/Archives/edgar/data/1717977/000171797726000005/0001717977-26-000005-index.html",
+    "rendered_cover_url": "https://www.sec.gov/Archives/edgar/data/1717977/000171797726000005/xslForm13F_X02/primary_doc.xml",
+    "rendered_information_table_url": "https://www.sec.gov/Archives/edgar/data/1717977/000171797726000005/xslForm13F_X02/FILEAMS09302026V1.xml",
+    "raw_information_table_xml_url": "https://www.sec.gov/Archives/edgar/data/1717977/000171797726000005/FILEAMS09302026V1.xml",
+    "raw_information_table_xml_bytes_as_listed_by_sec": 8610,
+    "raw_xml_downloaded": false,
+    "raw_xml_sha256": null
+  },
+  "sec_rounding_rule": {
+    "effective_date": "2023-01-03",
+    "nearest_dollar_required": true,
+    "source": "https://www.sec.gov/rules-regulations/staff-guidance/frequently-asked-questions-about-form-13f",
+    "question": 36
+  },
+  "methodology": {
+    "formula": "implied_price = filed_value * scale_factor / shares",
+    "tested_scale_factors": [
+      1,
+      1000
+    ],
+    "tolerance_abs_relative_error_pct": 0.5,
+    "reference_date": "2026-09-30",
+    "reference_price_basis": "unadjusted daily close / close adjusted for splits only; not dividend-adjusted close",
+    "references": "secondary historical-price pages; not an approved production price panel",
+    "manual_full_table_screen": true,
+    "existing_phase671_detector_scope": "COMMON STOCK / COM only; eight rows outside that narrow class scope were manually reconciled but not admitted by the detector"
+  },
+  "results": {
+    "rows_screened": 15,
+    "rows_with_same_date_close": 15,
+    "factor_1000_rows_within_tolerance": 15,
+    "factor_1000_consensus_fraction": 1,
+    "factor_1000_median_abs_relative_error_pct": 0.0010397,
+    "factor_1000_max_abs_relative_error_pct": 0.0055089266,
+    "factor_1_rows_within_tolerance": 0,
+    "factor_1_median_abs_relative_error_pct": 99.89999975,
+    "sum_filed_values_times_1000_usd": 289276000,
+    "sum_shares_times_reference_close_usd": 289275024.3,
+    "aggregate_difference_usd": 975.7,
+    "aggregate_abs_relative_difference_pct": 0.0003372903,
+    "classification": "LEGACY_THOUSANDS_CANDIDATE",
+    "normalization_applied": false,
+    "production_parser_changed": false,
+    "trading_signal_eligible": false
+  },
+  "rows": [
+    {
+      "ticker": "AMZN",
+      "cusip": "023135106",
+      "title_of_class": "COM",
+      "value": 38015,
+      "shares": 152578,
+      "close": 249.15,
+      "implied_price_factor_1000": 249.151254,
+      "abs_relative_error_pct": 0.000503,
+      "price_source": "https://finance.yahoo.com/quote/AMZN/history/"
+    },
+    {
+      "ticker": "ASML",
+      "cusip": "N07059210",
+      "title_of_class": "N Y REGISTRY SHS",
+      "value": 17450,
+      "shares": 9632,
+      "close": 1811.67,
+      "implied_price_factor_1000": 1811.669435,
+      "abs_relative_error_pct": 0.000031,
+      "price_source": "https://www.tipranks.com/stocks/asml/historical-prices"
+    },
+    {
+      "ticker": "CPNG",
+      "cusip": "22266T109",
+      "title_of_class": "CL A",
+      "value": 8914,
+      "shares": 642657,
+      "close": 13.87,
+      "implied_price_factor_1000": 13.870541,
+      "abs_relative_error_pct": 0.003898,
+      "price_source": "https://ca.finance.yahoo.com/quote/CPNG/history/"
+    },
+    {
+      "ticker": "FICO",
+      "cusip": "303250104",
+      "title_of_class": "COM",
+      "value": 9544,
+      "shares": 16109,
+      "close": 592.47,
+      "implied_price_factor_1000": 592.46384,
+      "abs_relative_error_pct": 0.00104,
+      "price_source": "https://au.finance.yahoo.com/quote/FICO/history/"
+    },
+    {
+      "ticker": "GOOGL",
+      "cusip": "02079K305",
+      "title_of_class": "CAP STK CL A",
+      "value": 32618,
+      "shares": 94798,
+      "close": 344.08,
+      "implied_price_factor_1000": 344.078989,
+      "abs_relative_error_pct": 0.000294,
+      "price_source": "https://finance.yahoo.com/quote/GOOGL/history/"
+    },
+    {
+      "ticker": "IVV",
+      "cusip": "464287200",
+      "title_of_class": "CORE S&P500 ETF",
+      "value": 50318,
+      "shares": 65702,
+      "close": 765.85,
+      "implied_price_factor_1000": 765.851877,
+      "abs_relative_error_pct": 0.000245,
+      "price_source": "https://es-us.finanzas.yahoo.com/quote/IVV/history/"
+    },
+    {
+      "ticker": "META",
+      "cusip": "30303M102",
+      "title_of_class": "CL A",
+      "value": 11378,
+      "shares": 15690,
+      "close": 725.18,
+      "implied_price_factor_1000": 725.175271,
+      "abs_relative_error_pct": 0.000652,
+      "price_source": "https://stockanalysis.com/stocks/meta/history/"
+    },
+    {
+      "ticker": "MSFT",
+      "cusip": "594918104",
+      "title_of_class": "COM",
+      "value": 25021,
+      "shares": 48783,
+      "close": 512.9,
+      "implied_price_factor_1000": 512.904085,
+      "abs_relative_error_pct": 0.000797,
+      "price_source": "https://es.finance.yahoo.com/quote/MSFT/history/"
+    },
+    {
+      "ticker": "NU",
+      "cusip": "G6683N103",
+      "title_of_class": "ORD SHS CL A",
+      "value": 13527,
+      "shares": 1068474,
+      "close": 12.66,
+      "implied_price_factor_1000": 12.660112,
+      "abs_relative_error_pct": 0.000881,
+      "price_source": "https://finance.yahoo.com/quote/NU/history/"
+    },
+    {
+      "ticker": "Q",
+      "cusip": "74743L100",
+      "title_of_class": "COMMON STOCK",
+      "value": 6800,
+      "shares": 54082,
+      "close": 125.74,
+      "implied_price_factor_1000": 125.734995,
+      "abs_relative_error_pct": 0.00398,
+      "price_source": "https://finance.yahoo.com/quote/Q/history/"
+    },
+    {
+      "ticker": "SE",
+      "cusip": "81141R100",
+      "title_of_class": "SPONSORD ADS",
+      "value": 8884,
+      "shares": 91254,
+      "close": 97.36,
+      "implied_price_factor_1000": 97.354637,
+      "abs_relative_error_pct": 0.005509,
+      "price_source": "https://www.macroaxis.com/sea-stock-price-history"
+    },
+    {
+      "ticker": "SPGI",
+      "cusip": "78409V104",
+      "title_of_class": "COM",
+      "value": 11532,
+      "shares": 29233,
+      "close": 394.47,
+      "implied_price_factor_1000": 394.485684,
+      "abs_relative_error_pct": 0.003976,
+      "price_source": "https://au.finance.yahoo.com/quote/SPGI/history/"
+    },
+    {
+      "ticker": "TDG",
+      "cusip": "893641100",
+      "title_of_class": "COM",
+      "value": 8043,
+      "shares": 7429,
+      "close": 1082.6,
+      "implied_price_factor_1000": 1082.649078,
+      "abs_relative_error_pct": 0.004533,
+      "price_source": "https://finance.yahoo.com/quote/TDG/history/"
+    },
+    {
+      "ticker": "TSM",
+      "cusip": "874039100",
+      "title_of_class": "SPONSORED ADS",
+      "value": 35982,
+      "shares": 78874,
+      "close": 456.19,
+      "implied_price_factor_1000": 456.195958,
+      "abs_relative_error_pct": 0.001306,
+      "price_source": "https://www.quiverquant.com/stock/TSM/historical-prices/"
+    },
+    {
+      "ticker": "V",
+      "cusip": "92826C839",
+      "title_of_class": "COM CL A",
+      "value": 11250,
+      "shares": 31309,
+      "close": 359.33,
+      "implied_price_factor_1000": 359.321601,
+      "abs_relative_error_pct": 0.002337,
+      "price_source": "https://chartexchange.com/symbol/nyse-v/historical/"
+    }
+  ],
+  "strategy": {
+    "signals_promoted": 0,
+    "incremental_alpha_demonstrated": false,
+    "new_oos_bootstrap_loo": false,
+    "f80_frozen": true,
+    "spend_usd": 0
+  },
+  "limitations": [
+    "The SEC rendered primary filing views were inspected, but the raw XML bytes were not downloaded or hashed.",
+    "The 15-row price screen uses secondary historical-price references; it is a retrospective data-integrity check, not a production price panel.",
+    "Security-class/CUSIP-to-ticker mapping was manually reviewed from the filed issuer/class descriptions and is not a point-in-time security-master certification.",
+    "The existing Phase 671 detector remains deliberately restricted to COM and COMMON STOCK; this full-table screen does not change its scope or thresholds.",
+    "A 13F is a delayed long-holdings disclosure as of the report date, not a contemporaneous transaction tape or a complete portfolio including shorts."
+  ]
+}
