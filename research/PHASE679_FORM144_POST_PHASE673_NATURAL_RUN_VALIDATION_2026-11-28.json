@@ -1,0 +1,99 @@
+{
+  "phase": 679,
+  "audit_cutoff_utc": "2026-11-28T05:00:10Z",
+  "workflow_run_id": 46110032075,
+  "workflow_run_url": "https://github.com/jafelix81/NuevaEstrategia/actions/runs/46110032075",
+  "main_head_after_capture": "3f7a6cc4968b372e7629d91ce4b79682fa54f12b",
+  "phase673_pr": 261,
+  "phase673_merged_at_utc": "2026-11-28T00:38:02Z",
+  "offline_tests": {
+    "passed": 103,
+    "failed": 0
+  },
+  "feeds": {
+    "144": {
+      "page_entries": 50,
+      "new_accessions": 0,
+      "pagination_complete": true
+    },
+    "144/A": {
+      "page_entries": 2,
+      "new_accessions": 0,
+      "pagination_complete": true
+    }
+  },
+  "poll": {
+    "feed_observation_rows_appended": 52,
+    "new_event_count": 0,
+    "new_feed_entry_count": 0,
+    "new_xml_resolved_count": 0,
+    "new_candidate_issuer_matches": 0,
+    "interval_lower_bound_utc": "2026-11-27T22:59:22Z",
+    "receipt_upper_bound_utc": "2026-11-28T04:59:56Z",
+    "possible_feed_window_gap": false,
+    "research_observation_eligible_count": 0,
+    "signal_eligible_count": 0
+  },
+  "structured_detail_backfill": {
+    "accessions_parsed": 10,
+    "detail_rows_appended": 46,
+    "parse_errors": 0,
+    "unresolved": 0,
+    "source_hash_mismatches": 0,
+    "remaining_accessions": 128
+  },
+  "ledger": {
+    "event_rows": 1104,
+    "unique_event_accessions": 1104,
+    "structured_detail_accessions": 976,
+    "structured_detail_rows": 6360,
+    "event_accessions_without_structured_details": 128,
+    "structured_accessions_without_event": 0,
+    "parse_error_rows": 0,
+    "issuer_ciks": 496,
+    "events_csv_sha256": "bf85616e964e81cda377c44e1c4211afdcc187461e9c09d6e4278765f23fc439",
+    "sale_details_csv_sha256": "0f49b33322b35776240f4b754b9c7caecc8427802c32e57f98c2a257d25047d6"
+  },
+  "pit_plan_date_join": {
+    "research_observation_eligible_accessions": 908,
+    "initial_baseline_no_lower_bound_accessions": 68,
+    "formal_plan_date_accessions": 389,
+    "distinct_formal_plan_adoption_dates": 146,
+    "formal_plan_date_and_research_observation_eligible_accessions": 352,
+    "public_availability_certified_accessions": 0,
+    "signal_eligible_accessions": 0
+  },
+  "form144_form4_crosswalk": {
+    "proposed_sale_matches": 17,
+    "matched_form4_accessions": 16,
+    "ambiguous_transaction_reuse_quarantined": 3,
+    "multi_owner_accessions_quarantined": 9,
+    "unresolved_form144_acceptance_clocks": 2,
+    "signal_eligible_matches": 0
+  },
+  "artifacts": [
+    {
+      "id": 15249780062,
+      "name": "phase403-sec-form144-first-seen"
+    },
+    {
+      "id": 15249651063,
+      "name": "phase665-form144-accession-pit-join"
+    },
+    {
+      "id": 15249551296,
+      "name": "phase560-form144-10b5-current-refresh"
+    },
+    {
+      "id": 15248998781,
+      "name": "phase565-form144-10b5-post-capture"
+    }
+  ],
+  "strategy": {
+    "signals_promoted": 0,
+    "incremental_alpha_demonstrated": false,
+    "new_oos_bootstrap_loo": false,
+    "f80_frozen": true
+  },
+  "spend_usd": 0
+}
